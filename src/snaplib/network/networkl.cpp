@@ -262,7 +262,7 @@ static bool polygon_criterion_match( const criterion &c, station *stn )
 static void delete_polygon_criterion( const polygon_criterion &poly )
 {
     if( poly.polygon ) delete_polygon( poly.polygon );
-    if( poly.conv ) check_free( poly.conv );
+    delete poly.conv;
     if( poly.cs ) delete poly.cs;
 }
 
@@ -659,12 +659,12 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             else
             {
                 isgeo=is_geodetic(cs);
-                conv=(coord_conversion *)check_malloc( sizeof (coord_conversion) );
-                if( define_coord_conversion_epoch( conv, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK )
+                conv=new coord_conversion( nw->geosys, cs, DEFAULT_CRDSYS_EPOCH );
+                if( ! conv->valid )
                 {
                     sprintf(errmess,"Cannot use WKT coordinate system %.20s in %s option in %s",
                             crdsys.c_str(),std::string(*field).c_str(),src.c_str());
-                    check_free( conv );
+                    delete conv;
                     delete cs;
                     break;
                 }
@@ -675,7 +675,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             {
                 sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",
                         pgnfile.c_str(),src.c_str());
-                if( conv ) check_free( conv );
+                delete conv;
                 if( cs ) delete cs;
                 break;
             }

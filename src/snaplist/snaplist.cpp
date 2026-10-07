@@ -1183,8 +1183,8 @@ int main( int argc, char *argv[] )
        and projection bearings */
 
     xyzcs = related_coordsys( net->crdsys, CSTP_CARTESIAN );
-    define_coord_conversion( &to_xyz, net->crdsys, xyzcs );
-    define_coord_conversion( &from_xyz, xyzcs, net->crdsys );
+    to_xyz = coord_conversion( net->crdsys, xyzcs );
+    from_xyz = coord_conversion( xyzcs, net->crdsys );
     el = net->crdsys->rf->el;
 
     get_network_topocentre( net, &lat, &lon );

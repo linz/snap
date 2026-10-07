@@ -134,14 +134,12 @@ static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd
         ghrfd->irfconv=ghrfd->rfconv+1;
         ghrfd->rfcs=new coordsys( rf->code, rf->name, CSTP_GEODETIC, rf, nullptr );
         ghrfd->rfcs->ownsrf=0;
-        ghrfd->loadsts=define_coord_conversion_epoch( ghrfd->rfconv, 
-                ghrfd->rfcs, get_geoid_coordsys( ghrfd->gd ),
-                DEFAULT_CRDSYS_EPOCH );
+        *ghrfd->rfconv=coord_conversion( ghrfd->rfcs, get_geoid_coordsys( ghrfd->gd ), DEFAULT_CRDSYS_EPOCH );
+        ghrfd->loadsts=ghrfd->rfconv->valid ? OK : INVALID_DATA;
         if( ghrfd->loadsts == OK )
         {
-            ghrfd->loadsts=define_coord_conversion_epoch( ghrfd->irfconv, 
-                get_geoid_coordsys( ghrfd->gd ), ghrfd->rfcs, 
-                DEFAULT_CRDSYS_EPOCH );
+            *ghrfd->irfconv=coord_conversion( get_geoid_coordsys( ghrfd->gd ), ghrfd->rfcs, DEFAULT_CRDSYS_EPOCH );
+            ghrfd->loadsts=ghrfd->irfconv->valid ? OK : INVALID_DATA;
         }
     }
     return ghrfd->loadsts;

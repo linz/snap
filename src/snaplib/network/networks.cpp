@@ -103,7 +103,8 @@ int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgt
                 }
             }
 
-            sts=define_ellipsoidal_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch );
+            cconv=coord_conversion( nw->geosys, geosys, epoch, true );
+            sts=cconv.valid ? OK : INVALID_DATA;
 
             /* Trial conversion to check coordinates can be converted */
 
@@ -116,7 +117,7 @@ int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgt
 
             if( sts != OK )
             {
-                if( cconv.errmsg[0] )
+                if( ! cconv.errmsg.empty() )
                 {
                     errmsg=cconv.errmsg;
                 }
@@ -144,8 +145,8 @@ int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgt
 
     nw->crdsys = copy_coordsys( cs );
     nw->geosys = geosys;
-    define_coord_conversion( &nw->ccgeo, nw->crdsys, nw->geosys );
-    define_coord_conversion( &nw->ccnet, nw->geosys, nw->crdsys );
+    nw->ccgeo=coord_conversion( nw->crdsys, nw->geosys );
+    nw->ccnet=coord_conversion( nw->geosys, nw->crdsys );
 
     nw->crdsysdef = coordsys_load_code(cs);
 

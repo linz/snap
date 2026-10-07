@@ -296,7 +296,6 @@ struct coordsys
 
 /* Definition of a coordinate conversion */
 
-#define CONVERRSIZE 256
 #define CONVMAXRF 10
 
 struct coord_conversion_rf
@@ -307,25 +306,63 @@ struct coord_conversion_rf
     char need_xyz;        /* Need geocentric at end of step (next rf has different ellipsoid ) */
 };
 
+/// A conversion between two coordinate systems.  A default constructed
+/// conversion is not valid.  Redefine one by assigning a new conversion to it.
 struct coord_conversion
 {
-    coordsys *from;    /* Source reference frame */
-    coordsys *to;      /* Target reference frame */
-    char     valid;    /* Flags whether a conversion is possible */
-    double   epochconv; /* Conversion epoch */
-    char     needsepoch; /* Flags whether the conversion needs an epoch defined */
-    char     from_prj; /* Need projection of from system */
-    char     to_prj;   /* Need to convert coords back to projection */
-    char     from_geoc; /* Input system is geocentric */
-    char     to_geoc;   /* Output system is geocentric */
-    char     need_xyz;  /* Need xyz before first reference frame tfm */
-    char     errmsg[CONVERRSIZE]; /* Last error message */;
-    coord_conversion_rf crf[CONVMAXRF]; /* Conversion rf steps */
-    int      ncrf;      /* Number of steps used */
-    vdatum_func *hrf[CONVMAXRF]; /* Vertical datum functions */
-    int      nhrf_from;  /* Number of vertical datum functions from source */
-    int      nhrf_to;   /* Number of vertical datum functions to target */
+    coordsys *from=nullptr;    ///< Source reference frame
+    coordsys *to=nullptr;      ///< Target reference frame
+    char     valid=0;          ///< Flags whether a conversion is possible
+    double   epochconv=0.0;    ///< Conversion epoch
+    char     needsepoch=0;     ///< Flags whether the conversion needs an epoch defined
+    char     from_prj=0;       ///< Need projection of from system
+    char     to_prj=0;         ///< Need to convert coords back to projection
+    char     from_geoc=0;      ///< Input system is geocentric
+    char     to_geoc=0;        ///< Output system is geocentric
+    char     need_xyz=0;       ///< Need xyz before first reference frame tfm
+    std::string errmsg;        ///< Last error message
+    coord_conversion_rf crf[CONVMAXRF]={}; ///< Conversion rf steps
+    int      ncrf=0;           ///< Number of steps used
+    vdatum_func *hrf[CONVMAXRF]={}; ///< Vertical datum functions
+    int      nhrf_from=0;      ///< Number of vertical datum functions from source
+    int      nhrf_to=0;        ///< Number of vertical datum functions to target
 
+    coord_conversion() = default;
+
+    /// Defines the conversion from one coordinate system to another.
+    /// The epoch is the date at which the conversion is applied (it only
+    /// applies for conversions involving two different deformation models,
+    /// where it is the epoch at which the reference frame transformation is
+    /// applied).  Check valid and errmsg to see whether it is possible.
+    coord_conversion(
+        coordsys *fromCoordsys,         ///< source coordinate system
+        coordsys *toCoordsys,           ///< target coordinate system
+        double convepoch=0.0,           ///< conversion epoch
+        bool ellipsoidal=false );       ///< true to convert ellipsoidal coordinates, ignoring vertical datums
+
+private:
+    /// The conversion epoch, taken from the reference frames' deformation
+    /// epochs if convepoch is undefined and they agree.
+    double _defaultEpoch( double convepoch ) const;
+
+    /// Finds the common base reference frame by following the reference
+    /// frame chains from the source and target systems.  Returns false if
+    /// there is none.
+    bool _findCommonReferenceFrame(
+        int &nfrom,               ///< number of steps up from the source reference frame
+        int &nto,                 ///< number of steps up from the target reference frame
+        bool &changeepoch ) const; ///< true if the common frames have different deformation epochs
+
+    /// Defines the reference frame steps of the conversion.
+    void _defineReferenceFrameSteps(
+        int nfrom,                ///< number of steps up from the source reference frame
+        int nto,                  ///< number of steps up from the target reference frame
+        bool changeepoch,         ///< true if the common frames have different deformation epochs
+        double convepoch );       ///< conversion epoch
+
+    /// Defines the vertical datum steps of the conversion.
+    void _defineVerticalDatumSteps(
+        bool refFrameChanges );   ///< true if the conversion has reference frame steps or changes ellipsoid
 };
 
 /*====================================================================*/
@@ -538,23 +575,6 @@ int proj_to_geog( projection *prj, double easting, double northing,
 /* may be NULL.  Input are treated as 0,0,0 - output are ignored.      */
 /* If the input or output coordinate systems are geocentric, then the  */
 /* gravitational components are ignored.                               */
-
-int define_coord_conversion( coord_conversion *conv,
-                             coordsys *from, coordsys *to );
-
-/* Define coordinate conversion, specifying the epoch at which the      */
-/* the conversion will be applied (only applies for conversions        */
-/* involving two different deformation models, it is the epoch at      */
-/* which the reference frame transformation is applied).  Can be used  */
-/* to convert where deformation models have different conversion epochs */
-
-int define_coord_conversion_epoch( coord_conversion *conv,
-                                   coordsys *from, coordsys *to, double convepoch );
-
-/* Version converts ellipsoidal coordinates - ignores vertical datum */
-
-int define_ellipsoidal_coord_conversion_epoch( coord_conversion *conv,
-                                   coordsys *from, coordsys *to, double convepoch );
 
 int convert_coords( coord_conversion *conv,
                     double *fenh, double *fexu,

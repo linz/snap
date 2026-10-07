@@ -54,8 +54,9 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     coord_conversion to_geoid;
     coord_conversion from_geoid;
 
-    if( define_ellipsoidal_coord_conversion_epoch( &to_geoid, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK ||
-            define_ellipsoidal_coord_conversion_epoch( &from_geoid, cs, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
+    to_geoid = coord_conversion( nw->geosys, cs, DEFAULT_CRDSYS_EPOCH, true );
+    from_geoid = coord_conversion( cs, nw->geosys, DEFAULT_CRDSYS_EPOCH, true );
+    if( ! to_geoid.valid || ! from_geoid.valid )
     {
         handle_error( INVALID_DATA,
                       "Cannot relate vertical datum and network coordinate systems",NO_MESSAGE );
@@ -173,8 +174,9 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
     coord_conversion to_geoid;
     coord_conversion from_geoid;
 
-    if( define_ellipsoidal_coord_conversion_epoch( &to_geoid, nw->geosys, geoid_crdsys, DEFAULT_CRDSYS_EPOCH ) != OK ||
-            define_ellipsoidal_coord_conversion_epoch( &from_geoid, geoid_crdsys, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
+    to_geoid = coord_conversion( nw->geosys, geoid_crdsys, DEFAULT_CRDSYS_EPOCH, true );
+    from_geoid = coord_conversion( geoid_crdsys, nw->geosys, DEFAULT_CRDSYS_EPOCH, true );
+    if( ! to_geoid.valid || ! from_geoid.valid )
     {
         handle_error( INVALID_DATA,
                       "Cannot relate geoid and network coordinate systems",NO_MESSAGE );

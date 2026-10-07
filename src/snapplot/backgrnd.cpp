@@ -213,7 +213,11 @@ static void load_background_file( const background_file &bf )
         {
             if( !got_conversion )
             {
-                if( !cs || define_coord_conversion( &cnv, cs, csp ) != OK )
+                if( cs )
+                {
+                    cnv = coord_conversion( cs, csp );
+                }
+                if( !cs || !cnv.valid )
                 {
                     bad_coordsys = 1;
                     continue;

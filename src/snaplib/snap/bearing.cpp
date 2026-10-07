@@ -69,8 +69,6 @@ void clear_bproj_list( void )
 
 static int create_bproj( std::string_view name )
 {
-    coord_conversion cc;
-
     /* See if coordinate system is valid and can be converted to the
        network coordinate system */
 
@@ -81,7 +79,7 @@ static int create_bproj( std::string_view name )
 
     if( ! is_projection( prjsys ) ||
             (use_datum_trans &&
-             define_coord_conversion( &cc, net->geosys, prjsys ) != OK) )
+             ! coord_conversion( net->geosys, prjsys ).valid) )
     {
         delete prjsys;
         return 0;
@@ -94,7 +92,7 @@ static int create_bproj( std::string_view name )
                     []( unsigned char ch ) { return std::toupper( ch ); } );
     bp->dtmtrans=use_datum_trans;
     bp->prjsys = prjsys;
-    define_coord_conversion( &(bp->prjconv), net->geosys, prjsys );
+    bp->prjconv = coord_conversion( net->geosys, prjsys );
     bplist.push_back( std::move(bp) );
 
     return bproj_count();

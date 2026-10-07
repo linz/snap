@@ -1308,11 +1308,12 @@ static void setup_transformation( void )
         }
     }
 
-    if( define_coord_conversion_epoch( &cnv, input_cs, output_cs, conv_epoch ) != OK )
+    cnv = coord_conversion( input_cs, output_cs, conv_epoch );
+    if( ! cnv.valid )
     {
-        if( strlen(cnv.errmsg) > 0 )
+        if( ! cnv.errmsg.empty() )
         {
-            printf("%s\n",cnv.errmsg);
+            printf("%s\n",cnv.errmsg.c_str());
         }
         else
         {
@@ -1884,7 +1885,7 @@ static void report_conv_error( int sts )
     const char *em;
 
     em = sts == INCONSISTENT_DATA ? msg1 : msg2;
-    if( strlen(cnv.errmsg) > 0 ) em=cnv.errmsg;
+    if( ! cnv.errmsg.empty() ) em=cnv.errmsg.c_str();
     if (point_ids) { s1 = fp; s2 = id; }
     else s1 = s2 = bl;
     if (ask_coords) printf("%*s**** %s ****",

@@ -1459,7 +1459,7 @@ static int add_known_station( station *s )
 }
 
 
-static int confirm_fix( char *msg )
+static int confirm_fix( const std::string_view msg )
 {
     char response[80];
     char *c;
@@ -1467,7 +1467,7 @@ static int confirm_fix( char *msg )
     if( confirm_status == CONFIRM_QUIT ) return 0;
     for(;;)
     {
-        printf("%s? Y(es), N(o), Q(uit): ", msg);
+        printf("%.*s? Y(es), N(o), Q(uit): ", numeric_cast<int>(msg.size()), msg.data());
         fgets(response,80,stdin);
         for( c = response; *c && *c==' '; c++ ) {}
         switch (*c)
@@ -1520,7 +1520,11 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
         coordsys *temp;
         netcs = related_coordsys( net->crdsys, CSTP_GEODETIC );
         temp = load_coordsys( "ITRF2008" );
-        if( !temp|| define_coord_conversion(&toitrf,netcs,temp) != OK )
+        if( temp )
+        {
+            toitrf = coord_conversion( netcs, temp );
+        }
+        if( !temp || !toitrf.valid )
         {
             itrf = related_coordsys( net->crdsys, CSTP_CARTESIAN );
         }
@@ -1529,8 +1533,8 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
             itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
         if( temp ) delete temp;
-        define_coord_conversion( &toitrf, netcs, itrf );
-        define_coord_conversion( &tonet, itrf, netcs );
+        toitrf = coord_conversion( netcs, itrf );
+        tonet = coord_conversion( itrf, netcs );
         got_conversion = 1;
     }
 
@@ -1627,7 +1631,11 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
         coordsys *temp;
         netcs = related_coordsys( net->crdsys, CSTP_GEODETIC );
         temp = load_coordsys( "ITRF2008" );
-        if( !temp|| define_coord_conversion( &tonet, temp, netcs ) != OK )
+        if( temp )
+        {
+            tonet = coord_conversion( temp, netcs );
+        }
+        if( !temp || !tonet.valid )
         {
             itrf = related_coordsys( net->crdsys, CSTP_CARTESIAN );
         }
@@ -1636,7 +1644,7 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
             itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
         if( temp ) delete temp;
-        define_coord_conversion( &tonet, itrf, netcs );
+        tonet = coord_conversion( itrf, netcs );
         got_conversion = 1;
     }
 
@@ -2706,7 +2714,7 @@ static int add_stations( void )
 
     nnew = 0;
     csfrom = related_coordsys( net->crdsys, CSTP_GEODETIC );
-    define_coord_conversion( &cnv, net->crdsys, csfrom );
+    cnv = coord_conversion( net->crdsys, csfrom );
     geodetic = is_geodetic( net->crdsys );
 
     for(;;)

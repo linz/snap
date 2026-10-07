@@ -109,7 +109,8 @@ static int init_linzdef_deformation( void *deformation )
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
-    if( define_coord_conversion( &tovcs, net->geosys, vcs ) != OK )
+    tovcs = coord_conversion( net->geosys, vcs );
+    if( ! tovcs.valid )
     {
         sprintf(buf,"Cannot convert station coordinates to coordinate system %.20s of deformation model",
                 vcs->code.c_str());

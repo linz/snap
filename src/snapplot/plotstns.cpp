@@ -782,8 +782,11 @@ void init_plotstns( int adjusted )
         }
     }
 
-    if( ! plot_crdsys || ! csdata ||
-            define_coord_conversion( &cnv, csdata, plot_crdsys ) != OK )
+    if( plot_crdsys && csdata )
+    {
+        cnv = coord_conversion( csdata, plot_crdsys );
+    }
+    if( ! plot_crdsys || ! csdata || ! cnv.valid )
     {
         handle_error( FATAL_ERROR, "Unable to convert coordinates to plot projection",
                       NO_MESSAGE );
