@@ -392,17 +392,6 @@ void check_is_name_match()
     check( ! is_name_match("a1","a2"), "is_name_match: different digits" );
 }
 
-void check_copy_field()
-{
-    char buf[8];
-    copy_field( "abc", buf, sizeof(buf) );
-    check( std::string(buf)=="abc", "copy_field: fits with room to spare" );
-    copy_field( "abcdefgh", buf, sizeof(buf) );
-    check( std::string(buf)=="abcdefg", "copy_field: truncates without error when it doesn't fit" );
-    copy_field( "", buf, sizeof(buf) );
-    check( std::string(buf)=="", "copy_field: empty field" );
-}
-
 void check_read_remaining_text()
 {
     std::string value = "unchanged";
@@ -499,7 +488,6 @@ int main()
     check_parse_leading_long();
     check_compare_ignoring_case();
     check_is_name_match();
-    check_copy_field();
     check_read_remaining_text();
     check_read_whole_number_fields();
     check_read_angle_fields();

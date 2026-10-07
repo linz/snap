@@ -30,9 +30,9 @@ StatusType utlCreateLinzDef( hBinSrc blob, hLinzDefModel *def );
 
 StatusType utlReleaseLinzDef( hLinzDefModel def );
 
-StatusType utlSetLinzDefVersion( hLinzDefModel def, const char *version );
+StatusType utlSetLinzDefVersion( hLinzDefModel def, std::string_view version );
 
-StatusType utlLinzDefCoordSysDef( hLinzDefModel def, char ** crdsys );
+StatusType utlLinzDefCoordSysDef( hLinzDefModel def, std::string_view &crdsys );
 
 /* nTitle = 1 for name, 2 for description, 3 for version */
 

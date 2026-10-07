@@ -22,13 +22,16 @@
 #include <stdarg.h>
 #include <math.h>
 #include <time.h>
+#include <deque>
 #include <memory>
+#include <vector>
+
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_yield.h"
 #include "dbl4_utl_progress.h"
 #include "dbl4_utl_error.h"
-#include "dbl4_utl_alloc.h"
 
 #include "snap/stnadj.h"
 #include "network/network.h"
@@ -60,33 +63,25 @@ struct SDCStation
     float verror2;   /**< Square of the vertical error */
     float ctldist2;  /**< Square of distance to nearest control (fixed stn) */
 };
-typedef SDCStation *hSDCStation;
-
-/* SDCLine is the information required for relative accuracy tests */
-
-struct SDCLine
-{
-    float distance;  /**< Square of the length of the line */
-    float error;     /**< Square of semi-major of rel err ellipse -
-                        or SDC_COVAR_UNAVAILABLE if not yet computed */
-};
-typedef SDCLine *hSDCLine;
 
 /* SDCTestImp carries all the information for the relative accuracy test */
 
 struct RABlock
 {
-    int size;             /**< Size of block */
-    int alloc;            /**< Allocated from block */
-    unsigned char *data;  /**< Block memory */
-    struct RABlock *next;
+    int size;                               ///< Size of block
+    int alloc = 0;                          ///< Allocated from block
+    std::unique_ptr<unsigned char[]> data;  ///< Block memory, not initialised until a row is allocated from it
+
+    explicit RABlock( const int blockSize )
+        : size( blockSize ),
+          data( new unsigned char[blockSize] )
+    {
+    }
 };
-typedef RABlock *hRABlock;
 
 /* Forward declaration — full definition follows the KD-tree bundle types below,
    since SDCTestImp owns them via unique_ptr. */
 struct SDCTestImp;
-typedef SDCTestImp *hSDCTestImp;
 
 /* Nanoflann KD-tree adaptor over ECEF station positions.
    Indexed by SDC station number (0..nmark-1); uses station_ptr(net,...)->XYZ
@@ -164,14 +159,14 @@ struct SDC_CtlKDTreeBundle
    bundle types are complete (i.e. here, not at a forward-declaration site). */
 struct SDCTestImp
 {
-    hSDCTest sdc;      /**< The definition of the tests to apply */
-    hSDCStation stns;  /**< The list of stations to apply the tests to */
-    unsigned char **relstatus; /**< Array of arrays of status (forming lower triangle array) */
-    int *relcol0;              /**< Array of first used column of status array */
-    RABlock *relalloc;        /**< An linked list of relative accuracy array allocations */
-    RABlock *curalloc;        /**< Current being used relative accuracy array allocation */
+    SDCTest *sdc;      /**< The definition of the tests to apply */
+    std::vector<SDCStation> stns;  /**< The list of stations to apply the tests to */
+    std::vector<unsigned char *> relstatus; /**< Array of arrays of status (forming lower triangle array) */
+    std::vector<int> relcol0;              /**< Array of first used column of status array */
+    std::deque<RABlock> relalloc;  /**< Relative accuracy array allocations, a deque so rows keep their addresses */
+    size_t curalloc = 0;       /**< Index in relalloc of the allocation being used */
     int allocsize;             /**< Size used for each new block allocation */
-    int *lookup;       /**< Lookup from relative accuracy order to station order */
+    std::vector<int> lookup;   /**< Lookup from relative accuracy order to station order */
     float maxctldist2; /**< The maximum distance to nearest control squared */
     float maxerror2;   /**< The maximum squared semi-major axis of the error ellipse */
     float maxverror2;  /**< The maximum squared semi-major axis of the error ellipse */
@@ -278,37 +273,36 @@ struct SDCPairTestConfig {
 #define SDC_TEST_VRAS "VRAS" /*     Vertical relative accuracy pass/fail by approx calcs using abs accuracy (P/F) */
 #define SDC_TEST_VRAP "VRAP" /*     Vertical relative accuracy failed to passed station (F) */
 
-static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc );
-static void sdcReleaseTestImp( hSDCTestImp sdci );
-static StatusType sdcLoadSDCStations( hSDCTestImp sdci );
-static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nleft );
-static StatusType sdcFillCtlDistKDTree( hSDCTestImp sdci ); /* KD-tree helper for sdcFindNearestControl */
-static StatusType sdcFindNearestControl( hSDCTestImp sdci );
-static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
+static void sdcInitTestImp( SDCTestImp *sdci, SDCTest *sdc );
+static StatusType sdcLoadSDCStations( SDCTestImp *sdci );
+static StatusType sdcFindStationsForTest( SDCTestImp *sdci, int ntest, int *nleft );
+static StatusType sdcFillCtlDistKDTree( SDCTestImp *sdci ); /* KD-tree helper for sdcFindNearestControl */
+static StatusType sdcFindNearestControl( SDCTestImp *sdci );
+static StatusType sdcApplyAbsAccuracy( SDCTestImp *sdci, SDCOrderTest *test,
                                        int *nleft );
-static StatusType sdcCreateRelTest( hSDCTestImp sdci );
-static void sdcRAInitAllocRow( hSDCTestImp sdci );
-static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 );
-static unsigned char sdcTestPairAccuracy( hSDCTestImp sdci, hSDCTest sdc,
-    hSDCStation stni, hSDCStation stnj,
+static StatusType sdcCreateRelTest( SDCTestImp *sdci );
+static void sdcRAInitAllocRow( SDCTestImp *sdci );
+static unsigned char *sdcRAAllocRow( SDCTestImp *sdci, int row, int col0 );
+static unsigned char sdcTestPairAccuracy( SDCTestImp *sdci, SDCTest *sdc,
+    SDCStation *stni, SDCStation *stnj,
     int istni, int istnj, long sdcstni, long sdcstnj,
     double dist, char passi, char passj,
     const SDCPairTestConfig *cfg, char *needcovariances );
-static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest test );
-static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test );
-static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass );
-static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, 
+static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *test );
+static StatusType sdcApplyRelTest( SDCTestImp *sdci, SDCOrderTest *test );
+static StatusType sdcApplyRelTestPass( SDCTestImp *sdci, int *pnpass );
+static StatusType sdcApplyRelTestFail( SDCTestImp *sdci, SDCOrderTest *test, 
         int *pnfailacc, int *pnfailcount );
-static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int *pfailed );
-static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status );
-static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply );
-static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci );
-static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... );
-static void sdcWriteCompactLogHeader( hSDCTestImp sdci );
-static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2, 
+static StatusType sdcSeekRelTestFail( SDCTestImp *sdci, SDCOrderTest *test, int *pfailed );
+static void sdcSetRelTestStatus( SDCTestImp *sdci, int istn, char status );
+static StatusType sdcUpdateOrders( SDCTestImp *sdci, int itest, int apply );
+static StatusType sdcApplyDefaultOrder( SDCTestImp *sdci );
+static void sdcWriteLog( SDCTestImp *sdci, int level, const char *fmt, ... );
+static void sdcWriteCompactLogHeader( SDCTestImp *sdci );
+static void sdcWriteCompactLog( SDCTestImp *sdci, long stn1, long stn2, 
         const char *test, const char *status, double v1, double v2, const char *comment );
-static long sdcStationId( hSDCTestImp sdci, int istn );
-static void sdcTimeStamp( hSDCTestImp sdci, const char *status );
+static long sdcStationId( SDCTestImp *sdci, int istn );
+static void sdcTimeStamp( SDCTestImp *sdci, const char *status );
 
 /* nibble_get/nibble_set: pack two SDC_STS_* values per byte in the relstatus row
  * arrays, halving their memory footprint. data is the row's packed byte array.
@@ -328,96 +322,23 @@ static inline unsigned char nibble_get(const unsigned char *data, int k)
     return (data[k >> 1] >> ((k & 1) << 2)) & 0x0F;
 }
 
-/*************************************************************************
-** Function name: sdcCreateSDCTest
-**//**
-**    Routine allocates memory for an SDC test object
-**
-**  \param maxorder            The maximum number of orders in the
-**                             test.
-**
-**  \return                    Pointer to the object created.
-**
-**************************************************************************
-*/
-
-hSDCTest sdcCreateSDCTest( int maxorder )
+SDCOrderTest::SDCOrderTest( const IdType order, const std::string_view code )
+    : idOrder( order ),
+      scOrder( code )
 {
-    hSDCOrderTest tests, test;
-    hSDCTest sdc;
-    int i;
-
-    sdc = (hSDCTest) utlAlloc( sizeof(SDCTest) );
-    tests = (hSDCOrderTest) utlAlloc( maxorder * sizeof(SDCOrderTest) );
-
-    sdc->env = NULL;
-    sdc->nmark = 0;
-    sdc->norder = 0;
-    sdc->maxorder = maxorder;
-    sdc->loglevel = 0;
-    sdc->options = 0;
-    sdc->useKDTree = 0;
-    sdc->tests = tests;
-    sdc->idFailOrder = 0;
-    sdc->dblErrFactor = 3.0;
-    sdc->scFailOrder[0] = 0;
-
-    sdc->pfStationId = NULL;
-    sdc->pfStationRole = NULL;
-    sdc->pfStationPriority = NULL;
-    sdc->pfDistance2 = NULL;
-    sdc->pfError2 = NULL;
-    sdc->pfVrtError2 = NULL;
-    sdc->pfRequestCovar = NULL;
-    sdc->pfCalcRequested = NULL;
-    sdc->pfSetOrder = NULL;
-    sdc->pfWriteLog = NULL;
-    sdc->pfWriteCompact = NULL;
-
-    for( i = 0; i < maxorder; i++ )
-    {
-        test = &(tests[i]);
-        test->blnAutoRange = BLN_FALSE;
-        test->blnTestHor = BLN_TRUE;
-        test->blnTestVrt = BLN_FALSE;
-        test->dblRange = 0.0;
-        test->iMinRelAcc = 0;
-        test->dblAbsTestAbsMax = 1000.0;
-        test->dblAbsTestDDMax  = 1000.0;
-        test->dblAbsTestDFMax  = 1000.0;
-        test->dblRelTestAbsMin = 0.0;
-        test->dblRelTestDFMax  = 1000.0;
-        test->dblRelTestDDMax  = 0.0;
-        test->dblAbsTestAbsMaxV = 1000.0;
-        test->dblAbsTestDDMaxV  = 1000.0;
-        test->dblAbsTestDFMaxV  = 1000.0;
-        test->dblRelTestAbsMinV = 0.0;
-        test->dblRelTestDFMaxV  = 1000.0;
-        test->dblRelTestDDMaxV  = 0.0;
-    }
-
-    return sdc;
 }
 
-/*************************************************************************
-** Function name: sdcDropSDCTest
-**//**
-**    Release the resources alloced to the SDCTest object
-**
-**  \param sdc                 The definition of the test to drop
-**
-**  \return
-**
-**************************************************************************
-*/
-
-void sdcDropSDCTest( hSDCTest sdc )
+SDCTest::SDCTest( const int orderCapacity )
+    : maxorder( orderCapacity )
 {
-    if( sdc )
-    {
-        if( sdc->tests ) utlFree( sdc->tests );
-        utlFree( sdc );
-    }
+    // Tests are added one per order command and pointers to them are held
+    // while later commands add more, so the vector must never reallocate.
+    tests.reserve( boost::numeric_cast<size_t>( orderCapacity ) );
+}
+
+int SDCTest::norder() const
+{
+    return boost::numeric_cast<int>( tests.size() );
 }
 
 /*************************************************************************
@@ -434,12 +355,12 @@ void sdcDropSDCTest( hSDCTest sdc )
 **************************************************************************
 */
 
-StatusType sdcCalcSDCOrders( hSDCTest sdc )
+StatusType sdcCalcSDCOrders( SDCTest *sdc )
 {
     return sdcCalcSDCOrders2( sdc, 0 );
 }
 
-StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
+StatusType sdcCalcSDCOrders2( SDCTest *sdc, int minorder)
 {
     SDCTestImp sdci;
     int order;
@@ -450,7 +371,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 
     /*> Check that input data is valid */
 
-    if ( sdc->norder <= 0 ) THROW_EXCEPTION(("SDC test called with less than 1 order to test"));
+    if ( sdc->norder() <= 0 ) THROW_EXCEPTION(("SDC test called with less than 1 order to test"));
     if ( sdc->nmark <= 0 ) THROW_EXCEPTION(("SDC test called with less than 1 mark to test"));
 
     /*> Initialise the SDCTestImp object */
@@ -481,7 +402,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 
         /* Full all-stations tree only needed when range limits can prune the pair loop */
         bool anyrange = false;
-        for( int o = 0; o < sdc->norder && !anyrange; o++ )
+        for( int o = 0; o < sdc->norder() && !anyrange; o++ )
             anyrange = sdc->tests[o].dblRange > 0.0;
         if( anyrange )
             sdci.kdtree = std::make_unique<SDC_KDTreeBundle>( &sdci );
@@ -522,10 +443,10 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 
         /* Reset status for stations which passed in tests which are being redone */
         {
-            hSDCStation stns = sdci.stns;
+            std::vector<SDCStation> &stns = sdci.stns;
             for( int i = 0; sts == STS_OK && i < sdc->nmark; i++ )
             {
-                hSDCStation s = & (stns[i]);
+                SDCStation *s = & (stns[i]);
                 if( s->status == SDC_STS_PASSED && s->passtest >= phaseminorder )
                 {
                     s->status = SDC_STS_SKIP;
@@ -542,25 +463,25 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     /*> For each order in turn... */
 
     sdci.needphase2=0;
-    for( order = phaseminorder; sts == STS_OK && order < sdc->norder; order++ )
+    for( order = phaseminorder; sts == STS_OK && order < sdc->norder(); order++ )
     {
         int nunknown;
-        hSDCOrderTest test = &(sdc->tests[order]);
+        SDCOrderTest *test = &(sdc->tests[order]);
         if( ! test->blnTestHor && ! test->blnTestVrt ) continue;
         sdci.order=order;
 
         {
             char buf[80];
-            sprintf(buf,"SDC tests for order %.4s",test->scOrder);
+            sprintf(buf,"SDC tests for order %.4s",test->scOrder.c_str());
             sts = utlShowProgress( buf, PROG_NO_BAR );
             if( sts != STS_OK ) break;
-            sprintf(buf,"Commencing tests for order %.4s",test->scOrder);
+            sprintf(buf,"Commencing tests for order %.4s",test->scOrder.c_str());
             sdcTimeStamp(&sdci,buf);
         }
 
         sdcWriteLog( &sdci, SDC_LOG_STEPS,
                      "=============================================================="
-                     "\nRunning test for order %.4s\n", test->scOrder );
+                     "\nRunning test for order %.4s\n", test->scOrder.c_str() );
         if( test->blnTestHor )
         {
             if( test->blnTestVrt )
@@ -627,7 +548,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
         {
             /*>>> If the relative accuracy test array is not yet constructed,
                   then build it */
-            if( ! sdci.relstatus )
+            if( sdci.relstatus.empty() )
             {
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "Setting up array for relative accuracy tests\n" );
@@ -679,7 +600,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     if( sts == STS_OK )
     {
         int nunknown;
-        sts = sdcFindStationsForTest( &sdci, sdc->norder, &nunknown  );
+        sts = sdcFindStationsForTest( &sdci, sdc->norder(), &nunknown  );
         if( nunknown > 0 )
         {
             sdcWriteLog( &sdci, SDC_LOG_STEPS, "Applying default order to remaining nodes\n");
@@ -691,10 +612,6 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
         }
 
     }
-
-    /*> Release the list of SDC stations */
-
-    sdcReleaseTestImp( &sdci );
 
     return sts;
 }
@@ -714,17 +631,12 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 **************************************************************************
 */
 
-static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
+static void sdcInitTestImp( SDCTestImp *sdci, SDCTest *sdc)
 {
     int i;
 
     sdci->sdc = sdc;
-    sdci->stns = NULL;
-    sdci->relstatus = NULL;
-    sdci->relcol0 = NULL;
-    sdci->relalloc = NULL;
     sdci->allocsize = DEFAULT_RAMEM_SIZE;
-    sdci->lookup = NULL;
     sdci->maxctldist2 = 0.0;
     sdci->maxerror2 = 0.0;
     sdci->maxverror2 = 0.0;
@@ -748,7 +660,7 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
 
     sdci->testhor = 0;
     sdci->testvrt = 0;
-    for(i = 0; i < sdc->norder; i++ )
+    for(i = 0; i < sdc->norder(); i++ )
     {
         if( sdc->tests[i].blnTestHor )
         {
@@ -764,52 +676,6 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
 
 
 /*************************************************************************
-** Function name: sdcReleaseTestImp
-**//**
-**    Releases the resources assigned to the SDCTestImp object.
-**
-**  \param sdci                The object from which to release
-**                             resources.
-**
-**  \return
-**
-**************************************************************************
-*/
-
-static void sdcReleaseTestImp( hSDCTestImp sdci)
-{
-    /*> Release the memory allocated to the stations */
-    if( sdci->stns )
-    {
-        utlFree( sdci->stns );
-        sdci->stns = NULL;
-    }
-    if( sdci->relstatus )
-    {
-        utlFree( sdci->relstatus );
-        sdci->relstatus = NULL;
-    }
-    if( sdci->relcol0 )
-    {
-        utlFree( sdci->relcol0 );
-        sdci->relstatus = NULL;
-    }
-    while( sdci->relalloc )
-    {
-        hRABlock alloc=sdci->relalloc;
-        sdci->relalloc=alloc->next;
-        utlFree(alloc->data);
-        utlFree(alloc);
-    }
-    sdci->curalloc=0;
-    if( sdci->lookup )
-    {
-        utlFree( sdci->lookup );
-        sdci->lookup = NULL;
-    }
-}
-
-/*************************************************************************
 ** Function name: sdcRAInitAllocRow
 **//**
 **    Releases the resources assigned to the SDCTestImp object.
@@ -822,31 +688,17 @@ static void sdcReleaseTestImp( hSDCTestImp sdci)
 **************************************************************************
 */
 
-static void sdcRAInitAllocRow( hSDCTestImp sdci )
+static void sdcRAInitAllocRow( SDCTestImp *sdci )
 {
-    int nrow=sdci->nreltest;
+    const int nrow=sdci->nreltest;
     if( nrow < 2 ) return;
-    if( ! sdci->relstatus )
+    sdci->relstatus.assign( boost::numeric_cast<size_t>( nrow ), nullptr );
+    sdci->relcol0.assign( boost::numeric_cast<size_t>( nrow ), 0 );
+    for( RABlock &block : sdci->relalloc )
     {
-        sdci->relstatus=(unsigned char **) utlAlloc(nrow*sizeof(unsigned char *));
+        block.alloc=0;
     }
-    if( ! sdci->relcol0 )
-    {
-        sdci->relcol0=(int *) utlAlloc(nrow*sizeof(int));
-    }
-    for( int i=0; i<nrow; i++ )
-    {
-        sdci->relstatus[i]=0;
-        sdci->relcol0[i]=0;
-    }
-    if( sdci->relalloc )
-    {
-        for( hRABlock alloc=sdci->relalloc; alloc; alloc=alloc->next )
-        {
-            alloc->alloc=0;
-        }
-    }
-    sdci->curalloc=sdci->relalloc;
+    sdci->curalloc=0;
 }
 
 /*************************************************************************
@@ -864,38 +716,27 @@ static void sdcRAInitAllocRow( hSDCTestImp sdci )
 **************************************************************************
 */
 
-static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 )
+static unsigned char *sdcRAAllocRow( SDCTestImp *sdci, int row, int col0 )
 {
-    unsigned char *rowstatus;
-    int nalloc;
-    hRABlock alloc;
-    hRABlock newalloc;
-
     if( sdci->relstatus[row] ) return 0;
-    nalloc=(row-col0+2)/2;
+    const int nalloc=(row-col0+2)/2;
 
-    alloc=sdci->curalloc;
-    while( 1 )
+    /* Use the first block from the current one onwards that has room, else add a new block */
+
+    size_t iblock=sdci->curalloc;
+    while( iblock < sdci->relalloc.size() && sdci->relalloc[iblock].alloc+nalloc > sdci->relalloc[iblock].size )
     {
-        if( alloc )
-        {
-            if( alloc->alloc+nalloc <= alloc->size ) break;
-            if( alloc->next ) { alloc=alloc->next; continue; }
-        }
-        if( nalloc*64 > sdci->allocsize ) sdci->allocsize=nalloc*64;
-        newalloc=(hRABlock) utlAlloc( sizeof(RABlock) );
-        newalloc->data=(unsigned char *) utlAlloc(sdci->allocsize);
-        newalloc->size=sdci->allocsize;
-        newalloc->alloc=0;
-        newalloc->next=0;
-        if( alloc ) { alloc->next=newalloc; }
-        else { sdci->relalloc=newalloc; }
-        alloc=newalloc;
-        break;
+        iblock++;
     }
-    sdci->curalloc=alloc;
-    rowstatus=alloc->data+alloc->alloc;
-    alloc->alloc += nalloc;
+    if( iblock == sdci->relalloc.size() )
+    {
+        if( nalloc*64 > sdci->allocsize ) sdci->allocsize=nalloc*64;
+        sdci->relalloc.emplace_back( sdci->allocsize );
+    }
+    sdci->curalloc=iblock;
+    RABlock &alloc=sdci->relalloc[iblock];
+    unsigned char *rowstatus=alloc.data.get()+alloc.alloc;
+    alloc.alloc += nalloc;
     /* Nibble-pack two SDC_STS_SKIP values into every element of rowstatus. */
     memset(rowstatus, (SDC_STS_SKIP | (SDC_STS_SKIP << 4)), nalloc);
     sdci->relstatus[row]=rowstatus;
@@ -917,14 +758,14 @@ static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 )
 **************************************************************************
 */
 
-static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
+static StatusType sdcLoadSDCStations( SDCTestImp *sdci)
 {
-    hSDCTest sdc = sdci->sdc;
+    SDCTest *sdc = sdci->sdc;
     StatusType sts;
     int i;
 
     /*> Allocate an array of SDCStation objects */
-    sdci->stns = (hSDCStation) utlAlloc( sdc->nmark * sizeof(SDCStation) );
+    sdci->stns.resize( boost::numeric_cast<size_t>( sdc->nmark ) );
 
     /*> Initialise each with the role, status, and max error ellipse */
     /*> Only calculate the ellipse semi-major if it will be required for
@@ -933,7 +774,7 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
     sts = STS_OK;
     for( i = 0; sts == STS_OK && i < sdc->nmark; i++ )
     {
-        hSDCStation s = & (sdci->stns[i]);
+        SDCStation *s = & (sdci->stns[i]);
         s->role = (sdc->pfStationRole)( sdc->env, i );
         s->error2 = 0.0;
         s->verror2 = 0.0;
@@ -996,10 +837,10 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
 **************************************************************************
 */
 
-static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nleft )
+static StatusType sdcFindStationsForTest( SDCTestImp *sdci, int ntest, int *nleft )
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     StatusType sts = STS_OK;
     int i;
     int nunknown = 0;
@@ -1011,7 +852,7 @@ static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nlef
 
     for( i = 0; sts == STS_OK && i < sdc->nmark; i++ )
     {
-        hSDCStation s = & (stns[i]);
+        SDCStation *s = & (stns[i]);
         if( i % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
         if( s->role == SDC_IGNORE_MARK || s->role == SDC_CONTROL_MARK ) continue;
         if( s->status == SDC_STS_SKIP && s->role <= ntest )
@@ -1054,10 +895,10 @@ static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nlef
 **************************************************************************
 */
 
-static StatusType sdcFillCtlDistKDTree( hSDCTestImp sdci )
+static StatusType sdcFillCtlDistKDTree( SDCTestImp *sdci )
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     int istn;
     StatusType sts = STS_OK;
 
@@ -1082,10 +923,10 @@ static StatusType sdcFillCtlDistKDTree( hSDCTestImp sdci )
 }
 
 
-static StatusType sdcFindNearestControl( hSDCTestImp sdci)
+static StatusType sdcFindNearestControl( SDCTestImp *sdci)
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     int ictl;
     int istn;
     int first;
@@ -1134,7 +975,7 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
 
     for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
     {
-        hSDCStation stn = &(stns[istn]);
+        SDCStation *stn = &(stns[istn]);
 
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
 
@@ -1177,11 +1018,11 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
 **************************************************************************
 */
 
-static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
+static StatusType sdcApplyAbsAccuracy( SDCTestImp *sdci, SDCOrderTest *test,
                                        int *nleft )
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     int i;
     int nunknown;
     double tolpass=0.0;
@@ -1256,7 +1097,7 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
 
     for( i = 0; sts == STS_OK && i < sdc->nmark; i++ )
     {
-        hSDCStation s = & stns[i];
+        SDCStation *s = & stns[i];
         long sdcstni=sdcStationId(sdci,i);
         if( i % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
         if( s->status == SDC_STS_UNKNOWN )
@@ -1395,10 +1236,10 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
 **************************************************************************
 */
 
-static StatusType sdcCreateRelTest( hSDCTestImp sdci)
+static StatusType sdcCreateRelTest( SDCTestImp *sdci)
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     int nrow;
     int i;
 
@@ -1409,7 +1250,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     nrow = 0;
     for( i = 0; i < sdc->nmark; i++ )
     {
-        hSDCStation s = & (stns[i]);
+        SDCStation *s = & (stns[i]);
         s->nrelrow = -1;
         if( s->role == SDC_IGNORE_MARK ) continue;
         s->nrelrow = nrow++;
@@ -1419,7 +1260,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     /*> Allocate the tables for vector information, status information,
         and reverse lookup of row numbers */
 
-    sdci->lookup = (int *) utlAlloc( sizeof(int) * nrow );
+    sdci->lookup.assign( boost::numeric_cast<size_t>( nrow ), 0 );
     sdci->nreltest = nrow;
 
     /*> Initialise the reverse lookup from rel test code to station code */
@@ -1457,7 +1298,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
 **************************************************************************
 */
 
-static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
+static StatusType sdcApplyRelTest( SDCTestImp *sdci, SDCOrderTest *test)
 {
     int npass=0;
     int nfailacc;
@@ -1473,12 +1314,12 @@ static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
 
     if( sdci->loglevel & SDC_LOG_COMPACT ) 
     {
-        hSDCStation stns = sdci->stns;
+        std::vector<SDCStation> &stns = sdci->stns;
         for( int i = 1; i < sdci->nreltest; i++ )
         {
             int istni = sdci->lookup[i];
             long sdcstni=sdcStationId(sdci,istni);
-            hSDCStation stni = &(stns[istni]);
+            SDCStation *stni = &(stns[istni]);
             sdcWriteCompactLog( sdci, sdcstni,stni->status,SDC_TEST_RAIS,"",-1,-1,"");
         }
     }
@@ -1551,10 +1392,10 @@ static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
 **************************************************************************
 */
 
-static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
+static StatusType sdcApplyRelTestPass( SDCTestImp *sdci, int *pnpass)
 {
-    hSDCStation stns = sdci->stns;
-    hSDCTest sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
     int nmark = sdc -> nmark;
     int npass = 0;
     int istn;
@@ -1564,7 +1405,7 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
 
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
-        hSDCStation stni = &(stns[istn]);
+        SDCStation *stni = &(stns[istn]);
         long sdcstni = sdcStationId(sdci,istn);
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
 
@@ -1604,10 +1445,10 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
 **************************************************************************
 */
 
-static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, 
+static StatusType sdcApplyRelTestFail( SDCTestImp *sdci, SDCOrderTest *test, 
         int *pnfailacc, int *pnfailcount )
 {
-    hSDCStation stns = sdci->stns;
+    std::vector<SDCStation> &stns = sdci->stns;
     int nmark = sdci->sdc->nmark;
     int nfailacc = 0;
     int nfailcnt = 0;
@@ -1619,7 +1460,7 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test,
 
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
-        hSDCStation stni = &(stns[istn]);
+        SDCStation *stni = &(stns[istn]);
         long sdcstni = sdcStationId( sdci, istn );
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
         if( stni->status == SDC_STS_UNKNOWN && stni->nrelfail )
@@ -1638,7 +1479,7 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test,
     {
         for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
         {
-            hSDCStation stni = &(stns[istn]);
+            SDCStation *stni = &(stns[istn]);
             long sdcstni = sdcStationId( sdci, istn );
             if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
             if( stni->status == SDC_STS_UNKNOWN && stni->nreltest < test->iMinRelAcc )
@@ -1675,10 +1516,10 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test,
 **************************************************************************
 */
 
-static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int *pfailed )
+static StatusType sdcSeekRelTestFail( SDCTestImp *sdci, SDCOrderTest *test, int *pfailed )
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     int nmark = sdci->sdc->nmark;
     int istnfail = -1;
     int priority = 0;
@@ -1700,7 +1541,7 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
 
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
-        hSDCStation stni = &(stns[istn]);
+        SDCStation *stni = &(stns[istn]);
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
 
         if( stni->status != SDC_STS_UNKNOWN ) continue;
@@ -1773,9 +1614,9 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
 **************************************************************************
 */
 
-static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
+static void sdcSetRelTestStatus( SDCTestImp *sdci, int istn, char status)
 {
-    hSDCStation stns = sdci->stns;
+    std::vector<SDCStation> &stns = sdci->stns;
     unsigned char *relstatus;
     int nreltest = sdci->nreltest;
     int col0;
@@ -1794,7 +1635,7 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
 
     for( i = col0; i < nreltest; i++ )
     {
-        hSDCStation stn;
+        SDCStation *stn;
         unsigned char stsij=SDC_STS_SKIP;
 
         if( i <= nrelrow )
@@ -1863,8 +1704,8 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
 */
 
 static unsigned char sdcTestPairAccuracy(
-    hSDCTestImp sdci, hSDCTest sdc,
-    hSDCStation stni, hSDCStation stnj,
+    SDCTestImp *sdci, SDCTest *sdc,
+    SDCStation *stni, SDCStation *stnj,
     int istni, int istnj, long sdcstni, long sdcstnj,
     double dist, char passi, char passj,
     const SDCPairTestConfig *cfg, char *needcovariances )
@@ -2060,10 +1901,10 @@ static unsigned char sdcTestPairAccuracy(
 **************************************************************************
 */
 
-static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest test)
+static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *test)
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     double range2;
     char userange;
     double ftol;
@@ -2095,7 +1936,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
     for( i = 0; i < nmark; i++ )
     {
-        hSDCStation s = &(stns[i]);
+        SDCStation *s = &(stns[i]);
         s->nreltest = 0;
         s->nrelbad  = 0;
         s->nrelfail = 0;
@@ -2182,7 +2023,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
         int istni = sdci->lookup[i];
         long sdcstni=sdcStationId(sdci,istni);
-        hSDCStation stni = &(stns[istni]);
+        SDCStation *stni = &(stns[istni]);
         char stsi = stni->status;
         char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
@@ -2252,7 +2093,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
             int istnj = sdci->lookup[j];
             long sdcstnj=sdcStationId(sdci,istnj);
-            hSDCStation stnj = &(stns[istnj]);
+            SDCStation *stnj = &(stns[istnj]);
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
             double dist;
@@ -2323,7 +2164,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             int col0=sdci->relcol0[i];
             int istni = sdci->lookup[i];
             long sdcstni=sdcStationId(sdci,istni);
-            hSDCStation stni = &(stns[istni]);
+            SDCStation *stni = &(stns[istni]);
             char stsi = stni->status;
             char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
@@ -2341,7 +2182,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             {
                 int istnj = sdci->lookup[j];
                 long sdcstnj=sdcStationId(sdci,istnj);
-                hSDCStation stnj = &(stns[istnj]);
+                SDCStation *stnj = &(stns[istnj]);
                 char stsj = stnj->status;
                 char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
 
@@ -2402,7 +2243,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         int col0=sdci->relcol0[i];
 
         int istni = sdci->lookup[i];
-        hSDCStation stni = &(stns[istni]);
+        SDCStation *stni = &(stns[istni]);
         char stsi = stni->status;
         char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
@@ -2418,7 +2259,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         for( j = col0; j < i; j++ )
         {
             int istnj = sdci->lookup[j];
-            hSDCStation stnj = &(stns[istnj]);
+            SDCStation *stnj = &(stns[istnj]);
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
 
@@ -2456,7 +2297,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Status of marks\n");
         for( i = 0; sts == STS_OK && i < nmark; i++ )
         {
-            hSDCStation s = &(stns[i]);
+            SDCStation *s = &(stns[i]);
             if( i % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
             if( s->status != SDC_STS_UNKNOWN ) continue;
             if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
@@ -2486,10 +2327,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 **************************************************************************
 */
 
-static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply )
+static StatusType sdcUpdateOrders( SDCTestImp *sdci, int itest, int apply )
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     int nmark = sdc->nmark;
     int istn;
     StatusType sts = STS_OK;
@@ -2498,7 +2339,7 @@ static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply )
 
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
-        hSDCStation stni = &(stns[istn]);
+        SDCStation *stni = &(stns[istn]);
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
 
         /*>> If it has passed, then set its order to that for the test
@@ -2512,7 +2353,7 @@ static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply )
             {
                 (sdc->pfSetOrder)( sdc->env, istn, itest );
                 sdcWriteLog(sdci,SDC_LOG_TESTS,"  Setting order of node %ld to %s\n",
-                            sdcStationId(sdci,istn), sdc->tests[itest].scOrder );
+                            sdcStationId(sdci,istn), sdc->tests[itest].scOrder.c_str() );
             }
         }
 
@@ -2541,10 +2382,10 @@ static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply )
 **************************************************************************
 */
 
-static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci)
+static StatusType sdcApplyDefaultOrder( SDCTestImp *sdci)
 {
-    hSDCTest sdc = sdci->sdc;
-    hSDCStation stns = sdci->stns;
+    SDCTest *sdc = sdci->sdc;
+    std::vector<SDCStation> &stns = sdci->stns;
     int nmark = sdc->nmark;
     int istn;
     StatusType sts = STS_OK;
@@ -2553,7 +2394,7 @@ static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci)
 
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
-        hSDCStation stni = &(stns[istn]);
+        SDCStation *stni = &(stns[istn]);
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
 
         /*>> If the status is still unknown then set it to failed */
@@ -2562,7 +2403,7 @@ static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci)
         {
             (sdc->pfSetOrder)( sdc->env, istn, SDC_DEFAULT );
             sdcWriteLog(sdci,SDC_LOG_TESTS,"  Setting order of node %ld to default %s\n",
-                        sdcStationId(sdci,istn), sdc->scFailOrder );
+                        sdcStationId(sdci,istn), sdc->scFailOrder.c_str() );
         }
     }
     return sts;
@@ -2585,7 +2426,7 @@ static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci)
 **************************************************************************
 */
 
-static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... )
+static void sdcWriteLog( SDCTestImp *sdci, int level, const char *fmt, ... )
 {
     va_list ap;
 
@@ -2593,10 +2434,11 @@ static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... )
 
     if( level && ! (sdci->loglevel & level) ) return;
 
-    /*> Format the string using the supplied parameters using vsprintf */
+    /*> Format the string using the supplied parameters using vsnprintf,
+        which truncates a message that is too long for the buffer */
 
     va_start(ap, fmt);
-    vsprintf(sdci->logbuffer, fmt, ap);
+    vsnprintf(sdci->logbuffer, sizeof(sdci->logbuffer), fmt, ap);
     va_end(ap);
 
     /*> Use the function pointer in the sdc object to write the log */
@@ -2616,7 +2458,7 @@ static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... )
 **************************************************************************
 */
 
-static void sdcWriteCompactLogHeader( hSDCTestImp sdci )
+static void sdcWriteCompactLogHeader( SDCTestImp *sdci )
 {
     if( ! (sdci->sdc->pfWriteCompact ) ) return;
     if( ! (sdci->loglevel & SDC_LOG_COMPACT) ) return;
@@ -2642,7 +2484,7 @@ static void sdcWriteCompactLogHeader( hSDCTestImp sdci )
 **************************************************************************
 */
 
-static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2, 
+static void sdcWriteCompactLog( SDCTestImp *sdci, long stn1, long stn2, 
         const char *test, const char *status, double v1, double v2, const char *comment )
 {
     char cstn1[20],cstn2[20],cv1[40],cv2[40];
@@ -2660,8 +2502,8 @@ static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2,
     if( v1 >= 0 ) sprintf(cv1,"%.8lf",v1);
     if( v2 >= 0 ) sprintf(cv2,"%.8lf",v2);
 
-    sprintf(sdci->logbuffer,"%d,%d,%s,%s,%s,%s,%s,%s,%s\n",
-            sdci->phase,sdci->order,cstn1,cstn2,test,status,cv1,cv2,comment);
+    snprintf(sdci->logbuffer,sizeof(sdci->logbuffer),"%d,%d,%s,%s,%s,%s,%s,%s,%s\n",
+             sdci->phase,sdci->order,cstn1,cstn2,test,status,cv1,cv2,comment);
 
     /*> Use the function pointer in the sdc object to write the log */
 
@@ -2683,7 +2525,7 @@ static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2,
 **************************************************************************
 */
 
-static long sdcStationId( hSDCTestImp sdci, int istn )
+static long sdcStationId( SDCTestImp *sdci, int istn )
 {
     long id;
 
@@ -2710,7 +2552,7 @@ static long sdcStationId( hSDCTestImp sdci, int istn )
 **************************************************************************
 */
 
-static void sdcTimeStamp( hSDCTestImp sdci, const char *status )
+static void sdcTimeStamp( SDCTestImp *sdci, const char *status )
 {
     double ttotal;
     double tlast;
@@ -2722,6 +2564,6 @@ static void sdcTimeStamp( hSDCTestImp sdci, const char *status )
     tlast = (double)(now-sdci->lasttime) / CLOCKS_PER_SEC;
     sdci->lasttime = now;
 
-    sprintf(sdci->logbuffer,"   .. %s took %.2lf seconds (total %.2lf seconds)\n",status,tlast,ttotal);
+    snprintf(sdci->logbuffer,sizeof(sdci->logbuffer),"   .. %s took %.2lf seconds (total %.2lf seconds)\n",status,tlast,ttotal);
     (sdci->sdc->pfWriteLog)( sdci->sdc->env, sdci->logbuffer );
 }

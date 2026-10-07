@@ -199,14 +199,6 @@ bool is_name_match( std::string_view string1, std::string_view string2 )
         []( unsigned char a, unsigned char b ) { return normalise_name_char( a ) == normalise_name_char( b ); } );
 }
 
-void copy_field( std::string_view field, char *buf, int nbuf )
-{
-    int length = (int) field.size();
-    if( length >= nbuf ) length = nbuf-1;
-    memcpy( buf, field.data(), length );
-    buf[length] = 0;
-}
-
 /// Reads the next field from scanner, treating a quoted value as one field.
 /// checkAndRecoverQuotedValue gives nullopt both at the end of the text and
 /// for a malformed quote, so a copy of the scanner is used to tell which.

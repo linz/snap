@@ -76,7 +76,7 @@ static int rf_linzdef_load( LinzDefModel *model )
         if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
         if( sts == STS_OK && ! model->version.empty() )
         {
-            sts=utlSetLinzDefVersion(model->linzdef,model->version.c_str());
+            sts=utlSetLinzDefVersion(model->linzdef,model->version);
         }
         model->loaded = 1;
         model->loadsts = sts == STS_OK ? OK : INVALID_DATA;

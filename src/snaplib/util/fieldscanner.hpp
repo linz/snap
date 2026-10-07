@@ -225,13 +225,6 @@ bool is_name_match(
     std::string_view string1,    ///< the first name
     std::string_view string2 );  ///< the second name
 
-/// Copies field into buf, truncating without error if it doesn't fit.
-/// For callers not yet converted off fixed-size buffers.
-void copy_field(
-    std::string_view field,  ///< the field to copy
-    char *buf,               ///< destination buffer
-    int nbuf );              ///< buf's capacity, including the trailing '\0'
-
 /// The outcome of reading a field with read_string_field() or
 /// read_double_field().
 enum class FieldResult

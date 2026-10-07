@@ -34,13 +34,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 
 #include "dbl4_utl_blob.h"
-#include "dbl4_utl_alloc.h"
 #include "dbl4_utl_error.h"
-
-#define BLOB_BUFFER_SIZE 2048
 
 /*************************************************************************
 ** Function name: utlCreateBlobHandle
@@ -53,24 +49,15 @@
 **  \param conn                Context in which to create the
 **                             handle
 **  \param blob                Returned handle
-**  \param blnOutput           True if an output buffer is required.
 **
 **  \return                    Return status
 **
 **************************************************************************
 */
 
-StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob, Boolean blnOutput)
+StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob)
 {
-    (*blob) = (BlobType *) utlAlloc( sizeof( BlobType ));
-    if( ! *blob ) THROW_EXCEPTION("utlCreateBlobHandle: Memory allocation failure");
-    (*blob)->buffer = NULL;
-    if( blnOutput )
-    {
-        (*blob)->buffer = (char *) utlAlloc( BLOB_BUFFER_SIZE );
-        if( ! (*blob)->buffer )
-            THROW_EXCEPTION("utlCreateBlobHandle: Memory allocation failure");
-    }
+    (*blob) = new BlobType;
     TRACE_BLBMGMT(("utlCreateBlobHandle: Blob created with handle %llX",reinterpret_cast<unsigned long long>(*blob) ));
     return STS_OK;
 }
@@ -96,8 +83,7 @@ StatusType utlBlobClose( hBlob blob)
     {
         utlReleaseBlobDB( blob->pvBlob );
     }
-    if( blob->buffer ) utlFree( blob->buffer );
-    utlFree(blob);
+    delete blob;
     return STS_OK;
 }
 
@@ -224,45 +210,4 @@ StatusType utlBlobTell( hBlob blob, long *position)
     return STS_OK;
 }
 
-
-/*************************************************************************
-** Function name: utlBlobPrintf
-**//**
-**      Routine providing standard printf type formatting for writing
-**      to a blob.
-**
-**      This routine creates the formatted data in a buffer allocated
-**      when the blob is created of size BLOB_BUFFER_SIZE.  The formatting
-**      is done using the vsprintf function, which provides no checking
-**      of possible buffer overrun.  This function should be used with
-**      care to ensure overruns do not occur.  For example, string formatting
-**      with %s should specify a maximum width (eg %.100s).
-**
-**  \param blob                Pointer to the blob object
-**  \param format              printf type format string
-**                             Format string parameters
-**
-**  \return                    Returns success/failure status
-**
-**************************************************************************
-*/
-
-StatusType utlBlobPrintf( hBlob blob, char *format, ... )
-{
-    TRACE_BLBREAD(("utlBlobPrintf: Blob handle %llX",reinterpret_cast<unsigned long long>(blob) ));
-    if( blob->buffer && blob->pvBlob )
-    {
-        va_list ap;
-        va_start(ap, format);
-        vsprintf( blob->buffer, format, ap);
-        va_end(ap);
-
-        utlWriteBlobDB( blob->pvBlob, strlen(blob->buffer), blob->buffer );
-    }
-    else
-    {
-        THROW_EXCEPTION( "utlBlobPrintf called with uninitialised hBlob" );
-    }
-    return STS_OK;
-}
 

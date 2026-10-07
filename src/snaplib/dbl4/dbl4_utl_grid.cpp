@@ -31,10 +31,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <string>
+#include <vector>
+
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "dbl4_utl_grid.h"
 
-#include "dbl4_utl_alloc.h"
 #include "dbl4_utl_error.h"
 
 /* Note: code below assumes headers are all the same length */
@@ -56,6 +59,20 @@
 struct file_row;
 struct cache_row;
 
+struct file_row
+{
+    INT4 fileloc;
+    cache_row *cacheloc;
+};
+
+struct cache_row
+{
+    std::vector<INT4> data;
+    file_row *lat;
+    cache_row *next;      /* For LRU cache */
+    cache_row *prev;
+};
+
 struct grid_def_crs
 {
     unsigned int magic;
@@ -74,34 +91,20 @@ struct grid_def_crs
     short latlon;     /**< True if is a lat/long grid */
     short ncycle;     /**< Increments to get around the globe */
     char global;
-    char *desc1;
-    char *desc2;
-    char *desc3;
-    char *crdsys;
+    std::string desc1;   /**< Description line, only written to the trace output */
+    std::string desc2;
+    std::string desc3;
+    std::string crdsys;  /**< Coordinate system code, only written to the trace output */
     int  rowfmt;      /**< 1 for simple array of shorts, 2 for compressed longs */
     int  rowsize;     /**< Size of a row in bytes */
     int  maxcache;    /**< Maximum number of cache entries */
     int  ncache;      /**< Current number of cache entries */
     INT4 undef;       /**< Value used to represent missing data */
-    file_row *rows;   /**< Definition of rows */
-    cache_row *cache; /**< The cache */
+    std::vector<file_row> rows;   /**< Definition of rows */
+    std::vector<cache_row> cache; /**< The cache, never resized so that its rows can point to each other */
     cache_row *cache_mru;  /**< Most recently used */
     cache_row *cache_lru;  /**< Least recently used */
-    void *loadbuffer;
-};
-
-struct file_row
-{
-    INT4 fileloc;
-    cache_row *cacheloc;
-};
-
-struct cache_row
-{
-    INT4 *data;
-    file_row *lat;
-    cache_row *next;      /* For LRU cache */
-    cache_row *prev;
+    std::vector<unsigned char> loadbuffer;  /**< Buffer for reading rows, allocated when first needed */
 };
 
 
@@ -120,44 +123,7 @@ struct cache_row
 static void delete_grid_def( grid_def_crs *def)
 {
     def->magic = 0;
-    if( def->rows ) utlFree( def->rows );
-    if( def->cache )
-    {
-        int i;
-        for( i = 0; i++ < def->ncache;  )
-        {
-            if( def->cache[i].data ) utlFree( def->cache[i].data );
-        }
-        utlFree( def->cache );
-    }
-    def->rows = 0;
-    def->cache = 0;
-    if( def->desc1 )
-    {
-        utlFree( def->desc1 );
-        def->desc1 = 0;
-    }
-    if( def->desc2 )
-    {
-        utlFree( def->desc2 );
-        def->desc2 = 0;
-    }
-    if( def->desc3 )
-    {
-        utlFree( def->desc3 );
-        def->desc3 = 0;
-    }
-    if( def->crdsys )
-    {
-        utlFree( def->crdsys );
-        def->crdsys = 0;
-    }
-    if( def->loadbuffer )
-    {
-        utlFree( def->loadbuffer );
-        def->loadbuffer = 0;
-    }
-    utlFree( def );
+    delete def;
 }
 
 
@@ -182,7 +148,7 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     char buf[80];
     INT4 len;
     int version;
-    int big_endian=0;
+    Endian endian = Endian::Little;
     version = 0;
     len = strlen( GRID_FILE_HEADER_1 );
     if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) return 0;
@@ -192,29 +158,29 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     if(  memcmp( buf, GRID_FILE_HEADER_1, len ) == 0 )
     {
         version = 1;
-        big_endian = 0;
+        endian = Endian::Little;
     }
     else if(  memcmp( buf, GRID_FILE_HEADER_2, len ) == 0 )
     {
         version = 2;
-        big_endian = 0;
+        endian = Endian::Little;
     }
     else if(  memcmp( buf, GRID_FILE_HEADER_3, len ) == 0 )
     {
         version = 2;
-        big_endian = 1;
+        endian = Endian::Big;
     }
     else if(  memcmp( buf, GRID_FILE_HEADER_4, len ) == 0 )
     {
         version = 3;
-        big_endian = 0;
+        endian = Endian::Little;
     }
     else if(  memcmp( buf, GRID_FILE_HEADER_5, len ) == 0 )
     {
         version = 3;
-        big_endian = 1;
+        endian = Endian::Big;
     }
-    utlBinSrcSetBigEndian( binsrc, big_endian );
+    utlBinSrcSetEndian( binsrc, endian );
 
     if( utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, indexloc ) != STS_OK ) return 0;
     TRACE_GRID(("Index location: %ld",(long)(*indexloc)));
@@ -255,16 +221,8 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
         RETURN_STATUS(STS_INVALID_DATA);
     }
     TRACE_GRID(("Grid format version: %d",(int) version));
-    def = (grid_def_crs *) utlAlloc( sizeof( grid_def_crs ) );
-    if( ! def ) RETURN_STATUS(STS_ALLOC_FAILED);
+    def = new grid_def_crs();
     def->indexloc = indexloc;
-    def->rows = 0;
-    def->desc1 = 0;
-    def->desc2 = 0;
-    def->desc3 = 0;
-    def->crdsys = 0;
-    def->cache = 0;
-    def->loadbuffer = 0;
     def->rowfmt = version == 3 ? 2 : 1;
     def->undef = 0x7FFFFFFF;
     def->binsrc = binsrc;
@@ -316,18 +274,17 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
 
 
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->desc1) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc1 );
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->desc2) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc2 );
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->desc3) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc3 );
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->crdsys) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->crdsys );
 
     if( sts == STS_OK )
     {
-        def->rows = (file_row *) utlAlloc( sizeof(file_row) * def->ngrdy );
-        if( ! def->rows ) SET_STATUS(sts,STS_ALLOC_FAILED);
+        def->rows.resize( boost::numeric_cast<size_t>( def->ngrdy ) );
     }
 
     if( sts != STS_OK )
@@ -336,10 +293,10 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
         RETURN_STATUS(sts);
     }
 
-    TRACE_GRID(("Grid loaded: %s",def->desc1));
-    TRACE_GRID(("             %s",def->desc2));
-    TRACE_GRID(("             %s",def->desc3));
-    TRACE_GRID(("             %s",def->crdsys));
+    TRACE_GRID(("Grid loaded: %s",def->desc1.c_str()));
+    TRACE_GRID(("             %s",def->desc2.c_str()));
+    TRACE_GRID(("             %s",def->desc3.c_str()));
+    TRACE_GRID(("             %s",def->crdsys.c_str()));
     TRACE_GRID(("        Size: = %d x %d",(int)(def->ngrdy),(int)(def->ngrdx)));
     TRACE_GRID(("        Lat: %.8lf - %.8lf",def->miny,def->maxy));
     TRACE_GRID(("        Lon: %.8lf - %.8lf",def->minx,def->maxx));
@@ -365,12 +322,7 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     def->global = (def->ncycle == def->ngrdx);
 
     def->maxcache = MAXCACHE;
-    def->cache = (cache_row *) utlAlloc( sizeof(cache_row) * (def->maxcache+1) );
-    if( !def->cache )
-    {
-        delete_grid_def( def );
-        RETURN_STATUS(STS_ALLOC_FAILED);
-    }
+    def->cache.resize( boost::numeric_cast<size_t>( def->maxcache ) + 1 );
     def->ncache = 0;
     def->cache_mru = 0;
     def->cache_lru = 0;
@@ -404,18 +356,17 @@ static StatusType load_row1( grid_def_crs *def, long fileloc, INT4 *data )
     /* Allocate a buffer for reading if not already done.  Make this
            the largest possible size */
 
-    if( ! def->loadbuffer )
+    if( def->loadbuffer.empty() )
     {
-        def->loadbuffer = utlAlloc( def->rowsize * 2 );
-        if( ! def->loadbuffer ) RETURN_STATUS(STS_ALLOC_FAILED);
+        def->loadbuffer.resize( boost::numeric_cast<size_t>( def->rowsize ) * 2 );
     }
     /* Format 1 rows - simply held as an array of shorts */
-    sts = utlBinSrcLoad2( def->binsrc, fileloc, def->rowsize, def->loadbuffer );
+    sts = utlBinSrcLoad2( def->binsrc, fileloc, def->rowsize, def->loadbuffer.data() );
     TRACE_GRID2(("Loading row using LINZ1 format"));
     if( sts == STS_OK )
     {
         int i;
-        INT2 *sdata = (INT2 *) def->loadbuffer;
+        INT2 *sdata = reinterpret_cast<INT2 *>( def->loadbuffer.data() );
         for( i = 0; i < def->rowsize; i++ )
         {
             INT4 v = sdata[i];
@@ -552,28 +503,27 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
         /* Allocate a buffer for reading if not already done.  Make this
            the largest possible size */
 
-        if( ! def->loadbuffer )
+        if( def->loadbuffer.empty() )
         {
-            def->loadbuffer = utlAlloc( def->ngrdx * 4 );
-            if( ! def->loadbuffer ) RETURN_STATUS(STS_ALLOC_FAILED);
+            def->loadbuffer.resize( boost::numeric_cast<size_t>( def->ngrdx ) * 4 );
         }
 
         /* Read the values from the file */
 
         if( bytes == 1 )
         {
-            sts = utlBinSrcLoad1(binsrc,fileloc,imax+1-imin,def->loadbuffer);
-            pc = (INT1 *) def->loadbuffer;
+            sts = utlBinSrcLoad1(binsrc,fileloc,imax+1-imin,def->loadbuffer.data());
+            pc = reinterpret_cast<INT1 *>( def->loadbuffer.data() );
         }
         else if ( bytes == 2 )
         {
-            sts = utlBinSrcLoad2(binsrc,fileloc,imax+1-imin,def->loadbuffer);
-            ps = (INT2 *) def->loadbuffer;
+            sts = utlBinSrcLoad2(binsrc,fileloc,imax+1-imin,def->loadbuffer.data());
+            ps = reinterpret_cast<INT2 *>( def->loadbuffer.data() );
         }
         else
         {
-            sts = utlBinSrcLoad4(binsrc,fileloc,imax+1-imin,def->loadbuffer);
-            pl = (INT4 *) def->loadbuffer;
+            sts = utlBinSrcLoad4(binsrc,fileloc,imax+1-imin,def->loadbuffer.data());
+            pl = reinterpret_cast<INT4 *>( def->loadbuffer.data() );
         }
         if( sts != STS_OK ) RETURN_STATUS(sts);
 
@@ -718,8 +668,7 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
             int loc;
             loc = ++(def->ncache);
             cr = &def->cache[loc];
-            cr->data = (INT4 *) utlAlloc( def->rowsize * sizeof(INT4) );
-            if( ! cr->data ) RETURN_STATUS(STS_ALLOC_FAILED);
+            cr->data.resize( boost::numeric_cast<size_t>( def->rowsize ) );
             cr->next = def->cache_mru;
             cr->prev = 0;
             if( cr->next )
@@ -740,11 +689,11 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
 
         if( def->rowfmt == 1 )
         {
-            sts = load_row1( def, fileloc, cr->data );
+            sts = load_row1( def, fileloc, cr->data.data() );
         }
         else
         {
-            sts = load_row2( def, fileloc, cr->data );
+            sts = load_row2( def, fileloc, cr->data.data() );
         }
 
     }
@@ -764,7 +713,7 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
         cr->prev = 0;
         def->cache_mru = cr;
     }
-    *row = cr->data;
+    *row = cr->data.data();
     return sts;
 }
 
@@ -1080,69 +1029,6 @@ StatusType utlGridVectorDimension( hGrid grid, int *dimension)
     def = grid_def_from_handle( grid );
     if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
     *dimension = def->ngrdval;
-    return STS_OK;
-}
-
-
-/*************************************************************************
-** Function name: utlGridCoordSysDef
-**//**
-**       Returns a coordinate system code stored in the grid.  This is not
-**       particularly relevant to CRS as it is currently defined.
-**
-**  \param grid                The grid handle
-**  \param crdsys              Returns a pointer to the string
-**
-**  \return                    Return status
-**
-**************************************************************************
-*/
-
-StatusType utlGridCoordSysDef( hGrid grid, char** crdsys)
-{
-    grid_def_crs *def;
-    def = grid_def_from_handle( grid );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
-    *crdsys = def->crdsys;
-    return STS_OK;
-}
-
-
-/*************************************************************************
-** Function name: utlGridTitle
-**//**
-**       Returns one of up to three lines of text defined with the grid.
-**       Generally used for descriptive information about the grid.
-**
-**  \param grid                The grid handle
-**  \param nTitle              The number of the text required (1-3)
-**  \param title               Returns a pointer to the text
-**
-**  \return                    Return status
-**
-**************************************************************************
-*/
-
-StatusType utlGridTitle( hGrid grid, int nTitle, char** title)
-{
-    grid_def_crs *def;
-    def = grid_def_from_handle( grid );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
-    *title = 0;
-    switch( nTitle )
-    {
-    case 1:
-        *title = def->desc1;
-        break;
-    case 2:
-        *title = def->desc2;
-        break;
-    case 3:
-        *title = def->desc3;
-        break;
-    default:
-        RETURN_STATUS(STS_INVALID_DATA);
-    }
     return STS_OK;
 }
 

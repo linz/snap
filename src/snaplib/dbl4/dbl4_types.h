@@ -18,24 +18,10 @@
 
 
 
-/* Character array types */
-
-#define SYSCODE_LEN 4
-#define NAME_LEN    100
-#define STRING_LEN  255
-
-typedef char SysCodeType[SYSCODE_LEN+1];
-typedef char NameType[NAME_LEN+1];
-typedef char StringType[STRING_LEN+1];
-
 /* Integer types */
 
-typedef unsigned char Boolean;
 typedef long IdType;
 typedef int  StatusType;        /* Used for function return values */
-
-#define BLN_FALSE ((Boolean) 0)
-#define BLN_TRUE  ((Boolean) 1)
 
 /* Date types */
 

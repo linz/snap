@@ -86,7 +86,7 @@ static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch
 
 static int init_linzdef_deformation( void *deformation )
 {
-    char *vcsdef;
+    std::string_view vcsdef;
     coordsys *vcs;
     coord_conversion tovcs;
     double factor;
@@ -99,13 +99,13 @@ static int init_linzdef_deformation( void *deformation )
 
     if( ! model ) return OK;
 
-    sts = utlLinzDefCoordSysDef(model->linzdef,&vcsdef);
+    sts = utlLinzDefCoordSysDef(model->linzdef,vcsdef);
     if( sts != STS_OK ) return INVALID_DATA;
 
     vcs = load_coordsys( vcsdef );
     if( !vcs )
     {
-        sprintf( buf,"Cannot load deformation model coordinate system %.20s",vcsdef);
+        sprintf( buf,"Cannot load deformation model coordinate system %.20s",std::string(vcsdef.substr(0,20)).c_str());
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }

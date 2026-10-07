@@ -16,37 +16,48 @@
 **************************************************************************
 */
 
+#include <cstddef>
+#include <vector>
+
 #include "dbl4_types.h"
+#include "util/stringlimited.hpp"
+
+/// The most characters in an order code
+inline constexpr size_t ORDER_CODE_LEN = 4;
+
+using OrderCode = StringLimited<ORDER_CODE_LEN>;
 
 struct SDCOrderTest
 {
-    IdType  idOrder;       /**< Order of the nodes passing the test */
-    SysCodeType scOrder;   /**< Order display code */
-    Boolean blnAutoRange;  /**< Range is calculated based on nearest control */
+    const IdType idOrder;      ///< Order of the nodes passing the test
+    const OrderCode scOrder;   ///< Order display code
+    bool    blnAutoRange = false;  ///< Range is calculated based on nearest control
 
-    Boolean blnTestHor;    /**< Test horizontal accuracy */
-    double  dblRange;      /**< Range used in rel accuracy test - <=0 for no limit */
-    int     iMinRelAcc;    /**< Minimum number of relative accuracy tests */
-    double  dblAbsTestAbsMax;  /**< Absolute test fail limit */
-    double  dblAbsTestDDMax;   /**< Relative to control dist dep m/100m */
-    double  dblAbsTestDFMax;   /**< Relative to control fixed component */
-    double  dblRelTestAbsMin;  /**< Rel Acc by absolute accuracy limit */
-    double  dblRelTestDDMax;   /**< Rel Acc dist dependent m/100m */
-    double  dblRelTestDFMax;   /**< Rel Accuracy fixed component */
+    bool    blnTestHor = false;    ///< Test horizontal accuracy
+    double  dblRange = 0.0;        ///< Range used in rel accuracy test - <=0 for no limit
+    int     iMinRelAcc = 0;        ///< Minimum number of relative accuracy tests
+    double  dblAbsTestAbsMax = 1000.0;  ///< Absolute test fail limit
+    double  dblAbsTestDDMax = 1000.0;   ///< Relative to control dist dep m/100m
+    double  dblAbsTestDFMax = 1000.0;   ///< Relative to control fixed component
+    double  dblRelTestAbsMin = 0.0;     ///< Rel Acc by absolute accuracy limit
+    double  dblRelTestDDMax = 0.0;      ///< Rel Acc dist dependent m/100m
+    double  dblRelTestDFMax = 1000.0;   ///< Rel Accuracy fixed component
 
-    Boolean blnTestVrt;   /**< Test vertical accuracy */
-    double  dblAbsTestAbsMaxV;  /**< Absolute test fail limit */
-    double  dblAbsTestDDMaxV;   /**< Relative to control dist dep m/100m */
-    double  dblAbsTestDFMaxV;   /**< Relative to control fixed component */
-    double  dblRelTestAbsMinV;  /**< Rel Acc by absolute accuracy limit */
-    double  dblRelTestDDMaxV;   /**< Rel Acc dist dependent m/100m */
-    double  dblRelTestDFMaxV;   /**< Rel Accuracy fixed component */
-    double  dblVertHorRatio;    /**< Ratio of vert/horizontal accuracies when
-                                  determining station with maximum error
-                                  to reject */
+    bool    blnTestVrt = false;         ///< Test vertical accuracy
+    double  dblAbsTestAbsMaxV = 1000.0; ///< Absolute test fail limit
+    double  dblAbsTestDDMaxV = 1000.0;  ///< Relative to control dist dep m/100m
+    double  dblAbsTestDFMaxV = 1000.0;  ///< Relative to control fixed component
+    double  dblRelTestAbsMinV = 0.0;    ///< Rel Acc by absolute accuracy limit
+    double  dblRelTestDDMaxV = 0.0;     ///< Rel Acc dist dependent m/100m
+    double  dblRelTestDFMaxV = 1000.0;  ///< Rel Accuracy fixed component
 
+    /// Ratio of vert/horizontal accuracies when determining station with
+    /// maximum error to reject
+    double  dblVertHorRatio = 0.0;
+
+    SDCOrderTest( const IdType order,                ///< Order of the nodes passing the test
+                  const std::string_view code );     ///< Order display code
 };
-typedef SDCOrderTest *hSDCOrderTest;
 
 #define SDC_IGNORE_MARK    -1
 #define SDC_CONTROL_MARK   -2
@@ -90,75 +101,74 @@ typedef SDCOrderTest *hSDCOrderTest;
 
 struct SDCTest
 {
-    void *env;         /**< Environment passed to function pointers */
-    int  nmark;        /**< Number of marks - ids are 0 .. nmark-1  */
-    int  norder;           /**< The number of orders in the test */
-    int  maxorder;         /**< The number of orders allocated in tests */
-    int  options;          /**< Options controlling application of SDC algorithm */
-    int  useKDTree;        /**< Non-zero to build KD-tree spatial indices (also requires range limits) */
-    int  loglevel;         /**< Greater than 0 for logging */
-    SDCOrderTest *tests;   /**< The definitions of each test */
-    IdType idFailOrder;    /**< The order to apply if all tests fail */
-    SysCodeType scFailOrder;  /**< Display string for fail order */
-    double dblErrFactor;   /**< Factor by which errors are multiplied for test */
+    void *env = nullptr;   ///< Environment passed to function pointers
+    int  nmark = 0;        ///< Number of marks - ids are 0 .. nmark-1
+    const int maxorder;    ///< The most orders that tests can hold
+    int  options = 0;      ///< Options controlling application of SDC algorithm
+    int  useKDTree = 0;    ///< Non-zero to build KD-tree spatial indices (also requires range limits)
+    int  loglevel = 0;     ///< Greater than 0 for logging
+    std::vector<SDCOrderTest> tests;  ///< The definitions of each test, one per order
+    const OrderCode scFailOrder;      ///< Display string for fail order
+    double dblErrFactor = 3.0;        ///< Factor by which errors are multiplied for test
+
+    /// Creates a test with no orders defined
+    explicit SDCTest( const int orderCapacity );  ///< The most orders that can be defined
+
+    /// The number of orders in the test
+    int norder() const;
 
     long (*pfStationId) ( /* Function to get the id of the station */
         void *env,
-        int  stn );
+        int  stn ) = nullptr;
 
     int (*pfStationRole) ( /* Function to get the role of the station in the  tests */
         void *env,         /* Returns one of the above status, or the lowest number */
-        int  stn );        /* test to apply */
+        int  stn ) = nullptr;  /* test to apply */
 
     int (*pfStationPriority) ( /* Function to get the priority of the station in the  tests */
         void *env,         /* Returns an integer value used to choose potential */
-        int  stn );        /* stations to discard when all have failing tests */
+        int  stn ) = nullptr;  /* stations to discard when all have failing tests */
                            /* Choose SDC_NO_PRIORITY or a highest numeric priority */
 
     double (*pfDistance2) ( /* Function to get square of the distance between two marks */
         void *env,
         int stn1,
-        int stn2 );
+        int stn2 ) = nullptr;
 
     double (*pfError2) (   /* Get the relative error between two marks */
         void *env,         /* Returns the square of the semi-major axis */
         int stn1,
-        int stn2 );
+        int stn2 ) = nullptr;
 
     double (*pfVrtError2) (   /* Get the vertical relative error between two marks */
         void *env,           /* Returns the square of the vertical error */
         int stn1,
-        int stn2 );
+        int stn2 ) = nullptr;
 
     void (*pfRequestCovar) (   /* Requests covariance information between */
         void *env,               /* stations */
         int stn1,
-        int stn2 );
+        int stn2 ) = nullptr;
 
     int  (*pfCalcRequested) (   /* Calculates the requested covariances */
-        void *env );
+        void *env ) = nullptr;
 
     void (*pfSetOrder) (   /* Sets the order for a mark */
         void *env,
         int stn,
-        int order );
+        int order ) = nullptr;
 
     void (*pfWriteLog) (   /* Writes log information */
         void *env,
-        const char *text );
+        const char *text ) = nullptr;
 
     void (*pfWriteCompact) (   /* Writes compact log information */
         void *env,
-        const char *text );
+        const char *text ) = nullptr;
 };
-typedef SDCTest *hSDCTest;
 
-hSDCTest sdcCreateSDCTest( int maxorder );
+StatusType sdcCalcSDCOrders( SDCTest *sdc );
 
-StatusType sdcCalcSDCOrders( hSDCTest sdc );
-
-StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder );
-
-void sdcDropSDCTest( hSDCTest sdc );
+StatusType sdcCalcSDCOrders2( SDCTest *sdc, int minorder );
 
 #endif  /* define DBL4_ADC_SDC_H */

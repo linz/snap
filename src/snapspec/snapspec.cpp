@@ -27,6 +27,7 @@
 #include <array>
 #include <optional>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <boost/algorithm/string/predicate.hpp>
@@ -68,7 +69,7 @@ static double test_confidence = 95.0;
 static int test_apriori = 1;
 static double varmult = 1.0;
 static int min_order=0;
-static SysCodeType dfltOrder;
+static OrderCode dfltOrder( "NONE" );
 static double vrtHorRatio = 1.0;
 static const char *default_output_filename="-";
 
@@ -93,7 +94,7 @@ struct stn_relacc_array
 {
     FILE *logfile = nullptr;
     FILE *dbgfile = nullptr;
-    hSDCTest hsdc = nullptr;
+    SDCTest *hsdc = nullptr;  ///< The tests, owned by the caller of create_test
     std::string csvoutput;
     std::string crdoutput;
     std::string cvrcachefile;
@@ -1006,11 +1007,9 @@ static void f_write_debug( void *env, const char *text )
     if( ra->dbgfile ) { fputs( text, ra->dbgfile ); }
 }
 
-static hSDCTest create_test( int maxorder )
+static std::unique_ptr<SDCTest> create_test( const int maxorder )
 {
-    hSDCTest hsdc;
-
-    hsdc = sdcCreateSDCTest( maxorder );
+    auto hsdc = std::make_unique<SDCTest>( maxorder );
     hsdc->pfStationId = f_station_id;
     hsdc->pfStationRole = f_station_role;
     hsdc->pfStationPriority = f_station_priority;
@@ -1026,17 +1025,12 @@ static hSDCTest create_test( int maxorder )
     return hsdc;
 }
 
-static void delete_test( hSDCTest hsdc )
+static int run_tests( SDCTest &hsdc )
 {
-    sdcDropSDCTest( hsdc );
+    return sdcCalcSDCOrders2( &hsdc, min_order );
 }
 
-static int run_tests( hSDCTest hsdc )
-{
-    return sdcCalcSDCOrders2( hsdc, min_order );
-}
-
-static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
+static void write_results( const SDCTest &hsdc, stn_relacc_array *ra )
 {
     FILE *out = ra->logfile;
     int nstns = ra->nstn;
@@ -1047,7 +1041,7 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
 
     fprintf(out,"Results of order calculations\n");
 
-    for( order = -2; order <= hsdc->norder; order++ )
+    for( order = -2; order <= hsdc.norder(); order++ )
     {
         int headed = 0;
         if( order == -2 )
@@ -1060,11 +1054,11 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
         }
         else if (order == 0 )
         {
-            sprintf(header,"Stations assigned order %s", dfltOrder);
+            sprintf(header,"Stations assigned order %s", dfltOrder.c_str());
         }
         else if (order > 0 )
         {
-            sprintf(header,"Stations achieving order %s",hsdc->tests[order-1].scOrder);
+            sprintf(header,"Stations achieving order %s",hsdc.tests[order-1].scOrder.c_str());
         }
         for( int istn = 1; istn <= nstns; istn++ )
         {
@@ -1080,7 +1074,7 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
 }
 
 
-static void write_station_index( hSDCTest, stn_relacc_array *ra )
+static void write_station_index( stn_relacc_array *ra )
 {
     FILE *out = ra->logfile;
     int i;
@@ -1098,25 +1092,19 @@ static void write_station_index( hSDCTest, stn_relacc_array *ra )
 }
 
 
-static const char *relacc_order_string( stn_relacc_array *ra, short order )
+static std::string_view relacc_order_string( stn_relacc_array *ra, short order )
 {
-    const char *control="C";
-    const char *ignored="I";
-
-    if( order == SDC_CONTROL_MARK ) return control;
-    if( order == SDC_IGNORE_MARK ) return ignored;
+    if( order == SDC_CONTROL_MARK ) return "C";
+    if( order == SDC_IGNORE_MARK ) return "I";
     if( order == 0 ) return dfltOrder;
     return ra->hsdc->tests[order-1].scOrder;
 }
 
-static const char *relacc_role_string( stn_relacc_array *ra, short role )
+static std::string_view relacc_role_string( stn_relacc_array *ra, short role )
 {
-    const char *control="C";
-    const char *ignored="I";
-
-    if( role == SDC_CONTROL_MARK ) return control;
-    if( role == SDC_IGNORE_MARK ) return ignored;
-    if( role >= 0 && role < ra->hsdc->norder ) return ra->hsdc->tests[role].scOrder;
+    if( role == SDC_CONTROL_MARK ) return "C";
+    if( role == SDC_IGNORE_MARK ) return "I";
+    if( role >= 0 && role < ra->hsdc->norder() ) return ra->hsdc->tests[role].scOrder;
     return "";
 }
 
@@ -1299,7 +1287,7 @@ static int stations_of_order( station *st )
     return sa->obscount == station_order;
 }
 
-static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, const std::string &fname )
+static void write_coord_files( const SDCTest &hsdc, stn_relacc_array *ra, const std::string &fname )
 {
     int i;
     int iorder;
@@ -1318,16 +1306,15 @@ static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, const std::s
     /* For each order check that there is a station achieving that order, and if
        so create a station file */
 
-    for( iorder = 0; iorder <= hsdc->norder; iorder++ )
+    for( iorder = 0; iorder <= hsdc.norder(); iorder++ )
     {
         for( i = 0; i < ra->nstn; i++ )
         {
-            char *order;
             if( ra->order[i] != iorder ) continue;
-            order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
+            const std::string order = ( iorder ? hsdc.tests[iorder-1].scOrder : dfltOrder ).str();
             const std::string crdfile = fname + "_" + order + ".crd";
             sprintf(comment,"Stations assigned order %s by snapspec - run at %s",
-                    order,spec_run_time.c_str());
+                    order.c_str(),spec_run_time.c_str());
             station_order = iorder;
             write_network(net,crdfile,comment,coord_precision,stations_of_order);
             break;
@@ -1346,7 +1333,7 @@ static void copy_unused_roles_to_orders( stn_relacc_array *ra )
     }
 }
 
-static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
+static void update_station_orders( const SDCTest &hsdc, stn_relacc_array *ra )
 {
     int istn;
 
@@ -1357,17 +1344,12 @@ static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
 
     for( istn = 0; istn++ < number_of_stations(net); )
     {
-        int iorder;
-        char *order;
-        station *stn;
+        station *stn = station_ptr(net,istn);
 
+        const int iorder = ra->order[istn-1];
+        if( iorder < 0 || iorder > hsdc.norder() ) continue;
 
-        stn = station_ptr(net,istn);
-
-        iorder = ra->order[istn-1];
-        if( iorder < 0 || iorder > hsdc->norder ) continue;
-
-        order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
+        const std::string order = ( iorder ? hsdc.tests[iorder-1].scOrder : dfltOrder ).str();
 
         stn->set_class( order_class, net->order_id( order, 1 ));
     }
@@ -1381,7 +1363,7 @@ static void update_crdfile( const std::string &fname )
     printf("Updated station orders in %s\n",fname.c_str());
 }
 
-static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const char **max_order_str )
+static int get_max_control_order( const SDCTest &hsdc, stn_relacc_array *ra, std::optional<std::string> &max_order_str )
 {
     int *order_lookup;
     int nnetorder;
@@ -1391,7 +1373,6 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
     int i,j;
     int istn;
     int sorted;
-    static std::string max_order_str_store;
 
     if( ! net->order_count() )
     {
@@ -1408,10 +1389,10 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
     /* See if the orders are sorted */
 
     sorted = 1;
-    for( i = 0; i < hsdc->norder; i++ )
+    for( i = 0; i < hsdc.norder(); i++ )
     {
-        char *next = (i == hsdc->norder - 1) ? dfltOrder : hsdc->tests[i+1].scOrder;
-        if( stncodecmp(next,hsdc->tests[i].scOrder) <= 0 ) { sorted = 0; break; }
+        const std::string_view next( i == hsdc.norder() - 1 ? dfltOrder : hsdc.tests[i+1].scOrder );
+        if( stncodecmp(next,hsdc.tests[i].scOrder) <= 0 ) { sorted = 0; break; }
     }
 
     /* Set up the order_lookup array which converts from the network station orders
@@ -1432,9 +1413,9 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
         std::string order = net->order(i);
         order_lookup[i] = sorted ? -1 : -2;
 
-        for( j = 0; j <= hsdc->norder; j++ )
+        for( j = 0; j <= hsdc.norder(); j++ )
         {
-            char *testorder = j < hsdc->norder ? hsdc->tests[j].scOrder : dfltOrder;
+            const std::string_view testorder( j < hsdc.norder() ? hsdc.tests[j].scOrder : dfltOrder );
             int cmp = stncodecmp(testorder,order);
             if( cmp == 0 ) { order_lookup[i] = j; break; }
             if( sorted )
@@ -1475,16 +1456,14 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
         else if( iorder > max_order )
         {
             max_order = iorder;
-            max_order_str_store = net->order(orderid);
-            (*max_order_str) = max_order_str_store.c_str();
+            max_order_str = net->order(orderid);
         }
         else if( sorted && orderid > 0)
         {
             std::string orderstr = net->order( orderid );
-            if( ! (*max_order_str) || orderstr.compare(*max_order_str) < 0 )
+            if( ! max_order_str || orderstr.compare(*max_order_str) < 0 )
             {
-                max_order_str_store = std::move(orderstr);
-                (*max_order_str) = max_order_str_store.c_str();
+                max_order_str = std::move(orderstr);
             }
         }
     }
@@ -1513,7 +1492,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
     return max_order;
 }
 
-static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
+static int setup_hv_mode( int hvmode, SDCTest &hsdc, stn_relacc_array *ra )
 {
     int adjhor;
     int adjvrt;
@@ -1538,11 +1517,10 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
 
     testhor = 0;
     testvrt = 0;
-    for( i = 0; i < hsdc->norder; i++ )
+    for( const SDCOrderTest &test : hsdc.tests )
     {
-        hSDCOrderTest test = &(hsdc->tests[i]);
-        if( test->blnTestHor ) testhor=1;
-        if( test->blnTestVrt ) testvrt=1;
+        if( test.blnTestHor ) testhor=1;
+        if( test.blnTestVrt ) testvrt=1;
     }
 
     if( hvmode == SRA_HVMODE_HOR ) testvrt = 0;
@@ -1613,11 +1591,10 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
     ra->testhor=testhor;
     ra->testvrt=testvrt;
 
-    for( i = 0; i < hsdc->norder; i++ )
+    for( SDCOrderTest &test : hsdc.tests )
     {
-        hSDCOrderTest test = &(hsdc->tests[i]);
-        if( ! testhor ) test->blnTestHor = BLN_FALSE;
-        if( ! testvrt ) test->blnTestVrt = BLN_FALSE;
+        if( ! testhor ) test.blnTestHor = false;
+        if( ! testvrt ) test.blnTestVrt = false;
     }
 
     if( testhor && testvrt && (adjhor != adj3d || adjvrt != adj3d) )
@@ -1637,8 +1614,7 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
     int notest;
     int errdirflg;
     int errdirflgv;
-    hSDCOrderTest test;
-    hSDCTest hsdc = * (hSDCTest *) value;
+    SDCTest &hsdc = ** static_cast<SDCTest **>( value );
 
     FieldScanner scanner(string);
     auto nameField = scanner.next();
@@ -1648,40 +1624,19 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
         return OK;
     }
 
-    if( nameField->size() > SYSCODE_LEN )
+    if( nameField->size() > ORDER_CODE_LEN )
     {
         send_config_error( cfg, INVALID_DATA, "Order name too long in test command");
         return OK;
     }
 
-    if( hsdc->norder >= hsdc->maxorder )
+    if( hsdc.norder() >= hsdc.maxorder )
     {
         send_config_error( cfg, INVALID_DATA, "Too many specification commands" );
         return OK;
     }
 
-    test = hsdc->tests+hsdc->norder;
-    hsdc->norder++;
-    test->idOrder = hsdc->norder;
-    copy_field( *nameField, test->scOrder, SYSCODE_LEN+1 );
-
-    test->blnAutoRange = BLN_FALSE;
-    test->dblRange = 0.0;
-    test->iMinRelAcc = 0;
-    test->blnTestHor = BLN_FALSE;
-    test->dblAbsTestAbsMax = 1000.0;
-    test->dblAbsTestDDMax  = 1000.0;
-    test->dblAbsTestDFMax  = 1000.0;
-    test->dblRelTestAbsMin = 0.0;
-    test->dblRelTestDFMax  = 1000.0;
-    test->dblRelTestDDMax  = 0.0;
-    test->blnTestVrt = BLN_FALSE;
-    test->dblAbsTestAbsMaxV = 1000.0;
-    test->dblAbsTestDDMaxV  = 1000.0;
-    test->dblAbsTestDFMaxV  = 1000.0;
-    test->dblRelTestAbsMinV = 0.0;
-    test->dblRelTestDFMaxV  = 1000.0;
-    test->dblRelTestDDMaxV  = 0.0;
+    SDCOrderTest &test = hsdc.tests.emplace_back( hsdc.norder() + 1, *nameField );
 
     errdirflg = 0;
     errdirflgv = 0;
@@ -1706,7 +1661,7 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
 
         if( boost::algorithm::iequals(type,"autorange") )
         {
-            test->blnAutoRange = BLN_TRUE;
+            test.blnAutoRange = true;
             continue;
         }
         if( boost::algorithm::iequals(type,"range") )
@@ -1731,7 +1686,7 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
                 send_config_error(cfg,INVALID_DATA, "Invalid range in specification");
                 return OK;
             }
-            test->dblRange = parsedRange->value;
+            test.dblRange = parsedRange->value;
             continue;
         }
         if( boost::algorithm::iequals(type,"min_rel_acc") )
@@ -1743,7 +1698,7 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
                 send_config_error(cfg,INVALID_DATA, "Invalid minimum number of relative accuracy tests in specification");
                 return OK;
             }
-            test->iMinRelAcc = *minrel;
+            test.iMinRelAcc = *minrel;
             continue;
         }
 
@@ -1838,19 +1793,19 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
             }
             switch( errtyp + errdir + vflag)
             {
-            case 17: test->dblAbsTestAbsMax = err/1000; break;
-            case 18: test->dblAbsTestDFMax = err/1000; break;
-            case 34: test->dblAbsTestDDMax = err/10000; break;
-            case 24: test->dblRelTestAbsMin = err/1000; break;
-            case 20: test->dblRelTestDFMax = err/1000; break;
-            case 36: test->dblRelTestDDMax = err/10000; break;
+            case 17: test.dblAbsTestAbsMax = err/1000; break;
+            case 18: test.dblAbsTestDFMax = err/1000; break;
+            case 34: test.dblAbsTestDDMax = err/10000; break;
+            case 24: test.dblRelTestAbsMin = err/1000; break;
+            case 20: test.dblRelTestDFMax = err/1000; break;
+            case 36: test.dblRelTestDDMax = err/10000; break;
 
-            case 81: test->dblAbsTestAbsMaxV = err/1000; break;
-            case 82: test->dblAbsTestDFMaxV = err/1000; break;
-            case 98: test->dblAbsTestDDMaxV = err/10000; break;
-            case 88: test->dblRelTestAbsMinV = err/1000; break;
-            case 84: test->dblRelTestDFMaxV = err/1000; break;
-            case 100: test->dblRelTestDDMaxV = err/10000; break;
+            case 81: test.dblAbsTestAbsMaxV = err/1000; break;
+            case 82: test.dblAbsTestDFMaxV = err/1000; break;
+            case 98: test.dblAbsTestDDMaxV = err/10000; break;
+            case 88: test.dblRelTestAbsMinV = err/1000; break;
+            case 84: test.dblRelTestDFMaxV = err/1000; break;
+            case 100: test.dblRelTestDDMaxV = err/10000; break;
             }
 
             errtypflg |= errtyp;
@@ -1865,9 +1820,9 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
         if( errdirflg == 15 && errdirflgv == 15) break;
     }
 
-    if( errdirflg ) test->blnTestHor = BLN_TRUE;
-    if( errdirflgv ) test->blnTestVrt = BLN_TRUE;
-    if( notest && (test->blnTestHor || test->blnTestVrt) )
+    if( errdirflg ) test.blnTestHor = true;
+    if( errdirflgv ) test.blnTestVrt = true;
+    if( notest && (test.blnTestHor || test.blnTestVrt) )
     {
         send_config_error( cfg, INVALID_DATA, "Test includes tolerances and \"no_test\"");
         return OK;
@@ -1882,19 +1837,16 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
     return OK;
 }
 
-static int find_order( hSDCTest hsdc, const char *order )
+static int find_order( const SDCTest &hsdc, const std::string_view order )
 {
-    int iorder = -1;
-    int i;
-    for( i = 0; i < hsdc->norder; i++ )
+    for( int i = 0; i < hsdc.norder(); i++ )
     {
-        if( _stricmp(order,hsdc->tests[i].scOrder) == 0 )
+        if( boost::algorithm::iequals( order, std::string_view( hsdc.tests[i].scOrder ) ) )
         {
-            iorder = i;
-            break;
+            return i;
         }
     }
-    return iorder;
+    return -1;
 }
 
 struct limit_order_params
@@ -1930,15 +1882,14 @@ static int read_limit_order_command(CFG_FILE *cfg, std::string_view string, void
         return OK;
     }
 
-    if( nameField->size() > SYSCODE_LEN )
+    if( nameField->size() > ORDER_CODE_LEN )
     {
         send_config_error( cfg, INVALID_DATA, "Order name too long in limit_order command");
         return OK;
     }
 
     p.ra = * (stn_relacc_array **) value;
-    const std::string name(*nameField);
-    p.order = find_order(p.ra->hsdc,name.c_str());
+    p.order = find_order(*p.ra->hsdc,*nameField);
     if( p.order == -1 )
     {
         send_config_error( cfg, INVALID_DATA, "Unrecognised order in limit_order command");
@@ -2167,7 +2118,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                     int order=SDC_IGNORE_MARK;
                     if( *field[orderfield] != "*" )
                     {
-                        order = find_order(p.ra->hsdc,field[orderfield]->c_str());
+                        order = find_order(*p.ra->hsdc,*field[orderfield]);
                         if( order >= 0 )
                         {
                             ra->role[istn-1]=order;
@@ -2236,13 +2187,15 @@ static int read_configuration_command(CFG_FILE *cfg, std::string_view string, vo
 static int read_options_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 static int read_output_file_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_test_config_options_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_default_order_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 static config_item cfg_commands[] =
 {
     {"configuration",NULL,CFG_ABSOLUTE,0,read_configuration_command,0,1},
     {"test",NULL,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
     {"log_level",NULL,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
-    {"test_config_options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
+    {"test_config_options",NULL,CFG_ABSOLUTE,0,read_test_config_options_command,CFG_ONEONLY,1},
     {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
     {"output_csv",NULL,OFFSETOF(stn_relacc_array,csvoutput),0,read_output_file_command,CFG_ONEONLY,2},
     {"output_crd",NULL,OFFSETOF(stn_relacc_array,crdoutput),0,read_output_file_command,CFG_ONEONLY,2},
@@ -2250,7 +2203,7 @@ static config_item cfg_commands[] =
     {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
     {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
     {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
-    {"default_order",dfltOrder,CFG_ABSOLUTE,SYSCODE_LEN+1,STORE_AS_STRING,CFG_ONEONLY,0},
+    {"default_order",NULL,CFG_ABSOLUTE,0,read_default_order_command,CFG_ONEONLY,0},
     {"limit_order",NULL,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
     {"ignore",NULL,CFG_ABSOLUTE,0,read_ignore_command,0,2},
     {"station_configuration_file",NULL,CFG_ABSOLUTE,0,read_station_config_command,0,2},
@@ -2456,13 +2409,27 @@ static int read_output_file_command(CFG_FILE *cfg, std::string_view string, void
 }
 
 
+static int read_test_config_options_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
+{
+    SDCTest &sdc = ** static_cast<SDCTest **>( value );
+    return readcfg_int( cfg, string, &sdc.options, sizeof(int), 0 );
+}
+
+/// Longer values are truncated to ORDER_CODE_LEN characters, as the string
+/// store they replace did.
+static int read_default_order_command(CFG_FILE *, std::string_view string, void *, int, int )
+{
+    dfltOrder.assign( string );
+    return OK;
+}
+
 static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
-    hSDCTest sdc=*(hSDCTest *) value;
+    SDCTest &sdc = ** static_cast<SDCTest **>( value );
     int level;
     if( readcfg_int(cfg,string,&level,sizeof(int),0) == OK )
     {
-        sdc->loglevel |= level;
+        sdc.loglevel |= level;
     }
     else
     {
@@ -2507,13 +2474,13 @@ static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *
                 send_config_error(cfg, INVALID_DATA, errmsg );
                 continue;
             }
-            sdc->loglevel |= level;
+            sdc.loglevel |= level;
         }
     }
     return OK;
 }
 
-static void set_sdctest_pointer( hSDCTest *phsdc )
+static void set_sdctest_pointer( SDCTest **phsdc )
 {
     config_item *ci;
     for( ci = cfg_commands; ci->option; ci++ )
@@ -2531,50 +2498,48 @@ static void set_relacc_pointer( stn_relacc_array **ra )
     }
 }
 
-static int read_configuration( CFG_FILE *cfg, hSDCTest hsdc, int skip_rel_acc )
+static int read_configuration( CFG_FILE *cfg, SDCTest &hsdc, int skip_rel_acc )
 {
     int nerr;
-    int i;
-    stn_relacc_array *ra = (stn_relacc_array *)(hsdc->env);
-    set_sdctest_pointer( &hsdc );
+    stn_relacc_array *ra = static_cast<stn_relacc_array *>( hsdc.env );
+    SDCTest *hsdcPointer = &hsdc;
+    set_sdctest_pointer( &hsdcPointer );
     set_relacc_pointer( &ra );
-    strcpy(dfltOrder,"NONE");
     nerr = read_config_file( cfg, cfg_commands );
-    ra->loglevel = hsdc->loglevel;
-    if( hsdc->norder < 1 )
+    ra->loglevel = hsdc.loglevel;
+    if( hsdc.norder() < 1 )
     {
         send_config_error( cfg, MISSING_DATA, "No tests are defined in the configuration");
         nerr++;
     }
     ra->testhor = 0;
     ra->testvrt = 0;
-    for( i = 0; i < hsdc->norder; i++ )
+    for( SDCOrderTest &test : hsdc.tests )
     {
-        SDCOrderTest *test = &(hsdc->tests[i]);
-        test->dblVertHorRatio = vrtHorRatio;
-        if( test->blnTestHor ) ra->testhor = 1;
-        if( test->blnTestVrt ) ra->testvrt = 1;
-        if( test->iMinRelAcc < ra->dfltminrelacc )
+        test.dblVertHorRatio = vrtHorRatio;
+        if( test.blnTestHor ) ra->testhor = 1;
+        if( test.blnTestVrt ) ra->testvrt = 1;
+        if( test.iMinRelAcc < ra->dfltminrelacc )
         {
-            test->iMinRelAcc = ra->dfltminrelacc;
+            test.iMinRelAcc = ra->dfltminrelacc;
         }
         if( skip_rel_acc )
         {
             /* Crudely reset test values to disable relative accuracy tests */
-            test->iMinRelAcc = 0;
-            test->dblRange = 1.0;
-            test->dblRelTestAbsMin = 0.0;
-            test->dblRelTestDFMax  = 1000.0;
-            test->dblRelTestDDMax  = 0.0;
-            test->dblRelTestAbsMinV = 0.0;
-            test->dblRelTestDFMaxV  = 1000.0;
-            test->dblRelTestDDMaxV  = 0.0;
+            test.iMinRelAcc = 0;
+            test.dblRange = 1.0;
+            test.dblRelTestAbsMin = 0.0;
+            test.dblRelTestDFMax  = 1000.0;
+            test.dblRelTestDDMax  = 0.0;
+            test.dblRelTestAbsMinV = 0.0;
+            test.dblRelTestDFMaxV  = 1000.0;
+            test.dblRelTestDDMaxV  = 0.0;
         }
     }
     return nerr;
 }
 
-static void set_test_confidence( hSDCTest hsdc )
+static void set_test_confidence( SDCTest &hsdc )
 {
     double prob;
     double htolfactor;
@@ -2596,7 +2561,7 @@ static void set_test_confidence( hSDCTest hsdc )
         htolfactor = sqrt(fabs(inv_f_distn( prob, 2, dof )*2));
     }
 
-    hsdc->dblErrFactor = htolfactor;
+    hsdc.dblErrFactor = htolfactor;
     // At the moment vertical tolerance not implemented properly ...
 }
 
@@ -2613,14 +2578,14 @@ int main( int argc, char *argv[] )
     std::optional<std::string> cfn;
     const char *basecfn, *ofn;
     int nerr;
-    hSDCTest hsdc;
+    std::unique_ptr<SDCTest> hsdc;
     BINARY_FILE *b;
     FILE *debugfile;
     FILE *out;
     stn_relacc_array *ra;
-    char *min_order_str = NULL;
+    std::optional<std::string> min_order_str;
     char *modestr = NULL;
-    const char *max_control_str = NULL;
+    std::optional<std::string> max_control_str;
     char *outputcsvname = NULL;
     char *debugcsvname = NULL;
     char *updatecrdfile = NULL;
@@ -2841,9 +2806,8 @@ int main( int argc, char *argv[] )
     hsdc = create_test( MAX_ORDER );
     hsdc->useKDTree = use_kdtree;
     hsdc->nmark = ra->nstn;
-    hsdc->options = 0;
     hsdc->env = ra;
-    ra->hsdc = hsdc;
+    ra->hsdc = hsdc.get();
 
     ra->logfile = out;
     if( skip_rel_acc )
@@ -2852,7 +2816,7 @@ int main( int argc, char *argv[] )
     }
     printf("\nUsing configuration file %s\n",cfn->c_str());
 
-    nerr = read_configuration( cfg, hsdc, skip_rel_acc );
+    nerr = read_configuration( cfg, *hsdc, skip_rel_acc );
     close_config_file( cfg );
 
     if( nerr > 0 )
@@ -2862,7 +2826,7 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    if( setup_hv_mode( hvmode, hsdc, ra ) != OK )
+    if( setup_hv_mode( hvmode, *hsdc, ra ) != OK )
     {
         exit(1);
     }
@@ -2898,32 +2862,23 @@ int main( int argc, char *argv[] )
         hsdc->options|= SDC_OPT_TWOPASS_CVR;
     }
 
-    set_test_confidence( hsdc );
+    set_test_confidence( *hsdc );
 
     if( min_order_str )
     {
-        char *orderstr = min_order_str;
-        int iorder;
-        for( iorder = 0; iorder < hsdc->norder; iorder++ )
+        const int iorder = find_order( *hsdc, *min_order_str );
+        if( iorder < 0 )
         {
-            if( _stricmp(orderstr, hsdc->tests[iorder].scOrder ) == 0 )
-            {
-                min_order = iorder;
-                orderstr = NULL;
-                break;
-            }
-        }
-        if( orderstr )
-        {
-            printf("snapspec: Invalid order parameter %s supplied to program\n",min_order_str);
-            fprintf(out,"Invalid order parameter %s supplied to program\n",min_order_str);
+            printf("snapspec: Invalid order parameter %s supplied to program\n",min_order_str->c_str());
+            fprintf(out,"Invalid order parameter %s supplied to program\n",min_order_str->c_str());
             exit(1);
         }
+        min_order = iorder;
     }
 
     if( autominorder || ra->autominorder )
     {
-        int max_control_order = get_max_control_order( hsdc, ra, &max_control_str );
+        int max_control_order = get_max_control_order( *hsdc, ra, max_control_str );
         if( max_control_order < -1 )
         {
             printf("snapspec: Unable to determine order of control stations\n");
@@ -2934,15 +2889,15 @@ int main( int argc, char *argv[] )
         if( max_control_order >= min_order )
         {
             min_order = max_control_order + 1;
-            if( min_order < hsdc->norder )
+            if( min_order < hsdc->norder() )
             {
-                min_order_str = hsdc->tests[min_order].scOrder;
+                min_order_str = hsdc->tests[min_order].scOrder.str();
             }
             else
             {
                 // TODO: Check this is the right default order ...
-                min_order = hsdc->norder;
-                min_order_str = dfltOrder;
+                min_order = hsdc->norder();
+                min_order_str = dfltOrder.str();
             }
         }
     }
@@ -2951,11 +2906,11 @@ int main( int argc, char *argv[] )
 
     if( max_control_str )
     {
-        fprintf(out,"Lowest order of control stations: %s\n",max_control_str);
+        fprintf(out,"Lowest order of control stations: %s\n",max_control_str->c_str());
     }
     if( min_order_str )
     {
-        fprintf(out,"Best order permitted: %s\n",min_order_str);
+        fprintf(out,"Best order permitted: %s\n",min_order_str->c_str());
     }
     if(test_apriori )
     {
@@ -2983,9 +2938,9 @@ int main( int argc, char *argv[] )
         hsdc->loglevel |= SDC_LOG_COMPACT;
     }
 
-    if( hsdc->loglevel > 1 ) write_station_index( hsdc, ra );
+    if( hsdc->loglevel > 1 ) write_station_index( ra );
 
-    sts = run_tests( hsdc );
+    sts = run_tests( *hsdc );
 
     if( debugfile )
     {
@@ -2997,7 +2952,7 @@ int main( int argc, char *argv[] )
 
     if( sts == STS_OK )
     {
-        update_station_orders(hsdc,ra);
+        update_station_orders(*hsdc,ra);
         if( ! outputcsvname && ! ra->csvoutput.empty() ) outputcsvname=ra->csvoutput.data();
         if( outputcsvname )
         {
@@ -3008,7 +2963,7 @@ int main( int argc, char *argv[] )
         }
         else
         {
-            write_results( hsdc, ra );
+            write_results( *hsdc, ra );
         }
 
         if( ! updatecrdfile && ! ra->crdoutput.empty() ) updatecrdfile=ra->crdoutput.data();
@@ -3017,7 +2972,7 @@ int main( int argc, char *argv[] )
             if( splitcrdfile || ra->splitcrdfile ) 
             {
                 const std::string crdfile=output_filename(updatecrdfile,bfn,"");
-                write_coord_files( hsdc, ra, crdfile );
+                write_coord_files( *hsdc, ra, crdfile );
                 fprintf(out,"\nSplit coordinate files written to %s...\n",crdfile.c_str());
                 printf("Split coordinate files written to %s...\n",crdfile.c_str());
             }
@@ -3040,7 +2995,6 @@ int main( int argc, char *argv[] )
     ra->logfile = NULL;
     fclose(out);
 
-    delete_test(hsdc);
     delete_relacc( ra );
 
     return 0;
