@@ -1,0 +1,6 @@
+A1       1266497.268  4980484.778
+**** Error reading data for point B2 ****  B2 abc 1
+**** Error reading data for point C3 ****  C3 -45 168x
+**** Error reading data for point D4 ****  D4 -45
+**** Error reading data for point E5 ****  E5
+F6       1266497.268  4980484.778 ! after errors

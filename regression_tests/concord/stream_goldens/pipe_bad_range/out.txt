@@ -1,0 +1,4 @@
+**** Converted coordinates are outside range of NZTM coordinate system for point A1 **** 
+B2       1205923.255  5004875.467
+**** Converted coordinates are outside range of NZTM coordinate system for point C3 **** 
+D4       1404683.998  4958463.278

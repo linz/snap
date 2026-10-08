@@ -1,0 +1,23 @@
+
+
+=====================================================================
+
+concord - coordinate conversion program (version X dated X)
+
+Input coordinates:  New Zealand Geodetic Datum 2000
+
+Output coordinates: New Zealand Geodetic Datum 2000
+
+You can now enter coordinates you want converted.  Your input should look
+something like this: 
+
+STN_3  41 22 03.26 S  171 41 53.55 E  1532.40
+
+Each item should be separated by at least one blank space.
+The name cannot include blanks.
+When you have finished enter a blank line to quit the program
+
+
+Enter name, latitude, longitude:                                   -45.2878  168.7240      5
+Enter name, latitude, longitude:                                  **** Error reading data ****
+Enter name, latitude, longitude: 
