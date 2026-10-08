@@ -655,23 +655,27 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
         if( ! field || ! boost::algorithm::iequals(*field,"for") )
         {
             msg="\"for\" missing in \"recode suffix\" definition";
-        }
-        std::string stationList(scanner.remainder());
-        if( stationList.empty() )
-        {
-            msg="Station list missing from recode suffix definition";
             ok=false;
         }
         else
         {
-            stn_recode_suffix_data srd;
-            srd.srm=stt;
-            srd.suffix=*suffix;
-            srd.datefrom=datefrom;
-            srd.dateto=dateto;
-            srd.herror=herror;
-            srd.verror=verror;
-            process_selected_stations( stt->net, stationList.c_str(), basefile, &srd, apply_recode_suffix );
+            const std::string stationList(scanner.remainder());
+            if( stationList.empty() )
+            {
+                msg="Station list missing from recode suffix definition";
+                ok=false;
+            }
+            else
+            {
+                stn_recode_suffix_data srd;
+                srd.srm=stt;
+                srd.suffix=*suffix;
+                srd.datefrom=datefrom;
+                srd.dateto=dateto;
+                srd.herror=herror;
+                srd.verror=verror;
+                process_selected_stations( stt->net, stationList.c_str(), basefile, &srd, apply_recode_suffix );
+            }
         }
     }
     else if( ok )
