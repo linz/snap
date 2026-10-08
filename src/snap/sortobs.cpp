@@ -12,11 +12,10 @@
 */
 
 #include <stdio.h>
-#include <stdlib.h>
+#include <algorithm>
+#include <vector>
 
 #define SORTOBS_C
-#include "util/linklist.h"
-#include "util/chkalloc.h"
 #include "sortobs.h"
 
 #undef SORTOBS_C
@@ -29,56 +28,41 @@ struct obsdef
     int64_t loc;  /* File location */
 };
 
-typedef union
-{
-    obsdef *ptr;
-    int64_t loc;
-} obsloc;
-
-static void *obsdeflst = NULL;
-static obsloc *obslst = NULL;
-static int nobslst = 0;
-static int nextobs = 0;
+static std::vector<obsdef> obsdeflst;
+static std::vector<int64_t> sorted_locs;
+static size_t nextobs = 0;
 
 void save_observation( int from, int to, int type, int64_t loc )
 {
-    obsdef *o;
-    if( !obsdeflst ) obsdeflst = create_list( sizeof(obsdef) );
-    o = (obsdef *) add_to_list( obsdeflst, NEW_ITEM );
+    obsdef &o = obsdeflst.emplace_back();
     if( (to && to < from && sort_obs & SORT_BY_LINE) || ! from )
     {
-        o->from = to;
-        o->to = from;
+        o.from = to;
+        o.to = from;
     }
     else
     {
-        o->from = from;
-        o->to = to;
+        o.from = from;
+        o.to = to;
     }
-    o->type = type;
-    o->loc = loc;
-    nobslst++;
+    o.type = type;
+    o.loc = loc;
 }
 
 
-static int cmp_obsdef( const void *p1, const void *p2 )
+static bool obsdef_precedes( const obsdef &o1, const obsdef &o2 )
 {
-    obsdef *o1, *o2;
-    int diftype, difline;
-    o1 = ((obsloc *) p1)->ptr;
-    o2 = ((obsloc *) p2)->ptr;
-
-    diftype = o1->type - o2->type;
-    difline = o1->from - o2->from;
-    if( !difline ) difline = o1->to - o2->to;
+    const int diftype = o1.type - o2.type;
+    int difline = o1.from - o2.from;
+    if( !difline ) difline = o1.to - o2.to;
 
     if( sort_obs & SORT_BY_TYPE )
     {
-        return diftype ? diftype : difline;
+        return (diftype ? diftype : difline) < 0;
     }
     else
     {
-        return difline ? difline : diftype;
+        return (difline ? difline : diftype) < 0;
     }
 }
 
@@ -86,38 +70,23 @@ static int cmp_obsdef( const void *p1, const void *p2 )
 
 void sort_observation_list( void )
 {
-    int i;
+    if( obsdeflst.empty() ) return;
 
-    if( nobslst <= 0 ) return;
-    if( obslst ) return;
+    /* Sort the observation definitions, keeping the saved order of equal ones */
 
-    /* Create an index array */
-
-    obslst = (obsloc *) check_malloc( sizeof(*obslst) * nobslst );
-
-    /* Copy the locations of the definitions into the list */
-
-    reset_list_pointer( obsdeflst );
-    for( i = 0; i<nobslst; i++ )
-    {
-        obslst[i].ptr = (obsdef *) next_list_item( obsdeflst );
-    }
-
-    /* Sort the list */
-
-    qsort( obslst, nobslst, sizeof(obsloc), cmp_obsdef );
+    std::stable_sort( obsdeflst.begin(), obsdeflst.end(), obsdef_precedes );
 
     /* Copy the locations into the observation list */
 
-    for( i=0; i<nobslst; i++ )
+    sorted_locs.clear();
+    for( const obsdef &o : obsdeflst )
     {
-        obslst[i].loc = obslst[i].ptr->loc;
+        sorted_locs.push_back( o.loc );
     }
 
     /* Free up the observation definition list */
 
-    free_list( obsdeflst, NO_ACTION );
-
+    obsdeflst.clear();
 }
 
 
@@ -129,7 +98,7 @@ void init_get_sorted_obs_loc( void )
 
 int64_t get_sorted_obs_loc( void )
 {
-    if( nextobs >= nobslst ) return -1;
-    if( !obslst ) sort_observation_list();
-    return obslst[nextobs++].loc;
+    if( sorted_locs.empty() ) sort_observation_list();
+    if( nextobs >= sorted_locs.size() ) return -1;
+    return sorted_locs[nextobs++];
 }
