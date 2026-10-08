@@ -13,16 +13,23 @@
 #include <stdint.h>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "snapdata/survdata.h"
 
 struct bindata
 {
-    int64_t loc;      /* Location of structure on the file */
-    int64_t size;      /* The size of the data element */
-    int64_t allocsize; /* The space allocated */
-    int  bintype;  /* The binary data format - see enum below */
-    void *data; /* Pointer to the data structure */
+    int64_t loc = 0;                    ///< Location of structure on the file
+    int64_t size = 0;                   ///< The size of the data element on the file
+    int bintype = 0;                    ///< The binary data format - see enum below
+    std::vector<unsigned char> buffer;  ///< The data element, for SURVDATA a survdata followed by its variable width data
+
+    /// Creates a buffer with room for the largest data element in the file
+    bindata();
+
+    /// The buffer as a survdata, which is only valid when bintype is SURVDATA
+    survdata *survey_data() { return reinterpret_cast<survdata *>( buffer.data() ); }
+    const survdata *survey_data() const { return reinterpret_cast<const survdata *>( buffer.data() ); }
 };
 
 
@@ -42,11 +49,8 @@ int64_t write_bindata_header( long size, int type );
 int read_bindata_header( long *size, int *type );
 
 void init_get_bindata(int64_t loc );
-int get_bindata( int datatype, bindata *b );
-void update_bindata( bindata *b );
-
-bindata *create_bindata( void );
-void delete_bindata( bindata *b );
+int get_bindata( int datatype, bindata &b );
+void update_bindata( bindata &b );
 
 int64_t save_survdata( survdata *sd );
 int64_t save_survdata_subset( survdata *sd, int iobs, int type );

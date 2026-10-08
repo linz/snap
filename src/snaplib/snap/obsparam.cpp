@@ -185,12 +185,12 @@ int assign_obs_param_to_stations( int *pnstnobs )
     {
         stnadj(stnptr(istn))->nobsprm=0;
     }
-    bindata *b=create_bindata();
+    bindata b;
     init_get_bindata(0L);
-    for(;;)
+    while( true )
     {
         if( get_bindata( SURVDATA, b ) != OK ) break;
-        survdata *sd = (survdata *) b->data;
+        survdata *sd = b.survey_data();
         int nprm=sd->nprms;
         int prmid=sd->prmid;
         if( nprm <= 0 || prmid <= 0 ) continue;
@@ -230,7 +230,6 @@ int assign_obs_param_to_stations( int *pnstnobs )
             oprm->rowno=istno;
         }
     }
-    delete_bindata( b );
     if( pnstnobs ) *pnstnobs = nstnobs;
     return nobsprm;
 }

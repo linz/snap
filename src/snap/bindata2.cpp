@@ -276,14 +276,14 @@ static void syserr_obseq( survdata *sd, void *hA )
     }
 }
 
-static int bindata_obseq( bindata *b, void *hA )
+static int bindata_obseq( bindata &b, void *hA )
 {
     survdata *sd;
     int nsyserr;
     int status = INTERNAL_ERROR;
-    if( b->bintype == SURVDATA )
+    if( b.bintype == SURVDATA )
     {
-        sd = (survdata *) b->data;
+        sd = b.survey_data();
         nsyserr = max_syserr_params( sd );
         switch( sd->format )
         {
@@ -304,13 +304,13 @@ static int bindata_obseq( bindata *b, void *hA )
 
 
 /*
-static void print_obsheader( FILE *lst, bindata *b )
+static void print_obsheader( FILE *lst, bindata &b )
 {
     survdata *sd;
     trgtdata *tgt=0;
     int ntgt;
 
-    sd = (survdata *) b->data;
+    sd = b.survey_data();
     ntgt = sd->nobs;
 
     tgt=get_trgtdata(sd,0);
@@ -329,7 +329,6 @@ int sum_bindata( int iteration )
 {
     const std::string header = "obs_equation_" + std::to_string(iteration);
     void *hA;
-    bindata *b;
     int nrow;
     long nbin;
     int sts=OK;
@@ -345,7 +344,7 @@ int sum_bindata( int iteration )
 
     maxrow = maxlt = 0;
     hA = create_oe( nprm );
-    b = create_bindata();
+    bindata b;
     init_get_bindata( 0L );
     init_progress_meter( nbindata );
     nbin = 0;
@@ -361,7 +360,7 @@ int sum_bindata( int iteration )
         }
         if( output_observation_equations )
         {
-            const survdata *sd = static_cast<survdata *>(b->data);
+            const survdata *sd = b.survey_data();
             const trgtdata *tgt=get_trgtdata(sd,0);
             std::ostringstream source;
             source << "{\"file\": \"" << survey_data_file_name(sd->file).substr(0,80)
@@ -379,7 +378,7 @@ int sum_bindata( int iteration )
         if( stsobs != OK )
         {
             char location[200];
-            survdata *sd = (survdata *) b->data;
+            survdata *sd = b.survey_data();
             trgtdata *tgt=get_trgtdata(sd,0);
             sprintf(location,"Cannot sum observation from %.80s line %d\n",
                     survey_data_file_name(sd->file).c_str(),
@@ -394,7 +393,6 @@ int sum_bindata( int iteration )
     }
     end_progress_meter();
 
-    delete_bindata(b);
     delete_oe( hA );
 
     if( output_observation_equations )
@@ -410,7 +408,6 @@ int sum_bindata( int iteration )
 void calc_residuals( void )
 {
     void *hA;
-    bindata *b;
     lsdata l;
     long maxelt;
     long nbin;
@@ -433,14 +430,14 @@ void calc_residuals( void )
     l.diagonal=0;
 
     hA = create_oe( nprm );
-    b = create_bindata();
+    bindata b;
 
     init_get_bindata( 0L );
 
     nbin = 0;
     init_progress_meter( nbindata );
 
-    for(;;)
+    while( true )
     {
 
         if( get_bindata( SURVDATA, b ) != OK ) break;
@@ -455,7 +452,7 @@ void calc_residuals( void )
         lsq_calc_obs( hA, l.calc, l.res, &l.sch, &l.schvar,
                       l.diagonal, l.calccvr, l.rescvr );
 
-        sd = (survdata *) b->data;
+        sd = b.survey_data();
 
         switch( sd->format )
         {
@@ -473,7 +470,6 @@ void calc_residuals( void )
 
     end_progress_meter();
 
-    delete_bindata( b );
     delete_oe( hA );
 
     delete [] l.rescvr;
@@ -1166,7 +1162,6 @@ int got_vector_data()
 
 void print_residuals( FILE *out )
 {
-    bindata *b;
     double semult;
     long nbin;
     survdata *sd;
@@ -1175,7 +1170,7 @@ void print_residuals( FILE *out )
 
     setup_format_definitions();
 
-    b = create_bindata();
+    bindata b;
 
     print_section_header(out,"OBSERVATION RESIDUALS");
     print_zero_inverse_warning(out);
@@ -1339,7 +1334,7 @@ void print_residuals( FILE *out )
     nbin = 0;
     init_progress_meter( nbindata );
 
-    for(;;)
+    while( true )
     {
         if( sort_obs )
         {
@@ -1353,7 +1348,7 @@ void print_residuals( FILE *out )
         nbin++;
         update_progress_meter( nbin );
 
-        sd = (survdata *) b->data;
+        sd = b.survey_data();
         switch( sd->format )
         {
         case SD_OBSDATA: list_obsdata_residuals( out, sd, semult ); break;
@@ -1367,8 +1362,6 @@ void print_residuals( FILE *out )
     }
 
     end_progress_meter();
-
-    delete_bindata( b );
 
     print_section_footer(out);
 }
@@ -1719,7 +1712,6 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
 
 void write_observation_csv()
 {
-    bindata *b;
     double semult;
     long nbin;
     survdata *sd;
@@ -1733,7 +1725,7 @@ void write_observation_csv()
         output_csv_vecsum = true;
     }
 
-    b = create_bindata();
+    bindata b;
 
     const std::unique_ptr<output_csv> csv = open_snap_output_csv( "obs" );
     if( ! csv ) return;
@@ -1819,14 +1811,14 @@ void write_observation_csv()
     init_progress_meter( nbindata );
 
     init_get_bindata( 0L );
-    for(;;)
+    while( true )
     {
         if( get_bindata( SURVDATA, b ) != OK ) break;
 
         nbin++;
         update_progress_meter( nbin );
 
-        sd = (survdata *) b->data;
+        sd = b.survey_data();
         /* Set obsset to -1 so that it gets reset on first call to write_observation_csv_common_start */
         obsset = -1;
         for( int iobs = 0; iobs < sd->nobs; iobs++ )
@@ -1848,6 +1840,4 @@ void write_observation_csv()
     }
 
     end_progress_meter();
-
-    delete_bindata( b );
 }

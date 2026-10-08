@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <stdlib.h>
 #include <math.h>
@@ -48,7 +49,7 @@ static int reload_relative_covariances( BINARY_FILE *b );
 
 static BINARY_FILE *b = NULL;
 static FILE *f = NULL;
-static bindata *bd = NULL;
+static std::optional<bindata> bd;
 
 int reload_binary_data( )
 {
@@ -98,12 +99,12 @@ int reload_binary_data( )
 
 void load_observations_from_binary( void )
 {
-    if( ! bd ) bd = create_bindata();
+    if( ! bd ) bd.emplace();
     init_get_bindata( 0L );
 
-    while( get_bindata( SURVDATA, bd ) == OK )
+    while( get_bindata( SURVDATA, *bd ) == OK )
     {
-        add_survdata_connections( (survdata *) bd->data, bd->loc );
+        add_survdata_connections( bd->survey_data(), bd->loc );
     }
 }
 
@@ -167,11 +168,11 @@ static int reload_observations( BINARY_FILE *bf )
 
 survdata *get_survdata_from_binary( int64_t loc )
 {
-    if( !bd ) bd = create_bindata();
+    if( !bd ) bd.emplace();
     init_get_bindata( loc );
-    if( get_bindata(ANYDATATYPE,bd) != OK )  return NULL;
-    if( bd->bintype != SURVDATA ) return NULL;
-    return (survdata *) (bd->data);
+    if( get_bindata(ANYDATATYPE,*bd) != OK )  return nullptr;
+    if( bd->bintype != SURVDATA ) return nullptr;
+    return bd->survey_data();
 }
 
 static int reload_relative_covariances( BINARY_FILE *b )
@@ -205,7 +206,7 @@ void open_data_source( void )
 
 void close_data_source( void )
 {
-    if( bd ) {delete_bindata(bd); bd = NULL; }
+    bd.reset();
     if( b ) {close_binary_file(b); b = NULL; }
     if( f ) {fclose(f); f = NULL;}
 }

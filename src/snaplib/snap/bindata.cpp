@@ -12,9 +12,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <boost/numeric/conversion/cast.hpp>
 
 #define BINDATA_C
-#include "util/chkalloc.h"
 #include "snapdata/survdata.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
@@ -185,7 +185,7 @@ static void read_survdata_fixed_width( FILE *f, survdata &sd )
         [f]( FieldKind kind, auto &value ) { read_disk_field( f, kind, value ); } );
 }
 
-int get_bindata( int bintype, bindata *b )
+int get_bindata( int bintype, bindata &b )
 {
     int64_t loc;
     int sts;
@@ -193,17 +193,17 @@ int get_bindata( int bintype, bindata *b )
 
     /* Read the size and type of the next data item */
 
-    while( 1 )
+    while( true )
     {
         loc = ftell64( bindata_file );
-        sts = fread( &b->size, sizeof(b->size), 1, bindata_file );
-        if( sts ) sts = fread( &b->bintype, sizeof(b->bintype), 1, bindata_file );
-        if( !sts || b->bintype == ENDDATA ) 
+        sts = fread( &b.size, sizeof(b.size), 1, bindata_file );
+        if( sts ) sts = fread( &b.bintype, sizeof(b.bintype), 1, bindata_file );
+        if( !sts || b.bintype == ENDDATA ) 
         {
             fseek64( bindata_file, loc, SEEK_SET );
             return NO_MORE_DATA;
         }
-        if( b->bintype < 0 || b->bintype > NOBINDATATYPES )
+        if( b.bintype < 0 || b.bintype > NOBINDATATYPES )
         {
             handle_error( INTERNAL_ERROR,
                           "Program error - invalid binary data type",
@@ -211,8 +211,8 @@ int get_bindata( int bintype, bindata *b )
 
             return INVALID_DATA;
         }
-        if( b->bintype == bintype || bintype == ANYDATATYPE ) break;
-        fseek64(bindata_file, b->size, SEEK_CUR);
+        if( b.bintype == bintype || bintype == ANYDATATYPE ) break;
+        fseek64(bindata_file, b.size, SEEK_CUR);
     }
 
     /* Check that we have enough room for the data, and if not allocate more.
@@ -222,43 +222,38 @@ int get_bindata( int bintype, bindata *b )
        once padding is excluded - everything else after the header is already
        fixed-width per-element and needs no such adjustment. */
 
-    const int64_t reqsize = (b->bintype == SURVDATA)
-        ? static_cast<int64_t>(sizeof(survdata)) + (b->size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE))
-        : b->size;
+    const int64_t reqsize = (b.bintype == SURVDATA)
+        ? static_cast<int64_t>(sizeof(survdata)) + (b.size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE))
+        : b.size;
 
-    if( b->allocsize < reqsize )
+    if( b.buffer.size() < boost::numeric_cast<size_t>( reqsize ) )
     {
-        if( b->data ) check_free( b->data );
-        b->data = NULL;
-        b->allocsize = 0;
-    }
-    if( !b->data )
-    {
-        b->data = check_malloc( reqsize );
-        b->allocsize = reqsize;
+        // The old contents are not needed, so empty the buffer first to avoid copying them
+        b.buffer.clear();
+        b.buffer.resize( boost::numeric_cast<size_t>( reqsize ) );
     }
 
-    if( b->bintype == SURVDATA )
+    if( b.bintype == SURVDATA )
     {
-        survdata *sd = reinterpret_cast<survdata*>(b->data);
+        survdata *sd = b.survey_data();
         memset( sd, 0, sizeof(survdata) );
         read_survdata_fixed_width( bindata_file, *sd );
-        const int64_t variable_size = b->size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
+        const int64_t variable_size = b.size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
         if( variable_size > 0 )
         {
-            unsigned char *variable = reinterpret_cast<unsigned char*>(b->data) + sizeof(survdata);
+            unsigned char *variable = b.buffer.data() + sizeof(survdata);
             if( fread( variable, variable_size, 1, bindata_file ) != 1 ) return FILE_READ_ERROR;
         }
     }
     else
     {
-        if( fread( b->data, b->size, 1, bindata_file ) != 1 ) return FILE_READ_ERROR;
+        if( fread( b.buffer.data(), b.size, 1, bindata_file ) != 1 ) return FILE_READ_ERROR;
     }
-    b->loc = loc;
+    b.loc = loc;
 
-    switch (b->bintype)
+    switch (b.bintype)
     {
-    case SURVDATA: reset_survdata_pointers( (survdata *) b->data );
+    case SURVDATA: reset_survdata_pointers( b.survey_data() );
         break;
 
     case NOTEDATA: break;
@@ -272,50 +267,30 @@ int get_bindata( int bintype, bindata *b )
     return OK;
 }
 
-void update_bindata( bindata *b )
+void update_bindata( bindata &b )
 {
     const int64_t loc = ftell64( bindata_file );
-    fseek64( bindata_file, b->loc + sizeof(b->bintype) + sizeof(b->size), SEEK_SET );
-    if( b->bintype == SURVDATA )
+    fseek64( bindata_file, b.loc + sizeof(b.bintype) + sizeof(b.size), SEEK_SET );
+    if( b.bintype == SURVDATA )
     {
-        const survdata *sd = reinterpret_cast<const survdata*>(b->data);
-        write_survdata_fixed_width( *sd, bindata_file );
-        const int64_t variable_size = b->size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
+        write_survdata_fixed_width( *b.survey_data(), bindata_file );
+        const int64_t variable_size = b.size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
         if( variable_size > 0 )
         {
-            const unsigned char *variable = reinterpret_cast<const unsigned char*>(b->data) + sizeof(survdata);
+            const unsigned char *variable = b.buffer.data() + sizeof(survdata);
             fwrite( variable, variable_size, 1, bindata_file );
         }
     }
     else
     {
-        fwrite( b->data, b->size, 1, bindata_file );
+        fwrite( b.buffer.data(), b.size, 1, bindata_file );
     }
     fseek64( bindata_file, loc, SEEK_SET );
 }
 
 
-bindata *create_bindata( void  )
+bindata::bindata() : buffer( maxsize > 0 ? boost::numeric_cast<size_t>( maxsize ) : 0 )
 {
-    bindata *b;
-    b = (bindata *) check_malloc( sizeof(bindata) );
-    if( maxsize > 0 )
-    {
-        b->data = check_malloc( maxsize );
-        b->allocsize = maxsize;
-    }
-    else
-    {
-        b->data = NULL;
-        b->allocsize = 0;
-    }
-    return b;
-}
-
-void delete_bindata( bindata *b )
-{
-    if( b->data ) check_free( b->data );
-    check_free( b );
 }
 
 
@@ -658,7 +633,7 @@ void print_json_observation_types( FILE *out )
 
 void print_json_observations( FILE *out )
 {
-    bindata *b = create_bindata();
+    bindata b;
     init_get_bindata( 0L );
     fprintf(out,"[");
     int first=1;
@@ -666,7 +641,7 @@ void print_json_observations( FILE *out )
     {
         int iobs;
         int ncvrrow=0;
-        survdata *sd = (survdata *) b->data;
+        survdata *sd = b.survey_data();
         if( first ) { first=0; } else { fprintf(out,","); }
         fprintf( out, "\n  {\n  \"obs\":\n    [" );
         for( iobs=0; iobs < sd->nobs; iobs++ )
@@ -808,5 +783,4 @@ void print_json_observations( FILE *out )
         fprintf( out, "\n  }");
     }
     fprintf(out,"\n]\n");
-    delete_bindata(b);
 }

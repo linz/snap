@@ -604,24 +604,22 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
 
 static int list_observations( FILE *out, BINARY_FILE *bf, TableWriter &table )
 {
-    bindata *b;
     survdata *sd;
 
     if( find_section( bf, "OBSERVATIONS" ) != OK ) return MISSING_DATA;
 
     init_bindata( bf->f );
 
-    b = create_bindata();
+    bindata b;
     init_get_bindata( 0L );
 
     while( get_bindata( SURVDATA, b ) == OK )
     {
-        sd = (survdata *) b->data;
+        sd = b.survey_data();
         if( sd->format != SD_VECDATA ) continue;
         list_vecdata_residuals( out, sd, table );
     }
 
-    delete_bindata(b);
     return OK;
 }
 

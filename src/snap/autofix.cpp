@@ -163,20 +163,18 @@ static void merge_autofix_data( autofix_data *afxref, autofix_data *afx )
 void compile_station_autofix_data()
 {
     int maxstn;
-    bindata *bd;
     maxstn=number_of_stations( net );
     init_obsflags();
     init_station_autodata( maxstn );
 
     /* Assess observations at each node */
 
-    bd=create_bindata();
+    bindata bd;
     init_get_bindata( 0L );
     while( get_bindata( SURVDATA, bd ) == OK )
     {
-        add_survdata_fixdata( (survdata *) bd->data );
+        add_survdata_fixdata( bd.survey_data() );
     }
-    delete_bindata( bd );
 
     /* Now account for co-located stations.  The observations for these are
      * merged as they are equivalent for the purpose of locating stations.

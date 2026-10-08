@@ -60,9 +60,6 @@ using boost::numeric_cast;
 struct BinaryFileCloser { void operator()( BINARY_FILE *b ) const { if( b ) { close_binary_file( b ); } } };
 using BinaryFilePtr = std::unique_ptr<BINARY_FILE, BinaryFileCloser>;
 
-struct BindataDeleter { void operator()( bindata *b ) const { delete_bindata( b ); } };
-using BindataPtr = std::unique_ptr<bindata, BindataDeleter>;
-
 struct BltMatrixDeleter { void operator()( bltmatrix *blt ) const { delete_bltmatrix( blt ); } };
 using BltMatrixPtr = std::unique_ptr<bltmatrix, BltMatrixDeleter>;
 
@@ -423,20 +420,20 @@ static void copy_observations( BINARY_FILE *in, BINARY_FILE *out )
     create_section( out, "OBSERVATIONS" );
     init_bindata( out->f );
 
-    const BindataPtr bd( create_bindata() );
-    for( ;; ) {
+    bindata bd;
+    while( true ) {
         bindata_file = in->f;
-        const int sts = get_bindata( ANYDATATYPE, bd.get() );
+        const int sts = get_bindata( ANYDATATYPE, bd );
         if( sts == NO_MORE_DATA ) {
             break;
         }
 
         bindata_file = out->f;
-        if( bd->bintype == SURVDATA ) {
-            save_survdata( static_cast<survdata *>( bd->data ) );
+        if( bd.bintype == SURVDATA ) {
+            save_survdata( bd.survey_data() );
         } else {
-            write_bindata_header( bd->size, NOTEDATA );
-            fwrite( bd->data, bd->size, 1, bindata_file );
+            write_bindata_header( bd.size, NOTEDATA );
+            fwrite( bd.buffer.data(), bd.size, 1, bindata_file );
         }
     }
 
@@ -539,7 +536,7 @@ static void dump_syserrdata_text( std::ostream &out, const syserrdata &se )
 // snap/notedata.cpp) are plain text, not struct fields: one flag byte
 // (' ' if this note continues the previous one, '\n' if it starts a new
 // one), then the note text verbatim, then a trailing '\n' and a NUL -
-// bd->size is nch+3.
+// bd.size is nch+3.
 static void dump_observations_text( std::ostream &out, BINARY_FILE *in )
 {
     if( find_section( in, "OBSERVATIONS" ) != OK ) {
@@ -547,25 +544,25 @@ static void dump_observations_text( std::ostream &out, BINARY_FILE *in )
     }
 
     bindata_file = in->f;
-    const BindataPtr bd( create_bindata() );
+    bindata bd;
     int irec = 0;
-    for( ;; ) {
-        const int sts = get_bindata( ANYDATATYPE, bd.get() );
+    while( true ) {
+        const int sts = get_bindata( ANYDATATYPE, bd );
         if( sts == NO_MORE_DATA ) {
             break;
         }
         irec++;
 
-        if( bd->bintype != SURVDATA ) {
+        if( bd.bintype != SURVDATA ) {
             out << "=== OBSERVATIONS[" << irec << "] (NOTEDATA) ===\n";
-            const auto *note = static_cast<const unsigned char *>( bd->data );
+            const unsigned char *note = bd.buffer.data();
             dump_bare_value( out, static_cast<long long>(note[0]) );
-            const int64_t nch = bd->size - 3;
+            const int64_t nch = bd.size - 3;
             out << std::string( reinterpret_cast<const char *>(note + 1), static_cast<size_t>(nch) ) << "\n";
             continue;
         }
 
-        const survdata *sd = static_cast<const survdata *>( bd->data );
+        const survdata *sd = bd.survey_data();
         out << "=== OBSERVATIONS[" << irec << "] ===\n";
         dump_disk_fields_text( out, *sd, SURVDATA_DISK_FIELDS, SURVDATA_DISK_FIELD_COUNT );
         for( int i = 0; i < sd->nobs; i++ ) {

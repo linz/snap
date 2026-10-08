@@ -407,9 +407,8 @@ static void sum_observation( const summary_def &sdf, survdata *sd )
 
 static void sum_summary( const summary_def &sdf )
 {
-    bindata *b;
     long nbin;
-    b = create_bindata();
+    bindata b;
     init_get_bindata( 0L );
     init_progress_meter( nbindata );
     nbin = 0;
@@ -417,10 +416,9 @@ static void sum_summary( const summary_def &sdf )
     {
         nbin++;
         update_progress_meter( nbin );
-        sum_observation( sdf, (survdata *) b->data );
+        sum_observation( sdf, b.survey_data() );
     }
     end_progress_meter();
-    delete_bindata(b);
 }
 
 /* The print summary routine is called recursively */
