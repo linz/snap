@@ -17,7 +17,6 @@
 
 #include "rftrnadj.h"
 #include "snap/rftrans.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/dstring.h"
 #include "util/geodetic.h"

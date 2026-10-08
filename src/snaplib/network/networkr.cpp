@@ -24,7 +24,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "network/network.h"
-#include "util/chkalloc.h"
 #include "util/datafile.h"
 #include "util/filelist.h"
 #include "util/dms.h"

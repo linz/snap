@@ -33,7 +33,6 @@
 #include "snapdata/stnrecodefile.h"
 #include "util/progress.h"
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/xprintf.h"

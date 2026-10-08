@@ -29,7 +29,6 @@ The coordinate system file is located in one of the following places.
 #include "coordsys/lambertr.h"
 #include "coordsys/psprojr.h"
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 
 std::optional<std::string> get_default_crdsys_file()

@@ -56,7 +56,6 @@
 #include "snapdata/gpscvr.h"
 #include "util/bltmatrx.h"
 #include "util/leastsqu.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "util/datafile.h"
 #include "util/dateutil.h"

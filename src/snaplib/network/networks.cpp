@@ -18,7 +18,6 @@
 #include "util/snapctype.h"
 
 #include "network/network.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"

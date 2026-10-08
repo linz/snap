@@ -31,7 +31,6 @@
 #include "snap/snapglob.h"
 #include "snap/survfile.h"
 #include "snap/stnadj.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fileutil.h"
 #include "util/get_date.h"

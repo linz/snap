@@ -59,7 +59,6 @@
 #include <string_view>
 #include "util/snapctype.h"
 
-#include "util/chkalloc.h"
 #include "util/readcfg.h"
 #include "util/readcfg_internal.h"
 #include "util/fileutil.h"

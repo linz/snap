@@ -23,7 +23,6 @@
 using boost::numeric_cast;
 
 #include "snap/bearing.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "network/network.h"

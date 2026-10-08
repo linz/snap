@@ -91,7 +91,6 @@
 #include "util/binfile.h"
 #include "util/bltmatrx.h"
 #include "util/bltmatrx_mt.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "util/dstring.h"
 #include "util/errdef.h"
@@ -712,11 +711,6 @@ try
     if( deformation ) delete_deformation( deformation );
 
     delete_recorded_filenames();
-
-    /* If using debug version of memory allocator then list outstanding
-       allocations */
-
-    list_memory_allocations( lst );
 
     if( ! converged )
     {

@@ -23,7 +23,6 @@
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/errdef.h"
 

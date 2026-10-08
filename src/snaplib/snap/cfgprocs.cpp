@@ -23,7 +23,6 @@
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "snapdata/obsmod.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/iostring.h"

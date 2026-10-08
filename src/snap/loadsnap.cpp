@@ -86,7 +86,6 @@ using boost::numeric_cast;
 #include "snapdata/loaddata.h"
 #include "snapdata/survdata.h"
 #include "snapdata/survdata.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "util/classify.h"
 #include "util/dateutil.h"

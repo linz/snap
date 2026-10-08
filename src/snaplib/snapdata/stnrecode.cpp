@@ -16,7 +16,6 @@
 
 #include "snapdata/stnrecode.h"
 #include "snapdata/stnrecodefile.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "snapdata/datatype.h"

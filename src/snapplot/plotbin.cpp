@@ -20,7 +20,6 @@
 #include <math.h>
 
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 
 #include "plotbin.h"

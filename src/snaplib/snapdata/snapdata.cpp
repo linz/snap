@@ -55,7 +55,6 @@
 #include <assert.h>
 
 #include "snapdata/snapdata.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "snapdata/datatype.h"
 #include "util/datafile.h"

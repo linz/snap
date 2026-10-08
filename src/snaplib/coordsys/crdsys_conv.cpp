@@ -17,7 +17,6 @@
 #include <boost/algorithm/string.hpp>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/errdef.h"
 #include "util/pi.h"

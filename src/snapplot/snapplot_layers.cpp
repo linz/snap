@@ -31,7 +31,6 @@
 #include "snap/stnadj.h"
 #include "plotstns.h"
 #include "backgrnd.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "util/dstring.h"
 #include "util/errdef.h"

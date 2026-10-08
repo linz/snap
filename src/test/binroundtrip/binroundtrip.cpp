@@ -17,7 +17,6 @@ using boost::numeric_cast;
 #include "util/binfile.h"
 #include "util/bltmatrx.h"
 #include "util/fileutil.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "coordsys/coordsys.h"
 #include "snap/filenames.h"

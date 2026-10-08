@@ -57,7 +57,6 @@
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "stnobseq.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/dms.h"
 #include "util/dstring.h"

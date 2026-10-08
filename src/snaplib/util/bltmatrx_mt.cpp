@@ -11,7 +11,6 @@
 
 #include "util/bltmatrx.h"
 #include "bltmatrx_mt.h"
-#include "util/chkalloc.h"
 #include "util/progress.h"
 #include "util/errdef.h"
 

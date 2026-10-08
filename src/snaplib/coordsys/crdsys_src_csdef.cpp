@@ -30,7 +30,6 @@ that the file had not been modified in the mean time - tricky .
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/datafile.h"
 #include "util/fileutil.h"
