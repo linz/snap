@@ -142,7 +142,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
 
     if( sts != OK )
     {
-        if( prj ) delete_projection( prj );
+        delete prj;
         delete rf;
         return NULL;
     }

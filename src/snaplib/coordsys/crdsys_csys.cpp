@@ -43,7 +43,7 @@ coordsys::coordsys( const std::string &code_, const std::string &name_, int type
 coordsys::~coordsys()
 {
     if( ownsrf ) delete rf;
-    delete_projection( prj );
+    delete prj;
     delete hrs;
 }
 
@@ -51,7 +51,7 @@ coordsys *copy_coordsys( coordsys *cs )
 {
     if( !cs ) return nullptr;
     coordsys *copy = new coordsys( cs->code, cs->name, cs->crdtype,
-                                    copy_ref_frame(cs->rf), copy_projection( cs->prj ),
+                                    copy_ref_frame(cs->rf), cs->prj ? new projection( *cs->prj ) : nullptr,
                                     cs->source );
     copy->hrs = copy_vdatum( cs->hrs );
     if( copy->prj && copy->rf->el )

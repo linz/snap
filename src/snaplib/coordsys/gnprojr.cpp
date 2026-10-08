@@ -80,8 +80,7 @@ projection *create_gnomic_projection(  double orglat, double orglon,
     if( !gn_type ) register_gnomic_projection();
     if( !gn_type ) return NULL;
 
-    prj = create_projection( gn_type );
-    if( !prj ) return NULL;
+    prj = new projection( *gn_type );
 
     define_gnomic_projection( (GnomicProjection *) prj->data, 6378388.0, 297.0,
                               orglat, orglon, fe, fn );

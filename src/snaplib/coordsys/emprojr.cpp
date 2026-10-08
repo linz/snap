@@ -70,8 +70,7 @@ projection *create_em_projection(  double cm, double sp )
     if( !em_type ) register_em_projection();
     if( !em_type ) return NULL;
 
-    prj = create_projection( em_type );
-    if( !prj ) return NULL;
+    prj = new projection( *em_type );
 
     define_EMProjection( (EMProjection *) prj->data, 6378388.0, 297.0,
                          cm, sp );

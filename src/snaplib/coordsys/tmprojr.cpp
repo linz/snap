@@ -88,8 +88,7 @@ projection *create_tm_projection(  double cm, double sf, double lto,
     if( !tm_type ) register_tm_projection();
     if( !tm_type ) return NULL;
 
-    prj = create_projection( tm_type );
-    if( !prj ) return NULL;
+    prj = new projection( *tm_type );
 
     define_tmprojection( (tmprojection *) prj->data, 6378388.0, 297.0,
                          cm, sf, lto, fe, fn, utom );

@@ -214,8 +214,19 @@ struct projection_type;
 
 struct projection
 {
-    projection_type *type;
-    void *data;
+    projection_type * const type;   ///< The type of the projection, which defines how its data is used
+    void *data;                     ///< The data of the projection, whose layout is defined by its type
+
+    projection() = delete;
+    projection &operator=( const projection & ) = delete;
+
+    /// Creates a projection of the given type, with its data created by the type
+    explicit projection( projection_type &projtype );
+
+    /// Creates a copy of a projection, with its own copy of the data
+    projection( const projection &other );
+
+    ~projection();
 };
 
 /* Vertical datum definition */
@@ -398,10 +409,6 @@ void init_ref_frame( ref_frame *rf, double convepoch );
 
 projection_type *register_projection_type( projection_type *tp );
 projection_type *find_projection_type( const std::string &code );
-
-projection *create_projection( projection_type *type );
-projection *copy_projection( projection *prj );
-void delete_projection( projection *prj );
 
 void set_projection_name( projection *prj, const char *name );
 void set_projection_ellipsoid( projection *prj, ellipsoid *el );

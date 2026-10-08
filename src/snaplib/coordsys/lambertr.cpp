@@ -88,8 +88,7 @@ projection *create_lcc_projection(  double sp1, double sp2,
     if( !LCC_type ) register_lcc_projection();
     if( !LCC_type ) return NULL;
 
-    prj = create_projection( LCC_type );
-    if( !prj ) return NULL;
+    prj = new projection( *LCC_type );
 
     defineLCCProjection( (LCCProjection *) prj->data, 6378388.0, 297.0,
                          sp1, sp2, lt0, ln0, e, n );

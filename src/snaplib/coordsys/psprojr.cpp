@@ -88,8 +88,7 @@ projection *create_ps_projection(  double cm, double sf,
     if( !ps_type ) register_ps_projection();
     if( !ps_type ) return NULL;
 
-    prj = create_projection( ps_type );
-    if( !prj ) return NULL;
+    prj = new projection( *ps_type );
 
     define_PSProjection( (PSProjection *) prj->data, 6378388.0, 297.0,
                          cm, sf, fe, fn, south);

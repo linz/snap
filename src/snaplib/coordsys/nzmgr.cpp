@@ -44,7 +44,7 @@ projection *create_nzmg_projection( void )
 {
     if( !nzmg_type ) register_nzmg_projection();
     if( !nzmg_type ) return NULL;
-    return create_projection( nzmg_type );
+    return new projection( *nzmg_type );
 }
 
 

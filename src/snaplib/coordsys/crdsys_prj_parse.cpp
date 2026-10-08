@@ -36,14 +36,13 @@ projection *parse_projection_def( input_string_def &is )
         return nullptr;
     }
 
-    prj = create_projection( pt );
-    if( !prj ) return nullptr;   /* Not a string error, so don't report here */
+    prj = new projection( *pt );
 
     sts = read_param_list( is, pt->params, pt->nparams, prj->data );
 
     if( sts != OK )
     {
-        delete_projection( prj );
+        delete prj;
         prj = nullptr;
     }
 
