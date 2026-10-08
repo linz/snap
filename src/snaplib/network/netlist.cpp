@@ -57,8 +57,7 @@ station_list *new_station_list( void )
 
 void delete_station_list( station_list *sl )
 {
-    int i;
-    for( i=1; i < sl->lastid; i++ )
+    for( int i=1; i <= sl->lastid; i++ )
     {
         if( sl->index[i] ) delete_station(sl->index[i] );
     }
