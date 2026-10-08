@@ -50,7 +50,6 @@ using boost::numeric_cast;
 #include "util/linklist.h"
 #include "util/fileutil.h"
 #include "util/geodetic.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/readcfg.h"
@@ -408,7 +407,7 @@ static conn * get_connection( stn *from, stn *to )
     {
         if( cn->to == to ) return cn;
     }
-    cn = (conn *) check_malloc( sizeof(conn) );
+    cn = new conn;
     cn->next = from->connlist;
     from->connlist = cn;
     cn->to = to;
@@ -865,7 +864,7 @@ static void setup_ro_list( void )
 {
     int i;
     if( max_ro_id == 0 ) return;
-    ro_list = (ro_def *) check_malloc( sizeof(ro_def) * (max_ro_id+1) );
+    ro_list = new ro_def[max_ro_id+1];
     for( i =  0; i <= max_ro_id; i++ )
     {
         ro_list[i].link_ro = i;
@@ -1548,10 +1547,11 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
     if( nvec <= 0 ) return 0;
     if( nvec > ncalc_xyz )
     {
-        if( ncalc_xyz > 0 ) { check_free( calc_xyz ); check_free( order ); }
+        delete [] calc_xyz;
+        delete [] order;
         ncalc_xyz = nvec * 2;
-        calc_xyz = (vector3 *) check_malloc( ncalc_xyz * sizeof(vector3) );
-        order = (int *) check_malloc( ncalc_xyz * sizeof(int) );
+        calc_xyz = new vector3[ncalc_xyz];
+        order = new int[ncalc_xyz];
     }
     /* Form an array of all connections, nvec in total, first nhor have good
        3d coords, following nvrt may have suspect heights. */
@@ -2117,7 +2117,7 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
 
     ro = maxro;
     nro = (maxnro*(maxnro-1))/2;
-    centre = (rsc_def *) check_malloc( nro * sizeof(rsc_def) );
+    centre = new rsc_def[nro];
     nro = 0;
 
     FOR_ALL_CONNECTIONS(st,cn)
@@ -2168,7 +2168,7 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
 
         }
 
-    if( c1 < 0 || c2 < 0 ) { check_free(centre); return 0;}
+    if( c1 < 0 || c2 < 0 ) { delete [] centre; return 0;}
 
     /* Work out the two possible positions for the new station given the
        distances from cnd1 and cnd2 */
@@ -2177,7 +2177,7 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
     d2 = centre[c2].r;
 
     daz = (d1*d1+d12*d12-d2*d2)/(2.0*d1*d12);
-    if( daz >= 1.0 || daz <= -1.0 ) { check_free(centre); return 0;}
+    if( daz >= 1.0 || daz <= -1.0 ) { delete [] centre; return 0;}
     daz = atan2( sqrt(1-daz*daz), daz );
 
     az = bearing( centre[c1].xy, centre[c2].xy );
@@ -2202,7 +2202,7 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
         d2 += dif;
     }
 
-    check_free( centre );
+    delete [] centre;
 
     if( d1 > 100*d2 )
     {

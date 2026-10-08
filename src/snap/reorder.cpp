@@ -18,6 +18,7 @@
 */
 
 #include <stdio.h>
+#include <algorithm>
 
 #ifndef TEST
 
@@ -28,15 +29,10 @@
 #include "stnobseq.h"
 #include "output.h"
 #include "util/geodetic.h"
-#include "util/chkalloc.h"
 #include "util/xprintf.h"
 #include "util/leastsqu.h"
 #include "util/bltmatrx.h"
 #include "adjparam.h"
-
-#else
-
-#include "util/chkalloc.h"
 
 #endif
 
@@ -90,7 +86,7 @@ int init_connections( int nnodes )
     if( !save_connections ) return 0;
     if( connlst ) return 1;
 
-    connlst = (connections *) check_malloc( (nnodes+1) * sizeof(connections) );
+    connlst = new connections[nnodes+1];
     for( i = 0; i++ < nnodes; )
     {
         init_connection( connlst+i);
@@ -107,7 +103,10 @@ static void grow_connection_list( int nnodes )
     if( maxconnlst > maxconn0 )
     {
         int i;
-        connlst = (connections *) check_realloc( connlst, (maxconnlst+1) * sizeof(connections) );
+        connections *newlst = new connections[maxconnlst+1];
+        std::copy( connlst, connlst + maxconn0 + 1, newlst );
+        delete [] connlst;
+        connlst = newlst;
         for( i=maxconn0+1; i<=maxconnlst; i++ )
         {
             init_connection(connlst+i);
@@ -121,19 +120,21 @@ void term_connections( void )
     if( !connlst ) return;
     for( i = 0; i++ < nconnlst; )
     {
-        if( connlst[i].list ) check_free( connlst[i].list );
+        delete [] connlst[i].list;
     }
-    check_free( connlst );
-    check_free( order1 );
-    connlst = NULL;
+    delete [] connlst;
+    delete [] order1;
+    connlst = nullptr;
+    order1 = nullptr;
+    // order2 points into the same allocation as order1, so it is only cleared
+    order2 = nullptr;
     nconnlst = 0;
 }
 
 void create_order_arrays( void )
 {
-    if( order1 ) check_free(order1);
-    if( order2 ) check_free(order2);
-    order1 = (int *) check_malloc( (nconnlst+1)*2*sizeof(int) );
+    delete [] order1;
+    order1 = new int[(nconnlst+1)*2];
     order2 = order1 + nconnlst + 1;
     for( int i=0; i<=nconnlst;i++){ order1[i]=0; order2[i]=0; }
 }
@@ -155,15 +156,10 @@ static void add_station_connection( int stn, connections *conn )
     if( i >= ncount )
     {
         conn->maxcount += NO_CONNECTIONS;
-        if( !ncount )
-        {
-            conn->list = (int *) check_malloc( conn->maxcount * sizeof(int) );
-        }
-        else
-        {
-            conn->list =
-                (int *) check_realloc( conn->list, conn->maxcount * sizeof(int) );
-        }
+        int *newlist = new int[conn->maxcount];
+        std::copy( conn->list, conn->list + conn->count, newlist );
+        delete [] conn->list;
+        conn->list = newlist;
     }
     conn->list[i] = stn;
     conn->count++;

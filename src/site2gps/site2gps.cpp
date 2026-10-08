@@ -162,13 +162,8 @@ int main( int argc, char *argv[] )
         printf("No stations loaded from coordinate file\n");
         return 0;
     }
-    stn = (int *) malloc( 2 * nostns * sizeof(int) );
-    dst = (double *) malloc( nostns * sizeof(double) );
-    if( !stn || !dst )
-    {
-        printf("Insufficient memory for program\n");
-        return 0;
-    }
+    stn = new int[2 * nostns];
+    dst = new double[nostns];
     stn2 = stn + nostns;
 
     if( !autolist && (NULL == (in = fopen(argv[2],"r"))))

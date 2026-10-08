@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "util/geodetic.h"
-#include "util/chkalloc.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/textformat.hpp"
@@ -374,8 +373,8 @@ static void reverse_sort_index()
 void init_station_list()
 {
     int nclass = net->classification_count();
-    if( slist_field ) check_free( slist_field );
-    slist_field = (int *) check_malloc( (STNF_CLASS+1+nclass) * sizeof(int));
+    delete [] slist_field;
+    slist_field = new int[STNF_CLASS+1+nclass];
     slist_ncols = 0;
 
     /* No stations loaded yet, or none to list, then return */
@@ -807,7 +806,7 @@ void init_plotstns( int adjusted )
     symbol_pen[REJECTED_STN_SYM] = REJECTED_STN_PEN;
 
     nstns = number_of_stations( net );
-    stns = (stn_plot_s *) check_malloc( (nstns+1) * sizeof(stn_plot_s) );
+    stns = new stn_plot_s[nstns+1];
 
     no_good_stations = 0;
     nadjust3 = 0;
@@ -889,8 +888,8 @@ void init_plotstns( int adjusted )
     if( no_good_stations )
     {
         int iGood = 0;
-        xyindex = (int *) check_malloc( no_good_stations * (sizeof( int)));
-        sortIndex = (int *) check_malloc( no_good_stations * sizeof(int) );
+        xyindex = new int[no_good_stations];
+        sortIndex = new int[no_good_stations];
         sortValues.resize( nstns+1 );
         for( istn = 0; istn++ < nstns;  )
         {
@@ -954,7 +953,7 @@ int reload_covariances( BINARY_FILE *b )
     if( find_section( b, "STATION_COVARIANCES" ) != OK ) return MISSING_DATA;
 
     nstns = number_of_stations( net );
-    covar = (covariance *) check_malloc( sizeof(covariance) * (nstns+1) );
+    covar = new covariance[nstns+1];
 
     for( istn = 0; istn++ < nstns; )
     {
@@ -1527,13 +1526,13 @@ int plot_adjustments( map_plotter *plotter, int first )
 
 void free_station_resources()
 {
-    if( stns ) check_free( stns );
-    stns = NULL;
-    if( xyindex ) check_free( xyindex );
-    xyindex = NULL;
-    if( sortIndex ) check_free( sortIndex );
-    sortIndex = NULL;
+    delete [] stns;
+    stns = nullptr;
+    delete [] xyindex;
+    xyindex = nullptr;
+    delete [] sortIndex;
+    sortIndex = nullptr;
     sortValues.clear();
-    if( covar ) check_free( covar );
-    covar = NULL;
+    delete [] covar;
+    covar = nullptr;
 }
