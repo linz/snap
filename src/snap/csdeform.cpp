@@ -6,7 +6,6 @@
 #include "snap/deform.h"
 #include "snap/stnadj.h"
 #include "coordsys/coordsys.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
@@ -34,17 +33,16 @@ struct CrdsysDefModel
 
 static void delete_csdefmodel( CrdsysDefModel *model )
 {
-    if( model == NULL ) return;
-    if( model->stdefs ) { check_free(model->stdefs); model->stdefs = NULL; }
-    check_free(model);
+    if( model == nullptr ) return;
+    delete [] model->stdefs;
+    delete model;
 }
 
 static CrdsysDefModel *init_csdefmodel()
 {
-    CrdsysDefModel *model;
-    if( ! has_deformation_model( net->crdsys ) ) return NULL;
-    model = (CrdsysDefModel *) check_malloc( sizeof(CrdsysDefModel));
-    model->stdefs = NULL;
+    if( ! has_deformation_model( net->crdsys ) ) return nullptr;
+    CrdsysDefModel *model = new CrdsysDefModel;
+    model->stdefs = nullptr;
     return model;
 }
 
@@ -64,7 +62,7 @@ static int init_csdef_deformation( void *deformation )
     /* Allocate space for a set of station initial values  */
 
     nstns = number_of_stations( net );
-    stdefs = (StationDeformation *) check_malloc( sizeof(StationDeformation) * (nstns+1) );
+    stdefs = new StationDeformation[nstns+1];
     model->stdefs = stdefs;
 
     /* For each station calculate the coordsys epoch coords */

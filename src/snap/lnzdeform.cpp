@@ -9,7 +9,6 @@
 #include "snap/deform.h"
 #include "snap/stnadj.h"
 #include "coordsys/coordsys.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
@@ -47,12 +46,12 @@ struct LinzDefModel
 
 static void delete_linzdefmodel( LinzDefModel *model )
 {
-    if( model == NULL ) return;
+    if( model == nullptr ) return;
     if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
     if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
     if( model->blob ) { utlBlobClose(model->blob); model->blob = NULL; }
-    if( model->stdefs ) { check_free(model->stdefs); model->stdefs = NULL; }
-    check_free(model);
+    delete [] model->stdefs;
+    delete model;
 }
 
 static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch )
@@ -65,7 +64,7 @@ static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch
     auto deffile = find_coordsys_data_file( pmodel, ".ldm" );
     if( !deffile ) return NULL;
 
-    model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));
+    model = new LinzDefModel;
     model->blob = NULL;
     model->binsrc = NULL;
     model->linzdef = NULL;
@@ -122,7 +121,7 @@ static int init_linzdef_deformation( void *deformation )
     /* Allocate space for a set of deformation parameters.. */
 
     nstns = number_of_stations( net );
-    stdefs = (StationDeformation *) check_malloc( sizeof(StationDeformation) * (nstns+1) );
+    stdefs = new StationDeformation[nstns+1];
     model->stdefs = stdefs;
 
     /* For each station calculate the velocity */

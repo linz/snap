@@ -7,7 +7,6 @@
 #include "snap/deform.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
-#include "util/chkalloc.h"
 #include "geoid/griddata.h"
 #include "coordsys/coordsys.h"
 #include "snap/stnadj.h"
@@ -98,7 +97,7 @@ static int init_griddef( void * )
     /* Allocate space for a set of deformation parameters.. */
 
     const int nstns = number_of_stations( net );
-    stn_velocities = static_cast<velocity *>( check_malloc( sizeof(velocity) * (nstns+1) ) );
+    stn_velocities = new velocity[nstns+1];
 
     /* For each station calculate the velocity */
 
@@ -159,6 +158,8 @@ static int print_griddef_model( void *, FILE *out, const char *prefix )
 
 static int delete_griddef( void * )
 {
+    delete [] stn_velocities;
+    stn_velocities = nullptr;
     return OK;
 }
 
