@@ -1363,8 +1363,19 @@ static void update_crdfile( const std::string &fname )
     printf("Updated station orders in %s\n",fname.c_str());
 }
 
-static int get_max_control_order( const SDCTest &hsdc, stn_relacc_array *ra, std::optional<std::string> &max_order_str )
+struct MaxControlOrder
 {
+    /// Result of get_max_control_order
+    MaxControlOrder( const int order, const std::optional<std::string> &orderName = std::nullopt )
+        : order( order ), orderName( orderName ) {}
+
+    const int order;                            ///< Control order found, or a negative value if it could not be determined
+    const std::optional<std::string> orderName; ///< Name of the order, if one was found
+};
+
+static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_array *ra )
+{
+    std::optional<std::string> max_order_str;
     int *order_lookup;
     int nnetorder;
     int nbadorder;
@@ -1383,7 +1394,7 @@ static int get_max_control_order( const SDCTest &hsdc, stn_relacc_array *ra, std
                    );
         }
         printf("Cannot determine control station orders as network doesn't have order information\n");
-        return -1;
+        return MaxControlOrder( -1 );
     }
 
     /* See if the orders are sorted */
@@ -1489,7 +1500,7 @@ static int get_max_control_order( const SDCTest &hsdc, stn_relacc_array *ra, std
     }
 
     check_free( order_lookup );
-    return max_order;
+    return MaxControlOrder( max_order, max_order_str );
 }
 
 static int setup_hv_mode( int hvmode, SDCTest &hsdc, stn_relacc_array *ra )
@@ -2878,7 +2889,9 @@ int main( int argc, char *argv[] )
 
     if( autominorder || ra->autominorder )
     {
-        int max_control_order = get_max_control_order( *hsdc, ra, max_control_str );
+        const MaxControlOrder control = get_max_control_order( *hsdc, ra );
+        const int max_control_order = control.order;
+        max_control_str = control.orderName;
         if( max_control_order < -1 )
         {
             printf("snapspec: Unable to determine order of control stations\n");

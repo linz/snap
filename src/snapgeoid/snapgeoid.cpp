@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <filesystem>
+#include <optional>
 #include <string>
 
 #include "coordsys/coordsys.h"
@@ -58,10 +59,10 @@ int main( int argc, char *argv[] )
     int orthometric_fixed=NW_HGTFIXEDOPT_ELLIPSOIDAL;
     char geoid_msg[120];
     char remove_csyshrs = 0;
-    char *csyshrs = NULL;
-    char *hrscode = NULL;
-    char *geoid = NULL;
-    char **argptr=NULL;
+    std::optional<std::string> csyshrs;
+    std::optional<std::string> hrscode;
+    std::optional<std::string> geoid;
+    std::optional<std::string> *argptr = nullptr;
     int errlevel=WARNING_ERROR;
     geoid_def *gd = NULL;
 
@@ -72,7 +73,7 @@ int main( int argc, char *argv[] )
 
     while( argc > 1 && argv[1][0] == '-' )
     {
-        argptr=0;
+        argptr = nullptr;
         switch( argv[1][1] )
         {
         case 'v':
@@ -262,10 +263,10 @@ int main( int argc, char *argv[] )
 
     if( csyshrs )
     {
-        vdatum *hrs=load_vdatum( csyshrs );
+        vdatum *hrs=load_vdatum( *csyshrs );
         if( ! hrs )
         {
-            printf("Unable to load vertical datum %s\n",csyshrs);
+            printf("Unable to load vertical datum %s\n",csyshrs->c_str());
             return 2;
         }
         int sts=set_coordsys_vdatum( net.crdsys, hrs );
@@ -293,31 +294,31 @@ int main( int argc, char *argv[] )
 
     if( calc_geoid_opt == CALC_HGTREF )
     {
-        vdatum *hrs=load_vdatum( hrscode );
+        vdatum *hrs=load_vdatum( *hrscode );
         if( ! hrs )
         {
-            printf("Unable to load vertical datum %s\n",hrscode);
+            printf("Unable to load vertical datum %s\n",hrscode->c_str());
             return 2;
         }
         ref_frame *rf=vdatum_ref_frame(hrs);
         if( ! rf )
         {
             printf("Unable to load reference frame for vertical datum %s\n",
-                    hrscode);
+                    hrscode->c_str());
             return 2;
         }
         coordsys *cs=new coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
         if( ! cs )
         {
             printf("Unable to create reference coordinate system for vertical datum %s\n",
-                    hrscode);
+                    hrscode->c_str());
             return 2;
         }
         int sts=set_coordsys_vdatum( cs, hrs );
         if( sts != OK )
         {
             printf("Unable to assign vertical datum %s to base coordinate system",
-                    hrscode);
+                    hrscode->c_str());
             return 2;
         }
         sts=calc_station_geoid_info_from_coordsys( &net, cs,
@@ -329,7 +330,7 @@ int main( int argc, char *argv[] )
     else if( calc_geoid_opt == CALC_GEOID )
     {
         if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
-        gd = create_geoid_grid( geoid );
+        gd = create_geoid_grid( geoid->c_str() );
         if( !gd )
         {
             printf("Unable to load geoid model\n");

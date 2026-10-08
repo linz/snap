@@ -533,20 +533,18 @@ static void list_ref_frame_with_pause( void )
     printf("\n");
 }
 
-static void list_coordsys_and_exit( int argc, char *argv[] )
+static void list_coordsys_and_exit( const std::vector<std::string> &codes )
 {
-    int ncs = 0;
-    if( argc )
+    size_t ncs = 0;
+    if( ! codes.empty() )
     {
-        int i;
-        int maxhrs=vdatum_list_count();
-        coordsys *cs;
-        for( i = 0; i < argc; i++ )
+        const int maxhrs=vdatum_list_count();
+        for( size_t i = 0; i < codes.size(); i++ )
         {
             int sts;
             if( i && ! pause_output()) break;
             ncs++;
-            cs = load_coordsys( argv[i] );
+            coordsys *cs = load_coordsys( codes[i] );
             if( cs )
             {
                 int firsthrs=1;
@@ -578,7 +576,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
             }
             else
             {
-                sts = get_notes( CS_COORDSYS_NOTE, argv[i], &printf_writer );
+                sts = get_notes( CS_COORDSYS_NOTE, codes[i], &printf_writer );
             }
         }
     }
@@ -608,8 +606,7 @@ static std::map<char, std::optional<std::string>> param_value = {
 };
 static const char *switch_args="AELVRKH?ZFN";
 static bool switch_value[11]={false,false,false,false,false,false,false,false,false,false,false};
-static char **unused_args;
-static int nunused_args;
+static std::vector<std::string> unused_args;
 
 static bool switch_option( char opt )
 {
@@ -625,41 +622,38 @@ static std::optional<std::string> command_line_option( char opt )
 
 static void parse_command_line( int argc, char **argv )
 {
-    char errmsg[80];
-
-    for( argc--, argv++; argc;  argc--, argv++)
+    int iarg = 1;
+    for( ; iarg < argc; iarg++ )
     {
-        char *arg=*argv;
-        const char *prm;
-        char argchar;
+        const std::string arg = argv[iarg];
 
         if( arg[0] != '-' ) break;
-        if( ! arg[1] ) break;
+        if( arg.size() < 2 ) break;
         /* If -- then signals end of options */
-        if( arg[1] == '-' && ! arg[2] ) { argc--; argv++; break; }
-        argchar=TOUPPER(arg[1]);
-        prm=strchr(switch_args,argchar);
+        if( arg == "--" ) { iarg++; break; }
+        const char argchar=TOUPPER(arg[1]);
+        const char *prm=strchr(switch_args,argchar);
         if( prm )
         {
             switch_value[prm-switch_args]=true;
-            if( ! arg[2] ) continue;
+            if( arg.size() == 2 ) continue;
         }
         auto pit = param_value.find(argchar);
         if( pit != param_value.end() )
         {
-            char *pval=arg+2;
-            if( ! *pval )
+            if( arg.size() > 2 )
             {
-                argv++;
-                argc--;
-                if( ! argc )
-                {
-                    sprintf(errmsg,"Value missing for %s option",arg);
-                    error_exit(errmsg,"");
-                }
-                pval=*argv;
+                pit->second = arg.substr(2);
             }
-            pit->second = pval;
+            else
+            {
+                iarg++;
+                if( iarg >= argc )
+                {
+                    error_exit("Value missing for " + arg + " option","");
+                }
+                pit->second = argv[iarg];
+            }
             continue;
         }
         prm=strchr(switch_args,argchar);
@@ -668,12 +662,9 @@ static void parse_command_line( int argc, char **argv )
             switch_value[prm-switch_args]=false;
             continue;
         }
-        arg[2]=0;
-        sprintf(errmsg,"Invalid option %s",arg);
-        error_exit(errmsg,"");
+        error_exit("Invalid option " + arg.substr(0,2),"");
     }
-    unused_args=argv;
-    nunused_args=argc;
+    unused_args.assign( argv+iarg, argv+argc );
 
     if( switch_option('H') || switch_option('?') ){ help(); exit(0); }
 
@@ -687,7 +678,7 @@ static void process_command_line_options()
 
     if( switch_option('L') )
     {
-        list_coordsys_and_exit( nunused_args, unused_args );
+        list_coordsys_and_exit( unused_args );
     }
     if( switch_option('V') )
     {
@@ -746,11 +737,11 @@ static void process_command_line_options()
         else separator=pval->front();
     }
 
-    if( nunused_args > 2 )
+    if( unused_args.size() > 2 )
     {
         error_exit("Invalid extra arguments on command line","");
     }
-    else if( ! nunused_args ) 
+    else if( unused_args.empty() )
     {
         ask_coords = true;
         if( ! input_cs || ! output_cs ) ask_params=true;
@@ -758,7 +749,7 @@ static void process_command_line_options()
     else
     {
         crdin_fname=unused_args[0];
-        if( nunused_args > 1 ) crdout_fname=unused_args[1];
+        if( unused_args.size() > 1 ) crdout_fname=unused_args[1];
     }
 
     /* If asking for coordinates then there cannot be an input file */
