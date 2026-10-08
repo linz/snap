@@ -36,7 +36,6 @@ that the file had not been modified in the mean time - tricky .
 #include "util/fileutil.h"
 #include "util/dstring.h"
 #include "util/fieldscanner.hpp"
-#include "util/linklist.h"
 
 #define MAXRECLEN 512
 

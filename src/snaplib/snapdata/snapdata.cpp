@@ -63,7 +63,6 @@
 #include "snapdata/survdata.h"
 #include "util/dateutil.h"
 #include "util/errdef.h"
-#include "util/linklist.h"
 #include "util/symmatrx.h"
 #include "util/progress.h"
 #include "util/pi.h"
@@ -148,8 +147,8 @@ struct data_syserr
 
 struct vecerr_def
 {
-    int nvecobs;
-    double vecerr[MAXVECERR];
+    int nvecobs = 0;
+    double vecerr[MAXVECERR] = {};
 };
 
 /* Structure holding the current state of the file */
@@ -159,7 +158,6 @@ struct snapfile_def
     explicit snapfile_def( DATAFILE &datafile );
     snapfile_def( const snapfile_def & ) = delete;
     snapfile_def &operator=( const snapfile_def & ) = delete;
-    ~snapfile_def();
 
     /// The scanner over the current record of the data file
     FieldScanner &scanner() { return df.input_string().scanner; }
@@ -224,7 +222,7 @@ struct snapfile_def
     int cvrupper = 0;
     int nvecobs = 0;
     int nvecgood = 0;
-    void  *vecerrlst = nullptr;   /* Link list used to hold vector errors as they are read */
+    std::vector<vecerr_def> vecerrlst;   /* Vector errors as they are read, kept between observations so the entries are reused */
     std::vector<int> cvrrow;
     vecerr_def *currvecerr = nullptr;
     int dfltcvrtype = CVR_FULL;
@@ -306,11 +304,6 @@ snapfile_def::snapfile_def( DATAFILE &datafile ) :
     dmsformat( AF_DMS )
 {
     std::fill( std::begin( coef_class_id ), std::end( coef_class_id ), -1 );
-}
-
-snapfile_def::~snapfile_def()
-{
-    if( vecerrlst ) free_list( vecerrlst, NO_ACTION );
 }
 
 /*===============================================================*/
@@ -1430,11 +1423,11 @@ static void setup_cvr_rows( snapfile_def *sd )
     {
         sd->cvrrow.resize( nc+30 );
     }
-    reset_list_pointer( sd->vecerrlst );
     int *row = sd->cvrrow.data();
     for( i = sd->nvecobs, i3 = 0; i--; i3 += 3 )
     {
-        vecerr_def *ve = (vecerr_def *) next_list_item( sd->vecerrlst );
+        const size_t ive = numeric_cast<size_t>( sd->nvecobs - i - 1 );
+        const vecerr_def *ve = ive < sd->vecerrlst.size() ? &sd->vecerrlst[ive] : nullptr;
         if( !ve || ve->nvecobs < 0 )
         {
             row[i3] = row[i3+1] = row[i3+2] = -1;
@@ -1480,16 +1473,13 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
 
     /* Copy the information we have already read into the covariance matrix */
 
-    if( cvrused && sd->vecerrlst && sd->nveccvr )
+    if( cvrused && !sd->vecerrlst.empty() && sd->nveccvr )
     {
-
-        reset_list_pointer( sd->vecerrlst );
 
         for( i = sd->nvecobs, i3 = 0; i--; i3 += 3 )
         {
-            vecerr_def *vecerr;
-            double *vcvr;
-            vecerr = (vecerr_def *) next_list_item( sd->vecerrlst );
+            const double *vcvr;
+            const vecerr_def *vecerr = &sd->vecerrlst[numeric_cast<size_t>( sd->nvecobs - i - 1 )];
             if( !vecerr->nvecobs ) continue;
             vcvr = vecerr->vecerr;
             i3 = (vecerr->nvecobs - 1)*3;
@@ -1583,16 +1573,10 @@ static void start_vector_error( snapfile_def *sd )
 
     sd->nvecobs++;
 
-    if( !sd->vecerrlst )
-    {
-        sd->vecerrlst = create_list( sizeof( vecerr_def ) );
-    }
+    const size_t ivecerr = numeric_cast<size_t>( sd->nvecobs - 1 );
+    if( ivecerr >= sd->vecerrlst.size() ) sd->vecerrlst.emplace_back();
 
-    if( sd->nvecobs == 1 ) reset_list_pointer( sd->vecerrlst );
-
-    sd->currvecerr = (vecerr_def *) next_list_item( sd->vecerrlst );
-    if( !sd->currvecerr )
-        sd->currvecerr = (vecerr_def *) add_to_list( sd->vecerrlst, NEW_ITEM );
+    sd->currvecerr = &sd->vecerrlst[ivecerr];
     sd->currvecerr->nvecobs = 0;  /* Only set if observation successfully read */
 }
 

@@ -67,7 +67,6 @@ The procedure requires the following sequence of calls
 
 #include "util/dstring.h"
 #include "snap/genparam.h"
-#include "util/linklist.h"
 #include "util/binfile.h"
 #include "util/errdef.h"
 #include "util/fieldscanner.hpp"

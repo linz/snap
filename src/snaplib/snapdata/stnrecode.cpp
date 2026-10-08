@@ -27,7 +27,6 @@
 #include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
-#include "util/linklist.h"
 #include "util/symmatrx.h"
 #include "util/textformat.hpp"
 #include "util/progress.h"

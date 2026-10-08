@@ -14,8 +14,6 @@
 #include <string>
 #include <optional>
 
-char *copy_string( const char *string);
-char *copy_string_nch( const char *string, int nch );
 /* Length-prefixed on-disk strings. There is no null-vs-empty distinction in the
  * std::string versions - callers with a genuine optional string need
  * std::optional<std::string> around this, not a sentinel value. */

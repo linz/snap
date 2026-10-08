@@ -18,22 +18,6 @@
 #include "util/snapctype.h"
 
 #include "util/dstring.h"
-#include "util/chkalloc.h"
-
-char *copy_string( const char *string )
-{
-    return copy_string_nch( string, string ? strlen(string) : 0 );
-}
-
-char *copy_string_nch( const char *string, int nch )
-{
-    char *s;
-    if( ! string || nch < 0 ) return 0;
-    s = (char *) check_malloc( nch + 1 );
-    strncpy( s, string, nch );
-    s[nch]=0;
-    return s;
-}
 
 // Throws std::overflow_error if string.size() doesn't fit in the int32_t length
 // prefix, rather than silently truncating it - matching write_raw_long32's

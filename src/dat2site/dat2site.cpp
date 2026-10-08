@@ -47,7 +47,6 @@ using boost::numeric_cast;
 #define MAIN
 #define GETVERSION_SET_PROGRAM_DATE
 #include "util/datafile.h"
-#include "util/linklist.h"
 #include "util/fileutil.h"
 #include "util/geodetic.h"
 #include "util/dstring.h"
@@ -2945,13 +2944,6 @@ static void load_command_file( const std::string &cmd_file, int recalconly, int 
 
     if(cfg)
     {
-        // int pl=path_len(f,0);
-        // char *pdir=pl ? copy_string_nch(f,pl) : 0;
-        // if( pdir )
-        // {
-        //     set_project_dir( pdir );
-        //     check_free(pdir);
-        // }
         int options=included ? 0 : CFG_CHECK_MISSING; 
         options |= (CFG_IGNORE_BAD | CFG_SET_PATH);
         set_config_read_options( cfg, options );

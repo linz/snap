@@ -21,7 +21,6 @@ using boost::numeric_cast;
 
 #include "network/network.h"
 #include "util/fieldscanner.hpp"
-#include "util/linklist.h"
 #include "util/errdef.h"
 
 #define STNLIST_INIT_INDEX_SIZE 1024

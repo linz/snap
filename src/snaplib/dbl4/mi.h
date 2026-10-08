@@ -46,9 +46,6 @@ struct MI_FPARAM
 #define mi_fp_funcstate(p) p->data
 
 #define mi_lvarchar_to_string(x) x
-#define mi_alloc malloc
-#define mi_dalloc(x,y) malloc(x)
-#define mi_free(x) free(x)
 
 #define MI_SQL 0
 #define MI_TRUE -1

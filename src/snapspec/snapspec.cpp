@@ -37,7 +37,6 @@
 
 #include "util/errdef.h"
 #include "util/fileutil.h"
-#include "util/linklist.h"
 #include "util/bltmatrx.h"
 #include "util/bltmatrx_mt.h"
 
