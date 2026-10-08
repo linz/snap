@@ -72,7 +72,6 @@ where
 #include "util/bltmatrx.h"
 #include "util/bltmatrx_mt.h"
 #include "util/symmatrx.h"
-#include "util/chkalloc.h"
 
 /*------------------------------------------------------------*/
 /*  Variables used in least squares summation                 */
@@ -135,16 +134,16 @@ static void sequence_error( const char *routine )
 static void alloc_tmp( long nval )
 {
     if( nval <= ntmp ) return;
-    if( ntmp ) check_free( tmp );
-    tmp = (double *) check_malloc( nval * sizeof(double) );
+    delete [] tmp;
+    tmp = new double[nval];
     ntmp = nval;
 }
 
 static void alloc_cols( int ncol )
 {
     if( ncol <= ncols ) return;
-    if( ncols ) check_free( cols );
-    cols = (int *) check_malloc( ncol * sizeof(int) );
+    delete [] cols;
+    cols = new int[ncol];
     ncols = ncol;
 }
 
@@ -153,17 +152,17 @@ void lsq_alloc( int nrow )
 {
     if( nprm > 0 )
     {
-        check_free( b );
+        delete [] b;
         delete_bltmatrix( N );
-        b = NULL;
-        N = NULL;
+        b = nullptr;
+        N = nullptr;
     }
     nprm = nrow;
     if( nprm > 0 )
     {
-        b = (double *) check_malloc(nrow * sizeof(double) );
+        b = new double[nrow];
         N = create_bltmatrix( nrow );
-        alloc_tmp( (long) nrow );
+        alloc_tmp( static_cast<long>( nrow ) );
     }
 
     lsq_status = LSQ_READY;
@@ -1366,12 +1365,11 @@ int main( int argc, char *argv[] )
     /* Create arrays that will be needed..  */
 
     nelt = ( (long) maxrow * (maxrow+1))/2;
-    calccvr = (ltmat) malloc( nelt * sizeof(double) );
-    rescvr = (ltmat) malloc( nelt * sizeof(double) );
-    if( !calccvr || !rescvr ) handle_error( MEM_ALLOC_ERROR, NO_MESSAGE, NO_MESSAGE) ;
+    calccvr = new double[nelt];
+    rescvr = new double[nelt];
 
-    calcval = (double *) check_malloc( maxrow * sizeof(double) );
-    resval = (double *) check_malloc( maxrow * sizeof(double) );
+    calcval = new double[maxrow];
+    resval = new double[maxrow];
 
     /* Now go over all observations dumping out the parameters */
 
