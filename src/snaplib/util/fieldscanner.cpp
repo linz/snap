@@ -26,6 +26,25 @@ std::optional<std::string_view> FieldScanner::next( const char delimiter )
     return field;
 }
 
+std::optional<std::string_view> FieldScanner::nextUntil( const std::string_view terminators, char &terminator )
+{
+    terminator = 0;
+    if( _pos == _text.end() ) return std::nullopt;
+    const auto found = std::find_if( _pos, _text.end(),
+        [terminators]( const char c ){ return terminators.find( c ) != std::string_view::npos; } );
+    const auto field = _span( _pos, found );
+    if( found == _text.end() )
+    {
+        _pos = found;
+    }
+    else
+    {
+        terminator = *found;
+        _pos = found + 1;
+    }
+    return field;
+}
+
 std::optional<std::string_view> FieldScanner::nextToken( const std::string_view delimiters )
 {
     const auto isDelimiter = [delimiters]( const char c ){ return delimiters.find( c ) != std::string_view::npos; };
@@ -158,6 +177,13 @@ template std::optional<double> parse_leading<double>( std::string_view );
 std::optional<double> parse_double( std::string_view field )
 {
     const auto r = parse_leading_field<double>( field );
+    if( ! r || r->result.ptr != field.data() + field.size() ) return std::nullopt;
+    return r->value;
+}
+
+std::optional<int> parse_int( std::string_view field )
+{
+    const auto r = parse_leading_field<int>( field );
     if( ! r || r->result.ptr != field.data() + field.size() ) return std::nullopt;
     return r->value;
 }

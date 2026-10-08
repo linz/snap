@@ -113,6 +113,53 @@ void check_next_delimiter()
     }
 }
 
+void check_next_until()
+{
+    // Adjacent terminators give an empty field, and the terminator that ended
+    // each field is reported and consumed.
+    {
+        FieldScanner scanner( "a,,b c" );
+        char terminator='x';
+        check( scanner.nextUntil( ", ", terminator ) == "a" && terminator == ',', "nextUntil: first field ends at a comma" );
+        check( scanner.nextUntil( ", ", terminator ) == "" && terminator == ',', "nextUntil: empty field between adjacent terminators" );
+        check( scanner.nextUntil( ", ", terminator ) == "b" && terminator == ' ', "nextUntil: third field ends at a space" );
+        check( scanner.nextUntil( ", ", terminator ) == "c" && terminator == 0, "nextUntil: the rest of the text is the last field, with terminator 0" );
+        check( ! scanner.nextUntil( ", ", terminator ) && terminator == 0, "nextUntil: nullopt once nothing is left" );
+    }
+    // Nothing is skipped before the field, so leading terminators and
+    // whitespace are part of the result.
+    {
+        FieldScanner scanner( ",  a, b" );
+        char terminator=0;
+        check( scanner.nextUntil( ",", terminator ) == "", "nextUntil: a leading terminator gives an empty first field" );
+        check( scanner.nextUntil( ",", terminator ) == "  a", "nextUntil: whitespace before a field is kept" );
+        check( scanner.nextUntil( ",", terminator ) == " b" && terminator == 0, "nextUntil: whitespace is kept in the last field" );
+    }
+    // A trailing terminator ends the last field, and leaves nothing after it.
+    {
+        FieldScanner scanner( "a," );
+        char terminator=0;
+        check( scanner.nextUntil( ",", terminator ) == "a" && terminator == ',', "nextUntil: field before a trailing terminator" );
+        check( ! scanner.nextUntil( ",", terminator ), "nextUntil: no empty field after a trailing terminator" );
+        check( scanner.remainder() == "", "nextUntil: nothing left after a trailing terminator" );
+    }
+    // An input with no terminator is one field, and empty input is nullopt.
+    {
+        FieldScanner scanner( "abc" );
+        char terminator='x';
+        check( scanner.nextUntil( ",", terminator ) == "abc" && terminator == 0, "nextUntil: no terminator returns all the text" );
+        FieldScanner empty( "" );
+        check( ! empty.nextUntil( ",", terminator ), "nextUntil: nullopt on empty input" );
+    }
+    // The position is left after the terminator.
+    {
+        FieldScanner scanner( "a;b;c" );
+        char terminator=0;
+        scanner.nextUntil( ";", terminator );
+        check( scanner.remainder() == "b;c", "nextUntil: position left after the terminator" );
+    }
+}
+
 void check_next_token()
 {
     // Runs of delimiters separate fields as a single one does, and the last
@@ -321,6 +368,22 @@ void check_parse_double()
     check( value.has_value() && *value==-1.5, "parse_double: accepts a negative value" );
 }
 
+void check_parse_int()
+{
+    auto value = parse_int("42");
+    check( value.has_value() && *value==42, "parse_int: plain digits" );
+    value = parse_int("-7");
+    check( value.has_value() && *value==-7, "parse_int: accepts a minus sign" );
+    value = parse_int("+7");
+    check( value.has_value() && *value==7, "parse_int: accepts a plus sign" );
+    check( ! parse_int("42abc"), "parse_int: rejects trailing garbage" );
+    check( ! parse_int("4.5"), "parse_int: rejects a decimal point" );
+    check( ! parse_int("abc"), "parse_int: rejects non-numeric text" );
+    check( ! parse_int(""), "parse_int: rejects an empty field" );
+    check( ! parse_int("\"42\""), "parse_int: does not accept a quoted value" );
+    check( ! parse_int("99999999999"), "parse_int: rejects a value out of range" );
+}
+
 void check_parse_positive_double()
 {
     auto value = parse_positive_double("1.5");
@@ -474,6 +537,7 @@ int main()
     check_skip_if_next();
     check_next_delimiter();
     check_next_token();
+    check_next_until();
     check_span_preserves_multiple_spaces();
     check_quoted_value_single_field();
     check_quoted_value_spans_fields();
@@ -484,6 +548,7 @@ int main()
     check_and_recover_quoted_value();
     check_and_recover_quoted_double_value();
     check_parse_double();
+    check_parse_int();
     check_parse_positive_double();
     check_parse_leading_long();
     check_compare_ignoring_case();

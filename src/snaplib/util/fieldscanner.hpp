@@ -32,39 +32,60 @@ public:
     /// \param text must outlive the FieldScanner - it is never copied, only viewed.
     explicit FieldScanner( std::string_view text ) : _text(text), _pos(_text.begin()) {}
 
-    /// Returns the next whitespace-delimited field, or nullopt at end. Runs
-    /// of consecutive whitespace are skipped as a single delimiter.
+    /// \name Reading the next field
+    /// The functions below differ in what ends a field, and in what they do
+    /// with the delimiters around it:
+    ///
+    /// | function              | ends a field at   | leading delimiters | empty fields | the ending delimiter | at the end of the text                       |
+    /// |-----------------------|-------------------|--------------------|--------------|----------------------|----------------------------------------------|
+    /// | next()                | whitespace        | skipped            | never        | not consumed         | nullopt if only whitespace is left           |
+    /// | next(char)            | one delimiter     | kept               | returned     | consumed             | nullopt, and the position does not move      |
+    /// | nextToken(set), (char)| any of a set      | skipped            | never        | not consumed         | nullopt if only delimiters are left          |
+    /// | nextUntil(set, &t)    | any of a set      | kept               | returned     | consumed, and reported | the rest of the text, with t = 0           |
+    ///
+    /// Use next() or nextToken() to split on runs of delimiters, as strtok
+    /// does. Use next(char) or nextUntil() when two delimiters in a row mean
+    /// an empty field. @{
+
+    /// Returns the next whitespace-delimited field. Whitespace before the
+    /// field is skipped and runs of whitespace count as one delimiter.
+    /// \return the field, or nullopt if only whitespace is left.
     std::optional<std::string_view> next();
 
-    /// Returns the text up to the next occurrence of delimiter, consuming it -
-    /// a single-character-delimited split, unlike the no-argument next().
-    /// Two real behavioral differences from next(): consecutive delimiters
-    /// are NOT collapsed (an empty field between two adjacent delimiters is
-    /// returned as an empty string_view, not skipped), and on failure - no
-    /// further delimiter found - this returns nullopt \em without advancing
-    /// the position, so a subsequent remainder() call still gives the
-    /// caller everything not yet split off. That "fails without consuming"
-    /// behavior is what lets a caller do a bounded split (e.g. at most two
-    /// delimiters, three fields) by calling this a fixed number of times and
-    /// falling back to remainder() for the final field, whether or not that
-    /// last delimiter was actually present.
+    /// Returns the text up to the next occurrence of delimiter, and consumes
+    /// the delimiter. Nothing is skipped first, so two delimiters in a row
+    /// give an empty field. If delimiter does not occur again this returns
+    /// nullopt \em without moving the position, so a later remainder() still
+    /// gives everything not yet split off. That lets a caller split off a
+    /// fixed number of fields (e.g. at most two delimiters, three fields) by
+    /// calling this that many times and taking the last field from
+    /// remainder(), whether or not the last delimiter was present.
     /// \return the field, or nullopt if delimiter doesn't occur again before
-    ///         the end of input.
+    ///         the end of the text.
     std::optional<std::string_view> next( char delimiter );
 
-    /// Returns the next run of characters that are not in delimiters, skipping
-    /// any delimiters before it, as strtok does with its delimiter string.
-    /// Unlike next(char), several delimiters in a row separate fields just as
-    /// one does, so no field is ever empty, and the last field need not be
-    /// followed by a delimiter. Unlike next(), which splits on whatever
-    /// isspace accepts, this splits on exactly the characters given, e.g.
-    /// " \t\r\n". The position is left at the delimiter after the field, or
-    /// at the end.
+    /// Returns the next run of characters that are not in delimiters. Any
+    /// delimiters before it are skipped, as strtok does, so several delimiters
+    /// in a row separate fields just as one does and no field is empty. Unlike
+    /// next(), which splits on whatever isspace accepts, this splits on exactly
+    /// the characters given, e.g. " \t\r\n". The position is left at the
+    /// delimiter after the field (it is not consumed), or at the end.
     /// \return the field, or nullopt if there is nothing but delimiters left.
     std::optional<std::string_view> nextToken( std::string_view delimiters );
 
     /// Calls nextToken(std::string_view) with delimiter as the only delimiter.
     std::optional<std::string_view> nextToken( char delimiter );
+
+    /// Returns the text up to the next of any of the terminators, and consumes
+    /// that terminator. Nothing is skipped first, so two terminators in a row
+    /// give an empty field. This is next(char) with several delimiters, that
+    /// also tells the caller which one ended the field, and that treats the
+    /// end of the text as the end of the last field instead of as a failure.
+    /// \return the field, or nullopt if the scanner is already at the end.
+    std::optional<std::string_view> nextUntil(
+        std::string_view terminators,  ///< the characters that end a field
+        char &terminator );            ///< set to the character that ended the field, or 0 if the text ended
+    /// @}
 
     /// Unconsumed text from the current position to the end, verbatim - for
     /// handing the rest of the line off to another parser, or as a
@@ -161,6 +182,14 @@ private:
 /// \return the parsed value, or nullopt if field isn't a valid double or has
 ///         trailing characters after the number.
 std::optional<double> parse_double(
+    std::string_view field );  ///< the field to parse
+
+/// Parses field as an int, requiring the whole field to be consumed (no
+/// trailing characters), as parse_double() does for a double. A leading plus
+/// or minus sign is accepted. This does not treat a quoted value specially.
+/// \return the parsed value, or nullopt if field isn't a valid int, is out of
+///         range, or has trailing characters after the number.
+std::optional<int> parse_int(
     std::string_view field );  ///< the field to parse
 
 /// A leading T (int, double, etc.) parsed from the start of a field, plus
