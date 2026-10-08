@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <algorithm>
+#include <deque>
 #include <optional>
 #include <set>
 #include <string>
@@ -64,35 +65,12 @@ using boost::numeric_cast;
 #include "plotfunc.h"
 #include "plotscal.h"
 #include "snap/stnadj.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "snapdata/gpscvr.h"
 #include "util/dateutil.h"
 #include "util/dms.h"
 #include "util/pi.h"
-
-typedef union              /* Location of data on file or in memory */
-{
-    long floc;
-    char *mloc;
-} conn_location;
-
-struct conn_ptr
-{
-    conn_location l;        /* Location of connections (conn_data) */
-    int nconn;            /* Number of connections saved   */
-    int nalloc;           /* Number of connections allocated */
-    char visible;
-};
-
-/* conn_ptr's are allocated in blocks of CONN_BLOCK_SIZE */
-
-#define CONN_BLOCK_SIZE 100
-
-static int nspare_conn;
-static conn_ptr *conn_block;
-static void * conn_block_alloc;
 
 struct conn_cvr
 {
@@ -121,25 +99,52 @@ struct conn_data
 
 #define CONN_DATA_INIT 4
 
-/* tconn_ptr's are located in dynamically expanded arrays in fconn_ptr */
-/* The initial size is TCONN_ARRAY_INIT and the expansion is in units of
-   TCONN_ARRAY_INC */
+/// The connections between a pair of stations: a block of memory holding a
+/// conn_cvr followed by room for nalloc conn_data records.
+struct conn_ptr
+{
+    std::vector<unsigned char> mem;  ///< The conn_cvr followed by the conn_data records
+    int nconn = 0;                   ///< Number of connections saved
+    int nalloc = 0;                  ///< Number of connections allocated
+    char visible = 0;
+
+    /// Creates a block with room for CONN_DATA_INIT connections
+    conn_ptr();
+
+    /// Doubles the number of connections the block has room for
+    void expand();
+
+    /// Copies a connection into the block
+    void write_record( int index, const conn_data *data );
+
+    /// Copies a connection out of the block
+    void read_record( int index, conn_data *data ) const;
+
+    /// Sets the covariance of the pair of stations
+    void write_cvr( const conn_cvr &cvr );
+
+    /// Gets the covariance of the pair of stations
+    void read_cvr( conn_cvr &cvr ) const;
+};
+
+/* tconn_ptr's are held in a vector in fconn_ptr, which initially has room
+   for TCONN_ARRAY_INIT of them */
 
 struct tconn_ptr
 {
-    conn_ptr *conn;
-    int to;
+    conn_ptr *conn;   ///< The connection data, shared with the station at the other end
+    int to;           ///< The id of the target station
+
+    tconn_ptr() = delete;
+    tconn_ptr( conn_ptr *connptr, const int toid ) : conn( connptr ), to( toid ) {}
 };
 
 #define TCONN_ARRAY_INIT 5
-#define TCONN_ARRAY_INC 5
 
 struct fconn_ptr
 {
-    int nconn;
-    int max_conn;
-    int eastmost_conn;
-    tconn_ptr *to;
+    int eastmost_conn = -1;       ///< The id of the most easterly connected station
+    std::vector<tconn_ptr> to;    ///< The connections from the station
 };
 
 /* Flags used in definitions of connections */
@@ -152,12 +157,28 @@ struct fconn_ptr
 
 #define MAX_TICK   20
 
+/// A conn_data record. It is allocated to the size needed to hold a classification
+/// value for every possible classification, which is not known until the data are read.
+class ConnRecord
+{
+public:
+    /// Sets the size of the record in bytes
+    void resize( const size_t size ) { _bytes.assign( size, 0 ); }
+
+    conn_data *get() { return reinterpret_cast<conn_data *>( _bytes.data() ); }
+    conn_data *operator->() { return get(); }
+    operator conn_data *() { return get(); }
+
+private:
+    std::vector<unsigned char> _bytes;  ///< The bytes of the record
+};
+
 static int nclass = 0;
 static int conn_data_size;
-static fconn_ptr *connlst = NULL;
-static FILE *conn_file = NULL;
-static conn_data *connection;
-static conn_data *connection2;
+static std::vector<fconn_ptr> connlst;
+static std::deque<conn_ptr> conn_pool;  // A deque keeps the conn_ptr's at fixed addresses as it grows
+static ConnRecord connection;
+static ConnRecord connection2;
 static int max_conn = 0;
 static int max_obs = 0;
 static long ndata;
@@ -173,8 +194,6 @@ static double highlight_threshhold;
 
 static double hlt_offset = 0.0;   /* Used to show individual connections */
 
-static char use_conn_file = 0;
-
 /* Code to set up all the information for the connections between observations.
 
    Each station has a list of connected stations in a fconn_ptr structure.
@@ -189,9 +208,8 @@ static char use_conn_file = 0;
    a point.  This member is not initialised until it is first needed.
    (as the station plot coordinates are not defined until then).
 
-   The conn_ptr in turn is a pointer to the actual data, stored in a
-   conn_data structure.  This may be either in memory or in a temporary
-   file, according to the setting of the variable use_conn_file.
+   The conn_ptr in turn holds the actual data, stored in memory as a
+   conn_data structure for each connection.
 
    The conn_data structure is not of a fixed size, since it must
    accommodate an arbitrary number of classifications (fixed for each
@@ -200,138 +218,52 @@ static char use_conn_file = 0;
    The size of the object is conn_data_size.
 */
 
-/* Initialise the list, determine the size of a connection data block, and
-   allocate one to be used for loading the connection list. Open the
-   temporary file */
+/* Initialise the list, determine the size of a connection data record, and
+   allocate two to be used for loading the connection list */
 
 static void init_connection_list( void )
 {
-    int i, maxstn;
-    maxstn = number_of_stations( net ) + 1;
-    connlst = (fconn_ptr *) check_malloc( maxstn * sizeof(fconn_ptr) );
-    for( i = 0; i<maxstn; i++ )
-    {
-        connlst[i].nconn = connlst[i].max_conn = 0;
-        connlst[i].eastmost_conn = -1;
-        connlst[i].to = NULL;
-    }
-    if( use_conn_file )
-    {
-        conn_file = snaptmpfile();
-        if( !conn_file )
-        {
-            handle_error( FATAL_ERROR,
-                          "Cannot open scratch file for connection list\n", NO_MESSAGE );
-        }
-    }
+    const int maxstn = number_of_stations( net ) + 1;
+    connlst.assign( boost::numeric_cast<size_t>( maxstn ), fconn_ptr() );
 
     nclass = obs_classes.count();
     conn_data_size = sizeof( conn_data ) + (nclass - 1) * sizeof( int );
-    connection = (conn_data *) check_malloc( conn_data_size );
-    connection2 = (conn_data *) check_malloc( conn_data_size );
-    conn_block_alloc = NULL;
-    conn_block = NULL;
-    nspare_conn = 0;
+    connection.resize( boost::numeric_cast<size_t>( conn_data_size ) );
+    connection2.resize( boost::numeric_cast<size_t>( conn_data_size ) );
+    conn_pool.clear();
     ndata = 0;
 }
 
-static void free_connection_blocks();
-
 static void free_connection_list()
 {
-    int i;
-    int maxstn;
-
-    check_free( connection );
-    connection = NULL;
-    check_free( connection2 );
-    connection2 = NULL;
-
-    free_connection_blocks();
-
-    if( connlst )
-    {
-        maxstn = number_of_stations( net ) + 1;
-        for(  i = 0; i < maxstn; i++ )
-        {
-            check_free( connlst[i].to );
-            connlst[i].to = NULL;
-            connlst[i].nconn = 0;
-            connlst[i].max_conn = 0;
-            connlst[i].eastmost_conn = -1;
-        }
-        check_free( connlst );
-    }
-    connlst = NULL;
+    // Swapping with an empty container releases the memory, which clear() would not
+    std::deque<conn_ptr>().swap( conn_pool );
+    std::vector<fconn_ptr>().swap( connlst );
 }
 
-
-static void create_conn_data( conn_ptr *cp );
 
 static conn_ptr *allocate_conn_ptr( void )
 {
-    conn_ptr *c;
-    if( nspare_conn <= 0 )
-    {
-        void *old_conn_block_alloc = conn_block_alloc;
-        conn_block_alloc = (void *) check_malloc( sizeof( void *) + CONN_BLOCK_SIZE * sizeof( conn_ptr ) );
-        *(void **)conn_block_alloc = (void *) old_conn_block_alloc;
-        conn_block = (conn_ptr *)(((char *)conn_block_alloc) + sizeof(void *));
-        nspare_conn = CONN_BLOCK_SIZE;
-    }
-    c = conn_block++;
-    nspare_conn--;
-    create_conn_data( c );
-    return c;
-}
-
-static void free_connection_blocks()
-{
-    while( conn_block_alloc )
-    {
-        void *nextblock = *(void **)conn_block_alloc;
-        check_free( conn_block_alloc );
-        conn_block_alloc = nextblock;
-    }
+    return &conn_pool.emplace_back();
 }
 
 
-static void add_tconn_to_fconn( int from, int to, conn_ptr *cp )
+static void add_tconn_to_fconn( const int from, const int to, conn_ptr *cp )
 {
-    fconn_ptr *fp;
-    tconn_ptr *tp;
-    fp = &connlst[from];
-    if( fp->nconn >= fp->max_conn )
-    {
-        if( fp->max_conn )
-        {
-            fp->max_conn += TCONN_ARRAY_INC;
-            fp->to = (tconn_ptr *) check_realloc( fp->to, fp->max_conn * sizeof(tconn_ptr) );
-        }
-        else
-        {
-            fp->max_conn = TCONN_ARRAY_INIT;
-            fp->to = (tconn_ptr *) check_malloc( fp->max_conn * sizeof(tconn_ptr) );
-        }
-    }
-    tp = &fp->to[fp->nconn++];
-    if( fp->nconn > max_conn ) max_conn = fp->nconn;
-    tp->to = to;
-    tp->conn = cp;
+    fconn_ptr &fp = connlst[from];
+    if( fp.to.empty() ) fp.to.reserve( TCONN_ARRAY_INIT );
+    fp.to.emplace_back( cp, to );
+    max_conn = std::max( max_conn, boost::numeric_cast<int>( fp.to.size() ) );
 }
 
 
 static conn_ptr *get_connection( int from, int to )
 {
-    fconn_ptr *fp;
-    tconn_ptr *tp;
     conn_ptr *cp;
-    int i;
 
-    fp = &connlst[from];
-    for( i = fp->nconn, tp = fp->to; i--; tp++ )
+    for( const tconn_ptr &tp : connlst[from].to )
     {
-        if( tp->to == to ) return tp->conn;
+        if( tp.to == to ) return tp.conn;
     }
     cp = allocate_conn_ptr();
     add_tconn_to_fconn( from, to, cp );
@@ -340,99 +272,45 @@ static conn_ptr *get_connection( int from, int to )
 }
 
 
-/* Create a data block at the end of the file */
-
-static void create_data_space( conn_location *l, int nalloc )
+conn_ptr::conn_ptr() : mem( sizeof(conn_cvr) + CONN_DATA_INIT * conn_data_size ), nalloc( CONN_DATA_INIT )
 {
-    conn_cvr cvr = { -1.0, -1.0, -1.0, -1.0 };
-    if( use_conn_file )
-    {
-        fseek( conn_file, 0L, SEEK_END );
-        l->floc = ftell( conn_file );
-        fwrite( &cvr, sizeof(cvr), 1, conn_file );
-        while( nalloc-- )
-        {
-            fwrite( connection, conn_data_size, 1, conn_file );
-        }
-    }
-    else
-    {
-        l->mloc = (char *) check_malloc( sizeof(cvr) + nalloc * conn_data_size );
-        memcpy( l->mloc, &cvr, sizeof(cvr) );
-    }
+    const conn_cvr cvr = { -1.0, -1.0, -1.0, -1.0 };
+    write_cvr( cvr );
 }
 
-
-static void expand_data_space( conn_location *l, int oldsize, int newsize )
+void conn_ptr::expand()
 {
-    if( use_conn_file )
-    {
-        int dsize;
-        unsigned char *dblock;
-
-        dsize = sizeof(conn_cvr) + oldsize * conn_data_size;
-        dblock = (unsigned char *) check_malloc( dsize );
-
-        fseek( conn_file, l->floc, SEEK_SET );
-        fread( dblock, dsize, 1, conn_file);
-
-        fseek( conn_file, 0L, SEEK_END );
-        l->floc = ftell( conn_file );
-        fwrite( dblock, dsize, 1, conn_file );
-        fwrite( dblock, dsize-sizeof(conn_cvr), 1, conn_file );
-        check_free( dblock );
-        fseek( conn_file, 0L, SEEK_END );
-        while( oldsize++ < newsize )
-        {
-            fwrite( connection, conn_data_size, 1, conn_file );
-        }
-    }
-    else
-    {
-        l->mloc = (char *) check_realloc( l->mloc,
-                                          sizeof(conn_cvr) + newsize * conn_data_size );
-    }
+    mem.resize( sizeof(conn_cvr) + nalloc * 2 * conn_data_size );
+    nalloc *= 2;
 }
 
-/*
-static void free_conn_data( conn_ptr *cp )
+void conn_ptr::write_record( const int index, const conn_data *data )
 {
-    if( ! use_conn_file )
-    {
-        cp->nconn = 0;
-        cp->nalloc = 0;
-        check_free( cp->l.mloc );
-        cp->l.mloc = 0;
-    }
-}
-*/
-
-
-static void create_conn_data( conn_ptr *cp )
-{
-    create_data_space( &cp->l, CONN_DATA_INIT );
-    cp->nconn = 0;
-    cp->nalloc = CONN_DATA_INIT;
+    memcpy( mem.data() + sizeof(conn_cvr) + index * conn_data_size, data, conn_data_size );
 }
 
-
-/* Copy the data block to the end of the file and expand it */
-
-static void expand_conn_data( conn_ptr *cp )
+void conn_ptr::read_record( const int index, conn_data *data ) const
 {
-    expand_data_space( &cp->l, cp->nalloc, cp->nalloc*2 );
-    cp->nalloc *= 2;
+    memcpy( data, mem.data() + sizeof(conn_cvr) + index * conn_data_size, conn_data_size );
 }
 
-/* Get the conn_ptr structure for a connection */
+void conn_ptr::write_cvr( const conn_cvr &cvr )
+{
+    memcpy( mem.data(), &cvr, sizeof(cvr) );
+}
 
-/* Add a block of data to the end of the file */
+void conn_ptr::read_cvr( conn_cvr &cvr ) const
+{
+    memcpy( &cvr, mem.data(), sizeof(cvr) );
+}
+
+/* Add a block of data to the list of connections */
 
 static void add_fconn_data( int from, int to, conn_data *data )
 {
     conn_ptr *ptr;
 
-    if( !connlst ) init_connection_list();
+    if( connlst.empty() ) init_connection_list();
 
 
     if( from == 0 ) { from = to; to = 0; }
@@ -458,21 +336,9 @@ static void add_fconn_data( int from, int to, conn_data *data )
     }
 
     ptr = get_connection( from, to );
-    if( ptr->nconn >= ptr->nalloc ) expand_conn_data( ptr );
+    if( ptr->nconn >= ptr->nalloc ) ptr->expand();
 
-    if( use_conn_file )
-    {
-        long loc;
-        loc = ptr->l.floc + sizeof(conn_cvr) + ptr->nconn * conn_data_size;
-        fseek( conn_file, loc, SEEK_SET );
-        fwrite( data, conn_data_size, 1, conn_file );
-    }
-    else
-    {
-        char *loc;
-        loc = ptr->l.mloc + sizeof(conn_cvr) + ptr->nconn * conn_data_size;
-        memcpy( loc, data, conn_data_size );
-    }
+    ptr->write_record( ptr->nconn, data );
 
     ptr->nconn++;
     if( ptr->nconn > max_obs ) max_obs = ptr->nconn;
@@ -492,18 +358,10 @@ void add_relative_covariance( int from, int to, double cvr[] )
     covar.sehgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
     if( covar.sehgt > relcvrmaxv ) relcvrmaxv = covar.sehgt;
 
-    if( !connlst ) init_connection_list();
+    if( connlst.empty() ) init_connection_list();
 
     ptr = get_connection( from, to );
-    if( use_conn_file )
-    {
-        fseek( conn_file, ptr->l.floc, SEEK_SET );
-        fwrite( &covar, sizeof(covar), 1, conn_file );
-    }
-    else
-    {
-        memcpy( ptr->l.mloc, &covar, sizeof(covar) );
-    }
+    ptr->write_cvr( covar );
 }
 
 void maximum_relative_covariance( double *h, double *v )
@@ -518,35 +376,20 @@ void maximum_relative_covariance( double *h, double *v )
 static int get_connection_data( int from, tconn_ptr *tp, conn_data *cd, int first )
 {
     static int nleft = 0;
-    static char *mloc = NULL;
+    static int nread = 0;
     static char reverse;
     conn_ptr *p = tp->conn;
     if( p->nconn == 0 ) return 0;
     if( first )
     {
-        if( use_conn_file )
-        {
-            fseek( conn_file, p->l.floc + sizeof(conn_cvr), SEEK_SET );
-        }
-        else
-        {
-            mloc = p->l.mloc + sizeof(conn_cvr);
-        }
+        nread = 0;
         nleft = p->nconn;
         reverse = from < tp->to ? 1 : 0;
     }
 
     if( nleft <= 0 ) return 0;
     nleft--;
-    if( use_conn_file )
-    {
-        fread( cd, conn_data_size, 1, conn_file );
-    }
-    else
-    {
-        memcpy( cd, mloc, conn_data_size );
-        mloc += conn_data_size;
-    }
+    p->read_record( nread++, cd );
     if( reverse )
     {
         cd->flags ^= CONN_OBS_REVERSE;
@@ -558,24 +401,9 @@ static int get_connection_data( int from, tconn_ptr *tp, conn_data *cd, int firs
 
 static void get_connection_data_by_id( int from, int to_id, int obs_id, conn_data *cd  )
 {
-    fconn_ptr *fp;
-    tconn_ptr *tp;
-    int offset;
-    conn_ptr *p;
-    fp = &connlst[from];
-    tp = &fp->to[to_id];
-    p = tp->conn;
-    offset = sizeof(conn_cvr) + obs_id * conn_data_size;
-    if( use_conn_file )
-    {
-        fseek( conn_file, p->l.floc + offset, SEEK_SET );
-        fread( cd, conn_data_size, 1, conn_file );
-    }
-    else
-    {
-        memcpy( cd, p->l.mloc + offset, conn_data_size );
-    }
-    if( from < tp->to )
+    const tconn_ptr &tp = connlst[from].to[to_id];
+    tp.conn->read_record( obs_id, cd );
+    if( from < tp.to )
     {
         cd->flags ^= CONN_OBS_REVERSE;
         if( datatype[cd->type].isdirectional )
@@ -586,13 +414,12 @@ static void get_connection_data_by_id( int from, int to_id, int obs_id, conn_dat
 
 static int get_connection_to_id( int from, int to )
 {
-    fconn_ptr *fp;
-    int to_id;
     if( from == 0 ) { from = to; to = 0; }
-    fp = &connlst[from];
-    for( to_id = 0; to_id < fp->nconn; to_id++ )
+    const std::vector<tconn_ptr> &tos = connlst[from].to;
+    const int nto = boost::numeric_cast<int>( tos.size() );
+    for( int to_id = 0; to_id < nto; to_id++ )
     {
-        if( fp->to[to_id].to == to ) return to_id;
+        if( tos[to_id].to == to ) return to_id;
     }
     return -1;
 }
@@ -620,15 +447,7 @@ static int get_connection_obs_id( int from, int to_id, int64_t bloc, int index )
 
 void get_relative_covariance( conn_ptr *ptr, conn_cvr *cvr )
 {
-    if( use_conn_file )
-    {
-        fseek( conn_file, ptr->l.floc, SEEK_SET );
-        fread( cvr, sizeof(conn_cvr), 1, conn_file );
-    }
-    else
-    {
-        memcpy( cvr, ptr->l.mloc, sizeof(conn_cvr) );
-    }
+    ptr->read_cvr( *cvr );
 }
 
 /* Record an observation in the connection list */
@@ -648,7 +467,7 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
     trgtdata *t;
     int i, j, iclass;
 
-    if( !connlst ) init_connection_list();
+    if( connlst.empty() ) init_connection_list();
 
     connection->bloc = bloc;
 
@@ -1179,13 +998,13 @@ static int obs_station_showable( int istn )
 
 struct pendef
 {
-    int pen;
-    unsigned char flags;
-    unsigned char highlight;
+    int pen = 0;
+    unsigned char flags = 0;
+    unsigned char highlight = 0;
 };
 
 static int max_pens;
-static pendef *pens = NULL;
+static std::vector<pendef> pens;
 
 int plot_connections( map_plotter *plotter, int first, int offset_opt, double offset, int redraw )
 {
@@ -1209,7 +1028,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
     int first_conn;
     conn_cvr cvr;
 
-    if( !connlst ) return ALL_DONE;
+    if( connlst.empty() ) return ALL_DONE;
 
     highlight = redraw == PCONN_REDRAW_HIGHLIGHT ? 1 : 0;
 
@@ -1250,7 +1069,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
     if( !pltused && !pltrejected && !pltunused ) return ALL_DONE;
 
-    if( !pens ) pens = (pendef *) check_malloc( sizeof(pendef) * max_obs );
+    if( pens.empty() ) pens.resize( boost::numeric_cast<size_t>( max_obs ) );
 
     if( first < 0 ) { first = 0; count = maxstn; }
     else count = 1;
@@ -1281,7 +1100,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
         fp = &connlst[from];
 
-        for( tp = fp->to, ntp = fp->nconn; ntp--; tp++ )
+        for( tp = fp->to.data(), ntp = boost::numeric_cast<int>( fp->to.size() ); ntp--; tp++ )
         {
 
             /* Skip over point data */
@@ -1580,8 +1399,8 @@ private:
 #define MAX_DISPLAY_FIELDS 32
 
 static std::vector<SresDef> srList;
-static long *srIndex = NULL;
-static long *srIndex2 = NULL;
+static std::vector<long> srIndex;
+static std::vector<long> srIndex2;
 static long srListCount = 0;
 static long srIndexCount = 0;
 static int srListMode = SRL_ALL;
@@ -1893,10 +1712,10 @@ static void create_sres_index( void )
     int from;
     if( ! srList.empty() ) return;
     if( !ndata ) return;
-    if( !connlst ) return;
+    if( connlst.empty() ) return;
     srList.resize( ndata );
-    srIndex = (long *) check_malloc( ndata * sizeof(long) );
-    srIndex2 = (long *) check_malloc( ndata * sizeof(long) );
+    srIndex.assign( boost::numeric_cast<size_t>( ndata ), 0 );
+    srIndex2.assign( boost::numeric_cast<size_t>( ndata ), 0 );
     srListCount = 0;
     srIndexCount = 0;
     for( from = 1; from <= number_of_stations(net); from++ )
@@ -1904,7 +1723,7 @@ static void create_sres_index( void )
         fconn_ptr *fp;
         int to_id;
         fp = &connlst[from];
-        for( to_id = 0; to_id < fp->nconn; to_id++ )
+        for( to_id = 0; to_id < boost::numeric_cast<int>( fp->to.size() ); to_id++ )
         {
             tconn_ptr *tp;
             int obs_id;
@@ -1988,7 +1807,7 @@ static void SetupSresIndex( void )
     default:          cmp_func = cmp_srdef_generic; break;
     }
 
-    qsort( srIndex, srIndexCount, sizeof(long), cmp_func );
+    qsort( srIndex.data(), srIndexCount, sizeof(long), cmp_func );
     indexValid = 1;
     set_display_field_widths();
 }
@@ -2260,11 +2079,11 @@ void set_eastmost_conn( int from )
     tconn_ptr *t;
     int i;
     double e, n, emost;
-    if( !connlst ) return;
+    if( connlst.empty() ) return;
     fp = &connlst[from];
     get_station_coordinates( from, &emost, &n );
     fp->eastmost_conn = from;
-    for( t = fp->to, i = fp->nconn; i--; t++ )
+    for( t = fp->to.data(), i = boost::numeric_cast<int>( fp->to.size() ); i--; t++ )
     {
         if( t->to )
         {
@@ -2314,7 +2133,7 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
     int i;
     long current_xyindex;
     *from = *to = 0;
-    if( !connlst ) return 0;
+    if( connlst.empty() ) return 0;
     current_xyindex = get_xyindex_version();
     if( current_xyindex != xyindex_used )
     {
@@ -2343,7 +2162,7 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
         if( fp->eastmost_conn < 0 ) set_eastmost_conn( f );
         get_station_coordinates( fp->eastmost_conn, &e2, &n2 );
         if( e2 > end_e ) continue;  /* Can't get close enough */
-        for( it = fp->nconn, tp = fp->to; it--; tp++ )
+        for( it = boost::numeric_cast<int>( fp->to.size() ), tp = fp->to.data(); it--; tp++ )
         {
             double nearest;
             if( !tp->to ) continue;
@@ -2369,7 +2188,7 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
 
 int get_connection_count( int istn )
 {
-    return connlst ? connlst[istn].nconn : 0;
+    return connlst.empty() ? 0 : boost::numeric_cast<int>( connlst[istn].to.size() );
 }
 
 int connection_observation_count( int from, int index )
@@ -2377,9 +2196,9 @@ int connection_observation_count( int from, int index )
     tconn_ptr *tp;
     fconn_ptr *fp;
     conn_ptr *p;
-    if( !connlst ) return 0;
+    if( connlst.empty() ) return 0;
     fp = &connlst[from];
-    if( index < 0 || index >= fp->nconn ) return 0;
+    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) return 0;
     tp = &fp->to[index];
     p = tp->conn;
     return p ? p->nconn : 0;
@@ -2391,9 +2210,9 @@ int get_connected_station( int from, int index, char *visible )
     fconn_ptr *fp;
     int to;
 
-    if( !connlst ) return -1;
+    if( connlst.empty() ) return -1;
     fp = &connlst[from];
-    if( index < 0 || index >= fp->nconn ) return -1;
+    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) return -1;
     tp = &fp->to[index];
     to = tp->to;
     if( visible )
@@ -2430,19 +2249,19 @@ void list_connections( void *dest, PutTextFunc f, int from )
     int first_conn;
     int pntdata_id;
     PutTextInfo jump;
-    if( !connlst || max_conn < 1 ) return;
+    if( connlst.empty() || max_conn < 1 ) return;
 
     jump.type = ptfNone;
 
     (*f)( dest, &jump, pad_right( "To", 10 ) + " " + pad_left( "Length", 8 ) + " " + pad_left( "Azimuth", 7 ) + "  Observations" );
 
     fp = &connlst[from];
-    std::vector<double> connAz( fp->nconn );
-    std::vector<int> connId( fp->nconn );
+    std::vector<double> connAz( fp->to.size() );
+    std::vector<int> connId( fp->to.size() );
     nconn=0;
     fs = stnptr( from );
     pntdata_id = -1;
-    for( id = 0; id < fp->nconn; id++ )
+    for( id = 0; id < boost::numeric_cast<int>( fp->to.size() ); id++ )
     {
         tp = &fp->to[id];
         if( !tp->to ) pntdata_id = id;
@@ -2623,10 +2442,10 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
     list_line_statistics( dest, f, from, to );
 
-    if( !connlst ) return;
+    if( connlst.empty() ) return;
     fp = &connlst[from];
     tp = 0;
-    for( i = 0; i < fp->nconn; i++ )
+    for( i = 0; i < boost::numeric_cast<int>( fp->to.size() ); i++ )
     {
         if( fp->to[i].to  == to ) { tp = &fp->to[i]; break;}
     }
@@ -3267,10 +3086,10 @@ void list_single_observation( void *dest, PutTextFunc f, int from, int to, int o
     int to_id;
     survdata *sd;
 
-    if( !connlst ) return;
+    if( connlst.empty() ) return;
     fp = &connlst[from];
     tp = 0;
-    for( to_id = 0; to_id < fp->nconn; to_id++ )
+    for( to_id = 0; to_id < boost::numeric_cast<int>( fp->to.size() ); to_id++ )
     {
         if( fp->to[to_id].to  == to ) { tp = &fp->to[to_id]; break;}
     }
@@ -3293,21 +3112,12 @@ void list_single_observation( void *dest, PutTextFunc f, int from, int to, int o
 void free_connection_resources()
 {
     srList.clear();
-    if( srIndex ) check_free( srIndex );
-    srIndex = NULL;
-    if( srIndex2 ) check_free( srIndex2 );
-    srIndex2 = NULL;
-    if( pens ) check_free( pens );
-    pens = NULL;
+    // Swapping with an empty vector releases the memory, which clear() would not
+    std::vector<long>().swap( srIndex );
+    std::vector<long>().swap( srIndex2 );
+    std::vector<pendef>().swap( pens );
     max_pens = 0;
     free_range_pens();
 
     free_connection_list();
-
-    if( conn_file )
-    {
-        fclose( conn_file );
-        conn_file = NULL;
-    }
-
 }
