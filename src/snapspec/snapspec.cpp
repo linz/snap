@@ -994,17 +994,17 @@ static void f_set_order( void *env, int stn, int order )
     ra->order[stn] = (short) (order+1);
 }
 
-static void f_write_log( void *env, const char *text )
+static void f_write_log( void *env, const std::string_view text )
 {
     stn_relacc_array *ra = (stn_relacc_array *) env;
-    if( ra->logfile ) { fputs( text, ra->logfile ); }
-    if( ra->outputlog ) { puts( text ); }
+    if( ra->logfile ) { fwrite( text.data(), 1, text.size(), ra->logfile ); }
+    if( ra->outputlog ) { fwrite( text.data(), 1, text.size(), stdout ); putchar( '\n' ); }
 }
 
-static void f_write_debug( void *env, const char *text )
+static void f_write_debug( void *env, const std::string_view text )
 {
     stn_relacc_array *ra = (stn_relacc_array *) env;
-    if( ra->dbgfile ) { fputs( text, ra->dbgfile ); }
+    if( ra->dbgfile ) { fwrite( text.data(), 1, text.size(), ra->dbgfile ); }
 }
 
 static std::unique_ptr<SDCTest> create_test( const int maxorder )

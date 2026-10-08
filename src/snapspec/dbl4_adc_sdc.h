@@ -17,6 +17,7 @@
 */
 
 #include <cstddef>
+#include <string_view>
 #include <vector>
 
 #include "dbl4_types.h"
@@ -160,11 +161,11 @@ struct SDCTest
 
     void (*pfWriteLog) (   /* Writes log information */
         void *env,
-        const char *text ) = nullptr;
+        std::string_view text ) = nullptr;
 
     void (*pfWriteCompact) (   /* Writes compact log information */
         void *env,
-        const char *text ) = nullptr;
+        std::string_view text ) = nullptr;
 };
 
 StatusType sdcCalcSDCOrders( SDCTest *sdc );

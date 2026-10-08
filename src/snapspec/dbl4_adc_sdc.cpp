@@ -302,7 +302,7 @@ static void sdcWriteCompactLogHeader( SDCTestImp *sdci );
 static void sdcWriteCompactLog( SDCTestImp *sdci, long stn1, long stn2, 
         const char *test, const char *status, double v1, double v2, const char *comment );
 static long sdcStationId( SDCTestImp *sdci, int istn );
-static void sdcTimeStamp( SDCTestImp *sdci, const char *status );
+static void sdcTimeStamp( SDCTestImp *sdci, std::string_view status );
 
 /* nibble_get/nibble_set: pack two SDC_STS_* values per byte in the relstatus row
  * arrays, halving their memory footprint. data is the row's packed byte array.
@@ -2552,7 +2552,7 @@ static long sdcStationId( SDCTestImp *sdci, int istn )
 **************************************************************************
 */
 
-static void sdcTimeStamp( SDCTestImp *sdci, const char *status )
+static void sdcTimeStamp( SDCTestImp *sdci, const std::string_view status )
 {
     double ttotal;
     double tlast;
@@ -2564,6 +2564,6 @@ static void sdcTimeStamp( SDCTestImp *sdci, const char *status )
     tlast = (double)(now-sdci->lasttime) / CLOCKS_PER_SEC;
     sdci->lasttime = now;
 
-    snprintf(sdci->logbuffer,sizeof(sdci->logbuffer),"   .. %s took %.2lf seconds (total %.2lf seconds)\n",status,tlast,ttotal);
+    snprintf(sdci->logbuffer,sizeof(sdci->logbuffer),"   .. %.*s took %.2lf seconds (total %.2lf seconds)\n",boost::numeric_cast<int>(status.size()),status.data(),tlast,ttotal);
     (sdci->sdc->pfWriteLog)( sdci->sdc->env, sdci->logbuffer );
 }
