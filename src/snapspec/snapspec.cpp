@@ -2015,7 +2015,7 @@ static int read_error_type(CFG_FILE *cfg, std::string_view string, void *, int, 
 
 #define STN_CONFIG_BUFSIZE 127
 
-static int read_station_config_file( const char *filename, stn_relacc_array *ra, int csv )
+static int read_station_config_file( const std::string &filename, stn_relacc_array *ra, int csv )
 {
     char record[STN_CONFIG_BUFSIZE+1];
     std::array<std::optional<std::string>,3> field;
@@ -2025,7 +2025,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
     int sts=OK;
     int nbadstn=0;
     limit_order_params p;
-    FILE *f = fopen(filename,"r");
+    FILE *f = fopen(filename.c_str(),"r");
     if( ! f ) return FILE_OPEN_ERROR;
     p.ra=ra;
 
@@ -2136,7 +2136,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                             char errmsg2[MAX_FILENAME_LEN+80];
                             sprintf(errmsg1,"Invalid order %.10s in station configuration file",
                                     field[orderfield]->c_str());
-                            sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename);
+                            sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename.c_str());
                             handle_error(INVALID_DATA,errmsg1,errmsg2);
                             sts=INVALID_DATA;
                         }
@@ -2167,7 +2167,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                         char errmsg2[MAX_FILENAME_LEN+80];
                         sprintf(errmsg1,"Invalid priority %.10s in station configuration file",
                                 field[priorityfield]->c_str());
-                        sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename);
+                        sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename.c_str());
                         handle_error(INVALID_DATA,errmsg1,errmsg2);
                         sts=INVALID_DATA;
                     }
@@ -2183,7 +2183,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
         char errmsg2[MAX_FILENAME_LEN+80];
         sprintf(errmsg1,"%d unrecognised stations in station configuration file",
                 nbadstn);
-        sprintf(errmsg2,"File %*s",MAX_FILENAME_LEN,filename);
+        sprintf(errmsg2,"File %*s",MAX_FILENAME_LEN,filename.c_str());
         handle_error(INFO_ERROR,errmsg1,errmsg2);
     }
     return sts;
@@ -2333,7 +2333,7 @@ static int read_station_config_command(CFG_FILE *cfg, std::string_view string, v
 
     if( cfn )
     {
-        int sts=read_station_config_file( cfn->c_str(), * (stn_relacc_array **) value, csv );
+        int sts=read_station_config_file( *cfn,* (stn_relacc_array **) value, csv );
         if( sts  != OK )
         {
             char buf[100+MAX_FILENAME_LEN];

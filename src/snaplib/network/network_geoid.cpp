@@ -123,10 +123,10 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     return OK;
 }
 
-int set_network_geoid( network *nw, const char *geoid, int fixed_height_type, int errlevel )
+int set_network_geoid( network *nw, const std::optional<std::string> &geoid, const int fixed_height_type, const int errlevel )
 {
     geoid_def *gd = create_geoid_grid( geoid );
-    if( !gd )
+    if( ! gd )
     {
         printf("Unable to load geoid model\n");
         return INVALID_DATA;

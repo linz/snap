@@ -2578,7 +2578,7 @@ static int fix_unknown_stations( void )
 
 /*=====================================================================*/
 
-static int print_unfixed_stations( FILE *out, char status, char mask, const char *prompt)
+static int print_unfixed_stations( FILE *out, char status, const char mask, const std::string_view prompt)
 {
     int lineno = 0;
     int nbad = 0;
@@ -2588,7 +2588,9 @@ static int print_unfixed_stations( FILE *out, char status, char mask, const char
         if( (st.fixed & mask) != status ) continue;
         if( !lineno )
         {
-            fprintf(out,"\n%s\n",prompt);
+            fputs("\n",out);
+            fwrite( prompt.data(), 1, prompt.size(), out );
+            fputs("\n",out);
         }
         if( lineno == 6 )
         {
@@ -2684,12 +2686,12 @@ static int get_net_coordsys( void )
 }
 
 
-static int get_option( const char *prompt, int dflt )
+static int get_option( const std::string_view prompt, const int dflt )
 {
     char *s;
-    for(;;)
+    while( true )
     {
-        printf("%s",prompt);
+        fwrite( prompt.data(), 1, prompt.size(), stdout );
         if( ! fgets(inrec,256,stdin) ) exit(0);
         s = strtok( inrec, " \t\n");
         if( !s ) break;

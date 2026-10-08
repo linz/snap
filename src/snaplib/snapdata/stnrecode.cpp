@@ -672,7 +672,7 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
                 srd.dateto=dateto;
                 srd.herror=herror;
                 srd.verror=verror;
-                process_selected_stations( stt->net, stationList.c_str(), basefile, &srd, apply_recode_suffix );
+                process_selected_stations( stt->net, stationList, basefile, &srd, apply_recode_suffix );
             }
         }
     }

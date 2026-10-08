@@ -29,7 +29,7 @@ std::string getProgramName()
     return image_name();
 }
 
-const std::string &getProgramVersion( const char *const version )
+const std::string &getProgramVersion( const std::string_view version )
 {
     static std::string programVersion;
     if( ! programVersion.empty() ) return programVersion;
@@ -37,7 +37,7 @@ const std::string &getProgramVersion( const char *const version )
     programVersion=read_first_word(build_filespec(image_dir(),"VERSION",""),MAX_VERSION_LENGTH);
     if( programVersion.empty() )
     {
-        programVersion=std::string(version).substr(0,MAX_VERSION_LENGTH);
+        programVersion=std::string(version.substr(0,MAX_VERSION_LENGTH));
     }
     const std::string versionId=read_first_word(build_filespec(image_dir(),"VERSIONID",""),MAX_VERSION_ID_LENGTH);
     if( ! versionId.empty() )

@@ -187,12 +187,10 @@ static std::forward_list<std::string> headings;
 
 static int maxrow, maxlt, last_file_loc;
 
-static void program_error( const char *msg, const char *routine )
+static void program_error( const std::string_view msg, const std::string_view routine )
 {
-    char msg1[150];
-    char msg2[100];
-    sprintf(msg1,"Internal program error: %.100s",msg);
-    sprintf(msg2,"Occurred in %.60s",routine);
+    const std::string msg1 = "Internal program error: " + std::string(msg);
+    const std::string msg2 = "Occurred in " + std::string(routine);
     handle_error( INTERNAL_ERROR, msg1, msg2 );
 }
 

@@ -212,7 +212,7 @@ static int calc_linzdef_deformation( void *deformation, station *st, double date
 
 /* Describe the deformation model in an output file */
 
-static int print_linzdef( void *deformation, FILE *out, const char *prefix )
+static int print_linzdef( void *deformation, FILE *out, const std::string_view prefix )
 {
     std::optional<std::string_view> title;
     int i;
@@ -225,7 +225,7 @@ static int print_linzdef( void *deformation, FILE *out, const char *prefix )
         sts = utlLinzDefTitle( model->linzdef, i, title );
         if( sts == STS_OK && title && ! title->empty() )
         {
-            fputs(prefix,out);
+            fwrite( prefix.data(), 1, prefix.size(), out );
             if( i == 3 ) fputs("Version: ",out);
             fputs(std::string(*title).c_str(),out);
             fputs("\n",out);

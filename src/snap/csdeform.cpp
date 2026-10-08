@@ -151,10 +151,10 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
 
 /* Describe the deformation model in an output file */
 
-static int print_csdef( void *deformation, FILE *out, const char *prefix )
+static int print_csdef( void *deformation, FILE *out, const std::string_view prefix )
 {
     if( ! deformation ) return OK;
-    fputs(prefix,out);
+    fwrite( prefix.data(), 1, prefix.size(), out );
     fputs("Applying coordinate system deformation model\n",out);
     output_string_def os;
     output_string_to_file( &os, out );

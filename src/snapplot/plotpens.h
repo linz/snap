@@ -64,14 +64,6 @@ enum
     N_STN_SYM
 };
 
-struct key_def
-{
-    const char *name;
-    int  *pen;
-    int  *opt;
-    int  datapen;
-};
-
 struct symbolpoint
 {
     double x;
@@ -137,6 +129,6 @@ int select_display_options( void );
 int background_option( int layer_id );
 
 int read_key_definition( std::string_view def );
-void print_key( FILE *out, const char *prefix );
+void print_key( FILE *out, std::string_view prefix );
 
 #endif

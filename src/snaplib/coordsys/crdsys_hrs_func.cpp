@@ -120,7 +120,7 @@ static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd
         return INTERNAL_ERROR;
     }
     /* Load the geoid */
-    ghrfd->gd=create_geoid_grid( ghrfd->filename.c_str() );
+    ghrfd->gd=create_geoid_grid( ghrfd->filename );
     if( ! ghrfd->gd )
     {
         ghrfd->loadsts=INVALID_DATA;

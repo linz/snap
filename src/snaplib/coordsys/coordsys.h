@@ -410,7 +410,6 @@ void init_ref_frame( ref_frame *rf, double convepoch );
 projection_type *register_projection_type( projection_type *tp );
 projection_type *find_projection_type( const std::string &code );
 
-void set_projection_name( projection *prj, const char *name );
 void set_projection_ellipsoid( projection *prj, ellipsoid *el );
 
 

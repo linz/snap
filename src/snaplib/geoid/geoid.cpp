@@ -71,15 +71,15 @@ std::optional<std::string> create_geoid_filename( const std::optional<std::strin
     return filename;
 }
 
-geoid_def *create_geoid_grid( const char *source )
+geoid_def *create_geoid_grid( const std::optional<std::string> &source )
 {
     int status;
-    geoid_def *gd = NULL;
+    geoid_def *gd = nullptr;
     grid_def *grd;
-    coordsys *cs = 0;
+    coordsys *cs = nullptr;
 
-    const error_message sourceMessage = source ? error_message( source ) : NO_MESSAGE;
-    std::string filename = get_geoid_filename( source ? std::optional<std::string>(source) : std::nullopt );
+    const error_message sourceMessage = source ? error_message( *source ) : NO_MESSAGE;
+    const std::string filename = get_geoid_filename( source );
     status = grd_open_grid_file( filename, 1, &grd );
 
     if( status != OK )

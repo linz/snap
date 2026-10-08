@@ -111,7 +111,7 @@ int read_station_file( const std::string &fname, const std::string &base_dir, co
         sts = read_network( stndata, stnfile, 0 );
         break;
     case STN_FORMAT_GB:
-        sts = read_network( stndata, stnfile.c_str(), NW_READOPT_GBFORMAT );
+        sts = read_network( stndata, stnfile, NW_READOPT_GBFORMAT );
         break;
     case STN_FORMAT_CSV:
         sts = load_snap_csv_stations( stndata, stnfile, options );

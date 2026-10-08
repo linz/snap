@@ -87,7 +87,7 @@ public:
     Script( EnvBase &environment );
     ~Script();
 
-    bool ExecuteScript( const char *filename );
+    bool ExecuteScript( const std::string &filename );
     void RunMenuActions( int id );
     void EnableMenuItems();
 private:

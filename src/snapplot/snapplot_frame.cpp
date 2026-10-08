@@ -1116,7 +1116,7 @@ void SnapplotFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdHelpAbout( wxCommandEvent & WXUNUSED(event) )
 {
-    ShowHelpAbout(PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
+    ShowHelpAbout(getProgramName(),getProgramVersion(SNAPVERSION),PROGRAM_DATE);
 }
 
 void SnapplotFrame::FunctionNotImplemented( wxCommandEvent & WXUNUSED(event) )

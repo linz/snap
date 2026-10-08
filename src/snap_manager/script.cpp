@@ -180,7 +180,7 @@ Script::~Script()
     delete implementation;
 }
 
-bool Script::ExecuteScript( const char *filename )
+bool Script::ExecuteScript( const std::string &filename )
 {
     return implementation->ExecuteScript( filename );
 }

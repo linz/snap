@@ -70,7 +70,7 @@ void SnapMgrScriptEnv::SetupConfiguration()
         auto cfgfile=find_config_file(SNAPSCRIPT_DIR,"snap_manager.cfg","");
     if( cfgfile )
     {
-        script->ExecuteScript( cfgfile->c_str() );
+        script->ExecuteScript( *cfgfile );
     }
 }
 
@@ -781,7 +781,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     result = result && scriptFile.FileExists();
     if( result )
     {
-        result = script->ExecuteScript( (const char *)(scriptFile.GetFullPath().mb_str()) );
+        result = script->ExecuteScript( scriptFile.GetFullPath().ToStdString() );
     }
     RETURN( result )
 

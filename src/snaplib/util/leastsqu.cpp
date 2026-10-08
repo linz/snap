@@ -66,6 +66,7 @@ where
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string_view>
 
 #include "util/errdef.h"
 #include "util/leastsqu.h"
@@ -126,7 +127,7 @@ static int zero_inverse=0;  /* If true then set the inverse to zero
 /*------------------------------------------------------------*/
 
 
-static void sequence_error( const char *routine )
+static void sequence_error( const std::string_view routine )
 {
     handle_error( INTERNAL_ERROR, "Internal error: Out of sequence call to LSQ routine", routine);
 }
@@ -605,7 +606,7 @@ void lsq_get_stats( long *lsnobs, int *lsnprm, long *lsnschp,
 /* Routine to attempt to set the least squares status to LSQ_SOLVED or
    LSQ_INVERTED */
 
-static void set_lsq_status( int required_status, const char *routine )
+static void set_lsq_status( const int required_status, const std::string_view routine )
 {
     if( lsq_status == LSQ_INVERTED ) return;
     if( lsq_status == LSQ_SUMMING ) lsq_solve_equations( 0 );

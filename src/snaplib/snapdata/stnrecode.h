@@ -63,8 +63,6 @@ using stn_recode_list = std::forward_list<stn_recode>;
 #define STN_RECODE_EXISTS 1
 #define STN_RECODE_NEW    2
 
-typedef int (*get_recode_station_func)( void *data, const char *codefrom, const char *codeto );
-
 struct stn_recode_map
 {
     explicit stn_recode_map( network *net ) : net( net ) {}

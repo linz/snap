@@ -42,7 +42,9 @@ struct geoid_def
 /// Returns the name of the geoid grid file, or nullopt if it does not exist
 std::optional<std::string> create_geoid_filename( const std::optional<std::string> &geoidname );
 
-geoid_def *create_geoid_grid( const char *filename );
+/// Loads a geoid grid, or returns nullptr after reporting an error.
+/// If no name is given the default geoid is looked up.
+geoid_def *create_geoid_grid( const std::optional<std::string> &filename );
 void delete_geoid_grid( geoid_def *gd );
 void print_geoid_header( geoid_def *gd, FILE *out, int width, std::string_view prefix );
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid );

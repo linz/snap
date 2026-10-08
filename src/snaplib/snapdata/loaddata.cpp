@@ -317,11 +317,9 @@ static void clear_saved_codes()
     std::vector<recoded_id>().swap( saved_ids );
 }
 
-static void report_error( const char *location )
+static void report_error( const std::string_view location )
 {
-    char msg[100];
-
-    sprintf(msg,"Internal programming error in call to %s",location);
+    const std::string msg = "Internal programming error in call to " + std::string(location);
     handle_error( INTERNAL_ERROR, msg, "In module loaddata.c");
     return;
 }

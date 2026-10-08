@@ -551,7 +551,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
 /* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */
 /* Returns INVALID_DATA if geoid not defined or invalid coordinate system */
 
-int set_network_geoid( network *nw, const char *geoid, int fixed_height_type, int errlevel );
+int set_network_geoid( network *nw, const std::optional<std::string> &geoid, int fixed_height_type, int errlevel );
 int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, int errlevel );
 
 /* Network has explicit geoid information? */

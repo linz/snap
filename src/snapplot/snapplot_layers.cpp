@@ -1142,16 +1142,16 @@ int read_key_definition( std::string_view def )
     return OK;
 }
 
-void print_key( FILE *out, const char *prefix )
+void print_key( FILE *out, const std::string_view prefix )
 {
-    int i;
-    for( i = 0; i < symbology->LayerCount(); i++ )
+    for( int i = 0; i < symbology->LayerCount(); i++ )
     {
         LayerSymbology &ls = symbology->GetLayer(i);
-        int type = ls.Type();
+        const int type = ls.Type();
         if( type & LayerSymbology::hasColourAndStatus )
         {
-            fprintf(out,"%s \"%s\"",prefix,(const char *)(ls.Identifier().mb_str()));
+            fwrite( prefix.data(), 1, prefix.size(), out );
+            fprintf(out," \"%s\"",(const char *)(ls.Identifier().mb_str()));
             if( type & LayerSymbology::hasStatus )
             {
                 fputs( ls.Status() ? " on" : " off", out );

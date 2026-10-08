@@ -145,14 +145,23 @@ static int calc_griddef( void *, station *st, double date, double denu[3] )
 
 /* Describe the deformation model in an output file */
 
-static int print_griddef_model( void *, FILE *out, const char *prefix )
+static int print_griddef_model( void *, FILE *out, const std::string_view prefix )
 {
-    fprintf(out,"%sModel type: velocity\n",prefix );
-    fprintf(out,"%sModel name: %s\n", prefix,model.c_str() );
-    if( !desc1.empty() ) {fprintf(out,"%s%s\n",prefix,desc1.c_str());}
-    if( !desc2.empty() ) {fprintf(out,"%s%s\n",prefix,desc2.c_str());}
-    if( !desc3.empty() ) {fprintf(out,"%s%s\n",prefix,desc3.c_str());}
-    fprintf(out,"%sReference epoch: %.1lf\n",prefix,epoch);
+    const auto writePrefix = [&]() { fwrite( prefix.data(), 1, prefix.size(), out ); };
+    writePrefix();
+    fputs("Model type: velocity\n",out);
+    writePrefix();
+    fprintf(out,"Model name: %s\n",model.c_str() );
+    for( const std::string *desc : { &desc1, &desc2, &desc3 } )
+    {
+        if( ! desc->empty() )
+        {
+            writePrefix();
+            fprintf(out,"%s\n",desc->c_str());
+        }
+    }
+    writePrefix();
+    fprintf(out,"Reference epoch: %.1lf\n",epoch);
     return OK;
 }
 

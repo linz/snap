@@ -669,7 +669,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 }
             }
 
-            void *const pgn=read_polygon_wkt( spec->c_str(), isgeo);
+            void *const pgn=read_polygon_wkt( *spec, isgeo);
             if( ! pgn )
             {
                 sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",

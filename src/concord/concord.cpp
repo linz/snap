@@ -1211,7 +1211,7 @@ static void setup_transformation( void )
             }
             else
             {
-                geoid_def *geoiddef = create_geoid_grid( gfile->c_str() );
+                geoid_def *geoiddef = create_geoid_grid( gfile );
                 if( ! geoiddef )
                 {
                     printf("Cannot read geoid file %s\n",gfile->c_str());
@@ -1236,7 +1236,7 @@ static void setup_transformation( void )
             printf("Cannot convert coordinates from %s to %s\n",
                    input_cs->code.c_str(), output_cs->code.c_str() );
         }
-        get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code.c_str(), output_cs->code.c_str(), &printf_writer);
+        get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code, output_cs->code, &printf_writer);
         exit(1);
     }
 

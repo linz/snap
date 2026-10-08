@@ -330,7 +330,7 @@ int main( int argc, char *argv[] )
     else if( calc_geoid_opt == CALC_GEOID )
     {
         if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
-        gd = create_geoid_grid( geoid->c_str() );
+        gd = create_geoid_grid( geoid );
         if( !gd )
         {
             printf("Unable to load geoid model\n");

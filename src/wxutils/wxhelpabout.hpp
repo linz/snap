@@ -1,6 +1,8 @@
 #ifndef WXHELPABOUT_HPP
 #define WXHELPABOUT_HPP
 
-void ShowHelpAbout(const char *progname, const char *progver, const char *progdate);
+#include <string>
+
+void ShowHelpAbout(const std::string &progname, const std::string &progver, const std::string &progdate);
 
 #endif

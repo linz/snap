@@ -2,11 +2,12 @@
 #define GETVERSION_H
 
 #include <string>
+#include <string_view>
 
 std::string getProgramName();
 /// The program version from the VERSION file, followed by "-" and the VERSIONID file text if
 /// there is one. The default version is used if there is no VERSION file.
-const std::string &getProgramVersion(const char *version);
+const std::string &getProgramVersion(std::string_view version);
 
 /* Programs using this need to define one module which
  * includes this with DEFINE_PROGRAM_DATE set.
