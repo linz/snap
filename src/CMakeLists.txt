@@ -65,7 +65,7 @@ target_link_libraries(snap_core PUBLIC snaplib)
 add_executable(snap $<TARGET_OBJECTS:snap_core> snap/main.cpp)
 target_link_libraries(snap PRIVATE snaplib snap_link_deps)
 
-add_executable(concord concord/concord.cpp)
+add_executable(concord concord/concord.cpp concord/linereader.cpp)
 target_link_libraries(concord PRIVATE snaplib snap_link_deps)
 
 git_sources(SNAPSPEC_SOURCES "snapspec/")
@@ -172,6 +172,14 @@ target_link_libraries(station_test PRIVATE snaplib snap_link_deps)
 add_executable(stringlimited_test test/stringlimited_test/stringlimited_test.cpp)
 target_link_libraries(stringlimited_test PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - standalone unit test for the
+# LineReader class that concord uses to read its input. The class is part of the
+# concord program, not snaplib, so its source is compiled into the test.
+# Exit code is the pass/fail signal.
+add_executable(linereader_test test/linereader_test/linereader_test.cpp concord/linereader.cpp)
+target_include_directories(linereader_test PRIVATE concord)
+target_link_libraries(linereader_test PRIVATE snaplib snap_link_deps)
+
 # Every standalone unit test above. build.py's test target builds this, and
 # regression_tests/unittests/run_test.py then runs each *_test executable it
 # finds in the build directory, so a new unit test must be added here.
@@ -192,7 +200,8 @@ add_custom_target(unit_tests DEPENDS
     stationcode_test
     rotmat_test
     station_test
-    stringlimited_test)
+    stringlimited_test
+    linereader_test)
 
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)
