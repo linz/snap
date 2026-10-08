@@ -10,11 +10,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cstddef>
+#include <utility>
 
 #include "network/network.h"
 #include "network/stnoffset.h"
 #include "util/dstring.h"
-#include "util/chkalloc.h"
 #include "util/binfile.h"
 
 #include <boost/numeric/conversion/cast.hpp>
@@ -134,24 +134,21 @@ static void read_station_fixed_width( FILE *f, station &st )
 // rebuilds a fresh stn_offset and points st->ts at that instead.
 static void dump_station_offset( station *st, FILE *f )
 {
-    stn_offset *sto=(stn_offset *)(st->ts);
-    int ncomp=0;
-    if( sto )
-    {
-        for( stn_offset_comp *comp=sto->components; comp; comp=comp->next ) ncomp++;
-    }
+    const stn_offset *sto=static_cast<const stn_offset *>( st->ts );
+    const int ncomp = sto ? boost::numeric_cast<int>( sto->components.size() ) : 0;
     fwrite( &ncomp, sizeof(int), 1, f );
     if( ! ncomp ) return;
     fwrite( &(sto->isdeformation), sizeof(int), 1, f );
-    for( stn_offset_comp *comp=sto->components; comp; comp=comp->next )
+    for( const stn_offset_comp &comp : sto->components )
     {
-        fwrite(&(comp->mode),sizeof(int),1,f);
-        fwrite(&(comp->isxyz),sizeof(int),1,f);
-        fwrite(&(comp->ntspoints),sizeof(int),1,f);
-        fwrite(&(comp->basepoint),sizeof(stn_tspoint),1,f);
-        if( comp->ntspoints )
+        const int ntspoints = boost::numeric_cast<int>( comp.tspoints.size() );
+        fwrite(&(comp.mode),sizeof(int),1,f);
+        fwrite(&(comp.isxyz),sizeof(int),1,f);
+        fwrite(&ntspoints,sizeof(int),1,f);
+        fwrite(&(comp.basepoint),sizeof(stn_tspoint),1,f);
+        if( ntspoints )
         {
-            fwrite(comp->tspoints,sizeof(stn_tspoint),comp->ntspoints,f);
+            fwrite(comp.tspoints.data(),sizeof(stn_tspoint),comp.tspoints.size(),f);
         }
     }
 }
@@ -169,17 +166,16 @@ static void reload_station_offset( station *st, FILE *f )
     while( ncomp-- )
     {
         int mode, isxyz, ntspoints;
-        stn_offset_comp *sto;
         fread(&mode,sizeof(int),1,f);
         fread(&isxyz,sizeof(int),1,f);
         fread(&ntspoints,sizeof(int),1,f);
-        sto=create_stn_offset_comp(mode,isxyz,ntspoints);
-        fread(&(sto->basepoint),sizeof(stn_tspoint),1,f);
+        stn_offset_comp comp( mode, isxyz, boost::numeric_cast<size_t>( ntspoints ) );
+        fread(&(comp.basepoint),sizeof(stn_tspoint),1,f);
         if( ntspoints > 0 )
         {
-            fread(sto->tspoints,sizeof(stn_tspoint),ntspoints,f);
+            fread(comp.tspoints.data(),sizeof(stn_tspoint),ntspoints,f);
         }
-        add_stn_offset_comp_to_station( st, sto, isdef );
+        add_stn_offset_comp_to_station( st, std::move( comp ), isdef );
     }
 }
 

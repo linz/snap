@@ -9,11 +9,14 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
+#include <boost/numeric/conversion/cast.hpp>
+
+using boost::numeric_cast;
 
 #include "network/network.h"
 #include "network/stnoffset.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/datafile.h"
 #include "util/dateutil.h"
@@ -26,44 +29,12 @@
 /* The longest word read from an offset file - longer words are cut short */
 static constexpr size_t WORDLEN = 32;
 
-stn_offset_comp *create_stn_offset_comp( int mode, int isxyz, int ntspoints )
+void add_stn_offset_comp_to_station( station *st, stn_offset_comp comp, const int isdeformation )
 {
-    stn_offset_comp *component;
-    component=(stn_offset_comp *) check_malloc( sizeof(stn_offset_comp)+ntspoints*sizeof(stn_tspoint));
-    component->mode = mode;
-    component->isxyz=isxyz;
-    component->ntspoints=ntspoints;
-    component->tspoints = ntspoints == 0 ? 0 :
-        (stn_tspoint *)(void *)(((char*)component)+sizeof(stn_offset_comp));
-    component->next=0;
-    return component;
-}
-
-void add_stn_offset_comp_to_station( station *st, stn_offset_comp *comp, int isdeformation )
-{
-    stn_offset *sto;
-    if( ! st->ts )
-    {
-        sto=(stn_offset *) check_malloc(sizeof(stn_offset));
-        sto->isdeformation=0;
-        sto->components=0;
-        st->ts=sto;
-    }
-    else
-    {
-        sto=(stn_offset *)(st->ts);
-    }
+    if( ! st->ts ) st->ts = new stn_offset;
+    stn_offset *sto = static_cast<stn_offset *>( st->ts );
     if( isdeformation ) sto->isdeformation=1;
-    if( ! sto->components )
-    {
-        sto->components=comp;
-    }
-    else
-    {
-        stn_offset_comp *prev=sto->components;
-        while( prev->next ) prev=prev->next;
-        prev->next=comp;
-    }
+    sto->components.push_back( std::move( comp ) );
 }
 
 /*=============================================================*/
@@ -190,32 +161,18 @@ int read_network_station_offsets( network *nw, std::string_view filename )
             continue;
         }
         station *stn=station_ptr(nw, stnid);
-        stn_offset_comp *component=create_stn_offset_comp( mode, isxyz, ists );
-        memcpy(&(component->basepoint),&basepoint,sizeof(stn_tspoint));
-        if( ists > 0 )
-        {
-            memcpy(component->tspoints,tsdata.data(),ists*sizeof(stn_tspoint));
-        }
-        add_stn_offset_comp_to_station( stn, component, isdef );
+        stn_offset_comp component( mode, isxyz, numeric_cast<size_t>( ists ) );
+        component.basepoint = basepoint;
+        std::copy( tsdata.begin(), tsdata.begin() + ists, component.tspoints.begin() );
+        add_stn_offset_comp_to_station( stn, std::move( component ), isdef );
     }
     return result;
 }
 
 void delete_station_offset( station *st )
 {
-    if( st->ts )
-    {
-        stn_offset *sto=(stn_offset *) (st->ts);
-        stn_offset_comp *comp=sto->components;
-        while( comp )
-        {
-            stn_offset_comp *next=comp->next;
-            check_free( comp );
-            comp=next;
-        }
-        check_free( sto );
-        st->ts=0;
-    }
+    delete static_cast<stn_offset *>( st->ts );
+    st->ts=nullptr;
 }
 
 int station_has_offset( station *st )
@@ -230,32 +187,31 @@ int station_offset_is_deformation( station *st )
 
 void calc_station_offset( station *st, double date, vector3 denu )
 {
-    stn_offset *sto=(stn_offset *) st->ts;
-    stn_offset_comp *comp;
+    stn_offset *sto=static_cast<stn_offset *>( st->ts );
 
     denu[0]=denu[1]=denu[2]=0;
     if( ! sto ) return;
-    for( comp=sto->components; comp; comp=comp->next )
+    for( stn_offset_comp &comp : sto->components )
     {
         vector3 cenu={0.0,0.0,0.0};
-        stn_tspoint *tsp=&(comp->basepoint);
-        if( comp->mode==STN_TS_STEP )
+        stn_tspoint *tsp=&(comp.basepoint);
+        if( comp.mode==STN_TS_STEP )
         {
             if( date < tsp->date ) continue;
             veccopy( tsp->denu, cenu );
         }
-        else if( comp->mode==STN_TS_VELOCITY )
+        else if( comp.mode==STN_TS_VELOCITY )
         {
             double factor=(date-tsp->date)/DAYS_PER_YEAR;
             veccopy( tsp->denu, cenu );
             scalevec( cenu, factor );
         }
-        else if( comp->mode==STN_TS_SERIES && comp->ntspoints > 0 )
+        else if( comp.mode==STN_TS_SERIES && ! comp.tspoints.empty() )
         {
             stn_tspoint *tsp1=tsp;
             double factor=0.0;
-            int nts=comp->ntspoints-1;
-            tsp1=comp->tspoints;
+            int nts=numeric_cast<int>( comp.tspoints.size() )-1;
+            tsp1=comp.tspoints.data();
             if( date >= tsp1->date )
             {
                 while( nts > 0 && date >= tsp1->date )
@@ -279,7 +235,7 @@ void calc_station_offset( station *st, double date, vector3 denu )
         {
             continue;
         }
-        if( comp->isxyz == STN_TS_XYZ )
+        if( comp.isxyz == STN_TS_XYZ )
         {
             st->rTopo.rotvec( cenu, cenu );
         }
@@ -289,20 +245,19 @@ void calc_station_offset( station *st, double date, vector3 denu )
 
 void print_station_offset( FILE *lst, station *st )
 {
-    stn_offset *sto=(stn_offset *)(st->ts);
-    stn_offset_comp *comp;
+    stn_offset *sto=static_cast<stn_offset *>( st->ts );
 
     if( ! sto ) return;
     fprintf(lst,"%s %s\n",st->Code.c_str(), sto->isdeformation ? "deformation" : "offset");
-    for( comp=sto->components; comp; comp=comp->next )
+    for( stn_offset_comp &comp : sto->components )
     {
-        stn_tspoint *tsp=&(comp->basepoint);
-        for( int i = -1; i < comp->ntspoints; i++ )
+        stn_tspoint *tsp=&(comp.basepoint);
+        for( int i = -1; i < numeric_cast<int>( comp.tspoints.size() ); i++ )
         {
-            int ndp=comp->mode==STN_TS_VELOCITY ? 6 : 4;
+            int ndp=comp.mode==STN_TS_VELOCITY ? 6 : 4;
             char datestr[20]={0};
-            if( i >= 0 ) tsp=comp->tspoints+i;
-            if( i >= 0 || comp->mode != STN_TS_SERIES )
+            if( i >= 0 ) tsp=&comp.tspoints[i];
+            if( i >= 0 || comp.mode != STN_TS_SERIES )
             {
                 int y,m,d;
                 date_as_ymd(tsp->date,&y,&m,&d);
@@ -310,11 +265,11 @@ void print_station_offset( FILE *lst, station *st )
             }
             fprintf(lst,"    %3s %-11s  %10s  %10.*lf %10.*lf %10.*lf\n",
                     i >= 0 ? "" :
-                    comp->isxyz ? "XYZ" : "ENU",
+                    comp.isxyz ? "XYZ" : "ENU",
                     i >= 0 ? "" :
-                    comp->mode==STN_TS_SERIES ? "time series" :
-                    comp->mode==STN_TS_VELOCITY ? "velocity" :
-                    comp->mode==STN_TS_STEP ? "offset" : "undefined" ,
+                    comp.mode==STN_TS_SERIES ? "time series" :
+                    comp.mode==STN_TS_VELOCITY ? "velocity" :
+                    comp.mode==STN_TS_STEP ? "offset" : "undefined" ,
                     datestr,
                     ndp,tsp->denu[0],
                     ndp,tsp->denu[1],
