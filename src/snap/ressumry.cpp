@@ -17,6 +17,8 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <utility>
+#include <vector>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include "util/fieldscanner.hpp"
@@ -34,7 +36,6 @@ using boost::numeric_cast;
 #include "snap/bindata.h"
 #include "util/errdef.h"
 #include "util/progress.h"
-#include "util/chkalloc.h"
 #include "output.h"
 
 
@@ -44,12 +45,13 @@ using boost::numeric_cast;
 
 struct summary_def
 {
-    int nlevel;
-    int enu_components;
-    int *level_id;
-    int *level_count;
-    int *obs_id;
-    struct summary_def *next;
+    int nlevel = 0;                  ///< The number of levels actually defined
+    int enu_components = 0;          ///< Non-zero if east, north and up summaries are required
+    std::vector<int> level_id;       ///< BY_DATA_TYPE, BY_FILE or a classification id for each level
+    std::vector<int> level_count;    ///< The number of values at each level, set by init_summary
+
+    /// Creates a summary with room for up to maxlevel levels
+    explicit summary_def( const size_t maxlevel ) : level_id( maxlevel ), level_count( maxlevel ) {}
 };
 
 #define BY_DATA_TYPE -1
@@ -59,7 +61,7 @@ struct summary_def
 #define DATA_TYPE_STR "data_type"
 #define FILE_STR      "data_file"
 
-static summary_def *first_def = NULL;
+static std::vector<summary_def> summary_defs;
 
 /*=======================================================================*/
 
@@ -88,16 +90,11 @@ static int obsenu_from_index[NOBSTYPE*4];
 int define_error_summary( const std::string &definition )
 {
     int nlevel, ilevel;
-    summary_def *sdf;
     int sts;
 
     nlevel = numeric_cast<int>( std::count( definition.begin(), definition.end(), ERROR_SUMMARY_DELIMITER ) ) + 1;
 
-    sdf = (summary_def *) check_malloc( sizeof(summary_def) + nlevel * 3 * sizeof(int) );
-    sdf->enu_components=0;
-    sdf->level_id = (int *) ( ((unsigned char *) sdf) + sizeof( summary_def ));
-    sdf->level_count = sdf->level_id + nlevel;
-    sdf->obs_id = sdf->level_count + nlevel;
+    summary_def sdf( numeric_cast<size_t>( nlevel ) );
 
     nlevel = 0;
 
@@ -115,26 +112,26 @@ int define_error_summary( const std::string &definition )
             const std::string fieldStr(field);
             if( boost::algorithm::iequals(fieldStr,DATA_TYPE_STR) )
             {
-                sdf->level_id[nlevel] = BY_DATA_TYPE;
-                sdf->enu_components = 1;
+                sdf.level_id[nlevel] = BY_DATA_TYPE;
+                sdf.enu_components = 1;
             }
             else if( boost::algorithm::istarts_with(fieldStr,DATA_TYPE_STR) &&
                      fieldStr.size() > strlen(DATA_TYPE_STR) && fieldStr[strlen(DATA_TYPE_STR)] == ':' )
             {
-                sdf->level_id[nlevel] = BY_DATA_TYPE;
-                sdf->enu_components = boost::algorithm::iequals(fieldStr.substr(strlen(DATA_TYPE_STR)),":no_enu") ? 0 : 1;
+                sdf.level_id[nlevel] = BY_DATA_TYPE;
+                sdf.enu_components = boost::algorithm::iequals(fieldStr.substr(strlen(DATA_TYPE_STR)),":no_enu") ? 0 : 1;
             }
             else if( boost::algorithm::iequals(fieldStr,FILE_STR) )
             {
-                sdf->level_id[nlevel] = BY_FILE;
+                sdf.level_id[nlevel] = BY_FILE;
             }
             else
             {
-                sdf->level_id[nlevel] = obs_classes.id( fieldStr, 1 );
+                sdf.level_id[nlevel] = obs_classes.id( fieldStr, 1 );
             }
             for( ilevel = 0; ilevel < nlevel; ilevel++ )
             {
-                if( sdf->level_id[ilevel] == sdf->level_id[nlevel] ) sts = INVALID_DATA;
+                if( sdf.level_id[ilevel] == sdf.level_id[nlevel] ) sts = INVALID_DATA;
             }
             nlevel++;
         }
@@ -151,7 +148,7 @@ int define_error_summary( const std::string &definition )
             int jlevel;
             for( jlevel=ilevel-1; jlevel >= 0; jlevel-- )
             {
-                if( sdf->level_id[ilevel] == sdf->level_id[jlevel] )
+                if( sdf.level_id[ilevel] == sdf.level_id[jlevel] )
                 {
                     sts=INVALID_DATA;
                     break;
@@ -162,15 +159,11 @@ int define_error_summary( const std::string &definition )
 
     if( sts == OK && nlevel )
     {
-        summary_def **sdptr = &first_def;
-        sdf->nlevel = nlevel;
-        sdf->next = NULL;
-        while( *sdptr ) sdptr = &(*sdptr)->next;
-        *sdptr = sdf;
+        sdf.nlevel = nlevel;
+        summary_defs.push_back( std::move( sdf ) );
     }
     else
     {
-        check_free( sdf );
         sts = INVALID_DATA;
     }
     return sts;
@@ -178,7 +171,7 @@ int define_error_summary( const std::string &definition )
 
 /* Initialise a summary using a definition */
 
-static int init_summary( summary_def *sdf )
+static int init_summary( summary_def &sdf )
 {
     int i;
     int nobstype_used;
@@ -198,7 +191,7 @@ static int init_summary( summary_def *sdf )
             obstype_index[i] = nobstype_used;
             is_vector= datatype[i].isvector ? 1 : 0;
             ncomp=1;
-            if( sdf->enu_components && is_vector ) ncomp=4;
+            if( sdf.enu_components && is_vector ) ncomp=4;
             for( icomp=0; icomp < ncomp; icomp++ )
             {
                 obstype_from_index[nobstype_used] = i;
@@ -219,28 +212,28 @@ static int init_summary( summary_def *sdf )
     index_size = 1;
     enu_period = 0;
 
-    for( i = 0; i < sdf->nlevel; i++ )
+    for( i = 0; i < sdf.nlevel; i++ )
     {
-        switch( sdf->level_id[i] )
+        switch( sdf.level_id[i] )
         {
 
         case BY_DATA_TYPE:
-            sdf->level_count[i] = nobstype_used;
-            if( sdf->enu_components ) enu_period = 1;
+            sdf.level_count[i] = nobstype_used;
+            if( sdf.enu_components ) enu_period = 1;
             break;
 
         case BY_FILE:
-            sdf->level_count[i] = survey_data_file_count();
+            sdf.level_count[i] = survey_data_file_count();
             break;
 
         default:
-            sdf->level_count[i] = obs_classes.value_count( sdf->level_id[i] );
+            sdf.level_count[i] = obs_classes.value_count( sdf.level_id[i] );
             break;
         }
-        if( sdf->level_count[i] <= 0 ) sdf->level_count[i] = 1;
+        if( sdf.level_count[i] <= 0 ) sdf.level_count[i] = 1;
 
-        index_size *= sdf->level_count[i];
-        enu_period *= sdf->level_count[i];
+        index_size *= sdf.level_count[i];
+        enu_period *= sdf.level_count[i];
     }
 
     /* Form the totals array with two elements for each array index - used and unused */
@@ -249,7 +242,7 @@ static int init_summary( summary_def *sdf )
     enu_period *= 2;
     index_size *= 2;
 
-    total = (error_total *) check_malloc( index_size * sizeof( error_total ) );
+    total = new error_total[index_size];
 
     for( i=0; i < index_size; i++ )
     {
@@ -264,8 +257,8 @@ static int init_summary( summary_def *sdf )
 
 static void term_summary( void )
 {
-    if( total ) check_free( total );
-    total = NULL;
+    delete [] total;
+    total = nullptr;
 }
 
 static int get_obs_class_val( survdata *sd, trgtdata *t, int class_id )
@@ -284,7 +277,7 @@ static int get_obs_class_val( survdata *sd, trgtdata *t, int class_id )
     return name_id;
 }
 
-static void sum_observation( summary_def *sdf, survdata *sd )
+static void sum_observation( const summary_def &sdf, survdata *sd )
 {
     trgtdata  *t;
     int iobs, ilevel;
@@ -300,11 +293,11 @@ static void sum_observation( summary_def *sdf, survdata *sd )
         t = get_trgtdata( sd, iobs );
         is_vector= datatype[t->type].isvector ? 1 : 0;
         index = 0;
-        for( ilevel = 0; ilevel < sdf->nlevel; ilevel++ )
+        for( ilevel = 0; ilevel < sdf.nlevel; ilevel++ )
         {
             int class_id, class_val;
 
-            class_id = sdf->level_id[ilevel];
+            class_id = sdf.level_id[ilevel];
             switch( class_id )
             {
             case BY_DATA_TYPE: class_val = obstype_index[t->type]; break;
@@ -313,13 +306,13 @@ static void sum_observation( summary_def *sdf, survdata *sd )
                 break;
             }
 
-            if( class_val < 0 || class_val >= sdf->level_count[ilevel] )
+            if( class_val < 0 || class_val >= sdf.level_count[ilevel] )
             {
                 index = -1;
                 break;
             }
 
-            if( ilevel ) index *= sdf->level_count[ilevel];
+            if( ilevel ) index *= sdf.level_count[ilevel];
             index += class_val;
         }
 
@@ -412,7 +405,7 @@ static void sum_observation( summary_def *sdf, survdata *sd )
 }
 
 
-static void sum_summary( summary_def *sdf )
+static void sum_summary( const summary_def &sdf )
 {
     bindata *b;
     long nbin;
@@ -436,23 +429,23 @@ static void sum_summary( summary_def *sdf )
 #define LEVEL_INDENT  5
 #define AXIS_INDENT   8
 
-static void print_summary_level( FILE *lst, summary_def *sdf,
+static void print_summary_level( FILE *lst, const summary_def &sdf,
                                  int ilevel, int index, int axis, double semult )
 {
     int ilvl, sublevel_count;
-    int lastlevel= ilevel >= sdf->nlevel-1 && sdf->level_id[ilevel] == BY_DATA_TYPE;
+    int lastlevel= ilevel >= sdf.nlevel-1 && sdf.level_id[ilevel] == BY_DATA_TYPE;
 
     /* To avoid using unecessary space in the recursive call, enclose
        the working bit and its automatic variables in a block */
 
     sublevel_count = 1;
-    for( ilvl = ilevel+1; ilvl < sdf->nlevel; ilvl++ )
+    for( ilvl = ilevel+1; ilvl < sdf.nlevel; ilvl++ )
     {
-        sublevel_count *= sdf->level_count[ilvl];
+        sublevel_count *= sdf.level_count[ilvl];
     }
     sublevel_count *= 2;
 
-    for( ilvl = 0; ilvl < sdf->level_count[ilevel]; ilvl++, index += sublevel_count )
+    for( ilvl = 0; ilvl < sdf.level_count[ilevel]; ilvl++, index += sublevel_count )
     {
         int iaxis;
 
@@ -462,7 +455,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
             error_total sum_total[3];
             int i, j;
             
-            if( sdf->level_id[ilevel] == BY_DATA_TYPE )
+            if( sdf.level_id[ilevel] == BY_DATA_TYPE )
             {
                 iaxis=obsenu_from_index[ilvl];
                 if( axis && iaxis != axis ) continue;
@@ -513,7 +506,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                 ttlwidth = TITLE_WIDTH - indent;
                 if( indent ) fprintf(lst,"%*s",indent,""); else fprintf(lst,"\n");
 
-                switch( sdf->level_id[ilevel] )
+                switch( sdf.level_id[ilevel] )
                     {
 
                     case BY_DATA_TYPE:
@@ -556,7 +549,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                         break;
 
                     default:
-                        title = obs_classes.value_name( sdf->level_id[ilevel], ilvl );
+                        title = obs_classes.value_name( sdf.level_id[ilevel], ilvl );
                         break;
                     }
 
@@ -582,7 +575,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
 
         /* Now print out the sub-levels */
 
-        if( ilevel < sdf->nlevel-1 )
+        if( ilevel < sdf.nlevel-1 )
         {
             print_summary_level( lst, sdf, ilevel+1, index, iaxis, semult );
         }
@@ -590,21 +583,21 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
 }
 
 
-static void print_summary( FILE *lst, summary_def *sdf, double semult )
+static void print_summary( FILE *lst, summary_def &sdf, double semult )
 {
     int ilvl;
     if( init_summary( sdf ) != OK ) return;
     sum_summary( sdf );
     fprintf(lst,"\n\nSummary of residuals classified by ");
-    for( ilvl = 0; ilvl < sdf->nlevel; ilvl++ )
+    for( ilvl = 0; ilvl < sdf.nlevel; ilvl++ )
     {
         if( ilvl ) fprintf(lst,", ");
-        switch( sdf->level_id[ilvl] )
+        switch( sdf.level_id[ilvl] )
         {
         case BY_DATA_TYPE: fprintf(lst,"data type"); break;
         case BY_FILE:      fprintf(lst,"input file"); break;
         default:           fprintf(lst,"%s",
-                                       obs_classes.name(sdf->level_id[ilvl]).c_str());
+                                       obs_classes.name(sdf.level_id[ilvl]).c_str());
             break;
         }
     }
@@ -619,17 +612,15 @@ static void print_summary( FILE *lst, summary_def *sdf, double semult )
 
 void print_error_summary( FILE *lst )
 {
-    summary_def *sdf;
-
     print_section_header( lst, "ERROR SUMMARY" );
     print_zero_inverse_warning( lst );
     print_convergence_warning( lst );
-    if( !first_def )
+    if( summary_defs.empty() )
     {
         define_error_summary( DATA_TYPE_STR );
         if( survey_data_file_count() > 1 ) define_error_summary( FILE_STR );
     }
-    for( sdf = first_def; sdf; sdf=sdf->next )
+    for( summary_def &sdf : summary_defs )
     {
         print_summary( lst, sdf, apriori ? 1.0 : seu );
     }
