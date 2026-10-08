@@ -21,7 +21,6 @@
 #include "snapdata/survdata.h"
 #include "snapdata/gpscvr.h"
 #include "network/network.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/dateutil.h"
 #include "util/dstring.h"
@@ -178,13 +177,15 @@ struct obs_criteria
 // owned by obs_modifications::criteria.
 using obs_criteria_bucket = std::vector<obs_criteria *>;
 
-#define DFLT_MAX_OFFSETS 256
-
 struct obs_offset_error
 {
-    int iobs;
-    double offsethv;
-    double offsetvv;
+    int iobs;          ///< The index of the observation the offset applies to
+    double offsethv;   ///< The horizontal offset error
+    double offsetvv;   ///< The vertical offset error
+
+    obs_offset_error() = delete;
+    obs_offset_error( const int obsindex, const double horizontal, const double vertical )
+        : iobs( obsindex ), offsethv( horizontal ), offsetvv( vertical ) {}
 };
 
 struct obsmod_context;
@@ -230,9 +231,7 @@ struct obs_modifications
     fileid_func get_fileid = nullptr;
     filename_func get_filename = nullptr;
     long setid = 0;
-    obs_offset_error *offsets = nullptr;
-    int noffsets = 0;
-    int maxoffsets = 0;
+    std::vector<obs_offset_error> offsets;
 
 private:
     void _prepare_criteria();   ///< Builds the buckets from `criteria`
@@ -835,10 +834,6 @@ void delete_obs_modifications( void *pobsmod )
 {
     obs_modifications *obsmod=(obs_modifications *)pobsmod;
     for( const obs_criteria &ocr : obsmod->criteria ) delete_obs_criteria( ocr );
-    if( obsmod->offsets )
-    {
-        check_free(obsmod->offsets);
-    }
     delete obsmod;
 }
 
@@ -1289,22 +1284,7 @@ static void init_obsmod_context_set( obsmod_context *oac, obs_modifications *obs
 
 static void obsmod_add_offset( obs_modifications *obsmod, int iobs, double offsethv, double offsetvv )
 {
-    obs_offset_error *ooe;
-    if( obsmod->maxoffsets == 0 )
-    {
-        obsmod->maxoffsets=DFLT_MAX_OFFSETS;
-        obsmod->offsets=(obs_offset_error *) check_malloc( sizeof(obs_offset_error)*DFLT_MAX_OFFSETS );
-    }
-    else if( obsmod->noffsets >= obsmod->maxoffsets )
-    {
-        obsmod->maxoffsets *= 2;
-        obsmod->offsets=(obs_offset_error *) check_realloc( obsmod->offsets, sizeof(obs_offset_error)*obsmod->maxoffsets );
-    }
-    ooe=obsmod->offsets+obsmod->noffsets;
-    obsmod->noffsets++;
-    ooe->iobs=iobs;
-    ooe->offsethv=offsethv;
-    ooe->offsetvv=offsetvv;
+    obsmod->offsets.emplace_back( iobs, offsethv, offsetvv );
 }
 
 static void init_obsmod_context_target( obsmod_context *oac, trgtdata *tgt )
@@ -1360,7 +1340,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
     case SD_VECDATA:
     {
         vecdata *vd;
-        obsmod->noffsets=0;
+        obsmod->offsets.clear();
         int obstype=sd->obs.vdata[0].tgt.type;
 
         for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
@@ -1391,13 +1371,9 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
         /* Apply offsets after all scaling has been done... */
         if( obstype==GX || obstype==GB )
         {
-            if( obsmod->noffsets )
+            for( const obs_offset_error &offset : obsmod->offsets )
             {
-                obs_offset_error *offset=obsmod->offsets;
-                for( i = 0; i<obsmod->noffsets; i++, offset++ )
-                {
-                    gps_covar_apply_obs_offset_error( sd, offset->iobs, offset->offsethv, offset->offsetvv );
-                }
+                gps_covar_apply_obs_offset_error( sd, offset.iobs, offset.offsethv, offset.offsetvv );
             }
             if( oac.centroidhv > 0.0 || oac.centroidvv > 0.0 )
             {
