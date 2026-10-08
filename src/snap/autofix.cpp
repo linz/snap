@@ -222,7 +222,7 @@ void compile_station_autofix_data()
 int station_autofix_constraints( int istn )
 {
     int fixflags=0;
-    if( istn > 0 || istn < max_station_autodata )
+    if( istn > 0 && istn <= max_station_autodata )
     {
         autofix_data *afx=&(station_autodata[istn]);
         int flags = afx->flags;
@@ -250,7 +250,7 @@ int station_autofix_reject( int istn )
 {
     int reject=0;
 
-    if( istn > 0 || istn < max_station_autodata )
+    if( istn > 0 && istn <= max_station_autodata )
     {
         station *st=stnptr(istn);
         stn_adjustment *sa=stnadj(st);
