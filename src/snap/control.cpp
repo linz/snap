@@ -1950,12 +1950,9 @@ static int read_configuration_command( CFG_FILE *cfg, std::string_view string ,v
     constraint = code == CON_COMMAND;
 
     FieldScanner scanner(string);
-    // The original's error messages read the whole `string` pointer, not
-    // the current cfgfile - but by the time any error is reported, the
-    // first strtokq call has already null-terminated that buffer right
-    // after the first filename, so on a multi-file include line every
-    // error message actually shows only the first filename, never
-    // whichever one failed. Preserved exactly via firstFile below.
+    // On a multi-file include line every error message shows only the first
+    // filename, never whichever one failed. This is how the messages have
+    // always read, so firstFile below keeps it.
     std::optional<std::string> firstFile;
     while( auto cfgfileField = scanner.checkAndRecoverQuotedValue( true,
                 std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} ) )

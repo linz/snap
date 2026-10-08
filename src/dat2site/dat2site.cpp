@@ -2979,10 +2979,9 @@ static void load_command_file( const std::string &cmd_file, int recalconly, int 
 
 static int read_include_file( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    // Matches strtokq(string," \t\n")'s quote-aware tokenizing: a leading
-    // '"'-quoted filename (no escaping, closing quote must be followed by
-    // whitespace or end) is unquoted, otherwise the first whitespace-
-    // delimited field is taken as-is.
+    // A leading '"'-quoted filename (no escaping, closing quote must be
+    // followed by whitespace or end) is unquoted, otherwise the first
+    // whitespace-delimited field is taken as-is.
     FieldScanner scanner(string);
     auto s = scanner.checkAndRecoverQuotedValue( true, std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} );
     if( !s ) return MISSING_DATA;
