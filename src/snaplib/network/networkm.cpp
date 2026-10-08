@@ -11,7 +11,6 @@
 #include <string.h>
 #include <string>
 
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"
 #include "network/network.h"
@@ -64,7 +63,7 @@ int merge_network( network *base, network *data, int mergeopts,
     ndata = number_of_stations( data );
     if( ndata == 0 ) return OK;
 
-    stnewlist = (station **) check_malloc( 2*ndata * sizeof(station *));
+    stnewlist = new station *[2*ndata];
     stdellist = stnewlist + ndata;
     nnew = 0;
 
@@ -83,14 +82,14 @@ int merge_network( network *base, network *data, int mergeopts,
         nnew++;
     }
 
-    if( nnew == 0 ) { check_free(stnewlist); return OK; }
+    if( nnew == 0 ) { delete [] stnewlist; return OK; }
 
     nclass = data->classification_count();
     nbaseclass=base->classification_count();
     if( nclass > 0 )
     {
         int i;
-        classmap = (int *) check_malloc( (nclass+1) * sizeof(int));
+        classmap = new int[nclass+1];
         for( i = 1; i <= nclass; i++ )
         {
             classmap[i] = base->class_id( data->class_name(i), addclasses);
@@ -209,8 +208,8 @@ int merge_network( network *base, network *data, int mergeopts,
         }
     }
 
-    check_free( stnewlist );
-    if( classmap ) check_free( classmap );
+    delete [] stnewlist;
+    delete [] classmap;
 
     return OK;
 }

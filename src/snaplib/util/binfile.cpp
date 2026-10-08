@@ -24,7 +24,6 @@
 #include <string>
 #include <string_view>
 
-#include "util/chkalloc.h"
 #include "util/binfile.h"
 #include "util/errdef.h"
 
@@ -98,7 +97,7 @@ BINARY_FILE *create_binary_file( const std::string &fname, const std::string &si
 
     if( !f ) return NULL;
 
-    b = (BINARY_FILE *) check_malloc( sizeof( BINARY_FILE ) );
+    b = new BINARY_FILE;
     fwrite(signature.data(), signature.size(), 1, f );
     fwrite(SIG_TRAILER, sig_trailer_length, 1, f);      /* DOS eof character */
 
@@ -165,7 +164,7 @@ BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string
         return { NULL, BinFileOpenResult::InvalidVersion };
     }
 
-    b = (BINARY_FILE *) check_malloc( sizeof( BINARY_FILE ) );
+    b = new BINARY_FILE;
     b->f = f;
     b->start = ftell64(f);
     b->section_start = 0L;
@@ -207,7 +206,7 @@ void close_binary_file( BINARY_FILE *b )
         fwrite( &(b->sigchar), sizeof(char), 1, b->f );
     }
     fclose( b->f );
-    check_free( b );
+    delete b;
 }
 
 

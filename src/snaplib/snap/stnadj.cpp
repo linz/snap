@@ -18,7 +18,6 @@
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
 #include "snap/snapcsvstn.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/binfile.h"
 #include "util/fileutil.h"
@@ -41,14 +40,13 @@ int geoid_error_level = WARNING_ERROR;
 
 static void delete_stn_adjustment( station *st )
 {
-    if( st && st->hook ) check_free( st->hook );
+    if( st ) delete static_cast<stn_adjustment *>( st->hook );
 }
 
 static void create_stn_adjustment( station *st )
 {
-    stn_adjustment *sa;
     delete_stn_adjustment( st );
-    sa = (stn_adjustment *) check_malloc( sizeof(stn_adjustment) );
+    stn_adjustment *sa = new stn_adjustment;
     sa->initELat = st->ELat;
     sa->initELon = st->ELon;
     sa->initOHgt = st->OHgt;
@@ -70,7 +68,7 @@ static void create_stn_adjustment( station *st )
     sa->flag.noreorder = 0;
     sa->flag.auto_h = 0;
     sa->flag.auto_v = 0;
-    st->hook=(void *) sa;
+    st->hook=sa;
 }
 
 void set_stnadj_init_network( void )

@@ -10,9 +10,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 #include <string_view>
 
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/binfile.h"
 #include "snap/survfile.h"
@@ -22,7 +22,7 @@
 #include "util/dateutil.h"
 #include <boost/algorithm/string/predicate.hpp>
 
-static survey_data_file **sdindx = NULL;
+static survey_data_file **sdindx = nullptr;
 static int nsdindx = 0;
 static int maxsdindx = 0;
 
@@ -38,8 +38,10 @@ static int add_data_file_nocopy( const std::string &name, int format, const std:
     if( nsdindx >= maxsdindx )
     {
         maxsdindx = nsdindx + SDINDX_INC;
-        sdindx = (survey_data_file **) check_realloc(
-                     sdindx, maxsdindx * sizeof(survey_data_file *));
+        survey_data_file **newindx = new survey_data_file *[maxsdindx];
+        std::copy( sdindx, sdindx + nsdindx, newindx );
+        delete [] sdindx;
+        sdindx = newindx;
     }
     sdindx[nsdindx] = sd;
     nsdindx++;
@@ -95,9 +97,10 @@ void delete_survey_file_list()
         delete sd;
         sdindx[i] = 0;
     }
-    check_free( sdindx );
-    sdindx=0;
+    delete [] sdindx;
+    sdindx=nullptr;
     nsdindx=0;
+    maxsdindx=0;
 }
 
 survey_data_file *survey_data_file_ptr( int  ifile )

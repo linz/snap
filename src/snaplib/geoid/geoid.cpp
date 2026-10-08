@@ -27,7 +27,6 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include "util/fileutil.h"
 #include "string.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/dstring.h"
 #include "geoid/geoid.h"
@@ -107,7 +106,7 @@ geoid_def *create_geoid_grid( const char *source )
     if( status == OK )
     {
         double dlon, dlat;
-        gd = (geoid_def *) check_malloc( sizeof( geoid_def ) );
+        gd = new geoid_def;
         gd->cs = cs;
         gd->grd = grd;
         grd_grid_spacing( grd, &dlon, &dlat );
@@ -126,7 +125,7 @@ void delete_geoid_grid( geoid_def *gd )
         if( gd->cs )delete gd->cs;
         gd->cs = 0;
     }
-    check_free( gd );
+    delete gd;
 }
 
 std::string_view get_geoid_model( geoid_def *gd )

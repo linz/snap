@@ -22,7 +22,6 @@ using boost::numeric_cast;
 #include "network/network.h"
 #include "util/fieldscanner.hpp"
 #include "util/linklist.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 
 #define STNLIST_INIT_INDEX_SIZE 1024
@@ -43,17 +42,15 @@ using boost::numeric_cast;
 
 station_list *new_station_list( void )
 {
-    station_list *sl;
-
-    sl = (station_list *) check_malloc( sizeof(station_list) );
+    station_list *sl = new station_list;
     sl->count = 0;
     sl->lastid=0;
     sl->indexsize=STNLIST_INIT_INDEX_SIZE;
-    sl->index=(station **) check_malloc(sizeof(station *) * sl->indexsize );
-    sl->index[0]=0;
+    sl->index=new station *[sl->indexsize];
+    sl->index[0]=nullptr;
     sl->nsorted=0;
     sl->maxsortid=0;
-    sl->codeindex=0;
+    sl->codeindex=nullptr;
     sl->usesorted=0;
     sl->nextstn=0;
     return sl;
@@ -66,9 +63,9 @@ void delete_station_list( station_list *sl )
     {
         if( sl->index[i] ) delete_station(sl->index[i] );
     }
-    if( sl->index ) check_free( sl->index );
-    if( sl->codeindex ) check_free( sl->codeindex );
-    check_free( sl );
+    delete [] sl->index;
+    delete [] sl->codeindex;
+    delete sl;
 }
 
 void sl_add_station( station_list *sl, station *st )
@@ -78,8 +75,11 @@ void sl_add_station( station_list *sl, station *st )
     sl->lastid++;
     if( sl->lastid >= sl->indexsize )
     {
+        station **newindex = new station *[sl->indexsize * 2];
+        std::copy( sl->index, sl->index + sl->indexsize, newindex );
+        delete [] sl->index;
+        sl->index = newindex;
         sl->indexsize *= 2;
-        sl->index=(station **) check_realloc((void *)(sl->index), sizeof(station *) * sl->indexsize );
     }
     sl->index[sl->lastid]=st;
     if( st ) st->id=sl->lastid;
@@ -148,9 +148,9 @@ static void index_stations( station_list *sl )
     if( sl->maxsortid == sl->lastid ) return;
 
     count=sl->count;
-    if( sl->codeindex ) check_free( sl->codeindex );
-    sl->codeindex = (station **) check_malloc( (1+count) * sizeof(station *) );
-    sl->codeindex[0] = 0;
+    delete [] sl->codeindex;
+    sl->codeindex = new station *[1+count];
+    sl->codeindex[0] = nullptr;
 
     ic=0;
     for( i = 1; i <= sl->lastid; i++ )
