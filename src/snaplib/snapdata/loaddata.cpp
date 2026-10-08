@@ -20,13 +20,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
 #include <array>
 #include <string>
 #include <string_view>
+#include <vector>
 #include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 
-#include "util/chkalloc.h"
 #include "util/symmatrx.h"
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"
@@ -82,16 +83,13 @@ static int default_reffrm = ID_UNDEFINED;
 static int reffrm_classified = 0;
 static int reffrm_classification = ID_UNDEFINED;
 
-static unsigned char *datablock = NULL;
-static classdata *classblock = NULL;
-static syserrdata *syserrblock = NULL;
-static int datasize = 0;
-static int classblocksize = 0;
-static int syserrblocksize = 0;
+static std::vector<unsigned char> datablock;
+static std::vector<classdata> classblock;
+static std::vector<syserrdata> syserrblock;
 
-static ltmat cvr = NULL;
-static ltmat calccvr = NULL;
-static ltmat rescvr = NULL;
+static ltmat cvr = nullptr;
+static ltmat calccvr = nullptr;
+static ltmat rescvr = nullptr;
 static int cvrdim = 0;
 
 /* Station recoding very messy as currently structured because
@@ -113,8 +111,7 @@ struct recoded_id
     bool reject;  /* Recoded rejection */
 };
 
-static recoded_id *saved_ids=NULL;
-static int max_saved_id=0;
+static std::vector<recoded_id> saved_ids;
 static int saved_id_offset=1;
 static int next_saved_id=0;
 static int preserve_saved_codes=0;  /* Used to handle exception with point data */
@@ -227,12 +224,11 @@ static int save_code( std::string_view code )
 
     next_saved_id++;
     idoffset=next_saved_id-saved_id_offset;
-    if( idoffset >= max_saved_id )
+    if( numeric_cast<size_t>( idoffset ) >= saved_ids.size() )
     {
-        max_saved_id += SAVED_IDS_INC;
-        saved_ids=(recoded_id *) check_realloc( saved_ids, max_saved_id * sizeof(recoded_id) );
+        saved_ids.resize( saved_ids.size() + SAVED_IDS_INC );
     }
-    newid=saved_ids+idoffset;
+    newid=&saved_ids[idoffset];
     newid->codeid=codeid;
     newid->recoded=0;
     newid->id=0;
@@ -258,7 +254,7 @@ static int get_recoded_id( int id, bool *reject )
     id -= saved_id_offset;
     if( id < 0 ) return 0;
 
-    rid=saved_ids+id;
+    rid=&saved_ids[id];
     if( ! rid->recoded )
     {
         const std::string_view src=saved_code(rid->codeid);
@@ -301,11 +297,11 @@ static void reset_saved_codes( int lastid )
          reset_saved_code_ids();
          return;
     }
-    memmove( saved_ids, saved_ids+ndrop, nkeep*sizeof(recoded_id) );
+    std::copy( saved_ids.begin()+ndrop, saved_ids.begin()+ndrop+nkeep, saved_ids.begin() );
     saved_id_offset += ndrop;
 
     {
-        int codeloc=saved_ids->codeid;
+        int codeloc=saved_ids.front().codeid;
         int codeshift=codeloc-code_offset;
         saved_codes.erase( 0, codeshift );
         code_offset+=codeshift;
@@ -317,8 +313,8 @@ static void clear_saved_codes()
     reset_saved_code_ids();
     saved_codes.clear();
     saved_codes.shrink_to_fit();
-    check_free( saved_ids );
-    saved_ids=0;
+    // Swapping with an empty vector releases the memory, which clear() would not
+    std::vector<recoded_id>().swap( saved_ids );
 }
 
 static void report_error( const char *location )
@@ -356,24 +352,19 @@ void init_load_data( void (*usedata)( survdata *sd ),
 void term_load_data( void )
 {
     DEBUG_PRINT(("LDT: term_load_data"));
-    if( cvr ) free( cvr );
-    if( calccvr ) free( calccvr );
-    if( rescvr ) free( rescvr );
-    if( datablock ) check_free( datablock );
-    if( classblock ) check_free( classblock );
-    if( syserrblock ) check_free( syserrblock );
+    delete [] cvr;
+    delete [] calccvr;
+    delete [] rescvr;
+    // Swapping with an empty vector releases the memory, which clear() would not
+    std::vector<unsigned char>().swap( datablock );
+    std::vector<classdata>().swap( classblock );
+    std::vector<syserrdata>().swap( syserrblock );
     clear_saved_codes();
 
     cvrdim = 0;
-    cvr = NULL;
-    calccvr = NULL;
-    rescvr = NULL;
-    datablock = NULL;
-    classblock = NULL;
-    syserrblock = NULL;
-    datasize = 0;
-    classblocksize = 0;
-    syserrblocksize = 0;
+    cvr = nullptr;
+    calccvr = nullptr;
+    rescvr = nullptr;
 }
 
 
@@ -572,32 +563,27 @@ static void *next_data( int type )
     }
 
     required = (data.nobs+1)*data.obssize;
-    if( required > datasize )
+    if( numeric_cast<size_t>( required ) > datablock.size() )
     {
-        const int old_datasize = datasize;
-        datasize = required + INC_SIZE * data.obssize;
-        datablock = (unsigned char *) check_realloc( datablock, datasize );
-        // Zero the portion of the reallocated pointer that's larger than
-        // what previously existed - realloc leaves it uninitialized. This
-        // buffer gets written to a .bin file as one raw fwrite
-        // (save_survdata, bindata.cpp), so any garbage here (compiler
-        // struct padding in obsdata/vecdata/pntdata, or fields like
+        // resize zero fills the new bytes. This buffer gets written to a .bin file
+        // as one raw fwrite (save_survdata, bindata.cpp), so any garbage here
+        // (compiler struct padding in obsdata/vecdata/pntdata, or fields like
         // isyserr/iclass that are only set when an observation actually
         // has classifications/syserrs) would otherwise leak nondeterministic
         // bytes into the file, differing between runs and compilers.
-        memset( datablock + old_datasize, 0, datasize - old_datasize );
+        datablock.resize( numeric_cast<size_t>( required + INC_SIZE * data.obssize ) );
         switch( format )
         {
         case SD_OBSDATA:
-            data.obs.odata = (obsdata *) datablock;
+            data.obs.odata = reinterpret_cast<obsdata *>( datablock.data() );
             break;
 
         case SD_VECDATA:
-            data.obs.vdata = (vecdata *) datablock;
+            data.obs.vdata = reinterpret_cast<vecdata *>( datablock.data() );
             break;
 
         case SD_PNTDATA:
-            data.obs.pdata = (pntdata *) datablock;
+            data.obs.pdata = reinterpret_cast<pntdata *>( datablock.data() );
             break;
         }
     }
@@ -605,13 +591,13 @@ static void *next_data( int type )
     gotval = 0;
     goterr = 0;
     reffrm_classified = 0;
-    obs =  (void *) (datablock + data.nobs++ *data.obssize);
+    obs = datablock.data() + data.nobs++ * data.obssize;
 
     iscovar = 0;
 
     switch( data.format )
     {
-    case SD_OBSDATA: od = (obsdata *) obs;
+    case SD_OBSDATA: od = static_cast<obsdata *>( obs );
         tgt = &od->tgt;
         aval = &od->value;
         nval = 1;
@@ -622,17 +608,17 @@ static void *next_data( int type )
         od->prm_id = 0;
         break;
 
-    case SD_VECDATA: vd = (vecdata *) obs;
+    case SD_VECDATA: vd = static_cast<vecdata *>( obs );
         tgt = &vd->tgt;
         aval = vd->vector;
         nval = 3;
-        aerr = NULL;
+        aerr = nullptr;
         nerr = 0;
         goterr = 1;
         iscovar = 1;
         break;
 
-    case SD_PNTDATA: pd = (pntdata *) obs;
+    case SD_PNTDATA: pd = static_cast<pntdata *>( obs );
         tgt = &pd->tgt;
         aval = &pd->value;
         nval = 1;
@@ -666,19 +652,15 @@ static ltmat alloc_cvr( void )
     dimreq = data.nobs * 3;
     if( dimreq > cvrdim )
     {
-        if( cvr ) free( cvr );
-        if( calccvr ) free( calccvr );
-        if( rescvr ) free( rescvr );
-        cvr = calccvr = rescvr = NULL;
+        delete [] cvr;
+        delete [] calccvr;
+        delete [] rescvr;
+        cvr = calccvr = rescvr = nullptr;
         cvrdim = dimreq + 6;
-        cvrsize = ( (long) cvrdim * (long) (cvrdim+1) ) / 2;
-        cvr = (ltmat) malloc( cvrsize * sizeof( double ) );
-        calccvr = (ltmat) malloc( cvrsize * sizeof( double ) );
-        rescvr = (ltmat) malloc( cvrsize * sizeof( double ) );
-        if( !cvr || !calccvr || !rescvr )
-        {
-            handle_error( MEM_ALLOC_ERROR, NO_MESSAGE, NO_MESSAGE );
-        }
+        cvrsize = ( static_cast<long>( cvrdim ) * static_cast<long>( cvrdim+1 ) ) / 2;
+        cvr = new double[cvrsize];
+        calccvr = new double[cvrsize];
+        rescvr = new double[cvrsize];
     }
 
     clear_cvr( dimreq, cvr );
@@ -690,32 +672,24 @@ static ltmat alloc_cvr( void )
 
 static syserrdata *getsyserrdata( void )
 {
-    int idx;
-    idx = data.nsyserr;
-    if( idx >= syserrblocksize )
+    const size_t idx = numeric_cast<size_t>( data.nsyserr );
+    if( idx >= syserrblock.size() )
     {
-        int reqsize = idx+1+INC_SIZE;
-        syserrblocksize = reqsize;
-        reqsize *= sizeof( syserrdata );
-        syserrblock = (syserrdata *) check_realloc( syserrblock, reqsize );
-        data.syserr=syserrblock;
+        syserrblock.resize( idx+1+INC_SIZE );
+        data.syserr=syserrblock.data();
     }
-    return syserrblock + idx;
+    return &syserrblock[idx];
 }
 
 static classdata *getclassdata( void )
 {
-    int idx;
-    idx = data.nclass;
-    if( idx >= classblocksize )
+    const size_t idx = numeric_cast<size_t>( data.nclass );
+    if( idx >= classblock.size() )
     {
-        int reqsize = idx+1+INC_SIZE;
-        classblocksize = reqsize;
-        reqsize *= sizeof( classdata );
-        classblock = (classdata *) check_realloc( classblock, reqsize );
-        data.clsf=classblock;
+        classblock.resize( idx+1+INC_SIZE );
+        data.clsf=classblock.data();
     }
-    return classblock + idx;
+    return &classblock[idx];
 }
 
 int64_t ldt_get_id( int type, int group_id, std::string_view code )

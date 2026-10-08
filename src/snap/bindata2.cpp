@@ -45,7 +45,6 @@ using boost::numeric_cast;
 #include "snapdata/survdata.h"
 #include "snap/bearing.h"
 #include "snap/rftrans.h"
-#include "util/chkalloc.h"
 #include "snap/bindata.h"
 #include "bindata2.h"
 #include "obsdata.h"
@@ -421,14 +420,14 @@ void calc_residuals( void )
 
     if( maxrow <= 0 ) return;
 
-    l.calc = (double *) check_malloc( maxrow * sizeof(double) );
-    l.res  = (double *) check_malloc( maxrow * sizeof(double) );
+    l.calc = new double[maxrow];
+    l.res  = new double[maxrow];
 
     maxelt = ( (long)maxlt * (maxlt+1) ) / 2;
     if( maxelt < maxrow ) maxelt = maxrow;
 
-    l.calccvr = (ltmat) malloc( maxelt * sizeof( double ) );
-    l.rescvr  = (ltmat) malloc( maxelt * sizeof( double ) );
+    l.calccvr = new double[maxelt];
+    l.rescvr  = new double[maxelt];
     l.sch=0.0;
     l.schvar=0.0;
     l.diagonal=0;
@@ -477,10 +476,10 @@ void calc_residuals( void )
     delete_bindata( b );
     delete_oe( hA );
 
-    free(l.rescvr);
-    free(l.calccvr);
-    check_free(l.res);
-    check_free(l.calc);
+    delete [] l.rescvr;
+    delete [] l.calccvr;
+    delete [] l.res;
+    delete [] l.calc;
 }
 
 /* Print residual title is the same as print residual line, except that
