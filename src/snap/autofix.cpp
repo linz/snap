@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <vector>
 
 #include "autofix.h"
 #include "snap/bindata.h"
@@ -13,7 +14,6 @@
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 
 struct autofix_data
 {
@@ -40,7 +40,7 @@ struct autofix_data
 #define NO_STN -1
 
 static int obsflags[NOBSTYPE];
-static autofix_data *station_autodata=0;
+static std::vector<autofix_data> station_autodata;
 static int max_station_autodata=0;
 
 static void init_obsflags()
@@ -80,14 +80,13 @@ static void init_obsflags()
 void init_station_autodata( int maxstn )
 {
     free_station_autofix_data();
-    station_autodata=(autofix_data *) check_malloc( (maxstn+1) * sizeof(autofix_data));
+    station_autodata.resize( maxstn+1 );
     max_station_autodata=maxstn;
-    for( int i=0; i<=maxstn; i++ )
+    for( autofix_data &afx : station_autodata )
     {
-        autofix_data *afx=&(station_autodata[i]);
-        afx->flags=0;
-        afx->horstn1=NO_STN;
-        afx->horstn2=NO_STN;
+        afx.flags=0;
+        afx.horstn1=NO_STN;
+        afx.horstn2=NO_STN;
     }
 }
 
@@ -223,7 +222,7 @@ void compile_station_autofix_data()
 int station_autofix_constraints( int istn )
 {
     int fixflags=0;
-    if( istn > 0 || istn < max_station_autodata ) 
+    if( istn > 0 || istn < max_station_autodata )
     {
         autofix_data *afx=&(station_autodata[istn]);
         int flags = afx->flags;
@@ -251,7 +250,7 @@ int station_autofix_reject( int istn )
 {
     int reject=0;
 
-    if( istn > 0 || istn < max_station_autodata ) 
+    if( istn > 0 || istn < max_station_autodata )
     {
         station *st=stnptr(istn);
         stn_adjustment *sa=stnadj(st);
@@ -282,7 +281,7 @@ int station_autofix_reject( int istn )
 
 void free_station_autofix_data()
 {
-    if( station_autodata ) check_free( station_autodata );
+    station_autodata.clear();
     max_station_autodata=0;
 }
 

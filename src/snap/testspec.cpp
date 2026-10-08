@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <vector>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "testspec.h"
@@ -42,13 +43,12 @@
 #include "stnobseq.h"
 #include "snap/snapglob.h"
 #include "util/probfunc.h"
-#include "util/chkalloc.h"
 #include "output.h"
 #include "util/progress.h"
 #include "util/errdef.h"
 
 static SpecDef *spechead = NULL;
-static int *stn_testids = NULL;
+static std::vector<int> stn_testids;
 static int ntestid = 0;
 
 static int spec_apriori = 1;
@@ -56,7 +56,7 @@ static int listopts = SPEC_LIST_NONE;
 
 int do_accuracy_tests = 0;
 
-static void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids, int listopts );
+static void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector<int> &stn_testids, int listopts );
 
 
 void set_spec_apriori( int isapriori )
@@ -118,16 +118,10 @@ int get_spec_testid( std::string_view name, int *testid )
 
 int set_station_spec_testid( int stnid, int testid, int add )
 {
-    int nstns;
-    int istn;
-    nstns = number_of_stations(net);
-    if( ! stn_testids )
+    const int nstns = number_of_stations(net);
+    if( stn_testids.empty() )
     {
-        stn_testids = (int *) check_malloc( sizeof(int) * (nstns+1) );
-        for( istn = 0; istn <= nstns; istn++ )
-        {
-            stn_testids[istn] = 0;
-        }
+        stn_testids.assign( nstns+1, 0 );
     }
     if( stnid < 1 || stnid > nstns ) return INVALID_DATA;
     if( add )
@@ -187,7 +181,7 @@ void test_specifications( void )
     int istn;
 
     if( ! ntestid ) return;
-    if( ! stn_testids ) return;
+    if( stn_testids.empty() ) return;
 
     print_section_header( lst, "ACCURACY SPECIFICATION TESTS" );
 
@@ -265,7 +259,7 @@ void test_specifications( void )
 
 
 
-void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids, int listopts )
+void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector<int> &stn_testids, int listopts )
 {
     int istn;
     int nstns;

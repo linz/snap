@@ -22,6 +22,7 @@
 #include <array>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -33,7 +34,6 @@ using boost::numeric_cast;
 #include "snap/snapglob.h"
 #include "snap/survfile.h"
 #include "util/leastsqu.h"
-#include "util/chkalloc.h"
 #include "util/progress.h"
 #include "util/dateutil.h"
 #include "util/filelist.h"
@@ -48,7 +48,6 @@ void print_coord_covariance( void )
 {
     FILE *f;
     int maxstn, istn, ncrd;
-    int *rownos;
     station *st;
     stn_adjustment *sa;
     long ncvr;
@@ -73,8 +72,7 @@ void print_coord_covariance( void )
 
     maxstn = number_of_stations( net );
     ncrd = maxstn * 3;
-    rownos = (int *) check_malloc( ncrd * sizeof(int));
-    for( istn = 0; istn < ncrd; istn++ ) rownos[istn] = -1;
+    std::vector<int> rownos( numeric_cast<size_t>( ncrd ), -1 );
 
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     const DmsFormat latitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
@@ -132,14 +130,12 @@ void print_coord_covariance( void )
         }
     end_progress_meter();
     fclose(f);
-    check_free(rownos);
 }
 
 void print_coord_covariance_json( void )
 {
     FILE *f;
     int maxstn, istn, ncrd;
-    int *rownos;
     ellipsoid *elp;
     station *st;
     stn_adjustment *sa;
@@ -167,8 +163,7 @@ void print_coord_covariance_json( void )
 
     maxstn = number_of_stations( net );
     ncrd = maxstn * 3;
-    rownos = (int *) check_malloc( ncrd * sizeof(int));
-    for( istn = 0; istn < ncrd; istn++ ) rownos[istn] = -1;
+    std::vector<int> rownos( numeric_cast<size_t>( ncrd ), -1 );
 
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
@@ -259,7 +254,6 @@ void print_coord_covariance_json( void )
     fprintf(f,"\n  ]\n}\n");
     fclose(f);
     end_progress_meter();
-    check_free(rownos);
 }
 
 

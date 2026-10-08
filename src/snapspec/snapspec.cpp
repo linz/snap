@@ -30,11 +30,12 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 #include "util/linklist.h"
 #include "util/bltmatrx.h"
@@ -292,12 +293,12 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
     if( ! ra->bltreq )
     {
         /* Save and free blt before reloading to avoid holding both simultaneously. */
-        int *saved_col = NULL;
+        std::vector<int> saved_col;
         int nrow_saved = 0;
         if( ra->blt )
         {
             nrow_saved = blt_nrows( ra->blt );
-            saved_col = (int *) check_malloc( nrow_saved * sizeof(int) );
+            saved_col.resize( boost::numeric_cast<size_t>( nrow_saved ) );
             for( int i = 0; i < nrow_saved; i++ )
                 saved_col[i] = ra->blt->row[i].col;
             delete_bltmatrix( ra->blt );
@@ -305,18 +306,17 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
         }
 
         BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE ).file;
-        if( !b ) { if( saved_col ) check_free( saved_col ); return 0; }
+        if( !b ) return 0;
         if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK )
         {
             close_binary_file(b);
-            if( saved_col ) check_free( saved_col );
             return 0;
         }
         int sts = reload_bltmatrix( &(ra->bltreq), b->f );
         close_binary_file(b);
-        if( sts != OK || !ra->bltreq ) { if( saved_col ) check_free( saved_col ); return 0; }
+        if( sts != OK || !ra->bltreq ) return 0;
 
-        if( saved_col )
+        if( !saved_col.empty() )
         {
             int nrow = blt_nrows( ra->bltreq );
             if( nrow == nrow_saved )
@@ -325,7 +325,6 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
                     blt_nonzero_element( ra->bltreq, i, saved_col[i] );
                 blt_set_sparse_rows( ra->bltreq, nrow );
             }
-            check_free( saved_col );
         }
     }
     return 1;
@@ -1376,7 +1375,6 @@ struct MaxControlOrder
 static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_array *ra )
 {
     std::optional<std::string> max_order_str;
-    int *order_lookup;
     int nnetorder;
     int nbadorder;
     int orderid;
@@ -1410,7 +1408,7 @@ static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_ar
        to the SDC test orders */
 
     nnetorder = net->order_count();
-    order_lookup = (int *) check_malloc( sizeof(int) * (nnetorder+1) );
+    std::vector<int> order_lookup( boost::numeric_cast<size_t>( nnetorder + 1 ) );
 
     /* Orders will be defined as -2: undefined, -1 less than lowest test, >=0 control order */
     /* Note that network order 0 is the default "undefined" order, ie "-", and so is always
@@ -1499,7 +1497,6 @@ static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_ar
         max_order = -2;
     }
 
-    check_free( order_lookup );
     return MaxControlOrder( max_order, max_order_str );
 }
 

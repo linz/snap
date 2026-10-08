@@ -41,7 +41,6 @@
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 
 #include "util/binfile.h"
@@ -76,7 +75,7 @@ struct covariance
     double sehgt;
 };
 
-static covariance *covar;
+static std::vector<covariance> covar;
 
 enum {JST_LEFT, JST_CENTRE, JST_RIGHT };
 enum {QT_NONE, QT_QUOTE, QT_LITERAL };
@@ -662,7 +661,7 @@ static int list_stations( FILE *out, TableWriter &table )
             stn_easting = st->ELat*RTOD;
         }
         stn_height = enh[CRD_HGT];
-        if( covar )
+        if( !covar.empty() )
         {
             stn_h_max_error = covar[istn].emax;
             stn_h_min_error = covar[istn].emin;
@@ -1117,7 +1116,7 @@ int reload_covariances( BINARY_FILE *b )
     if( find_section( b, "STATION_COVARIANCES" ) != OK ) return MISSING_DATA;
 
     nstns = number_of_stations( net );
-    covar = (covariance *) check_malloc( sizeof(covariance) * (nstns+1) );
+    covar.assign( nstns+1, covariance() );
 
     for( istn = 0; istn++ < nstns; )
     {
