@@ -16,7 +16,6 @@
 #include <string_view>
 #include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
-#include "util/snapctype.h"
 #include <assert.h>
 
 #include "network/network.h"
@@ -112,19 +111,37 @@ void sl_remove_station( station_list *sl, station *st )
 /// compared ignoring case, and codes whose first run of digits starts at the
 /// same place after equal text are ordered by the value of that run, so
 /// "AB9" sorts before "AB10".
+///
+/// The runs are compared as digit strings, not converted to a number. The
+/// original used atol, which is undefined for a run too long for a long, and
+/// parse_leading<long> reports overflow as no value, which would sort such a
+/// run as zero and so give an inconsistent order. A comparison that cannot
+/// fail matters because this is the ordering for qsort, std::lower_bound and
+/// the station code maps, none of which can handle an error from it.
 int stncodecmp(
     std::string_view s1,   ///< the first station code
     std::string_view s2 )  ///< the second station code
 {
-    const auto isDigit = []( unsigned char ch ) { return std::isdigit( ch ) != 0; };
-    const size_t digits1 = std::find_if( s1.begin(), s1.end(), isDigit ) - s1.begin();
-    const size_t digits2 = std::find_if( s2.begin(), s2.end(), isDigit ) - s2.begin();
+    const size_t digits1 = std::find_if( s1.begin(), s1.end(), is_digit ) - s1.begin();
+    const size_t digits2 = std::find_if( s2.begin(), s2.end(), is_digit ) - s2.begin();
     if( digits1 == digits2 && digits1 < s1.size() && digits1 < s2.size()
         && compare_ignoring_case( s1.substr(0,digits1), s2.substr(0,digits1) ) == 0 )
     {
-        const long number1 = parse_leading<long>( s1.substr(digits1) ).value_or(0);
-        const long number2 = parse_leading<long>( s2.substr(digits2) ).value_or(0);
-        if( number1 != number2 ) return number1 < number2 ? -1 : 1;
+        // The digits of a run without its leading zeros. A longer run is a
+        // larger number, and runs of equal length compare as text, so the
+        // comparison needs no integer type and cannot overflow.
+        const auto significantDigits = []( const std::string_view text )
+        {
+            const size_t end = std::find_if_not( text.begin(), text.end(), is_digit ) - text.begin();
+            const size_t zeros = std::find_if_not( text.begin(), text.begin() + end,
+                []( const char ch ) { return ch == '0'; } ) - text.begin();
+            return text.substr( zeros, end - zeros );
+        };
+        const std::string_view number1 = significantDigits( s1.substr(digits1) );
+        const std::string_view number2 = significantDigits( s2.substr(digits2) );
+        if( number1.size() != number2.size() ) return number1.size() < number2.size() ? -1 : 1;
+        const int cmp = number1.compare( number2 );
+        if( cmp != 0 ) return cmp < 0 ? -1 : 1;
     }
     return compare_ignoring_case( s1, s2 );
 }

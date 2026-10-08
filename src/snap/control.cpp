@@ -41,7 +41,6 @@
 #include <charconv>
 #include <string_view>
 #include "util/fieldscanner.hpp"
-#include "util/snapctype.h"
 
 #include "control.h"
 #include "snap/bearing.h"
@@ -1333,7 +1332,7 @@ static int read_output_precision( CFG_FILE *cfg, std::string_view string, void *
             sprintf(errmess,"Invalid type code %.20s in output_precision command",std::string(*st).c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
         }
-        else if( ndp_str->size() != 1 || !ISDIGIT((*ndp_str)[0]) )
+        else if( ndp_str->size() != 1 || ! is_digit((*ndp_str)[0]) )
         {
             char errmess[80];
             sprintf(errmess,"Invalid precision %.20s in output_precision command",std::string(*ndp_str).c_str());

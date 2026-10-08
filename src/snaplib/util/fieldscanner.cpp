@@ -327,13 +327,12 @@ FieldResult read_hp_angle_field( FieldScanner &scanner, double &radians )
     const FieldResult result = read_field( scanner, field );
     if( result != FieldResult::Ok ) return result;
 
-    const auto isDigit = []( char c ) { return std::isdigit( static_cast<unsigned char>( c ) ) != 0; };
     const size_t point = field.find( '.' );
     if( point == std::string_view::npos ) return FieldResult::InvalidValue;
     const std::string_view whole = field.substr( 0, point );
     const std::string_view fraction = field.substr( point + 1 );
-    if( ! std::all_of( whole.begin(), whole.end(), isDigit ) ) return FieldResult::InvalidValue;
-    if( fraction.size() < 4 || ! std::all_of( fraction.begin(), fraction.end(), isDigit ) ) return FieldResult::InvalidValue;
+    if( ! std::all_of( whole.begin(), whole.end(), is_digit ) ) return FieldResult::InvalidValue;
+    if( fraction.size() < 4 || ! std::all_of( fraction.begin(), fraction.end(), is_digit ) ) return FieldResult::InvalidValue;
 
     int degrees = 0;
     for( const char c : whole ) degrees = degrees*10 + (c - '0');

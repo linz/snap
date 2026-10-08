@@ -230,6 +230,13 @@ std::optional<T> parse_leading(
 std::optional<double> parse_positive_double(
     std::string_view field );  ///< the field to parse
 
+/// True for '0' to '9'. Digits are the same in every locale, so this needs no
+/// <cctype> call or cast to unsigned char.
+inline constexpr bool is_digit( const char ch )
+{
+    return ch >= '0' && ch <= '9';
+}
+
 /// Compares two strings ignoring case, returning -1 if string1 sorts before
 /// string2, 0 if they are equal and 1 if string1 sorts after string2. Each
 /// character is folded to lower case before comparing, matching _stricmp.

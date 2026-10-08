@@ -75,6 +75,38 @@ void check_digit_runs_at_different_places()
     check_sorts_before( "AB", "AB1" );
 }
 
+// The next two checks use strings longer than STNCODELEN. A station code is
+// truncated to that length, but stncodecmp takes any string (layer names and
+// the codes in a station range are not truncated), and it must order a digit
+// run too long for a long by its value.
+
+void check_digit_runs_too_long_for_a_long()
+{
+    // A longer run, without leading zeros, is the larger number
+    check_sorts_before( "A99999", "A99999999999999999999" );
+    check_sorts_before( "A9999999999999999999", "A99999999999999999999" );
+    check_sorts_before( "A99999999999999999999", "A100000000000000000000" );
+
+    // The run either side of the largest long, 9223372036854775807
+    check_sorts_before( "A9223372036854775807", "A9223372036854775808" );
+    check_sorts_before( "A9223372036854775808", "A9223372036854775809" );
+
+    // Runs of the same length compare digit by digit
+    check_sorts_before( "A12345678901234567890", "A12345678901234567891" );
+    check_sorts_before( "A99999999999999999999B", "A99999999999999999999C" );
+}
+
+void check_leading_zeros_in_long_digit_runs()
+{
+    // Leading zeros do not make a run larger
+    check_sorts_before( "A9999999999999999999", "A0099999999999999999999" );
+    check_sorts_before( "A0099999999999999999999", "A100000000000000000000" );
+
+    // The same value falls back to the text, as for short runs
+    check_sorts_before( "A00000000000000000001", "A1" );
+    check_equal( "A00000000000000000001", "a00000000000000000001" );
+}
+
 }  // namespace
 
 int main()
@@ -84,6 +116,8 @@ int main()
     check_equal_digit_values_fall_back_to_text();
     check_text_before_digits_decides_first();
     check_digit_runs_at_different_places();
+    check_digit_runs_too_long_for_a_long();
+    check_leading_zeros_in_long_digit_runs();
 
     if( failures == 0 )
     {

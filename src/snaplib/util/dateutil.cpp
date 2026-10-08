@@ -31,6 +31,7 @@
 
 #include "util/snapctype.h"
 #include "util/dateutil.h"
+#include "util/fieldscanner.hpp"
 
 #define SAME_DATE_TOLERANCE 1.0e-7
 
@@ -152,7 +153,7 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
 
         while( ! remaining.empty() )
         {
-            if( ISDIGIT(remaining.front())) break;
+            if( is_digit(remaining.front())) break;
             if( idx == 1 && ISALNUM(remaining.front())) break;
             remaining.remove_prefix( 1 );
         }
@@ -160,7 +161,7 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
 
         std::size_t nbuf = maxchars[idx];
         bool isname = false;
-        if( ! remaining.empty() && !ISDIGIT(remaining.front()))
+        if( ! remaining.empty() && ! is_digit(remaining.front()))
         {
             buffer = ' ';
             nbuf = 10;
@@ -169,8 +170,8 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
 
         while( ! remaining.empty() && ISALNUM(remaining.front()) && buffer.size() < nbuf )
         {
-            if( ! ISDIGIT(remaining.front()) && ! isname) break;
-            if( ISDIGIT(remaining.front()) && isname) break;
+            if( ! is_digit(remaining.front()) && ! isname) break;
+            if( is_digit(remaining.front()) && isname) break;
             buffer.push_back( remaining.front() );
             remaining.remove_prefix( 1 );
         }

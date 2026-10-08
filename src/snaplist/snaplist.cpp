@@ -755,8 +755,8 @@ namespace {
 std::optional<char> parseHexEscapeByte( std::string_view source, std::size_t xi )
 {
     if( xi+2 >= source.size() || ! ISXDIGIT(source[xi+1]) || ! ISXDIGIT(source[xi+2]) ) return std::nullopt;
-    unsigned char hx = ISDIGIT(source[xi+1]) ? (source[xi+1] - '0') : (10 + TOUPPER(source[xi+1]) - 'A');
-    hx = hx*16 + ( ISDIGIT(source[xi+2]) ? (source[xi+2] - '0') : (10 + TOUPPER(source[xi+2]) - 'A') );
+    unsigned char hx = is_digit(source[xi+1]) ? (source[xi+1] - '0') : (10 + TOUPPER(source[xi+1]) - 'A');
+    hx = hx*16 + ( is_digit(source[xi+2]) ? (source[xi+2] - '0') : (10 + TOUPPER(source[xi+2]) - 'A') );
     return static_cast<char>(hx);
 }
 }

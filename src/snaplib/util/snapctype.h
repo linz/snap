@@ -8,7 +8,6 @@
 // needed because isalnum is undefined for negative values such as the bytes
 // of a UTF-8 character.
 #define ISALNUM(c) (isalnum((unsigned char)(c)))
-#define ISDIGIT(c) (isdigit((unsigned char)(c)))
 #define ISPRINT(c) (isprint((unsigned char)(c)))
 #define ISSPACE(c) (isspace((unsigned char)(c)))
 #define ISXDIGIT(c) (isxdigit((unsigned char)(c)))
