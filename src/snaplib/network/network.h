@@ -216,8 +216,15 @@ struct network
 {
     network();
     network( const network& ) = delete; ///< stnclasses owns a vector of unique_ptr, which can't be copied, so neither can network
-    network( network&& ) = default;        ///< && marks a move constructor - needed for use with vector<unique_ptr>, which can move but not copy
-    network& operator=( network&& ) = default; ///< && marks a move assignment operator - declaring a destructor stops the compiler generating this one on its own, so it has to be asked for explicitly
+    /// && marks a move constructor. Takes ownership of o's station list and
+    /// coordinate systems, leaving o empty (as if freshly constructed, apart
+    /// from its station callbacks), so the two never both delete them.
+    network( network&& o ) noexcept;
+
+    /// && marks a move assignment operator. Clears this network first (so what
+    /// it owned is freed rather than leaked), then takes ownership as the
+    /// move constructor does. Assigning a network to itself does nothing.
+    network& operator=( network&& o ) noexcept;
     ~network();
 
     /// Resets every field to the same empty state a freshly-constructed
@@ -281,6 +288,14 @@ struct network
     classifications stnclasses;  /* Array of classifications used for stations */
     stationfunc  initstation;    /* Function called when a station is added */
     stationfunc  uninitstation;  /* Function called when a station is deleted */
+
+private:
+    /// Sets every field except the station callbacks to the value the
+    /// constructor gives it. Does not free stnlist, crdsys or geosys, so
+    /// only call it once they have been freed or handed to another network.
+    /// A plain move leaves the pointers, conversions and scalars unchanged in
+    /// the source, so the move operations copy those and then call this on it.
+    void _reset_fields();
 };
 
 /* Network options flags */

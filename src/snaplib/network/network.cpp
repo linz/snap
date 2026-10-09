@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <utility>
 
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -36,6 +37,51 @@ network::network() :
     initstation( default_initstation ),
     uninitstation( default_uninitstation )
 {
+}
+
+network::network( network &&o ) noexcept :
+    name( std::move( o.name ) ),
+    crdsysdef( std::move( o.crdsysdef ) ),
+    stnlist( o.stnlist ),
+    crdsys( o.crdsys ),
+    geosys( o.geosys ),
+    ccnet( o.ccnet ),
+    ccgeo( o.ccgeo ),
+    topolat( o.topolat ),
+    topolon( o.topolon ),
+    got_topocentre( o.got_topocentre ),
+    options( o.options ),
+    orderclsid( o.orderclsid ),
+    stnclasses( std::move( o.stnclasses ) ),
+    initstation( o.initstation ),
+    uninitstation( o.uninitstation )
+{
+    o._reset_fields();
+}
+
+network &network::operator=( network &&o ) noexcept
+{
+    if( this != &o )
+    {
+        clear();
+        name = std::move( o.name );
+        crdsysdef = std::move( o.crdsysdef );
+        stnclasses = std::move( o.stnclasses );
+        initstation = o.initstation;
+        uninitstation = o.uninitstation;
+        stnlist = o.stnlist;
+        crdsys = o.crdsys;
+        geosys = o.geosys;
+        ccnet = o.ccnet;
+        ccgeo = o.ccgeo;
+        topolat = o.topolat;
+        topolon = o.topolon;
+        got_topocentre = o.got_topocentre;
+        options = o.options;
+        orderclsid = o.orderclsid;
+        o._reset_fields();
+    }
+    return *this;
 }
 
 network *new_network( void )
@@ -80,11 +126,19 @@ void network::clear()
     {
         process_stations( this, this, uninit_station );
     }
+    if( stnlist ) { delete_station_list( stnlist ); }
+    if( crdsys ) { delete crdsys; }
+    if( geosys ) { delete geosys; }
+    _reset_fields();
+}
+
+void network::_reset_fields()
+{
     name = std::nullopt;
     crdsysdef.clear();
-    if( stnlist ) { delete_station_list( stnlist ); stnlist = nullptr; }
-    if( crdsys ) { delete crdsys; crdsys = nullptr; }
-    if( geosys ) { delete geosys; geosys = nullptr; }
+    stnlist = nullptr;
+    crdsys = nullptr;
+    geosys = nullptr;
     ccnet = coord_conversion();
     ccgeo = coord_conversion();
     topolat = 0;
