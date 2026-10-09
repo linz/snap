@@ -1,0 +1,46 @@
+
+concord:  Coordinate conversion program
+
+Input coordinates:
+    Enter input coord sys code or ?:     Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)
+    Enter input coordinate order(default EN):     Enter angle format (D = deg, M = deg mins, H = deg min secs, default H): 
+Output coordinates:
+    Enter output coord sys code or ?:     Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)
+    Enter output coordinate order(default EN): 
+Some conversions depend on the date of the coordinatesr. This can be
+formatted as YYYYMMDD, or a decimal year, or "now"
+Enter the conversion date (default "now"):     Enter number of decimal places for output (default -1): 
+Each point you convert can have a name.  If you want to use names you must
+specify the length of the longest name you want to use
+
+Enter maximum name length, or 0 for no names (default 0): 
+You can enter the coordinates to convert yourself, or read them from a file
+If you want to read them from a file then specify the name of the file,
+otherwise just press Enter
+
+Enter coordinate input filename:     **** Unable to open file ****
+Enter coordinate input filename: 
+If you want the output to go to a file, enter the file name
+
+Enter output file name: 
+
+=====================================================================
+
+concord - coordinate conversion program (version X dated X)
+
+Input coordinates:  New Zealand Geodetic Datum 2000
+
+Output coordinates: New Zealand Transverse Mercator Projection
+
+You can now enter coordinates you want converted.  Your input should look
+something like this: 
+
+STN_3  -41.25531  171.14238
+
+Each item should be separated by at least one blank space.
+The name cannot include blanks.
+When you have finished enter a blank line to quit the program
+
+
+Enter name, latitude, longitude:                                  **** Error reading data ****
+Enter name, latitude, longitude: 

@@ -12,10 +12,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <array>
+#include <string_view>
 
 #include "rftrnadj.h"
 #include "snap/rftrans.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/dstring.h"
 #include "util/geodetic.h"
@@ -39,7 +40,7 @@
 #define OUTPUT_TOPO 2
 #define OUTPUT_IERS 4
 
-static const char *geoPrmNames[] =
+static constexpr std::array<std::string_view,14> geoPrmNames =
 {
     " X shift (m)",
     " Y shift (m)",
@@ -57,27 +58,7 @@ static const char *geoPrmNames[] =
     " rotn Z rate (sec/yr)"
 };
 
-/*
-static const char *IERSPrmNames[] =
-{
-    " X shift (mm)",
-    " Y shift (mm)",
-    " Z shift (mm)",
-    " scale (ppb)",
-    " rotn X (mas)",
-    " rotn Y (mas)",
-    " rotn Z (mas)",
-    " X shift rate (mm/yr)",
-    " Y shift rate (mm/yr)",
-    " Z shift rate (mm/yr)",
-    " scale rate (ppb/yr)",
-    " rotn X rate (mas/yr)",
-    " rotn Y rate (mas/yr)",
-    " rotn Z rate (mas/yr)"
-};
-*/
-
-static const char *topoPrmNames[] =
+static constexpr std::array<std::string_view,14> topoPrmNames =
 {
     " E shift (m)",
     " N shift (m)",
@@ -95,7 +76,7 @@ static const char *topoPrmNames[] =
     " rotn U rate (sec)"
 };
 
-static const char *grownames[] =
+static constexpr std::array<std::string_view,14> grownames =
 {
     "X translation (m)",
     "Y translation (m)",
@@ -113,7 +94,7 @@ static const char *grownames[] =
     "Z rotation rate (arc sec/year)"
 };
 
-static const char *irownames[] =
+static constexpr std::array<std::string_view,14> irownames =
 {
     "X translation (mm)",
     "Y translation (mm)",
@@ -131,7 +112,7 @@ static const char *irownames[] =
     "Z rotation rate (mas/year)"
 };
 
-static const char *trownames[] =
+static constexpr std::array<std::string_view,14> trownames =
 {
     "E translation (m)",
     "N translation (m)",
@@ -168,8 +149,8 @@ static double iers_mult[14] =
 };
 
 
-static const char *valformat[] = 
-{ 
+static constexpr std::array<std::string_view,14> valformat =
+{
     "  %10.4lf    ", 
     "  %10.4lf    ", 
     "  %10.4lf    ", 
@@ -193,26 +174,26 @@ static void init_rftrans_prms( rfTransformation *rf )
 {
     char prmname[REFFRAMELEN + MAXPRMNAMELEN];
     char *prmtype;
-    const char **prmNames;
+    const std::array<std::string_view,14> *prmNames;
     double origin[3];
     int i;
 
-    setup_rftrans( rf );
+    rf->setup();
 
     /* Define the parameters of the reference frame */
 
-    strncpy( prmname, rf->name, REFFRAMELEN );
+    strncpy( prmname, rf->name.c_str(), REFFRAMELEN );
     prmname[REFFRAMELEN] = 0;
     prmtype = prmname + strlen(prmname);
 
-    prmNames = rf->istopo ? topoPrmNames : geoPrmNames;
+    prmNames = rf->istopo ? &topoPrmNames : &geoPrmNames;
 
     for( i = 0; i < 14; i++ )
     {
         if( ! rf->calcPrm[i] && ! rf->prmId[i] ) continue;
         if( !rf->prmId[i] )
         {
-            strcpy( prmtype, prmNames[i] );
+            strcpy( prmtype, (*prmNames)[i].data() );
             rf->prmId[i] = define_param( prmname, 0.0, 0 );
             flag_param_listed(rf->prmId[i]);
         }
@@ -227,7 +208,7 @@ static void init_rftrans_prms( rfTransformation *rf )
     {
         get_network_topocentre_xyz( net, origin );
     }
-    set_rftrans_origin( rf, origin );
+    rf->setOrigin( origin );
 }
 
 static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
@@ -295,7 +276,7 @@ void update_rftrans_prms_list( int get_covariance )
         rfTransformation *rf;
         rf = rftrans_from_id(nrf);
         update_rftrans_prms( rf, get_covariance );
-        setup_rftrans( rf);
+        rf->setup();
     }
 }
 
@@ -357,7 +338,7 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
     }
 }
 
-static void print_rftrans_def( const char *rownames[], int *row, int *identical,
+static void print_rftrans_def( const std::array<std::string_view,14> &rownames, int *row, int *identical,
                                double *val, double *cvr, double *vmult, double semult, int *display, 
                                FILE *out )
 {
@@ -385,16 +366,16 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         double factor = vmult ? vmult[i] : 1.0;
         dispcvr[i]=0;
         if( ! display[i]) continue;
-        fprintf(out,"      %-30s",rownames[i] );
-        fprintf(out,valformat[i],val[i]*factor);
-        if( row[i] ) 
+        fprintf(out,"      %-30s",rownames[i].data() );
+        fprintf(out,valformat[i].data(),val[i]*factor);
+        if( row[i] )
         {
-            fprintf(out,valformat[i],se[i]*semult*fabs(factor));
+            fprintf(out,valformat[i].data(),se[i]*semult*fabs(factor));
             gotcvr++;
             dispcvr[i]=1;
         }
         else { fprintf(out,"%s",missingstr);}
-        if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]));
+        if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]).data());
         fprintf(out,"\n");
         nval++;
     }
@@ -535,7 +516,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
 
     /* OK - now all we need to do is to print out the results... */
 
-    fprintf(out,"\nReference frame: %s\n",rf->name );
+    fprintf(out,"\nReference frame: %s\n",rf->name.c_str() );
     fprintf(out,"\n   %s as a %s reference frame\n",
             calced ? "Calculated" : "Defined",
             rf->istopo ? "topocentric" : "geocentric" );
@@ -613,7 +594,6 @@ void print_rftrans_list( FILE *out )
     int nrf;
     double semult;
     double topolat, topolon;
-    void *latfmt, *lonfmt;
     int output_types;
     int topo_header;
 
@@ -629,7 +609,7 @@ void print_rftrans_list( FILE *out )
         for( nrf = 1; nrf <= rftrans_count(); nrf++ )
         {
             rfTransformation *rf = rftrans_from_id( nrf );
-            if( rftrans_topocentric(rf) ) { topo_header=1; break; }
+            if( rf->istopo ) { topo_header=1; break; }
         }
     }
 
@@ -640,16 +620,14 @@ void print_rftrans_list( FILE *out )
 
     if( topo_header )
     {
-        latfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "N", "S" );
-        lonfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "E", "W" );
+        const DmsFormat latitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
+        const DmsFormat longitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
         get_network_topocentre( net, &topolat, &topolon );
         fprintf(out,"\nTopocentric axes are east, north, up directions at\n   ");
-        fputs( dms_string( topolat* RTOD, latfmt, NULL ), out );
+        fputs( dms_string( topolat* RTOD, latitudeFormat ).c_str(), out );
         fputs( "    ", out );
-        fputs( dms_string( topolon* RTOD, lonfmt, NULL ), out );
+        fputs( dms_string( topolon* RTOD, longitudeFormat ).c_str(), out );
         fputs( "\n", out );
-        check_free( latfmt );
-        check_free( lonfmt );
     }
 
     semult = apriori ? 1.0 : seu;
@@ -660,8 +638,8 @@ void print_rftrans_list( FILE *out )
         int ot=output_types;
         if( ! ot )
         {
-            if( rftrans_topocentric(rf) ) ot = OUTPUT_TOPO;
-            else if( rftrans_iers(rf) ) ot = OUTPUT_IERS;
+            if( rf->istopo ) ot = OUTPUT_TOPO;
+            else if( rf->isiers ) ot = OUTPUT_IERS;
             else ot = OUTPUT_GEO;
         }
         print_rftrans( rftrans_from_id(nrf), semult, out, ot );

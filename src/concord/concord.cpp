@@ -7,6 +7,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <array>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include "util/snapctype.h"
 
 #if defined( _WIN32 )
@@ -24,66 +34,70 @@
 #include "util/dstring.h"
 #include "util/license.h"
 #include "util/errdef.h"
+#include "util/fieldscanner.hpp"
 #include "util/pi.h"
 #include "util/getversion.h"
+#include "linereader.hpp"
 
-#define TRUE 1
-#define FALSE 0
+using boost::numeric_cast;
 
-static FILE *crdin;
+/* Input is read through a LineReader, which is the one for the keyboard
+   unless an input file is opened.  The prompts always read the keyboard. */
+
+static LineReader keyboard( std::cin );
+static std::optional<std::ifstream> crdin_file;
+static std::optional<LineReader> crdin_file_reader;
+static LineReader *crdin = &keyboard;
 static FILE *crdout;
 static FILE *crdcom;
 
-static const char *coordsys_file;
-static const char *geoid_file;
+static std::optional<std::string> coordsys_file;
+static std::optional<std::string> geoid_file;
 
-static char *crdin_fname;
-static char *crdout_fname;
-static char crdin_open;
-static char crdout_open;
+static std::optional<std::string> crdin_fname;
+static std::optional<std::string> crdout_fname;
+static bool crdin_open;
+static bool crdout_open;
 
-static char ask_params;        /* Prompt for program parameters?   */
-static char ask_coords;        /* Prompt for coordinates           */
-static char skip_errors;       /* True if errors are to be skipped */
-static char verbose;           /* Verbose output of coordinates    */
-static char point_ids;         /* Points have an id code           */
+static bool ask_params;        /* Prompt for program parameters?   */
+static bool ask_coords;        /* Prompt for coordinates           */
+static bool skip_errors;       /* True if errors are to be skipped */
+static bool verbose;           /* Verbose output of coordinates    */
+static bool point_ids;         /* Points have an id code           */
 
 static int  id_length;         /* Number of columns allocated for output of point ids */
 
+/* Angle formats used for input_dms and output_dms */
+
+enum AngleFormat { AF_DEG, AF_DM, AF_DMS, AF_RAD };
+
 static coordsys *input_cs;     /* Input coordinate system */
-static char input_ne;          /* Input order is N,E ? */
-static char input_dms;         /* Input is to be converted from dms */
-static char input_h;           /* Input heights */
-static char input_ortho;       /* Input heights are orthometric */
-static char input_latlong;
+static bool input_ne;          /* Input order is N,E ? */
+static AngleFormat input_dms;  /* Input angle format */
+static bool input_h;           /* Input heights */
+static bool input_ortho;       /* Input heights are orthometric */
+static bool input_latlong;
 static int  input_prec;
 static int  input_vprec;
 
 static coordsys *output_cs;     /* Output coordinate system */
-static char output_ne;          /* Output order is N,E ? */
-static char output_dms;         /* Output is to be converted to dms */
-static char output_h;           /* Output heights */
-static char output_ortho;       /* Output heights are orthometric */
-static char output_latlong;
+static bool output_ne;          /* Output order is N,E ? */
+static AngleFormat output_dms;  /* Output angle format */
+static bool output_h;           /* Output heights */
+static bool output_ortho;       /* Output heights are orthometric */
+static bool output_latlong;
 static int  output_prec;        /* precision of output units */
 static int  output_vprec;
 
-/* Angle formats used for input_dms and output_dms */
-
-#define AF_DEG 0
-#define AF_DM  1
-#define AF_DMS 2
-#define AF_RAD 3
-
-static char transform_heights;
+static bool transform_heights;
 
 static double conv_epoch = 0;
 static coord_conversion cnv;
 
 /* Latitude and longitude hemisphere indicators */
 
-static const char *ns_string = "NS";
-static const char *ew_string = "EW";
+static constexpr std::string_view ns_string = "NS";
+static constexpr std::string_view ew_string = "EW";
 
 /* Input and output coordinates */
 
@@ -95,8 +109,8 @@ static double outxyz[3];
 
 static double *in1, *in2, *in3;
 static double *out1, *out2, *out3;
-static const char *indms1, *indms2;
-static const char *outdms1, *outdms2;
+static std::string_view indms1, indms2;
+static std::string_view outdms1, outdms2;
 
 /* Input (echoed) and output field lengths */
 
@@ -109,9 +123,9 @@ static int invfldlen, outvfldlen;
 static char separator = DEFAULT_SEPARATOR;
 static int sepdms = 0;
 
-/* Pointer to string allocated for point id */
+/* The id of the point being converted */
 
-static char *id;
+static std::string id;
 
 /* Character string for prompt for coordinates */
 
@@ -126,16 +140,16 @@ static int ncrderr;
 /* If no_seconds is set then the format holds degrees and decimal minutes -
    but with the minutes in the last seconds field! */
 
-typedef struct
+struct DMS
 {
     int degrees;
     int minutes;
     double seconds;
     char neg;
     char no_seconds;
-} DMS;
+};
 
-static int printf_func( const char *s, void *dummy );
+static int printf_func( std::string_view s, void *dummy );
 
 output_string_def printf_writer = {0,printf_func};
 
@@ -147,9 +161,9 @@ static void clear_screen(void)
 
 // #pragma warning (disable : 4100)
 
-static int printf_func( const char *s, void * )
+static int printf_func( std::string_view s, void * )
 {
-    printf("%s",s);
+    printf("%.*s",static_cast<int>(s.size()),s.data());
     return 0;
 }
 /*------------------------------------------------------------------*/
@@ -200,130 +214,32 @@ static DMS *deg_dms( double deg, DMS *dms, int prec, char no_seconds )
 
 /*-------------------------------------------------------------------*/
 /*                                                                   */
-/*  read_string:  Reads a string from the specified input file.      */
-/*                Leading tabs and spaces are discarded, and         */
-/*                input terminates at a new line or EOF, or space    */
-/*                character after the the string.  Only the first    */
-/*                nch characters are copied to the string, the       */
-/*                rest being discarded.  If the string is            */
-/*                terminated by a newline, that character is         */
-/*                restored to the input buffer. Returns the number   */
-/*                of characters placed in the string, or -1 if       */
-/*                EOF encountered                                    */
-/*                usespace if set allows terminating string at any   */
-/*                whitespace.  pisspace is a pointer receiving true  */
-/*                if terminated at whitespace rather than specified  */
-/*                separator                                          */
+/*   copy_rest_of_line - copies what has not been read from the      */
+/*                     current input line to the output, and         */
+/*                     finishes the line.  Carriage returns are not  */
+/*                     copied.  The prefix is written before the     */
+/*                     text, unless there is no text, and a newline  */
+/*                     is written if the line ended with one.  If    */
+/*                     the output file pointer is NULL, simply       */
+/*                     discards the rest of the line.                */
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-
-static int read_string( FILE *input, char separator, int usespace, int *pisspace, char *string, int nch )
+static void copy_rest_of_line( LineReader &input, FILE *output, const std::string_view prefix )
 {
-    int i,c,isspace;
-    char *s0;
-
-    /* Skip over leading spaces and tabs, to first character not one
-       of these */
-
-    while ((c=getc(input)) == ' ' || c=='\t');
-
-    /* Read characters up to next space, storing first nch in string */
-
-    i = 0;
-    usespace=usespace || ! separator;
-    s0 = string;
-    isspace=0;
-    for(;;)
+    if( output )
     {
-        if( separator )
-        {
-            if( c==separator ) break;
-        }
-        if( usespace ) 
-        {
-            if(c == ' ' || c == '\t' )
-            {
-                isspace=1;
-                break;
-            } 
-        }
-        if( c=='\r' || c == '\n' || c == EOF) break;
-        if (i<nch) {*string++ = c; i++;}
-        c = getc(input);
-    }
-    if( separator && isspace )
-    {
-        while( c == ' ' || c == '\t' )
-        {
-            c=getc(input);
-        }
-        if( c == separator || c == '\r' || c == '\n' || c == EOF)
-        {
-            isspace=0;
-        }
-        else
-        {
-            ungetc(c,input);
-        }
-    }
-
-    /* terminate string  and remove trailing whitespace */
-
-    *string = '\0';
-    while( string > s0 )
-    {
-        string--;
-        if( *string != ' ' && *string != '\t' ) break;
-        *string=0;
-    }
-
-    /* If terminating character was newline, restore to the input buffer */
-
-    if (c=='\n') ungetc( c, input );
-
-    /* Determine the return status */
-
-    if( pisspace )
-    {
-        /* Record if terminated at space rather than valid separator */
-        *pisspace=isspace && separator;
-    }
-    if( i==0 && c == EOF ) return -1;
-    return i;
-}
-
-/*-------------------------------------------------------------------*/
-/*                                                                   */
-/*   copy_to_newline - copies input to output until a newline        */
-/*                     character has been copied, or until the       */
-/*                     end of the file is reached.  If the output    */
-/*                     file pointer is NULL, simply discards input   */
-/*                     until the newline has been read.              */
-/*                     Returns '\n' or EOF.                          */
-/*                                                                   */
-/*-------------------------------------------------------------------*/
-
-static int copy_to_newline( FILE *input, FILE *output, char *prefix )
-{
-    int c;
-    do
-    {
-        c = getc(input);
-        if (c==EOF) break;
-        if (output)
+        bool started = false;
+        for( const char c : input.remainder() )
         {
             if( c == '\r' ) continue;
-            if( prefix && c != '\n' )
-            {
-                fputs( prefix, output );
-                prefix = NULL;
-            }
+            if( ! started && ! prefix.empty() ) fwrite( prefix.data(), 1, prefix.size(), output );
+            started = true;
             putc( c, output );
         }
+        if( input.endsWithNewline() ) putc( '\n', output );
     }
-    while (c != '\n');
-    return c;
+    input.skipRemaining();
 }
 
 
@@ -335,34 +251,32 @@ static int copy_to_newline( FILE *input, FILE *output, char *prefix )
 
 static void concord_init( void )
 {
-    crdin = stdin;
+    crdin = &keyboard;
     crdout = stdout;
-    crdin_fname = NULL;
-    crdout_fname = NULL;
-    coordsys_file = NULL;
-    geoid_file = NULL;
-    crdin_open = FALSE;
-    crdout_open = FALSE;
-    ask_params = FALSE;
-    ask_coords = FALSE;
-    skip_errors = FALSE;
-    verbose = FALSE;
-    point_ids = FALSE;
+    crdin_fname = std::nullopt;
+    crdout_fname = std::nullopt;
+    crdin_open = false;
+    crdout_open = false;
+    ask_params = false;
+    ask_coords = false;
+    skip_errors = false;
+    verbose = false;
+    point_ids = false;
     id_length = 10;
 
-    input_cs = NULL;
-    input_ne = FALSE;
+    input_cs = nullptr;
+    input_ne = false;
     input_dms = AF_DEG;
-    input_h = FALSE;
-    input_ortho = FALSE;
+    input_h = false;
+    input_ortho = false;
 
-    output_cs = NULL;
-    output_ne = FALSE;
+    output_cs = nullptr;
+    output_ne = false;
     output_dms = AF_DEG;
-    output_h = FALSE;
-    output_ortho = FALSE;
+    output_h = false;
+    output_ortho = false;
 
-    transform_heights = FALSE;
+    transform_heights = false;
 
     input_prec = -1;
     input_vprec = -1;
@@ -469,9 +383,11 @@ static void help( void )
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static void error_exit( const char *errmsg1, const char * errmsg2 )
+static void error_exit( const std::string_view errmsg1, const std::string_view errmsg2 )
 {
-    printf("%s: %s%s\n\n",PROGRAM_NAME,errmsg1,errmsg2);
+    printf("%s: %.*s%.*s\n\n",PROGRAM_NAME,
+           numeric_cast<int>(errmsg1.size()),errmsg1.data(),
+           numeric_cast<int>(errmsg2.size()),errmsg2.data());
     printf("Enter %s -H for a list of command line parameters\n", PROGRAM_NAME);
     exit(1);
 }
@@ -485,79 +401,74 @@ static void error_exit( const char *errmsg1, const char * errmsg2 )
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static void decode_proj_string( char *code, coordsys **proj,
-                                char *dms, char *orderne, char *gothgt, char *ortho, 
-                                const char *iostring )
+static void decode_proj_string( const std::string_view code, coordsys *&proj,
+                                AngleFormat &dms, bool &orderne, bool &gothgt, bool &ortho,
+                                const std::string_view iostring )
 {
-    char *s;
-    char errmsg[80];
+    FieldScanner scanner( code );
+    const std::string_view delimiters( ",:" );
 
-    s = strtok(code,",:");
-    if (s==NULL) return;
-    if (*s)
+    std::optional<std::string_view> field = scanner.nextToken( delimiters );
+    if( ! field ) return;
+    proj = load_coordsys( *field );
+    if( proj == nullptr )
     {
-        if ( (*proj=load_coordsys(s)) == NULL )
-        {
-            get_notes( CS_COORDSYS_NOTE, s, &printf_writer);
-            sprintf(errmsg,"Invalid coordinate code %s for %s coordinates",s,iostring);
-            error_exit(errmsg,"");
-        }
+        get_notes( CS_COORDSYS_NOTE, *field, &printf_writer );
+        error_exit( "Invalid coordinate code " + std::string( *field ) + " for " + std::string( iostring ) + " coordinates", "" );
     }
 
-    *dms=FALSE;
-    if( is_geodetic(*proj)) *dms=AF_DMS;
-    s = strtok(NULL,",:");
-    if (s==NULL) return;
-    if (*s)
+    dms = AF_DEG;
+    if( is_geodetic( proj ) ) dms = AF_DMS;
+    field = scanner.nextToken( delimiters );
+    if( ! field ) return;
+    std::string order( *field );
+    boost::algorithm::to_upper( order );
+    if( order == "EN" ) { orderne = false; gothgt = false; ortho = false; }
+    else if( order == "ENH" ) { orderne = false; gothgt = true; ortho = false; }
+    else if( order == "ENO" ) { orderne = false; gothgt = true; ortho = true; }
+    else if( order == "NE" ) { orderne = true; gothgt = false; ortho = false; }
+    else if( order == "NEH" ) { orderne = true; gothgt = true; ortho = false; }
+    else if( order == "NEO" ) { orderne = true; gothgt = true; ortho = true; }
+    else
     {
-        _strupr(s);
-        if( strcmp(s,"EN") == 0 ) {*orderne = FALSE; *gothgt = FALSE; *ortho = FALSE; }
-        else if( strcmp(s,"ENH") == 0 ) {*orderne = FALSE; *gothgt = TRUE; *ortho = FALSE; }
-        else if( strcmp(s,"ENO") == 0 ) {*orderne = FALSE; *gothgt = TRUE; *ortho = TRUE; }
-        else if( strcmp(s,"NE") == 0 ) {*orderne = TRUE; *gothgt = FALSE; *ortho = FALSE; }
-        else if( strcmp(s,"NEH") == 0 ) {*orderne = TRUE; *gothgt = TRUE; *ortho = FALSE; }
-        else if( strcmp(s,"NEO") == 0 ) {*orderne = TRUE; *gothgt = TRUE; *ortho = TRUE; }
-        else
-        {
-            sprintf(errmsg,"Invalid order code %s for %s coordinates",s,iostring);
-            error_exit(errmsg,"");
-        }
+        error_exit( "Invalid order code " + order + " for " + std::string( iostring ) + " coordinates", "" );
     }
-    if( coordsys_heights_orthometric( *proj ))
+    if( coordsys_heights_orthometric( proj ) )
     {
-        *gothgt = TRUE;
-        *ortho = TRUE;
+        gothgt = true;
+        ortho = true;
     }
 
-    if( *dms )
+    if( is_geodetic( proj ) )
     {
-        s = strtok(NULL,":,");
-        if (s==NULL || *s=='h' || *s=='H' || *s == 's' || *s == 'S' ) return;
-        if( *s=='m' || *s=='M') { *dms = AF_DM; return;}
-        if( *s=='d' || *s=='D') { *dms = AF_DEG; return;}
-        if( *s=='r' || *s=='R') { *dms = AF_RAD; return;}
-        sprintf(errmsg,"Invalid angle type  %s for %s coordinates",s,iostring);
-        error_exit(errmsg,"");
+        field = scanner.nextToken( delimiters );
+        if( ! field ) return;
+        const char format = field->front();
+        if( format == 'h' || format == 'H' || format == 's' || format == 'S' ) return;
+        if( format == 'm' || format == 'M' ) { dms = AF_DM; return; }
+        if( format == 'd' || format == 'D' ) { dms = AF_DEG; return; }
+        if( format == 'r' || format == 'R' ) { dms = AF_RAD; return; }
+        error_exit( "Invalid angle type  " + std::string( *field ) + " for " + std::string( iostring ) + " coordinates", "" );
     }
 
-    s = strtok(NULL,"");
-    if (s != NULL)
+    // Anything after the delimiter that ended the order code is extra data.
+    // The scanner stops at that delimiter, which strtok would have consumed.
+    std::string_view extra = scanner.remainder();
+    if( ! extra.empty() ) extra.remove_prefix( 1 );
+    if( ! extra.empty() )
     {
-        sprintf(errmsg,"Invalid extra data in %s coordinate definition",iostring);
-        error_exit(errmsg,"");
+        error_exit( "Invalid extra data in " + std::string( iostring ) + " coordinate definition", "" );
     }
 }
 
 /*-------------------------------------------------------------------*/
 
-static int decode_number( const char *s, int min, int max, const char *type )
+static int decode_number( const std::string_view s, const int min, const int max, const std::string_view type )
 {
-    char checkend;
-    int value;
-    value = 0;
-    if (!s || sscanf(s,"%d%c",&value,&checkend) != 1 || value<min || value>max)
+    const std::optional<int> value = parse_int( s );
+    if (! value || *value<min || *value>max)
         error_exit("Invalid data in ",type);
-    return value;
+    return *value;
 }
 
 /*-------------------------------------------------------------------*/
@@ -577,7 +488,7 @@ static void list_coordsys_with_pause( void )
             if( pause_output()) nl = 0; else break;
         }
         nl++;
-        printf("  %-10s %s\n",coordsys_list_code(i), coordsys_list_desc(i));
+        printf("  %-10s %s\n",coordsys_list_code(i).c_str(), coordsys_list_desc(i).c_str());
     }
     printf("\n");
 }
@@ -597,7 +508,7 @@ static void list_vertical_datum_with_pause( void )
             if( pause_output()) nl = 0; else break;
         }
         nl++;
-        printf("  %-10s %s\n",vdatum_list_code(i), vdatum_list_desc(i));
+        printf("  %-10s %s\n",vdatum_list_code(i).c_str(), vdatum_list_desc(i).c_str());
     }
     printf("\n");
 }
@@ -617,25 +528,23 @@ static void list_ref_frame_with_pause( void )
             if( pause_output()) nl = 0; else break;
         }
         nl++;
-        printf("  %-10s %s\n",ref_frame_list_code(i), ref_frame_list_desc(i));
+        printf("  %-10s %s\n",ref_frame_list_code(i).c_str(), ref_frame_list_desc(i).c_str());
     }
     printf("\n");
 }
 
-static void list_coordsys_and_exit( int argc, char *argv[] )
+static void list_coordsys_and_exit( const std::vector<std::string> &codes )
 {
-    int ncs = 0;
-    if( argc )
+    size_t ncs = 0;
+    if( ! codes.empty() )
     {
-        int i;
-        int maxhrs=vdatum_list_count();
-        coordsys *cs;
-        for( i = 0; i < argc; i++ )
+        const int maxhrs=vdatum_list_count();
+        for( size_t i = 0; i < codes.size(); i++ )
         {
             int sts;
             if( i && ! pause_output()) break;
             ncs++;
-            cs = load_coordsys( argv[i] );
+            coordsys *cs = load_coordsys( codes[i] );
             if( cs )
             {
                 int firsthrs=1;
@@ -656,18 +565,18 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
                                 printf("Compatible vertical datums:\n");
                                 firsthrs=0;
                             }
-                            printf( "  %-20s %s\n", vdatum_list_code(ihrs),
-                                    vdatum_list_desc(ihrs));
+                            printf( "  %-20s %s\n", vdatum_list_code(ihrs).c_str(),
+                                    vdatum_list_desc(ihrs).c_str());
 
                         }
-                        delete_vdatum( hrs );
+                        delete hrs;
                     }
                 }
-                delete_coordsys( cs );
+                delete cs;
             }
             else
             {
-                sts = get_notes( CS_COORDSYS_NOTE, argv[i], &printf_writer );
+                sts = get_notes( CS_COORDSYS_NOTE, codes[i], &printf_writer );
             }
         }
     }
@@ -684,97 +593,92 @@ static void list_program_details_and_exit( void )
     printf("\nProgram %s version %s, dated %s\n",PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
     printf("Copyright: Land Information New Zealand\n");
     printf("Author: Chris Crook\n");
-    printf("Coordsys file: %s\n",coordsys_file);
+    printf("Coordsys file: %s\n",coordsys_file.value_or("").c_str());
     /* printf("Licensed to: %s\n",decrypted_license()); */
     exit(1);
 }
 
 /*-------------------------------------------------------------------*/
 
-static const char *param_args="CGIONPSYH";
-static char *param_value[9]={0,0,0,0,0,0,0,0,0};
+static std::map<char, std::optional<std::string>> param_value = {
+    {'C',std::nullopt}, {'G',std::nullopt}, {'I',std::nullopt}, {'O',std::nullopt},
+    {'N',std::nullopt}, {'P',std::nullopt}, {'S',std::nullopt}, {'Y',std::nullopt}, {'H',std::nullopt}
+};
 static const char *switch_args="AELVRKH?ZFN";
-static int switch_value[11]={0,0,0,0,0,0,0,0,0,0,0};
-static char **unused_args;
-static int nunused_args;
+static bool switch_value[11]={false,false,false,false,false,false,false,false,false,false,false};
+static std::vector<std::string> unused_args;
 
-static int switch_option( char opt )
+static bool switch_option( char opt )
 {
     const char *prm=strchr(switch_args,opt);
-    return prm ? switch_value[prm-switch_args] : 0;
+    return prm ? switch_value[prm-switch_args] : false;
 }
 
-static char * command_line_option( char opt )
+static std::optional<std::string> command_line_option( char opt )
 {
-    const char *prm=strchr(param_args,opt);
-    return prm ? param_value[prm-param_args] : 0;
+    auto it = param_value.find(opt);
+    return it != param_value.end() ? it->second : std::nullopt;
 }
 
 static void parse_command_line( int argc, char **argv )
 {
-    char errmsg[80];
-
-    for( argc--, argv++; argc;  argc--, argv++)
+    int iarg = 1;
+    for( ; iarg < argc; iarg++ )
     {
-        char *arg=*argv;
-        const char *prm;
-        char argchar;
+        const std::string arg = argv[iarg];
 
         if( arg[0] != '-' ) break;
-        if( ! arg[1] ) break;
+        if( arg.size() < 2 ) break;
         /* If -- then signals end of options */
-        if( arg[1] == '-' && ! arg[2] ) { argc--; argv++; break; }
-        argchar=TOUPPER(arg[1]);
-        prm=strchr(switch_args,argchar);
+        if( arg == "--" ) { iarg++; break; }
+        const char argchar=TOUPPER(arg[1]);
+        const char *prm=strchr(switch_args,argchar);
         if( prm )
         {
-            switch_value[prm-switch_args]=TRUE;
-            if( ! arg[2] ) continue;
+            switch_value[prm-switch_args]=true;
+            if( arg.size() == 2 ) continue;
         }
-        prm=strchr(param_args,argchar);
-        if( prm )
+        auto pit = param_value.find(argchar);
+        if( pit != param_value.end() )
         {
-            char *pval=arg+2;
-            if( ! *pval )
+            if( arg.size() > 2 )
             {
-                argv++;
-                argc--;
-                if( ! argc )
-                {
-                    sprintf(errmsg,"Value missing for %s option",arg);
-                    error_exit(errmsg,"");
-                }
-                pval=*argv;
+                pit->second = arg.substr(2);
             }
-            param_value[prm-param_args]=pval;
+            else
+            {
+                iarg++;
+                if( iarg >= argc )
+                {
+                    error_exit("Value missing for " + arg + " option","");
+                }
+                pit->second = argv[iarg];
+            }
             continue;
         }
         prm=strchr(switch_args,argchar);
         if( prm )
         {
-            switch_value[prm-switch_args]=0;
+            switch_value[prm-switch_args]=false;
             continue;
         }
-        arg[2]=0;
-        sprintf(errmsg,"Invalid option %s",arg);
-        error_exit(errmsg,"");
+        error_exit("Invalid option " + arg.substr(0,2),"");
     }
-    unused_args=argv;
-    nunused_args=argc;
+    unused_args.assign( argv+iarg, argv+argc );
 
     if( switch_option('H') || switch_option('?') ){ help(); exit(0); }
 
-    coordsys_file=command_line_option('C');
-    geoid_file=command_line_option('G');
+    coordsys_file = command_line_option('C');
+    geoid_file = command_line_option('G');
 }
 
 static void process_command_line_options()
 {
-    char *pval;
+    std::optional<std::string> pval;
 
     if( switch_option('L') )
     {
-        list_coordsys_and_exit( nunused_args, unused_args );
+        list_coordsys_and_exit( unused_args );
     }
     if( switch_option('V') )
     {
@@ -795,54 +699,57 @@ static void process_command_line_options()
     verbose=switch_option('F');
 
     pval=command_line_option('I');
-    if( pval ) decode_proj_string(pval,&input_cs,&input_dms,
-                     &input_ne,&input_h,&input_ortho,"input"); 
+    if( pval ) decode_proj_string(*pval,input_cs,input_dms,
+                     input_ne,input_h,input_ortho,"input");
 
     pval=command_line_option('O');
-    if( pval ) decode_proj_string(pval,&output_cs,&output_dms,
-                      &output_ne,&output_h,&output_ortho, "output"); 
+    if( pval ) decode_proj_string(*pval,output_cs,output_dms,
+                      output_ne,output_h,output_ortho, "output");
 
     pval=command_line_option('Y');
-    if( pval &&  ! parse_crdsys_epoch(pval,&conv_epoch) )
+    if( pval &&  ! parse_crdsys_epoch(*pval,conv_epoch) )
     {
         error_exit("Invalid value for conversion epoch (-Y parameter)","");
     }
 
     pval=command_line_option('N');
-    if( pval ) id_length = decode_number(pval,0,80,"point id length");
+    if( pval ) id_length = decode_number(*pval,0,80,"point id length");
 
     pval=command_line_option('P');
     if( pval )
     {
-        char *s1, *s2;
-        s1 = strtok(pval,":,");
-        s2 = strtok(NULL,"");
-        output_prec = decode_number(s1,0,20,"output precision");
-        if( s2 )
-            output_vprec = decode_number(s2,0,20,"output precision");
+        FieldScanner scanner( *pval );
+        const std::optional<std::string_view> horizontal = scanner.nextToken(":,");
+        output_prec = decode_number(horizontal.value_or(std::string_view()),0,20,"output precision");
+
+        // Anything after the delimiter that ended the first number is the vertical precision
+        std::string_view vertical = scanner.remainder();
+        if( ! vertical.empty() ) vertical.remove_prefix( 1 );
+        if( ! vertical.empty() )
+            output_vprec = decode_number(vertical,0,20,"output precision");
     }
 
     pval=command_line_option('S');
     if( pval )
     {
-        if( _stricmp(pval,"tab") == 0 || _stricmp(pval,"t") == 0 ) separator='\t';
-        else if ( _stricmp(pval,"blank") == 0 ) separator=' ';
-        else separator=*pval;
+        if( boost::algorithm::iequals(*pval,"tab") || boost::algorithm::iequals(*pval,"t") ) separator='\t';
+        else if ( boost::algorithm::iequals(*pval,"blank") ) separator=' ';
+        else separator=pval->front();
     }
 
-    if( nunused_args > 2 )
+    if( unused_args.size() > 2 )
     {
         error_exit("Invalid extra arguments on command line","");
     }
-    else if( ! nunused_args ) 
+    else if( unused_args.empty() )
     {
-        ask_coords = TRUE;
-        if( ! input_cs || ! output_cs ) ask_params=TRUE;
+        ask_coords = true;
+        if( ! input_cs || ! output_cs ) ask_params=true;
     }
     else
     {
         crdin_fname=unused_args[0];
-        if( nunused_args > 1 ) crdout_fname=unused_args[1];
+        if( unused_args.size() > 1 ) crdout_fname=unused_args[1];
     }
 
     /* If asking for coordinates then there cannot be an input file */
@@ -851,7 +758,7 @@ static void process_command_line_options()
     {
         if (crdout_fname) error_exit("Cannot have an input file and keyboard input","");
         crdout_fname = crdin_fname;
-        crdin_fname = NULL;
+        crdin_fname = std::nullopt;
     }
 
     if( ! ask_params && (!input_cs || !output_cs) )
@@ -867,29 +774,41 @@ static void process_command_line_options()
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
+/* Reads the answer to a prompt from the keyboard.  The answer is the first
+   word on the line, cut to maxLength characters, and anything else the user
+   typed on the line is ignored.  An empty answer is an empty string.  The
+   program stops if there is no more input. */
 
-static void prompt_for_proj(coordsys **proj,
-                            char *dms, char *ne, char *gothgt,
-                            char *orthohgt, const char *iostring)
+static std::string read_answer( const size_t maxLength )
 {
-    char instring[21];
-    int nstr;
+    std::string answer;
+    bool isspace;
+    const TokenResult result = keyboard.readToken( DEFAULT_SEPARATOR, false, isspace, answer, maxLength );
+    keyboard.skipRemaining();
+    if( result == TokenResult::EndOfInput ) error_exit("Unexpected EOF in input","");
+    return answer;
+}
+
+static void prompt_for_proj(coordsys *&proj,
+                            AngleFormat &dms, bool &ne, bool &gothgt,
+                            bool &orthohgt, const std::string_view iostring)
+{
+    std::string instring;
     coordsys *nprj;
+    const int ioLength = numeric_cast<int>( iostring.size() );
 
     /* Get projection code */
 
-    nprj = NULL;
-    for(;;)
+    nprj = nullptr;
+    while( true )
     {
-        *dms = AF_DEG;
-        if( nprj ) delete_coordsys( nprj );
-        nprj = NULL;
-        printf("    Enter %s coord sys code or ?: ",iostring);
-        nstr = read_string(stdin,DEFAULT_SEPARATOR,0,0,instring,20);
-        copy_to_newline(stdin,NULL, NULL);
-        if (nstr<0) error_exit("Unexpected EOF in input","");
-        if (nstr==0) continue;
-        if (nstr==1 && instring[0]=='?')
+        dms = AF_DEG;
+        if( nprj ) delete nprj;
+        nprj = nullptr;
+        printf("    Enter %.*s coord sys code or ?: ",ioLength,iostring.data());
+        instring = read_answer(20);
+        if (instring.empty()) continue;
+        if (instring=="?")
         {
             printf("\n    Valid coordinate system codes are:\n");
             list_coordsys_with_pause();
@@ -897,10 +816,10 @@ static void prompt_for_proj(coordsys **proj,
         else
         {
             nprj = load_coordsys(instring);
-            if (nprj != NULL )
+            if (nprj != nullptr )
             {
-                *proj = nprj;
-                if (is_geodetic(*proj)) *dms=AF_DMS;
+                proj = nprj;
+                if (is_geodetic(proj)) dms=AF_DMS;
                 break;
             }
             printf("    **** Invalid coordinate system code ****\n");
@@ -910,52 +829,48 @@ static void prompt_for_proj(coordsys **proj,
 
     /* Enter order, NE or EN */
 
-    if( !is_geocentric( *proj ) ) for (;;)
+    if( !is_geocentric( proj ) ) while( true )
         {
             printf("    Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)\n");
-            printf("    Enter %s coordinate order(default %s%s): ",
-                   iostring, *ne ? "NE" : "EN",
-                   *gothgt ? (*orthohgt ? "O" : "H") : "");
-            nstr = read_string(stdin,DEFAULT_SEPARATOR,0,0,instring,4);
-            copy_to_newline( stdin, NULL, NULL);
-            if(nstr<0) error_exit("Unexpected EOF in input","");
-            if(nstr==0) break;
-            _strupr(instring);
-            if(strcmp(instring,"NE")==0) {*ne = TRUE; *gothgt = FALSE; break;}
-            if(strcmp(instring,"NEH")==0) {*ne = TRUE; *gothgt = TRUE; *orthohgt = FALSE; break;}
-            if(strcmp(instring,"NEO")==0) {*ne = TRUE; *gothgt = TRUE; *orthohgt = TRUE; break;}
-            if(strcmp(instring,"EN")==0) {*ne = FALSE; *gothgt = FALSE; break;}
-            if(strcmp(instring,"ENH")==0) {*ne = FALSE; *gothgt = TRUE; *orthohgt = FALSE; break;}
-            if(strcmp(instring,"ENO")==0) {*ne = FALSE; *gothgt = TRUE; *orthohgt = TRUE; break;}
+            printf("    Enter %.*s coordinate order(default %s%s): ",
+                   ioLength, iostring.data(), ne ? "NE" : "EN",
+                   gothgt ? (orthohgt ? "O" : "H") : "");
+            instring = read_answer(4);
+            if(instring.empty()) break;
+            boost::algorithm::to_upper(instring);
+            if(instring=="NE") {ne = true; gothgt = false; break;}
+            if(instring=="NEH") {ne = true; gothgt = true; orthohgt = false; break;}
+            if(instring=="NEO") {ne = true; gothgt = true; orthohgt = true; break;}
+            if(instring=="EN") {ne = false; gothgt = false; break;}
+            if(instring=="ENH") {ne = false; gothgt = true; orthohgt = false; break;}
+            if(instring=="ENO") {ne = false; gothgt = true; orthohgt = true; break;}
             printf("    **** Invalid definition of coordinate order ****\n");
         }
 
-    if( coordsys_heights_orthometric( *proj ) )
+    if( coordsys_heights_orthometric( proj ) )
     {
-        *gothgt=TRUE;
-        *orthohgt=TRUE;
+        gothgt=true;
+        orthohgt=true;
     }
 
     /* Enter unit code if DMS */
 
-    if( *dms ) for(;;)
+    if( is_geodetic( proj ) ) while( true )
         {
             printf("    Enter angle format (D = deg, M = deg mins, H = deg min secs, default H): ");
-            nstr = read_string(stdin,DEFAULT_SEPARATOR,0,0,instring,4);
-            copy_to_newline(stdin,NULL,NULL);
-            if (nstr<0) error_exit("Unexpected EOF in input","");
-            if (nstr==0) break;
+            instring = read_answer(4);
+            if (instring.empty()) break;
             if( instring[0] == 'd' || instring[0] == 'D' )
             {
-                *dms = AF_DEG; break;
+                dms = AF_DEG; break;
             }
             else if( instring[0] == 'm' || instring[0] == 'M' )
             {
-                *dms = AF_DM; break;
+                dms = AF_DM; break;
             }
             else if( instring[0] == 'r' || instring[0] == 'R' )
             {
-                *dms = AF_RAD; break;
+                dms = AF_RAD; break;
             }
             else if( instring[0] == 'h' || instring[0] == 'H' ||
                      instring[0] == 's' || instring[0] == 'S' )
@@ -965,21 +880,18 @@ static void prompt_for_proj(coordsys **proj,
         }
 }
 
-static void prompt_for_epoch( const char *prompt, double *value )
+static void prompt_for_epoch( const std::string_view prompt, double &value )
 {
     double epoch;
-    char instring[20];
+    std::string instring;
     int ok;
-    int nstr;
 
-    for(;;)
+    while( true )
     {
-        printf("%s (default \"now\"): ",prompt);
-        nstr = read_string( stdin, DEFAULT_SEPARATOR,0,0,instring, 20);
-        copy_to_newline( stdin, NULL,NULL);
-        if (nstr<0) error_exit("Unexpected EOF in input","");
-        if (nstr==0) strcpy(instring,"now");
-        ok = parse_crdsys_epoch(instring,&epoch);
+        printf("%.*s (default \"now\"): ",numeric_cast<int>(prompt.size()),prompt.data());
+        instring = read_answer(20);
+        if (instring.empty()) instring="now";
+        ok = parse_crdsys_epoch(instring,epoch);
         if( ! ok )
         {
             printf("    **** Invalid data ****\n");
@@ -990,110 +902,119 @@ static void prompt_for_epoch( const char *prompt, double *value )
             printf("    **** Invalid coordinate epoch ****\n");
             continue;
         }
-        *value = epoch;
+        value = epoch;
         break;
     }
 
 }
 
-static void prompt_for_number( const char *prompt, int *value, int min, int max)
+static void prompt_for_number( const std::string_view prompt, int &value, const int min, const int max)
 {
-    int newval;
-    char checkend;
-    char instring[21];
-    int nstr;
+    std::string instring;
 
-    for(;;)
+    while( true )
     {
-        printf("%s (default %d): ",prompt,*value);
-        nstr = read_string( stdin, DEFAULT_SEPARATOR,0,0, instring, 20);
-        copy_to_newline( stdin, NULL,NULL);
-        if (nstr<0) error_exit("Unexpected EOF in input","");
-        if (nstr==0) break;
-        if (sscanf(instring,"%d%c",&newval,&checkend)==1 &&
-                newval>=min && newval<=max )
+        printf("%.*s (default %d): ",numeric_cast<int>(prompt.size()),prompt.data(),value);
+        instring = read_answer(20);
+        if (instring.empty()) break;
+        const std::optional<int> newval = parse_int( instring );
+        if (newval && *newval>=min && *newval<=max )
         {
-            *value = newval;
+            value = *newval;
             break;
         }
         printf("    **** Invalid data or out of range ****\n");
     }
 }
 
-static void prompt_for_filename(const char *prompt, FILE **file, const char *mode, char *name,
-                                char **nameptr, char *opened)
-{
-    FILE *newfile;
-    int nstr;
+/* Asks for the name of an input file until one that can be opened is given,
+   or the answer is empty.  If the file is opened then it becomes the input. */
 
-    for(;;)
+static void prompt_for_input_file( const std::string_view prompt )
+{
+    while( true )
     {
-        printf("%s",prompt);
-        nstr = read_string( stdin, DEFAULT_SEPARATOR,0,0, name, 80 );
-        copy_to_newline(stdin,NULL,NULL);
-        if (nstr<0) error_exit("Unexpected EOF in input","");
-        if (nstr==0) break;
-        newfile = fopen(name,mode);
-        if (newfile!=NULL)
+        printf("%.*s",numeric_cast<int>(prompt.size()),prompt.data());
+        const std::string name = read_answer(80);
+        if (name.empty()) break;
+        crdin_file.emplace( name );
+        if (crdin_file->is_open())
         {
-            *file = newfile;
-            *nameptr = name;
-            *opened = TRUE;
+            crdin_file_reader.emplace( *crdin_file );
+            crdin = &*crdin_file_reader;
+            crdin_fname = name;
+            crdin_open = true;
             break;
         }
-        else
-            printf("    **** Unable to open file ****\n");
+        crdin_file.reset();
+        printf("    **** Unable to open file ****\n");
+    }
+}
+
+/* Asks for the name of an output file until one that can be opened is given,
+   or the answer is empty.  If the file is opened then it becomes the output. */
+
+static void prompt_for_output_file( const std::string_view prompt )
+{
+    while( true )
+    {
+        printf("%.*s",numeric_cast<int>(prompt.size()),prompt.data());
+        const std::string name = read_answer(80);
+        if (name.empty()) break;
+        FILE *newfile = fopen(name.c_str(),"w");
+        if (newfile!=nullptr)
+        {
+            crdout = newfile;
+            crdout_fname = name;
+            crdout_open = true;
+            break;
+        }
+        printf("    **** Unable to open file ****\n");
     }
 }
 
 
 static void prompt_for_parameters( void )
 {
-    static char input_file[81];
-    static char output_file[81];
-    char ans[2];
+    std::string ans;
 
     printf("\n%s:  Coordinate conversion program\n",PROGRAM_NAME);
     printf("\nInput coordinates:\n");
-    prompt_for_proj(&input_cs,&input_dms,&input_ne,&input_h,&input_ortho,"input");
+    prompt_for_proj(input_cs,input_dms,input_ne,input_h,input_ortho,"input");
     printf("\nOutput coordinates:\n");
-    prompt_for_proj(&output_cs,&output_dms,&output_ne,&output_h,&output_ortho,"output");
+    prompt_for_proj(output_cs,output_dms,output_ne,output_h,output_ortho,"output");
     printf("\nSome conversions depend on the date of the coordinatesr. This can be\n");
     printf("formatted as YYYYMMDD, or a decimal year, or \"now\"\n");
-    prompt_for_epoch( "Enter the conversion date",&conv_epoch);
+    prompt_for_epoch( "Enter the conversion date",conv_epoch);
 
     prompt_for_number("    Enter number of decimal places for output",
-                      &output_prec,0,15);
+                      output_prec,0,15);
     printf("\nEach point you convert can have a name.  If you want to use names you must\n");
     printf("specify the length of the longest name you want to use\n\n");
     id_length = 0;
-    prompt_for_number("Enter maximum name length, or 0 for no names",&id_length,
+    prompt_for_number("Enter maximum name length, or 0 for no names",id_length,
                       0,80);
     point_ids = id_length>0;
     printf("\nYou can enter the coordinates to convert yourself, or read them from a file\n");
     printf("If you want to read them from a file then specify the name of the file,\n");
     printf("otherwise just press Enter\n\n");
-    prompt_for_filename("Enter coordinate input filename: ",&crdin,
-                        "r",input_file,&crdin_fname,&crdin_open);
-    if( crdin_fname != NULL )
+    prompt_for_input_file("Enter coordinate input filename: ");
+    if( crdin_fname )
     {
         printf("Enter field separator in input file (default is blank, use t for tab)");
-        read_string(stdin,DEFAULT_SEPARATOR,0,0,ans,1);
-        copy_to_newline(stdin,NULL,NULL);
-        if( ans[0] != 0 ) separator = ans[0];
+        ans = read_answer(1);
+        if( ! ans.empty() ) separator = ans.front();
         if( separator == 't' || separator == 'T') separator = '\t';
     }
     printf("\nIf you want the output to go to a file, enter the file name\n\n");
-    prompt_for_filename("Enter output file name: ",&crdout,"w",
-                        output_file,&crdout_fname,&crdout_open);
+    prompt_for_output_file("Enter output file name: ");
 
-    if (crdout_fname != NULL)
+    if (crdout_fname)
     {
         printf("\nDo you want the input coordinates copied to the output file?\n");
         printf("Enter yes or no: ");
-        read_string(stdin,DEFAULT_SEPARATOR,0,0,ans,1);
-        copy_to_newline(stdin,NULL,NULL);
-        verbose = ans[0]=='y' || ans[0]=='Y';
+        ans = read_answer(1);
+        verbose = ! ans.empty() && (ans.front()=='y' || ans.front()=='Y');
     }
 }
 
@@ -1109,7 +1030,7 @@ static void head_output( FILE *out );
 
 static void show_example_input( void  )
 {
-    static const char *east[] = {
+    static constexpr std::array<std::string_view,6> east = {
         "315378.28",
         "2571312.90",
         "171.14238",
@@ -1117,7 +1038,7 @@ static void show_example_input( void  )
         "171 41 53.55 E",
         "2.98699802"
         };
-    static const char *north[] = {
+    static constexpr std::array<std::string_view,6> north = {
         "728910.43",
         "6025519.64",
         "-41.25531",
@@ -1125,7 +1046,7 @@ static void show_example_input( void  )
         "41 22 03.26 S",
         "-0.72004099"
         };
-    const char *c1, *c2;
+    std::string_view c1, c2;
     int ncd;
 
     clear_screen();
@@ -1153,7 +1074,7 @@ static void show_example_input( void  )
     {
         c1 = east[ncd]; c2 = north[ncd];
     }
-    printf("%s  %s%s\n\n",c1,c2,input_h ? "  1532.40" : "");
+    printf("%s  %s%s\n\n",c1.data(),c2.data(),input_h ? "  1532.40" : "");
     printf("Each item should be separated by at least one blank space.\n");
     if( point_ids ) printf("The name cannot include blanks.\n");
     printf("When you have finished enter a blank line to quit the program\n\n");
@@ -1173,16 +1094,16 @@ static void tidy_up_parameters( void )
     /* Keyboard input of coordinates not possible if input file
        specified */
 
-    if (crdin_fname) ask_coords = FALSE;
+    if (crdin_fname) ask_coords = false;
 
     /* If no input file, and asking for parameters, then coordinate
        entry must be from terminal stdin, so ask for coords */
 
-    if (ask_params && !crdin_fname) ask_coords = TRUE;
+    if (ask_params && !crdin_fname) ask_coords = true;
 
     /* If prompting for coordinates then don't skip errors */
 
-    if (ask_coords) skip_errors = FALSE;
+    if (ask_coords) skip_errors = false;
 
     /* Determine the input coordinate precision to be used for
        echoing.  Attempt to get similar accuracy to output
@@ -1223,6 +1144,7 @@ static void tidy_up_parameters( void )
         case AF_DEG: input_prec += 5; break;
         case AF_DM:  input_prec += 3; break;
         case AF_DMS: input_prec += 1; break;
+        case AF_RAD: break;
         }
     }
     if (input_prec < 0) input_prec = 0;
@@ -1231,23 +1153,23 @@ static void tidy_up_parameters( void )
 
     /* Don't need orthometric if haven't got height */
 
-    if (! input_h ) input_ortho = FALSE;
-    if (! output_h ) output_ortho = FALSE;
+    if (! input_h ) input_ortho = false;
+    if (! output_h ) output_ortho = false;
 
     /* Geocentric systems require a Z coordinate */
 
-    if( is_geocentric(input_cs) ) {input_h = TRUE; input_ortho = FALSE; }
-    if( is_geocentric(output_cs) ) {output_h = TRUE; output_ortho = FALSE; }
+    if( is_geocentric(input_cs) ) {input_h = true; input_ortho = false; }
+    if( is_geocentric(output_cs) ) {output_h = true; output_ortho = false; }
 
-    transform_heights = input_ortho ^ output_ortho;
+    transform_heights = input_ortho != output_ortho;
 
     /* Point id length */
 
-    if (id_length <= 0) point_ids = FALSE;
+    if (id_length <= 0) point_ids = false;
 
     /* Verbose valid only if writing to a file */
 
-    verbose = verbose && (!ask_coords || crdout_fname!=NULL);
+    verbose = verbose && (!ask_coords || crdout_fname.has_value());
 
 }
 
@@ -1277,14 +1199,14 @@ static void setup_transformation( void )
 
         if( need_ingeoid || need_outgeoid )
         {
-            const char *gfile = geoid_file;
-            if( ! gfile || ! file_exists(gfile) )
+            std::optional<std::string> gfile = geoid_file;
+            if( ! gfile || ! path_exists(*gfile) )
             {
                 gfile = create_geoid_filename(geoid_file);
             }
-            if( ! gfile || ! file_exists(gfile) )
+            if( ! gfile || ! path_exists(*gfile) )
             {
-                printf("Cannot find geoid file %s\n",geoid_file ? geoid_file : "");
+                printf("Cannot find geoid file %s\n",geoid_file.value_or("").c_str());
                 exit(1);
             }
             else
@@ -1292,26 +1214,27 @@ static void setup_transformation( void )
                 geoid_def *geoiddef = create_geoid_grid( gfile );
                 if( ! geoiddef )
                 {
-                    printf("Cannot read geoid file %s\n",gfile ? gfile : "");
+                    printf("Cannot read geoid file %s\n",gfile->c_str());
                     exit(1);
                 }
                 delete_geoid_grid( geoiddef );
-                if( need_ingeoid ) set_coordsys_geoid( input_cs, gfile );
-                if( need_outgeoid ) set_coordsys_geoid( output_cs, gfile );
+                if( need_ingeoid ) set_coordsys_geoid( input_cs, *gfile );
+                if( need_outgeoid ) set_coordsys_geoid( output_cs, *gfile );
             }
         }
     }
 
-    if( define_coord_conversion_epoch( &cnv, input_cs, output_cs, conv_epoch ) != OK )
+    cnv = coord_conversion( input_cs, output_cs, conv_epoch );
+    if( ! cnv.valid )
     {
-        if( strlen(cnv.errmsg) > 0 )
+        if( ! cnv.errmsg.empty() )
         {
-            printf("%s\n",cnv.errmsg);
+            printf("%s\n",cnv.errmsg.c_str());
         }
         else
         {
             printf("Cannot convert coordinates from %s to %s\n",
-                   input_cs->code, output_cs->code );
+                   input_cs->code.c_str(), output_cs->code.c_str() );
         }
         get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code, output_cs->code, &printf_writer);
         exit(1);
@@ -1320,7 +1243,7 @@ static void setup_transformation( void )
     /* Set up pointers to input coordinates and parameters */
 
 
-    input_latlong = 0;
+    input_latlong = false;
     if (is_projection(input_cs))
     {
         if (input_ne) { in1 = inxyz+CRD_NORTH; in2 = inxyz+CRD_EAST;}
@@ -1329,7 +1252,7 @@ static void setup_transformation( void )
     }
     else if(is_geodetic(input_cs))
     {
-        input_latlong = 1;
+        input_latlong = true;
         if (input_ne)
         {
             in1 = inxyz+CRD_LAT; in2 = inxyz+CRD_LON;
@@ -1351,7 +1274,7 @@ static void setup_transformation( void )
 
     /* Set up pointers to output coordinates and parameters */
 
-    output_latlong = 0;
+    output_latlong = false;
     if (is_projection(output_cs))
     {
         if (output_ne) { out1 = outxyz+CRD_NORTH; out2 = outxyz+CRD_EAST;}
@@ -1360,7 +1283,7 @@ static void setup_transformation( void )
     }
     else if(is_geodetic(output_cs))
     {
-        output_latlong = 1;
+        output_latlong = true;
         if (output_ne)
         {
             out1 = outxyz+CRD_LAT; out2 = outxyz+CRD_LON;
@@ -1378,14 +1301,6 @@ static void setup_transformation( void )
         out1 = outxyz+CRD_X;
         out2 = outxyz+CRD_Y;
         out3 = outxyz+CRD_Z;
-    }
-
-    /* Allocate space for point id */
-
-    if (point_ids)
-    {
-        id = (char *) malloc( id_length+1 );
-        if (id==NULL) error_exit("Memory allocation error","");
     }
 
     /* Create the coordinate prompt */
@@ -1418,6 +1333,7 @@ static void setup_transformation( void )
         case AF_DEG: infldlen += 5; break;
         case AF_DM:  infldlen += 10; break;
         case AF_DMS: infldlen += 13; break;
+        case AF_RAD: break;
         }
     }
     else                       infldlen = input_prec + 9;
@@ -1432,6 +1348,7 @@ static void setup_transformation( void )
         case AF_DEG: outfldlen += 5; break;
         case AF_DM:  outfldlen += 10; break;
         case AF_DMS: outfldlen += 13; break;
+        case AF_RAD: break;
         }
     }
     else                       outfldlen = output_prec + 9;
@@ -1461,35 +1378,38 @@ static void open_files( void )
 {
     if (crdin_fname && !crdin_open)
     {
-        if( strcmp(crdin_fname,"-") == 0 )
+        if( *crdin_fname == "-" )
         {
-            crdin = stdin;
+            crdin = &keyboard;
+            skip_utf8_bom(std::cin);
         }
         else
         {
-            crdin = fopen(crdin_fname,"rb");
+            crdin_file.emplace( *crdin_fname, std::ios::in | std::ios::binary );
+            if (! crdin_file->is_open())
+                error_exit("Cannot open input file ",*crdin_fname);
+            skip_utf8_bom(*crdin_file);
+            crdin_file_reader.emplace( *crdin_file );
+            crdin = &*crdin_file_reader;
         }
-        if (crdin == NULL)
-            error_exit("Cannot open input file ",crdin_fname);
-        skip_utf8_bom(crdin);
-        crdin_open = TRUE;
+        crdin_open = true;
     }
 
     if (crdout_fname && !crdout_open)
     {
-        if( strcmp(crdout_fname,"-") == 0 )
+        if( *crdout_fname == "-" )
         {
             crdout = stdout;
         }
         else
         {
-            crdout = fopen(crdout_fname,"w");
+            crdout = fopen(crdout_fname->c_str(),"w");
         }
-        if (crdout == NULL)
-            error_exit("Cannot open output file ",crdout_fname);
-        crdout_open = TRUE;
+        if (crdout == nullptr)
+            error_exit("Cannot open output file ",*crdout_fname);
+        crdout_open = true;
     }
-    crdcom = !ask_coords || crdout_fname ? crdout : NULL;
+    crdcom = !ask_coords || crdout_fname ? crdout : nullptr;
 
 }
 
@@ -1499,11 +1419,11 @@ static void head_output( FILE * out )
     output_string_def os;
     fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
             PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
-    fprintf(out,"\nInput coordinates:  %s", input_cs->name);
+    fprintf(out,"\nInput coordinates:  %s", input_cs->name.c_str());
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
     fprintf(out,"\n");
     if( input_ortho ) fprintf(out,"                    Input heights are orthometric\n");
-    fprintf(out,  "\nOutput coordinates: %s", output_cs->name );
+    fprintf(out,  "\nOutput coordinates: %s", output_cs->name.c_str() );
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto); */
     fprintf(out,"\n");
     if( output_ortho ) fprintf(out,"                    Output heights are orthometric\n");
@@ -1512,20 +1432,19 @@ static void head_output( FILE * out )
         fprintf(out,"\nDatum conversion epoch %.2lf\n",cnv.epochconv);
     }
 
-    os.sink=out;
-    os.write= (output_string_func) fputs;
+    output_string_to_file( &os, out );
     get_conv_notes( &cnv, &os );
 }
 
 
 static void head_columns( FILE *out )
 {
-    const char *prjcol[3] = { "Easting", "Northing", "Height" };
-    const char *geocol[3] = { "Longitude", "Latitude", "Height" };
-    const char *xyzcol[3] = { "X", "Y", "Z" };
+    constexpr std::array<std::string_view,3> prjcol = { "Easting", "Northing", "Height" };
+    constexpr std::array<std::string_view,3> geocol = { "Longitude", "Latitude", "Height" };
+    constexpr std::array<std::string_view,3> xyzcol = { "X", "Y", "Z" };
     int  enorder[3] = { 0, 1, 2 };
     int  neorder[3] = { 1, 0, 2 };
-    const char **cols;
+    const std::array<std::string_view,3> *cols;
     int  *order;
     int  ncol;
     int  icol;
@@ -1534,33 +1453,38 @@ static void head_columns( FILE *out )
     if (point_ids) fprintf(out,"%-*s  ",id_length,"ID");
     if (verbose)
     {
-        if( is_projection(input_cs)) cols = prjcol;
-        else if( is_geodetic(input_cs)) cols = geocol;
-        else cols = xyzcol;
+        if( is_projection(input_cs)) cols = &prjcol;
+        else if( is_geodetic(input_cs)) cols = &geocol;
+        else cols = &xyzcol;
         if( input_ne ) order = neorder; else order = enorder;
         if( input_h ) ncol = 3; else ncol = 2;
         for( icol = 0; icol < ncol; icol++ )
         {
-            fprintf(out,"%*s ",icol == 2 ? invfldlen : infldlen,cols[order[icol]]);
+            fprintf(out,"%*s ",icol == 2 ? invfldlen : infldlen,(*cols)[order[icol]].data());
         }
         fprintf(out," ");
     }
 
-    if( is_projection(output_cs)) cols = prjcol;
-    else if( is_geodetic(output_cs)) cols = geocol;
-    else cols = xyzcol;
+    if( is_projection(output_cs)) cols = &prjcol;
+    else if( is_geodetic(output_cs)) cols = &geocol;
+    else cols = &xyzcol;
     if( output_ne ) order = neorder; else order = enorder;
     if( output_h ) ncol = 3; else ncol = 2;
     for( icol = 0; icol < ncol; icol++ )
     {
-        fprintf(out, "%*s ", icol == 2 ? outvfldlen : outfldlen,cols[order[icol]]);
+        fprintf(out, "%*s ", icol == 2 ? outvfldlen : outfldlen,(*cols)[order[icol]].data());
     }
     fprintf(out,"\n");
 }
 
 static void close_files( void )
 {
-    if (crdin_fname && crdin != stdin ) fclose(crdin);
+    if (crdin_fname && crdin != &keyboard )
+    {
+        crdin = &keyboard;
+        crdin_file_reader.reset();
+        crdin_file.reset();
+    }
     if (crdout_fname && crdout != stdout ) fclose(crdout);
 }
 
@@ -1589,26 +1513,31 @@ static void close_files( void )
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static int find_next_data_line( void )
+static bool find_next_data_line( void )
 {
-    int c;
-    for(;;)
+    while( true )
     {
         if(ask_coords) printf("\n%s",coord_prompt);
-        c = getc(crdin);
-        while (c == ' ' || c == '\t') c=getc(crdin);
-        if (c=='\n' && ask_coords) return EOF;
-        ungetc(c,crdin);
-        if (c!='\n' && c!='!') break;
-        copy_to_newline(crdin,crdcom,NULL);
+        crdin->skipBlanks();
+        const std::string_view line = crdin->remainder();
+        if( line.empty() )
+        {
+            /* A blank line, or a blank last line with no newline, which is the end of the input */
+            if( ! crdin->endsWithNewline() || ask_coords ) return false;
+        }
+        else if( line.front() != '!' )
+        {
+            return true;
+        }
+        copy_rest_of_line( *crdin, crdcom, std::string_view() );
     }
-    return c;
 }
 
 
 static void read_point_id( void )
 {
-    read_string( crdin, separator,0,0, id, id_length );
+    bool isspace;
+    crdin->readToken( separator, false, isspace, id, numeric_cast<size_t>( id_length ) );
 }
 
 /*-------------------------------------------------------------------*/
@@ -1626,42 +1555,41 @@ static void read_point_id( void )
 /*             negative hemisphere characters, e.g. "NS".            */
 /*-------------------------------------------------------------------*/
 
-static int read_dms( FILE *input, DMS *dms, const char *hem )
+static int read_dms( LineReader &input, DMS &dms, const std::optional<std::string_view> hem )
 {
-    char string[21];
-    char checkend;
-    char hemdef;
-    int nc,c,atspace;
+    std::string token;
+    bool hemdef=false;
+    bool atspace=false;
 
-    if (read_string(input,separator,1,&atspace,string,20)<=0) return 3;
+    if (input.readToken(separator,true,atspace,token,20) != TokenResult::Found) return 3;
 
-    hemdef=0;
-    dms->neg = 0;
+    dms.neg = 0;
 
-    if(strlen(string)==1 && hem )
+    if(token.size()==1 && hem )
     {
-        c = string[0];
-        dms->neg = TOUPPER(c)==hem[1];
-        if (dms->neg || TOUPPER(c)==hem[0])
+        const char c = TOUPPER(token.front());
+        dms.neg = c==(*hem)[1];
+        if (dms.neg || c==(*hem)[0])
         {
-            hemdef=1;
-            if(read_string(input,separator,1,&atspace,string,20)<=0) return 3;
+            hemdef=true;
+            if(input.readToken(separator,true,atspace,token,20) != TokenResult::Found) return 3;
         }
     }
 
-    if (sscanf(string,"%d%c",&dms->degrees,&checkend)!=1) return 2;
-    if (dms->degrees < 0) return 2;
+    const std::optional<int> degrees = parse_int( token );
+    if (! degrees || *degrees < 0) return 2;
+    dms.degrees = *degrees;
 
 
-    if( ! dms->no_seconds )
+    if( ! dms.no_seconds )
     {
-        if (read_string(input,separator,1,&atspace,string,20)<=0) return 3;
-        if (sscanf(string,"%d%c",&dms->minutes,&checkend)!=1) return 2;
-        if (dms->minutes<0 || dms->minutes>60) return 2;
+        if (input.readToken(separator,true,atspace,token,20) != TokenResult::Found) return 3;
+        const std::optional<int> minutes = parse_int( token );
+        if (! minutes || *minutes<0 || *minutes>60) return 2;
+        dms.minutes = *minutes;
     }
 
-    nc=read_string(input,separator,1,&atspace,string,20);
-    if (nc<=0) return 3;
+    if (input.readToken(separator,true,atspace,token,20) != TokenResult::Found) return 3;
 
     /* No hemisphere indicator required */
 
@@ -1670,30 +1598,31 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
 
         /* Is the hemisphere indicator at the end of the seconds */
 
-        c = TOUPPER( (int) string[nc-1]);
-        dms->neg = c==hem[1];
-        if ( dms->neg || c==hem[0] )
+        const char c = TOUPPER(token.back());
+        dms.neg = c==(*hem)[1];
+        if ( dms.neg || c==(*hem)[0] )
         {
-            string[nc-1] = '\0';
-            hemdef=1;
+            token.pop_back();
+            hemdef=true;
         }
     }
 
-    if (sscanf(string,"%lf%c",&dms->seconds,&checkend)!=1) return 2;
-    if (dms->seconds<0.0 || dms->seconds>60.0) return 2;
+    const std::optional<double> seconds = parse_double( token );
+    if (! seconds || *seconds<0.0 || *seconds>60.0) return 2;
+    dms.seconds = *seconds;
         /* Otherwise scan input for the hemisphere indicator */
 
 
     if (hem && !hemdef)
     {
-        while( (c=getc(input)) == ' ' || c == '\t' );
-        dms->neg = TOUPPER(c)==hem[1];
-        if (dms->neg || TOUPPER(c)==hem[0]) hemdef=1;
-        if( c != EOF )ungetc(c,input);
+        input.skipBlanks();
+        const std::string_view next = input.remainder();
+        dms.neg = ! next.empty() && TOUPPER(next.front())==(*hem)[1];
+        if (dms.neg || ( ! next.empty() && TOUPPER(next.front())==(*hem)[0] )) hemdef=true;
         if( hemdef )
         {
-            nc=read_string(input,separator,1,&atspace,string,20);
-            if( nc > 1 ) return 2;
+            input.readToken(separator,true,atspace,token,20);
+            if( token.size() > 1 ) return 2;
         }
     }
     if( atspace ) return 2;
@@ -1709,12 +1638,14 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
 /*                    3   End of line or eof encountered             */
 /*-------------------------------------------------------------------*/
 
-static int read_number( FILE *input, double *value )
+static int read_number( LineReader &input, double &value )
 {
-    char numbstr[33];
-    char checkend;
-    if (read_string( input, separator, 0,0, numbstr, 32 )<=0) return 3;
-    if (sscanf( numbstr, "%lf%c", value, &checkend) != 1) return 2;
+    std::string numbstr;
+    bool atspace;
+    if (input.readToken( separator, false, atspace, numbstr, 32 ) != TokenResult::Found) return 3;
+    const std::optional<double> number = parse_double( numbstr );
+    if (! number) return 2;
+    value = *number;
     return 0;
 }
 
@@ -1723,27 +1654,27 @@ static int read_coordinates( void )
 {
     DMS dms;
     int sts;
-    char hemdef;
+    bool hemdef;
     if (input_dms == AF_DM || input_dms == AF_DMS )
     {
         dms.no_seconds = (input_dms == AF_DM);
-        sts = read_dms( crdin, &dms, indms1 );
+        sts = read_dms( *crdin, dms, indms1 );
         if (sts>1) return sts;
         hemdef = sts==0;
         *in1 = dms_deg( dms );
-        sts = read_dms( crdin, &dms, hemdef ? indms2 : NULL );
+        sts = read_dms( *crdin, dms, hemdef ? std::optional<std::string_view>( indms2 ) : std::nullopt );
         if (sts>1) return sts; else sts=0;
         *in2 = dms_deg( dms );
     }
     else
     {
-        hemdef = FALSE;
-        sts = read_number( crdin, in1 );
+        hemdef = false;
+        sts = read_number( *crdin, *in1 );
         if (sts != 0) return sts;
-        sts = read_number( crdin, in2 );
+        sts = read_number( *crdin, *in2 );
         if (sts != 0) return sts;
     }
-    if( input_h ) sts = read_number( crdin, in3 );
+    if( input_h ) sts = read_number( *crdin, *in3 );
     if( input_latlong && input_dms != AF_RAD ) { *in1 *= DTOR; *in2 *= DTOR; }
     return sts;
 }
@@ -1764,15 +1695,15 @@ static void write_point_id( FILE * out )
 {
     if( !separator )
     {
-        fprintf(out,"%-*s  ",id_length,id);
+        fprintf(out,"%-*s  ",id_length,id.c_str());
     }
     else
     {
-        fprintf(out,"%s%c",id,separator);
+        fprintf(out,"%s%c",id.c_str(),separator);
     }
 }
 
-static void write_dms( FILE *out, double deg, int prec, char no_secs, const char *hem )
+static void write_dms( FILE *out, double deg, int prec, bool no_secs, std::string_view hem )
 {
     DMS dms;
     deg_dms( deg, &dms, prec, no_secs );
@@ -1796,8 +1727,8 @@ static void write_dms( FILE *out, double deg, int prec, char no_secs, const char
 
 
 static void write_coords( FILE *out, double *c1, double *c2, double *c3,
-                          const char *h1, const char *h2, int len, int prec,
-                          int vlen, int vprec, char dms, char radians )
+                          std::string_view h1, std::string_view h2, int len, int prec,
+                          int vlen, int vprec, AngleFormat dms, bool radians )
 {
 
     char sep;
@@ -1830,7 +1761,7 @@ static void write_results( void )
         write_coords(stdout,out1,out2,out3,outdms1,outdms2,outfldlen,
                      output_prec, outvfldlen, output_vprec, output_dms,output_latlong);
     }
-    if ( !ask_coords || crdout_fname != NULL )
+    if ( !ask_coords || crdout_fname )
     {
         if (point_ids) write_point_id( crdout );
         if (verbose)
@@ -1858,34 +1789,22 @@ static void write_results( void )
 
 static void report_read_error( void )
 {
-    const char *s1, *s2;
-    const char *fp = " for point ";
-    const char *bl = "";
+    const std::string point = point_ids ? " for point " + id : std::string();
 
-    if (point_ids) { s1 = fp; s2 = id; }
-    else s1 = s2 = bl;
     if (ask_coords) printf("%*s**** Error reading data ****",prompt_length,"");
-    if (!ask_coords || crdout_fname != NULL)
-        fprintf(crdout,"**** Error reading data%s%s **** ",s1,s2);
+    if (!ask_coords || crdout_fname)
+        fprintf(crdout,"**** Error reading data%s **** ",point.c_str());
 }
 
-static void report_conv_error( int sts )
+static void report_conv_error( const int sts )
 {
-    const char *s1, *s2;
-    const char *fp = " for point ";
-    const char *bl = "";
-    const char *msg1 = "Coordinate range error";
-    const char *msg2 = "Conversion error";
-    const char *em;
-
-    em = sts == INCONSISTENT_DATA ? msg1 : msg2;
-    if( strlen(cnv.errmsg) > 0 ) em=cnv.errmsg;
-    if (point_ids) { s1 = fp; s2 = id; }
-    else s1 = s2 = bl;
+    const std::string point = point_ids ? " for point " + id : std::string();
+    std::string em = sts == INCONSISTENT_DATA ? "Coordinate range error" : "Conversion error";
+    if( ! cnv.errmsg.empty() ) em = cnv.errmsg;
     if (ask_coords) printf("%*s**** %s ****",
-                               prompt_length,"",em);
-    if (!ask_coords || crdout_fname != NULL)
-        fprintf(crdout,"**** %s%s%s **** ",em,s1,s2);
+                               prompt_length,"",em.c_str());
+    if (!ask_coords || crdout_fname)
+        fprintf(crdout,"**** %s%s **** ",em.c_str(),point.c_str());
 }
 
 /*-------------------------------------------------------------------*/
@@ -1899,17 +1818,13 @@ static void report_conv_error( int sts )
 
 static void process_coordinates( void )
 {
-    long start_loc;
     int sts;
-    char sep[2];
-    char *prtsep;
-    sep[0] = separator ? separator : ' ';
-    sep[1] = 0;
-    for(;;)
+    const std::string sep( 1, separator ? separator : ' ' );
+    while( true )
     {
-        prtsep=sep;
-        if(find_next_data_line()==EOF) break;
-        start_loc = ftell(crdin);
+        std::string_view prtsep = sep;
+        if( ! find_next_data_line() ) break;
+        crdin->markRecordStart();
         if(point_ids) read_point_id();
         inxyz[2] = 0.0;  /* In case no height info */
         sts = read_coordinates();
@@ -1921,7 +1836,7 @@ static void process_coordinates( void )
         {
             if( sts == OK )
             {
-                sts = convert_coords(&cnv,inxyz,NULL,outxyz,NULL );
+                sts = convert_coords(&cnv,inxyz,nullptr,outxyz,nullptr );
                 if( sts != OK && ! skip_errors ) report_conv_error(sts);
             }
             if( sts != OK && !skip_errors ) ncrderr++;
@@ -1933,11 +1848,10 @@ static void process_coordinates( void )
         }
         else
         {
-            if( start_loc != EOF && ! ask_coords )
-                fseek( crdin, start_loc, SEEK_SET );
-            if( skip_errors ) prtsep=0;
+            if( crdin->seekable() && ! ask_coords ) crdin->rewindToRecord();
+            if( skip_errors ) prtsep = std::string_view();
         }
-        copy_to_newline(crdin,crdcom,prtsep);
+        copy_rest_of_line( *crdin, crdcom, prtsep );
     }
 }
 
@@ -1967,19 +1881,17 @@ int main( int argc, char *argv[] )
     parse_command_line( argc, argv );
     if( ! coordsys_file )
     {
-        coordsys_file=get_default_crdsys_file();
+        coordsys_file = get_default_crdsys_file();
     }
     if( ! coordsys_file )
     {
         printf("Cannot find coordsys.def file\n");
     }
-    // coordsys_file may be overwritten if from get_default_crdsys_file
-    coordsys_file=copy_string(coordsys_file);
     install_default_projections();
-    sts = install_crdsys_file( coordsys_file );
+    sts = install_crdsys_file( coordsys_file.value_or("") );
     if( sts != OK )
     {
-        printf("Cannot read coordsys.def file %s\n",coordsys_file);
+        printf("Cannot read coordsys.def file %s\n",coordsys_file.value_or("").c_str());
         return 0;
     }
     process_command_line_options();

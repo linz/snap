@@ -11,12 +11,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "util/snapctype.h"
+#include <algorithm>
+#include <cctype>
+#include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 #include <assert.h>
 
 #include "network/network.h"
-#include "util/linklist.h"
-#include "util/chkalloc.h"
+#include "util/fieldscanner.hpp"
 #include "util/errdef.h"
 
 #define STNLIST_INIT_INDEX_SIZE 1024
@@ -37,17 +40,15 @@
 
 station_list *new_station_list( void )
 {
-    station_list *sl;
-
-    sl = (station_list *) check_malloc( sizeof(station_list) );
+    station_list *sl = new station_list;
     sl->count = 0;
     sl->lastid=0;
     sl->indexsize=STNLIST_INIT_INDEX_SIZE;
-    sl->index=(station **) check_malloc(sizeof(station *) * sl->indexsize );
-    sl->index[0]=0;
+    sl->index=new station *[sl->indexsize];
+    sl->index[0]=nullptr;
     sl->nsorted=0;
     sl->maxsortid=0;
-    sl->codeindex=0;
+    sl->codeindex=nullptr;
     sl->usesorted=0;
     sl->nextstn=0;
     return sl;
@@ -55,14 +56,13 @@ station_list *new_station_list( void )
 
 void delete_station_list( station_list *sl )
 {
-    int i;
-    for( i=1; i < sl->lastid; i++ )
+    for( int i=1; i <= sl->lastid; i++ )
     {
         if( sl->index[i] ) delete_station(sl->index[i] );
     }
-    if( sl->index ) check_free( sl->index );
-    if( sl->codeindex ) check_free( sl->codeindex );
-    check_free( sl );
+    delete [] sl->index;
+    delete [] sl->codeindex;
+    delete sl;
 }
 
 void sl_add_station( station_list *sl, station *st )
@@ -72,8 +72,11 @@ void sl_add_station( station_list *sl, station *st )
     sl->lastid++;
     if( sl->lastid >= sl->indexsize )
     {
+        station **newindex = new station *[sl->indexsize * 2];
+        std::copy( sl->index, sl->index + sl->indexsize, newindex );
+        delete [] sl->index;
+        sl->index = newindex;
         sl->indexsize *= 2;
-        sl->index=(station **) check_realloc((void *)(sl->index), sizeof(station *) * sl->indexsize );
     }
     sl->index[sl->lastid]=st;
     if( st ) st->id=sl->lastid;
@@ -103,30 +106,44 @@ void sl_remove_station( station_list *sl, station *st )
 }
 
 
-int stncodecmp( const char *s1, const char *s2 )
+/// Compares two station codes, returning negative if s1 sorts before s2,
+/// zero if they are equal and positive if s1 sorts after s2. Letters are
+/// compared ignoring case, and codes whose first run of digits starts at the
+/// same place after equal text are ordered by the value of that run, so
+/// "AB9" sorts before "AB10".
+///
+/// The runs are compared as digit strings, not converted to a number. The
+/// original used atol, which is undefined for a run too long for a long, and
+/// parse_leading<long> reports overflow as no value, which would sort such a
+/// run as zero and so give an inconsistent order. A comparison that cannot
+/// fail matters because this is the ordering for qsort, std::lower_bound and
+/// the station code maps, none of which can handle an error from it.
+int stncodecmp(
+    std::string_view s1,   ///< the first station code
+    std::string_view s2 )  ///< the second station code
 {
-    long l1, l2;
-    while( *s1 && *s2 && TOLOWER(*s1) == TOLOWER(*s2) && ! ISDIGIT(*s1) )
+    const size_t digits1 = std::find_if( s1.begin(), s1.end(), is_digit ) - s1.begin();
+    const size_t digits2 = std::find_if( s2.begin(), s2.end(), is_digit ) - s2.begin();
+    if( digits1 == digits2 && digits1 < s1.size() && digits1 < s2.size()
+        && compare_ignoring_case( s1.substr(0,digits1), s2.substr(0,digits1) ) == 0 )
     {
-        s1++;
-        s2++;
+        // The digits of a run without its leading zeros. A longer run is a
+        // larger number, and runs of equal length compare as text, so the
+        // comparison needs no integer type and cannot overflow.
+        const auto significantDigits = []( const std::string_view text )
+        {
+            const size_t end = std::find_if_not( text.begin(), text.end(), is_digit ) - text.begin();
+            const size_t zeros = std::find_if_not( text.begin(), text.begin() + end,
+                []( const char ch ) { return ch == '0'; } ) - text.begin();
+            return text.substr( zeros, end - zeros );
+        };
+        const std::string_view number1 = significantDigits( s1.substr(digits1) );
+        const std::string_view number2 = significantDigits( s2.substr(digits2) );
+        if( number1.size() != number2.size() ) return number1.size() < number2.size() ? -1 : 1;
+        const int cmp = number1.compare( number2 );
+        if( cmp != 0 ) return cmp < 0 ? -1 : 1;
     }
-    if( ISDIGIT(*s1 ) && ISDIGIT(*s2) )
-    {
-        l1 = atol( s1 );
-        l2 = atol( s2 );
-        if( l1 < l2 ) return -1;
-        if( l1 > l2 ) return 1;
-    }
-    return _stricmp( s1, s2 );
-}
-
-static  int stncodecmps( const void *code, const void *st )
-{
-    char *s1, *s2;
-    s1 = (char *) code;
-    s2 = (*(station**)st)->Code;
-    return stncodecmp( s1, s2 );
+    return compare_ignoring_case( s1, s2 );
 }
 
 static int stncmp( const void *st1, const void *st2 )
@@ -146,9 +163,9 @@ static void index_stations( station_list *sl )
     if( sl->maxsortid == sl->lastid ) return;
 
     count=sl->count;
-    if( sl->codeindex ) check_free( sl->codeindex );
-    sl->codeindex = (station **) check_malloc( (1+count) * sizeof(station *) );
-    sl->codeindex[0] = 0;
+    delete [] sl->codeindex;
+    sl->codeindex = new station *[1+count];
+    sl->codeindex[0] = nullptr;
 
     ic=0;
     for( i = 1; i <= sl->lastid; i++ )
@@ -166,19 +183,17 @@ static void index_stations( station_list *sl )
     sl->nsorted=count;
 }
 
-static int sl_lookup_codeindex( station_list *sl, const char *code )
+/// Returns the position in the sorted code index of the first station with the
+/// given code, or 0 if there is none.
+static int sl_lookup_codeindex( station_list *sl, std::string_view code )
 {
-    station **match;
     if( sl->nsorted < 1 ) return 0;
-    match = (station **) bsearch( code, sl->codeindex+1, sl->nsorted, sizeof(station *), stncodecmps );
-    if( ! match ) return 0;
-    int id=match-sl->codeindex;
-    while( id > 1 )
-    {
-        if( stncodecmp(sl->codeindex[id-1]->Code, code) != 0 ) break;
-        id--;
-    }
-    return match ? match - sl->codeindex : 0;
+    station **first = sl->codeindex+1;
+    station **last = first+sl->nsorted;
+    station **match = std::lower_bound( first, last, code,
+        []( const station *st, std::string_view target ) { return stncodecmp( st->Code, target ) < 0; } );
+    if( match == last || stncodecmp( (*match)->Code, code ) != 0 ) return 0;
+    return numeric_cast<int>( match - sl->codeindex );
 }
 
 int sl_reindex_stations( station_list *sl )
@@ -212,16 +227,16 @@ int sl_reindex_stations( station_list *sl )
 
 int sl_remove_duplicate_stations( station_list *sl, int reindex, void *data, stnfunc function )
 {
-    const char *code=0;
+    std::optional<std::string_view> code;
     int nremove=0;
 
     index_stations(sl);
     for( int i=1; i <= sl->count; i++ )
     {
         station *st=sl->codeindex[i];
-        if( code == 0 || stncodecmp(st->Code,code) != 0 )
+        if( ! code || stncodecmp(st->Code,*code) != 0 )
         {
-            code=st->Code;
+            code=std::string_view( st->Code );
         }
         else
         {
@@ -237,7 +252,7 @@ int sl_remove_duplicate_stations( station_list *sl, int reindex, void *data, stn
     return nremove;
 }
 
-int sl_find_station( station_list *sl, const char *code )
+int sl_find_station( station_list *sl, std::string_view code )
 {
     int i;
     if( sl->count < 0 ) return 0;
@@ -260,7 +275,7 @@ int sl_find_station( station_list *sl, const char *code )
     return i ? sl->codeindex[i]->id: 0;
 }
 
-int sl_find_station_sorted_id( station_list *sl, const char *code )
+int sl_find_station_sorted_id( station_list *sl, std::string_view code )
 {
     index_stations(sl);
     return sl_lookup_codeindex( sl, code );

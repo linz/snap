@@ -28,6 +28,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <array>
+#include <string>
+#include <string_view>
+#include <array>
 
 #include "bindata2.h"
 #include "coefs.h"
@@ -49,7 +53,7 @@
 #include "util/symmatrx.h"
 #include "vecdata.h"
 
-const char *gx_trans_params[]={
+static constexpr std::array<std::string_view,3> gx_trans_params={
     "X translation",
     "Y translation",
     "Z translation"
@@ -232,7 +236,7 @@ void list_vecdata( FILE *out, survdata  *v )
                 if( axis == 0 && iobs == 0 )
                 {
                     fprintf( out, "%-*s %5.3lf  ", stn_name_width,
-                             station_code(v->from), v->fromhgt );
+                             station_code(v->from).c_str(), v->fromhgt );
                 }
                 else
                 {
@@ -243,7 +247,7 @@ void list_vecdata( FILE *out, survdata  *v )
             if( axis == 0 )
             {
                 fprintf( out, "%-*s %5.3lf  ", stn_name_width,
-                         station_code(t->tgt.to), t->tgt.tohgt );
+                         station_code(t->tgt.to).c_str(), t->tgt.tohgt );
             }
             else
             {
@@ -254,7 +258,7 @@ void list_vecdata( FILE *out, survdata  *v )
 
             if( axis == 0 )
             {
-                fprintf( out, "%2s%c  ",datatype[t->tgt.type].code,
+                fprintf( out, "%2s%c  ",datatype[t->tgt.type].code.data(),
                          t->tgt.unused ? '*' : ' ');
             }
             else
@@ -270,7 +274,7 @@ void list_vecdata( FILE *out, survdata  *v )
             }
 
             if( axis == 0 && iobs == 0 ) fprintf(out,"   %s",
-                                  rftrans_name(rftrans_from_id(v->reffrm) ));
+                                  rftrans_from_id(v->reffrm)->name.c_str());
 
             fputs("\n", out );
         }
@@ -281,11 +285,11 @@ void list_vecdata( FILE *out, survdata  *v )
             clsf = v->clsf + t->tgt.iclass;
             for( i = 0; i< t->tgt.nclass; i++, clsf++ )
             {
-                char *class_name;
-                char *class_value;
-                class_name = classification_name( &obs_classes, clsf->class_id );
-                class_value = class_value_name( &obs_classes, clsf->class_id, clsf->name_id );
-                fprintf(out, "     %s = %s\n",class_name,class_value );
+                std::string class_name;
+                std::string class_value;
+                class_name = obs_classes.name( clsf->class_id );
+                class_value = obs_classes.value_name( clsf->class_id, clsf->name_id );
+                fprintf(out, "     %s = %s\n",class_name.c_str(),class_value.c_str() );
             }
         }
 
@@ -295,10 +299,9 @@ void list_vecdata( FILE *out, survdata  *v )
             sd = v->syserr + t->tgt.isyserr;
             for( i = 0; i < t->tgt.nsyserr; i+=3,sd +=3 )
             {
-                const char *name;
-                name = syserr_name( sd->prm_id );
+                const std::string_view name = syserr_name( sd->prm_id );
                 fprintf(out,"     Systematic error: %s = %lf %lf %lf\n",
-                        name,sd[0].influence,sd[1].influence,sd[2].influence);
+                        name.data(),sd[0].influence,sd[1].influence,sd[2].influence);
             }
         }
 
@@ -424,8 +427,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
                     if( obslength <= 0.0 ) obslength = 1.0;  /* Avoid divide by 0 */
                     obslength /= 1.0e6;
                     set_trgtdata_fields(&t->tgt,v);
-                    sprintf(get_field_buffer(OF_TYPE),"%2s%c",
-                            datatype[t->tgt.type].code, unused );
+                    set_residual_type_field( datatype[t->tgt.type].code, unused );
                 }
 
                 set_residual_field_value( OF_OBS, ndp, vec[axis] );
@@ -464,12 +466,12 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
 
                 if( sres[axis] < 0.0 )
                 {
-                    sprintf(get_field_buffer(OF_FLAGS),"%c",rfunused);
+                    set_residual_field( OF_FLAGS, std::string( 1, rfunused ) );
                 }
                 else
                 {
-                    sprintf(get_field_buffer(OF_FLAGS),"%c%s",rfunused,
-                            residual_flag( unused == ' ', 1, sres[axis]) );
+                    set_residual_field( OF_FLAGS,
+                            std::string( 1, rfunused ).append( residual_flag( unused == ' ', 1, sres[axis] ) ) );
                 }
                 print_residual_line( out );
             }
@@ -483,13 +485,13 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
             if( t->rank )
             {
                 set_residual_field_value( OF_SRES, 2, t->vsres/semult );
-                sprintf(get_field_buffer(OF_FLAGS),"%c%s",unused,
-                        residual_flag( unused == ' ', t->rank, t->vsres/semult ) );
+                set_residual_field( OF_FLAGS,
+                        std::string( 1, unused ).append( residual_flag( unused == ' ', t->rank, t->vsres/semult ) ) );
             }
             else
             {
                 set_residual_field(OF_SRES,"-  ");
-                sprintf(get_field_buffer(OF_FLAGS),"%c",unused);
+                set_residual_field( OF_FLAGS, std::string( 1, unused ) );
             }
             print_residual_line( out );
         }

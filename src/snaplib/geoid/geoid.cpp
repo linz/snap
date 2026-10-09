@@ -21,9 +21,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
 #include "util/fileutil.h"
 #include "string.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/dstring.h"
 #include "geoid/geoid.h"
@@ -33,15 +36,15 @@
 
 
 
-static const char *get_geoid_filename( const char *geoidname )
+static std::string get_geoid_filename( const std::optional<std::string> &geoidname )
 {
-    const char *geoid = "geoid";
-    const char *filename = NULL;
+    std::string geoid = "geoid";
+    std::optional<std::string> filename;
 
     /* If name explicitely given, then use that. */
     if( geoidname )
     {
-        geoid = geoidname;
+        geoid = *geoidname;
         filename = find_coordsys_data_file( geoid, GEOID_GRID_EXTENSION );
     }
     /* Else if a specific geoid file is defined */
@@ -58,59 +61,52 @@ static const char *get_geoid_filename( const char *geoidname )
     }
 
     /* Return just the geoid name if a file isn't found */
-    if( ! filename ) filename = geoid;
+    return filename.value_or(geoid);
+}
+
+std::optional<std::string> create_geoid_filename( const std::optional<std::string> &geoidname )
+{
+    std::string filename = get_geoid_filename( geoidname );
+    if( ! path_exists(filename) ) return std::nullopt;
     return filename;
 }
 
-const char *create_geoid_filename( const char *geoidname )
-{
-    const char *filename = get_geoid_filename( geoidname );
-    if( ! file_exists(filename) ) return NULL;
-    return copy_string( filename );
-}
-
-void delete_geoid_filename( const char *filename )
-{
-    check_free( (void *) filename );
-}
-
-geoid_def *create_geoid_grid( const char *source )
+geoid_def *create_geoid_grid( const std::optional<std::string> &source )
 {
     int status;
-    const char *filename;
-    geoid_def *gd = NULL;
+    geoid_def *gd = nullptr;
     grid_def *grd;
-    coordsys *cs = 0;
+    coordsys *cs = nullptr;
 
-    filename = get_geoid_filename( source );
+    const error_message sourceMessage = source ? error_message( *source ) : NO_MESSAGE;
+    const std::string filename = get_geoid_filename( source );
     status = grd_open_grid_file( filename, 1, &grd );
 
     if( status != OK )
     {
-        handle_error( status, "Unable to load geoid grid model", source );
+        handle_error( status, "Unable to load geoid grid model", sourceMessage );
     }
     else
     {
-        const char *cscode = grd_coordsys_def( grd );
-        cs = load_coordsys( cscode );
+        cs = load_coordsys( grd->crdsys ? *grd->crdsys : std::string() );
         if( ! cs )
         {
             grd_delete_grid( grd );
             status = INVALID_DATA;
-            handle_error( status, "Invalid coordinate system in geoid definition", source );
+            handle_error( status, "Invalid coordinate system in geoid definition", sourceMessage );
         }
         else if( ! is_geodetic( cs ) )
         {
-            delete_coordsys( cs );
+            delete cs;
             status = INVALID_DATA;
-            handle_error( status,"Geoid coordinate system must be geodetic", source );
+            handle_error( status,"Geoid coordinate system must be geodetic", sourceMessage );
         }
     }
 
     if( status == OK )
     {
         double dlon, dlat;
-        gd = (geoid_def *) check_malloc( sizeof( geoid_def ) );
+        gd = new geoid_def;
         gd->cs = cs;
         gd->grd = grd;
         grd_grid_spacing( grd, &dlon, &dlat );
@@ -126,16 +122,15 @@ void delete_geoid_grid( geoid_def *gd )
     {
         if( gd->grd ) grd_delete_grid( gd->grd );
         gd->grd = 0;
-        if( gd->cs )delete_coordsys( gd->cs );
+        if( gd->cs )delete gd->cs;
         gd->cs = 0;
     }
-    check_free( gd );
+    delete gd;
 }
 
-const char *get_geoid_model( geoid_def *gd )
+std::string_view get_geoid_model( geoid_def *gd )
 {
-    if( !gd ) return NULL;
-    return grd_title( gd->grd, 1 );
+    return geoid_title( gd, 1 );
 }
 
 coordsys *get_geoid_coordsys(  geoid_def *gd )
@@ -144,29 +139,29 @@ coordsys *get_geoid_coordsys(  geoid_def *gd )
     return gd->cs;
 }
 
-void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix )
+void print_geoid_header( geoid_def *gd, FILE *out, int width, std::string_view prefix )
 {
-    int i, nblank;
     if( !gd->grd ) return;
-    for( i = 0; i++ < 3; )
+    for( int i = 1; i <= 3; i++ )
     {
-        const char *s = grd_title(gd->grd, i);
+        const std::optional<std::string> &s = gd->grd->title( i );
         if( !s ) continue;
-        if( prefix ) fputs( prefix, out );
+        fwrite( prefix.data(), 1, prefix.size(), out );
         if( width > 0 )
         {
-            nblank = width - strlen(s)/2;
+            const int nblank = width - boost::numeric_cast<int>( s->size() / 2 );
             if( nblank > 0 ) fprintf( out, "%*s", nblank, "" );
         }
-        fprintf(out,"%s\n", s );
+        fprintf(out,"%s\n", s->c_str() );
     }
 }
 
 
-const char *geoid_title( geoid_def *gd, int titleno )
+std::string_view geoid_title( geoid_def *gd, int titleno )
 {
-    if( gd->grd ) return grd_title( gd->grd, titleno );
-    return 0;
+    if( !gd || !gd->grd ) return std::string_view();
+    const std::optional<std::string> &title = gd->grd->title( titleno );
+    return title ? std::string_view( *title ) : std::string_view();
 }
 
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid )
@@ -198,7 +193,6 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     double u1, u2;
 
     double llh[3];
-    rotmat toporot;
 
     sts = calculate_geoid_undulation( gd, lat, lon, &exu[CRD_HGT] );
     if( sts != OK ) return sts;
@@ -211,7 +205,7 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     llh[CRD_HGT] = 0.0;
 
     llh_to_xyz( el, llh, xyz, NULL, NULL );
-    init_toprot( llh[CRD_LAT], llh[CRD_LON], &toporot );
+    const rotmat toporot( llh[CRD_LAT], llh[CRD_LON] );
 
     /* Calculate geoid heights half a grid spacing south (u1) and north (u2)
        of the reference point, and determine the deflection north from
@@ -234,7 +228,7 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     /* Convert the north vector dxyz to an west vector by taking a dot product with
        the local vertical */
 
-    rot_vertical( &toporot, xyzp );
+    toporot.rot_vertical( xyzp );
     vecprd( dxyz, xyzp, dxyz );
 
     /* Calculate the west and east undulations and use this to derive deflection east */

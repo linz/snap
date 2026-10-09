@@ -94,7 +94,7 @@ private:
     void AddColourByClassifications();
     void AddStationColourOptions();
     void AddConfigMenuItems();
-    void ReadConfiguration( const char *filename );
+    void ReadConfiguration( const std::string &filename );
     void ShowObsList();
     void ShowStationList();
     void SetErrorTypeStatus();

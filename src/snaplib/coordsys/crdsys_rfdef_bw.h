@@ -4,7 +4,7 @@
 #include "util/iostring.h"
 #include "coordsys/coordsys.h"
 
-int rfdef_parse_bw14def( ref_deformation *def, input_string_def *is );
-int rfdef_parse_eulerdef( ref_deformation *def, input_string_def *is );
+ref_deformation *rfdef_parse_bw14def( input_string_def &is );
+ref_deformation *rfdef_parse_eulerdef( input_string_def &is );
 
 #endif

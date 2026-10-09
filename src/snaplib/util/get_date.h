@@ -11,12 +11,22 @@
 
 */
 
-/* get_date returns a string defining the current date and time.  If a
-   string variable is supplied, the date is written to that, otherwise
-   it is written to a static area.  */
+#include <cstdio>
+#include <string>
 
-#define GETDATELEN 21     /* Length of string required to hold date */
-char *get_date( char *datestr );
+/// Length of the run date field in binary files, including the terminating NUL
+inline constexpr int GETDATELEN = 21;
+
+/// Returns the current date and time as text, of at most GETDATELEN-1 characters.
+/// If the environment variable SNAP_TEST_FIXED_DATE is set it returns that instead.
+std::string get_date();
+
+/// Writes a run date as a GETDATELEN byte field, padded with NUL bytes.
+/// The text is truncated if it is too long.
+void write_run_date_field( FILE *f, const std::string &runDate );
+
+/// Reads a run date from a GETDATELEN byte field, up to the first NUL byte.
+/// Returns false, leaving runDate unchanged, if the field cannot be read.
+bool read_run_date_field( FILE *f, std::string &runDate );
 
 #endif
-

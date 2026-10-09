@@ -18,7 +18,6 @@
 #include "util/snapctype.h"
 
 #include "network/network.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
@@ -64,13 +63,13 @@ static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt
     /* Update the station components that are defined in terms of the
        ellipsoid */
 
-    modify_station_coords( st, llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT], ccv->to->rf->el );
+    st->modify_coords( llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT], *ccv->to->rf->el );
     return sts;
 
 }
 
 
-int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg )
+int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgtfixopt, std::string &errmsg )
 {
     coordsys *geosys, *csold;
     coord_conversion cconv;
@@ -103,7 +102,8 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
                 }
             }
 
-            sts=define_ellipsoidal_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch );
+            cconv=coord_conversion( nw->geosys, geosys, epoch, true );
+            sts=cconv.valid ? OK : INVALID_DATA;
 
             /* Trial conversion to check coordinates can be converted */
 
@@ -116,12 +116,11 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
 
             if( sts != OK )
             {
-                if( errmsg && cconv.errmsg[0] )
+                if( ! cconv.errmsg.empty() )
                 {
-                    strncpy(errmsg,cconv.errmsg,nmsg);
-                    errmsg[nmsg-1]=0;
+                    errmsg=cconv.errmsg;
                 }
-                delete_coordsys( geosys );
+                delete geosys;
                 return INCONSISTENT_DATA;
             }
 
@@ -139,17 +138,16 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
             }
         }
 
-        delete_coordsys( csold );
-        delete_coordsys( nw->geosys );
+        delete csold;
+        delete nw->geosys;
     }
 
     nw->crdsys = copy_coordsys( cs );
     nw->geosys = geosys;
-    define_coord_conversion( &nw->ccgeo, nw->crdsys, nw->geosys );
-    define_coord_conversion( &nw->ccnet, nw->geosys, nw->crdsys );
+    nw->ccgeo=coord_conversion( nw->crdsys, nw->geosys );
+    nw->ccnet=coord_conversion( nw->geosys, nw->crdsys );
 
-    if( nw->crdsysdef ) check_free(nw->crdsysdef);
-    nw->crdsysdef = copy_string( coordsys_load_code(cs) );
+    nw->crdsysdef = coordsys_load_code(cs);
 
     return OK;
 }
@@ -165,7 +163,7 @@ int add_station( network *nw, station *st )
 
     /* Make sure station is on the right ellipsoid */
 
-    modify_station_coords( st, st->ELat, st->ELon, st->OHgt, nw->crdsys->rf->el );
+    st->modify_coords( st->ELat, st->ELon, st->OHgt, *nw->crdsys->rf->el );
 
     sl_add_station( nw->stnlist, st );
 
@@ -176,20 +174,15 @@ int add_station( network *nw, station *st )
 
 
 station * new_network_station( network *nw,
-                               const char *code, const char *Name,
-                               double Lat, double Lon, double Hgt,
-                               double Xi, double Eta, double Und )
+                               const std::string_view code, const std::string_view Name,
+                               const double Lat, const double Lon, const double Hgt,
+                               const double Xi, const double Eta, const double Und )
 {
+    if( !nw->crdsys ) return nullptr;
 
-    station *st;
+    station *st = new station( code, Name, Lat, Lon, Hgt, Xi, Eta, Und, *nw->crdsys->rf->el );
 
-    if( !nw->crdsys ) return NULL;
-
-    st = new_station();
-
-    init_station( st, code, Name, Lat, Lon, Hgt, Xi, Eta, Und, nw->crdsys->rf->el );
-
-    init_station_classes( st, network_classification_count(nw) );
+    st->set_class_count( nw->classification_count() );
 
     add_station( nw, st );
 
@@ -197,35 +190,30 @@ station * new_network_station( network *nw,
 }
 
 station * duplicate_network_station( network *nw,
-        station *st, const char *newcode, const char *newname )
+        station *st, const std::string_view newcode, const std::string_view newname )
 {
+    if( !nw->crdsys ) return nullptr;
 
-    station *stnew;
+    station *stnew = new station( newcode, newname,
+            st->ELat, st->ELon, st->OHgt,
+            st->GXi, st->GEta, st->GUnd, *nw->crdsys->rf->el );
 
-    if( !nw->crdsys ) return NULL;
-
-    stnew = new_station();
-
-    init_station( stnew, newcode, newname, 
-            st->ELat, st->ELon, st->OHgt, 
-            st->GXi, st->GEta, st->GUnd, nw->crdsys->rf->el );
-
-    init_station_classes( stnew, network_classification_count(nw) );
+    stnew->set_class_count( nw->classification_count() );
 
     add_station( nw, stnew );
-    if( stnew->nclass == st->nclass )
+    if( stnew->classval.size() == st->classval.size() )
     {
-        memcpy( stnew->classval, st->classval, sizeof(int)*st->nclass);
+        stnew->classval = st->classval;
     }
 
-    return st;
+    return stnew;
 }
 
 
 void modify_network_station_coords( network *nw, station *st, double Lat,
                                     double Lon, double Hgt )
 {
-    modify_station_coords( st, Lat, Lon, Hgt, nw->crdsys->rf->el );
+    st->modify_coords( Lat, Lon, Hgt, *nw->crdsys->rf->el );
 }
 
 
@@ -268,7 +256,7 @@ int remove_duplicate_network_stations( network *nw, int reindex, void *data, stn
     return nremove ? INCONSISTENT_DATA : OK;
 }
 
-int find_station( network *nw, const char *code )
+int find_station( network *nw, std::string_view code )
 {
     if( !nw->stnlist ) return 0;
     return sl_find_station( nw->stnlist, code );
@@ -287,7 +275,7 @@ station *station_ptr( network *nw, int istn )
     return sl_station_ptr( nw->stnlist, istn );
 }
 
-int   find_station_sorted_id( network *nw, const char *code )
+int   find_station_sorted_id( network *nw, std::string_view code )
 {
     if( !nw->stnlist ) return 0;
     return sl_find_station_sorted_id( nw->stnlist, code );

@@ -55,28 +55,12 @@ static int em_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_em_projection( void )
 {
-    const char *code = "EM";
-    const char *name = "Equatorial Mercator";
-
-    projection_type em;
-
     if( em_type ) return;
 
-    em.code = code;
-    em.name = name;
-    em.size = sizeof(EMProjection);
-    em.params = emparams;
-    em.nparams = COUNT_OF(emparams);
-    em.create = NULL;
-    em.destroy = NULL;
-    em.copy = NULL;
-    em.identical = NULL;
-    em.bind_ellipsoid = em_bind_ellipsoid;
-    em.geog_to_proj = em_geog_to_proj;
-    em.proj_to_geog = em_proj_to_geog;
-    em.calc_sf_cv = NULL;
-
-    em_type = register_projection_type( &em );
+    em_type = register_projection_type( new projection_type(
+        "EM", "Equatorial Mercator", sizeof(EMProjection), emparams, COUNT_OF(emparams),
+        nullptr, nullptr, nullptr, em_bind_ellipsoid, nullptr,
+        em_geog_to_proj, em_proj_to_geog, nullptr ) );
 }
 
 projection *create_em_projection(  double cm, double sp )
@@ -86,8 +70,7 @@ projection *create_em_projection(  double cm, double sp )
     if( !em_type ) register_em_projection();
     if( !em_type ) return NULL;
 
-    prj = create_projection( em_type );
-    if( !prj ) return NULL;
+    prj = new projection( *em_type );
 
     define_EMProjection( (EMProjection *) prj->data, 6378388.0, 297.0,
                          cm, sp );

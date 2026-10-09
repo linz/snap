@@ -8,7 +8,9 @@
 
 */
 
-int define_error_summary( const char *definition );
+#include <string>
+
+int define_error_summary( const std::string &definition );
 void print_error_summary( FILE *lst );
 
 #endif

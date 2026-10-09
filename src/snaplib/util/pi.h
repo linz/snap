@@ -11,11 +11,14 @@
 
 /* Simply defines PI (from Abramowitz and Stegun Table 1.1) */
 
-#ifndef PI
-#define PI 3.1415926535898
-#define TWOPI (PI*2.0)
-#define DTOR (PI/180.0)
-#define RTOD (180.0/PI)
-#define STOR (PI/(180.0*60.0*60.0))
-#define RTOS (180.0*60.0*60.0/PI)
+#ifndef _PI_H
+#define _PI_H
+
+inline constexpr double PI = 3.1415926535898;
+inline constexpr double TWOPI = PI*2.0;
+inline constexpr double DTOR = PI/180.0;
+inline constexpr double RTOD = 180.0/PI;
+inline constexpr double STOR = PI/(180.0*60.0*60.0);
+inline constexpr double RTOS = 180.0*60.0*60.0/PI;
+
 #endif

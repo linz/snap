@@ -16,291 +16,125 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #include "util/pi.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
 
-void set_input_string_def( input_string_def *is, char *string )
+/// Reads the next field (quote-transparent) from scanner into field.
+/// \return OK with field set, NO_MORE_DATA if nothing non-whitespace is
+///         left (checked via a throwaway copy, since the real read must go
+///         through checkAndRecoverQuotedValue() for quote-transparency, not
+///         a plain next()), or MISSING_DATA on a malformed quote.
+static int read_next_field_status( FieldScanner &scanner, std::string_view &field )
 {
-    is->ptr = string;
-    is->buffer = string;
-    is->sourcename = 0;
-    is->source = NULL;
-    is->report_error = (input_string_errfunc) 0;
-}
-
-static int find_next_field( input_string_def *is )
-{
-    if( is->ptr ) while( ISSPACE(*is->ptr)) is->ptr++;
-    return is->ptr && *is->ptr ? OK : NO_MORE_DATA;
-}
-
-static int read_next_field( input_string_def *is, char **start, int *length )
-{
-    char *s;
-    int nxt;
-    int sts;
-
-    /* Skip over white space */
-
-    sts = find_next_field(is);
-    if( sts != OK ) return sts;
-
-    /* Is it a quoted string */
-
-    *length = 0;
-
-    s = is->ptr;
-    nxt = 0;
-
-    if( s[nxt] == '\"' )
     {
-        s++;
-        *start = s;
-        while( s[nxt] != '\"' && s[nxt] ) nxt++;
-        if( s[nxt] == '\"' )
-        {
-            *length = nxt;
-            is->ptr = s+nxt+1;
-            sts = OK;
-        }
-        else
-        {
-            *length = nxt-1;
-            is->ptr = s+nxt;
-            sts = MISSING_DATA;
-        }
+        FieldScanner probe = scanner;
+        if( ! probe.next() ) return NO_MORE_DATA;
     }
-    else
-    {
-        *start = s;
-        while( s[nxt] && !ISSPACE(s[nxt]) ) nxt++;
-        *length = nxt;
-        is->ptr = s+nxt;
-        sts = OK;
-    }
-
-    return sts;
-}
-
-
-int next_string_field( input_string_def *is, char *buf, int nbuf )
-{
-    int length;
-    char *start;
-    int sts;
-
-    sts = read_next_field( is, &start, &length );
-    if( sts != OK ) return sts;
-    if( length >= nbuf ) length = nbuf-1;
-    memcpy( buf, start, length );
-
-    buf[length] = 0;
+    auto f = scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+    if( ! f ) return MISSING_DATA;
+    field = *f;
     return OK;
 }
 
-int test_next_string_field( input_string_def *is, const char *test )
+int next_string_field( FieldScanner &scanner, std::string &field, const size_t maxlength )
 {
-    int length;
-    char *start;
-    double loc;
-    int sts;
+    std::string_view text;
+    const int sts = read_next_field_status( scanner, text );
+    if( sts == OK ) field.assign( text.substr( 0, maxlength ) );
+    return sts;
+}
 
-    loc = get_string_loc(is);
-    sts = read_next_field( is, &start, &length );
-    if( sts != OK ) return 0;
-    if( (int) strlen(test) == length && _strnicmp(test,start,length)==0 ) return 1;
-    set_string_loc(is,loc);
+int test_next_string_field( FieldScanner &scanner, std::string_view test )
+{
+    auto saved = scanner.remainder();
+    std::string_view field;
+    if( read_next_field_status( scanner, field ) != OK ) return 0;   // read failed - position already correctly left advanced (or unchanged), don't restore
+    if( boost::algorithm::iequals(field,test) ) return 1;
+    scanner = FieldScanner(saved);   // read fine but didn't match - restore
     return 0;
 }
 
-int skip_string_field( input_string_def *is )
+int double_from_string( FieldScanner &scanner, void *value )
 {
-    char *start;
-    int length;
-    return read_next_field( is, &start, &length );
-}
-
-int replace_next_field( input_string_def *is, const char *replacement )
-{
-    char *s, *e, *c;
-    char *start;
-    int length;
-    int sts;
-    int len=strlen(replacement);
-    s = is->ptr;
-    sts=read_next_field( is, &start, &length );
-    if( sts != OK ) return NO_MORE_DATA;
-    e = is->ptr;
-    if( e-s < len ) return TOO_MUCH_DATA;
-    strncpy(s,replacement,len);
-    for( c=s+len; c < e; c++ ) *c=' ';
-    is->ptr = s;
+    std::string_view field;
+    int sts = read_next_field_status( scanner, field );
+    if( sts != OK ) return sts;
+    auto parsed = parse_double( field );
+    if( ! parsed ) return INVALID_DATA;
+    *(double *)value = *parsed;
     return OK;
 }
 
-
-static int parse_number( input_string_def *is, const char *fmt, void *value )
+std::string_view unread_string( input_string_def &def )
 {
-    int length, nfld, sts;
-    char *fld, save, garbage;
-    sts = read_next_field( is, &fld, &length );
-    if( sts != OK )  return sts;
-
-    /* Put a NULL terminator at the end of the string */
-
-    save = fld[length];
-    fld[length] = 0;
-
-    nfld = sscanf( fld, fmt, value, &garbage );
-
-    fld[length] = save;
-
-    /* Determine the return status */
-
-    return nfld == 1 ? OK : INVALID_DATA;
+    return def.scanner.remainder();
 }
 
-
-int double_from_string( input_string_def *is, void *value )
+void report_string_error( input_string_def &def, int status, std::string_view message )
 {
-    return parse_number( is, "%lf%1s", value );
-}
-
-int float_string( input_string_def *is, void *value )
-{
-    return parse_number( is, "%f%1s", value );
-}
-
-int long_from_string( input_string_def *is, void *value )
-{
-    return parse_number( is, "%ld%1s", value );
-}
-
-int int_from_string( input_string_def *is, void *value )
-{
-    int ival;
-    int sts;
-    sts = parse_number( is, "%d%1s", &ival );
-    (*(int *)value) = ival;
-    return sts;
-}
-
-int short_from_string( input_string_def *is, void *value )
-{
-    int ival;
-    int sts;
-    sts = parse_number( is, "%hd%1s", &ival );
-    (*(short *)value) = ival;
-    return sts;
-}
-
-int character_from_string( input_string_def *is, void *cp )
-{
-    char *c = (char *) cp;
-    *c = is->ptr ? *(is->ptr) : 0;
-    if(*c) is->ptr++;
-    return *c ? 1 : 0;
-}
-
-long get_string_loc( input_string_def *is )
-{
-    return is->ptr - is->buffer;
-}
-
-void set_string_loc( input_string_def *is, long loc )
-{
-    if( loc >= 0 && loc <= (long) strlen(is->buffer) )
+    if( def.report_error )
     {
-        is->ptr = is->buffer + loc;
-    }
-}
-
-int end_of_string( input_string_def *is )
-{
-    return find_next_field( is ) ?  0 : 1;
-}
-
-char *unread_string( input_string_def *is )
-{
-    return is->ptr;
-}
-
-void report_string_error( input_string_def *is, int status, const char *message )
-{
-    if( is->report_error )
-    {
-        (*is->report_error)( is->source, status, message );
+        (*def.report_error)( def.source, status, message );
     }
 }
 
 /*================================================================*/
 
-int write_output_string( output_string_def *os, const char *s )
+int write_output_string( output_string_def *os, std::string_view s )
 {
     if( os->write ) return (*os->write)( s, os->sink );
     return FILE_WRITE_ERROR;
 }
 
-int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix )
+int write_output_string2( output_string_def *os, std::string_view s, int options, std::string_view prefix )
 {
     if( ! os->write ) return FILE_WRITE_ERROR;
-    const char *ptrs;
-    const char *ptre;
-    int triml = options & OSW_TRIML;
-    int trimr = options & OSW_TRIMR;
-    int skipblank = options & OSW_SKIPBLANK;
-    ptrs = s;
-    while( *ptrs )
+    const bool triml = options & OSW_TRIML;
+    const bool trimr = options & OSW_TRIMR;
+    const bool skipblank = options & OSW_SKIPBLANK;
+    size_t pos = 0;
+    while( pos < s.size() )
     {
-        const char *start;
-        int nch;
-        ptre=ptrs;
-        start=ptrs;
-        if( triml ) while( *start && *start != '\n' && ISSPACE(*start)) start++;
-        if( ! *start ) break;
-        if( *start == '\n' )
+        size_t start = pos;
+        size_t nch = 0;
+        if( triml ) while( start < s.size() && s[start] != '\n' && ISSPACE(s[start]) ) start++;
+        if( start >= s.size() ) break;
+        if( s[start] == '\n' )
         {
-            nch=0;
-            ptrs=start;
+            pos = start;
         }
         else
         {
-            nch=0;
-            ptre=start;
-            while( *ptre && *ptre != '\n' )
+            size_t end = start;
+            while( end < s.size() && s[end] != '\n' )
             {
-                if( ! ISSPACE(*ptre) ) nch=ptre-start+1;
-                ptre++;
+                if( ! ISSPACE(s[end]) ) nch = end - start + 1;
+                end++;
             }
-            if( ! trimr ) nch=ptre-start;
-            ptrs = ptre;
+            if( ! trimr ) nch = end - start;
+            pos = end;
         }
         if( nch > 0 || ! skipblank )
         {
-            if( nch && prefix ) write_output_string(os,prefix);
-            while( nch > 0 )
+            if( nch > 0 )
             {
-                char buffer[33];
-                int ncopy = nch > 32 ? 32 : nch;
-                strncpy( buffer,start,ncopy );
-                buffer[ncopy]=0;
-                write_output_string(os,buffer);
-                start += ncopy;
-                nch -= ncopy;
+                write_output_string( os, prefix );
+                write_output_string( os, s.substr( start, nch ) );
             }
-            write_output_string(os,"\n");
+            write_output_string( os, "\n" );
         }
-        if( *ptrs ) ptrs++;
+        if( pos < s.size() ) pos++;
     }
     return 0;
 }
 
-static int sfputs( const char *s, void *f )
+static int sfputs( std::string_view s, void *f )
 {
-    return (int) fputs( s, (FILE *) f );
+    return fwrite( s.data(), 1, s.size(), static_cast<FILE *>( f ) ) == s.size() ? 0 : FILE_WRITE_ERROR;
 }
 
 void output_string_to_file( output_string_def *os, FILE *f )

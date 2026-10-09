@@ -14,6 +14,9 @@
 #ifndef _STNADJ_H
 #define _STNADJ_H
 
+#include <optional>
+#include <string>
+
 #ifndef _NETWORK_H
 #include "network/network.h"
 #endif
@@ -31,7 +34,7 @@
    and holds a long integer which is a handle to the name of the
    file (implementation of names to be sorted out!) */
 
-typedef struct
+struct stn_adjustment
 {
     double  initELat;  /* Initial coordinates */
     double  initELon;
@@ -57,18 +60,23 @@ typedef struct
         unsigned auto_h:1;
         unsigned auto_v:1;
     } flag;         /* Flags defining what is to be adjusted */
-} stn_adjustment;
+};
 
 enum { STN_FORMAT_SNAP, STN_FORMAT_GB, STN_FORMAT_CSV };
 
+/// The coordinate file the network was first read from.
+struct StationFile
+{
+    const std::string filename; ///< The name of the file as it was specified
+    const std::string filespec; ///< The name of the file as it was located, which may include the directory it was found in
+};
+
 extern network *net;
 extern stn_recode_map *stnrecode;
-extern char *station_filename;
-extern char *station_filespec;
-extern char *output_station_filespec;
+extern std::optional<StationFile> station_file;
+extern std::string output_station_filespec;
 extern int station_filetype;
-extern char *station_fileoptions;
-extern char *geoid_file;
+extern std::optional<std::string> geoid_file;
 extern char overwrite_geoid;
 extern int geoid_error_level;
 
@@ -78,10 +86,13 @@ extern int geoid_error_level;
 #define ignored_station(istn)  (istn && stnadj(stnptr(istn))->flag.ignored)
 #define station_code(istn) (station_ptr(net,(istn))->Code)
 
-int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts, double mergedate );
-void set_output_station_file( const char *fname );
-int write_station_file( const char *prog, const char *fname, const char *ver, const char *rtime,
-                        int coord_precision, char rejected );
+int read_station_file( const std::string &fname, const std::string &base_dir, int format, const std::string &options, int mergeopts, double mergedate );
+void set_output_station_file( const std::string &fname );
+/// Writes the network to a station file. A missing fname is replaced by the output station file,
+/// a missing ver by the program version and a missing rtime by the current time.
+int write_station_file( const std::optional<std::string> &prog, const std::optional<std::string> &fname,
+                        const std::optional<std::string> &ver, const std::optional<std::string> &rtime,
+                        int coord_precision, bool rejected );
 void set_stnadj_init_network( void );
 void reset_stnadj_initial_coords( void );
 

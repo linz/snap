@@ -29,40 +29,36 @@ The coordinate system file is located in one of the following places.
 #include "coordsys/lambertr.h"
 #include "coordsys/psprojr.h"
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 
-const char *get_default_crdsys_file()
+std::optional<std::string> get_default_crdsys_file()
 {
-    const char *filename;
     install_default_projections();
 
     /* Try for an environment variable definition */
 
-    filename = getenv(CRDSYSENV);
-    if( ! filename )
-    {
-        /* Now try the user and system configuration directories  */
-        filename = find_file(CRDSYSFILE,0,0,FF_TRYALL,COORDSYS_CONFIG_SECTION);
-    }
-    return filename;
+    const char *envfile = getenv(CRDSYSENV);
+    if( envfile ) return std::string(envfile);
+
+    /* Now try the user and system configuration directories  */
+    return find_file(CRDSYSFILE,"",std::nullopt,FF_TRYALL,COORDSYS_CONFIG_SECTION);
 }
 
 int install_default_crdsys_file()
 {
-    const char *filename=get_default_crdsys_file();
+    auto filename=get_default_crdsys_file();
     if( ! filename )  return FILE_OPEN_ERROR;
     install_default_projections();
-    return install_crdsys_file( filename );
+    return install_crdsys_file( *filename );
 }
 
-const char *find_coordsys_data_file( const char *filename,const char *extension )
+std::optional<std::string> find_coordsys_data_file( const std::string &filename, const std::string &extension )
 {
-    const char *found;
-    found = find_file(filename,extension,0,FF_TRYALL,0);
-    if( ! found ) found=get_crdsys_file(filename,extension);
-    if( ! found ) found = find_file(filename,extension,0,0,COORDSYS_CONFIG_SECTION);
-    return found;
+    auto found = find_file(filename,extension,std::nullopt,FF_TRYALL,"");
+    if( found ) return found;
+    found = get_crdsys_file(filename,extension);
+    if( found ) return found;
+    return find_file(filename,extension,std::nullopt,FF_TRYNONE,COORDSYS_CONFIG_SECTION);
 }
 
 

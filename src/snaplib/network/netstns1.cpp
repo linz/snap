@@ -10,22 +10,29 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cstddef>
+#include <utility>
 
 #include "network/network.h"
 #include "network/stnoffset.h"
 #include "util/dstring.h"
-#include "util/chkalloc.h"
 #include "util/binfile.h"
 
+#include <boost/numeric/conversion/cast.hpp>
+
+using boost::numeric_cast;
+
 // Single source of truth for the fixed-width on-disk station layout.
-// Excludes the four trailing pointers: classval, Name, ts, hook.
-// Each is already handled separately below. classval is a raw int
-// array sized by nclass. Name goes through dump_string/reload_string.
-// ts goes through dump_station_offset/reload_station_offset. hook is
-// a void pointer to scratch space defined at runtime, so there's
-// nothing meaningful to write for it - it's never serialized at all.
+// Excludes classval (a std::vector<int>), Name (a variable-length
+// std::string) and the two trailing pointers (ts, hook). Each is already
+// handled separately below. The class values are written after the fixed
+// block as a 32 bit count followed by the values, so the file has the same
+// bytes as when the count was a member of station. Name goes through
+// dump_string/reload_string. ts goes through
+// dump_station_offset/reload_station_offset. hook is a void pointer to
+// scratch space defined at runtime, so there's nothing meaningful to
+// write for it - it's never serialized at all.
 //
-// All four pointers sit contiguously at the end of the struct, after
+// All four fields sit contiguously at the end of the struct, after
 // every field tracked here. Unlike rftrndmp.cpp's table, there's no
 // interior gap to skip when checking contiguity below.
 //
@@ -56,7 +63,7 @@
 // Uses DiskField (util/binfile.h) and has external linkage via the
 // `extern` declarations in network.h - see the comment there.
 constexpr DiskField STATION_DISK_FIELDS[] = {
-    { FieldKind::Int8,    offsetof(station, Code),  sizeof(station::Code) / sizeof(station::Code[0]) },
+    { FieldKind::Int8,    offsetof(station, Code),  sizeof(StationCode) },
     { FieldKind::Int32,   offsetof(station, id),    1 },
     { FieldKind::Float64, offsetof(station, ELat),  1 },
     { FieldKind::Float64, offsetof(station, ELon),  1 },
@@ -69,7 +76,6 @@ constexpr DiskField STATION_DISK_FIELDS[] = {
     { FieldKind::Float64, offsetof(station, rGrav), sizeof(station::rGrav) / sizeof(double) },
     { FieldKind::Float64, offsetof(station, dNdLt), 1 },
     { FieldKind::Float64, offsetof(station, dEdLn), 1 },
-    { FieldKind::Int32,   offsetof(station, nclass), 1 },
 };
 constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof(STATION_DISK_FIELDS[0]);
 
@@ -77,7 +83,7 @@ constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof
 // memory layout. Uses the same rounded-up-to-next-alignment check as
 // survdata_disk_fields_contiguous() in bindata.cpp. Every consecutive
 // pair in this table is checked - there's no interior exclusion to
-// skip, unlike rftrndmp.cpp's table. The last tracked field (nclass)
+// skip, unlike rftrndmp.cpp's table. The last tracked field (dEdLn)
 // must, by the same rule, be immediately followed by the first
 // excluded member (classval).
 static constexpr bool station_disk_fields_contiguous()
@@ -128,24 +134,21 @@ static void read_station_fixed_width( FILE *f, station &st )
 // rebuilds a fresh stn_offset and points st->ts at that instead.
 static void dump_station_offset( station *st, FILE *f )
 {
-    stn_offset *sto=(stn_offset *)(st->ts);
-    int ncomp=0;
-    if( sto )
-    {
-        for( stn_offset_comp *comp=sto->components; comp; comp=comp->next ) ncomp++;
-    }
+    const stn_offset *sto=static_cast<const stn_offset *>( st->ts );
+    const int ncomp = sto ? boost::numeric_cast<int>( sto->components.size() ) : 0;
     fwrite( &ncomp, sizeof(int), 1, f );
     if( ! ncomp ) return;
     fwrite( &(sto->isdeformation), sizeof(int), 1, f );
-    for( stn_offset_comp *comp=sto->components; comp; comp=comp->next )
+    for( const stn_offset_comp &comp : sto->components )
     {
-        fwrite(&(comp->mode),sizeof(int),1,f);
-        fwrite(&(comp->isxyz),sizeof(int),1,f);
-        fwrite(&(comp->ntspoints),sizeof(int),1,f);
-        fwrite(&(comp->basepoint),sizeof(stn_tspoint),1,f);
-        if( comp->ntspoints )
+        const int ntspoints = boost::numeric_cast<int>( comp.tspoints.size() );
+        fwrite(&(comp.mode),sizeof(int),1,f);
+        fwrite(&(comp.isxyz),sizeof(int),1,f);
+        fwrite(&ntspoints,sizeof(int),1,f);
+        fwrite(&(comp.basepoint),sizeof(stn_tspoint),1,f);
+        if( ntspoints )
         {
-            fwrite(comp->tspoints,sizeof(stn_tspoint),comp->ntspoints,f);
+            fwrite(comp.tspoints.data(),sizeof(stn_tspoint),comp.tspoints.size(),f);
         }
     }
 }
@@ -163,41 +166,38 @@ static void reload_station_offset( station *st, FILE *f )
     while( ncomp-- )
     {
         int mode, isxyz, ntspoints;
-        stn_offset_comp *sto;
         fread(&mode,sizeof(int),1,f);
         fread(&isxyz,sizeof(int),1,f);
         fread(&ntspoints,sizeof(int),1,f);
-        sto=create_stn_offset_comp(mode,isxyz,ntspoints);
-        fread(&(sto->basepoint),sizeof(stn_tspoint),1,f);
+        stn_offset_comp comp( mode, isxyz, boost::numeric_cast<size_t>( ntspoints ) );
+        fread(&(comp.basepoint),sizeof(stn_tspoint),1,f);
         if( ntspoints > 0 )
         {
-            fread(sto->tspoints,sizeof(stn_tspoint),ntspoints,f);
+            fread(comp.tspoints.data(),sizeof(stn_tspoint),ntspoints,f);
         }
-        add_stn_offset_comp_to_station( st, sto, isdef );
+        add_stn_offset_comp_to_station( st, std::move( comp ), isdef );
     }
 }
 
 void dump_station( station *st, FILE *f )
 {
     write_station_fixed_width( *st, f );
-    if( st->nclass > 0 ) fwrite( st->classval, sizeof(int), st->nclass, f );
+    write_disk_field( f, FieldKind::Int32, numeric_cast<int>( st->classval.size() ) );
+    if( !st->classval.empty() ) fwrite( st->classval.data(), sizeof(int), st->classval.size(), f );
     dump_station_offset( st, f );  // handle ts
     dump_string( st->Name, f );
 }
 
 station *reload_station( FILE *f )
 {
-    station *st;
-    int nclass;
-    st = new_station();
+    station *st = new station;
     read_station_fixed_width( f, *st );
-    nclass = st->nclass;
+    int nclass = 0;
+    read_disk_field( f, FieldKind::Int32, nclass );
     if( nclass > 0 )
     {
-        st->nclass = 0;
-        st->classval = 0;
-        init_station_classes( st, nclass );
-        fread( st->classval, sizeof(int), nclass,f );
+        st->set_class_count( nclass );
+        fread( st->classval.data(), sizeof(int), st->classval.size(), f );
     }
     reload_station_offset( st, f );  // reconstruct ts
     st->Name = reload_string( f );

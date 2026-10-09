@@ -45,10 +45,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <string>
+#include <vector>
+
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "dbl4_utl_trig.h"
 
-#include "dbl4_utl_alloc.h"
 #include "dbl4_utl_error.h"
 
 /* Maximum number of rows stored in triangle block cache */
@@ -66,13 +69,13 @@
 	  id 0 implies that there is no opposite triangle node, and a surrounding node id of 0 implies
 	  a break in the triangulation (ie the boundary of the triangulation). */
 
-typedef struct
+struct TrigDef
 {
     INT4 magic;
-    char *desc1;
-    char *desc2;
-    char *desc3;
-    char *crdsys;
+    std::string desc1;   // Description lines, only written to the trace output
+    std::string desc2;
+    std::string desc3;
+    std::string crdsys;  // Coordinate system code, only written to the trace output
     double maxy;
     double miny;
     double maxx;
@@ -80,13 +83,14 @@ typedef struct
     short npts;
     short ndim;
     INT4 narray;
-    double *ptxy;
-    double *ptdata;
-    INT4 *pttopoidx;
-    INT2 *topodata;
-} TrigDef, *hTrigDef;
+    std::vector<double> ptxy;
+    std::vector<double> ptdata;
+    std::vector<INT4> pttopoidx;
+    std::vector<INT2> topodata;
+};
+typedef TrigDef *hTrigDef;
 
-typedef struct
+struct PointDef
 {
     short id;
     short nnode;
@@ -94,13 +98,15 @@ typedef struct
     double *data;
     short *nodeid;
     short *opposite;
-} PointDef, *hPointDef;
+};
+typedef PointDef *hPointDef;
 
 
-typedef struct
+struct TriangleDef
 {
     PointDef pts[3];
-} TriangleDef, *hTriangleDef;
+};
+typedef TriangleDef *hTriangleDef;
 
 
 /*************************************************************************
@@ -127,7 +133,7 @@ static short find_nearest( hTrigDef trig, double ptx, double pty )
     double x0,x1;
     short i0,i1,im;
 
-    double *xy = trig->ptxy;
+    const double *xy = trig->ptxy.data();
     int npts = trig->npts;
 
     /* Use bisection to determine the immediately lower node in terms
@@ -232,9 +238,9 @@ static hPointDef get_point( hTrigDef trig, int npt, hPointDef pt )
     short *ptr;
     pt->id = npt;
     npt--;
-    pt->xy = trig->ptxy+2*npt;
-    pt->data = trig->ptdata+trig->ndim*npt;
-    ptr = trig->topodata + trig->pttopoidx[npt];
+    pt->xy = trig->ptxy.data()+2*npt;
+    pt->data = trig->ptdata.data()+trig->ndim*npt;
+    ptr = trig->topodata.data() + trig->pttopoidx[npt];
     pt->nnode = *ptr;
     ptr++;
     pt->nodeid = ptr;
@@ -486,47 +492,7 @@ static StatusType calc_triangle_value( hTrigDef trig, double x, double y,
 static void delete_trig_def( hTrigDef trig)
 {
     trig->magic = 0;
-    if( trig->desc1 )
-    {
-        utlFree( trig->desc1 );
-        trig->desc1 = 0;
-    }
-    if( trig->desc2 )
-    {
-        utlFree( trig->desc2 );
-        trig->desc2 = 0;
-    }
-    if( trig->desc3 )
-    {
-        utlFree( trig->desc3 );
-        trig->desc3 = 0;
-    }
-    if( trig->crdsys )
-    {
-        utlFree( trig->crdsys );
-        trig->crdsys = 0;
-    }
-    if( trig->ptdata )
-    {
-        utlFree( trig->ptdata );
-        trig->ptdata = 0;
-    }
-    if( trig->ptxy )
-    {
-        utlFree( trig->ptxy );
-        trig->ptxy = 0;
-    }
-    if( trig->pttopoidx )
-    {
-        utlFree( trig->pttopoidx );
-        trig->pttopoidx = 0;
-    }
-    if( trig->topodata )
-    {
-        utlFree( trig->topodata );
-        trig->topodata = 0;
-    }
-    utlFree( trig );
+    delete trig;
 }
 
 
@@ -549,7 +515,7 @@ static int check_header( hBinSrc binsrc)
     char buf[80];
     INT4 len;
     int version;
-    int big_endian=0;
+    Endian endian = Endian::Little;
     version = 0;
     len = strlen( TRGDAT_FILE_HEADER_1 );
     if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) return 0;
@@ -557,14 +523,14 @@ static int check_header( hBinSrc binsrc)
     if(  memcmp( buf, TRGDAT_FILE_HEADER_1, len ) == 0 )
     {
         version = 1;
-        big_endian = 0;
+        endian = Endian::Little;
     }
     else if(  memcmp( buf, TRGDAT_FILE_HEADER_2, len ) == 0 )
     {
         version = 1;
-        big_endian = 1;
+        endian = Endian::Big;
     }
-    utlBinSrcSetBigEndian( binsrc, big_endian );
+    utlBinSrcSetEndian( binsrc, endian );
 
     return version;
 }
@@ -605,38 +571,26 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
         RETURN_STATUS(STS_INVALID_DATA);
     }
 
-    /*> Allocate a TrigDef object with utlAlloc */
+    /*> Allocate and initialise a TrigDef object */
 
-    trig = (hTrigDef) utlAlloc( sizeof( TrigDef ) );
-    if( ! trig ) RETURN_STATUS(STS_ALLOC_FAILED);
-
-    /*> Initialise the object */
-
-    trig->desc1 = 0;
-    trig->desc2 = 0;
-    trig->desc3 = 0;
-    trig->crdsys = 0;
-    trig->ptxy = 0;
-    trig->ptdata = 0;
-    trig->pttopoidx = 0;
-    trig->topodata = 0;
+    trig = new TrigDef();
     sts = STS_OK;
 
     /*> Load the triangulation descriptive information */
 
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(trig->desc1) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->desc1 );
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(trig->desc2) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->desc2 );
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(trig->desc3) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->desc3 );
     if( sts == STS_OK )
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(trig->crdsys) );
+        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->crdsys );
 
-    TRACE_TRIG(("create_trig_def: desc1      %s",trig->desc1));
-    TRACE_TRIG(("create_trig_def: desc2      %s",trig->desc2));
-    TRACE_TRIG(("create_trig_def: desc3      %s",trig->desc3));
-    TRACE_TRIG(("create_trig_def: crdsys     %s",trig->crdsys));
+    TRACE_TRIG(("create_trig_def: desc1      %s",trig->desc1.c_str()));
+    TRACE_TRIG(("create_trig_def: desc2      %s",trig->desc2.c_str()));
+    TRACE_TRIG(("create_trig_def: desc3      %s",trig->desc3.c_str()));
+    TRACE_TRIG(("create_trig_def: crdsys     %s",trig->crdsys.c_str()));
 
     /*> Load the index data from the binary source with utlBinSrcLoad8,
         utlBinSrcLoad4, utlBinSrcLoad2, and utlBinSrcLoadString */
@@ -681,32 +635,17 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
 
     if( sts == STS_OK )
     {
-        trig->ptxy = (double *) utlAlloc( 2 * trig->npts * sizeof(double) );
-        if( !trig->ptxy ) SET_STATUS(sts,STS_ALLOC_FAILED);
+        const size_t npts = boost::numeric_cast<size_t>( trig->npts );
+        trig->ptxy.resize( 2 * npts );
+        trig->ptdata.resize( boost::numeric_cast<size_t>( trig->ndim ) * npts );
+        trig->pttopoidx.resize( npts );
+        trig->topodata.resize( boost::numeric_cast<size_t>( trig->narray ) );
     }
 
-    if( sts == STS_OK )
-    {
-        trig->ptdata = (double *) utlAlloc( trig->ndim * trig->npts * sizeof(double) );
-        if( !trig->ptdata ) SET_STATUS(sts,STS_ALLOC_FAILED);
-    }
-
-    if( sts == STS_OK )
-    {
-        trig->pttopoidx = (INT4 *) utlAlloc( trig->npts * sizeof(INT4) );
-        if( !trig->pttopoidx ) SET_STATUS(sts,STS_ALLOC_FAILED);
-    }
-
-    if( sts == STS_OK )
-    {
-        trig->topodata = (INT2 *) utlAlloc( trig->narray * sizeof(INT2));
-        if( !trig->topodata ) SET_STATUS(sts,STS_ALLOC_FAILED);
-    }
-
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 2*trig->npts, (void *) (trig->ptxy) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, trig->ndim*trig->npts, (void *) (trig->ptdata) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, trig->npts, (void *) (trig->pttopoidx) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, trig->narray, (void *) (trig->topodata) );
+    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 2*trig->npts, (void *) (trig->ptxy.data()) );
+    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, trig->ndim*trig->npts, (void *) (trig->ptdata.data()) );
+    if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, trig->npts, (void *) (trig->pttopoidx.data()) );
+    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, trig->narray, (void *) (trig->topodata.data()) );
 
     if( sts != STS_OK )
     {
@@ -825,68 +764,6 @@ StatusType utlTrigVectorDimension( hTrig trig, int *dimension)
 
 
 /*************************************************************************
-** Function name: utlTrigCoordSysDef
-**//**
-**       Returns a coordinate system code stored in the trig.  This is not
-**       particularly relevant to CRS as it is currently defined.
-**
-**  \param trig                The trig handle
-**  \param crdsys              Returns a pointer to the string
-**
-**  \return                    Return status
-**
-**************************************************************************
-*/
-
-StatusType utlTrigCoordSysDef( hTrig trig, char** crdsys)
-{
-    hTrigDef def;
-    def = trig_def_from_handle( trig );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
-    *crdsys = def->crdsys;
-    return STS_OK;
-}
-
-
-/*************************************************************************
-** Function name: utlTrigTitle
-**//**
-**       Returns one of up to three lines of text defined with the trig.
-**       Generally used for descriptive information about the trig.
-**
-**  \param trig                The trig handle
-**  \param nTitle              The number of the text required (1-3)
-**  \param title               Returns a pointer to the text
-**
-**  \return                    Return status
-**
-**************************************************************************
-*/
-
-StatusType utlTrigTitle( hTrig trig, int nTitle, char** title)
-{
-    hTrigDef def;
-    def = trig_def_from_handle( trig );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
-    *title = 0;
-    switch( nTitle )
-    {
-    case 1:
-        *title = def->desc1;
-        break;
-    case 2:
-        *title = def->desc2;
-        break;
-    case 3:
-        *title = def->desc3;
-        break;
-    default:
-        RETURN_STATUS(STS_INVALID_DATA);
-    }
-    return STS_OK;
-}
-
-/*************************************************************************
 ** Function name: utlCalcTrig
 **//**
 **       Calculates the value at a location within the trig using bilinear
@@ -920,63 +797,3 @@ StatusType utlCalcTrig( hTrig trig, double x, double y, double *value)
 
     return sts;
 }
-
-
-/*
-
-#define PRINT(x) (*printfunc)(obj,x)
-
-StatusType utlDumpTrig( hTrig trig, void *obj, void (*printfunc)( void *obj, const char *s ) )
-{
-    hTrigDef def;
-    char buf[256];
-    int i, j;
-    double *xy, *data;
-
-    def = trig_def_from_handle( trig );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
-
-    PRINT("Desc1:  ");
-    PRINT( def->desc1 );
-    PRINT("\n");
-    PRINT("Desc2:  ");
-    PRINT( def->desc2 );
-    PRINT("\n");
-    PRINT("Desc3:  ");
-    PRINT( def->desc3 );
-    PRINT("\n");
-    PRINT("Crdsys: ");
-    PRINT( def->crdsys );
-    PRINT("\n");
-    sprintf(buf,"Points: %d\nDimension: %d\n",def->npts,def->ndim);
-    PRINT(buf);
-    for( i = 1, xy = def->ptxy, data=def->ptdata; i <= def->npts; i++, xy+=2 )
-    {
-        sprintf(buf,"Point: %4d %12.6lf %12.6lf",i,xy[0],xy[1]);
-        PRINT(buf);
-        for( j = 0; j < def->ndim; j++ )
-        {
-            sprintf(buf," %12.6lf",*data++);
-            PRINT(buf);
-        }
-        PRINT("\n");
-    }
-    for( i = 1; i <= def->npts; i++ )
-    {
-        INT4 idx = def->pttopoidx[i-1];
-        short *s = def->topodata+idx;
-        short *nd = s+1;
-        short *op = nd+s[0];
-
-        sprintf(buf,"Topology: %4d at %5ld, %d nodes: ",i,(long) idx,(int)s[0]);
-        PRINT(buf);
-        for( j = 0; j < s[0]; j++ )
-        {
-            sprintf(buf," %d -<%d>-",(int) nd[j], (int) op[j]);
-            PRINT(buf);
-        }
-        PRINT("\n");
-    }
-    return STS_OK;
-}
-*/

@@ -1,6 +1,8 @@
 #ifndef SNAPPLOT_STATIONLIST_HPP
 #define SNAPPLOT_STATIONLIST_HPP
 
+#include <string>
+
 #include "wxtabbedtextgrid.hpp"
 
 class SnapplotStationSource : public wxTabbedTextSource
@@ -8,9 +10,9 @@ class SnapplotStationSource : public wxTabbedTextSource
 public:
     SnapplotStationSource();
     ~SnapplotStationSource();
-    virtual char *GetHeader();
+    virtual std::string GetHeader();
     virtual int GetRowCount();
-    virtual char *GetRow( int i );
+    virtual std::string GetRow( int i );
 };
 
 class SnapplotStationList : public wxTabbedTextGrid

@@ -8,7 +8,7 @@
 
 */
 
-typedef struct
+struct ErrorScaleDef
 {
     char aPost;
     char stdErr;
@@ -17,7 +17,7 @@ typedef struct
     double vrt_factor;
     char hor_auto;
     char vrt_auto;
-} ErrorScaleDef;
+};
 
 #ifdef __cplusplus
 //extern "C"

@@ -10,25 +10,43 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <new>
 #include "coordsys/crdsys_prj.h"
-#include "util/chkalloc.h"
 
-projection *create_projection(  projection_type *type )
+projection::projection( projection_type &projtype ) : type( &projtype ), data( nullptr )
 {
-    projection *prj;
-    if( !type ) return NULL;
-    prj = (projection *) check_malloc( sizeof(projection) );
-    prj->type = type;
-    prj->data = NULL;
-    if( prj->type->create)
+    if( type->create )
     {
-        prj->data = (*prj->type->create)();
+        data = (*type->create)();
     }
-    else if ( prj->type->size )
+    else if ( type->size )
     {
-        prj->data = check_malloc( prj->type->size );
+        data = ::operator new( type->size );
     }
-    return prj;
+}
+
+projection::projection( const projection &other ) : projection( *other.type )
+{
+    if( type->copy )
+    {
+        (*type->copy)( data, other.data );
+    }
+    else if( type->size )
+    {
+        memcpy( data, other.data, type->size );
+    }
+}
+
+projection::~projection()
+{
+    if( type->destroy && data )
+    {
+        (*type->destroy)( data );
+    }
+    else if( type->size && data )
+    {
+        ::operator delete( data );
+    }
 }
 
 void set_projection_ellipsoid( projection *prj, ellipsoid *el )
@@ -38,41 +56,6 @@ void set_projection_ellipsoid( projection *prj, ellipsoid *el )
         (*prj->type->bind_ellipsoid)( prj->data, el );
     }
 }
-
-void delete_projection( projection *prj )
-{
-    if( !prj ) return;
-    if( prj->type->destroy && prj->data )
-    {
-        (*prj->type->destroy)( prj->data );
-    }
-    else if( prj->type->size && prj->data )
-    {
-        check_free( prj->data );
-    }
-    check_free( prj );
-}
-
-projection *copy_projection( projection *prj )
-{
-    projection *newprj;
-
-    if( prj == NULL ) return NULL;
-
-    newprj = create_projection( prj->type );
-    if( !newprj ) return newprj;
-
-    if( prj->type->copy )
-    {
-        (*prj->type->copy)( newprj->data, prj->data );
-    }
-    else if( prj->type->size )
-    {
-        memcpy( newprj->data, prj->data, prj->type->size );
-    }
-    return newprj;
-}
-
 
 int identical_projections( projection *prj1, projection *prj2 )
 {

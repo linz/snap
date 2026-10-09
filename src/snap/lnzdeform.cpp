@@ -1,12 +1,14 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <optional>
+#include <string>
+#include <string_view>
 
 #include "snap/snapglob.h"
 #include "snap/deform.h"
 #include "snap/stnadj.h"
 #include "coordsys/coordsys.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
@@ -19,23 +21,23 @@
 #include "dbl4_utl_lnzdef.h"
 #include "dbl4_utl_error.h"
 
-typedef struct
+struct StationDeformation
 {
     double x, y;
     double y0def[3];
     double year;
     double def[3];
-} StationDeformation;
+};
 
 
-typedef struct
+struct LinzDefModel
 {
     hBlob blob;
     hBinSrc binsrc;
     hLinzDefModel linzdef;
     double epoch;
     StationDeformation *stdefs;
-} LinzDefModel;
+};
 
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */
@@ -44,33 +46,32 @@ typedef struct
 
 static void delete_linzdefmodel( LinzDefModel *model )
 {
-    if( model == NULL ) return;
+    if( model == nullptr ) return;
     if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
     if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
-    if( model->linzdef ) { utlBlobClose(model->blob); model->blob = NULL; }
-    if( model->stdefs ) { check_free(model->stdefs); model->stdefs = NULL; }
-    check_free(model);
+    if( model->blob ) { utlBlobClose(model->blob); model->blob = NULL; }
+    delete [] model->stdefs;
+    delete model;
 }
 
-static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
+static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch )
 {
-    const char *deffile;
     LinzDefModel *model;
     int sts;
 
     model = NULL;
 
-    deffile = find_coordsys_data_file( pmodel, ".ldm" );
+    auto deffile = find_coordsys_data_file( pmodel, ".ldm" );
     if( !deffile ) return NULL;
 
-    model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));
+    model = new LinzDefModel;
     model->blob = NULL;
     model->binsrc = NULL;
     model->linzdef = NULL;
     model->epoch = pepoch;
     model->stdefs = NULL;
 
-    sts = utlCreateReadonlyFileBlob( deffile, &(model->blob) );
+    sts = utlCreateReadonlyFileBlob( *deffile, &(model->blob) );
     if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
     if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
 
@@ -84,7 +85,7 @@ static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
 
 static int init_linzdef_deformation( void *deformation )
 {
-    char *vcsdef;
+    std::string_view vcsdef;
     coordsys *vcs;
     coord_conversion tovcs;
     double factor;
@@ -97,20 +98,21 @@ static int init_linzdef_deformation( void *deformation )
 
     if( ! model ) return OK;
 
-    sts = utlLinzDefCoordSysDef(model->linzdef,&vcsdef);
+    sts = utlLinzDefCoordSysDef(model->linzdef,vcsdef);
     if( sts != STS_OK ) return INVALID_DATA;
 
     vcs = load_coordsys( vcsdef );
     if( !vcs )
     {
-        sprintf( buf,"Cannot load deformation model coordinate system %.20s",vcsdef);
+        sprintf( buf,"Cannot load deformation model coordinate system %.20s",std::string(vcsdef.substr(0,20)).c_str());
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
-    if( define_coord_conversion( &tovcs, net->geosys, vcs ) != OK )
+    tovcs = coord_conversion( net->geosys, vcs );
+    if( ! tovcs.valid )
     {
         sprintf(buf,"Cannot convert station coordinates to coordinate system %.20s of deformation model",
-                vcs->code);
+                vcs->code.c_str());
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
@@ -119,7 +121,7 @@ static int init_linzdef_deformation( void *deformation )
     /* Allocate space for a set of deformation parameters.. */
 
     nstns = number_of_stations( net );
-    stdefs = (StationDeformation *) check_malloc( sizeof(StationDeformation) * (nstns+1) );
+    stdefs = new StationDeformation[nstns+1];
     model->stdefs = stdefs;
 
     /* For each station calculate the velocity */
@@ -138,7 +140,7 @@ static int init_linzdef_deformation( void *deformation )
         if( convert_coords( &tovcs, xyz, NULL, xyz, NULL ) != OK )
         {
             sprintf(buf,"Cannot convert coordinates of %.20s to deformation model coordinate system %.20s",
-                    st->Code, vcs->code);
+                    st->Code.c_str(), vcs->code.c_str());
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -154,7 +156,7 @@ static int init_linzdef_deformation( void *deformation )
             if( sts != STS_OK )
             {
                 sprintf(buf,"Cannot calculate deformation of %.20s at date %.1lf",
-                        st->Code, model->epoch);
+                        st->Code.c_str(), model->epoch);
                 handle_error(WARNING_ERROR,buf,NO_MESSAGE);
                 return INVALID_DATA;
             }
@@ -163,7 +165,7 @@ static int init_linzdef_deformation( void *deformation )
     }
 
     /* Release resource held by grid now that we have all values from it! */
-    delete_coordsys( vcs );
+    delete vcs;
     return OK;
 }
 
@@ -191,7 +193,7 @@ static int calc_linzdef_deformation( void *deformation, station *st, double date
         if( sts != STS_OK )
         {
             sprintf(buf,"Cannot calculate deformation of %.20s at %.1lf",
-                    st->Code,year);
+                    st->Code.c_str(),year);
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -210,9 +212,9 @@ static int calc_linzdef_deformation( void *deformation, station *st, double date
 
 /* Describe the deformation model in an output file */
 
-static int print_linzdef( void *deformation, FILE *out, const char *prefix )
+static int print_linzdef( void *deformation, FILE *out, const std::string_view prefix )
 {
-    char *title;
+    std::optional<std::string_view> title;
     int i;
     int sts;
     LinzDefModel *model = (LinzDefModel *) deformation;
@@ -220,12 +222,12 @@ static int print_linzdef( void *deformation, FILE *out, const char *prefix )
 
     for( i = 1; i <= 3; i++ )
     {
-        sts = utlLinzDefTitle( model->linzdef, i, &title );
-        if( sts == STS_OK && title && title[0])
+        sts = utlLinzDefTitle( model->linzdef, i, title );
+        if( sts == STS_OK && title && ! title->empty() )
         {
-            fputs(prefix,out);
+            fwrite( prefix.data(), 1, prefix.size(), out );
             if( i == 3 ) fputs("Version: ",out);
-            fputs(title,out);
+            fputs(std::string(*title).c_str(),out);
             fputs("\n",out);
         }
     }
@@ -239,7 +241,7 @@ static int delete_linzdef( void *deformation )
     return OK;
 }
 
-int create_linzdef_deformation( deformation_model **model, char *pmodel, double pepoch )
+int create_linzdef_deformation( deformation_model **model, const std::string &pmodel, double pepoch )
 {
     int sts;
     LinzDefModel *ldm;

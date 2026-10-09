@@ -72,27 +72,12 @@ static int LCC_geog_to_proj( void *data, double ln, double lt, double *e, double
 
 void register_lcc_projection( void )
 {
-    const char *code = "LCC";
-    const char *name = "Lambert Conformal Conic";
-    projection_type lcc;
-
     if( LCC_type ) return;
 
-    lcc.code = code;
-    lcc.name = name;
-    lcc.size = sizeof(LCCProjection);
-    lcc.params = LCCparams;
-    lcc.nparams = COUNT_OF(LCCparams);
-    lcc.create = 0;
-    lcc.destroy = 0;
-    lcc.copy = 0;
-    lcc.identical = 0;
-    lcc.bind_ellipsoid = LCC_bind_ellipsoid;
-    lcc.geog_to_proj = LCC_geog_to_proj;
-    lcc.proj_to_geog = LCC_proj_to_geog;
-    lcc.calc_sf_cv = 0;
-
-    LCC_type = register_projection_type( &lcc );
+    LCC_type = register_projection_type( new projection_type(
+        "LCC", "Lambert Conformal Conic", sizeof(LCCProjection), LCCparams, COUNT_OF(LCCparams),
+        nullptr, nullptr, nullptr, LCC_bind_ellipsoid, nullptr,
+        LCC_geog_to_proj, LCC_proj_to_geog, nullptr ) );
 }
 
 projection *create_lcc_projection(  double sp1, double sp2,
@@ -103,8 +88,7 @@ projection *create_lcc_projection(  double sp1, double sp2,
     if( !LCC_type ) register_lcc_projection();
     if( !LCC_type ) return NULL;
 
-    prj = create_projection( LCC_type );
-    if( !prj ) return NULL;
+    prj = new projection( *LCC_type );
 
     defineLCCProjection( (LCCProjection *) prj->data, 6378388.0, 297.0,
                          sp1, sp2, lt0, ln0, e, n );

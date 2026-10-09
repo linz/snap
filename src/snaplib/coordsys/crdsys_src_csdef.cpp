@@ -21,15 +21,20 @@ that the file had not been modified in the mean time - tricky .
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <string>
+#include <vector>
+
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/datafile.h"
 #include "util/fileutil.h"
 #include "util/dstring.h"
-#include "util/linklist.h"
+#include "util/fieldscanner.hpp"
 
 #define MAXRECLEN 512
 
@@ -49,82 +54,89 @@ that the file had not been modified in the mean time - tricky .
 /* Structure used to record reference frames and ellipsoids already
    passed when loading a coordinate system */
 
-typedef struct code_loc_s
+struct code_loc
 {
-    struct code_loc_s *next;
-    char *code;
+    code_loc *next;
+    std::string code;
     datafile_loc loc;
-    char hidden;
-} code_loc;
+    bool hidden;
+
+    /// Scratch storage for cfs_code_def()'s reconstructed line, owned by
+    /// this code_loc (not a buffer shared across other codes) since it must
+    /// outlive cfs_code_def()'s own return - see cfs_code_def(). A
+    /// std::vector<char>, not a std::string, since cfs_code_def()'s callers
+    /// write through it (parse_number()'s null-terminate-then-restore
+    /// trick), which is undefined behavior on a std::string's own storage.
+    std::vector<char> replacedLine;
+};
 
 /* Structure defining a coordinate system definition file */
 
-typedef struct
+struct crdsys_file_source
 {
-    DATAFILE *df;
-    code_loc *codes[CS_COORDSYS_COUNT];
-} crdsys_file_source;
+    std::unique_ptr<DATAFILE> df;
+    code_loc *codes[CS_COORDSYS_COUNT] = {};
+};
 
 /* Add a new code */
 
-static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, int clen, char hidden, datafile_loc *loc )
+static code_loc *add_code( crdsys_file_source *csf, int type, const std::string &code, bool hidden, const datafile_loc &loc )
 {
-    code_loc **next;
-    code_loc *newloc;
-    char *newcode;
     if( type < 0  || type >= CS_COORDSYS_COUNT )
     {
-        return 0;
+        return nullptr;
     }
-    next = &(csf->codes[type]);
+    // Walk forward while the current slot holds a node, so `next` ends up
+    // pointing at whichever pointer needs to become non-null to add one here
+    // - the list head itself, or the last node's own next field.
+    code_loc **next = &(csf->codes[type]);
     while( *next ) next=&((*next)->next);
-    newloc = (code_loc *) check_malloc( sizeof(code_loc) + clen + 1 );
-    newcode = ((char *) newloc)+sizeof(code_loc);
-    strncpy(newcode,code,clen);
-    newcode[clen] = 0;
-    newloc->next=0;
-    newloc->code=newcode;
-    newloc->hidden=hidden;
-    memcpy(&(newloc->loc),loc,sizeof(datafile_loc));
+    code_loc *newloc = new code_loc{ nullptr, code, loc, hidden, {} };
     (*next)=newloc;
     return newloc;
 }
 
-static code_loc *add_codes( crdsys_file_source *csf, int type, const char *code, datafile_loc *loc )
+/// One '='-delimited segment of a coordinate system code's alias list, e.g.
+/// "NZGD2000", "NZGD2000_20180701" and "(20180701)" in
+/// "NZGD2000=NZGD2000_20180701=(20180701)".
+struct CodeAlias
 {
-    const char *cptr, *eptr;
-    int clen;
-    char hidden;
-    code_loc *newloc=0;
+    std::string code;  ///< the alias code, with any hiding parentheses stripped
+    bool hidden;        ///< true if the segment was wrapped in parentheses
+};
 
-    eptr=code;
-    while( *eptr )
+/// Parses one alias segment, recognizing the "(code)" hidden-alias form. A
+/// hidden alias is still fully valid and lookupable directly by name - it's
+/// just suppressed from get_codes()'s general listing (e.g. a "pick a
+/// coordinate system" dropdown), typically used for a legacy/internal
+/// shorthand kept functional for backward compatibility.
+static CodeAlias parse_code_alias( const std::string &segment )
+{
+    if( segment.size() >= 3 && segment.front() == '(' && segment.back() == ')' )
     {
-        cptr=eptr;
-        /* Allow for codes with aliases as NZGD2000=NZGD2000_2010601 */
-        /* Allow for hidden codes with (20170601) */
-        while( *eptr && *eptr != '=' ) eptr++;
-        if( eptr > cptr )
+        return CodeAlias{ segment.substr(1,segment.size()-2), true };
+    }
+    return CodeAlias{ segment, false };
+}
+
+static code_loc *add_codes( crdsys_file_source *csf, int type, std::string_view code, const datafile_loc &loc )
+{
+    code_loc *newloc=nullptr;
+    std::vector<std::string> segments;
+    /* Allow for codes with aliases as NZGD2000=NZGD2000_2010601 */
+    boost::algorithm::split( segments, code, boost::algorithm::is_any_of("=") );
+    for( const std::string &segment : segments )
+    {
+        CodeAlias alias = parse_code_alias( segment );
+        if( alias.code.size() > 0 && alias.code.size() <= CRDSYS_CODE_LEN )
         {
-            clen=eptr-cptr;
-            hidden=0;
-            if( *cptr == '(' && clen >= 3 && cptr[clen-1] == ')' )
-            {
-                cptr++;
-                clen -= 2;
-                hidden=1;
-            }
-            if( clen > 0 && clen <= CRDSYS_CODE_LEN )
-            {
-                newloc=add_code( csf, type, cptr, clen, hidden, loc );
-            }
+            newloc=add_code( csf, type, alias.code, alias.hidden, loc );
         }
-        if( *eptr ) eptr++;
     }
     return newloc;
 }
 
-static code_loc *find_code_loc( crdsys_file_source *csf, int type, const char *code )
+static code_loc *find_code_loc( crdsys_file_source *csf, int type, std::string_view code )
 {
     code_loc *loc;
     if( type < 0  || type >= CS_COORDSYS_COUNT )
@@ -132,7 +144,7 @@ static code_loc *find_code_loc( crdsys_file_source *csf, int type, const char *c
         return 0;
     }
     loc=csf->codes[type];
-    while( loc && _stricmp(loc->code, code) != 0 ) loc=loc->next;
+    while( loc && ! boost::algorithm::iequals(loc->code,code) ) loc=loc->next;
     return loc;
 }
 
@@ -145,7 +157,7 @@ static void delete_code_locs( code_loc **codes )
     while( code )
     {
         next = code->next;
-        check_free( code );
+        delete code;
         code = next;
     }
 }
@@ -154,40 +166,40 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
 {
     char type = CS_INVALID;
     if( !cfs->df ) return;
-    while( df_read_data_file( cfs->df ) == OK )
+    while( cfs->df->read_record() == OK )
     {
-        input_string_def *is;
         datafile_loc loc;
-        char code[255];
-        df_save_data_file_loc( cfs->df, &loc );
-        is =  df_input_string( cfs->df );
-        if( next_string_field( is ,code, 255 ) != OK ) continue;
-        if( code[0] == '[' )
+        cfs->df->save_loc( loc );
+        input_string_def &is = cfs->df->input_string();
+        auto field = is.scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+        if( ! field ) continue;
+        const std::string_view code = *field;
+        if( ! code.empty() && code.front() == '[' )
         {
-            if( _stricmp(code,ELLIPSOID_TAG) == 0 ) type = CS_ELLIPSOID;
-            else if( _stricmp(code,REFFRAME_TAG) == 0 ) type = CS_REF_FRAME;
-            else if( _stricmp(code,COORDSYS_TAG ) == 0 ) type = CS_COORDSYS;
-            else if( _stricmp(code,COORDSYS_NOTE_TAG ) == 0 ) type = CS_COORDSYS_NOTE;
-            else if( _stricmp(code,REFFRAME_NOTE_TAG ) == 0 ) type = CS_REF_FRAME_NOTE;
-            else if( _stricmp(code,VDATUM_TAG ) == 0 ) type = CS_VDATUM;
-            else if( _stricmp(code,VDATUM_TAG2 ) == 0 ) type = CS_VDATUM;
+            if( boost::algorithm::iequals(code,ELLIPSOID_TAG) ) type = CS_ELLIPSOID;
+            else if( boost::algorithm::iequals(code,REFFRAME_TAG) ) type = CS_REF_FRAME;
+            else if( boost::algorithm::iequals(code,COORDSYS_TAG ) ) type = CS_COORDSYS;
+            else if( boost::algorithm::iequals(code,COORDSYS_NOTE_TAG ) ) type = CS_COORDSYS_NOTE;
+            else if( boost::algorithm::iequals(code,REFFRAME_NOTE_TAG ) ) type = CS_REF_FRAME_NOTE;
+            else if( boost::algorithm::iequals(code,VDATUM_TAG ) ) type = CS_VDATUM;
+            else if( boost::algorithm::iequals(code,VDATUM_TAG2 ) ) type = CS_VDATUM;
             else type = CS_INVALID;
         }
         else if( type != CS_INVALID )
         {
-            add_codes( cfs, type, code, &loc );
+            add_codes( cfs, type, code, loc );
             if( type == CS_COORDSYS_NOTE || type == CS_REF_FRAME_NOTE )
             {
                 /* Notes can refer to multiple codes - get a complete list */
-                while( next_string_field( is ,code, CRDSYS_CODE_LEN+1 ) == OK )
+                while( (field = is.scanner.checkAndRecoverQuotedValue( true, std::nullopt )) )
                 {
-                    add_codes( cfs, type, code, &loc );
+                    add_codes( cfs, type, *field, loc );
                 }
                 /* Notes continue to a line ending end_note ... */
-                while( df_read_data_file( cfs->df ) == OK )
+                while( cfs->df->read_record() == OK )
                 {
-                    is =  df_input_string( cfs->df );
-                    if( test_next_string_field( is, END_NOTE_MARKER )) break;
+                    auto marker = cfs->df->input_string().scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+                    if( marker && boost::algorithm::iequals(*marker,END_NOTE_MARKER) ) break;
                 }
             }
         }
@@ -198,14 +210,12 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
 /* Load all codes defined in the coordinate system file */
 
 static int get_codes( void *pcfs,
-                      void (*addfunc)( int type, long id, const char *code, const char *desc ))
+                      void (*addfunc)( int type, long id, std::string_view code, std::string_view desc ))
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    char name[CRDSYS_NAME_LEN];
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
     long id;
     int type;
     code_loc *cl;
-    input_string_def *instr;
 
     if( !cfs ) return OK;
 
@@ -216,14 +226,11 @@ static int get_codes( void *pcfs,
         {
             if( ! cl->hidden )
             {
-                df_reset_data_file_loc( cfs->df, &cl->loc );
-                instr = df_input_string( cfs->df );
-                skip_string_field( instr );
-                if( next_string_field( instr, name, CRDSYS_NAME_LEN ) != OK)
-                {
-                    strcpy(name,"(unnamed)");
-                }
-                (*addfunc)((int) type, id, cl->code, name );
+                cfs->df->reset_loc( cl->loc );
+                input_string_def &instr = cfs->df->input_string();
+                instr.scanner.checkAndRecoverQuotedValue( true, std::nullopt ); // skip the code field
+                auto field = instr.scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+                (*addfunc)( type, id, cl->code, field ? *field : std::string_view( "(unnamed)" ) );
             }
             id++;
         }
@@ -242,10 +249,9 @@ static code_loc *get_code_loc( crdsys_file_source *cfs, int type, long id )
     return cl;
 }
 
-static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, int type, const char *code )
+static std::optional<std::reference_wrapper<input_string_def>> cfs_code_def( crdsys_file_source *cfs, long id, int type, std::string_view code )
 {
     code_loc *cl;
-    input_string_def *instr;
     if( id == CS_ID_UNAVAILABLE )
     {
         cl = find_code_loc( cfs, type, code );
@@ -254,172 +260,161 @@ static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, int typ
     {
         cl = get_code_loc( cfs, type, id );
     }
-    if( !cl ) return NULL;
-    df_reset_data_file_loc( cfs->df, &cl->loc );
-    instr = df_input_string( cfs->df );
-    replace_next_field(instr,cl->code);
-    return instr;
+    if( !cl ) return std::nullopt;
+    cfs->df->reset_loc( cl->loc );
+    input_string_def &instr = cfs->df->input_string();
+
+    // The line's raw first field may be a combined alias list, e.g.
+    // "NZGD2000=NZGD2000_20180701=(20180701)" - cl->code is already the one
+    // resolved alias (set once, at file-scan time by add_codes()). Replace
+    // the raw combined token with the resolved code before handing the line
+    // to whatever re-parses the definition, by building a fresh line owned
+    // by cl itself (stable for as long as cl is, unlike a buffer shared
+    // across other codes) rather than mutating the DATAFILE's own record
+    // buffer in place - nothing downstream depends on the replacement
+    // landing at the original token's byte offset.
+    instr.scanner.next();
+    std::string newLine = cl->code + std::string(instr.scanner.remainder());
+    cl->replacedLine.assign( newLine.begin(), newLine.end() );
+    cl->replacedLine.push_back( '\0' );
+    instr.scanner = FieldScanner( std::string_view(cl->replacedLine.data(), cl->replacedLine.size()-1) );
+
+    return std::ref(instr);
 }
 
 
-static int get_ellipsoid( void *pcfs, long id, const char *code, ellipsoid**el )
+static int read_ellipsoid_def( crdsys_file_source *cfs, long id, std::string_view code, ellipsoid**el )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    input_string_def *instr;
-    *el = NULL;
-    instr = cfs_code_def( cfs, id, CS_ELLIPSOID, code );
+    *el = nullptr;
+    auto instr = cfs_code_def( cfs, id, CS_ELLIPSOID, code );
     if( !instr ) return MISSING_DATA;
-    *el = parse_ellipsoid_def( instr, 0 );
+    *el = parse_ellipsoid_def( instr->get(), 0 );
     return *el ? OK : INVALID_DATA;
 }
 
+static int get_ellipsoid( void *pcfs, long id, std::string_view code, ellipsoid**el )
+{
+    return read_ellipsoid_def( static_cast<crdsys_file_source *>( pcfs ), id, code, el );
+}
+
 static crdsys_file_source *input_cfs;
-static ellipsoid *ellipsoid_from_code( const char *code)
+static ellipsoid *ellipsoid_from_code( std::string_view code)
 {
     ellipsoid *el;
     int sts;
-    sts = get_ellipsoid( input_cfs, CS_ID_UNAVAILABLE, code, &el );
-    if( sts != OK ) el = NULL;
+    sts = read_ellipsoid_def( input_cfs, CS_ID_UNAVAILABLE, code, &el );
+    if( sts != OK ) el = nullptr;
     return el;
 }
 
-static ref_frame *ref_frame_from_code( const char *code, int loadref );
+static ref_frame *ref_frame_from_code( std::string_view code, int loadref );
 
-static int get_ref_frame( void *pcfs, long id, const char *code, ref_frame **rf, int loadref)
+static int read_ref_frame_def( crdsys_file_source *cfs, long id, std::string_view code, ref_frame **rf, int loadref)
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    input_string_def *instr;
-    *rf = NULL;
-    instr = cfs_code_def( cfs, id, CS_REF_FRAME, code );
+    *rf = nullptr;
+    auto instr = cfs_code_def( cfs, id, CS_REF_FRAME, code );
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
-    *rf = parse_ref_frame_def( instr, ellipsoid_from_code, ref_frame_from_code, 0, loadref );
+    *rf = parse_ref_frame_def( instr->get(), ellipsoid_from_code, ref_frame_from_code, 0, loadref );
     return *rf ? OK : INVALID_DATA;
 }
 
-static ref_frame *ref_frame_from_code( const char *code, int loadref )
+static ref_frame *ref_frame_from_code( std::string_view code, int loadref )
 {
     ref_frame *rf;
     int sts;
-    sts = get_ref_frame( input_cfs, CS_ID_UNAVAILABLE, code, &rf, loadref );
-    if( sts != OK ) rf = NULL;
+    sts = read_ref_frame_def( input_cfs, CS_ID_UNAVAILABLE, code, &rf, loadref );
+    if( sts != OK ) rf = nullptr;
     return rf;
 }
 
-static int get_ref_frame_cs( void *pcfs, long id, const char *code, ref_frame **rf )
+static int get_ref_frame_cs( void *pcfs, long id, std::string_view code, ref_frame **rf )
 {
-    return get_ref_frame( pcfs, id, code, rf, 1 );
+    return read_ref_frame_def( static_cast<crdsys_file_source *>( pcfs ), id, code, rf, 1 );
 }
 
-static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
+static int get_coordsys( void *pcfs, long id, std::string_view code, coordsys **cs )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    input_string_def *instr;
-    *cs = NULL;
-    instr = cfs_code_def( cfs, id, CS_COORDSYS, code );
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
+    *cs = nullptr;
+    auto instr = cfs_code_def( cfs, id, CS_COORDSYS, code );
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
-    *cs = parse_coordsys_def( instr, ref_frame_from_code );
-    if( *cs )
-    {
-        char *fn = df_file_name( cfs->df );
-        char *source = (char *) check_malloc(strlen(fn)+6);
-        strcpy(source,"file:");
-        strcat(source,fn);
-        (*cs)->source = source;
-    }
+    *cs = parse_coordsys_def( instr->get(), ref_frame_from_code );
     return *cs ? OK : INVALID_DATA;
 }
 
-static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs );
+static int read_vdatum_def( crdsys_file_source *cfs, long id, std::string_view code, vdatum **hrs );
 
-static vdatum *vdatum_from_code( const char *code, int )
+static vdatum *vdatum_from_code( std::string_view code, int )
 {
     vdatum *hrf;
     int sts;
-    sts = get_vdatum( input_cfs, CS_ID_UNAVAILABLE, code, &hrf );
-    if( sts != OK ) hrf = NULL;
+    sts = read_vdatum_def( input_cfs, CS_ID_UNAVAILABLE, code, &hrf );
+    if( sts != OK ) hrf = nullptr;
     return hrf;
 }
 
-static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs )
+static int read_vdatum_def( crdsys_file_source *cfs, long id, std::string_view code, vdatum **hrs )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    input_string_def *instr;
-    *hrs = NULL;
-    instr = cfs_code_def( cfs, id, CS_VDATUM, code );
+    *hrs = nullptr;
+    auto instr = cfs_code_def( cfs, id, CS_VDATUM, code );
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
-    *hrs = parse_vdatum_def( instr, ref_frame_from_code, vdatum_from_code );
-    if( *hrs )
-    {
-        char *fn = df_file_name( cfs->df );
-        char *source = (char *) check_malloc(strlen(fn)+6);
-        strcpy(source,"file:");
-        strcat(source,fn);
-        (*hrs)->source = source;
-    }
+    *hrs = parse_vdatum_def( instr->get(), ref_frame_from_code, vdatum_from_code );
     return *hrs ? OK : INVALID_DATA;
 }
 
-static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, int (*puttext)(const char *note, void *sptr ))
+static int get_vdatum( void *pcfs, long id, std::string_view code, vdatum **hrs )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    code_loc *cl;
-    input_string_def *instr;
+    return read_vdatum_def( static_cast<crdsys_file_source *>( pcfs ), id, code, hrs );
+}
+
+static int get_csdef_notes( void *pcfs, int type, std::string_view code, void *sptr, output_string_func puttext )
+{
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
 
     if( type != CS_COORDSYS_NOTE && type != CS_REF_FRAME_NOTE ) return INVALID_DATA;
 
-    cl = find_code_loc( cfs, type, code );
+    code_loc *cl = find_code_loc( cfs, type, code );
     if( ! cl ) return INVALID_DATA;
 
-    df_reset_data_file_loc( cfs->df, &cl->loc );
-    /* df_read_data_file( cfs->df ); */
+    cfs->df->reset_loc( cl->loc );
 
-    while( df_read_data_file( cfs->df ) == OK )
+    while( cfs->df->read_record() == OK )
     {
-        const char *text;
-        instr = df_input_string( cfs->df );
-        if( test_next_string_field( instr, END_NOTE_MARKER )) break;
-        text = unread_string( instr );
-        (*puttext)( text, sptr );
+        input_string_def &instr = cfs->df->input_string();
+        if( test_next_string_field( instr.scanner, END_NOTE_MARKER ) ) break;
+        (*puttext)( instr.scanner.remainder(), sptr );
         (*puttext)( "\n", sptr );
     }
     return OK;
 }
 
-static const char *get_csfile( void *pcfs, const char *filename, const char *extension )
+static std::optional<std::string> get_csfile( void *pcfs, const std::string &filename, const std::string &extension )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    const char *sourcepath = df_file_name( cfs->df );
-    return find_relative_file( sourcepath, filename, extension );
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
+    return find_relative_file( cfs->df->file_name(), filename, extension );
 }
 
 static int delete_crdsys_file_source( void *pcfs )
 {
-    int type;
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    df_close_data_file( cfs->df );
-    for( type=0; type<CS_COORDSYS_COUNT; type++ ) delete_code_locs(&(cfs->codes[type]));
-    check_free( cfs );
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
+    for( int type=0; type<CS_COORDSYS_COUNT; type++ ) delete_code_locs(&(cfs->codes[type]));
+    delete cfs;
     return 0;
 }
 
-static int create_crdsys_file_source( const char *filename )
+static int create_crdsys_file_source( std::string_view filename )
 {
-    DATAFILE *df;
-    crdsys_file_source *cfs;
     crdsys_source_def csd;
-    int dfreclen;
-    int type;
 
-    dfreclen = df_data_file_default_reclen( MAXRECLEN );
-    df = df_open_data_file( filename, "coordinate systems definition" );
-    df_data_file_default_reclen( dfreclen );
+    const int dfreclen = DATAFILE::default_reclen( MAXRECLEN );
+    std::unique_ptr<DATAFILE> df = DATAFILE::open( filename, "coordinate systems definition" );
+    DATAFILE::default_reclen( dfreclen );
     if( !df ) return FILE_OPEN_ERROR;
-    cfs = (crdsys_file_source *) check_malloc( sizeof( crdsys_file_source ));
-    cfs->df = df;
-    for( type=0; type<CS_COORDSYS_COUNT; type++ ) cfs->codes[type]=0;
+    crdsys_file_source *cfs = new crdsys_file_source;
+    cfs->df = std::move( df );
     scan_coordsys_defs( cfs );
     csd.data = cfs;
     csd.getcsfile = get_csfile;
@@ -430,12 +425,12 @@ static int create_crdsys_file_source( const char *filename )
     csd.getnotes = get_csdef_notes;
     csd.getcodes = get_codes;
     csd.delsource = delete_crdsys_file_source;
-    register_crdsys_source( &csd );
+    register_crdsys_source( csd );
     return OK;
 }
 
 
-int install_crdsys_file( const char *filename )
+int install_crdsys_file( std::string_view filename )
 {
     return create_crdsys_file_source( filename );
 }

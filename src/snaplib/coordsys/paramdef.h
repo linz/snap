@@ -12,15 +12,17 @@
 #include "util/iostring.h"
 #endif
 
+#include <string_view>
+
 #include "stddef.h"
 
 /* Definition of parameters of an object.  Used to create lists of parameters which
    can be used for input or output of a system definition */
 
-typedef struct
+struct param_def
 {
-    const char *name;     /* Name of parameter - used for descriptive output */
-    const char *code;     /* Code - not used at present */
+    std::string_view name;     /* Name of parameter - used for descriptive output */
+    std::string_view code;     /* Code - not used at present */
     size_t offset;     /* Offset into the objects data structure */
 
     /* Read, write, and print functions.  print is a nicely formatted
@@ -28,10 +30,10 @@ typedef struct
 
        Return status should be as defined in errdef.h */
 
-    int (*read)( input_string_def *is, void *address );
+    int (*read)( FieldScanner &scanner, void *address );
     int (*write)( output_string_def *os, void *address );
     int (*print)( output_string_def *os, void *address );
-} param_def;
+};
 
 /* Useful routines to be used in parameter definitions (reading, writing.. ) */
 
@@ -45,10 +47,10 @@ int print_radians( output_string_def *os, void *address );
 int print_latitude( output_string_def *os, void *address );
 int print_longitude( output_string_def *os, void *address );
 void print_param_list( output_string_def *os, param_def *prms, int nprm,
-                       void *base, const char *prefix );
+                       void *base, std::string_view prefix );
 
-int read_radians( input_string_def *is, void *address );
-int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base );
+int read_radians( FieldScanner &scanner, void *address );
+int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base );
 
 
 

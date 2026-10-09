@@ -65,7 +65,7 @@ target_link_libraries(snap_core PUBLIC snaplib)
 add_executable(snap $<TARGET_OBJECTS:snap_core> snap/main.cpp)
 target_link_libraries(snap PRIVATE snaplib snap_link_deps)
 
-add_executable(concord concord/concord.cpp)
+add_executable(concord concord/concord.cpp concord/linereader.cpp)
 target_link_libraries(concord PRIVATE snaplib snap_link_deps)
 
 git_sources(SNAPSPEC_SOURCES "snapspec/")
@@ -79,6 +79,129 @@ target_link_libraries(dat2site PRIVATE snaplib snap_link_deps)
 # round-trips byte-for-byte. See BINFILE_FORMAT.md.
 add_executable(binroundtrip test/binroundtrip/binroundtrip.cpp)
 target_link_libraries(binroundtrip PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/fieldscanner.hpp. Exit code is the pass/fail signal.
+add_executable(fieldscanner_test test/fieldscanner_test/fieldscanner_test.cpp)
+target_link_libraries(fieldscanner_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/iostring.cpp. Exit code is the pass/fail signal.
+add_executable(iostring_test test/iostring_test/iostring_test.cpp)
+target_link_libraries(iostring_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# stncodecmp in network/netlist.cpp. Exit code is the pass/fail signal.
+add_executable(stncodecmp_test test/stncodecmp_test/stncodecmp_test.cpp)
+target_link_libraries(stncodecmp_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/fileutil.cpp. Exit code is the pass/fail signal.
+add_executable(fileutil_test test/fileutil_test/fileutil_test.cpp)
+target_link_libraries(fileutil_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/readcfg_internal.h's filter_line()/cap_line(). Exit code is the
+# pass/fail signal.
+add_executable(readcfg_test test/readcfg_test/readcfg_test.cpp)
+target_link_libraries(readcfg_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/wildcard.cpp. Exit code is the pass/fail signal.
+add_executable(wildcard_test test/wildcard_test/wildcard_test.cpp)
+target_link_libraries(wildcard_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/dms.cpp. Exit code is the pass/fail signal.
+add_executable(dms_test test/dms_test/dms_test.cpp)
+target_link_libraries(dms_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/textformat.hpp. Exit code is the pass/fail signal.
+add_executable(textformat_test test/textformat_test/textformat_test.cpp)
+target_link_libraries(textformat_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/writecsv.cpp. Exit code is the pass/fail signal.
+add_executable(writecsv_test test/writecsv_test/writecsv_test.cpp)
+target_link_libraries(writecsv_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# station selection criteria in network/networkl.cpp. Exit code is the
+# pass/fail signal.
+add_executable(criteria_test test/criteria_test/criteria_test.cpp)
+target_link_libraries(criteria_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# observation modifications in snapdata/obsmod.cpp. Exit code is the
+# pass/fail signal.
+add_executable(obsmod_test test/obsmod_test/obsmod_test.cpp)
+target_link_libraries(obsmod_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# CommandFile class in snaplib/snap/snapglob.cpp. Exit code is the pass/fail
+# signal.
+add_executable(commandfile_test test/commandfile_test/commandfile_test.cpp)
+target_link_libraries(commandfile_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
+# util/errdef.cpp. Exit code is the pass/fail signal.
+add_executable(errdef_test test/errdef_test/errdef_test.cpp)
+target_link_libraries(errdef_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# StationCode class in snaplib/network/network.h. Exit code is the pass/fail
+# signal.
+add_executable(stationcode_test test/stationcode_test/stationcode_test.cpp)
+target_link_libraries(stationcode_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# rotmat class in snaplib/util/geodetic.h. Exit code is the pass/fail signal.
+add_executable(rotmat_test test/rotmat_test/rotmat_test.cpp)
+target_link_libraries(rotmat_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# classification functions of the station class in snaplib/network/network.h.
+# Exit code is the pass/fail signal.
+add_executable(station_test test/station_test/station_test.cpp)
+target_link_libraries(station_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# StringLimited class in snaplib/util/stringlimited.hpp. Exit code is the pass/fail
+# signal.
+add_executable(stringlimited_test test/stringlimited_test/stringlimited_test.cpp)
+target_link_libraries(stringlimited_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# LineReader class that concord uses to read its input. The class is part of the
+# concord program, not snaplib, so its source is compiled into the test.
+# Exit code is the pass/fail signal.
+add_executable(linereader_test test/linereader_test/linereader_test.cpp concord/linereader.cpp)
+target_include_directories(linereader_test PRIVATE concord)
+target_link_libraries(linereader_test PRIVATE snaplib snap_link_deps)
+
+# Every standalone unit test above. build.py's test target builds this, and
+# regression_tests/unittests/run_test.py then runs each *_test executable it
+# finds in the build directory, so a new unit test must be added here.
+add_custom_target(unit_tests DEPENDS
+    fieldscanner_test
+    iostring_test
+    stncodecmp_test
+    fileutil_test
+    readcfg_test
+    wildcard_test
+    dms_test
+    textformat_test
+    writecsv_test
+    criteria_test
+    obsmod_test
+    commandfile_test
+    errdef_test
+    stationcode_test
+    rotmat_test
+    station_test
+    stringlimited_test
+    linereader_test)
 
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)

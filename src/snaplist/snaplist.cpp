@@ -27,12 +27,21 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
+#include <array>
+#include <charconv>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <variant>
+#include <vector>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+#include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
-#include "util/linklist.h"
 
 #include "util/binfile.h"
 #include "snapdata/survdata.h"
@@ -50,47 +59,75 @@
 #include "util/dstring.h"
 #include "util/dms.h"
 #include "util/pi.h"
+#include "util/textformat.hpp"
 #include "util/getversion.h"
+
+using boost::numeric_cast;
 
 static coord_conversion to_xyz;
 static coord_conversion from_xyz;
 static ellipsoid *el;
 static station dummy1, dummy2;
 
-typedef struct
+struct covariance
 {
     double emax, emin, az;
     double sehgt;
-} covariance;
+};
 
-static covariance *covar;
+static std::vector<covariance> covar;
 
 enum {JST_LEFT, JST_CENTRE, JST_RIGHT };
 enum {QT_NONE, QT_QUOTE, QT_LITERAL };
-enum {TYPE_STRING, TYPE_PSTRING, TYPE_DOUBLE, TYPE_ANGLE };
+enum {TYPE_TEXT, TYPE_DOUBLE, TYPE_ANGLE };
 
-#define MAX_HEADERS 3
+constexpr std::size_t maximumHeaderRows = 3;
 
-typedef struct
+constexpr std::size_t maximumClasses = 20;
+
+/// The current value of a column, which is text for TYPE_TEXT and a number otherwise. A
+/// classification is not held with the column, so its value is the index of the
+/// classification in the table, and the TableWriter listing the table holds the text.
+using ColumnValue = std::variant<const std::string *, const double *, std::size_t>;
+
+/// A value that can be listed in a table column: what it is called, how it is laid
+/// out unless the table says otherwise, and where its current value is.
+struct ColumnSource
 {
-    const char *name;
+    std::string_view name;
     int width;
     int ndp;
-    int quote;
     int just;
     int type;
-    void *data;
-    void *format;
-    char *prefix;
-    char *suffix;
-    char *header[MAX_HEADERS];
-    int extralen;
-} column_def;
+    ColumnValue value;
+};
 
-static char *fromStn;
-static char *toStn;
-static char *fromStnName;
-static char *toStnName;
+/// A column of a table as defined in the configuration file
+struct TableColumn
+{
+    explicit TableColumn( const ColumnSource &source )
+        : type( source.type ), value( source.value ),
+          width( source.width ), ndp( source.ndp ), just( source.just )
+    {
+    }
+
+    int type;
+    ColumnValue value;
+    int width;
+    int ndp;
+    int just;
+    int quote = QT_NONE;
+    std::optional<DmsFormat> format;      /* For TYPE_ANGLE */
+    std::string prefix;
+    std::string suffix;
+    std::vector<std::string> header;      /* One entry per heading row, up to maximumHeaderRows */
+    std::optional<int> extralen;          /* Width of quotes, prefix and suffix, set when first printed */
+};
+
+static std::string fromStn;
+static std::string toStn;
+static std::string fromStnName;
+static std::string toStnName;
 static double obs_ell_dist;
 static double calc_ell_dist;
 static double ell_dist_err;
@@ -105,55 +142,33 @@ static double hor_vec_err;
 static double ppm_hor_vec_err;
 static double rf_hor_vec_err;
 
-#define MAX_DELIM 1
-static char quote[MAX_DELIM+1] = { '"', 0 };
-static char delim[MAX_DELIM+1] = { ',', 0 };
-static char escape[MAX_DELIM+1] = { '"', 0 };
-static char qescape[MAX_DELIM+MAX_DELIM+1];
-static char qquote[MAX_DELIM+MAX_DELIM+1];
-static char nqescape[MAX_DELIM+MAX_DELIM+1];
-static char nqquote[MAX_DELIM+MAX_DELIM+1];
-static char nqdelim[MAX_DELIM+MAX_DELIM+1];
-static char nqnewline[MAX_DELIM+MAX_DELIM+1];
-static char canquote = 0;
-
 static FILE *out;
 static BINARY_FILE *b;
 
-#define MAXCLASS 20
-static int classid[MAXCLASS];
-static char *classname[MAXCLASS];
-static const char *classvalue[MAXCLASS];
-static const char *blankvalue = "";
-static int nclass = 0;
-
-static column_def classcol = { "",0,0,0,JST_LEFT,TYPE_PSTRING,NULL,NULL };
-
-static column_def obs_valid_columns[] =
+static const std::vector<ColumnSource> obs_valid_columns =
 {
-    { "from",0,0,0,JST_LEFT,TYPE_PSTRING,&fromStn,NULL},
-    { "to",0,0,0,JST_LEFT,TYPE_PSTRING,&toStn,NULL},
-    { "from_name",0,0,0,JST_LEFT,TYPE_PSTRING,&fromStnName,NULL},
-    { "to_name",0,0,0,JST_LEFT,TYPE_PSTRING,&toStnName,NULL},
-    { "obs_ell_dist",0,2,0,JST_RIGHT,TYPE_DOUBLE,&obs_ell_dist,NULL},
-    { "calc_ell_dist",0,2,0,JST_RIGHT,TYPE_DOUBLE,&calc_ell_dist,NULL},
-    { "ell_dist_err",0,2,0,JST_RIGHT,TYPE_DOUBLE,&ell_dist_err,NULL},
-    { "ppm_ell_dist_err",0,0,0,JST_RIGHT,TYPE_DOUBLE,&ppm_ell_dist_err,NULL},
-    { "rf_ell_dist_err",0,0,0,JST_RIGHT,TYPE_DOUBLE,&rf_ell_dist_err,NULL},
-    { "obs_prj_brng",0,0,0,JST_RIGHT,TYPE_ANGLE,&obs_prj_brng,NULL},
-    { "calc_prj_brng",0,0,0,JST_RIGHT,TYPE_ANGLE,&calc_prj_brng,NULL},
-    { "prj_brng_err",0,0,0,JST_RIGHT,TYPE_DOUBLE,&prj_brng_err,NULL},
-    { "ppm_prj_brng_err",0,0,0,JST_RIGHT,TYPE_DOUBLE,&ppm_prj_brng_err,NULL},
-    { "rf_prj_brng_err",0,0,0,JST_RIGHT,TYPE_DOUBLE,&rf_prj_brng_err,NULL},
-    { "hor_vec_err",0,2,0,JST_RIGHT,TYPE_DOUBLE,&hor_vec_err,NULL},
-    { "ppm_hor_vec_err",0,0,0,JST_RIGHT,TYPE_DOUBLE,&ppm_hor_vec_err,NULL},
-    { "rf_hor_vec_err",0,0,0,JST_RIGHT,TYPE_DOUBLE,&rf_hor_vec_err,NULL},
-    { NULL }
+    { "from",0,0,JST_LEFT,TYPE_TEXT,&fromStn },
+    { "to",0,0,JST_LEFT,TYPE_TEXT,&toStn },
+    { "from_name",0,0,JST_LEFT,TYPE_TEXT,&fromStnName },
+    { "to_name",0,0,JST_LEFT,TYPE_TEXT,&toStnName },
+    { "obs_ell_dist",0,2,JST_RIGHT,TYPE_DOUBLE,&obs_ell_dist },
+    { "calc_ell_dist",0,2,JST_RIGHT,TYPE_DOUBLE,&calc_ell_dist },
+    { "ell_dist_err",0,2,JST_RIGHT,TYPE_DOUBLE,&ell_dist_err },
+    { "ppm_ell_dist_err",0,0,JST_RIGHT,TYPE_DOUBLE,&ppm_ell_dist_err },
+    { "rf_ell_dist_err",0,0,JST_RIGHT,TYPE_DOUBLE,&rf_ell_dist_err },
+    { "obs_prj_brng",0,0,JST_RIGHT,TYPE_ANGLE,&obs_prj_brng },
+    { "calc_prj_brng",0,0,JST_RIGHT,TYPE_ANGLE,&calc_prj_brng },
+    { "prj_brng_err",0,0,JST_RIGHT,TYPE_DOUBLE,&prj_brng_err },
+    { "ppm_prj_brng_err",0,0,JST_RIGHT,TYPE_DOUBLE,&ppm_prj_brng_err },
+    { "rf_prj_brng_err",0,0,JST_RIGHT,TYPE_DOUBLE,&rf_prj_brng_err },
+    { "hor_vec_err",0,2,JST_RIGHT,TYPE_DOUBLE,&hor_vec_err },
+    { "ppm_hor_vec_err",0,0,JST_RIGHT,TYPE_DOUBLE,&ppm_hor_vec_err },
+    { "rf_hor_vec_err",0,0,JST_RIGHT,TYPE_DOUBLE,&rf_hor_vec_err },
 };
 
-static const char *stn_code;
-static const char *stn_name;
-static const char *stn_order;
+static std::string stn_code;
+static std::string stn_name;
+static std::string stn_order;
 static double stn_northing;
 static double stn_easting;
 static double stn_height;
@@ -164,190 +179,310 @@ static double stn_de;
 static double stn_dn;
 static double stn_dh;
 
-static column_def stn_valid_columns[] =
+static const std::vector<ColumnSource> stn_valid_columns =
 {
-    { "code",0,0,0,JST_LEFT,TYPE_PSTRING,&stn_code,NULL},
-    { "name",0,0,0,JST_LEFT,TYPE_PSTRING,&stn_name,NULL},
-    { "order",0,0,0,JST_LEFT,TYPE_PSTRING,&stn_order,NULL},
-    { "northing",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_northing,NULL},
-    { "easting",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_easting,NULL},
-    { "latitude",0,9,0,JST_RIGHT,TYPE_DOUBLE,&stn_northing,NULL},
-    { "longitude",0,9,0,JST_RIGHT,TYPE_DOUBLE,&stn_easting,NULL},
-    { "height",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_height,NULL},
-    { "h_max_error",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_h_max_error,NULL},
-    { "h_min_error",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_h_min_error,NULL},
-    { "h_max_brng",0,3,0,JST_RIGHT,TYPE_DOUBLE,&stn_h_max_brng,NULL},
-    { "change_east",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_de,NULL},
-    { "change_north",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_dn,NULL},
-    { "change_up",0,4,0,JST_RIGHT,TYPE_DOUBLE,&stn_dh,NULL},
-    { NULL }
+    { "code",0,0,JST_LEFT,TYPE_TEXT,&stn_code },
+    { "name",0,0,JST_LEFT,TYPE_TEXT,&stn_name },
+    { "order",0,0,JST_LEFT,TYPE_TEXT,&stn_order },
+    { "northing",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_northing },
+    { "easting",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_easting },
+    { "latitude",0,9,JST_RIGHT,TYPE_DOUBLE,&stn_northing },
+    { "longitude",0,9,JST_RIGHT,TYPE_DOUBLE,&stn_easting },
+    { "height",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_height },
+    { "h_max_error",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_h_max_error },
+    { "h_min_error",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_h_min_error },
+    { "h_max_brng",0,3,JST_RIGHT,TYPE_DOUBLE,&stn_h_max_brng },
+    { "change_east",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_de },
+    { "change_north",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_dn },
+    { "change_up",0,4,JST_RIGHT,TYPE_DOUBLE,&stn_dh },
 };
 
-static column_def *valid_columns = 0;
-static int stn_data = 0;
-
-static void *table_columns = NULL;
-static int table_header_rows = 0;
-
-static column_def *get_column_def( char *name )
+/// A table as defined by a table command in the configuration file
+struct TableDefinition
 {
-    column_def *c;
-    for( c = valid_columns; c && c->name; c++ )
+    std::optional<char> quote = '"';       /* Written around text, none if there is no character */
+    std::optional<char> delimiter = ',';   /* Written between columns */
+    std::optional<char> escape = '"';      /* Written before a character that cannot otherwise be written */
+    bool stationData = false;              /* Lists stations rather than observations */
+    const std::vector<ColumnSource> *validColumns = nullptr;  /* The values that can be listed */
+    std::vector<TableColumn> columns;
+    std::vector<int> classIds;             /* The classification of each class index */
+
+    /// \return the value with the name, or nullptr if there isn't one
+    const ColumnSource *validColumn( std::string_view name ) const;
+
+    /// Adds a classification as a value that can be listed. \return nullopt if there are too many.
+    std::optional<ColumnSource> classColumn( std::string_view className );
+};
+
+/// Everything the configuration file has defined so far
+struct ListingConfig
+{
+    /// The text written between the degrees, minutes and seconds of angles, for all tables
+    std::string degreeSeparator = " ";
+    std::string minuteSeparator = " ";
+    std::string secondSeparator;
+
+    TableDefinition table;
+
+    DmsFormat angleFormat( int decimalPlaces ) const;
+};
+
+/// Writes a table as delimited text, once it has been defined. The header is written
+/// first, and then each row, after the values for the row have been set.
+class TableWriter
+{
+public:
+    explicit TableWriter( const TableDefinition &definition );
+
+    bool stationData() const { return _stationData; }
+    bool listsObservations() const;
+    bool listsStations() const;
+
+    std::size_t classCount() const { return _classId.size(); }
+    int classId( const std::size_t index ) const { return _classId[index]; }
+    void setClassValue( const std::size_t index, std::string value ) { _classValue[index] = std::move( value ); }
+
+    void printHeader( FILE *out );
+    void printRow( FILE *out );
+
+private:
+    /// What to write for a character that cannot be written as it is
+    struct Replacements
     {
-        if( _stricmp(c->name,name) == 0 ) return c;
-    }
-    return NULL;
+        std::string quotedQuote;           /* A quote in quoted text */
+        std::string quotedEscape;          /* An escape in quoted text */
+        std::string unquotedQuote;         /* A quote in unquoted text */
+        std::string unquotedEscape;
+        std::string unquotedDelimiter;
+        std::string unquotedNewline;
+    };
+
+    static Replacements _replacementsFor( std::optional<char> quote, std::optional<char> escape, char delimiter );
+    void _printField( TableColumn &column, std::string_view text, int quoting, FILE *out ) const;
+
+    const bool _stationData;
+    const std::vector<ColumnSource> *const _validColumns;
+    const char _delimiter;
+    const std::optional<char> _quote;
+    const std::optional<char> _escape;
+    const Replacements _replacements;
+    std::vector<TableColumn> _columns;     /* Not const, as the width of quotes, prefix and suffix is set when first printed */
+    const std::size_t _headerRows;
+    const std::vector<int> _classId;
+    std::vector<std::string> _classValue;
+};
+
+
+static void write_text( FILE *out, const std::string_view text )
+{
+    fwrite( text.data(), 1, text.size(), out );
 }
 
-static column_def *get_class_column_def( char *cls )
+static std::string character_text( const std::optional<char> character )
 {
-    if( nclass >= MAXCLASS )
+    return character ? std::string( 1, *character ) : std::string();
+}
+
+DmsFormat ListingConfig::angleFormat( const int decimalPlaces ) const
+{
+    return DmsFormat( 0, decimalPlaces, 0, std::string_view( degreeSeparator ),
+                      std::string_view( minuteSeparator ), std::string_view( secondSeparator ) );
+}
+
+static std::size_t header_row_count( const std::vector<TableColumn> &columns )
+{
+    std::size_t rows = 0;
+    for( const TableColumn &column : columns ) rows = std::max( rows, column.header.size() );
+    return rows;
+}
+
+TableWriter::Replacements TableWriter::_replacementsFor(
+    const std::optional<char> quote,
+    const std::optional<char> escape,
+    const char delimiter )
+{
+    Replacements replacements;
+    const std::string replace = delimiter == ' ' ? "_" : " ";
+    const std::string escapeText = character_text( escape );
+
+    if( escape && escape != quote )
     {
-        return 0;
-    }
-    int id;
-    const char *name = cls;
-    if( stn_data )
-    {
-        id = network_class_id( net, cls, 0 );
-        if( id ) name = network_class_name(net,id);
+        replacements.unquotedEscape = escapeText + escapeText;
+        replacements.unquotedDelimiter = escapeText + delimiter;
+        replacements.unquotedNewline = escapeText + "\n";
+        replacements.unquotedQuote = escapeText + character_text( quote );
     }
     else
     {
-        id = classification_id( &obs_classes, cls, 0 );
-        if( id ) name = classification_name( &obs_classes, id );
+        replacements.unquotedEscape = replace;
+        replacements.unquotedDelimiter = replace;
+        replacements.unquotedNewline = replace;
+        replacements.unquotedQuote = replace;
     }
-    classid[nclass] = id;
-    classname[nclass] = copy_string(name);
-    classvalue[nclass] = blankvalue;
-    classcol.name = classname[nclass];
-    classcol.data = &classvalue[nclass];
-    nclass++;
-    return &classcol;
-}
 
-static void delete_column_def( void *pcd )
-{
-    int i;
-    column_def *cd = (column_def *) pcd;
-    if( cd->type == TYPE_ANGLE && cd->format )
+    if( quote )
     {
-        check_free( cd->format );
-    }
-    if( cd->prefix ) check_free( cd->prefix );
-    if( cd->suffix ) check_free( cd->suffix );
-    for( i = 0; i < MAX_HEADERS; i++ )
-    {
-        if( cd->header[i] ) {check_free( cd->header[i] ); cd->header[i] = NULL; }
-    }
-}
-
-static void init_table( void )
-{
-    if( !table_columns ) table_columns = create_list( sizeof( column_def ));
-    clear_list( table_columns, delete_column_def );
-    table_header_rows = 0;
-    valid_columns = 0;
-    if( nclass > 0 )
-    {
-        for( int i = 0; i < nclass; i++ )
+        if( escape )
         {
-            check_free( classname[i] );
-            classname[i] = 0;
+            replacements.quotedQuote = escapeText + character_text( quote );
+            replacements.quotedEscape = escapeText + escapeText;
+        }
+        else
+        {
+            replacements.quotedQuote = replace;
         }
     }
-    nclass = 0;
+    return replacements;
 }
 
-
-static void print_field( column_def *cd, const char *s, int quotefield, FILE *out )
+TableWriter::TableWriter( const TableDefinition &definition )
+    : _stationData( definition.stationData ),
+      _validColumns( definition.validColumns ),
+      _delimiter( definition.delimiter.value_or( ',' ) ),
+      _quote( definition.quote == _delimiter ? std::nullopt : definition.quote ),
+      _escape( definition.escape == _delimiter ? std::nullopt : definition.escape ),
+      _replacements( _replacementsFor( _quote, _escape, _delimiter ) ),
+      _columns( definition.columns ),
+      _headerRows( header_row_count( definition.columns ) ),
+      _classId( definition.classIds ),
+      _classValue( definition.classIds.size() )
 {
-    int left, right, spare;
-    if( cd->extralen < 0 )
-    {
-        cd->extralen = 0;
-        if( quotefield == QT_QUOTE) cd->extralen += 2 * strlen( quote );
-        if( cd->prefix ) cd->extralen += strlen( cd->prefix );
-        if( cd->suffix ) cd->extralen += strlen( cd->suffix );
-    }
-    spare = cd->width - strlen(s) - cd->extralen;
-    left = right = 0;
+}
 
-    if( spare > 0 ) switch( cd->just )
+bool TableWriter::listsObservations() const
+{
+    return _validColumns == &obs_valid_columns;
+}
+
+bool TableWriter::listsStations() const
+{
+    return _validColumns == &stn_valid_columns;
+}
+
+const ColumnSource *TableDefinition::validColumn( const std::string_view name ) const
+{
+    if( ! validColumns ) return nullptr;
+    for( const ColumnSource &source : *validColumns )
+    {
+        if( boost::algorithm::iequals( source.name, name ) ) return &source;
+    }
+    return nullptr;
+}
+
+std::optional<ColumnSource> TableDefinition::classColumn( const std::string_view className )
+{
+    if( classIds.size() >= maximumClasses ) return std::nullopt;
+    const std::string name( className );
+    classIds.push_back( stationData ? net->class_id( name, 0 ) : obs_classes.id( name, 0 ) );
+    return ColumnSource{ std::string_view(), 0, 0, JST_LEFT, TYPE_TEXT, classIds.size() - 1 };
+}
+
+void TableWriter::_printField( TableColumn &column, const std::string_view text, const int quoting, FILE *out ) const
+{
+    if( ! column.extralen )
+    {
+        int extralen = 0;
+        if( quoting == QT_QUOTE && _quote ) extralen += 2;
+        extralen += numeric_cast<int>( column.prefix.size() + column.suffix.size() );
+        column.extralen = extralen;
+    }
+    const int spare = column.width - numeric_cast<int>( text.size() ) - *column.extralen;
+    int left = 0;
+    int right = 0;
+
+    if( spare > 0 ) switch( column.just )
         {
         case JST_CENTRE:  right = spare/2; left = spare - right; break;
         case JST_RIGHT:   left = spare; break;
         default:          right = spare; break;
         }
     while( left-- ) fputc( ' ', out );
-    if( cd->prefix ) fputs( cd->prefix, out );
-    if( quotefield == QT_LITERAL )
+    write_text( out, column.prefix );
+    if( quoting == QT_LITERAL )
     {
-        fputs(s,out);
+        write_text( out, text );
     }
-    else if( quotefield == QT_QUOTE && canquote )
+    else if( quoting == QT_QUOTE && _quote )
     {
-        fputs( quote, out );
-        for( const char *sc = s; *sc; sc++ )
+        fputc( *_quote, out );
+        for( const char character : text )
         {
-            if( *sc == *quote ) fputs( qquote, out );
-            else if( *sc == *escape ) fputs( qescape, out  );
-            else fputc(*sc, out );
+            if( character == _quote ) write_text( out, _replacements.quotedQuote );
+            else if( character == _escape ) write_text( out, _replacements.quotedEscape );
+            else fputc( character, out );
         }
-        fputs( quote, out );
+        fputc( *_quote, out );
     }
     else
     {
-        for( const char *sc = s; *sc; sc++ )
+        for( const char character : text )
         {
-            if( *sc == *quote ) fputs( nqquote, out );
-            else if( *sc == *escape ) fputs( nqescape, out  );
-            else if( *sc == *delim ) fputs( nqdelim, out );
-            else if( *sc == '\n' ) fputs( nqnewline, out );
-            else fputc(*sc, out );
+            if( character == _quote ) write_text( out, _replacements.unquotedQuote );
+            else if( character == _escape ) write_text( out, _replacements.unquotedEscape );
+            else if( character == _delimiter ) write_text( out, _replacements.unquotedDelimiter );
+            else if( character == '\n' ) write_text( out, _replacements.unquotedNewline );
+            else fputc( character, out );
         }
     }
-    if( cd->suffix ) fputs( cd->suffix, out );
+    write_text( out, column.suffix );
     while( right-- ) fputc( ' ', out );
 }
-void print_table_row( FILE *out )
-{
-    column_def *cd;
-    int first;
-    if( !table_columns || !out ) return;
-    first = 1;
-    for( reset_list_pointer( table_columns );
-            NULL != (cd = (column_def *) next_list_item( table_columns ) ); )
-    {
 
-        char buf[80];
-        char *s = NULL;
-        switch( cd->type )
+void TableWriter::printHeader( FILE *out )
+{
+    for( std::size_t row = 0; row < _headerRows; row++ )
+    {
+        bool first = true;
+        for( TableColumn &column : _columns )
         {
-        case TYPE_STRING: s = (char *) cd->data; break;
-        case TYPE_PSTRING: s = * (char **) cd->data; break;
-        case TYPE_DOUBLE:  sprintf(buf,"%.*lf",cd->ndp, *(double *)cd->data);
-            s = buf;
-            break;
-        case TYPE_ANGLE:   if( cd->format )
-            {
-                double a = * (double *) cd->data;
-                a *= RTOD;
-                while( a > 360 ) a -= 360;
-                while( a < 0 ) a += 360;
-                dms_string( a, cd->format, buf );
-                s = buf;
-            }
-            break;
+            const std::string_view text = row < column.header.size() ? std::string_view( column.header[row] ) : std::string_view();
+            if( first ) first = false; else fputc( _delimiter, out );
+            _printField( column, text, QT_QUOTE, out );
         }
-        if( !s ) { buf[0] = 0; s = buf; }
-        if( first ) first = 0; else fputs( delim, out );
-        print_field( cd, s, cd->quote, out );
+        fputc( '\n', out );
     }
-    fputc('\n',out);
 }
 
-void list_vecdata_residuals( FILE *out, survdata  *v )
+void TableWriter::printRow( FILE *out )
+{
+    if( ! out ) return;
+    bool first = true;
+    for( TableColumn &column : _columns )
+    {
+        std::string computed;
+        std::string_view text;
+        if( const auto *textValue = std::get_if<const std::string *>( &column.value ) )
+        {
+            text = **textValue;
+        }
+        else if( const auto *classIndex = std::get_if<std::size_t>( &column.value ) )
+        {
+            text = _classValue[*classIndex];
+        }
+        else
+        {
+            const double number = *std::get<const double *>( column.value );
+            if( column.type == TYPE_DOUBLE )
+            {
+                computed = format_fixed( number, column.ndp );
+            }
+            else if( column.type == TYPE_ANGLE && column.format )
+            {
+                double angle = number * RTOD;
+                while( angle > 360 ) angle -= 360;
+                while( angle < 0 ) angle += 360;
+                computed = dms_string( angle, *column.format );
+            }
+            text = computed;
+        }
+        if( first ) first = false; else fputc( _delimiter, out );
+        _printField( column, text, column.quote, out );
+    }
+    fputc( '\n', out );
+}
+
+void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
 {
     vecdata *t;
     station *from, *to;
@@ -384,10 +519,10 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
             d1xyz[axis] = x - d1xyz[axis]/2.0;
         }
 
-        memcpy( &dummy1, from, sizeof(station) );
-        memcpy( &dummy2, to, sizeof(station) );
-        modify_station_xyz( &dummy1, d1xyz, el );
-        modify_station_xyz( &dummy2, d2xyz, el );
+        dummy1 = *from;
+        dummy2 = *to;
+        dummy1.modify_xyz( d1xyz, *el );
+        dummy2.modify_xyz( d2xyz, *el );
 
         convert_coords( &from_xyz, d1xyz, NULL, d1xyz, NULL );
         convert_coords( &from_xyz, d2xyz, NULL, d2xyz, NULL );
@@ -451,44 +586,44 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
         ppm_hor_vec_err = vecppm;
         rf_hor_vec_err = vecrf;
 
-        for( int i = 0; i < nclass; i++ )
+        for( std::size_t i = 0; i < table.classCount(); i++ )
         {
-            int idclass = classid[i];
-            classvalue[i] = blankvalue;
+            std::string value;
+            const int idclass = table.classId( i );
             if( idclass > 0 )
             {
-                classvalue[i] = get_obs_classification_name( v,  &(t->tgt), idclass );
+                auto name = get_obs_classification_name( v,  &(t->tgt), idclass );
+                if( name ) value = std::move(*name);
             }
+            table.setClassValue( i, std::move(value) );
         }
 
-        print_table_row( out );
+        table.printRow( out );
     }
 }
 
-static int list_observations( FILE *out, BINARY_FILE *bf )
+static int list_observations( FILE *out, BINARY_FILE *bf, TableWriter &table )
 {
-    bindata *b;
     survdata *sd;
 
     if( find_section( bf, "OBSERVATIONS" ) != OK ) return MISSING_DATA;
 
     init_bindata( bf->f );
 
-    b = create_bindata();
+    bindata b;
     init_get_bindata( 0L );
 
     while( get_bindata( SURVDATA, b ) == OK )
     {
-        sd = (survdata *) b->data;
+        sd = b.survey_data();
         if( sd->format != SD_VECDATA ) continue;
-        list_vecdata_residuals( out, sd );
+        list_vecdata_residuals( out, sd, table );
     }
 
-    delete_bindata(b);
     return OK;
 }
 
-static int list_stations( FILE *out )
+static int list_stations( FILE *out, TableWriter &table )
 {
     int nstns;
     int istn;
@@ -511,8 +646,8 @@ static int list_stations( FILE *out )
         convert_coords( &from_xyz, st->XYZ, NULL, enh, NULL );
         stn_code = st->Code;
         stn_name = st->Name;
-        stn_order = network_order( net, network_station_order( net, st ) );
-        if( stn_order == NULL ) stn_order = "-";
+        stn_order = net->order( net->station_order( st ) );
+        if( stn_order.empty() ) stn_order = "-";
 
         if( projection_coords )
         {
@@ -524,7 +659,7 @@ static int list_stations( FILE *out )
             stn_easting = st->ELat*RTOD;
         }
         stn_height = enh[CRD_HGT];
-        if( covar )
+        if( !covar.empty() )
         {
             stn_h_max_error = covar[istn].emax;
             stn_h_min_error = covar[istn].emin;
@@ -540,129 +675,62 @@ static int list_stations( FILE *out )
         stn_de = ( st->ELon - sa->initELon ) * st->dEdLn;
         stn_dh = st->OHgt - sa->initOHgt;
 
-        for( int i = 0; i < nclass; i++ )
+        for( std::size_t i = 0; i < table.classCount(); i++ )
         {
-            int idclass = classid[i];
-            classvalue[i] = blankvalue;
+            std::string value;
+            const int idclass = table.classId( i );
             if( idclass > 0 )
             {
-                int idvalue = get_station_class( st, idclass );
-                if(idvalue > 0 ) classvalue[i] = network_class_value( net, idclass, idvalue );
+                const int idvalue = st->get_class( idclass );
+                if(idvalue > 0 )
+                {
+                    value = net->class_value( idclass, idvalue );
+                }
             }
+            table.setClassValue( i, std::move(value) );
         }
-        print_table_row( out );
+        table.printRow( out );
     }
     return OK;
 }
 
-static void print_table_header( FILE *out )
+static void print_table( TableWriter &table )
 {
-    column_def *cd;
-    const char *blank = "";
-    int row;
-    int first;
-    for( row = 0; row < table_header_rows; row++ )
-    {
-        first = 1;
-        for( reset_list_pointer( table_columns );
-                NULL != ( cd = (column_def *) next_list_item( table_columns ));
-           )
-        {
-            const char *s;
-            s = cd->header[row];
-            if( !s ) s = blank;
-            if( first ) first = 0; else fputs( delim, out );
-            print_field( cd, s, QT_QUOTE, out );
-        }
-        fputc('\n',out);
-    }
-}
-
-static void print_table( void )
-{
-
-
-    if( ! stn_data && !is_projection( net->crdsys ) )
+    if( ! table.stationData() && !is_projection( net->crdsys ) )
     {
         printf( "Cannot print snaplist data for coordinate systems without projections\n");
         return;
     }
 
-    // Sort out delimiters
-    if( *delim == 0 ) strcpy(delim,",");
-    if( *quote == *delim ) *quote = 0;
-    if( *escape == *delim ) *escape = 0;
-    canquote = *quote ? 1 : 0;
-
-    const char *replace = *delim == ' ' ? "_" : " ";
-
-    if( *escape  && *escape != *quote )
-    {
-        strcpy(nqescape,escape);
-        strcat(nqescape,escape);
-        strcpy(nqdelim,escape);
-        strcat(nqdelim,delim);
-        strcpy(nqnewline,escape);
-        strcat(nqnewline,"\n");
-        strcpy(nqquote,escape);
-        strcat(nqquote,quote);
-    }
-    else
-    {
-        strcat(nqescape,replace);
-        strcat(nqdelim,replace);
-        strcat(nqnewline,replace);
-        strcat(nqquote,replace);
-    }
-
-    if( canquote )
-    {
-        if( *escape )
-        {
-            strcpy(qquote,escape);
-            strcat(qquote,quote);
-            strcpy(qescape,escape);
-            strcat(qescape,escape);
-        }
-        else
-        {
-            strcpy(qquote,replace);
-        }
-    }
-
     printf("\nPrinting table...\n");
-    print_table_header( out );
+    table.printHeader( out );
 
-    if( valid_columns == obs_valid_columns )
+    if( table.listsObservations() )
     {
-        list_observations( out, b );
+        list_observations( out, b, table );
     }
-    else if ( valid_columns == stn_valid_columns )
+    else if ( table.listsStations() )
     {
-        list_stations( out );
+        list_stations( out, table );
     }
 }
 
 /*======================================================================*/
 
-static char deg[30] = {' ', 0 };
-static char min[30] = {' ', 0 };
-static char sec[30] = {0};
+static ListingConfig config;
 
-static const char *whitespace = " \r\t\n";
-
-static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_table( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_delimiter( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_angle_format( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_text( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_table( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_data( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_delimiter( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 static config_item main_commands[] =
 {
-    {"angle_format",NULL,CFG_ABSOLUTE,0,read_angle_format,0,0},
+    {"angle_format",&config,CFG_ABSOLUTE,0,read_angle_format,0,0},
     {"text",NULL,CFG_ABSOLUTE,0,read_text,0,0},
-    {"table",NULL,CFG_ABSOLUTE,0,read_table,0,0},
+    {"table",&config,CFG_ABSOLUTE,0,read_table,0,0},
     {NULL}
 };
 
@@ -670,124 +738,132 @@ enum { CHAR_DELIM, CHAR_QUOTE, CHAR_ESCAPE };
 
 static config_item table_commands[] =
 {
-    {"data",NULL,CFG_ABSOLUTE,0,read_data,CFG_ONEONLY | CFG_REQUIRED,0},
-    {"delimiter",NULL,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY | CFG_REQUIRED,CHAR_DELIM},
-    {"quote",NULL,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_QUOTE},
-    {"escape",NULL,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_ESCAPE},
-    {"column",NULL,CFG_ABSOLUTE,0,read_column,CFG_REQUIRED,0},
-    {"angle_format",NULL,CFG_ABSOLUTE,0,read_angle_format,0,0},
+    {"data",&config,CFG_ABSOLUTE,0,read_data,CFG_ONEONLY | CFG_REQUIRED,0},
+    {"delimiter",&config,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY | CFG_REQUIRED,CHAR_DELIM},
+    {"quote",&config,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_QUOTE},
+    {"escape",&config,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_ESCAPE},
+    {"column",&config,CFG_ABSOLUTE,0,read_column,CFG_REQUIRED,0},
+    {"angle_format",&config,CFG_ABSOLUTE,0,read_angle_format,0,0},
     {"end_table",NULL,CFG_ABSOLUTE,0,STORE_AS_STRING,CFG_END,0},
     {NULL}
 };
 
-static char *interpret_escaped_string( char *source, char *target, int maxtgt )
+namespace {
+/// Decodes the 2-hex-digit escape byte starting right after source[xi]
+/// (the 'x'/'X' character itself), if both following characters are
+/// present and are hex digits.
+std::optional<char> parseHexEscapeByte( std::string_view source, std::size_t xi )
 {
-    char *s = source;
-    char *t = target;
-    int nch = maxtgt;
-    char escape;
-    if( nch < 1 || !target ) {return target; }
-    escape = 0;
-    for( ; *s; s++ )
-    {
-        if( !escape && *s == '\\' )
-        {
-            escape = 1;
-            continue;
-        }
-        else if( escape )
-        {
-            escape = 0;
-            switch( *s )
-            {
-            case 'B': case 'b': *t = ' '; break;
-            case 'T': case 't': *t = '\t'; break;
-            case 'N': case 'n': *t = '\n'; break;
-            case 'X': case 'x':
-                if( ISXDIGIT(s[1]) && ISXDIGIT(s[2]))
-                {
-                    unsigned char c;
-                    c = ISDIGIT(s[1]) ? (s[1] - '0') : (10 + TOUPPER(s[1]) - 'A');
-                    c *= 16;
-                    c += ISDIGIT(s[2]) ? (s[2] - '0') : (10 + TOUPPER(s[2]) - 'A');
-                    s += 2;
-                    *t = c;
-                }
-                else
-                {
-                    *t = *s;
-                }
-                break;
+    if( xi+2 >= source.size() || ! ISXDIGIT(source[xi+1]) || ! ISXDIGIT(source[xi+2]) ) return std::nullopt;
+    unsigned char hx = is_digit(source[xi+1]) ? (source[xi+1] - '0') : (10 + TOUPPER(source[xi+1]) - 'A');
+    hx = hx*16 + ( is_digit(source[xi+2]) ? (source[xi+2] - '0') : (10 + TOUPPER(source[xi+2]) - 'A') );
+    return static_cast<char>(hx);
+}
+}
 
-            default: *t = *s; break;
+/// Decodes one escape unit from source starting at position i - a single
+/// plain/underscore character, a two-character \\b/\\t/\\n/\\X-with-no-valid-
+/// hex-pair escape, or a four-character \\xNN hex escape. Sets target to the
+/// character to emit, or leaves it nullopt if this step produces no output
+/// at all (a lone trailing '\\' with nothing following it).
+/// \return the number of source characters consumed (always at least 1).
+static std::size_t interpret_escaped_string( std::string_view source, std::size_t i, std::optional<char> &target )
+{
+    target = std::nullopt;
+    const char c = source[i];
+    if( c == '\\' )
+    {
+        if( i+1 >= source.size() ) return 1;  // dangling backslash - no output
+        const char next = source[i+1];
+        switch( next )
+        {
+        case 'B': case 'b': target = ' '; return 2;
+        case 'T': case 't': target = '\t'; return 2;
+        case 'N': case 'n': target = '\n'; return 2;
+        case 'X': case 'x':
+            if( auto hx = parseHexEscapeByte(source,i+1) )
+            {
+                target = *hx;
+                return 4;  // '\', 'x', and 2 hex digits
             }
+            target = next;
+            return 2;
+        default: target = next; return 2;
         }
-        else if( *s == '_' )
-        {
-            *t = ' ';
-        }
-        else
-        {
-            *t = *s;
-        }
-        t++; nch--;
-        if( !nch ) break;
     }
-    *t = 0;
-    return target;
+    if( c == '_' )
+    {
+        target = ' ';
+        return 1;
+    }
+    target = c;
+    return 1;
+}
+
+/// Runs interpret_escaped_string() over the whole of source. The result ends at the first
+/// NUL character that the decoding produces, as the C string it replaced did.
+static std::string decode_escaped_string( const std::string_view source )
+{
+    std::string decoded;
+    for( std::size_t i=0; i<source.size(); )
+    {
+        std::optional<char> ch;
+        i += interpret_escaped_string( source, i, ch );
+        if( ! ch ) continue;
+        if( *ch == '\0' ) break;
+        decoded += *ch;
+    }
+    return decoded;
 }
 
 // #pragma warning(disable: 4100)
 
-static int read_angle_format( CFG_FILE *, char *string, void *, int, int )
+static int read_angle_format( CFG_FILE *, std::string_view string, void *value, int, int )
 {
-    char *sdeg, *smin, *ssec;
-    char angle_delim[2];
-    while( *string && ISSPACE(*string) ) string++;
-    angle_delim[0] = *string;
-    angle_delim[1] = 0;
+    ListingConfig &config = *static_cast<ListingConfig *>( value );
+    // The format's own field separator is whatever character comes first
+    // after leading whitespace (e.g. "." or ":"). Fields are separated by
+    // one or more of it, so "###a##b##c" and "#a#b#c" are the same format.
+    const auto firstNonSpace = std::find_if( string.begin(), string.end(),
+        []( const char c ){ return ! ISSPACE(c); } );
+    if( firstNonSpace == string.end() ) return MISSING_DATA;
+    const char delim = *firstNonSpace;
+    FieldScanner scanner( string.substr( std::distance( string.begin(), firstNonSpace ) ) );
 
-    sdeg = strtok( string, angle_delim );
-    smin = strtok( NULL, angle_delim );
-    if( !smin ) return MISSING_DATA;
-    interpret_escaped_string( sdeg, deg, 30 );
-    interpret_escaped_string( smin, min, 30 );
-    ssec = strtok( NULL, angle_delim );
-    if( ssec )
-    {
-        interpret_escaped_string( ssec, sec, 30 );
-    }
-    else
-    {
-        sec[0] = 0;
-    }
+    const auto degField = scanner.nextToken( delim );
+    const auto minField = scanner.nextToken( delim );
+    if( ! minField ) return MISSING_DATA;
+    const auto secField = scanner.nextToken( delim );
+
+    config.degreeSeparator = decode_escaped_string( *degField );
+    config.minuteSeparator = decode_escaped_string( *minField );
+    config.secondSeparator = secField ? decode_escaped_string( *secField ) : std::string();
     return OK;
 }
 
 // #pragma warning(disable: 4100)
 
-static int read_text( CFG_FILE *cfg, char *, void *, int, int )
+static int read_text( CFG_FILE *cfg, std::string_view, void *, int, int )
 {
-    int finished, read_opts, overrun;
-    static char buf[1024];
-    read_opts = set_config_read_options( cfg, CFG_IGNORE_COMMENT );
-    finished = 0;
-    while( !finished  && get_config_line( cfg, buf, 1024, &overrun ) )
+    bool finished = false;
+    const int read_opts = set_config_read_options( cfg, CFG_IGNORE_COMMENT );
+    ConfigLine line;
+    while( !finished && cfg->get_config_line( line, CFG_MAX_LINE_LENGTH ) )
     {
-        if( overrun )
+        if( line.overrun )
         {
             send_config_error( cfg, INVALID_DATA,
                            "Text line too long in config file");
-            finished=1;
+            finished=true;
             break;
         }
-        if( _strnicmp( buf, "end_text", 8 ) == 0 )
+        if( boost::algorithm::istarts_with( line.content, "end_text" ) )
         {
-            finished = 1;
+            finished = true;
         }
         else
         {
-            if( out ) fprintf(out,"%s\n",buf);
+            if( out ) fprintf(out,"%s\n",line.content.c_str());
         }
     }
     if( !finished )
@@ -801,44 +877,45 @@ static int read_text( CFG_FILE *cfg, char *, void *, int, int )
 
 // #pragma warning(disable: 4100)
 
-static int read_table( CFG_FILE *cfg, char *, void *, int, int )
+static int read_table( CFG_FILE *cfg, std::string_view, void *value, int, int )
 {
-    int read_opts;
-    int sts;
-    init_table();
-    strcpy(quote,"\"");
-    strcpy(delim,",");
-    strcpy(escape,"\"");
-    read_opts = set_config_read_options( cfg, CFG_INIT_ITEMS | CFG_CHECK_MISSING | CFG_POSITIONAL_COMMENT );
-    sts = read_config_file( cfg, table_commands );
-    if( sts == OK ) print_table();
+    ListingConfig &config = *static_cast<ListingConfig *>( value );
+    config.table = TableDefinition();
+    const int read_opts = set_config_read_options( cfg, CFG_INIT_ITEMS | CFG_CHECK_MISSING | CFG_POSITIONAL_COMMENT );
+    const int sts = read_config_file( cfg, table_commands );
+    if( sts == OK )
+    {
+        TableWriter writer( config.table );
+        print_table( writer );
+    }
     set_config_read_options( cfg, read_opts );
     return OK;
 }
 
 // #pragma warning(disable: 4100)
 
-static int read_data( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_data( CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
-    char *s;
-    column_def *coltype = 0;
-    s = strtok(string,whitespace);
-    if( _stricmp( s, "stations" ) == 0 )
+    TableDefinition &table = static_cast<ListingConfig *>( value )->table;
+    const std::vector<ColumnSource> *coltype = nullptr;
+    FieldScanner scanner(string);
+    auto s = scanner.next();
+    if( s && boost::algorithm::iequals( *s, "stations" ) )
     {
-        coltype = stn_valid_columns;
-        stn_data = 1;
+        coltype = &stn_valid_columns;
+        table.stationData = true;
     }
-    else if( _stricmp( s, "gps" ) == 0 )
+    else if( s && boost::algorithm::iequals( *s, "gps" ) )
     {
-        coltype = obs_valid_columns;
-        stn_data = 0;
+        coltype = &obs_valid_columns;
+        table.stationData = false;
     }
     else
     {
         send_config_error( cfg, INVALID_DATA, "Program only handles GPS and station data currently" );
     }
-    if( valid_columns == 0 ) valid_columns = coltype;
-    if( valid_columns != coltype )
+    if( ! table.validColumns ) table.validColumns = coltype;
+    if( table.validColumns != coltype )
     {
         send_config_error( cfg, INVALID_DATA, "Inconsistent data types defined" );
     }
@@ -847,110 +924,110 @@ static int read_data( CFG_FILE *cfg, char *string, void *, int, int )
 
 // #pragma warning(disable: 4100)
 
-static int read_delimiter( CFG_FILE *, char *string, void *, int, int code )
+static int read_delimiter( CFG_FILE *, std::string_view string, void *value, int, int code )
 {
-    char *s, *t;
+    TableDefinition &table = static_cast<ListingConfig *>( value )->table;
+    FieldScanner scanner(string);
+    auto s = scanner.next();
+    if( !s ) return MISSING_DATA;
+
+    std::optional<char> character;
+    if( boost::algorithm::iequals(*s,"tab") )
+    {
+        character = '\t';
+    }
+    else if( boost::algorithm::iequals(*s,"comma") )
+    {
+        character = ',';
+    }
+    else if( boost::algorithm::iequals(*s,"blank") )
+    {
+        character = ' ';
+    }
+    else if( ! boost::algorithm::iequals(*s,"none") )
+    {
+        // Only the first character is used
+        const std::string decoded = decode_escaped_string( *s );
+        if( ! decoded.empty() ) character = decoded.front();
+    }
+
     switch( code )
     {
-    case CHAR_QUOTE: t=quote; break;
-    case CHAR_DELIM: t=delim; break;
-    case CHAR_ESCAPE: t=escape; break;
+    case CHAR_QUOTE: table.quote = character; break;
+    case CHAR_DELIM: table.delimiter = character; break;
+    case CHAR_ESCAPE: table.escape = character; break;
     default:
         return INVALID_DATA;
     }
-    s = strtok( string, whitespace );
-    if( !s ) return MISSING_DATA;
-    if( _stricmp(s,"tab") == 0 )
-    {
-        strcpy(t,"\t");
-        return OK;
-    }
-    if( _stricmp(s,"comma") == 0)
-    {
-        strcpy(t,",");
-        return OK;
-    }
-    if( _stricmp(s,"blank") == 0 )
-    {
-        strcpy(t," ");
-        return OK;
-    }
-    if( _stricmp(s,"none") == 0 )
-    {
-        strcpy(t,"");
-        return OK;
-    }
-    interpret_escaped_string( s, t, MAX_DELIM );
     return OK;
 }
 
+/// Splits a column heading into one entry for each line, up to maximumHeaderRows
+static std::vector<std::string> split_header( const std::string_view header )
+{
+    std::vector<std::string> rows;
+    if( header.empty() ) return rows;
+    std::string_view remaining = header;
+    while( rows.size() < maximumHeaderRows )
+    {
+        const std::size_t newline = remaining.find( '\n' );
+        rows.emplace_back( remaining.substr( 0, newline ) );
+        if( newline == std::string_view::npos ) break;
+        remaining = remaining.substr( newline + 1 );
+    }
+    return rows;
+}
 
 // #pragma warning(disable: 4100)
 
-#define MAX_PREFIX 30
-
-static int read_column( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
-    char *data;
-    char *opt;
-    char *val;
-    column_def *cd, *tblcol;
+    ListingConfig &config = *static_cast<ListingConfig *>( value );
     int width = -1;
     int just = -1;
     int ndp = -1;
     int quote = QT_NONE;
-    static char header[1024];
-    char *h;
-    int nh;
-    int i;
-    char prefix[MAX_PREFIX];
-    char suffix[MAX_PREFIX];
+    std::string header;
+    std::string prefix;
+    std::string suffix;
 
-    prefix[0] = 0;
-    suffix[0] = 0;
-    data = strtok(string,whitespace);
+    FieldScanner scanner(string);
+    auto data = scanner.next();
     if( !data ) return MISSING_DATA;
-    cd = 0;
-    if( _strnicmp(data,"class=",6) == 0)
+    std::optional<ColumnSource> source;
+    if( boost::algorithm::istarts_with(*data,"class="))
     {
-        cd = get_class_column_def( data+6 );
+        source = config.table.classColumn( data->substr(6) );
     }
-    else
+    else if( const ColumnSource *valid = config.table.validColumn( *data ) )
     {
-        cd = get_column_def( data );
+        source = *valid;
     }
-    if( !cd )
+    if( !source )
     {
-        char errmess[80];
-        sprintf(errmess,"Invalid column name %.20s specified",data );
-        send_config_error( cfg, INVALID_DATA, errmess );
+        send_config_error( cfg, INVALID_DATA, "Invalid column name " + std::string( data->substr( 0, 20 ) ) + " specified" );
         return OK;
     }
 
-    header[0] = 0;
-
-    while( NULL != (opt = strtok(NULL, whitespace) ) )
+    for( auto opt = scanner.next(); opt; opt = scanner.next() )
     {
-        if( _stricmp(opt,"quote") == 0 ) { quote = QT_QUOTE; continue; }
-        if( _stricmp(opt,"literal") == 0 ) { quote = QT_LITERAL; continue; }
-        for( val = opt; *val; val++ )
+        if( boost::algorithm::iequals(*opt,"quote") ) { quote = QT_QUOTE; continue; }
+        if( boost::algorithm::iequals(*opt,"literal") ) { quote = QT_LITERAL; continue; }
+        const auto eqPos = opt->find('=');
+        if( eqPos == std::string_view::npos || eqPos == opt->size()-1 )
         {
-            if( *val == '=' ) break;
-        }
-        if( !val[0] || !val[1])
-        {
-            char errmess[80];
-            sprintf(errmess,"Missing value for option %.20s in column command",
-                    opt);
-            send_config_error( cfg, MISSING_DATA, errmess );
+            send_config_error( cfg, MISSING_DATA,
+                               "Missing value for option " + std::string( opt->substr( 0, 20 ) ) + " in column command" );
             return OK;
         }
-        *val++ = 0;
-        if( _stricmp(opt,"width") == 0 )
+        const std::string_view key = opt->substr(0,eqPos);
+        const std::string_view val = opt->substr(eqPos+1);
+        if( boost::algorithm::iequals(key,"width") )
         {
-            if( sscanf(val,"%d",&width) == 1 && width >= 0 ) continue;
+            auto w = parse_leading<int>(val);
+            if( w && *w >= 0 ) { width = *w; continue; }
         }
-        else if( _stricmp(opt,"align") == 0 )
+        else if( boost::algorithm::iequals(key,"align") )
         {
             switch( val[0] )
             {
@@ -959,72 +1036,53 @@ static int read_column( CFG_FILE *cfg, char *string, void *, int, int )
             case 'r': case 'R': just = JST_RIGHT; continue;
             }
         }
-        else if( _stricmp(opt,"ndp") == 0 )
+        else if( boost::algorithm::iequals(key,"ndp") )
         {
-            if( sscanf(val,"%d",&ndp) == 1 && ndp >= 0 ) continue;
+            auto d = parse_leading<int>(val);
+            if( d && *d >= 0 ) { ndp = *d; continue; }
         }
-        else if( _stricmp(opt,"header") == 0 )
+        else if( boost::algorithm::iequals(key,"header") )
         {
-            interpret_escaped_string( val, header, 1024 );
+            header = decode_escaped_string( val );
             continue;
         }
-        else if( _stricmp(opt,"prefix") == 0 )
+        else if( boost::algorithm::iequals(key,"prefix") )
         {
-            interpret_escaped_string( val, prefix, MAX_PREFIX );
+            prefix = decode_escaped_string( val );
             continue;
         }
-        else if( _stricmp(opt,"suffix") == 0 )
+        else if( boost::algorithm::iequals(key,"suffix") )
         {
-            interpret_escaped_string( val, suffix, MAX_PREFIX );
+            suffix = decode_escaped_string( val );
             continue;
         }
         else
         {
-            char errmess[80];
-            sprintf(errmess,"Invalid option %.20s in column command",opt);
-            send_config_error( cfg, INVALID_DATA, errmess );
+            send_config_error( cfg, INVALID_DATA,
+                               "Invalid option " + std::string( key.substr( 0, 20 ) ) + " in column command" );
             return OK;
         }
         {
-            char errmess[80];
-            sprintf(errmess,"Invalid value %.20s for option %.20s",val,opt);
-            send_config_error( cfg, INVALID_DATA, errmess );
+            send_config_error( cfg, INVALID_DATA,
+                               "Invalid value " + std::string( val.substr( 0, 20 ) ) + " for option " + std::string( key.substr( 0, 20 ) ) );
             return OK;
         }
 
     }
 
-    tblcol = (column_def *) add_to_list( table_columns, NEW_ITEM );
-    memcpy( tblcol, cd, sizeof(column_def) );
-    if( width >= 0 ) tblcol->width = width;
-    if( just > 0 ) tblcol->just = just;
-    if( ndp >= 0 ) tblcol->ndp = ndp;
-    tblcol->quote = quote;
-    if( tblcol->type == TYPE_ANGLE )
+    TableColumn column( *source );
+    if( width >= 0 ) column.width = width;
+    if( just > 0 ) column.just = just;
+    if( ndp >= 0 ) column.ndp = ndp;
+    column.quote = quote;
+    if( column.type == TYPE_ANGLE )
     {
-        tblcol->format = create_dms_format( 0, ndp, 0, deg, min, sec, NULL, NULL );
+        column.format.emplace( config.angleFormat( ndp ) );
     }
-    h = header;
-    if ( !*h ) h = NULL;
-    nh = 0;
-    for( i = 0; i < MAX_HEADERS; i++ )
-    {
-        tblcol->header[i] = NULL;
-        if( h )
-        {
-            char *end, more;
-            for( end = h; *end && *end != '\n'; end++ ) {}
-            more = *end;
-            *end = 0;
-            tblcol->header[i] = copy_string( h );
-            h = more ? end+1 : NULL;
-            nh++;
-        }
-    }
-    if( nh > table_header_rows ) table_header_rows = nh;
-    tblcol->prefix = prefix[0] ? copy_string( prefix ) : NULL;
-    tblcol->suffix = suffix[0] ? copy_string( suffix ) : NULL;
-    tblcol->extralen = -1;
+    column.header = split_header( header );
+    column.prefix = std::move( prefix );
+    column.suffix = std::move( suffix );
+    config.table.columns.push_back( std::move( column ) );
 
     return OK;
 }
@@ -1056,7 +1114,7 @@ int reload_covariances( BINARY_FILE *b )
     if( find_section( b, "STATION_COVARIANCES" ) != OK ) return MISSING_DATA;
 
     nstns = number_of_stations( net );
-    covar = (covariance *) check_malloc( sizeof(covariance) * (nstns+1) );
+    covar.assign( nstns+1, covariance() );
 
     for( istn = 0; istn++ < nstns; )
     {
@@ -1079,11 +1137,10 @@ static const char *default_cfg_name = "snaplist";
 
 int main( int argc, char *argv[] )
 {
-    char *bfn;
     coordsys *xyzcs;
     double lat, lon;
     CFG_FILE *cfg = 0;
-    const char *cfn;
+    std::optional<std::string> cfn;
     const char *basecfn, *ofn;
 
     CONFIGURE_RUNTIME();
@@ -1100,7 +1157,7 @@ int main( int argc, char *argv[] )
     install_default_projections();
     install_default_crdsys_file( );
 
-    bfn = argv[1];
+    const std::string bfn = argv[1];
     b = open_binary_file( bfn, BINFILE_SIGNATURE ).file;
 
     if( !b ||
@@ -1110,7 +1167,7 @@ int main( int argc, char *argv[] )
             reload_rftransformations( b ) != OK )
     {
 
-        printf( "Cannot reload data from binary file %s\n", bfn);
+        printf( "Cannot reload data from binary file %s\n", bfn.c_str());
         return 0;
     }
 
@@ -1123,13 +1180,13 @@ int main( int argc, char *argv[] )
        and projection bearings */
 
     xyzcs = related_coordsys( net->crdsys, CSTP_CARTESIAN );
-    define_coord_conversion( &to_xyz, net->crdsys, xyzcs );
-    define_coord_conversion( &from_xyz, xyzcs, net->crdsys );
+    to_xyz = coord_conversion( net->crdsys, xyzcs );
+    from_xyz = coord_conversion( xyzcs, net->crdsys );
     el = net->crdsys->rf->el;
 
     get_network_topocentre( net, &lat, &lon );
-    init_station( &dummy1, "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, el );
-    init_station( &dummy2, "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, el );
+    dummy1 = station( "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, *el );
+    dummy2 = station( "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, *el );
 
     reload_obs_classes( b );
 
@@ -1144,8 +1201,8 @@ int main( int argc, char *argv[] )
         ofn = argv[3];
     }
 
-    cfn = find_file( basecfn, ".tbf", bfn, FF_TRYALL, "snaplist" );
-    if( cfn ) { cfg = open_config_file( cfn, '!' );}
+    cfn = find_file( basecfn, ".tbf", std::optional<std::string>(bfn), FF_TRYALL, "snaplist" );
+    if( cfn ) { cfg = open_config_file( *cfn, '!' );}
     if( !cfn || !cfg )
     {
         printf("Cannot open configuration file %s\n",basecfn);
@@ -1159,7 +1216,7 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    printf("\nUsing configuration file %s\n",cfn);
+    printf("\nUsing configuration file %s\n",cfn->c_str());
     read_config_file( cfg, main_commands );
     close_config_file( cfg );
 

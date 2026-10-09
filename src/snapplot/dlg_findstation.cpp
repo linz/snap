@@ -43,7 +43,7 @@ bool FindStationDialog::Validate()
         return false;
     }
 
-    stationId = find_station( net, stationCode.mb_str() );
+    stationId = find_station( net, stationCode.mb_str().data() );
     if( stationId <= 0 )
     {
         wxMessageBox(wxString::Format("Station %s is not defined in this network",

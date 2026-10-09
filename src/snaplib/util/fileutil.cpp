@@ -28,200 +28,135 @@
 #define _stat stat
 #include <unistd.h>
 #endif
+#include <algorithm>
 #include <filesystem>
+#include <forward_list>
+#include <system_error>
+#include <vector>
 
 
 #include "util/fileutil.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/errdef.h"
 
-static char *usercfg=NULL;
-static char *syscfg=NULL;
-static char *imgpath=NULL;
-static char *imgdir=NULL;
-static char *imgname=NULL;
-static char *filename=NULL;
-static int filenamelen=0;
+static std::optional<std::string> usercfg;
+static std::optional<std::string> syscfg;
+static std::optional<std::string> imgpath;
+static std::optional<std::string> imgdir;
+static std::optional<std::string> imgname;
 
-typedef struct config_path_def_s
-{
-    struct config_path_def_s *next;
-    char *path;
-} config_path_def;
-
-static config_path_def *config_dir_list=0;
-static int config_dirs_set=0;
+static std::optional<std::forward_list<std::string>> config_dir_list;
 
 static file_context *current_context = 0;
 static file_context *context_list = 0;
 
 #define SNAPTMP_TEMPLATE "SNAP_TMP_XXXXXX"
 
-static char *filenameptr( int reqlen )
+std::string native_path( const std::string_view path )
 {
-    if( ! filename || reqlen > filenamelen )
+    std::string result( path );
+    for( char &c : result )
     {
-        if( filename ) check_free(filename);
-        reqlen = reqlen*2;
-        if( reqlen < MAX_FILENAME_LEN ) reqlen=MAX_FILENAME_LEN;
-        filename = (char *) check_malloc(reqlen+1);
-        filenamelen = reqlen;
+        if( c == PATH_SEPARATOR2 ) c = PATH_SEPARATOR;
     }
-    return filename;
+    return result;
 }
 
-int path_len( const char *base, int want_name )
+int path_exists( const std::string &path )
 {
-    const char *c;
-    int i, idot, ipath;
-
-    idot = -2;
-    ipath = -1;
-    for( c = base, i=0; *c; c++, i++ )
-    {
-        if( *c == DRIVE_SEPARATOR ||
-                *c == PATH_SEPARATOR  ||
-                *c == PATH_SEPARATOR2 ) ipath = i;
-        else if( *c == EXTENSION_SEPARATOR ) idot = i;
-    }
-    if( idot < ipath ) idot = i;
-    return want_name ? idot : ipath+1;
+    std::error_code ec;
+    return std::filesystem::exists(path, ec) ? 1 : 0;
 }
 
-/* Check whether a file exists by trying to open it for reading */
-
-int file_exists( const char *file )
+int is_dir(const std::string &path)
 {
-    if( ! file ) return 0;
-    return _access( file, 04 ) == 0 ? 1 : 0;
+    std::error_code ec;
+    return std::filesystem::is_directory(path, ec) ? 1 : 0;
 }
 
-int is_dir(const char *path)
+/* std::filesystem::file_time_type doesn't convert portably to time_t
+   pre-C++20 (std::chrono::clock_cast is a C++20 addition, and this
+   codebase targets C++17) - stays on _stat's st_mtime rather than
+   std::filesystem::last_write_time. */
+time_t  file_modtime(const std::string &path)
 {
     struct _stat info;
-    if(_stat( path, &info ) != 0)
-        return 0;
-    else if(info.st_mode & S_IFDIR)
-        return 1;
-    else
-        return 0;
-}
-
-time_t  file_modtime(const char *path)
-{
-    struct _stat info;
-    if(_stat( path, &info ) != 0)
+    if(_stat( path.c_str(), &info ) != 0)
         return 0;
     return info.st_mtime;
 }
 
-int  file_size(const char *path)
+int  file_size(const std::string &path)
 {
-    struct _stat info;
-    if(_stat( path, &info ) != 0)
-        return 0;
-    return info.st_size;
+    std::error_code ec;
+    auto sz = std::filesystem::file_size(path, ec);
+    return ec ? 0 : static_cast<int>(sz);
 }
 
-char *build_config_filespec( char *spec, int nspec,
-                             const char *dir, int pathonly, const char *config,
-                             const char *name, const char *dflt_ext )
+/* Lexically collapses "." and ".." segments in path, treating either
+   PATH_SEPARATOR or PATH_SEPARATOR2 as a segment boundary. Never touches
+   the filesystem - doesn't resolve symlinks or check that a collapsed
+   ".." segment's target actually exists. Preserves a leading separator
+   (an absolute path stays absolute). A ".." with no preceding real
+   segment to cancel (either because there isn't one, or because the
+   preceding segment is itself "." or ".." or otherwise dot-led) is kept
+   literally, since there's nothing lexically valid to collapse it against. */
+static std::string normalize_path( const std::string &path )
 {
-    int nch = 0;
-    int dirlen = 0;
-    char *end;
-    char *mp;
-    if( dir ) 
-    {
-        dirlen=pathonly ? path_len(dir,0) : strlen(dir);
-        if( dirlen > 0 && (dir[dirlen-1]==PATH_SEPARATOR || dir[dirlen-1]==PATH_SEPARATOR2) ) dirlen--;
-        if( dirlen > 0 ) nch += dirlen + 1;
-    }
-    if( config ) nch += strlen(config) + 1;
-    if( name ) nch += strlen(name);
-    if( dflt_ext ) nch += strlen(dflt_ext);
-    nch++;
+    bool absolute = ! path.empty() &&
+        (path.front()==PATH_SEPARATOR || path.front()==PATH_SEPARATOR2);
 
-    if( spec && nch > nspec ) { spec[0]=0; return spec; }
-    if( ! spec )
+    std::vector<std::string> segments;
+    size_t pos = 0;
+    while( pos <= path.size() )
     {
-        spec=filenameptr(nch);
-    }
-
-    *spec=0;
-    end=spec;
-    if( dirlen > 0 )
-    {
-        strncpy(end,dir,dirlen);
-        end += dirlen;
-        *end=PATH_SEPARATOR;
-        end++;
-        *end=0;
-    }
-    if( config ) { strcpy(end,config); end += strlen(config); *end=PATH_SEPARATOR; end++; *end=0; }
-    if( name ) { strcpy(end,name); }
-    if( dflt_ext ) strcat(end,dflt_ext);
-
-    /* Normalize path - very crude */
-
-    for( char *c=spec; *c; c++ )
-    {
-        if( *c == PATH_SEPARATOR || *c == PATH_SEPARATOR2 )
+        size_t next = pos;
+        while( next < path.size() && path[next] != PATH_SEPARATOR && path[next] != PATH_SEPARATOR2 ) next++;
+        std::string segment = path.substr(pos,next-pos);
+        if( segment == "." )
         {
-            char backtrack=0;
-            end=c+1;
-            if( *end != '.' ) continue;
-            if( *(end+1) == '.' ){ end++; backtrack=1; }
-            end++;
-            if( *end != PATH_SEPARATOR && *end != PATH_SEPARATOR2 ) continue;
-            end++;
-            if( backtrack )
-            {
-                if( c == spec ) continue;
-                while( c > spec )
-                {
-                    c--;
-                    if( *c == PATH_SEPARATOR || *c == PATH_SEPARATOR2 ) 
-                    {
-                        c++;
-                        break;
-                    }
-                }
-                if( *c == '.' ) 
-                {
-                    c=end;
-                    continue;
-                }
-            }
-            else
-            {
-                c++;
-            }
-            for( mp=c; *end; mp++, end++ ) { *mp=*end; }
-            *mp=0;
+            /* drop */
         }
+        else if( segment == ".." && ! segments.empty() && segments.back()[0] != '.' )
+        {
+            segments.pop_back();
+        }
+        else if( ! segment.empty() )
+        {
+            segments.push_back(std::move(segment));
+        }
+        if( next >= path.size() ) break;
+        pos = next+1;
     }
 
-    end=spec;
-    while( *end == '.' && (*(end+1) == PATH_SEPARATOR || *(end+1) == PATH_SEPARATOR2))
+    std::string result;
+    if( absolute ) result += PATH_SEPARATOR;
+    for( size_t i=0; i<segments.size(); i++ )
     {
-        end+=2;
-    } 
-
-    if( end > spec )
-    {
-        for( mp=spec; *end; mp++, end++ ) { *mp=*end; }
-        *mp=0;
+        if( i>0 ) result += PATH_SEPARATOR;
+        result += segments[i];
     }
-
-    return spec;
+    return result;
 }
 
-char *build_filespec( char *spec, int nspec,
-                      const char *dir, const char *name, const char *dflt_ext )
+std::string build_config_filespec( const std::string &dir, const bool pathonly, const std::string &config,
+                                   const std::string &name, const std::string &dflt_ext )
 {
-    return build_config_filespec(spec,nspec,dir,0,0,name,dflt_ext);
+    std::string dirpart = pathonly ? std::filesystem::path( native_path(dir) ).parent_path().string() : dir;
+    if( ! dirpart.empty() && (dirpart.back()==PATH_SEPARATOR || dirpart.back()==PATH_SEPARATOR2) ) dirpart.pop_back();
+
+    std::string spec;
+    if( ! dirpart.empty() ) { spec += dirpart; spec += PATH_SEPARATOR; }
+    if( ! config.empty() ) { spec += config; spec += PATH_SEPARATOR; }
+    if( ! name.empty() ) spec += name;
+    if( ! dflt_ext.empty() ) spec += dflt_ext;
+
+    return normalize_path(spec);
+}
+
+std::string build_filespec( const std::string &dir, const std::string &name, const std::string &dflt_ext )
+{
+    return build_config_filespec(dir,false,"",name,dflt_ext);
 }
 
 
@@ -231,212 +166,134 @@ char *build_filespec( char *spec, int nspec,
 
 #ifdef UNIX
 
-const char *image_path()
+std::optional<std::string> image_path()
 {
-    char _link[20];
-    char buf[10];
     if( imgpath ) return imgpath;
-    pid_t pid = getpid();
-    sprintf( buf,"%d", pid );
-    strcpy( _link, "/proc/" );
-    strcat( _link, buf );
+    std::string link = "/proc/" + std::to_string(getpid());
 #if defined(__linux) || defined(linux)
-    strcat( _link, "/exe" );
+    link += "/exe";
 #endif
 #if defined(sun) || defined(__sun)
-    strcat( _link, "/path/a.out" );
+    link += "/path/a.out";
 #endif
 #if defined(__bsdi__)
-    strcat( _link, "/file" );
+    link += "/file";
 #endif
-    char proc[512];
-    ssize_t len = readlink( _link, proc, 512);
+    std::string proc(512, '\0');
+    ssize_t len = readlink( link.c_str(), proc.data(), proc.size() );
     if ( len != -1 )
     {
-        proc[len] = '\0';
-        imgpath = (char *) check_malloc(strlen(proc)+1 );
-        strcpy( imgpath, proc );
+        proc.resize(len);
+        imgpath = proc;
     }
     return imgpath;
 }
 
-const char *user_config_dir()
+std::optional<std::string> user_config_dir()
 {
-    char *homedir;
-    int len;
     if( usercfg ) return usercfg;
-    homedir = getenv("HOME");
-    if( ! homedir ) return NULL;
-    len = strlen(homedir);
-    usercfg = (char *) check_malloc( len + strlen(USER_CONFIG_BASE) + 3);
-    strcpy(usercfg,homedir);
-    usercfg[len] = PATH_SEPARATOR;
-    usercfg[len+1]='.';
-    strcpy(usercfg+len+2,USER_CONFIG_BASE);
+    const char *homedir = getenv("HOME");
+    if( ! homedir ) return std::nullopt;
+    usercfg = std::string(homedir) + PATH_SEPARATOR + "." + USER_CONFIG_BASE;
     return usercfg;
 }
 
 #else
 
-const char *image_path()
+std::optional<std::string> image_path()
 {
-
-    char *path=NULL;
     if( imgpath ) return imgpath;
+    char *path=NULL;
     _get_pgmptr(&path);
-    if( path ) imgpath=copy_string(path);
-    else imgpath=copy_string("");
+    imgpath = path ? std::string(path) : std::string();
     return imgpath;
 }
 
-const char *user_config_dir()
+std::optional<std::string> user_config_dir()
 {
-
-    char *appdata;
-    int len;
     if( usercfg ) return usercfg;
-    appdata = getenv("APPDATA");
-    if( ! appdata ) return NULL;
-    len = strlen(appdata);
-    usercfg = (char *) check_malloc( len + strlen(USER_CONFIG_BASE) + 2);
-    strcpy(usercfg,appdata);
-    usercfg[len] = PATH_SEPARATOR;
-    strcpy(usercfg+len+1,USER_CONFIG_BASE);
+    const char *appdata = getenv("APPDATA");
+    if( ! appdata ) return std::nullopt;
+    usercfg = std::string(appdata) + PATH_SEPARATOR + USER_CONFIG_BASE;
     return usercfg;
 }
 
 #endif
 
-const char *image_name()
+std::string image_name()
 {
-    if( imgname ) return imgname;
-    const char *path=image_path();
-    int np=path_len(path,0);
-    int np2=path_len(path+np,1);
-    imgname= (char *) check_malloc(np2+1);
-    strncpy(imgname,path+np,np2);
-    imgname[np2]=0;
-    return imgname;
+    if( imgname ) return *imgname;
+    std::filesystem::path path( image_path().value_or("") );
+    imgname = path.stem().string();
+    return *imgname;
 }
 
-const char *image_dir()
+std::string image_dir()
 {
-    int plen;
-    const char *imgpath;
-    if( imgdir ) return imgdir;
-    imgpath = image_path();
-    plen = path_len(imgpath,0);
-    if( plen ) plen--;
-    imgdir = copy_string_nch(imgpath,plen);
-    return imgdir;
+    if( imgdir ) return *imgdir;
+    std::filesystem::path path( image_path().value_or("") );
+    imgdir = path.parent_path().string();
+    return *imgdir;
 }
 
-const char *system_config_dir()
+std::string system_config_dir()
 {
-    int len;
-    const char *imgdir;
-    if( syscfg ) return syscfg;
-    imgdir=image_dir();
-    len = strlen(imgdir) + strlen(SYS_CONFIG_BASE) + 2;
-    syscfg = (char *) check_malloc(len);
-    strcpy(syscfg,imgdir);
-    len=strlen(syscfg);
-    syscfg[len]=PATH_SEPARATOR;
-    strcpy(syscfg+len+1,SYS_CONFIG_BASE);
-    return syscfg;
+    if( syscfg ) return *syscfg;
+    syscfg = image_dir() + PATH_SEPARATOR + SYS_CONFIG_BASE;
+    return *syscfg;
 }
 
-static config_path_def *config_dirs()
+/// The directories searched for config files, in search order: the SNAPENV entries, then the
+/// user's config directory, then the system's. Only those that exist when the list is first
+/// built are kept. Built on the first call and kept until reset_config_dirs().
+static const std::forward_list<std::string> &config_dirs()
 {
-    const char *snapenv;
-    const char *start, *end;
-    config_path_def **nextpath;
-    if( config_dirs_set ) return config_dir_list;
-    config_dirs_set = 1;
-    nextpath = &config_dir_list;
-    snapenv =  getenv(SNAPENV);
-    if( snapenv )
+    if( config_dir_list ) return *config_dir_list;
+    config_dir_list.emplace();
+    auto last = config_dir_list->before_begin();
+
+    if( const char *snapenv = getenv(SNAPENV) )
     {
-        start=snapenv;
-        while( *start )
+        std::string_view remaining( snapenv );
+        while( ! remaining.empty() )
         {
-            int nch;
-            end=start;
-            while(*end && *end != PATHENV_SEP) end++;
-            nch=end-start;
-            if( nch > 0 )
+            const size_t end = std::min( remaining.find( PATHENV_SEP ), remaining.size() );
+            const std::string path( remaining.substr( 0, end ) );
+            if( ! path.empty() && path_exists( path ) )
             {
-                char *path = copy_string_nch(start,nch);
-                if( file_exists(path) )
-                {
-                    config_path_def *psub=(config_path_def *) check_malloc( sizeof(config_path_def) );
-                    psub->next = 0;
-                    psub->path = path;
-                    *nextpath=psub;
-                    nextpath = &(psub->next);
-                }
-                else
-                {
-                    check_free(path);
-                }
+                last = config_dir_list->insert_after( last, path );
             }
-            start = end;
-            if( *start ) start++;
+            remaining.remove_prefix( std::min( end + 1, remaining.size() ) );
         }
     }
-    if( file_exists(user_config_dir()))
+    if( const auto userdir = user_config_dir(); userdir && path_exists( *userdir ) )
     {
-        config_path_def *psub=(config_path_def *) check_malloc( sizeof(config_path_def) );
-        psub->next = 0;
-        psub->path = copy_string(user_config_dir());
-        *nextpath=psub;
-        nextpath = &(psub->next);
+        last = config_dir_list->insert_after( last, *userdir );
     }
-    if( file_exists(system_config_dir()))
+    if( const std::string systemdir = system_config_dir(); path_exists( systemdir ) )
     {
-        config_path_def *psub=(config_path_def *) check_malloc( sizeof(config_path_def) );
-        psub->next = 0;
-        psub->path = copy_string(system_config_dir());
-        *nextpath=psub;
-        nextpath = &(psub->next);
+        config_dir_list->insert_after( last, systemdir );
     }
-    return config_dir_list;
+    return *config_dir_list;
 }
 
 void reset_config_dirs()
 {
-    config_path_def *cpd;
-    while( config_dir_list )
-    {
-        cpd=config_dir_list;
-        config_dir_list=cpd->next;
-        check_free(cpd);
-    }
-    config_dirs_set=0;
+    config_dir_list.reset();
 }
 
-void set_user_config_dir( const char *cfgdir )
-{
-    if( usercfg ) check_free(usercfg);
-    usercfg = copy_string(cfgdir);
-}
-
-void push_file_context( const char *context_dir )
+void push_file_context( const std::string &context_dir )
 {
     file_context *context;
     for( context=context_list; context; context=context->next )
     {
-        if( context->parent == current_context && strcmp(context->dir, context_dir) == 0 )
+        if( context->parent == current_context && context->dir == context_dir )
         {
             current_context=context;
             return;
         }
     }
-    context = (file_context *) check_malloc(sizeof(file_context));
-    context->dir=copy_string(context_dir);
-    context->reldir=0;
-    context->parent=current_context;
-    context->next = context_list;
+    context = new file_context{ context_dir, std::nullopt, current_context, context_list };
     context_list=context;
     current_context = context;
 }
@@ -467,12 +324,7 @@ void free_file_contexts()
     while( context_list )
     {
         file_context *next = context_list->next;
-        check_free( (void *)(context_list->dir) );
-        if( context_list->reldir ) check_free( (void *)(context_list->reldir));
-        context_list->dir=0;
-        context_list->reldir=0;
-        context_list->next=0;
-        check_free( context_list );
+        delete context_list;
         context_list = next;
     }
 }
@@ -487,14 +339,19 @@ std::string portable_path( const std::string &path )
     return result;
 }
 
-void dump_filepath( const char *path, FILE *f )
+void dump_filepath( const std::string &path, FILE *f )
+{
+    dump_string( portable_path(path), f );
+}
+
+void dump_filepath( const std::optional<std::string> &path, FILE *f )
 {
     if( ! path )
     {
-        dump_string( nullptr, f );
+        dump_string( std::nullopt, f );
         return;
     }
-    dump_string( portable_path(path).c_str(), f );
+    dump_string( portable_path(*path), f );
 }
 
 // context_definition/recreate_context serialize a chain of relative directory
@@ -515,75 +372,48 @@ void dump_filepath( const char *path, FILE *f )
 // every separator within each reldir's own content (via portable_path).
 // std::filesystem::path (used by relative_filename/absolute_filename)
 // accepts '/' as a valid separator on both platforms - unlike '\\' on POSIX.
-const char *context_definition(file_context *context)
+std::string context_definition(file_context *context)
 {
-    int nch=1;
+    std::string context_def;
     for( file_context *child=context; child->parent; child=child->parent )
     {
         if( ! child->reldir )
         {
-            const char *native_reldir = relative_filename(child->dir,child->parent->dir);
-            child->reldir = copy_string( portable_path(native_reldir).c_str() );
-            check_free( (void *) native_reldir );
+            child->reldir = portable_path( relative_filename(child->dir,child->parent->dir) );
         }
-        nch += strlen(child->reldir)+2;
-    }
-    char *context_def = (char *) check_malloc(nch);
-    char *endptr=context_def+nch-1;
-    *endptr = 0;
-    for( file_context *child=context; child->parent; child=child->parent )
-    {
-        nch=strlen(child->reldir);
-        endptr -= (nch+2);
-        *endptr='/';
-        *(endptr+1)='/';
-        strncpy(endptr+2,child->reldir,nch);
+        context_def.insert( 0, "//" + *child->reldir );
     }
     return context_def;
 }
 
 
-file_context *recreate_context(  const char *context_def )
+file_context *recreate_context( const std::string_view context_def )
 {
     file_context *saved_context=current_context;
     file_context *context=current_context;
     if( ! context )
     {
-        return 0;
+        return nullptr;
     }
     while( context->parent ) context=context->parent;
-    if( ! context_def || ! *context_def ) return context;
+    if( context_def.empty() ) return context;
     set_file_context( context );
-    while( *context_def )
+    size_t start = 0;
+    while( start < context_def.size() )
     {
-        const char *start=context_def;
-        const char *end=context_def;
-        while( *end && ! (*end == '/' && *(end+1) == '/')) end++;
-        char *reldir;
-        int nch=end-start;
-        reldir=(char *) check_malloc(nch+1);
-        strncpy(reldir,start,nch);
-        reldir[nch]=0;
-        const char *absdir=absolute_filename(reldir,context->dir);
+        const size_t end = std::min( context_def.find( "//", start ), context_def.size() );
+        const std::string reldir( context_def.substr( start, end-start ) );
+        const std::string absdir = absolute_filename(reldir,context->dir);
         push_file_context(absdir);
-        check_free((void *) absdir);
         context=current_context;
-        if( context->reldir )
-        {
-            check_free(reldir);
-        }
-        else
-        {
-            context->reldir=reldir;
-        }
-        context_def = end;
-        if( *context_def == '/' ) context_def += 2;
+        if( ! context->reldir ) context->reldir=reldir;
+        start = end + 2;
     }
     set_file_context(saved_context);
     return context;
 }
 
-const char *relative_filename( const char *filepath, const char *basedir )
+std::string relative_filename( const std::string &filepath, const std::string &basedir )
 {
     try
     {
@@ -595,19 +425,18 @@ const char *relative_filename( const char *filepath, const char *basedir )
         // relies on an empty reldir producing no characters, so that
         // difference must be preserved here.
         if( fp.empty() || bp.empty() ) {
-            return copy_string("");
+            return "";
         }
         auto relpath=std::filesystem::relative( fp, bp );
-        auto relstr=relpath.string();
-        return copy_string( relstr.c_str());
+        return relpath.string();
     }
     catch (...)
     {
-        return copy_string(filepath);
+        return filepath;
     }
 }
 
-const char *absolute_filename( const char *relname, const char *basedir )
+std::string absolute_filename( const std::string &relname, const std::string &basedir )
 {
     try
     {
@@ -635,78 +464,68 @@ const char *absolute_filename( const char *relname, const char *basedir )
         else {
             relpath = bp / rp;
         }
-        auto relstr=relpath.string();
-        return copy_string( relstr.c_str());
+        return relpath.string();
     }
     catch (...)
     {
-        return copy_string(relname);
+        return relname;
     }
 }
 
-const char *find_config_file( const char *config, const char *name, const char *dflt_ext )
+std::optional<std::string> find_config_file( const std::string &config, const std::string &name, const std::string &dflt_ext )
 {
-    const char *spec;
-    const char *cfg;
-    config_path_def *cpd;
-
-    for( cpd=config_dirs(); cpd; cpd=cpd->next )
+    for( const std::string &dir : config_dirs() )
     {
-        cfg=cpd->path;
-        spec=build_config_filespec( 0, 0, cfg, 0, config, name, dflt_ext);
-        if( file_exists(spec) ) return spec;
-        if( dflt_ext )
+        std::string spec=build_config_filespec( dir, false, config, name, dflt_ext);
+        if( path_exists(spec) ) return spec;
+        if( ! dflt_ext.empty() )
         {
-            spec=build_config_filespec( 0, 0, cfg, 0, config, name, 0);
-            if( file_exists(spec) ) return spec;
+            spec=build_config_filespec( dir, false, config, name, "");
+            if( path_exists(spec) ) return spec;
         }
     }
-    return NULL;
+    return std::nullopt;
 }
 
-const char *find_relative_file( const char *base, const char *name, const char *dflt_ext )
+std::optional<std::string> find_relative_file( const std::string &base, const std::string &name, const std::string &dflt_ext )
 {
-    const char *spec;
-    int pathonly=0;
-    if( file_exists(base) && ! is_dir(base))
-    {
-        pathonly=1;
-    }
-    spec=build_config_filespec( 0, 0, base, pathonly, 0, name, dflt_ext);
-    if( file_exists(spec) ) return spec;
+    bool pathonly = path_exists(base) && ! is_dir(base);
 
-    if( dflt_ext )
+    std::string spec=build_config_filespec( base, pathonly, "", name, dflt_ext);
+    if( path_exists(spec) ) return spec;
+
+    if( ! dflt_ext.empty() )
     {
-        spec=build_config_filespec( 0, 0, base, pathonly, 0, name, 0);
-        if( file_exists(spec) ) return spec;
+        spec=build_config_filespec( base, pathonly, "", name, "");
+        if( path_exists(spec) ) return spec;
     }
 
-    return NULL;
+    return std::nullopt;
 }
 
-const char *find_file( const char *name, const char *dflt_ext, const char *relative, int tryopt, const char *config )
+std::optional<std::string> find_file( const std::string &name, const std::string &dflt_ext, const std::optional<std::string> &base, const FindFileOption tryopt, const std::string &config )
 {
-    const char *spec=0;
-    if( relative )
+    std::optional<std::string> spec;
+    if( base )
     {
-        spec = find_relative_file( relative, name, dflt_ext );
+        spec = find_relative_file( *base, name, dflt_ext );
     }
-    if( ! spec && current_context && (tryopt && FF_TRYPROJECT) )
+    if( ! spec && current_context && (tryopt & FF_TRYPROJECT) )
     {
         for( file_context *context = current_context; context && ! spec; context=context->parent )
         {
-            spec = build_filespec(0,0,context->dir,name,dflt_ext);
-            if( dflt_ext && ! file_exists(spec)) spec = build_filespec(0,0,context->dir,name,0);
-            if( ! file_exists(spec)) spec = 0;
+            std::string trySpec = build_filespec(context->dir,name,dflt_ext);
+            if( ! dflt_ext.empty() && ! path_exists(trySpec)) trySpec = build_filespec(context->dir,name,"");
+            if( path_exists(trySpec)) spec = trySpec;
         }
     }
-    if( ! spec && (tryopt && FF_TRYLOCAL) )
+    if( ! spec && (tryopt & FF_TRYLOCAL) )
     {
-        spec = build_filespec(0,0,0,name,dflt_ext);
-        if( dflt_ext && ! file_exists(spec)) spec = build_filespec(0,0,0,name,0);
-        if( ! file_exists(spec)) spec = 0;
+        std::string trySpec = build_filespec("",name,dflt_ext);
+        if( ! dflt_ext.empty() && ! path_exists(trySpec)) trySpec = build_filespec("",name,"");
+        if( path_exists(trySpec)) spec = trySpec;
     }
-    if( ! spec && config )
+    if( ! spec && ! config.empty() )
     {
         spec = find_config_file( config, name, dflt_ext );
     }
@@ -732,14 +551,32 @@ int skip_utf8_bom( FILE *f )
     unsigned char bom[3];
     int nchar;
     if( ftell64(f) != 0 ) return 1;
-    nchar=fread(bom,3,1,f);
-    if( nchar >= 2 || bom[0] == '\xFE' || bom[1] == '\xFF' )
+    nchar=fread(bom,1,3,f);
+    if( nchar >= 2 && ( (bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE') ) )
     {
         return 0;
     }
     else if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
     {
-            fseek(f,0L,SEEK_SET);
+        fseek(f,0L,SEEK_SET);
+    }
+    return 1;
+}
+
+int skip_utf8_bom( std::istream &f )
+{
+    if( f.tellg() != std::streampos(0) ) return 1;
+    unsigned char bom[3] = {0,0,0};
+    f.read( reinterpret_cast<char *>(bom), 3 );
+    std::streamsize nchar = f.gcount();
+    f.clear();
+    if( nchar >= 2 && ( (bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE') ) )
+    {
+        return 0;
+    }
+    else if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
+    {
+        f.seekg(0);
     }
     return 1;
 }

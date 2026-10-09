@@ -20,8 +20,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
+#include <array>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
-#include "util/chkalloc.h"
 #include "util/symmatrx.h"
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"
@@ -77,16 +83,13 @@ static int default_reffrm = ID_UNDEFINED;
 static int reffrm_classified = 0;
 static int reffrm_classification = ID_UNDEFINED;
 
-static unsigned char *datablock = NULL;
-static classdata *classblock = NULL;
-static syserrdata *syserrblock = NULL;
-static int datasize = 0;
-static int classblocksize = 0;
-static int syserrblocksize = 0;
+static std::vector<unsigned char> datablock;
+static std::vector<classdata> classblock;
+static std::vector<syserrdata> syserrblock;
 
-static ltmat cvr = NULL;
-static ltmat calccvr = NULL;
-static ltmat rescvr = NULL;
+static ltmat cvr = nullptr;
+static ltmat calccvr = nullptr;
+static ltmat rescvr = nullptr;
 static int cvrdim = 0;
 
 /* Station recoding very messy as currently structured because
@@ -100,27 +103,24 @@ static int cvrdim = 0;
  * observation group (but the memory used is retained until the end of the
  * data set. */
 
-typedef struct
+struct recoded_id
 {
     int codeid;   /* Index into saved codes - subtract saved_codes_offset */
     int recoded;  /* Flag for recoded */
     int id;       /* Recoded station id */
-    int reject;   /* Recoded rejection */
-} recoded_id;
+    bool reject;  /* Recoded rejection */
+};
 
-static recoded_id *saved_ids=NULL;
-static int max_saved_id=0;
+static std::vector<recoded_id> saved_ids;
 static int saved_id_offset=1;
 static int next_saved_id=0;
 static int preserve_saved_codes=0;  /* Used to handle exception with point data */
 
-static char *saved_codes=NULL;
-static int saved_codes_len=0;
+static std::string saved_codes;  /* NUL terminated codes, one after another */
 static int code_offset=0;
 static int next_code_id=0;
 
 #define SAVED_IDS_INC 64
-#define SAVED_CODES_INC 2048
 #define GET_REAL_STATION_ID 42
 
 /* The function to call when data has been read */
@@ -130,8 +130,8 @@ void (*usedata_func)( survdata *sd );
 /* The functions for converting codes to and from numeric id's,
    and for calculating values  */
 
-static int64_t (*id_func)( int type, int group_id, const char *code );
-static const char * (*code_func)( int type, int group_id, long id );
+static int64_t (*id_func)( int type, int group_id, std::string_view code );
+static std::string (*code_func)( int type, int group_id, long id );
 static double (*calc_func)( int type, long id1, long id2 );
 
 /* Specifications for reweighting, rejecting, and ignoring observations */
@@ -141,7 +141,7 @@ static void *pobsmod=0;
 
 /* A function for recoding station codes read from data files */
 
-static const char *(*recode_func)( void *recodedata, const char *code, double date ) = 0;
+static std::optional<recode_result> (*recode_func)( void *recodedata, std::string_view code, double date ) = 0;
 static void *recode_data=0; 
 static int recoding=0;
 
@@ -166,126 +166,111 @@ static coef_class_info coef_classes[] =
     {"ref_frame_code", &datatypedef::reffrm }
 };
 
-static struct
+struct coef_class_state
 {
-    char *classname;
-    int idtype;
-    int idclass;
-    int idname;
-    int idcoef;
-} coef_class_id[N_COEF_CLASSES];
+    std::optional<std::string> classname;
+    int idclass = ID_UNDEFINED;
+    int idname = ID_UNDEFINED;
+    int idcoef = ID_UNDEFINED;
+};
+
+static std::array<coef_class_state, N_COEF_CLASSES> coef_class_id;
 
 coef_class_info *coef_class( int coeftype )
 {
     return &(coef_classes[coeftype]);
 }
 
-void set_coef_class( int coeftype, const char *name )
+void set_coef_class( int coeftype, std::string_view name )
 {
-    if( coef_class_id[coeftype].classname )
-    {
-        check_free( coef_class_id[coeftype].classname );
-        coef_class_id[coeftype].classname = 0;
-    }
-    if( name )
-    {
-        coef_class_id[coeftype].classname = copy_string( name );
-    }
+    coef_class_id[coeftype].classname = std::string( name );
 }
 
 static void init_coef_class_id()
 {
     for( int i = 0; i < N_COEF_CLASSES; i++ )
     {
-        coef_class_id[i].idtype = i;
-        if( ! coef_class_id[i].classname )
+        coef_class_state &state = coef_class_id[i];
+        if( ! state.classname )
         {
-            coef_class_id[i].classname = copy_string( coef_classes[i].default_classname );
+            state.classname = std::string( coef_classes[i].default_classname );
         }
-        coef_class_id[i].idclass = ldt_get_id( ID_CLASSTYPE,0, coef_class_id[i].classname);
-        coef_class_id[i].idname = ID_UNDEFINED;
-        coef_class_id[i].idcoef = ID_UNDEFINED;
+        state.idclass = numeric_cast<int>( ldt_get_id( ID_CLASSTYPE, 0, *state.classname ) );
+        state.idname = ID_UNDEFINED;
+        state.idcoef = ID_UNDEFINED;
     }
 }
 
 static int get_coef_id( int coeftype, int idname )
 {
     if( idname==coef_class_id[coeftype].idname) return coef_class_id[coeftype].idcoef;
-    const char * name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
+    const std::string name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
     int idcoef = ldt_get_id( ID_COEF, coeftype, name );
     coef_class_id[coeftype].idcoef = idcoef;
     coef_class_id[coeftype].idname = idname;
     return idcoef;
 }
 
-static int save_code( const char *code )
+static int save_code( std::string_view code )
 {
-    int codelen=strlen(code)+1;
+    const int codelen=numeric_cast<int>( code.size() )+1;
     int codeid=next_code_id;
-    int codeloc=codeid-code_offset;
-    int sclen = saved_codes_len;
     int idoffset;
     recoded_id *newid;
 
-    while( codeloc+codelen >= sclen ) sclen=sclen+SAVED_CODES_INC;
-    if( sclen != saved_codes_len )
-    {
-        saved_codes=(char *) check_realloc(saved_codes,sclen);
-        saved_codes_len=sclen;
-    }
-    strcpy( saved_codes + codeloc, code );
+    saved_codes.append( code );
+    saved_codes.push_back( '\0' );
     next_code_id += codelen;
 
     next_saved_id++;
     idoffset=next_saved_id-saved_id_offset;
-    if( idoffset >= max_saved_id )
+    if( numeric_cast<size_t>( idoffset ) >= saved_ids.size() )
     {
-        max_saved_id += SAVED_IDS_INC;
-        saved_ids=(recoded_id *) check_realloc( saved_ids, max_saved_id * sizeof(recoded_id) );
+        saved_ids.resize( saved_ids.size() + SAVED_IDS_INC );
     }
-    newid=saved_ids+idoffset;
+    newid=&saved_ids[idoffset];
     newid->codeid=codeid;
     newid->recoded=0;
     newid->id=0;
-    newid->reject=0;
+    newid->reject=false;
     return next_saved_id;
 }
 
-static const char *saved_code( int codeid )
+/// Returns the saved code with the given id, or an empty view if there isn't one.
+static std::string_view saved_code( int codeid )
 {
-    if( codeid >= next_code_id ) return 0;
+    if( codeid >= next_code_id ) return {};
     codeid -= code_offset;
-    if( codeid < 0 ) return 0;
-    return saved_codes+codeid;
+    if( codeid < 0 ) return {};
+    return std::string_view( saved_codes.c_str()+codeid );
 }
 
-static int get_recoded_id( int id, int *reject )
+static int get_recoded_id( int id, bool *reject )
 {
-    const char * src;
-    const char * tgt;
-    
-    if( reject ) *reject=0;
+    if( reject ) *reject=false;
     recoded_id *rid;
     if( id == 0 ) return 0;
     if( id > next_saved_id ) return 0;
     id -= saved_id_offset;
     if( id < 0 ) return 0;
 
-    rid=saved_ids+id;
+    rid=&saved_ids[id];
     if( ! rid->recoded )
     {
-        src=saved_code(rid->codeid);
-        tgt=(*recode_func)(recode_data,src,data.date);
-        if( ! tgt ) tgt = src;
-        if( _stricmp(tgt,RECODE_IGNORE_CODE) == 0 ) 
+        const std::string_view src=saved_code(rid->codeid);
+        recode_result target{ src, false };
+        if( const auto recoded=(*recode_func)(recode_data,src,data.date) )
+        {
+            target=*recoded;
+        }
+        if( target.reject && target.code.empty() )
         {
             rid->id=-1;
         }
         else
         {
-            int reject = tgt[0] == RECODE_IGNORE_CHAR ? 1 : 0;
-            rid->reject = reject;
-            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, tgt+reject );
+            rid->reject=target.reject;
+            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, target.code );
         }
         rid->recoded=1;
     }
@@ -299,6 +284,7 @@ static void reset_saved_code_ids()
     next_saved_id=0;
     code_offset=0;
     next_code_id=0;
+    saved_codes.clear();
 }
 
 static void reset_saved_codes( int lastid )
@@ -311,14 +297,13 @@ static void reset_saved_codes( int lastid )
          reset_saved_code_ids();
          return;
     }
-    memmove( saved_ids, saved_ids+ndrop, nkeep*sizeof(recoded_id) );
+    std::copy( saved_ids.begin()+ndrop, saved_ids.begin()+ndrop+nkeep, saved_ids.begin() );
     saved_id_offset += ndrop;
 
     {
-        int codeloc=saved_ids->codeid;
+        int codeloc=saved_ids.front().codeid;
         int codeshift=codeloc-code_offset;
-        int shiftlen=next_code_id-codeloc;
-        memmove( saved_codes, saved_codes+codeshift, shiftlen );
+        saved_codes.erase( 0, codeshift );
         code_offset+=codeshift;
     }
 }
@@ -326,24 +311,22 @@ static void reset_saved_codes( int lastid )
 static void clear_saved_codes()
 { 
     reset_saved_code_ids();
-    check_free( saved_codes );
-    saved_codes=0;
-    check_free( saved_ids );
-    saved_ids=0;
+    saved_codes.clear();
+    saved_codes.shrink_to_fit();
+    // Swapping with an empty vector releases the memory, which clear() would not
+    std::vector<recoded_id>().swap( saved_ids );
 }
 
-static void report_error( const char *location )
+static void report_error( const std::string_view location )
 {
-    char msg[100];
-
-    sprintf(msg,"Internal programming error in call to %s",location);
+    const std::string msg = "Internal programming error in call to " + std::string(location);
     handle_error( INTERNAL_ERROR, msg, "In module loaddata.c");
     return;
 }
 
 void init_load_data( void (*usedata)( survdata *sd ),
-                     int64_t (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*codefunc)( int type, int group_id, long id ),
+                     int64_t (*idfunc)( int type, int group_id, std::string_view code ),
+                     std::string (*codefunc)( int type, int group_id, long id ),
                      double (*calcfunc)( int type, long id1, long id2 ))
 {
     DEBUG_PRINT(("LDT: init_load_data"));
@@ -367,29 +350,24 @@ void init_load_data( void (*usedata)( survdata *sd ),
 void term_load_data( void )
 {
     DEBUG_PRINT(("LDT: term_load_data"));
-    if( cvr ) free( cvr );
-    if( calccvr ) free( calccvr );
-    if( rescvr ) free( rescvr );
-    if( datablock ) check_free( datablock );
-    if( classblock ) check_free( classblock );
-    if( syserrblock ) check_free( syserrblock );
+    delete [] cvr;
+    delete [] calccvr;
+    delete [] rescvr;
+    // Swapping with an empty vector releases the memory, which clear() would not
+    std::vector<unsigned char>().swap( datablock );
+    std::vector<classdata>().swap( classblock );
+    std::vector<syserrdata>().swap( syserrblock );
     clear_saved_codes();
 
     cvrdim = 0;
-    cvr = NULL;
-    calccvr = NULL;
-    rescvr = NULL;
-    datablock = NULL;
-    classblock = NULL;
-    syserrblock = NULL;
-    datasize = 0;
-    classblocksize = 0;
-    syserrblocksize = 0;
+    cvr = nullptr;
+    calccvr = nullptr;
+    rescvr = nullptr;
 }
 
 
-void set_stn_recode_func( 
-        const char *(*recode)( void *recodedata, const char *code, double date ), 
+void set_stn_recode_func(
+        std::optional<recode_result> (*recode)( void *recodedata, std::string_view code, double date ),
         void *recodedata)
 {
     DEBUG_PRINT(("LDT: set_stn_recode_func"));
@@ -431,8 +409,8 @@ static void setup_data_format( int format )
 
 static void check_data( void )
 {
-    int rejfrom=0;
-    int rejto=0;
+    bool rejfrom=false;
+    bool rejto=false;
 
     if( recoding )
     {
@@ -465,7 +443,7 @@ static void check_data( void )
             {
                 if( projid != projidcache )
                 {
-                    const char *code = ldt_get_code( ID_PROJCTN, 0, projid );
+                    const std::string code = ldt_get_code( ID_PROJCTN, 0, projid );
                     projidcache = projid;
                     projcodeid = ldt_get_id( ID_CLASSNAME, projclassid, code );
                 }
@@ -583,32 +561,27 @@ static void *next_data( int type )
     }
 
     required = (data.nobs+1)*data.obssize;
-    if( required > datasize )
+    if( numeric_cast<size_t>( required ) > datablock.size() )
     {
-        const int old_datasize = datasize;
-        datasize = required + INC_SIZE * data.obssize;
-        datablock = (unsigned char *) check_realloc( datablock, datasize );
-        // Zero the portion of the reallocated pointer that's larger than
-        // what previously existed - realloc leaves it uninitialized. This
-        // buffer gets written to a .bin file as one raw fwrite
-        // (save_survdata, bindata.cpp), so any garbage here (compiler
-        // struct padding in obsdata/vecdata/pntdata, or fields like
+        // resize zero fills the new bytes. This buffer gets written to a .bin file
+        // as one raw fwrite (save_survdata, bindata.cpp), so any garbage here
+        // (compiler struct padding in obsdata/vecdata/pntdata, or fields like
         // isyserr/iclass that are only set when an observation actually
         // has classifications/syserrs) would otherwise leak nondeterministic
         // bytes into the file, differing between runs and compilers.
-        memset( datablock + old_datasize, 0, datasize - old_datasize );
+        datablock.resize( numeric_cast<size_t>( required + INC_SIZE * data.obssize ) );
         switch( format )
         {
         case SD_OBSDATA:
-            data.obs.odata = (obsdata *) datablock;
+            data.obs.odata = reinterpret_cast<obsdata *>( datablock.data() );
             break;
 
         case SD_VECDATA:
-            data.obs.vdata = (vecdata *) datablock;
+            data.obs.vdata = reinterpret_cast<vecdata *>( datablock.data() );
             break;
 
         case SD_PNTDATA:
-            data.obs.pdata = (pntdata *) datablock;
+            data.obs.pdata = reinterpret_cast<pntdata *>( datablock.data() );
             break;
         }
     }
@@ -616,13 +589,13 @@ static void *next_data( int type )
     gotval = 0;
     goterr = 0;
     reffrm_classified = 0;
-    obs =  (void *) (datablock + data.nobs++ *data.obssize);
+    obs = datablock.data() + data.nobs++ * data.obssize;
 
     iscovar = 0;
 
     switch( data.format )
     {
-    case SD_OBSDATA: od = (obsdata *) obs;
+    case SD_OBSDATA: od = static_cast<obsdata *>( obs );
         tgt = &od->tgt;
         aval = &od->value;
         nval = 1;
@@ -633,17 +606,17 @@ static void *next_data( int type )
         od->prm_id = 0;
         break;
 
-    case SD_VECDATA: vd = (vecdata *) obs;
+    case SD_VECDATA: vd = static_cast<vecdata *>( obs );
         tgt = &vd->tgt;
         aval = vd->vector;
         nval = 3;
-        aerr = NULL;
+        aerr = nullptr;
         nerr = 0;
         goterr = 1;
         iscovar = 1;
         break;
 
-    case SD_PNTDATA: pd = (pntdata *) obs;
+    case SD_PNTDATA: pd = static_cast<pntdata *>( obs );
         tgt = &pd->tgt;
         aval = &pd->value;
         nval = 1;
@@ -677,19 +650,15 @@ static ltmat alloc_cvr( void )
     dimreq = data.nobs * 3;
     if( dimreq > cvrdim )
     {
-        if( cvr ) free( cvr );
-        if( calccvr ) free( calccvr );
-        if( rescvr ) free( rescvr );
-        cvr = calccvr = rescvr = NULL;
+        delete [] cvr;
+        delete [] calccvr;
+        delete [] rescvr;
+        cvr = calccvr = rescvr = nullptr;
         cvrdim = dimreq + 6;
-        cvrsize = ( (long) cvrdim * (long) (cvrdim+1) ) / 2;
-        cvr = (ltmat) malloc( cvrsize * sizeof( double ) );
-        calccvr = (ltmat) malloc( cvrsize * sizeof( double ) );
-        rescvr = (ltmat) malloc( cvrsize * sizeof( double ) );
-        if( !cvr || !calccvr || !rescvr )
-        {
-            handle_error( MEM_ALLOC_ERROR, NO_MESSAGE, NO_MESSAGE );
-        }
+        cvrsize = ( static_cast<long>( cvrdim ) * static_cast<long>( cvrdim+1 ) ) / 2;
+        cvr = new double[cvrsize];
+        calccvr = new double[cvrsize];
+        rescvr = new double[cvrsize];
     }
 
     clear_cvr( dimreq, cvr );
@@ -701,35 +670,27 @@ static ltmat alloc_cvr( void )
 
 static syserrdata *getsyserrdata( void )
 {
-    int idx;
-    idx = data.nsyserr;
-    if( idx >= syserrblocksize )
+    const size_t idx = numeric_cast<size_t>( data.nsyserr );
+    if( idx >= syserrblock.size() )
     {
-        int reqsize = idx+1+INC_SIZE;
-        syserrblocksize = reqsize;
-        reqsize *= sizeof( syserrdata );
-        syserrblock = (syserrdata *) check_realloc( syserrblock, reqsize );
-        data.syserr=syserrblock;
+        syserrblock.resize( idx+1+INC_SIZE );
+        data.syserr=syserrblock.data();
     }
-    return syserrblock + idx;
+    return &syserrblock[idx];
 }
 
 static classdata *getclassdata( void )
 {
-    int idx;
-    idx = data.nclass;
-    if( idx >= classblocksize )
+    const size_t idx = numeric_cast<size_t>( data.nclass );
+    if( idx >= classblock.size() )
     {
-        int reqsize = idx+1+INC_SIZE;
-        classblocksize = reqsize;
-        reqsize *= sizeof( classdata );
-        classblock = (classdata *) check_realloc( classblock, reqsize );
-        data.clsf=classblock;
+        classblock.resize( idx+1+INC_SIZE );
+        data.clsf=classblock.data();
     }
-    return classblock + idx;
+    return &classblock[idx];
 }
 
-int64_t ldt_get_id( int type, int group_id, const char *code )
+int64_t ldt_get_id( int type, int group_id, std::string_view code )
 {
     if( type == ID_STATION && recoding )
     {
@@ -743,11 +704,11 @@ int64_t ldt_get_id( int type, int group_id, const char *code )
     return (*id_func)( type, group_id, code );
 }
 
-const char *ldt_get_code( int type, int group_id, long id )
+std::string ldt_get_code( int type, int group_id, long id )
 {
     if( type == ID_STATION && recoding )
     {
-        if( group_id != GET_REAL_STATION_ID ) return saved_code( id );
+        if( group_id != GET_REAL_STATION_ID ) return std::string( saved_code( id ) );
         group_id=0;
     }
     return (*code_func)( type, group_id, id );
@@ -1050,16 +1011,16 @@ void ldt_vecsyserr( int syserr_id, double influence[] )
 }
 
 
-void ldt_prefix_note( const char *note )
+void ldt_prefix_note( std::string_view note )
 {
-    DEBUG_PRINT(("LDT: ldt_prefix_note %s",note));
+    DEBUG_PRINT(("LDT: ldt_prefix_note %.*s",numeric_cast<int>(note.size()),note.data()));
     const int64_t newnote = ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
     if( !noteloc ) noteloc = newnote;
 }
 
-void ldt_note( const char *note )
+void ldt_note( std::string_view note )
 {
-    DEBUG_PRINT(("LDT: ldt_note %s",note));
+    DEBUG_PRINT(("LDT: ldt_note %.*s",numeric_cast<int>(note.size()),note.data()));
 
     if( !tgt )
     {

@@ -6,26 +6,25 @@
 #include "snap/deform.h"
 #include "snap/stnadj.h"
 #include "coordsys/coordsys.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
 #include "util/pi.h"
 #include "csdeform.h"
 
-typedef struct
+struct StationDeformation
 {
     double x, y;
     double y0def[3];
     double year;
     double def[3];
-} StationDeformation;
+};
 
 
-typedef struct
+struct CrdsysDefModel
 {
     StationDeformation *stdefs;
-} CrdsysDefModel;
+};
 
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */
@@ -34,17 +33,16 @@ typedef struct
 
 static void delete_csdefmodel( CrdsysDefModel *model )
 {
-    if( model == NULL ) return;
-    if( model->stdefs ) { check_free(model->stdefs); model->stdefs = NULL; }
-    check_free(model);
+    if( model == nullptr ) return;
+    delete [] model->stdefs;
+    delete model;
 }
 
 static CrdsysDefModel *init_csdefmodel()
 {
-    CrdsysDefModel *model;
-    if( ! has_deformation_model( net->crdsys ) ) return NULL;
-    model = (CrdsysDefModel *) check_malloc( sizeof(CrdsysDefModel));
-    model->stdefs = NULL;
+    if( ! has_deformation_model( net->crdsys ) ) return nullptr;
+    CrdsysDefModel *model = new CrdsysDefModel;
+    model->stdefs = nullptr;
     return model;
 }
 
@@ -64,7 +62,7 @@ static int init_csdef_deformation( void *deformation )
     /* Allocate space for a set of station initial values  */
 
     nstns = number_of_stations( net );
-    stdefs = (StationDeformation *) check_malloc( sizeof(StationDeformation) * (nstns+1) );
+    stdefs = new StationDeformation[nstns+1];
     model->stdefs = stdefs;
 
     /* For each station calculate the coordsys epoch coords */
@@ -93,7 +91,7 @@ static int init_csdef_deformation( void *deformation )
             if( sts != OK )
             {
                 sprintf(buf,"Cannot calculate deformation of %.20s at date %.1lf",
-                        st->Code, csepoch);
+                        st->Code.c_str(), csepoch);
                 handle_error(WARNING_ERROR,buf,NO_MESSAGE);
                 return INVALID_DATA;
             }
@@ -134,7 +132,7 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
         if( sts != OK )
         {
             sprintf(buf,"Cannot calculate deformation of %.20s at %.1lf",
-                    st->Code, year);
+                    st->Code.c_str(), year);
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -153,10 +151,10 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
 
 /* Describe the deformation model in an output file */
 
-static int print_csdef( void *deformation, FILE *out, const char *prefix )
+static int print_csdef( void *deformation, FILE *out, const std::string_view prefix )
 {
     if( ! deformation ) return OK;
-    fputs(prefix,out);
+    fwrite( prefix.data(), 1, prefix.size(), out );
     fputs("Applying coordinate system deformation model\n",out);
     output_string_def os;
     output_string_to_file( &os, out );

@@ -24,7 +24,6 @@
 
 #include "snap/deform.h"
 #include "network/network.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 
 
@@ -32,11 +31,11 @@ deformation_model *create_deformation_model(
     void *data,
     int (*init_deformation)( void *model ),
     int (*calc_deformation)( void *model, station *st, double date, double denu[3] ),
-    int (*print_model)( void *model, FILE *out, const char *prefix ),
+    int (*print_model)( void *model, FILE *out, std::string_view prefix ),
     int (*delete_model)( void *model )
 )
 {
-    deformation_model *model = (deformation_model *) check_malloc(sizeof(deformation_model));
+    deformation_model *model = new deformation_model;
     model->data = data;
     model->init_deformation = init_deformation;
     model->calc_deformation = calc_deformation;
@@ -75,13 +74,15 @@ int calc_deformation( deformation_model *deformation, station *st, double date, 
     return sts;
 }
 
-int print_deformation_model( deformation_model *deformation, FILE *out, const char *prefix )
+int print_deformation_model( deformation_model *deformation, FILE *out, const std::string_view prefix )
 {
     return (*(deformation->print_model))( deformation->data, out, prefix );
 }
 
 int delete_deformation( deformation_model *deformation )
 {
-    return (*(deformation->delete_model))( deformation->data );
+    const int sts = (*(deformation->delete_model))( deformation->data );
+    delete deformation;
+    return sts;
 }
 

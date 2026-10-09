@@ -146,12 +146,11 @@ SymbologyBase::SymbologyBase(wxString np)
         name = np.Mid(i+1);
     }
     id.Replace(" ","_");
-    cname=strdup(name.mb_str());
+    cname = name.ToStdString();
 }
 
 SymbologyBase::~SymbologyBase()
 {
-    if( cname ) free(cname);
 }
 
 // SymbologyList ... an expandable array of symbologies.

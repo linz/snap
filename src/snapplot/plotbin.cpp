@@ -13,11 +13,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <filesystem>
+#include <optional>
+#include <string>
 #include <stdlib.h>
 #include <math.h>
 
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 
 #include "plotbin.h"
@@ -46,18 +48,13 @@ static int reload_relative_covariances( BINARY_FILE *b );
 
 static BINARY_FILE *b = NULL;
 static FILE *f = NULL;
-static bindata *bd = NULL;
+static std::optional<bindata> bd;
 
 int reload_binary_data( )
 {
-    int nch;
     int sts;
-    char *bfn;
 
-    nch = path_len( root_name, 1 );
-    bfn = (char *) check_malloc( nch + strlen(BINFILE_EXT) + 1);
-    memcpy( bfn, root_name, nch );
-    strcpy( bfn+nch, BINFILE_EXT );
+    const std::string bfn = std::filesystem::path( native_path(command_file->root) ).replace_extension().string() + BINFILE_EXT;
 
     auto [file, result] = open_binary_file( bfn, BINFILE_SIGNATURE );
     b = file;
@@ -70,7 +67,6 @@ int reload_binary_data( )
                           "Cannot reload data - binary file version is not compatible with this version of SNAP",
                           bfn );
         }
-        free(bfn);
         return NO_MORE_DATA;
     }
 
@@ -97,19 +93,17 @@ int reload_binary_data( )
         reload_observations( b );
     }
 
-    free( bfn );
-
     return sts;
 }
 
 void load_observations_from_binary( void )
 {
-    if( ! bd ) bd = create_bindata();
+    if( ! bd ) bd.emplace();
     init_get_bindata( 0L );
 
-    while( get_bindata( SURVDATA, bd ) == OK )
+    while( get_bindata( SURVDATA, *bd ) == OK )
     {
-        add_survdata_connections( (survdata *) bd->data, bd->loc );
+        add_survdata_connections( bd->survey_data(), bd->loc );
     }
 }
 
@@ -117,15 +111,13 @@ void load_observations_from_binary( void )
 /* Doesn't sit comfortably here and doesn't use a library for definition
    of note functions but.. */
 
-#define NOTEWIDTH 90
-#define NOTEPREFIX 6
+inline constexpr long NOTEWIDTH = 90;
 
 void display_note_text( void *dest, PutTextFunc f, int64_t loc )
 {
     PutTextInfo jmp;
-    char note[NOTEWIDTH + NOTEPREFIX + 1];
     long size;
-    int block, type;
+    int type;
     int firstline, c;
     if( loc < 0 ) return;
     const int64_t curloc = ftell64( b->f );
@@ -134,7 +126,7 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
     jmp.type = ptfNone;
     firstline = 1;
 
-    strcpy( note, "Note: " );
+    std::string prefix = "Note: ";
     while( read_bindata_header( &size, &type ) && type == NOTEDATA )
     {
         c = fgetc( b->f );
@@ -144,14 +136,15 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
         size -= 2;  /* To account for the tail of the note */
         while ( size )
         {
-            block = size > NOTEWIDTH ? NOTEWIDTH : size;
-            fread( note + NOTEPREFIX, 1, block, b->f );
-            note[NOTEPREFIX + block] = 0;
-            (*f)( dest, &jmp, note );
+            const long block = size > NOTEWIDTH ? NOTEWIDTH : size;
+            std::string text( block, '\0' );
+            fread( &text[0], 1, block, b->f );
+            text.resize( strlen( text.c_str() ) );  /* The text ends at the first NUL, as it did as a C string */
+            (*f)( dest, &jmp, prefix + text );
             size -= block;
         }
         fgetc(b->f); fgetc(b->f);  /* Tail of the note */
-        strcpy( note, "      " );
+        prefix = "      ";
     }
 
     fseek64( b->f, curloc, SEEK_SET );
@@ -174,11 +167,11 @@ static int reload_observations( BINARY_FILE *bf )
 
 survdata *get_survdata_from_binary( int64_t loc )
 {
-    if( !bd ) bd = create_bindata();
+    if( !bd ) bd.emplace();
     init_get_bindata( loc );
-    if( get_bindata(ANYDATATYPE,bd) != OK )  return NULL;
-    if( bd->bintype != SURVDATA ) return NULL;
-    return (survdata *) (bd->data);
+    if( get_bindata(ANYDATATYPE,*bd) != OK )  return nullptr;
+    if( bd->bintype != SURVDATA ) return nullptr;
+    return bd->survey_data();
 }
 
 static int reload_relative_covariances( BINARY_FILE *b )
@@ -212,7 +205,7 @@ void open_data_source( void )
 
 void close_data_source( void )
 {
-    if( bd ) {delete_bindata(bd); bd = NULL; }
+    bd.reset();
     if( b ) {close_binary_file(b); b = NULL; }
     if( f ) {fclose(f); f = NULL;}
 }

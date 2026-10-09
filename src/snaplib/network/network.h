@@ -18,6 +18,12 @@
 #include "geoid/geoid.h"
 #endif
 
+#include <algorithm>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
 #endif
@@ -30,6 +36,8 @@
 #include "util/binfile.h"
 #endif
 
+#include <string>
+
 #define DFLTSTLIST_EXT  ".stl"
 #define DFLTSTOFFS_EXT  ".sts"
 
@@ -41,48 +49,123 @@
             of up to STNCODELEN characters.
 ------------------------------------------------------------------------*/
 
-#define STNCODELEN 15
+inline constexpr int STNCODELEN = 15;
 
-typedef struct
+/// A station code of up to STNCODELEN characters.  It is held in a fixed array
+/// so that the code has a fixed size and needs no allocation, and so that
+/// STATION_DISK_FIELDS can still read and write it in place.
+class StationCode
 {
-    char    Code[STNCODELEN+1];   /* Station ID */
-    int     id;        /* Used to identify the station - populated when indexed */
-    double  ELat;      /* Ellipsoidal lat, long, hgt */
-    double  ELon;
-    double  OHgt;      /* Orthometric height */
-    double  GXi;       /* Gravitational corrections to ellipsoidal */
-    double  GEta;      /* coordinates */
-    double  GUnd;
+public:
+    StationCode() = default;
+
+    /// Replaces the code, truncating it to STNCODELEN characters.
+    void assign( const std::string_view code ) ///< The new code
+    {
+        const size_t length = std::min( code.size(), _capacity - 1 );
+        code.copy( _chars, length );
+        std::fill( _chars + length, _chars + _capacity, '\0' );
+    }
+
+    /// The number of characters before the terminating NUL
+    size_t size() const
+    {
+        const size_t end = std::string_view( _chars, _capacity ).find( '\0' );
+        return end == std::string_view::npos ? _capacity : end;
+    }
+
+    bool empty() const { return _chars[0] == '\0'; }
+
+    operator std::string_view() const { return std::string_view( _chars, size() ); }
+
+    /// The NUL terminated code, for the printf family and other C interfaces
+    const char *c_str() const { return _chars; }
+
+private:
+    static constexpr size_t _capacity = STNCODELEN + 1;
+    char _chars[_capacity] = {};
+};
+
+static_assert( sizeof(StationCode) == STNCODELEN+1, "StationCode is written to disk as STNCODELEN+1 bytes" );
+
+struct station
+{
+    StationCode Code;     /* Station ID */
+    int     id = 0;    /* Used to identify the station - populated when indexed */
+    double  ELat = 0.0; /* Ellipsoidal lat, long, hgt */
+    double  ELon = 0.0;
+    double  OHgt = 0.0; /* Orthometric height */
+    double  GXi = 0.0;  /* Gravitational corrections to ellipsoidal */
+    double  GEta = 0.0; /* coordinates */
+    double  GUnd = 0.0;
 
     /* The following components are used primarily to calculate
        observations between stations and to facilitate station
        adjustments */
 
-    double  XYZ[3];    /* Geocentric coordinates */
+    double  XYZ[3] = {};  /* Geocentric coordinates */
     rotmat  rTopo;     /* Rotation to topocentric system */
     rotmat  rGrav;     /* Rotation to gravimetric system */
-    double  dNdLt;     /* The rate of change of latitude with distance */
-    double  dEdLn;     /* The rate of change of longitude with distance */
-    int   nclass;      /* Count of classifications */
-    int   *classval;   /* Array of class values */
-    char    *Name;     /* Pointer to station name */
-    void    *ts;       /* Station coordinate time series data */
-    void    *hook;     /* Pointer to user defined info */
-} station;
+    double  dNdLt = 0.0; /* The rate of change of latitude with distance */
+    double  dEdLn = 0.0; /* The rate of change of longitude with distance */
+    std::vector<int> classval;  /* Class values, one per classification */
+    std::string Name;  /* Station name */
+    void    *ts = nullptr;   /* Station coordinate time series data, freed by delete_station */
+    void    *hook = nullptr; /* Pointer to user defined info, owned by the program that sets it */
 
-// The fixed-width on-disk layout of every field above except the four
-// trailing pointers (classval, Name, ts, hook) - see netstns1.cpp, where
-// this table is defined (without `static`) and checked at compile time
-// against station's actual memory layout. Exposed here, rather than kept
-// file-local, so a second caller elsewhere can walk the same fields via
-// for_each_disk_field (util/binfile.h) without re-listing them by hand.
-// `extern` (plain C++ external linkage, unrelated to `extern "C"`) is
-// required because a `static` array at file scope is only visible within
-// its own translation unit - this declares "a definition exists
-// elsewhere," letting netstns1.cpp's one real array be linked from here
-// instead of each translation unit getting its own private copy (or,
-// without this declaration, no visibility into it at all). Same pattern
-// as `extern datatypedef datatype[]` in snapdata/datatype.h.
+    station() = default;
+
+    /// Creates a station and calculates the quantities derived from its
+    /// coordinates.  Its classifications are not set.
+    station( std::string_view code,   ///< The station code, truncated to STNCODELEN characters
+             std::string_view name,   ///< The station name
+             double Lat,              ///< Ellipsoidal latitude (radians)
+             double Lon,              ///< Ellipsoidal longitude (radians)
+             double Hgt,              ///< Orthometric height
+             double Xi,               ///< Gravitational (deflection of the vertical) correction to the latitude (GXi)
+             double Eta,              ///< Gravitational (deflection of the vertical) correction to the longitude (GEta)
+             double Und,              ///< Geoid undulation (GUnd)
+             ellipsoid &el );         ///< The ellipsoid of the network's coordinate system
+
+    /// Sets the coordinates and recalculates the quantities derived from them.
+    void modify_coords( double Lat, double Lon, double Hgt, ellipsoid &el );
+
+    /// As modify_coords, also setting the gravitational corrections.
+    void modify_coords_xeu( double Lat, double Lon, double Hgt,
+                            double Xi, double Eta, double Und, ellipsoid &el );
+
+    /// Sets the geocentric coordinates and recalculates the others from them.
+    void modify_xyz( double xyz[3], ellipsoid &el );
+
+    /// Sets the number of classifications.  The existing class values are kept
+    /// (up to the new count) and any added ones are zero.
+    void set_class_count( int count );
+
+    /// Sets the value of a classification (class ids start at 1)
+    void set_class( int class_id, int value );
+
+    /// The value of a classification (class ids start at 1), or 0 if there is
+    /// no such classification.
+    int get_class( int class_id ) const;
+
+private:
+    void _derive_geometry( ellipsoid &el );
+};
+
+// The fixed-width on-disk layout of every field above except classval (a
+// std::vector), Name (a variable-length std::string) and the two trailing
+// pointers (ts, hook) - see netstns1.cpp, where this table is defined (without
+// `static`) and checked at compile time against station's actual memory
+// layout. Exposed here, rather than kept file-local, so a second caller
+// elsewhere can walk the same fields via for_each_disk_field
+// (util/binfile.h) without re-listing them by hand. `extern` (plain C++
+// external linkage, unrelated to `extern "C"`) is required because a
+// `static` array at file scope is only visible within its own
+// translation unit - this declares "a definition exists elsewhere,"
+// letting netstns1.cpp's one real array be linked from here instead of
+// each translation unit getting its own private copy (or, without this
+// declaration, no visibility into it at all). Same pattern as `extern
+// datatypedef datatype[]` in snapdata/datatype.h.
 extern const DiskField STATION_DISK_FIELDS[];
 extern const size_t STATION_DISK_FIELD_COUNT;
 
@@ -100,7 +183,7 @@ station_list
 ------------------------------------------------------------------------*/
 
 
-typedef struct
+struct station_list
 {
     int count;               /* Number of stations */
     int lastid;              /* Last allocated station id - same as count if no deletions*/
@@ -112,7 +195,7 @@ typedef struct
     int usesorted;           /* Define which index to use for processing stations */
     int nextstn;             /* The next station to be returned by the iterator */
 
-} station_list;
+};
 
 /*------------------------------------------------------------------------
 
@@ -124,10 +207,74 @@ network:
 
 typedef void (*stationfunc)( station *st);
 
-typedef struct
+/// Every field is set explicitly by the constructor. Nothing is known
+/// yet at either real construction site (a plain stack network net; or
+/// new_network()'s heap allocation) - name/crdsysdef/stations are all
+/// populated later, incrementally, by set_network_name()/
+/// set_network_coordsys()/read_network()/add_station() etc.
+struct network
 {
-    char         *name;          /* Name of network */
-    char         *crdsysdef;     /* Definition of the coordinate system */
+    network();
+    network( const network& ) = delete; ///< stnclasses owns a vector of unique_ptr, which can't be copied, so neither can network
+    /// && marks a move constructor. Takes ownership of o's station list and
+    /// coordinate systems, leaving o empty (as if freshly constructed, apart
+    /// from its station callbacks), so the two never both delete them.
+    network( network&& o ) noexcept;
+
+    /// && marks a move assignment operator. Clears this network first (so what
+    /// it owned is freed rather than leaked), then takes ownership as the
+    /// move constructor does. Assigning a network to itself does nothing.
+    network& operator=( network&& o ) noexcept;
+    ~network();
+
+    /// Resets every field to the same empty state a freshly-constructed
+    /// network has (freeing stnlist/crdsys/geosys, running the
+    /// uninitstation callback over every station first) - used both by
+    /// the destructor and by read_network() to reuse an existing network
+    /// for a fresh file read, without reconstructing it.
+    void clear();
+
+    /// Number of classifications currently defined for this network's stations.
+    int classification_count() const;
+
+    /// Id of the classification named classname. If create is set and no
+    /// such classification yet exists, creates one with a default value
+    /// of "-" and returns its id; otherwise returns 0 if not found.
+    int class_id( const std::string &classname, int create );
+
+    /// Name of the classification identified by class_id.
+    std::string class_name( int class_id ) const;
+
+    /// Count of values defined for the classification identified by class_id.
+    int class_count( int class_id ) const;
+
+    /// Id of the value named value within the classification identified
+    /// by class_id, creating it if create is set and no such value yet exists.
+    int class_value_id( int class_id, const std::string &value, int create );
+
+    /// Name of the value identified by value_id within the classification
+    /// identified by class_id.
+    std::string class_value( int class_id, int value_id ) const;
+
+    /// Defines the "Order" classification used to record each station's
+    /// order, returning its classification id.
+    int add_orders();
+
+    /// Count of order values defined for this network.
+    int order_count() const;
+
+    /// Id of the named order value, creating it if addorder is set.
+    int order_id( const std::string &order, int addorder );
+
+    /// Name of the order value identified by orderid.
+    std::string order( int orderid ) const;
+
+    /// The order classification value id assigned to stn, or 0 if this
+    /// network has no order classification defined.
+    int station_order( station *stn ) const;
+
+    std::optional<std::string> name;   /* Name of network, or nullopt if never set */
+    std::string   crdsysdef;     /* Definition of the coordinate system */
     station_list *stnlist;       /* List of stations */
     coordsys     *crdsys;        /* Parameters of the coordinate system */
     coordsys     *geosys;        /* Parameters of the related geodetic system */
@@ -141,7 +288,15 @@ typedef struct
     classifications stnclasses;  /* Array of classifications used for stations */
     stationfunc  initstation;    /* Function called when a station is added */
     stationfunc  uninitstation;  /* Function called when a station is deleted */
-} network;
+
+private:
+    /// Sets every field except the station callbacks to the value the
+    /// constructor gives it. Does not free stnlist, crdsys or geosys, so
+    /// only call it once they have been freed or handed to another network.
+    /// A plain move leaves the pointers, conversions and scalars unchanged in
+    /// the source, so the move operations copy those and then call this on it.
+    void _reset_fields();
+};
 
 /* Network options flags */
 
@@ -189,7 +344,7 @@ typedef struct
  */
 
 typedef void (*stnfunc)(station *st, void *data);
-typedef struct { void *data1; stnfunc func1; void *data2; stnfunc func2; } stnmultifunc_data;
+struct stnmultifunc_data { void *data1; stnfunc func1; void *data2; stnfunc func2; };
 
 /*------------------------------------------------------------------------
 
@@ -201,29 +356,10 @@ List of station/network functions supplied by the library
    you must have an ellipsoid definition.  This is used to calculate the
    parameters used for geodetic calculations.  */
 
-station *new_station( void );
+/// Deletes a station allocated with new, including its station offset data
+/// (ts), which the station destructor does not free because copies of a
+/// station share the ts pointer.
 void    delete_station( station *st );
-
-void    init_station( station *st,
-                      const char *code, const char *Name,
-                      double Lat, double Lon, double Hgt,
-                      double Xi, double Eta, double Und,
-                      ellipsoid *el );
-
-void    modify_station_coords( station *st,
-                               double Lat, double Lon, double Hgt,
-                               ellipsoid *el );
-
-void modify_station_coords_xeu( station *st,
-                            double Lat, double Lon, double Hgt,
-                            double Xi, double Eta, double Und,
-                            ellipsoid *el );
-
-void    modify_station_xyz( station *st, double xyz[3], ellipsoid *el );
-
-void init_station_classes( station *s, int nclass );
-void set_station_class( station *s, int class_id, int value );
-int get_station_class( station *s, int class_id );
 
 void    stnmultifunc( station *st, void *data );
 
@@ -325,13 +461,13 @@ int    sl_reindex_stations( station_list *sl );
 int    sl_remove_duplicate_stations( station_list *sl, int reindex, 
            void *data, stnfunc function );
 
-int   sl_find_station( station_list *sl, const char *code );
+int   sl_find_station( station_list *sl, std::string_view code );
 int   sl_station_id( station_list *sl, station *st );
 station *sl_station_ptr( station_list *sl, int stnindex );
 
 /* Integer pointer to sorted index, and corresponding station  */
 
-int sl_find_station_sorted_id( station_list *sl, const char *code );
+int sl_find_station_sorted_id( station_list *sl, std::string_view code );
 station *sl_station_sorted_ptr( station_list *sl, int istn );
 
 /* Iterator, sorted or not */
@@ -350,7 +486,17 @@ station_list *reload_station_list( FILE *f );
 
 /* Station code comparison function */
 
-int stncodecmp( const char *s1, const char *s2 );
+int stncodecmp( std::string_view s1, std::string_view s2 );
+
+/// Orders station codes as stncodecmp does. Transparent so that maps can be searched by string_view.
+struct station_code_order
+{
+    using is_transparent = void;
+    bool operator()( std::string_view code1, std::string_view code2 ) const
+    {
+        return stncodecmp( code1, code2 ) < 0;
+    }
+};
 
 /* Functions for processing station offsets */
 
@@ -363,16 +509,16 @@ void print_station_offset( FILE *lst, station *st );
 /* The network                                                      */
 
 network *new_network( void );
-void init_network( network *nw );
 /* Set the function hook called when network station is created or removed.
  * If nw is NULL then sets default values that are used for a new network.
  */
 void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc );
-void clear_network( network *nw );
 void delete_network( network *nw );
 
-int read_network( network *nw, const char *filename, int options );
-int write_network( network *nw, const char *filename, const char *comment,
+int read_network( network *nw, std::string_view filename, int options );
+/// Writes the network's stations to a coordinate file.  An empty comment is
+/// not written.
+int write_network( network *nw, const std::string &filename, std::string_view comment,
                    int coord_precision, int (*select)(station *st) );
 
 int merge_network( network *base, network *data, int mergeopts,
@@ -380,21 +526,22 @@ int merge_network( network *base, network *data, int mergeopts,
 
 /* set_network_coordsys.  Returns OK if succeeds.  Otherwise network is unaltered
  * hgtfixopt is one of the NW_HGTFIXEDOPT_ values.
- * If errmsg is not null will copy up to nsmg chars of error message to it
+ * If the conversion fails and there is an error message it is assigned to errmsg,
+ * otherwise errmsg is not altered.
  */
 
-int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg );
-void    set_network_name( network *nw, const char *name );
+int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, std::string &errmsg );
+void    set_network_name( network *nw, const std::string &name );
 
 station * new_network_station( network *nw,
-                               const char *code, const char *Name,
+                               std::string_view code, std::string_view Name,
                                double Lat, double Lon, double Hgt,
                                double Xi, double Eta, double Und );
 
 station * duplicate_network_station(  network *nw,
             station *st,
-            const char *newcode,
-            const char *name
+            std::string_view newcode,
+            std::string_view name
         );
 
 void    modify_network_station_coords( network *nw, station *st, double Lat,
@@ -419,7 +566,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
 /* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */
 /* Returns INVALID_DATA if geoid not defined or invalid coordinate system */
 
-int set_network_geoid( network *nw, const char *geoid, int fixed_height_type, int errlevel );
+int set_network_geoid( network *nw, const std::optional<std::string> &geoid, int fixed_height_type, int errlevel );
 int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, int errlevel );
 
 /* Network has explicit geoid information? */
@@ -444,18 +591,18 @@ void set_network_height_coord_orthometric( network *nw );
 
 /* Read station offset definition file */
 
-int read_network_station_offsets( network *nw, const char *filename );
+int read_network_station_offsets( network *nw, std::string_view filename );
 
 /* add_station only to be used by network routines .. use new_network_station */
 int   add_station( network *nw, station *st );
 
 void    remove_station( network *nw, station *st );
 
-int   find_station( network *nw, const char *code );
+int   find_station( network *nw, std::string_view code );
 int station_id( network *nw, station *st );
 station *station_ptr( network *nw, int stnindex );
 
-int   find_station_sorted_id( network *nw, const char *code );
+int   find_station_sorted_id( network *nw, std::string_view code );
 station *station_sorted_ptr( network *nw, int sortedid );
 
 void    reset_station_list( network *nw, int sorted );
@@ -471,19 +618,6 @@ void    set_network_topocentre( network *nw, double lat, double lon );
 void    get_network_topocentre( network *nw, double *lat, double *lon );
 void    get_network_topocentre_xyz( network *nw, double *xyz );
 
-
-int network_classification_count( network *nw );
-int network_class_id( network *nw, const char *classname, int create );
-const char *network_class_name( network *nw, int class_id );
-int network_class_count( network *nw, int class_id );
-int network_class_value_id( network *nw, int class_id, const char *value, int create );
-const char *network_class_value( network *nw, int class_id, int value_id );
-
-int add_network_orders( network *nw );
-int network_order_count( network *nw );
-int network_order_id( network *nw, const char *order, int addorder );
-const char *network_order( network *nw, int orderid );
-int network_station_order( network *nw, station *stn );
 
 void dump_network( network *nw, FILE *bin );
 network *reload_network( FILE *bin );
@@ -518,7 +652,7 @@ void setup_station_criteria_cache( void *psc, int maxstn );
  *    except ...        don't match following stations/criteria on the line
  */
 
-int  compile_station_criteria( void *psc, network *nw, const char *select, char *basefile );
+int  compile_station_criteria( void *psc, network *nw, const std::string &select, const std::string &basefile );
 
 /* Check if a station matches the criteria */
 
@@ -539,7 +673,7 @@ void apply_station_criteria_to_network( void *psc, network *nw,
 /* Process selected stations - compiles and applies station criteria in
  * a single function */
 
-int process_selected_stations( network *nw, const char *select, char *basefile, 
+int process_selected_stations( network *nw, const std::string &select, const std::string &basefile,
         void *data, stnfunc function);
 
 #endif /* NETWORK_H not defined */

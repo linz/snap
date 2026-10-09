@@ -10,13 +10,13 @@
 
 /* Object for trimming lines to a rectangular boundary */
 
-typedef struct
+struct Trimmer
 {
     double xmin, xmax, ymin, ymax;
     double x0, y0, x1, y1, xnext, ynext;
     char flagnext;
     char s0, s1, npt;
-} Trimmer;
+};
 
 void SetTrimmerExtents( Trimmer *t, double xmin, double ymin, double xmax, double ymax );
 int AddTrimmerPoint( Trimmer *t, double x, double y, char start );

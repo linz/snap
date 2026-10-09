@@ -5,6 +5,10 @@
 // Data comes from a wxTabbedTextSource object, which returns data strings separated by
 // tab characters for each requested row.
 
+#include <string>
+#include <string_view>
+#include <vector>
+
 #include "wx_includes.hpp"
 
 // Abstract base class for a tabbed text data source ..
@@ -18,13 +22,13 @@ public:
     // Get row headers as tab delimited string.  Labels prefixed with blank for right
     // justification.  Labels preceded or followed by blanks to fill to desired display
     // length (blank first character is ignored for character count).
-    virtual char *GetHeader() = 0;
+    virtual std::string GetHeader() = 0;
 
     // Get the number of rows in the table
     virtual int GetRowCount() = 0;
 
     // Get a tab delimited text string representing the data for the i'th row of the table.
-    virtual char *GetRow( int i ) = 0;
+    virtual std::string GetRow( int i ) = 0;
 
     // Return the entire contents of the data source as a tab/new line delimited string
     wxString GetText();
@@ -54,19 +58,22 @@ public:
     wxString GetText();
 
 private:
-    void StoreString( char *string );
+    /// Splits a tab delimited line into its columns, which still have their blanks.
+    static std::vector<std::string_view> _splitColumns( std::string_view line ///< Tab delimited text
+    );
+    /// Removes the blanks from both ends of a column.
+    static std::string_view _trimBlanks( std::string_view column ///< Column text
+    );
     void ClearSource();
     void GetRow( int row );
 
     int nrow;
     int ncol;
     int currow;
-    int bufferlen;
-    char *buffer;
     int *colWidth;
     bool *rightJustify;
     wxString *colName;
-    char **rowData;
+    std::vector<std::string> rowData;
 
     wxTabbedTextSource *ttsource;
 };

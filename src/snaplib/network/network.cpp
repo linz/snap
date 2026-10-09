@@ -12,10 +12,11 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <utility>
+
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "network/network.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 
 /*=============================================================*/
 /* Basic routine to read a station data file                   */
@@ -23,30 +24,69 @@
 static stationfunc default_initstation=0;
 static stationfunc default_uninitstation=0;
 
-network *new_network( void )
+network::network() :
+    name( std::nullopt ),
+    stnlist( nullptr ),
+    crdsys( nullptr ),
+    geosys( nullptr ),
+    topolat( 0 ),
+    topolon( 0 ),
+    got_topocentre( 0 ),
+    options( 0 ),
+    orderclsid( 0 ),
+    initstation( default_initstation ),
+    uninitstation( default_uninitstation )
 {
-    network *nw;
-
-    nw = (network *) check_malloc( sizeof( network ) );
-    init_network( nw );
-    return nw;
 }
 
-void init_network( network *nw )
+network::network( network &&o ) noexcept :
+    name( std::move( o.name ) ),
+    crdsysdef( std::move( o.crdsysdef ) ),
+    stnlist( o.stnlist ),
+    crdsys( o.crdsys ),
+    geosys( o.geosys ),
+    ccnet( o.ccnet ),
+    ccgeo( o.ccgeo ),
+    topolat( o.topolat ),
+    topolon( o.topolon ),
+    got_topocentre( o.got_topocentre ),
+    options( o.options ),
+    orderclsid( o.orderclsid ),
+    stnclasses( std::move( o.stnclasses ) ),
+    initstation( o.initstation ),
+    uninitstation( o.uninitstation )
 {
-    nw->name = NULL;
-    nw->crdsysdef = NULL;
-    nw->stnlist = NULL;
-    nw->crdsys = NULL;
-    nw->geosys = NULL;
-    nw->topolat = 0;
-    nw->topolon = 0;
-    nw->got_topocentre = 0;
-    nw->options = 0;
-    nw->orderclsid = 0;
-    nw->initstation = default_initstation;
-    nw->uninitstation = default_uninitstation;
-    init_classifications( &(nw->stnclasses));
+    o._reset_fields();
+}
+
+network &network::operator=( network &&o ) noexcept
+{
+    if( this != &o )
+    {
+        clear();
+        name = std::move( o.name );
+        crdsysdef = std::move( o.crdsysdef );
+        stnclasses = std::move( o.stnclasses );
+        initstation = o.initstation;
+        uninitstation = o.uninitstation;
+        stnlist = o.stnlist;
+        crdsys = o.crdsys;
+        geosys = o.geosys;
+        ccnet = o.ccnet;
+        ccgeo = o.ccgeo;
+        topolat = o.topolat;
+        topolon = o.topolon;
+        got_topocentre = o.got_topocentre;
+        options = o.options;
+        orderclsid = o.orderclsid;
+        o._reset_fields();
+    }
+    return *this;
+}
+
+network *new_network( void )
+{
+    return new network();
 }
 
 void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc )
@@ -63,14 +103,15 @@ void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc un
     }
 }
 
-void set_network_name( network *nw, const char *n )
+void set_network_name( network *nw, const std::string &n )
 {
-    char *pn;
-    if( nw->name ) {check_free( nw->name ); nw->name = NULL; }
-    while( *n == ' ' || *n == '\n' ) n++;
-    if( !*n || *n=='\n') return;
-    nw->name = copy_string( n );
-    for( pn = nw->name; *pn; pn++ ) {if( *pn == '\n' ) *pn = 0;}
+    nw->name = std::nullopt;
+    size_t start = n.find_first_not_of(" \n");
+    if( start == std::string::npos ) return;
+    std::string name = n.substr(start);
+    size_t nl = name.find('\n');
+    if( nl != std::string::npos ) name.resize(nl);
+    nw->name = std::move(name);
 }
 
 static void uninit_station( station *st, void *pnw )
@@ -79,84 +120,105 @@ static void uninit_station( station *st, void *pnw )
     nw->uninitstation( st );
 }
 
-void clear_network( network *nw )
+void network::clear()
 {
-    if( nw->uninitstation )
+    if( uninitstation )
     {
-        process_stations( nw, nw, uninit_station );
+        process_stations( this, this, uninit_station );
     }
-    if( nw->name ) { check_free( nw->name ); nw->name = 0; }
-    if( nw->crdsysdef ) { check_free( nw->crdsysdef ); nw->crdsysdef = 0; }
-    if( nw->stnlist ) { delete_station_list( nw->stnlist ); nw->stnlist = 0; }
-    if( nw->crdsys ) { delete_coordsys( nw->crdsys ); nw->crdsys = 0; }
-    if( nw->geosys ) { delete_coordsys( nw->geosys ); nw->geosys = 0; }
-    delete_classifications( &(nw->stnclasses));
+    if( stnlist ) { delete_station_list( stnlist ); }
+    if( crdsys ) { delete crdsys; }
+    if( geosys ) { delete geosys; }
+    _reset_fields();
+}
+
+void network::_reset_fields()
+{
+    name = std::nullopt;
+    crdsysdef.clear();
+    stnlist = nullptr;
+    crdsys = nullptr;
+    geosys = nullptr;
+    ccnet = coord_conversion();
+    ccgeo = coord_conversion();
+    topolat = 0;
+    topolon = 0;
+    got_topocentre = 0;
+    options = 0;
+    orderclsid = 0;
+    stnclasses.clear();
+}
+
+network::~network()
+{
+    clear();
 }
 
 void delete_network( network *nw )
 {
-    clear_network( nw );
-    check_free( nw );
+    delete nw;
 }
 
-int network_classification_count( network *nw )
+int network::classification_count() const
 {
-    return classification_count( &(nw->stnclasses) );
+    return stnclasses.count();
 }
 
-int network_class_id( network *nw, const char *classname, int create )
+int network::class_id( const std::string &classname, int create )
 {
-    int id = classification_id( &(nw->stnclasses), classname, 0 );
+    int id = stnclasses.id( classname, 0 );
     if( create && id == 0 )
     {
-        id = classification_id( &(nw->stnclasses), classname, 1 );
-        set_default_class_value( &(nw->stnclasses), id, "-" );
-        if( _stricmp(classname,STATION_ORDER_CLASS_NAME) == 0 ) nw->orderclsid = id;
+        id = stnclasses.id( classname, 1 );
+        stnclasses.set_default_value( id, "-" );
+        if( boost::algorithm::iequals(classname,STATION_ORDER_CLASS_NAME) ) orderclsid = id;
     }
     return id;
 }
-const char *network_class_name( network *nw, int class_id )
+
+std::string network::class_name( int class_id ) const
 {
-    return classification_name( &(nw->stnclasses), class_id);
-}
-int network_class_count( network *nw, int class_id )
-{
-    return class_value_count( &(nw->stnclasses), class_id );
+    return stnclasses.name( class_id );
 }
 
-int network_class_value_id( network *nw, int class_id, const char *value, int create )
+int network::class_count( int class_id ) const
 {
-    return class_value_id( &(nw->stnclasses), class_id, value, create );
+    return stnclasses.value_count( class_id );
 }
 
-const char *network_class_value( network *nw, int class_id, int value_id )
+int network::class_value_id( int class_id, const std::string &value, int create )
 {
-    return class_value_name( &(nw->stnclasses), class_id, value_id );
+    return stnclasses.value_id( class_id, value, create );
 }
 
-int add_network_orders( network *nw )
+std::string network::class_value( int class_id, int value_id ) const
 {
-    return network_class_id( nw, STATION_ORDER_CLASS_NAME, 1 );
+    return stnclasses.value_name( class_id, value_id );
 }
 
-int network_order_count( network *nw )
+int network::add_orders()
 {
-    return nw->orderclsid ? network_class_count(nw,nw->orderclsid) : 0;
+    return class_id( STATION_ORDER_CLASS_NAME, 1 );
 }
 
-int network_order_id( network *nw, const char *order, int addorder )
+int network::order_count() const
 {
-    return nw->orderclsid ? network_class_value_id( nw, nw->orderclsid, order, addorder ) : 0;
+    return orderclsid ? class_count(orderclsid) : 0;
 }
 
-const char *network_order( network *nw, int orderid )
+int network::order_id( const std::string &order, int addorder )
 {
-    return network_class_value(nw,nw->orderclsid,orderid);
+    return orderclsid ? class_value_id( orderclsid, order, addorder ) : 0;
 }
 
-int network_station_order( network *nw, station *stn )
+std::string network::order( int orderid ) const
 {
-    return nw->orderclsid ? get_station_class( stn, nw->orderclsid ) : 0;
+    return class_value(orderclsid,orderid);
+}
+
+int network::station_order( station *stn ) const
+{
+    return orderclsid ? stn->get_class( orderclsid ) : 0;
 }
 
 int network_has_explicit_geoid_info( network *nw )

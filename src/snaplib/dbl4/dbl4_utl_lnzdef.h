@@ -21,19 +21,22 @@
 #include "dbl4_utl_binsrc.h"
 #endif
 
+#include <optional>
+#include <string_view>
+
 typedef void *hLinzDefModel;
 
 StatusType utlCreateLinzDef( hBinSrc blob, hLinzDefModel *def );
 
 StatusType utlReleaseLinzDef( hLinzDefModel def );
 
-StatusType utlSetLinzDefVersion( hLinzDefModel def, const char *version );
+StatusType utlSetLinzDefVersion( hLinzDefModel def, std::string_view version );
 
-StatusType utlLinzDefCoordSysDef( hLinzDefModel def, char ** crdsys );
+StatusType utlLinzDefCoordSysDef( hLinzDefModel def, std::string_view &crdsys );
 
 /* nTitle = 1 for name, 2 for description, 3 for version */
 
-StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, char ** title );
+StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, std::optional<std::string_view> &title );
 
 StatusType utlCalcLinzDef( hLinzDefModel def, double date, double x, double y,
                            double * value);

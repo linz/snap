@@ -16,11 +16,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <filesystem>
+#include <optional>
+#include <string>
 
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "geoid/geoid.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
 #include "snap/filenames.h"
@@ -44,9 +46,8 @@ enum
 
 int main( int argc, char *argv[] )
 {
-    char *oldfn, *newfn;
+    std::string newfn;
     int readopt;
-    int nch;
     network net;
     char list_only=0;
     char keep_existing = 0;
@@ -58,10 +59,10 @@ int main( int argc, char *argv[] )
     int orthometric_fixed=NW_HGTFIXEDOPT_ELLIPSOIDAL;
     char geoid_msg[120];
     char remove_csyshrs = 0;
-    char *csyshrs = NULL;
-    char *hrscode = NULL;
-    char *geoid = NULL;
-    char **argptr=NULL;
+    std::optional<std::string> csyshrs;
+    std::optional<std::string> hrscode;
+    std::optional<std::string> geoid;
+    std::optional<std::string> *argptr = nullptr;
     int errlevel=WARNING_ERROR;
     geoid_def *gd = NULL;
 
@@ -72,7 +73,7 @@ int main( int argc, char *argv[] )
 
     while( argc > 1 && argv[1][0] == '-' )
     {
-        argptr=0;
+        argptr = nullptr;
         switch( argv[1][1] )
         {
         case 'v':
@@ -210,17 +211,16 @@ int main( int argc, char *argv[] )
         int nhrf=vdatum_list_count();
         for( i=0; i < nhrf; i++)
         {
-            const char *code=vdatum_list_code(i);
-            const char *name=vdatum_list_desc(i);
-            printf("  %-*s %s\n",CRDSYS_CODE_LEN,code,name);
+            const std::string &code=vdatum_list_code(i);
+            const std::string &name=vdatum_list_desc(i);
+            printf("  %-*s %s\n",CRDSYS_CODE_LEN,code.c_str(),name.c_str());
         }
         exit(0);
     }
     /* Load the station file */
 
-    init_network( &net );
     readopt = NW_READOPT_CALCHGTREF;
-    oldfn = argv[1];
+    const std::string oldfn = argv[1];
 
     if( argc > 2 && _stricmp(argv[2],"gb")==0 )
     {
@@ -235,15 +235,12 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        nch = path_len( argv[1], 1 );
-        newfn = (char *) check_malloc( nch + 5 );
-        strncpy( newfn, argv[1], nch );
-        strcpy( newfn+nch, ".new");
+        newfn = std::filesystem::path( oldfn ).replace_extension( ".new" ).string();
     }
 
     if( read_network( &net, oldfn, readopt ) != OK )
     {
-        printf("Unable to load station file %s\n",oldfn);
+        printf("Unable to load station file %s\n",oldfn.c_str());
         return 2;
     }
 
@@ -266,10 +263,10 @@ int main( int argc, char *argv[] )
 
     if( csyshrs )
     {
-        vdatum *hrs=load_vdatum( csyshrs );
+        vdatum *hrs=load_vdatum( *csyshrs );
         if( ! hrs )
         {
-            printf("Unable to load vertical datum %s\n",csyshrs);
+            printf("Unable to load vertical datum %s\n",csyshrs->c_str());
             return 2;
         }
         int sts=set_coordsys_vdatum( net.crdsys, hrs );
@@ -291,43 +288,43 @@ int main( int argc, char *argv[] )
         vdatum *hrs = coordsys_vdatum( net.crdsys );
         if( hrs )
         {
-            sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name);
+            sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name.c_str());
         }
     }
 
     if( calc_geoid_opt == CALC_HGTREF )
     {
-        vdatum *hrs=load_vdatum( hrscode );
+        vdatum *hrs=load_vdatum( *hrscode );
         if( ! hrs )
         {
-            printf("Unable to load vertical datum %s\n",hrscode);
+            printf("Unable to load vertical datum %s\n",hrscode->c_str());
             return 2;
         }
         ref_frame *rf=vdatum_ref_frame(hrs);
         if( ! rf )
         {
             printf("Unable to load reference frame for vertical datum %s\n",
-                    hrscode);
+                    hrscode->c_str());
             return 2;
         }
-        coordsys *cs=create_coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
+        coordsys *cs=new coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
         if( ! cs )
         {
             printf("Unable to create reference coordinate system for vertical datum %s\n",
-                    hrscode);
+                    hrscode->c_str());
             return 2;
         }
         int sts=set_coordsys_vdatum( cs, hrs );
         if( sts != OK )
         {
             printf("Unable to assign vertical datum %s to base coordinate system",
-                    hrscode);
+                    hrscode->c_str());
             return 2;
         }
         sts=calc_station_geoid_info_from_coordsys( &net, cs,
                 orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) return 2;
-        sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name);
+        sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name.c_str());
     }
 
     else if( calc_geoid_opt == CALC_GEOID )
@@ -346,7 +343,7 @@ int main( int argc, char *argv[] )
             print_geoid_header( gd, stdout, 0, "   " );
         }
 
-        sprintf(geoid_msg,"Geoid undulations from %.80s",get_geoid_model( gd ));
+        sprintf(geoid_msg,"Geoid undulations from %.80s",std::string( get_geoid_model( gd ) ).c_str());
         int sts = set_network_geoid_def( &net, gd, orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) return 2;
     }
@@ -372,16 +369,14 @@ int main( int argc, char *argv[] )
 
     /* And write the file out again */
 
-    if( write_network( &net, newfn,
-                       geoid_msg[0] ? geoid_msg : NULL,
-                       0,NULL) != OK )
+    if( write_network( &net, newfn, geoid_msg, 0, nullptr ) != OK )
     {
         return 2;
     }
 
     if( ! quiet )
     {
-        printf("\nThe updated station file is %s\n",newfn);
+        printf("\nThe updated station file is %s\n",newfn.c_str());
     }
 
 

@@ -4,6 +4,8 @@
 // An array of colours and corresponding bitmaps used to select
 // colours for layers etc.
 
+#include <string>
+
 #include "wx_includes.hpp"
 
 class ColourPalette
@@ -62,11 +64,11 @@ public:
     SymbologyBase( wxString name );
     virtual ~SymbologyBase();
     wxString Name() { return name; }
-    const char *NamePtr(){ return cname; }
+    const std::string &NameString() const { return cname; }
     wxString Identifier() { return id; }
 private:
     wxString name;
-    char *cname;
+    std::string cname;
     wxString id;
 };
 

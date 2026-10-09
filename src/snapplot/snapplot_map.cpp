@@ -28,7 +28,7 @@ static void mapdrawer_line_func( void *plotobj, double px, double py, int pen, i
     }
 }
 
-static void mapdrawer_text_func( void *plotobj, double px, double py, double WXUNUSED(size), int pen, const char *text )
+static void mapdrawer_text_func( void *plotobj, double px, double py, double WXUNUSED(size), int pen, const std::string &text )
 {
     wxMapDrawer *drawer = static_cast<wxMapDrawer *>( plotobj );
     TextAlign alignment(1,-1);

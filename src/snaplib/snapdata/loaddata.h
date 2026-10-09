@@ -9,6 +9,9 @@
 */
 
 #include <stdint.h>
+#include <optional>
+#include <string>
+#include <string_view>
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
@@ -70,30 +73,36 @@ enum { CALC_DISTANCE, CALC_HDIST };
 
 struct coef_class_info
 {
-    const char *default_classname;
+    std::string_view default_classname;
     bool datatypedef::*useclass;
 };
 
 coef_class_info *coef_class( int coeftype );
-void set_coef_class( int coeftype, const char *name );
+void set_coef_class( int coeftype, std::string_view name );
 
 /* The following two routines are called by the "main" program
    before and after loading a data file */
 
 void init_load_data( void (*usedata_func)( survdata *sd ),
-                     int64_t (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*namefunc)( int type, int group_id, long id ),
+                     int64_t (*idfunc)( int type, int group_id, std::string_view code ),
+                     std::string (*namefunc)( int type, int group_id, long id ),
                      double (*calcfunc)( int type, long id1, long id2 ));
 void term_load_data( void );
 
 
 /* Station recode function */
 
-#define RECODE_IGNORE_CHAR '*'
-#define RECODE_IGNORE_CODE "*"
+/// The outcome of recoding a station code.
+struct recode_result
+{
+    std::string_view code;  ///< the recoded station code, empty if reject is set and the whole station is ignored
+    bool reject;            ///< true if observations to or from the station are to be rejected
+};
 
-void set_stn_recode_func( 
-        const char *(*recode)( void *recodedata, const char *code, double date ), 
+/// Sets the function used to recode station codes read from data files.
+/// The function returns nullopt if the code is not recoded.
+void set_stn_recode_func(
+        std::optional<recode_result> (*recode)( void *recodedata, std::string_view code, double date ),
         void *recodedata);
 
 /* The following routine can be called to enable handling of GPS covariances.
@@ -109,8 +118,8 @@ void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
    data routines assemble these to convert the data to a standard internal
    format */
 
-int64_t ldt_get_id( int type, int group_id, const char *code );
-const char *ldt_get_code( int type, int group_id, long id );
+int64_t ldt_get_id( int type, int group_id, std::string_view code );
+std::string ldt_get_code( int type, int group_id, long id );
 double ldt_calc_value( int calc_type, long id1, long id2 );
 
 /* Set state - can happen at any time */
@@ -144,8 +153,8 @@ void ldt_classification( int class_id, int name_id );
 void ldt_syserr( int syserr_id, double influence );
 void ldt_vecsyserr( int syserr_id, double influence[] );
 
-void ldt_prefix_note( const char *note );
-void ldt_note( const char *note );
+void ldt_prefix_note( std::string_view note );
+void ldt_note( std::string_view note );
 
 /* Once all observations in a set are created */
 

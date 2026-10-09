@@ -1,0 +1,1 @@
+**** Error reading data ****  A1 -45.25 168.75

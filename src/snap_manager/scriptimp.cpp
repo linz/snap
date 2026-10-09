@@ -839,7 +839,7 @@ void ScriptImp::PopStack()
     }
 }
 
-bool ScriptImp::ExecuteScript( const char *filename  )
+bool ScriptImp::ExecuteScript( const std::string &filename )
 {
     bool result = true;
 
@@ -866,7 +866,7 @@ bool ScriptImp::ExecuteScript( const char *filename  )
     }
     else
     {
-        error("Cannot open file %s",filename);
+        error("Cannot open file %s",filename.c_str());
         result = false;
     }
     return result;

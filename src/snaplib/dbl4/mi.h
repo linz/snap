@@ -37,18 +37,15 @@ typedef long MI_LO_HANDLE;
 #define MI_ERROR 1
 #define MI_NULL_VALUE 2
 
-typedef struct
+struct MI_FPARAM
 {
     void *data;
-} MI_FPARAM;
+};
 
 #define mi_fp_setfuncstate(p,x) (p)->data = (x)
 #define mi_fp_funcstate(p) p->data
 
 #define mi_lvarchar_to_string(x) x
-#define mi_alloc malloc
-#define mi_dalloc(x,y) malloc(x)
-#define mi_free(x) free(x)
 
 #define MI_SQL 0
 #define MI_TRUE -1

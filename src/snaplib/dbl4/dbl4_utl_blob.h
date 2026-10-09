@@ -35,11 +35,11 @@ StatusType utlTellBlobDB( void *pvBlob, long *position );
 
 StatusType utlWriteBlobDB( void *blob, long lngBufSize, void *pvBuffer );
 
-typedef struct
+struct BlobType
 {
-    void *pvBlob;                /**< Data blob read/write functions */
-    char *buffer;                /**< Used for formatted output routines */
-} BlobType, *hBlob;
+    void *pvBlob = nullptr;      ///< Data blob read/write functions
+};
+typedef BlobType *hBlob;
 
 #define BLOB_SEEK_SET    0
 #define BLOB_SEEK_CUR    1
@@ -48,11 +48,10 @@ typedef struct
 /* Generic functions using the BlobType object.  The utlCreateHandle function
    allocates the BlobType object, but doesn't set any useful information within
    it - all data is set to NULL.  This is to be used by specific blob
-   constructor functions.  If the blnOutput is set then a write buffer is
-   created for the Printf function.
+   constructor functions.
 */
 
-StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob, Boolean blnOutput );
+StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob );
 
 StatusType utlBlobClose( hBlob blob);
 
@@ -64,10 +63,5 @@ StatusType utlBlobWrite( hBlob blob, long lngBufSize, void *buffer );
 StatusType utlBlobSeek( hBlob blob, long position, int whence );
 
 StatusType utlBlobTell( hBlob blob, long *position );
-
-/* Note that the printf function is constrained to the size of buffer -
-   use with care! */
-
-StatusType utlBlobPrintf( hBlob blob, char *format, ... );
 
 #endif /* DBL4_UTL_BLOB_H not defined */

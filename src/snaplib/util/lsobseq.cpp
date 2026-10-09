@@ -15,10 +15,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "util/lsobseq.h"
-#include "util/chkalloc.h"
-#include "util/errdef.h"
 
 
 #define ROW_INC 5
@@ -28,39 +28,30 @@
 /*================================================================*/
 
 
-static void alloc_err( void )
-{
-    handle_error( MEM_ALLOC_ERROR, "Insufficient memory for program", NO_MESSAGE );
-}
-
-
 void *create_oe( int nprm )
 {
-    obseqn *A;
-    A = (obseqn *) check_malloc( sizeof(obseqn));
+    obseqn *A = new obseqn;
     A->nrow = A->maxrow = A->maxcol = 0;
     A->maxelt = 0;
-    A->obs = NULL;
-    A->cvr = NULL;
+    A->obs = nullptr;
+    A->cvr = nullptr;
     A->nprm = nprm;
-    return (void *) A;
+    return A;
 }
 
 
 void delete_oe( void *hA )
 {
-    int i;
-    obseqn *A;
-    A = (obseqn *) hA;
-    for( i = 0; i<A->maxrow; i++ )
+    obseqn *A = static_cast<obseqn *>( hA );
+    for( int i = 0; i<A->maxrow; i++ )
     {
-        check_free( A->obs[i]->col);
-        check_free( A->obs[i]->val);
-        check_free( A->obs[i]);
+        delete [] A->obs[i]->col;
+        delete [] A->obs[i]->val;
+        delete A->obs[i];
     }
-    check_free( A->obs );
-    free( A->cvr );
-    check_free( A );
+    delete [] A->obs;
+    delete [] A->cvr;
+    delete A;
 }
 
 
@@ -86,8 +77,8 @@ void init_oe( void *hA, int nrow, int ncol, char options )
     {
         for( i=0; i<A->maxrow; i++ )
         {
-            check_free( obs[i]->col );
-            check_free( obs[i]->val );
+            delete [] obs[i]->col;
+            delete [] obs[i]->val;
         }
         A->maxcol = ncol+COL_INC;
         addcol = 0;
@@ -98,10 +89,13 @@ void init_oe( void *hA, int nrow, int ncol, char options )
     if(nrow>A->maxrow)
     {
         maxrow = nrow + ROW_INC;
-        obs = (obsrow **) check_realloc( obs, maxrow*sizeof(obsrow*) );
+        obsrow **newobs = new obsrow *[maxrow];
+        std::copy( obs, obs + A->maxrow, newobs );
+        delete [] obs;
+        obs = newobs;
         for ( i=maxrow; --i>=A->maxrow; )
         {
-            obs[i] = (obsrow *) check_malloc ( sizeof(obsrow) );
+            obs[i] = new obsrow;
         }
         A->maxrow = maxrow;
         A->obs = obs;
@@ -111,8 +105,8 @@ void init_oe( void *hA, int nrow, int ncol, char options )
 
     for (i=addcol; i<A->maxrow; i++ )
     {
-        obs[i]->col = (int *) check_malloc( A->maxcol * sizeof(int) );
-        obs[i]->val = (double *) check_malloc( A->maxcol * sizeof(double) );
+        obs[i]->col = new int[A->maxcol];
+        obs[i]->val = new double[A->maxcol];
     }
 
     /* Initialise the observation equations data */
@@ -132,9 +126,8 @@ void init_oe( void *hA, int nrow, int ncol, char options )
     nelt = options & OE_DIAGONAL_CVR ? nrow : ((long)nrow * (nrow+1))/2;
     if (nelt>A->maxelt)
     {
-        if( A->cvr != NULL ) free( A->cvr );
-        A->cvr = (ltmat) malloc ( nelt*2*sizeof( double ));
-        if( A->cvr == NULL ) alloc_err();
+        delete [] A->cvr;
+        A->cvr = new double[nelt*2];
         A->maxelt = nelt;
     }
     A->wgt = A->cvr + nelt;
@@ -231,7 +224,7 @@ void print_obseqn( FILE *out, void *hA )
     }
 }
 
-void print_obseqn_json( FILE *out, void *hA, const char *srcjson, int nprefix )
+void print_obseqn_json( FILE *out, void *hA, const std::optional<std::string_view> source, const int nprefix )
 {
     obseqn *A;
     int i, j;
@@ -242,9 +235,9 @@ void print_obseqn_json( FILE *out, void *hA, const char *srcjson, int nprefix )
     cvr = A->cvr;
 
     fprintf( out, "{\n%*s",nprefix,"" );
-    if( srcjson )
+    if( source )
     {
-        fprintf( out, "  \"source\": %s,\n%*s",srcjson,nprefix,"" );
+        fprintf( out, "  \"source\": %.*s,\n%*s",boost::numeric_cast<int>(source->size()),source->data(),nprefix,"" );
     }
     fprintf( out, "  \"nobs\": %d,\n%*s", A->nrow,nprefix,"" );
     fprintf( out, "  \"obs\": [\n%*s",nprefix,"");

@@ -15,7 +15,7 @@ SnapplotStationSource::~SnapplotStationSource()
 {
 }
 
-char *SnapplotStationSource::GetHeader()
+std::string SnapplotStationSource::GetHeader()
 {
     return station_list_header();
 }
@@ -25,7 +25,7 @@ int SnapplotStationSource::GetRowCount()
     return used_station_count();
 }
 
-char *SnapplotStationSource::GetRow( int i )
+std::string SnapplotStationSource::GetRow( const int i )
 {
     return station_list_item(i);
 }

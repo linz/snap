@@ -24,6 +24,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
+#include <string_view>
 #include <math.h>
 
 #include "snap/snapglob.h"
@@ -45,25 +47,16 @@
 #include "util/pi.h"
 
 
-static void *hafmt = NULL;
-static void *azfmt = NULL;
-static void *pbfmt = NULL;
-static void *zdfmt = NULL;
-
-static void *angle_format( int type )
+static const DmsFormat &angle_format( const int type )
 {
-    if( !hafmt )
-    {
-        hafmt = create_dms_format( 3,obs_precision[HA],0,NULL,NULL,NULL,NULL,NULL);
-        azfmt = create_dms_format( 3,obs_precision[AZ],0,NULL,NULL,NULL,NULL,NULL);
-        pbfmt = create_dms_format( 3,obs_precision[PB],0,NULL,NULL,NULL,NULL,NULL);
-        zdfmt = create_dms_format( 3,obs_precision[ZD],0,NULL,NULL,NULL,NULL,NULL);
-    }
-    if( type == HA ) return hafmt;
-    if( type == PB ) return pbfmt;
-    if( type == AZ ) return azfmt;
-    if( type == ZD ) return zdfmt;
-    return hafmt;
+    static const DmsFormat horizontalAngleFormat( 3, obs_precision[HA] );
+    static const DmsFormat azimuthFormat( 3, obs_precision[AZ] );
+    static const DmsFormat projectionBearingFormat( 3, obs_precision[PB] );
+    static const DmsFormat zenithDistanceFormat( 3, obs_precision[ZD] );
+    if( type == PB ) return projectionBearingFormat;
+    if( type == AZ ) return azimuthFormat;
+    if( type == ZD ) return zenithDistanceFormat;
+    return horizontalAngleFormat;
 }
 
 
@@ -87,7 +80,7 @@ void list_obsdata( FILE *out, survdata *o )
         fprintf(out,"%2d:%-4d  ",(int)(o->file+1),(int)(t->tgt.lineno));
         if( iobs == 0 )
         {
-            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(o->from), o->fromhgt );
+            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(o->from).c_str(), o->fromhgt );
         }
         else
         {
@@ -96,7 +89,7 @@ void list_obsdata( FILE *out, survdata *o )
 
         if( t->tgt.to != to || t->tgt.tohgt != tohgt )
         {
-            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(t->tgt.to), t->tgt.tohgt );
+            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(t->tgt.to).c_str(), t->tgt.tohgt );
             to = t->tgt.to;
             tohgt = t->tgt.tohgt;
         }
@@ -105,11 +98,11 @@ void list_obsdata( FILE *out, survdata *o )
             fprintf( out, "%*s        ",stn_name_width,"");
         }
 
-        fprintf( out, "%2s%c  ",datatype[type].code, t->tgt.unused ? '*' : ' ');
+        fprintf( out, "%2s%c  ",datatype[type].code.data(), t->tgt.unused ? '*' : ' ');
 
         if( datatype[type].isangle )
         {
-            fprintf( out, "%11s   %6.1lf",dms_string(t->value*RTOD,angle_format(type),NULL),t->error*RTOS);
+            fprintf( out, "%11s   %6.1lf",dms_string(t->value*RTOD,angle_format(type)).c_str(),t->error*RTOS);
         }
         else
         {
@@ -118,15 +111,15 @@ void list_obsdata( FILE *out, survdata *o )
 
         if( type == ZD )
         {
-            fprintf( out, "   %s", refcoef_name( t->refcoef ) );
+            fprintf( out, "   %s", refcoef_name( t->refcoef ).data() );
         }
         else if( t->prm_id && (type == ED || type == MD || type == HD || type == SD || type == DR ))
         {
-            fprintf( out, "   %s", distsf_name( t->prm_id ));
+            fprintf( out, "   %s", distsf_name( t->prm_id ).data());
         }
         else if( t->prm_id && (type == AZ || type == PB) )
         {
-            fprintf( out, "   %s", brngref_name( t->prm_id ));
+            fprintf( out, "   %s", brngref_name( t->prm_id ).data());
         }
         fputs("\n", out );
 
@@ -136,11 +129,11 @@ void list_obsdata( FILE *out, survdata *o )
             clsf = o->clsf + t->tgt.iclass;
             for( i = 0; i< t->tgt.nclass; i++, clsf++ )
             {
-                char *class_name;
-                char *class_value;
-                class_name = classification_name( &obs_classes, clsf->class_id );
-                class_value = class_value_name( &obs_classes, clsf->class_id, clsf->name_id );
-                fprintf(out, "     %s = %s\n",class_name,class_value );
+                std::string class_name;
+                std::string class_value;
+                class_name = obs_classes.name( clsf->class_id );
+                class_value = obs_classes.value_name( clsf->class_id, clsf->name_id );
+                fprintf(out, "     %s = %s\n",class_name.c_str(),class_value.c_str() );
             }
         }
 
@@ -150,9 +143,8 @@ void list_obsdata( FILE *out, survdata *o )
             sd = o->syserr + t->tgt.isyserr;
             for( i = 0; i < t->tgt.nsyserr; i++, sd++ )
             {
-                const char *name;
-                name = syserr_name( sd->prm_id );
-                fprintf(out,"     Systematic error: %s = %lf\n",name,sd->influence);
+                const std::string_view name = syserr_name( sd->prm_id );
+                fprintf(out,"     Systematic error: %s = %lf\n",name.data(),sd->influence);
             }
         }
 
@@ -239,7 +231,7 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
         {
             char buf[256];
             sprintf(buf,"Unable to calculate %s obs from colocated stations %s to %s - obs not used",
-                    datatype[t->tgt.type].name,st1->Code,st2->Code );
+                    datatype[t->tgt.type].name.data(),st1->Code.c_str(),st2->Code.c_str() );
 
             handle_error( WARNING_ERROR, buf, NO_MESSAGE );
             status = INVALID_DATA;
@@ -298,7 +290,7 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
             {
                 char buf[256];
                 sprintf(buf,"Unable to calculate %s projection bearin from %s to %s - obs not used",
-                        bproj_name(o->reffrm),st1->Code,st2->Code );
+                        bproj_name(o->reffrm).data(),st1->Code.c_str(),st2->Code.c_str() );
                 handle_error( WARNING_ERROR, buf, NO_MESSAGE );
                 status = INVALID_DATA;
                 continue;
@@ -350,7 +342,6 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
     char unused, rfunused, firstobs, firstoutput;
     char ok;
     char distratios;
-    char *typecode;
     double obslength;
     double altres;
     double mde;
@@ -423,14 +414,9 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                     unused = ' ';
                 }
 
-                typecode = get_field_buffer( OF_TYPE );
-                strcpy( typecode, datatype[type].code );
-                if( unused != ' ' )
-                {
-                    int l = strlen(typecode );
-                    typecode[l++] = unused;
-                    typecode[l] = 0;
-                }
+                std::string typecode( datatype[type].code );
+                if( unused != ' ' ) typecode += unused;
+                set_residual_field( OF_TYPE, typecode );
 
                 calc = t->calc;
                 seo = t->error * semult;
@@ -535,8 +521,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                     rfunused = LOW_REDUNDANCY_FLAG;
                 }
 
-                sprintf(get_field_buffer(OF_FLAGS),"%c%s",rfunused,
-                        residual_flag((unused != ' '), 1, sres ));
+                set_residual_field( OF_FLAGS,
+                        std::string( 1, rfunused ).append( residual_flag((unused != ' '), 1, sres ) ));
 
                 print_residual_line( out );
 

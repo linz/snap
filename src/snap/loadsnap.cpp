@@ -55,6 +55,12 @@ into SNAP
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <forward_list>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #include "adjparam.h"
 #include "coefs.h"
@@ -80,7 +86,6 @@ into SNAP
 #include "snapdata/loaddata.h"
 #include "snapdata/survdata.h"
 #include "snapdata/survdata.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "util/classify.h"
 #include "util/dateutil.h"
@@ -96,17 +101,22 @@ into SNAP
 
 #define IGNORE_ID -1 
 
-typedef struct missing_stn_s
+struct missing_stn
 {
-    struct missing_stn_s *next;
-    char *code;
-    int refcount;
-    int quiet;
-    int id;
-} missing_stn;
+    missing_stn( std::string_view code, int id ) :
+        code(code), refcount(0), quiet(false), id(id)
+    {}
 
+    const std::string code;
+    int refcount;                  ///< mutated later, incremented on each use
+    bool quiet;                    ///< mutated later, set by set_accept_missing_station
+    const int id;
+};
 
-static missing_stn *missing = NULL;
+/// Stations used in the data files but absent from the coordinate file,
+/// kept sorted by stncodecmp. Nodes never move, so pointers to them stay
+/// valid until the list is cleared.
+static std::forward_list<missing_stn> missing;
 static int missing_id = IGNORE_ID;
 
 static int ignore_missing_stations = 0;
@@ -131,40 +141,30 @@ void set_require_obs_date( int option )
     need_obs_date = option;
 }
 
-static missing_stn *get_missing_station( const char *code, int create )
+/// Returns the missing station with the given code, adding it to the list
+/// first if create is set. Returns nullptr if it is absent and create is not set.
+static missing_stn *get_missing_station( std::string_view code, int create )
 {
-    missing_stn *ms, *prev, *newst;
-    if( !code ) return 0;
-    for( ms = missing, prev = NULL; ms; prev = ms, ms = ms->next )
+    auto previous = missing.before_begin();
+    for( auto station = missing.begin(); station != missing.end(); previous = station, ++station )
     {
-        int cmp;
-        cmp = stncodecmp( ms->code, code );
-        if( cmp == 0 ) return ms;
-        if( cmp > 0 ) break;
+        const int cmp = stncodecmp( station->code, code );
+        if( cmp == 0 ) { return &*station; }
+        if( cmp > 0 ) { break; }
     }
-    if( ! create ) return 0;
-    newst = (missing_stn *) check_malloc( sizeof(missing_stn) + strlen(code) + 1 );
-    newst->next = ms;
-    if( prev ) prev->next = newst; else missing = newst;
-    newst->id = --missing_id;
-    newst->refcount = 0;
-    newst->quiet = 0;
-    newst->code = ((char *)(void *)newst)+sizeof(missing_stn);
-    strcpy( newst->code, code );
-    return newst;
+    if( ! create ) { return nullptr; }
+    return &*missing.emplace_after( previous, code, --missing_id );
 }
 
-void set_accept_missing_station( const char *code )
+void set_accept_missing_station( std::string_view code )
 {
     missing_stn *ms=get_missing_station(code,1);
-    if( ms ) ms->quiet=1;
+    if( ms ) ms->quiet=true;
 }
 
-static int missing_station_id( const char *code )
+static int missing_station_id( std::string_view code )
 {
-    missing_stn *ms;
-    if( !code ) return 0;
-    ms = get_missing_station( code, ignore_missing_stations );
+    missing_stn *ms = get_missing_station( code, ignore_missing_stations );
     if( ms )
     {
         ms->refcount++;
@@ -173,39 +173,31 @@ static int missing_station_id( const char *code )
     return 0;
 }
 
-static char *missing_station_name( int id )
+static std::optional<std::string_view> missing_station_name( int id )
 {
-    missing_stn *ms;
-    for( ms = missing; ms; ms = ms->next )
+    for( const missing_stn &station : missing )
     {
-        if( ms->id == id ) return ms->code;
+        if( station.id == id ) return station.code;
     }
-    return NULL;
+    return std::nullopt;
 }
 
 static void delete_missing_station_list( void )
 {
-    missing_stn *ms;
-    while( missing )
-    {
-        ms = missing->next;
-        check_free( missing );
-        missing = ms;
-    }
+    missing.clear();
     missing_id = IGNORE_ID;
 }
 
 static void list_missing_stations( void )
 {
-    missing_stn *ms;
     char buf[80];
     if( ! report_missing_stations ) return;
-    int reportall=report_missing_stations == REPORT_MISSING_ALL;
-    for( ms = missing; ms; ms = ms->next )
+    const bool reportall=report_missing_stations == REPORT_MISSING_ALL;
+    for( const missing_stn &station : missing )
     {
-        if( ! reportall && ms->quiet ) continue;
+        if( ! reportall && station.quiet ) continue;
         sprintf(buf,"Station %-10s is not in the coordinate file.  Used %d times",
-                ms->code,ms->refcount );
+                station.code.c_str(),station.refcount );
         handle_error(WARNING_ERROR, buf, NO_MESSAGE );
     }
 }
@@ -283,7 +275,7 @@ static void record_parameter_usage( survdata *sd )
             break;
 
             case SD_VECDATA:
-                flag_rftrans_used( rftrans_from_id(sd->reffrm), 
+                rftrans_from_id(sd->reffrm)->flagUsed(
                         dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF );
                 break;
 
@@ -377,7 +369,7 @@ static void load_snap( survdata *sd )
     {
         char location[80];
         sprintf(location,"In %.50s line %d",
-                survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
+                survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno );
         handle_error(INVALID_DATA,"Observation date not defined", location);
         missing_data++;
         return;
@@ -389,7 +381,7 @@ static void load_snap( survdata *sd )
     {
         char location[80];
         sprintf(location,"In %.50s line %d",
-                survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
+                survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno );
         handle_error(INVALID_DATA,"Observation covariance not defined", location);
         missing_data++;
         return;
@@ -431,7 +423,7 @@ static void load_snap( survdata *sd )
 /* Callback function used by loaddata to get id's of various objects */
 
 
-static int64_t snap_id( int type, int group_id, const char *code )
+static int64_t snap_id( int type, int group_id, std::string_view code )
 {
     int64_t id;
     id = 0;
@@ -445,7 +437,7 @@ static int64_t snap_id( int type, int group_id, const char *code )
         }
         else
         { 
-            if( !id ) id = missing_station_id( code );
+            id = missing_station_id( code );
         }
         break;
     case ID_COEF:
@@ -459,38 +451,38 @@ static int64_t snap_id( int type, int group_id, const char *code )
         break;
     case ID_PROJCTN:    id = get_bproj( code ); break;
     case ID_SYSERR:     id = syserr_prm( code ); break;
-    case ID_CLASSTYPE:  id = classification_id( &obs_classes, code, 1 ); break;
-    case ID_CLASSNAME:  id = class_value_id( &obs_classes, group_id, code, 1 ); break;
+    case ID_CLASSTYPE:  id = obs_classes.id( code, 1 ); break;
+    case ID_CLASSNAME:  id = obs_classes.value_id( group_id, code, 1 ); break;
     case ID_NOTE:       id = save_note( code, group_id ); break;
     }
     return id;
 }
 
-static const char *snap_name( int type, int group_id, long id )
+static std::string snap_name( int type, int group_id, long id )
 {
-    const char *name;
-    name = NULL;
     switch (type)
     {
-    case ID_STATION:   if( id < 0 ) name = missing_station_name( (int) id );
-        else name = station_code( (int) id );
-        break;
+    case ID_STATION:   if( id < 0 )
+        {
+            return std::string( missing_station_name( numeric_cast<int>( id ) ).value_or( std::string_view() ) );
+        }
+        return std::string( station_code( numeric_cast<int>( id ) ) );
     case ID_COEF:
         switch( group_id )
         {
-        case COEF_CLASS_DISTSF:  name = distsf_name( (int) id ); break;
-        case COEF_CLASS_BRNGREF: name = brngref_name( (int) id ); break;
-        case COEF_CLASS_REFCOEF: name = refcoef_name( (int) id ); break;
+        case COEF_CLASS_DISTSF:  return std::string( distsf_name( numeric_cast<int>( id ) ) );
+        case COEF_CLASS_BRNGREF: return std::string( brngref_name( numeric_cast<int>( id ) ) );
+        case COEF_CLASS_REFCOEF: return std::string( refcoef_name( numeric_cast<int>( id ) ) );
         case COEF_CLASS_REFFRM:  break;
         }
         break;
-    case ID_SYSERR:    name = syserr_name( (int) id ); break;
-    case ID_PROJCTN:   name = bproj_name( (int) id ); break;
-    case ID_CLASSTYPE: name = classification_name( &obs_classes, (int) id ); break;
-    case ID_CLASSNAME: name = class_value_name( &obs_classes, group_id, (int) id ); break;
+    case ID_SYSERR:    return std::string( syserr_name( numeric_cast<int>( id ) ) );
+    case ID_PROJCTN:   return std::string( bproj_name( numeric_cast<int>( id ) ) );
+    case ID_CLASSTYPE: return obs_classes.name( numeric_cast<int>( id ) );
+    case ID_CLASSNAME: return obs_classes.value_name( group_id, numeric_cast<int>( id ) );
     case ID_NOTE:    break;
     }
-    return name;
+    return std::string();
 }
 
 static double snap_calc_value( int type, long id1, long id2 )

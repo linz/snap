@@ -10,11 +10,13 @@
 #include <vector>
 #include <array>
 
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
+
 #include "util/errdef.h"
 #include "util/binfile.h"
 #include "util/bltmatrx.h"
 #include "util/fileutil.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "coordsys/coordsys.h"
 #include "snap/filenames.h"
@@ -56,9 +58,6 @@
 
 struct BinaryFileCloser { void operator()( BINARY_FILE *b ) const { if( b ) { close_binary_file( b ); } } };
 using BinaryFilePtr = std::unique_ptr<BINARY_FILE, BinaryFileCloser>;
-
-struct BindataDeleter { void operator()( bindata *b ) const { delete_bindata( b ); } };
-using BindataPtr = std::unique_ptr<bindata, BindataDeleter>;
 
 struct BltMatrixDeleter { void operator()( bltmatrix *blt ) const { delete_bltmatrix( blt ); } };
 using BltMatrixPtr = std::unique_ptr<bltmatrix, BltMatrixDeleter>;
@@ -183,22 +182,22 @@ static void dump_value( std::ostream &out, const std::string &label, const std::
 // dump_classifications (util/classify.cpp).
 static void dump_classifications_text( std::ostream &out, const std::string &section, const classifications &csf )
 {
-    for( int ic = 0; ic < csf.class_count; ic++ ) {
-        const class_type *cl = csf.class_index[ic];
+    for( int ic = 0; ic < csf.count(); ic++ ) {
+        const class_type *cl = csf.class_index[ic].get();
         const std::string p = section + "[" + std::to_string(ic) + "].";
-        dump_value( out, p+"name", cl->name ? cl->name : "" );
-        dump_value( out, p+"count", static_cast<long>(cl->count) );
+        dump_value( out, p+"name", cl->name );
+        dump_value( out, p+"count", numeric_cast<long>(cl->value.size()) );
         dump_value( out, p+"type", cl->type == ClassValueType::Int ? "Int" : "Char" );
-        for( int iv = 0; iv < cl->count; iv++ ) {
-            const class_value *cv = cl->value[iv];
+        for( int iv = 0; iv < numeric_cast<int>(cl->value.size()); iv++ ) {
+            const class_value &cv = cl->value[iv];
             const std::string vp = p+"value["+std::to_string(iv)+"].";
             if( cl->type == ClassValueType::Int ) {
-                dump_value( out, vp+"value", static_cast<long>(cv->value.value) );
+                dump_value( out, vp+"value", static_cast<long>(std::get<int>(cv.value)) );
             } else {
-                dump_value( out, vp+"value", cv->value.name ? cv->value.name : "" );
+                dump_value( out, vp+"value", std::get<std::string>(cv.value) );
             }
-            dump_value( out, vp+"usage", static_cast<long>(cv->usage) );
-            dump_value( out, vp+"error_factor", cv->error_factor );
+            dump_value( out, vp+"usage", static_cast<long>(cv.usage) );
+            dump_value( out, vp+"error_factor", cv.error_factor );
         }
     }
 }
@@ -206,8 +205,8 @@ static void dump_classifications_text( std::ostream &out, const std::string &sec
 // Field order mirrors dump_snap_globals/reload_snap_globals (snapglob.cpp) exactly.
 static void dump_snap_globals_text( std::ostream &out )
 {
-    dump_value( out, "SNAP_GLOBALS.job_title", std::string(job_title) );
-    dump_value( out, "SNAP_GLOBALS.run_time", std::string(run_time) );
+    dump_value( out, "SNAP_GLOBALS.job_title", job_title );
+    dump_value( out, "SNAP_GLOBALS.run_time", run_time );
     dump_value( out, "SNAP_GLOBALS.dimension", static_cast<long>(dimension) );
     dump_value( out, "SNAP_GLOBALS.program_mode", static_cast<long>(program_mode) );
     dump_value( out, "SNAP_GLOBALS.nobs", static_cast<long>(nobs) );
@@ -292,16 +291,17 @@ static void dump_station_text( std::ostream &out, const std::string &section, co
 {
     out << "=== " << section << " ===\n";
     dump_disk_fields_text( out, *st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT );
-    for( int i = 0; i < st->nclass; i++ ) out << static_cast<long>(st->classval[i]) << "\n";
-    out << (st->Name ? st->Name : "") << "\n";
+    out << numeric_cast<long>( st->classval.size() ) << "\n";
+    for( const int value : st->classval ) out << value << "\n";
+    out << st->Name << "\n";
 }
 
 // Field order mirrors dump_network (networkd.cpp): name/crdsysdef/topocentre/
 // options, then stnclasses, then the station list itself.
 static void dump_network_text( std::ostream &out )
 {
-    dump_value( out, "Network.name", net->name ? net->name : "" );
-    dump_value( out, "Network.crdsysdef", net->crdsysdef ? net->crdsysdef : "" );
+    dump_value( out, "Network.name", net->name.value_or("") );
+    dump_value( out, "Network.crdsysdef", net->crdsysdef );
     dump_value( out, "Network.topolat", net->topolat );
     dump_value( out, "Network.topolon", net->topolon );
     dump_value( out, "Network.got_topocentre", static_cast<long>(net->got_topocentre) );
@@ -326,17 +326,15 @@ static void dump_filenames_text( std::ostream &out )
         const survey_data_file *sd = survey_data_file_ptr( i );
         out << "=== DATA_FILES[" << i << "] ===\n";
         out << sd->format << "\n";
-        out << portable_path( sd->name ? sd->name : "" ) << "\n";
-        out << (sd->subtype ? sd->subtype : "") << "\n";
-        out << portable_path( sd->recodefile ? sd->recodefile : "" ) << "\n";
-        const char *context_def = context_definition( sd->context );
-        out << (context_def ? context_def : "") << "\n";
-        check_free( (void*)context_def );
+        out << portable_path( sd->name ) << "\n";
+        out << sd->subtype.value_or("") << "\n";
+        out << portable_path( sd->recodefile.value_or("") ) << "\n";
+        out << context_definition( sd->context ) << "\n";
     }
 }
 
-// Field order mirrors write_rftrans_fixed_width's RFTRANS_DISK_FIELDS
-// (rftrndmp.cpp), then the 12 bitfields in the same declared order
+// Field order mirrors dump_rftransformations (rftrndmp.cpp): the id, then
+// write_rftrans_fixed_width's RFTRANS_DISK_FIELDS, then the 12 bitfields in the same declared order
 // pack_rftrans_flags packs them in (rftrndmp.cpp) - not part of the table,
 // since bitfields have no address for offsetof to take - then trailing
 // name, matching dump_rftransformations' on-disk write order.
@@ -346,12 +344,14 @@ static void dump_rftransformations_text( std::ostream &out )
     for( int irf = 1; irf <= nrf; irf++ ) {
         const rfTransformation *rf = rftrans_from_id( irf );
         out << "=== RFTRANSFORMATIONS[" << irf << "] ===\n";
-        dump_disk_fields_text( out, *rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT );
+        dump_bare_value( out, static_cast<long long>( rf->id ) );
+        dump_disk_fields_text( out, static_cast<const RfTransformationData &>( *rf ),
+                               RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT );
         out << rf->istopo << "\n" << rf->isiers << "\n" << rf->userates << "\n" << rf->usetrans << "\n"
             << rf->localoriginok << "\n" << rf->localorigin << "\n" << rf->calctrans << "\n"
             << rf->calcrot << "\n" << rf->calcscale << "\n" << rf->calctransrate << "\n"
             << rf->calcrotrate << "\n" << rf->calcscalerate << "\n";
-        out << (rf->name ? rf->name : "") << "\n";
+        out << rf->name << "\n";
     }
 }
 
@@ -365,7 +365,7 @@ static void dump_parameters_text( std::ostream &out )
         const param *p = param_from_id( pid );
         out << "=== MISCPARAMS[" << pid << "] ===\n";
         dump_disk_fields_text( out, *p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT );
-        out << (p->name ? p->name : "") << "\n";
+        out << p->name << "\n";
     }
 }
 
@@ -419,20 +419,20 @@ static void copy_observations( BINARY_FILE *in, BINARY_FILE *out )
     create_section( out, "OBSERVATIONS" );
     init_bindata( out->f );
 
-    const BindataPtr bd( create_bindata() );
-    for( ;; ) {
+    bindata bd;
+    while( true ) {
         bindata_file = in->f;
-        const int sts = get_bindata( ANYDATATYPE, bd.get() );
+        const int sts = get_bindata( ANYDATATYPE, bd );
         if( sts == NO_MORE_DATA ) {
             break;
         }
 
         bindata_file = out->f;
-        if( bd->bintype == SURVDATA ) {
-            save_survdata( static_cast<survdata *>( bd->data ) );
+        if( bd.bintype == SURVDATA ) {
+            save_survdata( bd.survey_data() );
         } else {
-            write_bindata_header( bd->size, NOTEDATA );
-            fwrite( bd->data, bd->size, 1, bindata_file );
+            write_bindata_header( bd.size, NOTEDATA );
+            fwrite( bd.buffer.data(), bd.size, 1, bindata_file );
         }
     }
 
@@ -535,7 +535,7 @@ static void dump_syserrdata_text( std::ostream &out, const syserrdata &se )
 // snap/notedata.cpp) are plain text, not struct fields: one flag byte
 // (' ' if this note continues the previous one, '\n' if it starts a new
 // one), then the note text verbatim, then a trailing '\n' and a NUL -
-// bd->size is nch+3.
+// bd.size is nch+3.
 static void dump_observations_text( std::ostream &out, BINARY_FILE *in )
 {
     if( find_section( in, "OBSERVATIONS" ) != OK ) {
@@ -543,25 +543,25 @@ static void dump_observations_text( std::ostream &out, BINARY_FILE *in )
     }
 
     bindata_file = in->f;
-    const BindataPtr bd( create_bindata() );
+    bindata bd;
     int irec = 0;
-    for( ;; ) {
-        const int sts = get_bindata( ANYDATATYPE, bd.get() );
+    while( true ) {
+        const int sts = get_bindata( ANYDATATYPE, bd );
         if( sts == NO_MORE_DATA ) {
             break;
         }
         irec++;
 
-        if( bd->bintype != SURVDATA ) {
+        if( bd.bintype != SURVDATA ) {
             out << "=== OBSERVATIONS[" << irec << "] (NOTEDATA) ===\n";
-            const auto *note = static_cast<const unsigned char *>( bd->data );
+            const unsigned char *note = bd.buffer.data();
             dump_bare_value( out, static_cast<long long>(note[0]) );
-            const int64_t nch = bd->size - 3;
+            const int64_t nch = bd.size - 3;
             out << std::string( reinterpret_cast<const char *>(note + 1), static_cast<size_t>(nch) ) << "\n";
             continue;
         }
 
-        const survdata *sd = static_cast<const survdata *>( bd->data );
+        const survdata *sd = bd.survey_data();
         out << "=== OBSERVATIONS[" << irec << "] ===\n";
         dump_disk_fields_text( out, *sd, SURVDATA_DISK_FIELDS, SURVDATA_DISK_FIELD_COUNT );
         for( int i = 0; i < sd->nobs; i++ ) {
@@ -647,14 +647,14 @@ static ReloadedState reload_almost_everything( BINARY_FILE *in )
 
 static int run_roundtrip( const char *input_path, const char *output_path )
 {
-    BinaryFilePtr in( open_binary_file( const_cast<char *>(input_path), BINFILE_SIGNATURE ).file );
+    BinaryFilePtr in( open_binary_file( input_path, BINFILE_SIGNATURE ).file );
     if( !in ) {
         fail( std::string( "Cannot open " ) + input_path );
     }
 
     ReloadedState state = reload_almost_everything( in.get() );
 
-    BinaryFilePtr out( create_binary_file( const_cast<char *>(output_path), BINFILE_SIGNATURE ) );
+    BinaryFilePtr out( create_binary_file( output_path, BINFILE_SIGNATURE ) );
     if( !out ) {
         fail( std::string( "Cannot create " ) + output_path );
     }
@@ -690,7 +690,7 @@ static int run_roundtrip( const char *input_path, const char *output_path )
 // floating-point differences between compilers.
 static int run_dump( const char *input_path, const char *output_path )
 {
-    BinaryFilePtr in( open_binary_file( const_cast<char *>(input_path), BINFILE_SIGNATURE ).file );
+    BinaryFilePtr in( open_binary_file( input_path, BINFILE_SIGNATURE ).file );
     if( !in ) {
         fail( std::string( "Cannot open " ) + input_path );
     }

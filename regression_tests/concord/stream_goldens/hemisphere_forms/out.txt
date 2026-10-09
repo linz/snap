@@ -1,0 +1,11 @@
+A1       -45.2878  168.7240      1
+**** Error reading data for point B2 ****  B2 45 17 15.9 S 168 43 26.4 E
+C3       -45.2878  168.7240      1
+D4       -45.2878  168.7240      1
+E5        45.2878  168.7240      1
+**** Error reading data for point F6 ****  F6 45 17 15.9 SS 168 43 26.4 E 1
+G7       -45.2878  168.7240      1
+H8       -45.3000  168.7333      1
+**** Error reading data for point I9 ****  I9 45 17 60.1 S 168 43 26 E 1
+**** Error reading data for point J0 ****  J0 45 60 15 S 168 61 26 E 1
+**** Error reading data for point K1 ****  K1 -45 17 15 S 168 43 26 E 1

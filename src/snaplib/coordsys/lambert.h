@@ -10,7 +10,7 @@
 
 /* Header file for Lambert Conformal Conic projection code */
 
-typedef struct
+struct LCCProjection
 {
     double sp1, sp2;    /* Standard parallels of conic projection (rad) */
     double lt0, ln0;    /* Origin of map lat/long (rad) */
@@ -19,7 +19,7 @@ typedef struct
     double n, F;        /* Intermediate values used to facilitate calcs */
     double r0;
     int rev;            /* 1 or -1 .. inverts earth if mean of std parallels is south of equator */
-} LCCProjection;
+};
 
 
 void defineLCCProjection( LCCProjection *lp,

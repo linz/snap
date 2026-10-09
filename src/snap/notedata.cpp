@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #include "output.h"
 #include "snapdata/survdata.h"
@@ -25,15 +27,14 @@
 /* If the note is continued, the first character is set to blank,
    otherwise it is a line-feed character */
 
-int64_t save_note( const char *text, int continued )
+int64_t save_note( std::string_view text, int continued )
 {
-    const int nch = strlen( text );
-    const long size = nch+3;
+    const long size = numeric_cast<long>( text.size() )+3;
 
     const int64_t loc = write_bindata_header( size, NOTEDATA );
 
     fputc( continued ? ' ' : '\n', bindata_file );
-    fwrite( text, nch, 1, bindata_file );
+    fwrite( text.data(), text.size(), 1, bindata_file );
     fputc( '\n', bindata_file );
     fputc( 0, bindata_file );
 

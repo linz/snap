@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"
 #include "network/network.h"
@@ -30,7 +30,7 @@ int merge_network( network *base, network *data, int mergeopts,
     station *st, *stnew;
     station **stnewlist = 0;
     station **stdellist = 0;
-    ellipsoid *el=base->crdsys->rf->el;
+    ellipsoid &el=*base->crdsys->rf->el;
     int nnew = 0;
     int *classmap=NULL;
     int nclass=0;
@@ -50,16 +50,20 @@ int merge_network( network *base, network *data, int mergeopts,
     int i;
 
     convertcoords = ! identical_coordinate_systems( data->geosys, base->geosys );
-    if( convertcoords && (define_coord_conversion_epoch( &cconv, data->geosys, base->geosys, mergedate ) != OK) )
+    if( convertcoords )
     {
-        handle_error( INCONSISTENT_DATA, "Networks to merge have incompatible coordinate systems", NULL );
+        cconv = coord_conversion( data->geosys, base->geosys, mergedate );
+    }
+    if( convertcoords && ! cconv.valid )
+    {
+        handle_error( INCONSISTENT_DATA, "Networks to merge have incompatible coordinate systems", NO_MESSAGE );
         return INCONSISTENT_DATA;
     }
 
     ndata = number_of_stations( data );
     if( ndata == 0 ) return OK;
 
-    stnewlist = (station **) check_malloc( 2*ndata * sizeof(station *));
+    stnewlist = new station *[2*ndata];
     stdellist = stnewlist + ndata;
     nnew = 0;
 
@@ -78,20 +82,20 @@ int merge_network( network *base, network *data, int mergeopts,
         nnew++;
     }
 
-    if( nnew == 0 ) { check_free(stnewlist); return OK; }
+    if( nnew == 0 ) { delete [] stnewlist; return OK; }
 
-    nclass = network_classification_count(data);
-    nbaseclass=network_classification_count(base);
+    nclass = data->classification_count();
+    nbaseclass=base->classification_count();
     if( nclass > 0 )
     {
         int i;
-        classmap = (int *) check_malloc( (nclass+1) * sizeof(int));
+        classmap = new int[nclass+1];
         for( i = 1; i <= nclass; i++ )
         {
-            classmap[i] = network_class_id( base, network_class_name(data,i), addclasses);
+            classmap[i] = base->class_id( data->class_name(i), addclasses);
         }
     }
-    nclassnew=network_classification_count(base);
+    nclassnew=base->classification_count();
     if( nclassnew == nbaseclass ) nclassnew=0;
 
     preserve_ellipsoidal=0;
@@ -163,8 +167,8 @@ int merge_network( network *base, network *data, int mergeopts,
                 stnew=st0;
                 if( updateexu ) 
                 {
-                    modify_station_coords_xeu( st0, 
-                        llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], 
+                    st0->modify_coords_xeu(
+                        llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT],
                         exu[CRD_LAT],exu[CRD_LON],exu[CRD_HGT], 
                         el );
                 }
@@ -175,11 +179,11 @@ int merge_network( network *base, network *data, int mergeopts,
                         llh[CRD_HGT] += exu[CRD_HGT];
                         llh[CRD_HGT] -= st0->GUnd;
                     }
-                    modify_station_coords( st0, 
+                    st0->modify_coords(
                         llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], el );
                 }
                 loadclass=updatecls;
-                if( nclassnew ) init_station_classes( st0, nclassnew );
+                if( nclassnew ) st0->set_class_count( nclassnew );
             }
         }
 
@@ -196,16 +200,16 @@ int merge_network( network *base, network *data, int mergeopts,
             {
                 if( classmap[i] > 0 )
                 {
-                    const char *classval = network_class_value( data, i, get_station_class(st,i));
-                    int tgtval = network_class_value_id(base,classmap[i],classval,1);
-                    set_station_class( stnew, classmap[i],tgtval );
+                    std::string classval = data->class_value( i, st->get_class(i));
+                    int tgtval = base->class_value_id(classmap[i],classval,1);
+                    stnew->set_class( classmap[i],tgtval );
                 }
             }
         }
     }
 
-    check_free( stnewlist );
-    if( classmap ) check_free( classmap );
+    delete [] stnewlist;
+    delete [] classmap;
 
     return OK;
 }

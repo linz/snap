@@ -1,117 +1,98 @@
 #include "snapconfig.h"
-#include <stdio.h>
-#include <string.h>
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "util/dateutil.h"
-#include "util/fileutil.h"
 #include "util/snapctype.h"
+#include "util/textformat.hpp"
 #include "util/writecsv.h"
 
-
-output_csv *open_output_csv(const char *filename, int tab_delimited )
+namespace
 {
-    output_csv *csv;
-    FILE *f = fopen(filename,"w");
-    if( !f ) return 0;
-    csv = (output_csv *) check_malloc( sizeof(output_csv));
-    csv->filename = copy_string(filename);
-    csv->f = f;
-    csv->delim = tab_delimited ? '\t' : ',';
-    csv->delimrep = strcpy( csv->charbuf, tab_delimited ? " " : "," );
-    csv->tab = tab_delimited;
-    csv->quote = tab_delimited ? 0 : '"';
-    csv->quoterep = strcpy(csv->charbuf+3,tab_delimited ? "\"" : "\"\"");
-    csv->newlinerep = strcpy(csv->charbuf+6, tab_delimited ? " " : "\n");
-    csv->first = 1;
+    constexpr char QUOTE = '"';
+    constexpr int DEFAULT_DECIMAL_PLACES = 6;
+    constexpr std::size_t MAX_HEADER_LENGTH = 32;
+}
+
+std::unique_ptr<output_csv> output_csv::open( const std::string &filename, const bool tab_delimited )
+{
+    std::unique_ptr<output_csv> csv( new output_csv(filename,tab_delimited) );
+    if( ! csv->_f.is_open() ) return nullptr;
     return csv;
 }
 
-void close_output_csv( output_csv *csv )
+output_csv::output_csv( const std::string &filename, const bool tab_delimited )
+    : _f(filename),
+      _delim(tab_delimited ? '\t' : ','),
+      _quoted(! tab_delimited),
+      _delimrep(tab_delimited ? " " : ","),
+      _newlinerep(tab_delimited ? " " : "\n")
 {
-    if( ! csv ) return;
-    fclose( csv->f );
-    check_free( csv->filename );
-    check_free( csv );
 }
 
-void end_output_csv_record( output_csv *csv )
+void output_csv::endRecord()
 {
-    fputs("\n",csv->f);
-    csv->first = 1;
+    _f << '\n';
+    _delimit = false;
 }
 
-static void start_field( output_csv *csv )
+void output_csv::_writeDelimiter()
 {
-    if( csv->first )
-    {
-        csv->first = 0;
-    }
-    else
-    {
-        fputc(csv->delim,csv->f);
-    }
+    if( _delimit ) _f << _delim;
+    _delimit = true;
 }
 
-void write_csv_header( output_csv *csv, const char *fieldname )
+void output_csv::writeHeader( const std::string_view fieldname )
 {
-    char header[33];
-    char *c;
-
-    for( c=header; *fieldname; fieldname++ )
+    std::string header;
+    for( char ch : fieldname )
     {
-        char ch = *fieldname;
         if( ! ISALNUM(ch) ) ch = '_';
-        *c++ = ch;
-        if( c - header >= 32 ) break;
+        header += ch;
+        if( header.size() >= MAX_HEADER_LENGTH ) break;
     }
-    *c = 0;
-    write_csv_string( csv, header );
+    writeString( header );
 }
 
-void write_csv_string( output_csv *csv, const char *value )
+void output_csv::writeString( const std::string_view value )
 {
-    const char *c;
-    start_field( csv );
-    if( ! value ) return;
-    if( csv->quote ) { fputc(csv->quote,csv->f); }
-    for( c = value; *c; c++ )
+    _writeDelimiter();
+    if( _quoted ) _f << QUOTE;
+    for( const char c : value )
     {
-        if( *c == csv->quote ) { fputs( csv->quoterep, csv->f ); }
-        else if( *c == csv->delim ) { fputs( csv->delimrep, csv->f ); }
-        else if( *c == '\n' ) { fputs( csv->newlinerep, csv->f ); }
-        else fputc( (int) *c, csv->f );
+        if( _quoted && c == QUOTE ) _f << QUOTE << QUOTE;
+        else if( c == _delim ) _f << _delimrep;
+        else if( c == '\n' ) _f << _newlinerep;
+        else _f << c;
     }
-    if( csv->quote ) { fputc(csv->quote,csv->f); }
+    if( _quoted ) _f << QUOTE;
 }
 
-void write_csv_int( output_csv *csv, long value )
+void output_csv::writeInt( const long value )
 {
-    start_field( csv );
-    fprintf( csv->f, "%ld", value );
+    _writeDelimiter();
+    _f << value;
 }
 
-void write_csv_double( output_csv *csv, double value, int ndp )
+void output_csv::writeDouble( const double value, const int ndp )
 {
-    start_field( csv );
-    if( ndp  >= 0 )
+    _writeDelimiter();
+    _f << format_fixed( value, ndp >= 0 ? ndp : DEFAULT_DECIMAL_PLACES );
+}
+
+void output_csv::writeNullField()
+{
+    _writeDelimiter();
+}
+
+void output_csv::writeNullFields( const int count )
+{
+    for( int i = 0; i < count; i++ ) writeNullField();
+}
+
+void output_csv::writeDate( const double date )
+{
+    if( date == UNDEFINED_DATE )
     {
-        fprintf( csv->f, "%.*lf", ndp,value );
+        writeNullField();
+        return;
     }
-    else
-    {
-        fprintf( csv->f, "%lf", value );
-    }
+    writeString( date_as_string(date) );
 }
-
-void write_csv_null_field( output_csv *csv )
-{
-    start_field( csv );
-}
-
-void write_csv_date( output_csv *csv, double date )
-{
-    if( date == UNDEFINED_DATE ) { write_csv_null_field( csv ); return; }
-    write_csv_string( csv, date_as_string(date,0,0) );
-}
-

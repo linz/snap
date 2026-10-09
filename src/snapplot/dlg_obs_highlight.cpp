@@ -9,7 +9,7 @@
 //}
 
 
-static ListControlOption obsHighlightOptions[] =
+static const std::vector<ListControlOption> obsHighlightOptions =
 {
     {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE },
     {"Apriori &standardised residuals greater than threshold", PCONN_HIGHLIGHT_SRES },
@@ -18,8 +18,7 @@ static ListControlOption obsHighlightOptions[] =
     {"Re&jected observations", PCONN_HIGHLIGHT_REJECTED },
     {"&Unused observations", PCONN_HIGHLIGHT_UNUSED },
     {"&Between highlighted stations", PCONN_HIGHLIGHT_IF_BOTH },
-    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER },
-    {0,0}
+    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER }
 };
 
 class ObsHighlightDialog : public wxSimpleDialog

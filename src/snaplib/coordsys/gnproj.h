@@ -8,13 +8,13 @@
 
 */
 
-typedef struct
+struct GnomicProjection
 {
     double orglat, orglon;  /* Origin of coords */
     double fe, fn;          /* False easting and northing */
     double a;               /* Radius of sphere */
     double csolt, snolt;
-} GnomicProjection;
+};
 
 void define_gnomic_projection( GnomicProjection *gp, double a, double rf,
                                double orglat, double orglon, double fe, double fn );

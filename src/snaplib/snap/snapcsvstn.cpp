@@ -1,11 +1,13 @@
 #include "snapconfig.hpp"
 
 #include <algorithm>
+#include <array>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <memory>
 #include <regex>
 #include <sstream>
+#include <string_view>
 #include <vector>
 
 #include "util/datafile.h"
@@ -31,12 +33,12 @@ using namespace SNAP;
 
 SnapCsvStn::CsvClassification::CsvClassification(network *net, const std::string &name) : CsvValue(name), _classId(0), _net(net)
 {
-    _classId = network_class_id(_net, name.c_str(), 1);
+    _classId = _net->class_id(name, 1);
 }
 
 int SnapCsvStn::CsvClassification::classValue()
 {
-    return network_class_value_id(_net, _classId, value().c_str(), 1);
+    return _net->class_value_id(_classId, value(), 1);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -45,7 +47,7 @@ int SnapCsvStn::CsvClassification::classValue()
 SnapCsvStn::CsvClassColumn::CsvClassColumn(network *net, const std::string &classname, const Column *column) : _column(column),
                                                                                                                _net(net)
 {
-    _classId = network_class_id(_net, classname.c_str(), 1);
+    _classId = _net->class_id(classname, 1);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -300,10 +302,10 @@ void SnapCsvStn::initialiseLoadData()
 
 void SnapCsvStn::loadRecord()
 {
-    const char *llhords[] = {"Longitude", "Latitude", "Height"};
-    const char *prjords[] = {"Easting", "Northing", "Height"};
-    const char *xyzords[] = {"X", "Y", "Z"};
-    const char **ords;
+    constexpr std::array<std::string_view,3> llhords = {"Longitude", "Latitude", "Height"};
+    constexpr std::array<std::string_view,3> prjords = {"Easting", "Northing", "Height"};
+    constexpr std::array<std::string_view,3> xyzords = {"X", "Y", "Z"};
+    const std::array<std::string_view,3> *ords;
 
     const std::string &cscode = _crdsys.value();
 
@@ -316,14 +318,15 @@ void SnapCsvStn::loadRecord()
     if (_cscode == "")
     {
         _cscode = cscode;
-        _cs = load_coordsys(cscode.c_str());
+        _cs = load_coordsys(cscode);
         if (!_cs)
         {
             dataError(string("Invalid coordinate system code ") + cscode);
         }
         else
         {
-            set_network_coordsys(_net, _cs, 0.0, 0, 0, 0);
+            std::string ignoredMessage;
+            set_network_coordsys(_net, _cs, 0.0, 0, ignoredMessage);
             _projection = (bool)is_projection(_net->crdsys);
             _geocentric = (bool)is_geocentric(_net->crdsys);
         }
@@ -342,10 +345,10 @@ void SnapCsvStn::loadRecord()
     boost::to_lower(heightType);
     if (heightType == "") heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
 
-    ords = _projection ? prjords : _geocentric ? xyzords : llhords;
-    _crdlon.setName(ords[0]);
-    _crdlat.setName(ords[1]);
-    _crdhgt.setName(ords[2]);
+    ords = _projection ? &prjords : _geocentric ? &xyzords : &llhords;
+    _crdlon.setName(std::string((*ords)[0]));
+    _crdlat.setName(std::string((*ords)[1]));
+    _crdhgt.setName(std::string((*ords)[2]));
 
     if (heightType != "ellipsoidal" && heightType != "orthometric")
     {
@@ -391,8 +394,8 @@ void SnapCsvStn::loadRecord()
     }
     else
     {
-        if (!(_crdlon >> crdlon)) dataError(string(ords[0]) + " is missing or invalid");
-        if (!(_crdlat >> crdlat)) dataError(string(ords[1]) + " is missing or invalid");
+        if (!(_crdlon >> crdlon)) dataError(string((*ords)[0]) + " is missing or invalid");
+        if (!(_crdlat >> crdlat)) dataError(string((*ords)[1]) + " is missing or invalid");
     }
     if (!_geocentric && _crdhgt.value() != "" && !(_crdhgt >> crdhgt))
     {
@@ -400,7 +403,7 @@ void SnapCsvStn::loadRecord()
     }
     else if (_geocentric && !(_crdhgt >> crdhgt))
     {
-        dataError(string(ords[2]) + " is missing or invalid");
+        dataError(string((*ords)[2]) + " is missing or invalid");
     }
 
     if (_haveGeoid)
@@ -456,11 +459,11 @@ void SnapCsvStn::loadRecord()
 
     crdxi *= STOR;
     crdeta *= STOR;
-    station *st = new_network_station(_net, code.c_str(), name.c_str(), crdlat, crdlon, crdhgt, crdxi, crdeta, crdund);
+    station *st = new_network_station(_net, code, name, crdlat, crdlon, crdhgt, crdxi, crdeta, crdund);
 
     for (auto c = _classifications.begin(); c < _classifications.end(); c++)
     {
-        set_station_class(st, (*c)->classId(), (*c)->classValue());
+        st->set_class((*c)->classId(), (*c)->classValue());
     }
     for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
     {
@@ -468,8 +471,8 @@ void SnapCsvStn::loadRecord()
         if (value != "")
         {
             int idclass = cc->classId();
-            int idvalue = network_class_value_id(_net, idclass, value.c_str(), 1);
-            set_station_class(st, idclass, idvalue);
+            int idvalue = _net->class_value_id(idclass, value, 1);
+            st->set_class(idclass, idvalue);
         }
     }
 }
@@ -505,37 +508,36 @@ void SnapCsvStn::terminateLoadData()
 
 #include "snap/stnadj.h"
 
-int load_snap_csv_stations(network *net, const char *filename, const char *options)
+int load_snap_csv_stations(network *net, const std::string &filename, const std::string &options)
 {
     int sts = OK;
     try
     {
-        OptionString config(options ? options : "");
+        OptionString config(options);
         std::string format = config.valueOf("format", "stn");
-        const char *formatfile;
-        formatfile = find_file(format.c_str(), ".dtf", filename, FF_TRYALL, CSVFORMAT_CONFIG);
+        auto formatfile = find_file(format, ".dtf", filename, FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
             std::ostringstream os;
             os << "Undefined delimited text file format " << format;
-            handle_error(INVALID_DATA, os.str().c_str(), 0);
+            handle_error(INVALID_DATA, os.str(), NO_MESSAGE);
             return INVALID_DATA;
         }
-        string netname = string("Read from ") + filename;
-        set_network_name(net, netname.c_str());
-        SnapCsvStn csvstn(net, formatfile, config);
+        string netname = "Read from " + filename;
+        set_network_name(net, netname);
+        SnapCsvStn csvstn(net, *formatfile, config);
         DatafileInput dfi(filename, "station coordinate file");
         csvstn.load(dfi);
         std::string deffile = csvstn.definitionFilename();
         if (deffile != "")
         {
-            record_filename(deffile.c_str(), "csv_station_format");
+            record_filename(deffile, "csv_station_format");
         }
         if (dfi.errorCount()) sts = INVALID_DATA;
     }
     catch (RecordError &error)
     {
-        handle_error(INVALID_DATA, error.message().c_str(), error.location().c_str());
+        handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }
     return sts;

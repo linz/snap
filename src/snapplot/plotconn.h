@@ -12,6 +12,9 @@
 */
 
 #include <stdint.h>
+#include <optional>
+#include <string>
+#include <string_view>
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
@@ -40,8 +43,8 @@ void add_relative_covariance( int from, int to, double cvr[6] );
 #define DPEN_BY_RFAC -4
 
 // Fixed ids for the Display-by trio, distinct from classification ids (which
-// are 1..classification_count(&obs_classes), the same numbering already used
-// for Colour-by classifications).
+// are 1..obs_classes.count(), the same numbering already used for Colour-by
+// classifications).
 enum { DISPLAYBY_DATATYPE = 0, DISPLAYBY_DATAFILE = -1, DISPLAYBY_OBSSTATUS = -2 };
 
 // Whether the given Display-by dimension (DISPLAYBY_* or a classification
@@ -56,8 +59,8 @@ void get_sres_pen_options( double *max, int *apost, int *npens );
 void setup_rfac_pens( int npens );
 void get_rfac_pen_options( int *npens );
 
-int set_datapen_definition( char *def );
-void get_datapen_definition( char *def );  /* Assumes def is big enough */
+int set_datapen_definition( std::string_view def );
+std::string get_datapen_definition();
 
 /* Options for displaying highlights */
 
@@ -95,8 +98,8 @@ void maximum_relative_covariance( double *h, double *v );
 int nearest_connection( double e, double n, double tol, int *from, int *to );
 
 long sres_index_count();
-char *sres_list_header();
-char *sres_item_description( long id );
+std::string sres_list_header();
+std::string sres_item_description( long id );
 void sres_item_info( long id, PutTextInfo *jmp );
 void set_sres_display_option( int mode );
 int get_sres_display_option();
@@ -106,10 +109,10 @@ int get_sres_sort_option();
 void init_displayed_fields();
 void set_displayed_fields( int *fields, int nFields );
 int get_displayed_fields( int *fields, int maxFields );
-int get_display_field_code( const char *name );
-const char *get_display_field_name( int code );
-int read_display_fields_definition( char *def );
-void write_display_fields_definition( char *def, int nchar );
+int get_display_field_code( std::string_view name );
+std::optional<std::string> get_display_field_name( int code );
+int read_display_fields_definition( std::string_view def );
+std::string write_display_fields_definition();
 
 /* Choice of data to display in the data list window */
 

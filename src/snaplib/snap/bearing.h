@@ -19,21 +19,29 @@
 #include "network/network.h"
 #endif
 
-typedef struct
+#include <string>
+#include <string_view>
+
+struct brngProjection
 {
-    char *name;             /* The name of the reference frame     */
-    int dtmtrans;           /* Apply datum transformation as well as projection */
-    coordsys *prjsys;       /* The coordinate system for the projection */
+    std::string name;       /* The name of the reference frame     */
+    int dtmtrans = 0;       /* Apply datum transformation as well as projection */
+    coordsys *prjsys = nullptr;  /* The coordinate system for the projection, owned */
     coord_conversion prjconv;  /* The conversion from the network geodetic
                              coordinate system to the bearing projection system */
-} brngProjection;
+
+    brngProjection() = default;
+    brngProjection( const brngProjection & ) = delete;
+    brngProjection &operator=( const brngProjection & ) = delete;
+    ~brngProjection() { delete prjsys; }
+};
 
 #define REFFRAMELEN 20
 
-int get_bproj( const char *name ) ;
+int get_bproj( std::string_view name ) ;
 int bproj_count( void );
 brngProjection *bproj_from_id( int id );
-const char *bproj_name( int id );
+std::string_view bproj_name( int id );
 void clear_bproj_list( void );
 
 int calc_prj_azimuth2( int bproj_id,

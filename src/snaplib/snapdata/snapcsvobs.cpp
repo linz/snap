@@ -35,12 +35,12 @@ using namespace SNAP;
 
 SnapCsvObs::CsvClassification::CsvClassification(const std::string &name) : CsvValue(name), _classId(0)
 {
-    _classId = ldt_get_id(ID_CLASSTYPE, 0, name.c_str());
+    _classId = ldt_get_id(ID_CLASSTYPE, 0, name);
 }
 
 int SnapCsvObs::CsvClassification::classValue()
 {
-    return ldt_get_id(ID_CLASSNAME, _classId, value().c_str());
+    return ldt_get_id(ID_CLASSNAME, _classId, value());
 }
 
 /////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ int SnapCsvObs::CsvClassification::classValue()
 
 SnapCsvObs::CsvClassColumn::CsvClassColumn(const std::string &classname, const Column *column)
 {
-    _classId = ldt_get_id(ID_CLASSTYPE, 0, classname.c_str());
+    _classId = ldt_get_id(ID_CLASSTYPE, 0, classname);
     _column = column;
 }
 
@@ -99,7 +99,7 @@ SnapCsvObs::CsvObservation::CsvObservation(SnapCsvObs *owner) : _type("Data type
 datatypedef *SnapCsvObs::CsvObservation::getDataType()
 {
     const std::string &obstype = _type.value();
-    return datatypedef_from_code(obstype.c_str());
+    return datatypedef_from_code(obstype);
 }
 
 void SnapCsvObs::CsvObservation::definitionError(const string &message)
@@ -304,7 +304,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     else
     {
-        idfrom = ldt_get_id(ID_STATION, 0, _fromstn.value().c_str());
+        idfrom = ldt_get_id(ID_STATION, 0, _fromstn.value());
         if (idfrom == 0)
         {
             string message = "From station code ";
@@ -323,7 +323,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         }
         else
         {
-            idto = ldt_get_id(ID_STATION, 0, _tostn.value().c_str());
+            idto = ldt_get_id(ID_STATION, 0, _tostn.value());
             if (idto == 0)
             {
                 string message = "To station code ";
@@ -680,7 +680,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         _obsid >> obsid;
     if (_time.value() != "")
     {
-        snaptime = snap_datetime_parse(_time.value().c_str(), _dateformat.c_str());
+        snaptime = snap_datetime_parse(_time.value(), _dateformat);
         if (snaptime == 0.0)
             dataError("Invalid date or date format");
     }
@@ -729,7 +729,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         if (value != "")
         {
             int idclass = cc->classId();
-            int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value.c_str());
+            int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value);
             ldt_classification(idclass, idvalue);
         }
     }
@@ -769,12 +769,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     if (type->projctn && _projection.value() != "")
     {
-        int id = ldt_get_id(ID_PROJCTN, 0, _projection.value().c_str());
+        int id = ldt_get_id(ID_PROJCTN, 0, _projection.value());
         ldt_projection(id);
     }
     if (_note.value() != "")
     {
-        ldt_note(_note.value().c_str());
+        ldt_note(_note.value());
     }
     if (!_owner->InSet())
         ldt_end_data();
@@ -1185,7 +1185,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
 
 void SnapCsvObs::loadCoefDefinition(RecordStream &rs, CsvObservation &obs, int coef)
 {
-    CsvClassification *clsf = obs.addClassification(coef_class(coef)->default_classname);
+    CsvClassification *clsf = obs.addClassification(std::string(coef_class(coef)->default_classname));
     loadValueDefinition(rs, *clsf);
 }
 
@@ -1232,35 +1232,34 @@ void SnapCsvObs::EndSet()
 //
 // Global CSV load function
 
-int load_snap_csv_obs(const char *options, DATAFILE *df, int (*check_progress)(DATAFILE *df))
+int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_progress)(DATAFILE &df))
 {
     try
     {
-        OptionString config(options ? options : "");
+        OptionString config(options);
         std::string format = config.valueOf("format", "obs");
-        const char *formatfile;
-        formatfile = find_file(format.c_str(), ".dtf", df->fname, FF_TRYALL, CSVFORMAT_CONFIG);
+        auto formatfile = find_file(format, ".dtf", df.file_name(), FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
             std::ostringstream os;
             os << "Undefined delimited text file format " << format;
-            handle_error(INVALID_DATA, os.str().c_str(), 0);
+            handle_error(INVALID_DATA, os.str(), NO_MESSAGE);
             return INVALID_DATA;
         }
-        SnapCsvObs csvobs(formatfile, config);
+        SnapCsvObs csvobs(*formatfile, config);
         DatafileInput dfi(df, check_progress);
         csvobs.load(dfi);
         std::string deffile = csvobs.definitionFilename();
         if (deffile != "")
         {
-            record_filename(deffile.c_str(), "csv_obs_format");
+            record_filename(deffile, "csv_obs_format");
         }
         if (dfi.aborted())
             return OPERATION_ABORTED;
     }
     catch (RecordError &error)
     {
-        handle_error(INVALID_DATA, error.message().c_str(), error.location().c_str());
+        handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }
     return OK;

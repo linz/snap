@@ -85,7 +85,7 @@ double calc_x( station *st, vector3 dst )
     {
         dst[0] = 1.0;
         dst[1] = dst[2] = 0.0;
-        rotvec( dst, &st->rTopo, dst );
+        st->rTopo.rotvec( dst, dst );
     }
     return st->XYZ[0];
 }
@@ -96,7 +96,7 @@ double calc_y( station *st, vector3 dst )
     {
         dst[1] = 1.0;
         dst[0] = dst[2] = 0.0;
-        rotvec( dst, &st->rTopo, dst );
+        st->rTopo.rotvec( dst, dst );
     }
     return st->XYZ[1];
 }
@@ -107,7 +107,7 @@ double calc_z( station *st, vector3 dst )
     {
         dst[2] = 1.0;
         dst[0] = dst[1] = 0.0;
-        rotvec( dst, &st->rTopo, dst );
+        st->rTopo.rotvec( dst, dst );
     }
     return st->XYZ[2];
 }
@@ -126,7 +126,7 @@ static void calc_inst_xyz( station *st, double hgt, vector3 xyz )
 {
     vector3 vrt;
 
-    rot_vertical( &st->rTopo, vrt );         /* Get the vertical vector */
+    st->rTopo.rot_vertical( vrt );         /* Get the vertical vector */
     vecadd2( st->XYZ, 1.0, vrt, hgt, xyz );  /* Add to the geocentric coords */
 }
 
@@ -159,9 +159,9 @@ double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
         if( dist > DIST_TOL )
         {
             scalevec( dif, -1.0/dist );
-            rotvec( dif, &st1->rTopo, dst1 );
+            st1->rTopo.rotvec( dif, dst1 );
             scalevec( dif, -1.0 );
-            rotvec( dif, &st2->rTopo, dst2 );
+            st2->rTopo.rotvec( dif, dst2 );
         }
         else
         {
@@ -190,9 +190,9 @@ double calc_horizontal_distance( station *st1, station *st2, vector3 dst1, vecto
         if( dist > DIST_TOL )
         {
             scalevec( dif, -1.0/dist );
-            rotvec( dif, &st1->rTopo, dst1 );
+            st1->rTopo.rotvec( dif, dst1 );
             scalevec( dif, -1.0 );
-            rotvec( dif, &st2->rTopo, dst2 );
+            st2->rTopo.rotvec( dif, dst2 );
         }
         else
         {
@@ -249,11 +249,11 @@ double calc_azimuth( station *st1, double hgt1, station *st2, double hgt2,
 
     if( usegrav )
     {
-        rotvec( dif, &st1->rGrav, dif );
+        st1->rGrav.rotvec( dif, dif );
     }
     else
     {
-        rotvec( dif, &st1->rTopo, dif );
+        st1->rTopo.rotvec( dif, dif );
     }
     dif[2] = 0.0;
     dist2 = vecdot(dif,dif);
@@ -280,18 +280,18 @@ double calc_azimuth( station *st1, double hgt1, station *st2, double hgt2,
             tmp = dif[0]; dif[0] = -dif[1]; dif[1] = tmp;
             if( usegrav )
             {
-                unrotvec( dif, &st1->rGrav, dif );
+                st1->rGrav.unrotvec( dif, dif );
             }
             else
             {
-                unrotvec( dif, &st1->rTopo, dif );
+                st1->rTopo.unrotvec( dif, dif );
             }
 
             /* Convert to the the topocentric systems at the two stations */
 
-            rotvec( dif, &st1->rTopo, dst1 );
+            st1->rTopo.rotvec( dif, dst1 );
             scalevec( dif, -1.0 );
-            rotvec( dif, &st2->rTopo, dst2 );
+            st2->rTopo.rotvec( dif, dst2 );
         }
         else
         {
@@ -344,7 +344,7 @@ double calc_zenith_dist( station *st1, double hgt1, station *st2, double hgt2,
 
     calc_inst_dif( st1, hgt1, st2, hgt2, dif );
 
-    rotvec( dif, &st1->rGrav, dif );   /* Convert to the gravitational frame */
+    st1->rGrav.rotvec( dif, dif );   /* Convert to the gravitational frame */
 
     dist = veclen( dif );
     if( dist > DIST_TOL )
@@ -368,13 +368,13 @@ double calc_zenith_dist( station *st1, double hgt1, station *st2, double hgt2,
             tmp /= dif[2];
             dif[0] *= tmp;
             dif[1] *= tmp;
-            unrotvec( dif, &st1->rGrav, dif );
+            st1->rGrav.unrotvec( dif, dif );
 
             /* Convert to the the topocentric systems at the two stations */
 
-            rotvec( dif, &st1->rTopo, dst1 );
+            st1->rTopo.rotvec( dif, dst1 );
             scalevec( dif, -1.0 );
-            rotvec( dif, &st2->rTopo, dst2 );
+            st2->rTopo.rotvec( dif, dst2 );
         }
         else
         {
@@ -423,9 +423,9 @@ void calc_vec_dif( station *st1, double hgt1, station *st2, double hgt2 ,
         for( i = 0; i<3; i++ )
         {
             unit[i] = -1.0;
-            rotvec( unit, &st1->rTopo, dst1[i] );
+            st1->rTopo.rotvec( unit, dst1[i] );
             unit[i] = 1.0;
-            rotvec( unit, &st2->rTopo, dst2[i] );
+            st2->rTopo.rotvec( unit, dst2[i] );
             unit[i] = 0.0;
         }
     }
@@ -447,7 +447,7 @@ void calc_xyz( station *st1, double hgt1, vector3 xyz, vector3 dst1[3] )
         for( i = 0; i<3; i++ )
         {
             unit[i] = 1.0;
-            rotvec( unit, &st1->rTopo, dst1[i] );
+            st1->rTopo.rotvec( unit, dst1[i] );
             unit[i] = 0.0;
         }
     }
@@ -459,8 +459,8 @@ double ellipsoidal_distance_correction( station *st1, station *st2 )
     vector3 v1, v2;
     double corr;
 
-    rot_vertical( &st1->rTopo, v1 );
-    rot_vertical( &st2->rTopo, v2 );
+    st1->rTopo.rot_vertical( v1 );
+    st2->rTopo.rot_vertical( v2 );
     corr = vecdot( v1, v2 );
     corr = 1.0 + (1.0 - corr)/12.0;
 

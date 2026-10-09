@@ -355,13 +355,8 @@ int main(int argc, char *argv[] )
 
     nmem = (nprm * (nprm+1))/2 + nprm;
 
-    b = (ltmat) malloc( (2*nmem+nprm)*sizeof(double) );
-    col = (int *) malloc( 2 * nprm * sizeof(int) );
-    if( !b || !col )
-    {
-        printf("Not enough memory");
-        return;
-    }
+    b = new double[2*nmem+nprm];
+    col = new int[2*nprm];
 
     N = b+nprm;
     b1 = b+nmem;
