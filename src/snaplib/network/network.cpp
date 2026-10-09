@@ -82,9 +82,16 @@ void network::clear()
     }
     name = std::nullopt;
     crdsysdef.clear();
-    if( stnlist ) { delete_station_list( stnlist ); stnlist = 0; }
-    if( crdsys ) { delete crdsys; crdsys = 0; }
-    if( geosys ) { delete geosys; geosys = 0; }
+    if( stnlist ) { delete_station_list( stnlist ); stnlist = nullptr; }
+    if( crdsys ) { delete crdsys; crdsys = nullptr; }
+    if( geosys ) { delete geosys; geosys = nullptr; }
+    ccnet = coord_conversion();
+    ccgeo = coord_conversion();
+    topolat = 0;
+    topolon = 0;
+    got_topocentre = 0;
+    options = 0;
+    orderclsid = 0;
     stnclasses.clear();
 }
 
