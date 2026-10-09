@@ -36,11 +36,11 @@ int reload_network_from_bin( network *net, BINARY_FILE *b )
     /* Move the globals read in to the network structure supplied. net is
        always freshly-constructed here (every real caller does
        net = new_network() immediately before this call) - swapping is
-       safe specifically because of that: network has no real move
-       assignment (a user-declared destructor suppresses it), so this
-       falls back to 3 copy-assignments, but since net starts empty,
-       nt ends up holding net's old (empty) state afterward, safe to
-       delete, while net ends up the sole owner of nt's real data. */
+       safe specifically because of that: network cannot be copied, so
+       std::swap exchanges the two through its move constructor and move
+       assignment. Since net starts empty, nt ends up holding net's old
+       (empty) state afterward, safe to delete, while net ends up the
+       sole owner of nt's real data. */
 
     std::swap( *net, *nt );
     delete nt;
