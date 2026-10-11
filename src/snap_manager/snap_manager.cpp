@@ -24,7 +24,7 @@ class wxLogPlainTextCtrl : public wxLog
 public:
     wxLogPlainTextCtrl( wxTextCtrl *ctrl ) : txtctl( ctrl ) {}
 protected:
-    virtual void DoLogText( const wxString &msg )
+    void DoLogText( const wxString &msg ) override
     {
         txtctl->AppendText( msg );
         txtctl->AppendText( "\n" );
@@ -38,7 +38,7 @@ class SnapMgrFrame : public wxFrame
 {
 public:
     SnapMgrFrame( const wxString &jobfile );
-    ~SnapMgrFrame();
+    ~SnapMgrFrame() override;
 private:
     void SetupIcons();
     void SetupMenu();
@@ -329,7 +329,7 @@ void SnapMgrFrame::OnClose( wxCloseEvent &event )
 class SnapMgrApp : public wxApp
 {
 public:
-    virtual bool OnInit();
+    bool OnInit() override;
 };
 
 IMPLEMENT_APP( SnapMgrApp );

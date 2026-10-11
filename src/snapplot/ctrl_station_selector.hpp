@@ -7,15 +7,15 @@ class wxStationSelectorTable : public wxGridTableBase
 {
 public:
     wxStationSelectorTable() { Setup(); }
-    ~wxStationSelectorTable() { CleanUp(); }
+    ~wxStationSelectorTable() override { CleanUp(); }
 
-    virtual int GetNumberRows();
-    virtual int GetNumberCols();
-    virtual bool IsEmptyCell( int row, int col );
-    virtual wxString GetValue( int row, int col );
-    virtual wxString GetColLabelValue( int col );
-    virtual void SetValue( int row, int col, const wxString &value  );
-    wxGridCellAttr *GetAttr( int row, int col,  wxGridCellAttr::wxAttrKind  kind  );
+    int GetNumberRows() override;
+    int GetNumberCols() override;
+    bool IsEmptyCell( int row, int col ) override;
+    wxString GetValue( int row, int col ) override;
+    wxString GetColLabelValue( int col ) override;
+    void SetValue( int row, int col, const wxString &value  ) override;
+    wxGridCellAttr *GetAttr( int row, int col,  wxGridCellAttr::wxAttrKind  kind  ) override;
 
     void Select( int row, bool select = true );
     bool IsSelected( int row );
@@ -41,7 +41,7 @@ class wxStationSelectorGrid : public wxGrid
 {
 public:
     wxStationSelectorGrid(wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize);
-    ~wxStationSelectorGrid();
+    ~wxStationSelectorGrid() override;
 
     void Select( int row, bool select = true ) { table->Select(row, select ); }
     bool IsSelected( int row ) { return table->IsSelected(row); }

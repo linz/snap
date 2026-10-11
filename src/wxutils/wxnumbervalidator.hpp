@@ -10,11 +10,11 @@ public:
     wxNumberValidator( double *value, int nDecPlaces = 0, bool positive = true );
     wxNumberValidator( const wxNumberValidator &validator );
 
-    virtual wxValidator *Clone() const { return new wxNumberValidator(*this); }
+    wxValidator *Clone() const override { return new wxNumberValidator(*this); }
 
-    virtual bool TransferFromWindow();
-    virtual bool TransferToWindow();
-    virtual bool Validate( wxWindow *parent );
+    bool TransferFromWindow() override;
+    bool TransferToWindow() override;
+    bool Validate( wxWindow *parent ) override;
 
 private:
     void Setup();

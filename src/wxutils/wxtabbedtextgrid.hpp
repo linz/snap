@@ -42,16 +42,16 @@ class wxTabbedTextTable : public wxGridTableBase
 {
 public:
     wxTabbedTextTable();
-    ~wxTabbedTextTable();
-    int GetNumberRows();
-    int GetNumberCols();
+    ~wxTabbedTextTable() override;
+    int GetNumberRows() override;
+    int GetNumberCols() override;
 
     int GetColWidth( int col );
     bool GetColRightJustify( int col );
-    wxString GetColLabelValue( int col );
-    wxString GetValue( int row, int col );
-    void SetValue( int , int , const wxString&  );
-    bool IsEmptyCell( int row, int col );
+    wxString GetColLabelValue( int col ) override;
+    wxString GetValue( int row, int col ) override;
+    void SetValue( int , int , const wxString&  ) override;
+    bool IsEmptyCell( int row, int col ) override;
     void SetSource( wxTabbedTextSource *source );
 
     // Return the entire list as text ..
@@ -91,7 +91,7 @@ public:
 
     wxTabbedTextGrid(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize );
 
-    ~wxTabbedTextGrid();
+    ~wxTabbedTextGrid() override;
 
     void SetTabbedTextSource( wxTabbedTextSource *source );
 

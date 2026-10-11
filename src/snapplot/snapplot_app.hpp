@@ -8,8 +8,8 @@ class SnapplotApp: public wxApp
 public:
     SnapplotApp() { }
 
-    virtual bool OnInit();
-    virtual int OnExit();
+    bool OnInit() override;
+    int OnExit() override;
 
     DECLARE_NO_COPY_CLASS(SnapplotApp)
 };

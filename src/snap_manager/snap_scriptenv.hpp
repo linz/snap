@@ -18,7 +18,7 @@ class SnapMgrScriptEnv : public wxEvtHandler, public Scripter::EnvBase
 {
 public:
     SnapMgrScriptEnv( wxFrame *frameWindow );
-    ~SnapMgrScriptEnv();
+    ~SnapMgrScriptEnv() override;
 
     bool LoadJob( const wxString &jobFile );
     bool UpdateJob();
@@ -27,12 +27,12 @@ public:
 
     // Virtual functions to support script environment
 
-    virtual bool GetValue( const wxString &name, Value &value );
-    virtual bool AddMenuItem( const wxString &name, const wxString &description, int id );
-    virtual bool RemoveMenuItem( const wxString &name );
-    virtual void EnableMenuItem( const wxString &name, bool enabled );
-    virtual FunctionStatus EvaluateFunction( const wxString &name, const Value *params, Value &result );
-    virtual void ReportError( const wxString &error );
+    bool GetValue( const wxString &name, Value &value ) override;
+    bool AddMenuItem( const wxString &name, const wxString &description, int id ) override;
+    bool RemoveMenuItem( const wxString &name ) override;
+    void EnableMenuItem( const wxString &name, bool enabled ) override;
+    FunctionStatus EvaluateFunction( const wxString &name, const Value *params, Value &result ) override;
+    void ReportError( const wxString &error ) override;
 
 private:
 

@@ -58,8 +58,8 @@ class BooleanToken : public Token
 {
 public:
     BooleanToken( ScriptImp *owner, bool value ) : Token(owner), value(value) {};
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
     bool value;
 };
 
@@ -67,8 +67,8 @@ class StringToken : public Token
 {
 public:
     StringToken( ScriptImp *owner, const wxString &text ) : Token(owner), text(text) {};
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
     wxString text;
 };
 
@@ -76,8 +76,8 @@ class IdToken : public Token
 {
 public:
     IdToken( ScriptImp *owner, wxString id ) : Token(owner), id(id) {}
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
     wxString id;
 };
 
@@ -87,9 +87,9 @@ public:
     VariableToken( ScriptImp *owner, wxString name ) : Token(owner), name(name) {}
     bool GetValue( Value &v );
     wxString &Name() { return name; }
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
-    virtual void SetOwnerValue( const Value &value ); 
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
+    void SetOwnerValue( const Value &value ) override; 
 private:
     wxString name;
 };
@@ -99,9 +99,9 @@ class FunctionToken : public Token
 {
 public:
     FunctionToken( ScriptImp *owner, wxString name, Token *params = nullptr ) : Token( owner ), name(name), params(params) {}
-    virtual ~FunctionToken();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~FunctionToken() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
     virtual void SetParameters( Token *params ) { this->params = params; }
 private:
     wxString name;
@@ -114,12 +114,12 @@ public:
     ConditionalBranch( ScriptImp *owner, Token *condition, Token *actions, bool iterate = false )
         : Token( owner ), condition(condition), actions(actions), iterate(iterate)
     {}
-    virtual ~ConditionalBranch();
+    ~ConditionalBranch() override;
     void SetActions( Token *actions ) { this->actions = actions; }
     Token *Condition() { return condition; }
     Token *Actions() { return actions; }
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     Token *condition;
     Token *actions;
@@ -130,10 +130,10 @@ class ConditionalStatement : public Token
 {
 public:
     ConditionalStatement( ScriptImp *owner, Token *options ) : Token(owner), options(options) {}
-    virtual ~ConditionalStatement();
+    ~ConditionalStatement() override;
     void AddOptions( Token *newOptions ) { if( options ) { options->SetNext(newOptions); } else { options = newOptions; };}
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     Token *options;
 };
@@ -145,9 +145,9 @@ public:
     ForeachToken( ScriptImp *owner, Token *variable, Token *string, Token *delimiter, Token *actions, bool isMatch = false )
         : Token( owner ), variable(variable), string(string), delimiter(delimiter), actions(actions), isMatch(isMatch)
     {}
-    virtual ~ForeachToken();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~ForeachToken() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     void RunLoop();
     Token *variable;
@@ -162,9 +162,9 @@ class AssignmentToken : public Token
 {
 public:
     AssignmentToken( ScriptImp *owner, Token *variable, Token *value ) : Token(owner), variable(variable), value(value) {};
-    virtual ~AssignmentToken();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~AssignmentToken() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     Token *variable;
     Token *value;
@@ -175,9 +175,9 @@ class ExitToken : public Token
 public:
     ExitToken( ScriptImp *owner, ExitLevel level, Token *expression = nullptr )
         : Token(owner), level(level), expression(expression) {}
-    virtual ~ExitToken();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~ExitToken() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     ExitLevel level;
     Token *expression;
@@ -187,14 +187,14 @@ class StatementBlockToken : public Token
 {
 public:
     StatementBlockToken( ScriptImp *owner, Token *statements = nullptr ) : Token(owner), statements(statements) {};
-    virtual ~StatementBlockToken();
+    ~StatementBlockToken() override;
     void AddStatements( Token *newStatements )
     {
         if( statements ) { statements->SetNext( newStatements ); }
         else { statements = newStatements; }
     }
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     Token *statements;
 };
@@ -222,9 +222,9 @@ class Operator : public Token
 public:
     Operator( ScriptImp *owner, OperatorType type, Token *operand1, Token *operand2 = nullptr )
         : Token( owner ), type(type), operand1(operand1), operand2(operand2) {}
-    virtual ~Operator();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~Operator() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     OperatorType type;
     Token *operand1;
@@ -236,9 +236,9 @@ class DialogToken : public Token
 public:
     DialogToken( ScriptImp *owner, Token *label, Token *controls, Token *variable, Token *options )
         : Token(owner), label(label), controls(controls), variable( static_cast<VariableToken *>(variable)), options(options) {};
-    virtual ~DialogToken();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~DialogToken() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     Token *label;
     Token *controls;
@@ -275,9 +275,9 @@ public:
           selector(selector),
           info(info)
     {};
-    virtual ~DialogControlToken();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~DialogControlToken() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
     DialogControlTokenType Type() { return type; }
     VariableToken *Variable() { return variable; }
     Token *Label() { return label; }
@@ -307,7 +307,7 @@ class MenuItem : public Token
 public:
     MenuItem( ScriptImp *owner, Token *menu_name_expression, Token *description_expression );
     MenuItem( MenuItem &src );
-    virtual ~MenuItem();
+    ~MenuItem() override;
     MenuItem *AddRequirements( Token *requirements ) { functions->requirements = requirements; return this; }
     MenuItem *AddActions( Token *actions ) { functions->actions = actions; return this; }
     bool IsValid();
@@ -316,8 +316,8 @@ public:
     const wxString &Description() { return description; }
     int Id(){ return id; }
     void SetId( int newid ){ id=newid; }
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
 private:
     Token *menu_name_expression;
     Token *description_expression;
@@ -335,9 +335,9 @@ class FunctionDef : public Token
 public:
     FunctionDef( ScriptImp *owner, wxString name, Token *parameters, Token *actions ) :
         Token(owner), name(name), parameters(parameters), actions(actions), inuse(false) {}
-    virtual ~FunctionDef();
-    virtual Value evaluate();
-    virtual void print( const wxString &prefix, ostream &str );
+    ~FunctionDef() override;
+    Value evaluate() override;
+    void print( const wxString &prefix, ostream &str ) override;
     Token *Parameters() { return parameters; }
     wxString &Name() { return name; }
     bool InUse() { return inuse; }

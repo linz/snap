@@ -30,15 +30,15 @@ class ScriptDialog : public wxSimpleDialog
 {
 public:
     ScriptDialog( wxString label, Token *controls, long buttons );
-    ~ScriptDialog();
+    ~ScriptDialog() override;
     void ResetInitialValues();
 
 protected:
-    virtual void ReadData();
-    virtual void Apply();
+    void ReadData() override;
+    void Apply() override;
 
 protected:
-    bool Validate();
+    bool Validate() override;
 
 private:
     void AddControls();

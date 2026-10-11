@@ -12,7 +12,7 @@ class wxMainProgWindow : public wxDialog
 {
 public:
     wxMainProgWindow( const wxString &title, bool hasProgress = true, bool reportTimes = false );
-    ~wxMainProgWindow();
+    ~wxMainProgWindow() override;
     void RunMainProg( int (*mainfunc)( int argc, char *argv[]) );
 private:
     void OnCloseButton( wxCommandEvent &event );

@@ -18,9 +18,9 @@ DEFINE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED)
 class wxBitmapGridRenderer : public wxGridCellRenderer
 {
 public:
-    virtual void Draw(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, const wxRect& rect, int row, int col, bool isSelected);
-    virtual wxSize GetBestSize(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, int row, int col);
-    virtual wxGridCellRenderer* Clone() const;
+    void Draw(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, const wxRect& rect, int row, int col, bool isSelected) override;
+    wxSize GetBestSize(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, int row, int col) override;
+    wxGridCellRenderer* Clone() const override;
     static int TickBitmapSize() { return tickBitmapSize; }
 private:
     static wxBitmap *GetTickBitmap( bool on );

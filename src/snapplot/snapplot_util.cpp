@@ -16,12 +16,12 @@ class wxStringLog : public wxLog
 {
 public:
     wxStringLog();
-    ~wxStringLog() {}
+    ~wxStringLog() override {}
     const wxString &GetMessages() { return logString; }
     void ClearMessages() { logString.Empty(); }
 
 protected:
-    virtual void DoLogText( const wxString &msg );
+    void DoLogText( const wxString &msg ) override;
 
 private:
     wxString logString;

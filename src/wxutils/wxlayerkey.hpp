@@ -21,7 +21,7 @@ public:
     wxLayerKey();
     wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize );
 
-    ~wxLayerKey();
+    ~wxLayerKey() override;
 
     void SetSymbology( Symbology *newSymbologyKey );
     void OnLeftClick( wxGridEvent &event );

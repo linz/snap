@@ -18,8 +18,8 @@ public:
     wxRegexpStringValidator( wxString *value, const wxString &rules = wxEmptyString  );
     wxRegexpStringValidator( const wxRegexpStringValidator &validator );
 
-    virtual wxValidator *Clone() const { return new wxRegexpStringValidator( *this ); }
-    virtual bool Validate( wxWindow *parent );
+    wxValidator *Clone() const override { return new wxRegexpStringValidator( *this ); }
+    bool Validate( wxWindow *parent ) override;
 
 private:
     void OnChar(wxKeyEvent &event);

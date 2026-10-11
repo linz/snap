@@ -57,8 +57,8 @@ public:
     StringValue( const string &value ) : _value(value) {}
     StringValue( const StringValue &fcol );
 
-    virtual StringValue *clone() const;
-    virtual void calcValue( string &value );
+    StringValue *clone() const override;
+    void calcValue( string &value ) override;
 private:
     const string _value;
 };
@@ -71,13 +71,13 @@ public:
     NamedValue( const string &colname, const std::string &dfltValue ) :
         _colname(colname), _colvalue(nullptr), _default( new StringValue(dfltValue) ) {}
     NamedValue( const NamedValue &ccol );
-    virtual NamedValue *clone() const;
+    NamedValue *clone() const override;
 
     NamedValue &setDefault( CalcValue *dfltValue );
     NamedValue &setDefault( const CalcValue &dfltValue ) { return setDefault( dfltValue.clone() ); }
     NamedValue &setDefault( const std::string dfltValue ) { return setDefault( new StringValue(dfltValue)); }
-    virtual void bind( const BindSource *binder );
-    virtual void calcValue( string &value );
+    void bind( const BindSource *binder ) override;
+    void calcValue( string &value ) override;
 private:
     string _colname;
     const string *_colvalue;
@@ -119,8 +119,8 @@ class LookupValue : public CalcValue
 public:
     LookupValue();
     LookupValue( const LookupValue &lookup );
-    virtual ~LookupValue();
-    virtual LookupValue *clone() const;
+    ~LookupValue() override;
+    LookupValue *clone() const override;
     LookupMap map() { return _map; }
     LookupValue &setMap( LookupMap map ) { _map = map; return *this; }
     // Assigning pointer transfers ownership
@@ -128,8 +128,8 @@ public:
     LookupValue &setSource( const CalcValue &source ) { return setSource( source.clone() ); }
     LookupValue &setSource( const std::string source ) { return setSource( new NamedValue(source)); }
 
-    virtual void bind( const BindSource *binder );
-    virtual void calcValue( string &value );
+    void bind( const BindSource *binder ) override;
+    void calcValue( string &value ) override;
 private:
     CalcValue *_source;
     LookupMap _map;
@@ -141,8 +141,8 @@ class ConcatValue : public CalcValue
 public:
     ConcatValue();
     ConcatValue( const ConcatValue &ccol );
-    virtual ~ConcatValue();
-    virtual ConcatValue *clone() const;
+    ~ConcatValue() override;
+    ConcatValue *clone() const override;
     void clear();
     // Adding a pointer transfers ownership
     ConcatValue &add( CalcValue *column );
@@ -158,8 +158,8 @@ public:
 
     bool hasValue() { return _components.size() > 0; }
 
-    virtual void bind( const BindSource *binder );
-    virtual void calcValue( string &value );
+    void bind( const BindSource *binder ) override;
+    void calcValue( string &value ) override;
 private:
     vector<CalcValue *> _components;
     CalcValue *_default;
@@ -183,7 +183,7 @@ class CalcReader : public Reader
     {
     public:
         BindSource( const Reader &reader ) : _reader(reader) {}
-        virtual string *value( const std::string &name ) const;
+        string *value( const std::string &name ) const override;
     private:
         const Reader &_reader;
     };
@@ -197,8 +197,8 @@ public:
         : Reader( input, parser, options ) {}
 
     Column &addColumn( const std::string &name, const CalcValue &column );
-    virtual bool readRecord();
-    virtual Column *findColumn( const std::string &name ) const;
+    bool readRecord() override;
+    Column *findColumn( const std::string &name ) const override;
 private:
     vector<shared_ptr<CalcReaderColumn> > _columns;
 };

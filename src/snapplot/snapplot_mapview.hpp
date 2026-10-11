@@ -13,7 +13,7 @@ class SnapplotMapView : public wxMapWindow
 public:
 
     SnapplotMapView( wxWindow *parent );
-    ~SnapplotMapView();
+    ~SnapplotMapView() override;
     void ZoomToStation( int istn );
     void ZoomToLine( int from, int to );
     void LocateStation( int istn );

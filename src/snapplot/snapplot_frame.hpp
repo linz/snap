@@ -21,7 +21,7 @@ class SnapplotFrame: public wxFrame
 {
 public:
     SnapplotFrame();
-    virtual ~SnapplotFrame();
+    ~SnapplotFrame() override;
 
     // Menu commands
 

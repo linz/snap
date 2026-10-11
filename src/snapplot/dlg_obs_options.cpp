@@ -18,8 +18,8 @@ public:
     ObsOptionsDialog( wxHelpController *help );
 
 protected:
-    virtual void ReadData();
-    virtual void Apply();
+    void ReadData() override;
+    void Apply() override;
 
 private:
     bool showOneWay;

@@ -32,7 +32,7 @@ public:
         _recordno(recordno),
         _type( type )
     { _setLocation(); }
-    ~RecordError() throw () {};
+    ~RecordError() throw () override {};
     const std::string &message() const { return _message; }
     const std::string &location() const { return _location; }
     const std::string &filename() const { return _filename; }
@@ -77,9 +77,9 @@ class IstreamRecordInput : public RecordInputBase
 public:
     IstreamRecordInput( std::istream &is );
     IstreamRecordInput( const std::string &filename );
-    virtual ~IstreamRecordInput();
-    virtual bool getNextLine( std::string &line );
-    virtual int lineNumber();
+    ~IstreamRecordInput() override;
+    bool getNextLine( std::string &line ) override;
+    int lineNumber() override;
 private:
     std::istream *_is;
     int _lineno;

@@ -5,7 +5,7 @@ class SnapplotLoadLog : public wxFrame
     friend class SnapplotLoadLogger;
 public:
     SnapplotLoadLog();
-    ~SnapplotLoadLog();
+    ~SnapplotLoadLog() override;
     void StartLogging();
     void EndLogging();
 

@@ -7,17 +7,17 @@ class SnapplotObsSource : public wxTabbedTextSource
 {
 public:
     SnapplotObsSource();
-    ~SnapplotObsSource();
-    virtual std::string GetHeader();
-    virtual int GetRowCount();
-    virtual std::string GetRow( int i );
+    ~SnapplotObsSource() override;
+    std::string GetHeader() override;
+    int GetRowCount() override;
+    std::string GetRow( int i ) override;
 };
 
 class SnapplotObsList : public wxTabbedTextGrid
 {
 public:
     SnapplotObsList( wxWindow* parent, wxWindowID id );
-    ~SnapplotObsList();
+    ~SnapplotObsList() override;
     void Reload();
 private:
     void OnCellLeftClick( wxGridEvent &event );

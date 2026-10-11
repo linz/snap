@@ -27,8 +27,8 @@ public:
     ObsHighlightDialog( wxHelpController *help = nullptr );
 
 protected:
-    virtual void ReadData();
-    virtual void Apply();
+    void ReadData() override;
+    void Apply() override;
 
 private:
     int nOpts;

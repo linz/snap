@@ -10,7 +10,7 @@ class SnapAdjustApp: public wxApp
 {
 public:
     SnapAdjustApp() { }
-    virtual bool OnInit()
+    bool OnInit() override
     {
         // create and show the main frame
 

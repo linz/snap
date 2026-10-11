@@ -73,7 +73,7 @@ public:
     void ApplyChanges();
 protected:
 
-    virtual void ReadData();
+    void ReadData() override;
 
 private:
     void OnAddStations( wxCommandEvent & WXUNUSED(event) ) { SelectStations( true ); }
