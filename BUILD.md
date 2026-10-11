@@ -253,8 +253,9 @@ Requirements, on Ubuntu 24.04 (Noble):
   `deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main` to the apt sources, install the
   repository's signing key, then `apt-get install clang-tidy-21`.
 - The Linux prerequisites above, including `libwxgtk3.2-dev`. The analysis always includes the
-  GUI sources, because the GUI is the only configuration that compiles every source file, so
-  `--no-gui` is rejected.
+  GUI sources, because the GUI build compiles the most source files, so `--no-gui` is rejected.
+  Only files that the build compiles are analysed. `src/wxtest` has no build target, so it is
+  not.
 
 Ubuntu 22.04 (Jammy) can build and test SNAP but cannot run the analysis: its Boost 1.74
 headers produce compile errors under clang-tidy 21, and its wxWidgets 3.0 cannot build the GUI.
