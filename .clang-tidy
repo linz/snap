@@ -1,0 +1,4 @@
+Checks: >
+  -*
+HeaderFilterRegex: 'src/.*'
+ExcludeHeaderFilterRegex: 'third_party'
