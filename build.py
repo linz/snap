@@ -19,9 +19,17 @@ TARGET (default: all):
     package    Build a Debian package (Linux, release only; --build-dir sets SNAP_BUILD_DIR),
                or a Windows ZIP/NSIS package with --mingw (release only)
     clean      Remove the build directory
+    tidy       Report what clang-tidy would change (the checks enabled in .clang-tidy), changing
+               nothing; exits 1 if there are findings (debug only). Needs clang-tidy 21 (the
+               version CI uses), wxWidgets 3.2 and the C++ build dependencies. Always configures
+               with the GUI on, in build-tidy rather than build-debug (--build-dir overrides it);
+               the full report is written there
+    tidy-fix   Apply clang-tidy's fixes to the sources in place (debug only; requires a clean git
+               tree), then run tidy to confirm that nothing is left. Same requirements as tidy
 
 Options:
-    --no-gui         Skip wxWidgets GUI targets (snap_manager, snapadjust, snapplot)
+    --no-gui         Skip wxWidgets GUI targets (snap_manager, snapadjust, snapplot); not allowed
+                     with tidy or tidy-fix
     --jobs N         Parallel jobs (default: all cores)
     --build-dir DIR  Build output directory (default: build-{type}); for package,
                      sets SNAP_BUILD_DIR passed to debuild/debian/rules
@@ -40,9 +48,11 @@ from __future__ import annotations
 import argparse
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
+from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -65,6 +75,17 @@ BUILD_TYPE_MAP = {
     "debug": "Debug",
     "profile": "Profile",
 }
+
+# Major version of clang-tidy that the tidy and tidy-fix targets require.  CI installs the same
+# version, so a developer fixing a CI failure must match it (see BUILD.md).
+REQUIRED_CLANG_VERSION = 21
+
+TIDY_BUILD_DIR = REPO_ROOT / "build-tidy"
+
+# The files clang-tidy runs on: every C++ source under src/, except the vendored third_party
+# code and scriptimp_parse.cpp, which lapg generates from its grammar and which is overwritten
+# by every build.  Anchored at REPO_ROOT so tools/lapg/src is not matched.
+TIDY_FILE_REGEX = rf"^{re.escape(str(REPO_ROOT))}/src/(?!third_party/)(?!.*/scriptimp_parse\.cpp$).*\.cpp$"
 
 
 def build_dir(build_type: str) -> Path:
@@ -228,6 +249,119 @@ def mingw_build(args: argparse.Namespace) -> None:
         run(["cpack"], cwd=build_d)
 
 
+def clang_major_version(clang_tool: str) -> int | None:
+    """The major version that clang_tool --version reports, or None if it can't be read."""
+    result = subprocess.run([clang_tool, "--version"], capture_output=True, text=True, check=False)
+    match = re.search(r"LLVM version (\d+)\.", result.stdout)
+    return int(match.group(1)) if match else None
+
+
+def find_clang_tidy() -> str:
+    """Finds clang-tidy at REQUIRED_CLANG_VERSION, or aborts."""
+    for name in (f"clang-tidy-{REQUIRED_CLANG_VERSION}", "clang-tidy"):
+        path = shutil.which(name)
+        if path and clang_major_version(path) == REQUIRED_CLANG_VERSION:
+            return path
+    print(f"ABORTED: clang-tidy {REQUIRED_CLANG_VERSION} is required - see BUILD.md")
+    sys.exit(1)
+
+
+def find_run_clang_tidy() -> str:
+    """Finds the run-clang-tidy driver script, preferring the one at REQUIRED_CLANG_VERSION, or aborts.
+    Any version of the script will do, because find_clang_tidy's binary is passed to it explicitly."""
+    for name in (f"run-clang-tidy-{REQUIRED_CLANG_VERSION}", "run-clang-tidy"):
+        path = shutil.which(name)
+        if path:
+            return path
+    print(f"ABORTED: run-clang-tidy (from the clang-tidy {REQUIRED_CLANG_VERSION} package) is required - see BUILD.md")
+    sys.exit(1)
+
+
+def _tidy(fix: bool, jobs: int | None, build_d: Path) -> None:
+    """Runs clang-tidy over the C++ sources, with the checks enabled in .clang-tidy, writing the
+    full report to build_d.  Only tidy_dry_run and tidy_fix call this.
+
+    Without fix nothing is changed: it prints the number of findings per file and exits 1 if there
+    are any.  With fix it rewrites the sources in place and exits 0.  In both cases, if clang-tidy
+    itself fails (a compile error, a crash) it exits with clang-tidy's own return code."""
+    clang_tidy = find_clang_tidy()
+    run_clang_tidy = find_run_clang_tidy()
+
+    # Always the GUI build: it is the only configuration that compiles every source file.
+    run(
+        [
+            "cmake",
+            "-S",
+            ".",
+            "-B",
+            build_d,
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+            "-DCMAKE_BUILD_TYPE=Debug",
+            "-DSNAP_BUILD_GUI=ON",
+            "-DSNAP_EFENCE=OFF",
+        ]
+    )
+
+    cmd: list[str | Path] = [run_clang_tidy, "-p", build_d, "-clang-tidy-binary", clang_tidy, "-quiet"]
+    # No check is enabled in .clang-tidy yet.  Remove this option when the first check is enabled, so that
+    # an empty check list (a missing comma silently produces one) is an error and not a pass.
+    cmd.append("-allow-no-checks")
+    if jobs:
+        cmd.append(f"-j{jobs}")
+    if fix:
+        cmd.append("-fix")
+    # A machine with two GCC versions installed can make clang pick the one without libstdc++ headers.
+    gcc_install_dir = os.environ.get("SNAP_TIDY_GCC_INSTALL_DIR")
+    if gcc_install_dir:
+        cmd.append(f"-extra-arg=--gcc-install-dir={gcc_install_dir}")
+    cmd.append(TIDY_FILE_REGEX)
+
+    report = build_d / "clang-tidy-report.txt"
+    print("+", " ".join(str(part) for part in cmd), ">", report)
+    with report.open("w") as report_file:
+        result = subprocess.run(cmd, cwd=REPO_ROOT, stdout=report_file, stderr=subprocess.STDOUT, check=False)
+    report_text = report.read_text()
+
+    if result.returncode != 0:
+        for line in [line for line in report_text.splitlines() if " error: " in line][:10]:
+            print(line)
+        print(f"clang-tidy failed with exit code {result.returncode}; see {report}")
+        sys.exit(result.returncode)
+
+    # A file regex that matches nothing would otherwise report "no findings".
+    files_run = re.search(r"Running clang-tidy for (\d+) files out of (\d+)", report_text)
+    if not files_run or int(files_run.group(1)) == 0:
+        print(f"ABORTED: clang-tidy ran on no files, check TIDY_FILE_REGEX against the compile database; see {report}")
+        sys.exit(1)
+    print(f"clang-tidy ran on {files_run.group(1)} of the {files_run.group(2)} files in the compile database")
+
+    if fix:
+        print(f"clang-tidy fixes applied (see git diff --stat); full report in {report}")
+        return
+
+    findings = set(re.findall(r"^(.+?):(\d+):(\d+): warning: .*\[[\w.,-]+\]$", report_text, re.MULTILINE))
+    findings_per_file = Counter(os.path.relpath(file, REPO_ROOT) for file, _line, _column in findings)
+    for file, count in sorted(findings_per_file.items()):
+        print(f"{count:6d}  {file}")
+    if findings:
+        print(f"clang-tidy found {len(findings)} findings in {len(findings_per_file)} files; full report in {report}")
+        sys.exit(1)
+    print("clang-tidy found no findings")
+
+
+def tidy_dry_run(jobs: int | None, build_d: Path) -> None:
+    """Reports what clang-tidy would change, without changing anything.  Exits 1 if there are findings."""
+    _tidy(False, jobs, build_d)
+
+
+def tidy_fix(jobs: int | None, build_d: Path) -> None:
+    """Applies clang-tidy's fixes to the sources in place.  Aborts if there are uncommitted changes, so
+    that the fixes are the only difference in git diff.  Run tidy_dry_run afterwards to confirm that
+    nothing is left."""
+    check_committed()
+    _tidy(True, jobs, build_d)
+
+
 def check_committed() -> None:
     """Aborts if the working tree has uncommitted changes."""
     result = subprocess.run(["git", "diff", "--quiet", "HEAD"], cwd=REPO_ROOT, check=False)
@@ -258,7 +392,7 @@ def main() -> None:  # pylint: disable=too-many-branches
         "target",
         nargs="?",
         default="all",
-        choices=["all", "snap_cmd", "test", "install", "package", "clean"],
+        choices=["all", "snap_cmd", "test", "install", "package", "clean", "tidy", "tidy-fix"],
         help="Build target (default: all)",
     )
     parser.add_argument(
@@ -289,6 +423,20 @@ def main() -> None:  # pylint: disable=too-many-branches
         if build_d.exists():
             print(f"Removing {build_d}")
             shutil.rmtree(build_d)
+        return
+
+    if args.target in ("tidy", "tidy-fix"):
+        if args.type != "debug":
+            print(f"{args.target} target only supported for debug builds")
+            sys.exit(1)
+        if args.no_gui:
+            print(f"ABORTED: {args.target} always configures with the GUI on, so that every source file is checked")
+            sys.exit(1)
+        tidy_build_d = args.build_dir if args.build_dir else TIDY_BUILD_DIR
+        if args.target == "tidy":
+            tidy_dry_run(args.jobs, tidy_build_d)
+        else:
+            tidy_fix(args.jobs, tidy_build_d)
         return
 
     if args.target == "package":

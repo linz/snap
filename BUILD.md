@@ -240,6 +240,39 @@ directory to the path, for example in the `.bashrc` file:
 export PATH=/usr/share/linz/snap:${PATH}
 ```
 
+**Static analysis (clang-tidy)**
+
+`build.py` can run clang-tidy over the C++ sources. The checks that are enforced are listed in
+`.clang-tidy`. Findings differ between clang-tidy versions, so the version is fixed
+(`REQUIRED_CLANG_VERSION` in `build.py`, currently 21) and `build.py` refuses to run with any
+other. Anyone fixing a tidy failure needs the same version.
+
+Requirements, on Ubuntu 24.04 (Noble):
+
+- clang-tidy 21 from the LLVM apt repository (https://apt.llvm.org): add the line
+  `deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main` to the apt sources, install the
+  repository's signing key, then `apt-get install clang-tidy-21`.
+- The Linux prerequisites above, including `libwxgtk3.2-dev`. The analysis always includes the
+  GUI sources, because the GUI is the only configuration that compiles every source file, so
+  `--no-gui` is rejected.
+
+Ubuntu 22.04 (Jammy) can build and test SNAP but cannot run the analysis: its Boost 1.74
+headers produce compile errors under clang-tidy 21, and its wxWidgets 3.0 cannot build the GUI.
+
+```
+python3 build.py debug tidy       # reports findings and changes nothing; exits 1 if there are any
+python3 build.py debug tidy-fix   # applies the fixes to the sources (requires a clean git tree)
+```
+
+Both targets require the `debug` build type. They configure their own build directory,
+`build-tidy/`, and leave `build-debug/` alone. The full report is written to
+`build-tidy/clang-tidy-report.txt`. Run `tidy` after `tidy-fix` to confirm that nothing is
+left. Vendored code (`src/third_party`) and the generated `scriptimp_parse.cpp` are skipped.
+
+On a machine with more than one GCC installed, clang may pick a GCC that has no libstdc++
+headers. Set `SNAP_TIDY_GCC_INSTALL_DIR` to the one that does, for example
+`/usr/lib/gcc/x86_64-linux-gnu/13`.
+
 
 
 
