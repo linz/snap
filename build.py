@@ -82,10 +82,11 @@ REQUIRED_CLANG_VERSION = 21
 
 TIDY_BUILD_DIR = REPO_ROOT / "build-tidy"
 
-# The files clang-tidy runs on: every C++ source under src/, except the vendored third_party
-# code and scriptimp_parse.cpp, which lapg generates from its grammar and which is overwritten
-# by every build.  Anchored at REPO_ROOT so tools/lapg/src is not matched.  clang-tidy only runs
-# on files in the compile database, so src/wxtest, which has no CMake target, is not analysed.
+# clang-tidy runs on the files in the compile database, so only sources that the build compiles
+# are analysed (src/wxtest has no CMake target, so it is not).  This regex selects from them the
+# .cpp files under src/, leaving out the vendored third_party code and scriptimp_parse.cpp, which
+# lapg generates from its grammar and every build overwrites.  It is anchored at REPO_ROOT so
+# that tools/lapg/src is not matched.
 TIDY_FILE_REGEX = rf"^{re.escape(str(REPO_ROOT))}/src/(?!third_party/)(?!.*/scriptimp_parse\.cpp$).*\.cpp$"
 
 
