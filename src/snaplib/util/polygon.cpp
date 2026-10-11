@@ -101,7 +101,7 @@ wktPolygon::~wktPolygon()
     for( int i=0; i<nrings; i++ )
     {
         delete rings[i];
-        rings[i]=0;
+        rings[i]=nullptr;
     }
 }
 
@@ -133,7 +133,7 @@ int wktPolygon::readFile( const std::string &file )
         char c;
         while(f.get(c)) { if( c == '(' ) break; }
         if( ! f ) break;
-        wktRing *ring = 0;
+        wktRing *ring = nullptr;
         while( f )
         {
             double lon, lat;

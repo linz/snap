@@ -40,10 +40,10 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     double dsf, dtxyz[3], drxyz[3];
     double refdate=0.0;
     int iersunits=0;
-    ellipsoid *el = 0;
-    ref_frame *rf = 0;
-    ref_frame_func *rff = 0;
-    ref_deformation *rdf = 0;
+    ellipsoid *el = nullptr;
+    ref_frame *rf = nullptr;
+    ref_frame_func *rff = nullptr;
+    ref_deformation *rdf = nullptr;
     int sts;
     std::string_view bad;
     int reported;
@@ -60,12 +60,12 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     {
         is.scanner = FieldScanner(loc);
         el = parse_ellipsoid_def( is, 1 );
-        if( !el ) return NULL;
+        if( !el ) return nullptr;
     }
     else
     {
         sts = read_crdsys_string( is.scanner, sts, elcode, CRDSYS_CODE_LEN, "ellipsoid_code", bad );
-        el = NULL;
+        el = nullptr;
     }
 
     sf = 0.0;
@@ -76,8 +76,8 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     dtxyz[0] = dtxyz[1] = dtxyz[2] = 0.0;
     drxyz[0] = drxyz[1] = drxyz[2] = 0.0;
 
-    rff = NULL;
-    rdf = NULL;
+    rff = nullptr;
+    rdf = nullptr;
 
     if( sts == OK )
     {
@@ -188,7 +188,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
                 if( drxyz[i] != 0.0 ) ok = 0;
             }
             if( sf != 0.0 || dsf != 0.0 ) ok=0;
-            if( rff != 0 ) ok=0;
+            if( rff != nullptr ) ok=0;
             if( ! ok )
             {
                 const std::string errmsg = "Reference frame " + refcode +
@@ -253,7 +253,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
         {
             /* Check we are not creating a cyclic dependency */
             ref_frame *check=rf;
-            ref_frame *newbase=0;
+            ref_frame *newbase=nullptr;
             while( check )
             {
                 if( compare_ignoring_case(check->code,*base->refcode) == 0 )
@@ -306,7 +306,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     else if( sts != OK )
     {
         delete rf;
-        rf=0;
+        rf=nullptr;
     }
     return rf;
 }

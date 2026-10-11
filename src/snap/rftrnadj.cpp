@@ -547,7 +547,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
     if( output_types & OUTPUT_GEO )
     {
         fprintf(out,"\n   Geocentric definition\n");
-        print_rftrans_def( grownames, grow, gidentical, gval, gcvr, 0, semult, display,  out );
+        print_rftrans_def( grownames, grow, gidentical, gval, gcvr, nullptr, semult, display,  out );
     }
 
     if( rf->localorigin && rf->usetrans && (output_types & (OUTPUT_IERS | OUTPUT_GEO) ))
@@ -571,7 +571,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
     if( output_types & OUTPUT_TOPO )
     {
         fprintf(out,"\n   Topocentric definition\n");
-        print_rftrans_def( trownames, trow, tidentical, tval, tcvr, 0, semult, display,  out );
+        print_rftrans_def( trownames, trow, tidentical, tval, tcvr, nullptr, semult, display,  out );
     }
 
     if( output_types & OUTPUT_TOPO )

@@ -114,7 +114,7 @@ int bproj_count( void )
 
 brngProjection *bproj_from_id( int id )
 {
-    return id ? bplist[id-1].get() : NULL;
+    return id ? bplist[id-1].get() : nullptr;
 }
 
 std::string_view bproj_name( int id )
@@ -151,7 +151,7 @@ int calc_prj_azimuth2( int bproj_id,
 
     if( bproj->dtmtrans )
     {
-        if( convert_coords( &(bproj->prjconv), llh, NULL, enh, NULL ) != OK )
+        if( convert_coords( &(bproj->prjconv), llh, nullptr, enh, nullptr ) != OK )
             return INVALID_DATA;
         e1 = enh[CRD_EAST];
         n1 = enh[CRD_NORTH];
@@ -159,7 +159,7 @@ int calc_prj_azimuth2( int bproj_id,
         llh[CRD_LAT] = st2->ELat;
         llh[CRD_LON] = st2->ELon;
 
-        if( convert_coords( &(bproj->prjconv), llh, NULL, enh, NULL ) != OK )
+        if( convert_coords( &(bproj->prjconv), llh, nullptr, enh, nullptr ) != OK )
             return INVALID_DATA;
         e2 = enh[CRD_EAST];
         n2 = enh[CRD_NORTH];

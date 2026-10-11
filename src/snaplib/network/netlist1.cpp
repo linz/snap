@@ -28,7 +28,7 @@ void dump_station_list( station_list *sl, FILE *f )
 
     sl_reset_station_list( sl, 0 );
 
-    while( NULL != (st = sl_next_station( sl ) )  )
+    while( nullptr != (st = sl_next_station( sl ) )  )
     {
         dump_station( st, f );
     }

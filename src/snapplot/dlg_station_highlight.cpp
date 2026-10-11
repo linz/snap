@@ -332,8 +332,8 @@ void StationHighlightDialog::SelectStations( bool select )
         bool selected = stationSelector->IsSelected(i);
         if( selected == select ) continue;
 
-        station *st = 0;
-        stn_adjustment *sa = 0;
+        station *st = nullptr;
+        stn_adjustment *sa = nullptr;
         int istn = stationSelector->StationNumber( i );
         st = stnptr( istn );
 

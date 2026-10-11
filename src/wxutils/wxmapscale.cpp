@@ -11,7 +11,7 @@ DEFINE_EVENT_TYPE(WX_MAPWINDOW_SCALE_CHANGED);
 
 ZoomStack::ZoomStack( int size )
 {
-    zoomStack = 0;
+    zoomStack = nullptr;
     stackSize = 0;
     stackTop = stackBottom = 0;
     if( size > 0 )
@@ -28,7 +28,7 @@ ZoomStack::~ZoomStack()
 void ZoomStack::SetStackSize( int nStack )
 {
     if( zoomStack ) delete [] zoomStack;
-    zoomStack = 0;
+    zoomStack = nullptr;
     if( nStack > 0 )
     {
         zoomStack = new MapRect[nStack+1];
@@ -385,7 +385,7 @@ void wxMapScale::NotifyWindow()
     if( windowId != wxID_ANY )
     {
         wxWindow *window = wxWindow::FindWindowById( windowId );
-        if( window != 0 )
+        if( window != nullptr )
         {
             wxSimpleEvent evt( WX_MAPWINDOW_SCALE_CHANGED );
             window->GetEventHandler()->AddPendingEvent( evt );

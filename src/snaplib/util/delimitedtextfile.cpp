@@ -159,16 +159,16 @@ Reader::Reader( RecordInputBase &input, const Format &parser, const Options &opt
     _ownInput( false ),
     _options( options )
 {
-    _badColumn = 0;
+    _badColumn = nullptr;
     setup( parser );
 }
 
 Reader::Reader( const std::string filename, const Format &parser, const Options &options ) :
-    _input(0),
+    _input(nullptr),
     _ownInput( false ),
     _options( options )
 {
-    _badColumn = 0;
+    _badColumn = nullptr;
     _input = new IstreamRecordInput( filename );
     _ownInput = true;
     setup( parser );
@@ -346,7 +346,7 @@ Column *Reader::findColumn( const std::string &name ) const
     {
         if( namesMatch( name, _columns[i]->name() ) ) return _columns[i];
     }
-    return 0;
+    return nullptr;
 }
 
 Column &Reader::columnNamed( const std::string &name ) const

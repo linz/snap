@@ -7,7 +7,7 @@
 SnapJobFile::SnapJobFile( const wxString &fileName, JobFileType type, SnapJobFile *sourceFile ) :
     filename(fileName ),
     type(type),
-    next(0)
+    next(nullptr)
 {
     filename.MakeAbsolute( sourceFile ? sourceFile->GetPath() : "");
     if( filename.FileExists() )
@@ -97,7 +97,7 @@ SnapJob::SnapJob( wxString fileName ) :
     saved = true;
     jobFiles = this;
     lastFile = this;
-    crdfile = 0;
+    crdfile = nullptr;
 
     Load();
 
@@ -130,7 +130,7 @@ void SnapJob::DeleteJobFiles()
         jf = next;
     }
     lastFile = jobFiles;
-    crdfile = 0;
+    crdfile = nullptr;
 }
 
 void SnapJob::AddJobFile( SnapJobFile *file )

@@ -43,7 +43,7 @@ SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
     locatorFrom = 0;
     locatorTo = 0;
     locatorOnlyRepaint = false;
-    savedMap = 0;
+    savedMap = nullptr;
 
     mapDragger.SetMoveOriginOnShift( true );
     mapDragger.SetPickTolerance( pickTolerance );
@@ -126,7 +126,7 @@ void SnapplotMapView::ZoomToLine( int from, int to )
     x2 = xm = x1; y2 = ym = y1;
     while( nconnect-- )
     {
-        int cto = get_connected_station( from, nconnect, 0 );
+        int cto = get_connected_station( from, nconnect, nullptr );
         if( !cto ) continue;
         if( ! connection_observation_count( from, nconnect ) ) continue;
         double x, y;
@@ -323,7 +323,7 @@ void SnapplotMapView::DropSavedMap()
     if( this->savedMap )
     {
         delete this->savedMap;
-        this->savedMap=0;
+        this->savedMap=nullptr;
     }
 
 }

@@ -29,13 +29,13 @@ SnapCsvBase::CsvValue::~CsvValue()
 void SnapCsvBase::CsvValue::setName(const std::string name)
 {
     _name = name;
-    if (_column != 0)
+    if (_column != nullptr)
         _column->setName(name);
 }
 
 void SnapCsvBase::CsvValue::attach(CalcReader *reader)
 {
-    _column = reader ? &reader->addColumn(_name, _value) : 0;
+    _column = reader ? &reader->addColumn(_name, _value) : nullptr;
 }
 
 /////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ SnapCsvBase::SnapCsvBase(const std::string &name, const OptionString &config) : 
     _name(name),
     _format(new CsvFormat()),
     _config(config),
-    _reader(0)
+    _reader(nullptr)
 {
 }
 
@@ -78,7 +78,7 @@ void SnapCsvBase::loadDefinition()
         }
         catch (...)
         {
-            _defstream = 0;
+            _defstream = nullptr;
             throw;
         }
     }
@@ -252,7 +252,7 @@ bool SnapCsvBase::load(RecordInputBase &input)
 
         if (!checkColumns())
         {
-            attachReader(0);
+            attachReader(nullptr);
             return false;
         }
 
@@ -269,17 +269,17 @@ bool SnapCsvBase::load(RecordInputBase &input)
         terminateLoadData();
         _loadedFilename = input.name();
 
-        attachReader(0);
+        attachReader(nullptr);
     }
     catch (RecordError &error)
     {
-        attachReader(0);
+        attachReader(nullptr);
         runtimeError(error.message());
         return false;
     }
     catch (...)
     {
-        attachReader(0);
+        attachReader(nullptr);
         throw;
     }
     return true;
@@ -317,7 +317,7 @@ void SnapCsvBase::runtimeError(const string &message)
 {
 
     // May want to route this through data file handler to get line number etc
-    if (_reader != 0)
+    if (_reader != nullptr)
     {
         _reader->runtimeError(message);
     }

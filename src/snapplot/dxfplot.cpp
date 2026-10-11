@@ -37,7 +37,7 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static FILE *dxf = NULL;
+static FILE *dxf = nullptr;
 
 static double save_x1, save_y1;
 static double save_x2, save_y2;
@@ -750,7 +750,7 @@ int close_dxf_file()
     end_line();
     fprintf(dxf,"  0\nENDSEC\n  0\nEOF\n");
     fclose(dxf);
-    dxf = NULL;
+    dxf = nullptr;
 
     /* Clear out the memory used for dxf pen names */
 
@@ -835,23 +835,23 @@ void write_dxf_title_block( map_plotter * )
 
     switch ( dimension )
     {
-    case 1: dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
-    case 2: dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
-    case 3: dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, FIXED_STN_PEN, FIXED_STN_SYM); break;
+    case 1: dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
+    case 2: dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
+    case 3: dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, FIXED_STN_PEN, FIXED_STN_SYM); break;
     }
     NOTE( "Fixed station" );
 
     if( dimension == 3 )
     {
-        dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM );
+        dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM );
         NOTE("Fixed horizontally");
-        dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, VRT_FIXED_STN_SYM );
+        dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, VRT_FIXED_STN_SYM );
         NOTE("Fixed vertically");
     }
 
-    dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, FREE_STN_PEN, FREE_STN_SYM );
+    dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, FREE_STN_PEN, FREE_STN_SYM );
     NOTE("Adjusted station");
-    dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, REJECTED_STN_PEN, REJECTED_STN_SYM );
+    dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, REJECTED_STN_PEN, REJECTED_STN_SYM );
     NOTE("Rejected station");
 
     stn_symbol_size = oldsymsize;
@@ -866,14 +866,14 @@ int plot_dxf( void )
     /* Set pointers to dxf functions */
 
     map_plotter plotter;
-    plotter.plotobj = NULL;
+    plotter.plotobj = nullptr;
     plotter.line_func = dxf_line;
     plotter.text_func = dxf_text;
     plotter.ellipse_func = dxf_ellipse;
     // TODO: Fix up symbols in DXF plotting
     // Could use code from original plotstns?
     plotter.symbol_func = dxf_symbol;
-    plotter.symbol_size_func = NULL;
+    plotter.symbol_size_func = nullptr;
 
     pconn_option = merge_common_obs;
     if( show_oneway_obs ) pconn_option |= PCONN_SHOW_ONEWAY_OBS;

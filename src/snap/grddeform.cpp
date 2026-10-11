@@ -122,7 +122,7 @@ static int init_griddef( void * )
     /* Release resource held by grid now that we have all values from it! */
     delete vcs;
     grd_delete_grid( velgrid );
-    velgrid = 0;
+    velgrid = nullptr;
 
     return OK;
 }
@@ -179,7 +179,7 @@ int create_grid_deformation( deformation_model **model, const std::string &pmode
     if( sts == OK )
     {
         (*model) = create_deformation_model(
-                       NULL,
+                       nullptr,
                        init_griddef,
                        calc_griddef,
                        print_griddef_model,

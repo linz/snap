@@ -46,7 +46,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     /* Check that the vertical datum conversion is possible */
     /* Mainly checking grid file can be opened */
 
-    int sts = coordsys_geoid_exu( cs, llh, NULL, NULL );
+    int sts = coordsys_geoid_exu( cs, llh, nullptr, nullptr );
     if( sts != OK ) return sts;
 
     /* Conversion to and from vertical datum coordsys */
@@ -84,8 +84,8 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
 
         ninvalid++;
 
-        if( convert_coords( &to_geoid, llh, NULL, llh, NULL ) != OK ) continue;
-        if( coordsys_geoid_exu( cs, llh, NULL, exu ) != OK ) continue;
+        if( convert_coords( &to_geoid, llh, nullptr, llh, nullptr ) != OK ) continue;
+        if( coordsys_geoid_exu( cs, llh, nullptr, exu ) != OK ) continue;
         if( convert_coords( &from_geoid, llh, exu, llh, exu ) != OK ) continue;
 
         inputUndulation = st->GUnd;
@@ -203,7 +203,7 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
 
         ninvalid++;
 
-        if( convert_coords( &to_geoid, llh, NULL, llh, NULL ) != OK ) continue;
+        if( convert_coords( &to_geoid, llh, nullptr, llh, nullptr ) != OK ) continue;
         if( calculate_geoid_exu( gd, llh[1], llh[0], exu ) != OK ) continue;
         if( convert_coords( &from_geoid, llh, exu, llh, exu ) != OK ) continue;
         inputUndulation = st->GUnd;

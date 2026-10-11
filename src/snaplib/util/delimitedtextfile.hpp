@@ -114,7 +114,7 @@ class Format
 {
     friend class Reader;
 public:
-    Format() : _dlt(0) {}
+    Format() : _dlt(nullptr) {}
     virtual ~Format() {};
     virtual Format *clone() const = 0;
 protected:

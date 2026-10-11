@@ -506,9 +506,9 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                    number to the three components.... */
                 double oe, re;
                 double cvr[6];
-                calc_vecdata_vector( sd, VD_REF_STN, i, VD_OBSVEC, NULL, cvr );
+                calc_vecdata_vector( sd, VD_REF_STN, i, VD_OBSVEC, nullptr, cvr );
                 oe = cvr[0] + cvr[2] + cvr[5];
-                calc_vecdata_vector( sd, VD_REF_STN, i, VD_RESVEC, NULL, cvr );
+                calc_vecdata_vector( sd, VD_REF_STN, i, VD_RESVEC, nullptr, cvr );
                 re = cvr[0] + cvr[2] + cvr[5];
                 if( ! t->unused && ! rejected_station(sd->from) && ! rejected_station(t->to) )
                 {
@@ -589,9 +589,9 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                        number to the three components.... */
                     double oe, re;
                     double cvr[6];
-                    calc_vecdata_vector( sd, i, j, VD_OBSVEC, NULL, cvr );
+                    calc_vecdata_vector( sd, i, j, VD_OBSVEC, nullptr, cvr );
                     oe = cvr[0] + cvr[2] + cvr[5];
-                    calc_vecdata_vector( sd, i, j, VD_RESVEC, NULL, cvr );
+                    calc_vecdata_vector( sd, i, j, VD_RESVEC, nullptr, cvr );
                     re = cvr[0] + cvr[2] + cvr[5];
                     if( oe > 0.0 ) connection->rfac = sqrt( re/oe);
                 }
@@ -1428,7 +1428,7 @@ struct
     {"line_number", SRF_LINENO, 8},
     {"line_length",SRF_LENGTH, 10},
     {"id",SRF_OBSID,8},
-    {NULL,0,0}
+    {nullptr,0,0}
 };
 
 
@@ -2269,7 +2269,7 @@ void list_connections( void *dest, PutTextFunc f, int from )
         {
             double az;
             ts = stnptr(tp->to);
-            az = calc_azimuth( fs, 0.0, ts, 0.0, 0, NULL, NULL );
+            az = calc_azimuth( fs, 0.0, ts, 0.0, 0, nullptr, nullptr );
             az *= RTOD;
             while( az > 360.0 ) az -= 360.0;
             while( az < 0.0 ) az += 360.0;
@@ -2402,12 +2402,12 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
 
     /* Print basic information - distance, azimuth, height diff */
 
-    dist = calc_distance( sfrom, 0.0, sto, 0.0, NULL, NULL );
-    az = calc_azimuth( sfrom, 0.0, sto, 0.0, 0, NULL, NULL )*RTOD;
+    dist = calc_distance( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
+    az = calc_azimuth( sfrom, 0.0, sto, 0.0, 0, nullptr, nullptr )*RTOD;
     while( az > 360.0 ) az -= 360.0;
     while( az < 0.0 ) az += 360.0;
-    hd = calc_hgt_diff( sfrom, 0.0, sto, 0.0, NULL, NULL );
-    edist = calc_ellipsoidal_distance( sfrom, sto, NULL, NULL );
+    hd = calc_hgt_diff( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
+    edist = calc_ellipsoidal_distance( sfrom, sto, nullptr, nullptr );
 
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "Slope dist " + format_fixed( dist, 3 ) + "  Ell dist " + format_fixed( edist, 3 )
@@ -2444,7 +2444,7 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
     if( connlst.empty() ) return;
     fp = &connlst[from];
-    tp = 0;
+    tp = nullptr;
     for( i = 0; i < boost::numeric_cast<int>( fp->to.size() ); i++ )
     {
         if( fp->to[i].to  == to ) { tp = &fp->to[i]; break;}
@@ -2849,7 +2849,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             calc_vecdata_point( sd, oto, VD_RESVEC | VD_TOPOCENTRIC | VD_STDERR,
                                 renu, erenu );
             calc_vecdata_point( sd, oto, VD_OBSVEC | VD_TOPOCENTRIC | VD_STDERR,
-                                NULL, rfac );
+                                nullptr, rfac );
             small = (rfac[0]+rfac[1]+rfac[2])*1.0e-3;
         }
         heightText = "H.I.  " + format_fixed( v[oto].tgt.tohgt, 3 ) + "m";
@@ -2863,7 +2863,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             calc_vecdata_vector( sd, ofrom, oto,  VD_RESVEC | VD_TOPOCENTRIC | VD_STDERR,
                                  renu, erenu );
             calc_vecdata_vector( sd, ofrom, oto, VD_OBSVEC | VD_TOPOCENTRIC | VD_STDERR,
-                                 NULL, rfac );
+                                 nullptr, rfac );
             small = (rfac[0]+rfac[1]+rfac[2])*1.0e-3;
         }
         heightText = "H.I.  " + format_fixed( (ofrom == VD_REF_STN) ? sd->fromhgt : v[ofrom].tgt.tohgt, 3 )
@@ -3088,7 +3088,7 @@ void list_single_observation( void *dest, PutTextFunc f, int from, int to, int o
 
     if( connlst.empty() ) return;
     fp = &connlst[from];
-    tp = 0;
+    tp = nullptr;
     for( to_id = 0; to_id < boost::numeric_cast<int>( fp->to.size() ); to_id++ )
     {
         if( fp->to[to_id].to  == to ) { tp = &fp->to[to_id]; break;}

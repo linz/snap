@@ -29,7 +29,7 @@ int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff )
 {
     int sts;
 
-    *rff = 0;
+    *rff = nullptr;
     if( ! test_next_string_field( is.scanner, "GRID" ) )
     {
         sts = OK;

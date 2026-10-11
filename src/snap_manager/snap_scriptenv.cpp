@@ -32,7 +32,7 @@ END_EVENT_TABLE()
 SnapMgrScriptEnv::SnapMgrScriptEnv( wxFrame *frameWindow )
     : frameWindow( frameWindow )
 {
-    job = 0;
+    job = nullptr;
         coordsyslist="";
         heightreflist="";
     script = new Script( *this );
@@ -152,7 +152,7 @@ bool SnapMgrScriptEnv::UnloadJob( bool canVeto )
         if( result == wxYES ) job->Save();
     }
     delete job;
-    job = 0;
+    job = nullptr;
     wxCommandEvent evt( wxEVT_SNAP_JOBUPDATED );
     evt.SetInt( SNAP_JOBUPDATED_NEWJOB );
     frameWindow->GetEventHandler()->ProcessEvent(evt);
@@ -267,7 +267,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItemByLabel( wxMenu *menu, const wxString &
             return mi;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 size_t SnapMgrScriptEnv::GetMenuInsertPosition( wxMenu *menu )
@@ -285,8 +285,8 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
     // Set up the file menu ..
 
     wxMenuBar *menuBar = frameWindow->GetMenuBar();
-    if( parent ) (*parent)=0;
-    if( ! menuBar ) return 0;
+    if( parent ) (*parent)=nullptr;
+    if( ! menuBar ) return nullptr;
 
     wxString delimiter="|";
     bool wantMenu = name.EndsWith(delimiter);
@@ -297,7 +297,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
 
     wxStringTokenizer menuParts(menuName,"|");
 
-    if( menuParts.CountTokens() < 1 ) return 0;
+    if( menuParts.CountTokens() < 1 ) return nullptr;
     if( menuParts.CountTokens() > 1 )
     {
         menuName = menuParts.GetNextToken();
@@ -313,7 +313,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
     wxMenu *menu;
     if( menuId == wxNOT_FOUND )
     {
-        if( ! createParents ) return 0;
+        if( ! createParents ) return nullptr;
         menu = new wxMenu;
         menuBar->Insert( menuBar->GetMenuCount()-1, menu, menuName );
     }
@@ -326,7 +326,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
 
     while( menuParts.CountTokens() > 1 )
     {
-        wxMenu *submenu = 0;
+        wxMenu *submenu = nullptr;
         menuName = menuParts.GetNextToken();
         wxMenuItem *mi = GetMenuItemByLabel( menu, menuName, true );
         if( mi ) 
@@ -335,7 +335,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
         }
         else
         {
-            if( ! createParents ) return 0;
+            if( ! createParents ) return nullptr;
             submenu = new wxMenu;
             wxMenuItem *item=new wxMenuItem(menu,0,menuName,"",wxITEM_NORMAL,submenu);
             menu->Insert(GetMenuInsertPosition(menu),item);
@@ -377,7 +377,7 @@ bool SnapMgrScriptEnv::AddMenuItem( const wxString &name, const wxString &descri
 
 bool SnapMgrScriptEnv::RemoveMenuItem( const wxString &name )
 {
-    wxMenu *parent=0;
+    wxMenu *parent=nullptr;
     wxMenuItem *item=GetMenuItem(name,&parent);
     if( ! item ) return false;
     if( item->GetSubMenu() && item->GetSubMenu()->GetMenuItemCount() > 0 ) return false;

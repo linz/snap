@@ -81,11 +81,11 @@ int sortobj::compare( const sortobj &other ) const
 static char arbitrary_projection;  /* Set to 1 if coords were geodetic */
 static std::optional<DmsFormat> latitudeFormat;   /* Format for printing coordinates if coord system is lat/lon */
 static std::optional<DmsFormat> longitudeFormat;
-static stn_plot_s *stns = NULL;    /* Array of station plot information */
-static int *xyindex = NULL;      /* Array of pointers sorted by easting */
+static stn_plot_s *stns = nullptr;    /* Array of station plot information */
+static int *xyindex = nullptr;      /* Array of pointers sorted by easting */
 static char xyindex_valid = 0;     /* True when the index is valid */
 static long xyindex_version = 0;   /* Incremented at each change of index */
-static int *sortIndex = NULL;    /* Array of indices of non-ignored stations */
+static int *sortIndex = nullptr;    /* Array of indices of non-ignored stations */
 static std::vector<sortobj> sortValues; /* Array of values used for sorting */
 static int *slist_field; /* Array station list fields */
 static int slist_ncols = 0;
@@ -94,7 +94,7 @@ static int no_good_stations = 0;     /* Number of non-ignored stations */
 static int nadjust3=0;               /* Counts of stations adjusted */
 static int nadjusth=0;
 static int nadjustv=0;
-static covariance *covar = NULL;   /* Array of covariances */
+static covariance *covar = nullptr;   /* Array of covariances */
 static double nmax, nmin, emax, emin;   /* The range of coordinates */
 static int stations_adjusted;
 static int nstns;
@@ -105,7 +105,7 @@ static double cvrmaxh = 0.0;
 static double cvrmaxv = 0.0;
 static double adjmaxh = 0.0;
 static double adjmaxv = 0.0;
-static coordsys *plot_crdsys = NULL;
+static coordsys *plot_crdsys = nullptr;
 
 static int stn_colourby_class = 0;
 static int symbol_pen[N_STN_SYM];
@@ -822,7 +822,7 @@ void init_plotstns( int adjusted )
         xyz[CRD_LAT] = st->ELat;
         xyz[CRD_LON] = st->ELon;
         xyz[CRD_HGT] = st->OHgt;
-        convert_coords( &cnv, xyz, NULL, xyz, NULL );
+        convert_coords( &cnv, xyz, nullptr, xyz, nullptr );
 
         stns[istn].northing = n = xyz[CRD_NORTH];
         stns[istn].easting  = e = xyz[CRD_EAST];
@@ -836,7 +836,7 @@ void init_plotstns( int adjusted )
             xyz[CRD_LAT] = sa->initELat;
             xyz[CRD_LON] = sa->initELon;
             xyz[CRD_HGT] = sa->initOHgt;
-            convert_coords( &cnv, xyz, NULL, xyz, NULL );
+            convert_coords( &cnv, xyz, nullptr, xyz, nullptr );
             stns[istn].dn = n - xyz[CRD_NORTH];
             stns[istn].de = e - xyz[CRD_EAST];
             ds = _hypot( stns[istn].de, stns[istn].dn );

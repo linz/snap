@@ -93,7 +93,7 @@ int calc_vdatum_offset( vdatum *hrs, double llh[3], double *height, double *exu 
     {
         double dh;
         double dexu[3];
-        double *pexu=exu ? &(dexu[0]) : 0;
+        double *pexu=exu ? &(dexu[0]) : nullptr;
         if( ! hrs->func ) return INVALID_DATA;
         sts=calc_vdatum_func( hrs->func, llh, &dh, pexu );
         if( sts != OK ) return sts;

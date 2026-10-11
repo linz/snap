@@ -2,7 +2,7 @@
 #include "wxnumbervalidator.hpp"
 
 wxNumberValidator::wxNumberValidator( int *value, bool positive )
-    : wxTextValidator( wxFILTER_INCLUDE_CHAR_LIST, NULL ),
+    : wxTextValidator( wxFILTER_INCLUDE_CHAR_LIST, nullptr ),
       value(value)
 {
     isInteger = true;
@@ -12,7 +12,7 @@ wxNumberValidator::wxNumberValidator( int *value, bool positive )
 }
 
 wxNumberValidator::wxNumberValidator( double *value, int nDecPlaces, bool positive )
-    : wxTextValidator( wxFILTER_INCLUDE_CHAR_LIST, NULL ),
+    : wxTextValidator( wxFILTER_INCLUDE_CHAR_LIST, nullptr ),
       value(value),
       nDecPlaces(nDecPlaces)
 {

@@ -137,7 +137,7 @@ struct cfg_stack
     struct cfg_stack *next;
 };
 
-cfg_stack *cfgs = NULL;
+cfg_stack *cfgs = nullptr;
 
 #define CACHE_COVARIANCE_EXT ".scc"
 #define CACHE_COVARIANCE_SIG "SNAPSPEC_CACHED_COVARIANCE"
@@ -263,7 +263,7 @@ static void relacc_alloc_cache( stn_relacc_array *ra )
 
 static stn_relacc *get_relacc( stn_relacc_array *ra, int istn, int jstn )
 {
-    if( ra->cols == NULL || istn < 1 || jstn < 1 || istn > ra->nstn || jstn > ra->nstn ) return NULL;
+    if( ra->cols == nullptr || istn < 1 || jstn < 1 || istn > ra->nstn || jstn > ra->nstn ) return nullptr;
     if( istn < jstn ) { int itmp = istn; istn = jstn; jstn = itmp; }
     return ra->cols[istn-1] + jstn-1;
 }
@@ -301,7 +301,7 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
             for( int i = 0; i < nrow_saved; i++ )
                 saved_col[i] = ra->blt->row[i].col;
             delete_bltmatrix( ra->blt );
-            ra->blt = NULL;
+            ra->blt = nullptr;
         }
 
         BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE ).file;
@@ -351,7 +351,7 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
     if( ra->blt )
     {
         delete_bltmatrix( ra->blt );
-        ra->blt=NULL;
+        ra->blt=nullptr;
     }
 
     if( ra->loglevel & SDC_LOG_STEPS )
@@ -369,7 +369,7 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
 
     ra->blt=ra->bltreq;
     ra->bltupdated=1;
-    ra->bltreq=NULL;
+    ra->bltreq=nullptr;
 
     if( ! ra->cvrcachefile.empty() ) cache_covariance_matrix( ra, ra->cvrcachefile );
 
@@ -830,7 +830,7 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string
     if( ra->blt )
     {
         delete_bltmatrix(ra->blt);
-        ra->blt=0;
+        ra->blt=nullptr;
     }
     if( reload_bltmatrix( &(ra->blt), c->f ) !=  OK )
     {
@@ -932,7 +932,7 @@ static double f_distance2( void *env, int stn1, int stn2 )
         stt = station_ptr( net, istn2 );
         if( stf && stt )
         {
-            dist2 = calc_distance( stf, 0.0, stt, 0.0, NULL, NULL );
+            dist2 = calc_distance( stf, 0.0, stt, 0.0, nullptr, nullptr );
             dist2 *= dist2;
         }
         else
@@ -1172,7 +1172,7 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
     csv->endRecord();
 
     station *st;
-    for( reset_station_list(net,0); NULL != (st = next_station(net)); )
+    for( reset_station_list(net,0); nullptr != (st = next_station(net)); )
     {
         int idra=st->id-1;
         stn_adjustment *sa = stnadj(st);
@@ -1191,7 +1191,7 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
-            llh_to_xyz( elp, llh, xyz, 0, 0);
+            llh_to_xyz( elp, llh, xyz, nullptr, nullptr);
             csv->writeDouble( xyz[CRD_X], coord_precision );
             csv->writeDouble( xyz[CRD_Y], coord_precision );
             csv->writeDouble( xyz[CRD_Z], coord_precision );
@@ -2199,24 +2199,24 @@ static int read_default_order_command(CFG_FILE *cfg, std::string_view string, vo
 
 static config_item cfg_commands[] =
 {
-    {"configuration",NULL,CFG_ABSOLUTE,0,read_configuration_command,0,1},
-    {"test",NULL,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
-    {"log_level",NULL,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
-    {"test_config_options",NULL,CFG_ABSOLUTE,0,read_test_config_options_command,CFG_ONEONLY,1},
-    {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
-    {"output_csv",NULL,OFFSETOF(stn_relacc_array,csvoutput),0,read_output_file_command,CFG_ONEONLY,2},
-    {"output_crd",NULL,OFFSETOF(stn_relacc_array,crdoutput),0,read_output_file_command,CFG_ONEONLY,2},
-    {"min_relative_accuracy_tests",NULL,OFFSETOF(stn_relacc_array,dfltminrelacc),0,readcfg_int,CFG_ONEONLY,2},
-    {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
+    {"configuration",nullptr,CFG_ABSOLUTE,0,read_configuration_command,0,1},
+    {"test",nullptr,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
+    {"log_level",nullptr,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
+    {"test_config_options",nullptr,CFG_ABSOLUTE,0,read_test_config_options_command,CFG_ONEONLY,1},
+    {"output_log",nullptr,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
+    {"output_csv",nullptr,OFFSETOF(stn_relacc_array,csvoutput),0,read_output_file_command,CFG_ONEONLY,2},
+    {"output_crd",nullptr,OFFSETOF(stn_relacc_array,crdoutput),0,read_output_file_command,CFG_ONEONLY,2},
+    {"min_relative_accuracy_tests",nullptr,OFFSETOF(stn_relacc_array,dfltminrelacc),0,readcfg_int,CFG_ONEONLY,2},
+    {"confidence",nullptr,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
     {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
-    {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
-    {"default_order",NULL,CFG_ABSOLUTE,0,read_default_order_command,CFG_ONEONLY,0},
-    {"limit_order",NULL,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
-    {"ignore",NULL,CFG_ABSOLUTE,0,read_ignore_command,0,2},
-    {"station_configuration_file",NULL,CFG_ABSOLUTE,0,read_station_config_command,0,2},
-    {"set_priority",NULL,CFG_ABSOLUTE,0,read_set_priority_command,0,2},
-    {"options",NULL,CFG_ABSOLUTE,0,read_options_command,0,2},
-    {NULL}
+    {"error_type",nullptr,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
+    {"default_order",nullptr,CFG_ABSOLUTE,0,read_default_order_command,CFG_ONEONLY,0},
+    {"limit_order",nullptr,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
+    {"ignore",nullptr,CFG_ABSOLUTE,0,read_ignore_command,0,2},
+    {"station_configuration_file",nullptr,CFG_ABSOLUTE,0,read_station_config_command,0,2},
+    {"set_priority",nullptr,CFG_ABSOLUTE,0,read_set_priority_command,0,2},
+    {"options",nullptr,CFG_ABSOLUTE,0,read_options_command,0,2},
+    {nullptr}
 };
 
 // #pragma warning ( default : 4305 )
@@ -2255,7 +2255,7 @@ static int read_configuration_command(CFG_FILE *cfg, std::string_view string, vo
         }
     }
 
-    cfg2 = NULL;
+    cfg2 = nullptr;
     if( cfn ) { cfg2 = open_config_file( *cfn, '!' );}
     if( !cfg2 )
     {
@@ -2581,7 +2581,7 @@ static const char *default_cfg_name = "snapspec";
 
 int main( int argc, char *argv[] )
 {
-    CFG_FILE *cfg = 0;
+    CFG_FILE *cfg = nullptr;
     std::optional<std::string> cfn;
     const char *basecfn, *ofn;
     int nerr;
@@ -2591,11 +2591,11 @@ int main( int argc, char *argv[] )
     FILE *out;
     stn_relacc_array *ra;
     std::optional<std::string> min_order_str;
-    char *modestr = NULL;
+    char *modestr = nullptr;
     std::optional<std::string> max_control_str;
-    char *outputcsvname = NULL;
-    char *debugcsvname = NULL;
-    char *updatecrdfile = NULL;
+    char *outputcsvname = nullptr;
+    char *debugcsvname = nullptr;
+    char *updatecrdfile = nullptr;
     int splitcrdfile = 0;
     int use_cache = 0;
     std::string cvrcachefile;
@@ -2933,7 +2933,7 @@ int main( int argc, char *argv[] )
     }
     fprintf(out,"\n");
 
-    debugfile=0;
+    debugfile=nullptr;
     if( debugcsvname )
     {
         const std::string csvfile=output_filename(debugcsvname,bfn,SNAPSPEC_CSV_EXT);
@@ -2953,7 +2953,7 @@ int main( int argc, char *argv[] )
 
     if( debugfile )
     {
-        ra->dbgfile=0;
+        ra->dbgfile=nullptr;
         fclose(debugfile);
     }
 
@@ -3001,7 +3001,7 @@ int main( int argc, char *argv[] )
         printf("\nSee %s for details\n",ofn);
     }
 
-    ra->logfile = NULL;
+    ra->logfile = nullptr;
     fclose(out);
 
     delete_relacc( ra );

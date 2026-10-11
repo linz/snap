@@ -121,9 +121,9 @@ void delete_geoid_grid( geoid_def *gd )
     if( gd )
     {
         if( gd->grd ) grd_delete_grid( gd->grd );
-        gd->grd = 0;
+        gd->grd = nullptr;
         if( gd->cs )delete gd->cs;
-        gd->cs = 0;
+        gd->cs = nullptr;
     }
     delete gd;
 }
@@ -135,7 +135,7 @@ std::string_view get_geoid_model( geoid_def *gd )
 
 coordsys *get_geoid_coordsys(  geoid_def *gd )
 {
-    if( !gd ) return NULL;
+    if( !gd ) return nullptr;
     return gd->cs;
 }
 
@@ -204,7 +204,7 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     llh[CRD_LON] = lon;
     llh[CRD_HGT] = 0.0;
 
-    llh_to_xyz( el, llh, xyz, NULL, NULL );
+    llh_to_xyz( el, llh, xyz, nullptr, nullptr );
     const rotmat toporot( llh[CRD_LAT], llh[CRD_LON] );
 
     /* Calculate geoid heights half a grid spacing south (u1) and north (u2)
@@ -215,7 +215,7 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     sts = calculate_geoid_undulation( gd, llh[CRD_LAT], llh[CRD_LON], &u1 );
     if( sts != OK ) return sts;
 
-    llh_to_xyz( el, llh, xyzp, NULL, NULL );
+    llh_to_xyz( el, llh, xyzp, nullptr, nullptr );
     vecdif( xyzp, xyz, dxyz );
     vecdif( xyz, dxyz, xyzp );
     xyz_to_llh( el, xyzp, llh );

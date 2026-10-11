@@ -232,7 +232,7 @@ coordsys * load_coordsys( std::string_view code )
         if( rf )
         {
             set_coordsys_ref_frame( cs, rf );
-            rf=0;
+            rf=nullptr;
         }
 
         if( hrs )

@@ -35,8 +35,8 @@ char fixed_gps_vertical = 0;
 static double fixed_rmat[3][3];
 static char fixed_rmat_calculated = 0;
 
-static VRTFUNC vertfunc = (VRTFUNC) 0;
-static XFMFUNC xfmfunc = (XFMFUNC) 0;
+static VRTFUNC vertfunc = (VRTFUNC) nullptr;
+static XFMFUNC xfmfunc = (XFMFUNC) nullptr;
 
 static double dflttmat[] = { 1.0, 0.0, 0.0,
                              0.0, 1.0, 0.0,
@@ -808,7 +808,7 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
         else
         {
             vecdata *v;
-            double *vs = 0;
+            double *vs = nullptr;
             v = &vd->obs.vdata[to];
             switch( vtype )
             {
@@ -821,7 +821,7 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
         if( from != VD_REF_STN )
         {
             vecdata *v;
-            double *vs = 0;
+            double *vs = nullptr;
             v = &vd->obs.vdata[from];
             switch( vtype )
             {
@@ -923,7 +923,7 @@ int calc_vecdata_point( survdata *vd, int to, int type,
     if( pvec )
     {
         vecdata *v;
-        double *vs = 0;
+        double *vs = nullptr;
         v = &vd->obs.vdata[to];
         switch( vtype )
         {

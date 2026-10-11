@@ -152,7 +152,7 @@ void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName
 SnapCsvStn::CsvClassification *SnapCsvStn::addClassification(const string &classname)
 {
     CsvClassification *clsf = classification(classname);
-    if (clsf != 0)
+    if (clsf != nullptr)
     {
         definitionError(string("Classification ") + classname + " defined more than once");
     }
@@ -178,7 +178,7 @@ SnapCsvStn::CsvClassification *SnapCsvStn::classification(const string &classnam
             return (*c).get();
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void SnapCsvStn::loadDefinitionCommand(const string &command, RecordStream &rs)
@@ -292,7 +292,7 @@ void SnapCsvStn::loadDefinitionCommand(const string &command, RecordStream &rs)
 void SnapCsvStn::initialiseLoadData()
 {
     _cscode = "";
-    _cs = 0;
+    _cs = nullptr;
     _haveGeoid = _crdund.hasValue() || _crdxi.hasValue() || _crdeta.hasValue();
     _geoidDefined = false;
     _deflectionDefined = false;

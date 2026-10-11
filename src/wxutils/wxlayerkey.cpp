@@ -34,8 +34,8 @@ private:
 
 int wxBitmapGridRenderer::margin = 2;
 int wxBitmapGridRenderer::tickBitmapSize = 13;
-wxBitmap *wxBitmapGridRenderer::bmpTickOff = 0;
-wxBitmap *wxBitmapGridRenderer::bmpTickOn = 0;
+wxBitmap *wxBitmapGridRenderer::bmpTickOff = nullptr;
+wxBitmap *wxBitmapGridRenderer::bmpTickOn = nullptr;
 
 void wxBitmapGridRenderer::CreateTickBitmaps()
 {
@@ -130,7 +130,7 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
             return;
         }
 
-        const wxBitmap *bmp = 0;
+        const wxBitmap *bmp = nullptr;
         if( col  == 0 && sym.HasColour() && sym.ColourEditable() )
         {
             bmp = &(symkey->LayerBitmap(layerIndex));

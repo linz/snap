@@ -47,7 +47,7 @@
 #include "util/progress.h"
 #include "util/errdef.h"
 
-static SpecDef *spechead = NULL;
+static SpecDef *spechead = nullptr;
 static std::vector<int> stn_testids;
 static int ntestid = 0;
 

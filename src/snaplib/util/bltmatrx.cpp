@@ -181,7 +181,7 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
        */
 
     nelement = 0;
-    lastalloc=NULL;
+    lastalloc=nullptr;
     for( i=0; i<blt->nrow; )
     {
         int i0 = i;
@@ -738,7 +738,7 @@ double *blt_get_row_data( bltmatrix * blt, int irow )
 {
     if( irow < 0 || irow > blt->nrow
             || blt->status != BLT_READY
-            || blt->row[irow].col > 0 ) return NULL;
+            || blt->row[irow].col > 0 ) return nullptr;
 
     return blt->row[irow].address;
 }
@@ -764,9 +764,9 @@ int reload_bltmatrix( bltmatrix **pblt, FILE *b )
 {
     int i;
     int nrow;
-    bltmatrix *blt = NULL;
+    bltmatrix *blt = nullptr;
 
-    *pblt = NULL;
+    *pblt = nullptr;
     if( fread(&nrow,sizeof(nrow),1,b) != 1 ) return FILE_READ_ERROR;
     if( nrow <= 0 ) return INVALID_DATA;
 
@@ -839,9 +839,9 @@ int reload_bltmatrix_dense( bltmatrix **pblt, FILE *b )
 {
     int i;
     int nrow;
-    bltmatrix *blt = NULL;
+    bltmatrix *blt = nullptr;
 
-    *pblt = NULL;
+    *pblt = nullptr;
     if( fread(&nrow, sizeof(nrow), 1, b) != 1 ) return FILE_READ_ERROR;
     if( nrow <= 0 ) return INVALID_DATA;
 

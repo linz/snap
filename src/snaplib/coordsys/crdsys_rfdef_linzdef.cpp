@@ -54,10 +54,10 @@ struct LinzDefModel
 static void rf_linzdef_delete( void *data )
 {
     LinzDefModel *model = (LinzDefModel *) data;
-    if( model == NULL ) return;
-    if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
-    if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
-    if( model->blob ) { utlBlobClose(model->blob); model->blob = NULL; }
+    if( model == nullptr ) return;
+    if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = nullptr; }
+    if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = nullptr; }
+    if( model->blob ) { utlBlobClose(model->blob); model->blob = nullptr; }
     delete model;
 }
 

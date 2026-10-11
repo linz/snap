@@ -165,7 +165,7 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
             dfi.raiseError(std::string("Cannot have more than one solution for ") + code);
 
         // Store the ordinate
-        double value = strtod(input.substr(47, 21).c_str(), 0);
+        double value = strtod(input.substr(47, 21).c_str(), nullptr);
         points[id]->xyz[ord] = value;
         int prmid = atoi(input.substr(1, 5).c_str());
 
@@ -197,7 +197,7 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
             ldt_classification(classid, idreffrm);
         }
 
-        double *cvr = ldt_covariance(CVR_FULL, 0);
+        double *cvr = ldt_covariance(CVR_FULL, nullptr);
 
         if (cvr)
         {
@@ -233,7 +233,7 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
                     int jcvr = prmMap[prm2];
                     if (jcvr < 0)
                         continue;
-                    double value = strtod(input.substr(col, 21).c_str(), 0);
+                    double value = strtod(input.substr(col, 21).c_str(), nullptr);
                     int pcvr;
                     if (icvr > jcvr)
                     {

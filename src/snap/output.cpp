@@ -183,7 +183,7 @@ static int print_err( int sts, std::string_view mess1, error_message mess2 );
 static int errcount = 0;
 static int page_width = 80;
 static std::string divider;
-static relcvr_opt *relcvr_opts = NULL;
+static relcvr_opt *relcvr_opts = nullptr;
 
 int read_output_options( CFG_FILE *cfg, std::string_view string, void *, int, int code )
 {
@@ -366,7 +366,7 @@ int add_requested_covariance_connections()
                 if( rco->maxlen > 0 )
                 {
                     stnt=station_ptr( net, idt );
-                    double distance=calc_distance(stnf,0.0,stnt,0.0,NULL,NULL);
+                    double distance=calc_distance(stnf,0.0,stnt,0.0,nullptr,nullptr);
                     if( distance > rco->maxlen ) continue;
                 }
                 add_connection( idf, idt );
@@ -422,7 +422,7 @@ static void close_listing_file( void )
     }
     if( ! output_noruntime ) print_report_footer(lst);
     if( lst ) fclose( lst );
-    lst = 0;
+    lst = nullptr;
     xprintf("\n\n****************************************************\n\n");
     xprintf("The results are in file %s\n\n",lst_name.c_str());
 }
@@ -438,7 +438,7 @@ static void close_error_file( const error_message mess1, const error_message mes
         if( ! output_noruntime ) print_report_footer( err );
         fclose( err );
     }
-    err = 0;
+    err = nullptr;
     if( errcount <= 0 )
     {
         _unlink( err_name.c_str() );
@@ -730,7 +730,7 @@ void print_problem_summary( FILE *lst )
     haveauto = 0;
     reject = 0;
     for( reset_station_list(net,(int)output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
         stn_adjustment *sa=stnadj(st);
 
@@ -791,7 +791,7 @@ void print_problem_summary( FILE *lst )
     fputs("\n",lst);
 
     for( reset_station_list(net, (int) output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
         if( stnadj(st)->flag.rejected ) continue;
 
@@ -868,7 +868,7 @@ void print_problem_summary( FILE *lst )
     }
 
     for( reset_station_list(net,(int)output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
         if( !stnadj(st)->flag.rejected ) continue;
         fprintf(lst,"%c%-*s   %s\n",stnadj(st)->flag.autoreject ? '*' : ' ',
@@ -898,7 +898,7 @@ void print_problem_summary( FILE *lst )
 
         row=0;
         for( reset_station_list(net,(int)output_sorted_stations);
-                NULL != (st = next_station(net)); )
+                nullptr != (st = next_station(net)); )
         {
             if( stnadj(st)->flag.rejected ) continue;
             stn_adjustment *sa=stnadj(st);

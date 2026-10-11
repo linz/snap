@@ -21,8 +21,8 @@
 /*=============================================================*/
 /* Basic routine to read a station data file                   */
 
-static stationfunc default_initstation=0;
-static stationfunc default_uninitstation=0;
+static stationfunc default_initstation=nullptr;
+static stationfunc default_uninitstation=nullptr;
 
 network::network() :
     name( std::nullopt ),

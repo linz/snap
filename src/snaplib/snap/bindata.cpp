@@ -510,7 +510,7 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
     if( cvrperobs ) for( cvrtype = 0; cvrtype < 3; cvrtype++ )
         {
             int ir0, ir1, ir, njr, j, jr0;
-            ltmat cvr = 0;
+            ltmat cvr = nullptr;
             switch( cvrtype )
             {
             case 0: cvr = sd->cvr; break;
@@ -577,7 +577,7 @@ static void reset_survdata_pointers( survdata *sd )
     }
     else
     {
-        sd->clsf = NULL;
+        sd->clsf = nullptr;
     }
     if( sd->nsyserr )
     {
@@ -586,7 +586,7 @@ static void reset_survdata_pointers( survdata *sd )
     }
     else
     {
-        sd->syserr = NULL;
+        sd->syserr = nullptr;
     }
     if( sd->ncvr )
     {
@@ -600,7 +600,7 @@ static void reset_survdata_pointers( survdata *sd )
     }
     else
     {
-        sd->cvr = sd->calccvr = sd->rescvr = (ltmat) 0;
+        sd->cvr = sd->calccvr = sd->rescvr = (ltmat) nullptr;
     }
 }
 
@@ -649,8 +649,8 @@ void print_json_observations( FILE *out )
             const char *fromstr="from";
             const char *tostr="to";
             const char *totype=fromstr;
-            double *value=0;
-            double *error=0;
+            double *value=nullptr;
+            double *error=nullptr;
             int nvalue=0;
             trgtdata *tgt=get_trgtdata(sd,iobs);
 

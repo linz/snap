@@ -12,7 +12,7 @@
 class FindStationDialog : public wxSimpleDialog
 {
 public:
-    FindStationDialog( wxHelpController *help = 0 );
+    FindStationDialog( wxHelpController *help = nullptr );
     virtual bool Validate();
     int stationId;
     bool zoomMap;

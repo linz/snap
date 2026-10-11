@@ -100,7 +100,7 @@ static long     nschp;
 static long     nobs;
 static long     ndof;
 static double seu;
-static obseqn *Asch = NULL;  /* Observation equations for Schreiber eqns */
+static obseqn *Asch = nullptr;  /* Observation equations for Schreiber eqns */
 
 static double *tmp;   /* A scratch work area */
 static long  ntmp = 0;
@@ -372,7 +372,7 @@ static void form_iobs( obseqn *A, char sumall )
 
     /* Allocate work area for schreibers equations */
 
-    if( Asch == NULL ) Asch = (obseqn *) create_oe( nprm );
+    if( Asch == nullptr ) Asch = (obseqn *) create_oe( nprm );
 
     ncol = count_col( A );
 
@@ -634,8 +634,8 @@ double *lsq_get_covariance_row( int row )
 {
     int i;
     set_lsq_status( LSQ_SOLVED, "get_covariance_row" );
-    if( lsq_status != LSQ_SOLVED ) {sequence_error("get_covariance_row"); return NULL;}
-    if( !nprm ) return 0;
+    if( lsq_status != LSQ_SOLVED ) {sequence_error("get_covariance_row"); return nullptr;}
+    if( !nprm ) return nullptr;
     for( i = 0; i < nprm; i++ ) tmp[i] = 0.0;
     tmp[row] = 1.0;
     blt_chol_slv( N, tmp, tmp );
@@ -647,7 +647,7 @@ double *lsq_get_covariance_row( int row )
 bltmatrix *lsq_get_decomposition()
 {
     set_lsq_status( LSQ_SOLVED, "get_decomposition" );
-    if( lsq_status != LSQ_SOLVED ) {sequence_error("get_decomposition"); return NULL;}
+    if( lsq_status != LSQ_SOLVED ) {sequence_error("get_decomposition"); return nullptr;}
     return N;
 }
 /* Get the covariance matrix decomposition */
@@ -655,7 +655,7 @@ bltmatrix *lsq_get_decomposition()
 bltmatrix *lsq_get_covariance_matrix()
 {
     set_lsq_status( LSQ_INVERTED, "get_decomposition" );
-    if( lsq_status != LSQ_INVERTED ) {sequence_error("get_decomposition"); return NULL;}
+    if( lsq_status != LSQ_INVERTED ) {sequence_error("get_decomposition"); return nullptr;}
     return N;
 }
 
@@ -1173,7 +1173,7 @@ void lsq_print_normal_equations_json( FILE *out, int nprefix )
         if( N ) 
         {
             fprintf(out,",\n%*s\"N\": ",nprefix,"");
-            print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, 0 );
+            print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, nullptr );
         }
     }
     fprintf(out,"\n%*s}",nprefix,"");
@@ -1201,7 +1201,7 @@ void lsq_print_solution_vector_json( FILE *out, int print_cvr, int nprefix )
         if( print_cvr && N ) 
         {
             fprintf(out,",\n%*s\"N\": ",nprefix,"");
-            print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, 0 );
+            print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, nullptr );
         }
     }
     fprintf(out,"\n%*s}",nprefix,"");

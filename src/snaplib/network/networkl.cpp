@@ -234,7 +234,7 @@ static bool polygon_criterion_match( const criterion &c, station *stn )
         llh[CRD_LAT]=lat;
         llh[CRD_LON]=lon;
         llh[CRD_HGT]=stn->OHgt+stn->GUnd;
-        convert_coords( poly.conv, llh, NULL, llh, NULL );
+        convert_coords( poly.conv, llh, nullptr, llh, nullptr );
         if( poly.isgeodetic )
         {
             lon=llh[CRD_LON]*RTOD;
@@ -496,7 +496,7 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
     int sts = OK;
 
     spec = find_file( file, DFLTSTLIST_EXT, std::optional<std::string>( basefile ), FF_TRYLOCAL, "" );
-    list_file = NULL;
+    list_file = nullptr;
     if( spec ) list_file = fopen( spec->c_str(), "r" );
 
     if( !list_file )

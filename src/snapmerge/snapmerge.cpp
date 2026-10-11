@@ -20,7 +20,7 @@
 
 
 std::vector<std::string> codes;
-network *base = 0;
+network *base = nullptr;
 char listonly = 0;
 
 int select_station( station *st )
@@ -35,10 +35,10 @@ int select_station( station *st )
 
 int main( int argc, char *argv[] )
 {
-    char *stnlistfile = NULL;
-    char *basefile = NULL;
-    char *datafile = NULL;
-    char *newfile = NULL;
+    char *stnlistfile = nullptr;
+    char *basefile = nullptr;
+    char *datafile = nullptr;
+    char *newfile = nullptr;
     network *data;
     int quiet = 0;
     int overwrite = 0;

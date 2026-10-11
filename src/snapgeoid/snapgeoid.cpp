@@ -64,7 +64,7 @@ int main( int argc, char *argv[] )
     std::optional<std::string> geoid;
     std::optional<std::string> *argptr = nullptr;
     int errlevel=WARNING_ERROR;
-    geoid_def *gd = NULL;
+    geoid_def *gd = nullptr;
 
     CONFIGURE_RUNTIME();
 
@@ -307,7 +307,7 @@ int main( int argc, char *argv[] )
                     hrscode->c_str());
             return 2;
         }
-        coordsys *cs=new coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
+        coordsys *cs=new coordsys(rf->code,"",CSTP_GEODETIC,rf,nullptr);
         if( ! cs )
         {
             printf("Unable to create reference coordinate system for vertical datum %s\n",

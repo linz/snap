@@ -480,14 +480,14 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                 case HA:
                 case ZD:
                 case PB:
-                    obslength = calc_distance( stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0,NULL,NULL);
+                    obslength = calc_distance( stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0,nullptr,nullptr);
                     altres = t->residual*obslength;
                     if( type == ZD ) altres *= sin( t->value );
                     set_residual_field_value( OF_ALTRES, 3, altres );
                     break;
 
                 case LV:
-                    obslength = calc_distance( stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0,NULL,NULL);
+                    obslength = calc_distance( stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0,nullptr,nullptr);
                     if( obslength > 0 )
                     {
                         set_residual_field_value( OF_ALTRES, 2,

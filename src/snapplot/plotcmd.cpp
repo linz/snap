@@ -74,25 +74,25 @@ static int read_config_menu_command( CFG_FILE *cfg, std::string_view string, voi
 static config_item snapplot_general_commands[] =
 {
     {"title",nullptr,CFG_ABSOLUTE,0,read_job_title_command,CFG_ONEONLY,0},
-    {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
-    {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
-    {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,0,0},
-    {"classification",NULL,CFG_ABSOLUTE,0,read_classification_command,0,0},
-    {"reweight_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},
-    {"reject_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REJECT},
-    {"ignore_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_IGNORE},
-    {"gps_antenna_height",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_ANTENNA_OFFSET},    
-    {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,0},
-    {"plot",NULL,CFG_ABSOLUTE,0,load_plot_data,0,0},
-    {"include",NULL,CFG_ABSOLUTE,0,read_include_command,0,0},
-    {NULL}
+    {"coordinate_file",nullptr,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
+    {"add_coordinate_file",nullptr,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
+    {"data_file",nullptr,CFG_ABSOLUTE,0,load_data_file,0,0},
+    {"classification",nullptr,CFG_ABSOLUTE,0,read_classification_command,0,0},
+    {"reweight_observations",nullptr,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},
+    {"reject_observations",nullptr,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REJECT},
+    {"ignore_observations",nullptr,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_IGNORE},
+    {"gps_antenna_height",nullptr,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_ANTENNA_OFFSET},    
+    {"recode",nullptr,CFG_ABSOLUTE,0,read_recode_command,0,0},
+    {"plot",nullptr,CFG_ABSOLUTE,0,load_plot_data,0,0},
+    {"include",nullptr,CFG_ABSOLUTE,0,read_include_command,0,0},
+    {nullptr}
 };
 
 static config_item snapplot_binary_commands[] =
 {
-    {"plot",NULL,CFG_ABSOLUTE,0,load_plot_data,0,0},
-    {"include",NULL,CFG_ABSOLUTE,0,read_include_command,0,0},
-    {NULL}
+    {"plot",nullptr,CFG_ABSOLUTE,0,load_plot_data,0,0},
+    {"include",nullptr,CFG_ABSOLUTE,0,read_include_command,0,0},
+    {nullptr}
 };
 
 /* Note: these commands must match those in write_config_file below ... */
@@ -104,32 +104,32 @@ static config_item snapplot_binary_commands[] =
 
 static config_item snapplot_cfg_commands[] =
 {
-    {"station_size",NULL,CFG_ABSOLUTE,0,read_station_size_command,0,0},
+    {"station_size",nullptr,CFG_ABSOLUTE,0,read_station_size_command,0,0},
     {"use_fixed_size_font",&use_default_font,CFG_ABSOLUTE,0,readcfg_boolean,0,0},
-    {"ignore_station_offsets",NULL,CFG_ABSOLUTE,0,read_ignore_offsets,0,0},
-    {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type_command,0,0},
-    {"error_scale",NULL,CFG_ABSOLUTE,0,read_error_scale_command,0,0},
-    {"station_colours",NULL,CFG_ABSOLUTE,0,read_station_colour_command,0,0},
-    {"observation_colours",NULL,CFG_ABSOLUTE,0,read_observation_colour_command,0,0},
-    {"observation_options",NULL,CFG_ABSOLUTE,0,read_observation_options,0,0},
-    {"observation_spacing",NULL,CFG_ABSOLUTE,0,read_observation_spacing_command,0,0},
-    {"obs_listing_fields",NULL,CFG_ABSOLUTE,0,read_obs_listing_fields_command,0,0},
-    {"obs_listing_order",NULL,CFG_ABSOLUTE,0,read_obs_listing_order_command,0,0},
-    {"highlight_observations",NULL,CFG_ABSOLUTE,0,read_highlight_command,0,0},
-    {"key",NULL,CFG_ABSOLUTE,0,read_key_command,0,0},
-    {"text_rows",NULL,CFG_ABSOLUTE,0,read_text_rows,0,0},
-    {"station_font",NULL,CFG_ABSOLUTE,0,read_station_font,CFG_ONEONLY,0},
-    {"offset_station",NULL,CFG_ABSOLUTE,0,read_station_offset,0,0},
-    {"hide",NULL,CFG_ABSOLUTE,0,process_station_list,0,HIDE_STATION},
-    {"show",NULL,CFG_ABSOLUTE,0,process_station_list,0,SHOW_STATION},
-    {"highlight",NULL,CFG_ABSOLUTE,0,process_station_list,0,HIGHLIGHT_STATION},
-    {"unhighlight",NULL,CFG_ABSOLUTE,0,process_station_list,0,UNHIGHLIGHT_STATION},
-    {"config_menu",NULL,CFG_ABSOLUTE,0,read_config_menu_command,0,0},
+    {"ignore_station_offsets",nullptr,CFG_ABSOLUTE,0,read_ignore_offsets,0,0},
+    {"error_type",nullptr,CFG_ABSOLUTE,0,read_error_type_command,0,0},
+    {"error_scale",nullptr,CFG_ABSOLUTE,0,read_error_scale_command,0,0},
+    {"station_colours",nullptr,CFG_ABSOLUTE,0,read_station_colour_command,0,0},
+    {"observation_colours",nullptr,CFG_ABSOLUTE,0,read_observation_colour_command,0,0},
+    {"observation_options",nullptr,CFG_ABSOLUTE,0,read_observation_options,0,0},
+    {"observation_spacing",nullptr,CFG_ABSOLUTE,0,read_observation_spacing_command,0,0},
+    {"obs_listing_fields",nullptr,CFG_ABSOLUTE,0,read_obs_listing_fields_command,0,0},
+    {"obs_listing_order",nullptr,CFG_ABSOLUTE,0,read_obs_listing_order_command,0,0},
+    {"highlight_observations",nullptr,CFG_ABSOLUTE,0,read_highlight_command,0,0},
+    {"key",nullptr,CFG_ABSOLUTE,0,read_key_command,0,0},
+    {"text_rows",nullptr,CFG_ABSOLUTE,0,read_text_rows,0,0},
+    {"station_font",nullptr,CFG_ABSOLUTE,0,read_station_font,CFG_ONEONLY,0},
+    {"offset_station",nullptr,CFG_ABSOLUTE,0,read_station_offset,0,0},
+    {"hide",nullptr,CFG_ABSOLUTE,0,process_station_list,0,HIDE_STATION},
+    {"show",nullptr,CFG_ABSOLUTE,0,process_station_list,0,SHOW_STATION},
+    {"highlight",nullptr,CFG_ABSOLUTE,0,process_station_list,0,HIGHLIGHT_STATION},
+    {"unhighlight",nullptr,CFG_ABSOLUTE,0,process_station_list,0,UNHIGHLIGHT_STATION},
+    {"config_menu",nullptr,CFG_ABSOLUTE,0,read_config_menu_command,0,0},
 
-    {NULL}
+    {nullptr}
 };
 
-static config_item *snapplot_commands = NULL;
+static config_item *snapplot_commands = nullptr;
 static std::vector<std::string> cfg_list;
 
 static void add_config_menu_item( std::string_view filename, std::string_view text );
@@ -189,7 +189,7 @@ int read_plot_command_file( const std::string &fname, const int got_data )
 
 
 
-CFG_FILE *current_cfg = NULL;
+CFG_FILE *current_cfg = nullptr;
 
 int read_plot_configuration_file( const std::string &cfg_file )
 {

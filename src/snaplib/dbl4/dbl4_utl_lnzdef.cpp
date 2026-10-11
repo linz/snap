@@ -264,14 +264,14 @@ static void delete_def_comp( hDefCmp cmp )
             if( cmp->model.grid )
             {
                 utlReleaseGrid( cmp->model.grid );
-                cmp->model.grid = NULL;
+                cmp->model.grid = nullptr;
             }
             break;
         case defModelTrig:
             if( cmp->model.trig )
             {
                 utlReleaseTrig( cmp->model.trig );
-                cmp->model.trig = NULL;
+                cmp->model.trig = nullptr;
             }
             break;
         };
@@ -279,7 +279,7 @@ static void delete_def_comp( hDefCmp cmp )
     if( cmp->binsrc )
     {
         utlReleaseBinSrc(cmp->binsrc);
-        cmp->binsrc = 0;
+        cmp->binsrc = nullptr;
     }
 
     /*> Release memory allocated to the component */
@@ -314,8 +314,8 @@ static void delete_def_seq( hDefSeq seq )
         delete_def_comp( cmp );
         cmp = nextcmp;
     }
-    seq->firstcmp = NULL;
-    seq->lastcmp = NULL;
+    seq->firstcmp = nullptr;
+    seq->lastcmp = nullptr;
 
     /*> Release memory allocated to the sequence object */
     delete seq;
@@ -348,8 +348,8 @@ static void delete_def_mod( hDefMod mod )
         delete_def_seq( seq );
         seq = nextseq;
     }
-    mod->firstseq = NULL;
-    mod->lastseq = NULL;
+    mod->firstseq = nullptr;
+    mod->lastseq = nullptr;
 
     while( mod->firstver )
     {
@@ -478,7 +478,7 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
 
     /*> Allocate a DefCmp object */
 
-    (*pcmp) = NULL;
+    (*pcmp) = nullptr;
     cmp = new DefCmp( binsrc );
 
     TRACE_LNZDEF(("Loading component"));
@@ -747,7 +747,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
 
     /*> Allocate the DefSeq object */
 
-    (*pseq) = NULL;
+    (*pseq) = nullptr;
     seq = new DefSeq();
 
     sts = STS_OK;
@@ -813,7 +813,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
     if( version == 1 && seq->firstcmp )
     {
         hDefCmp cmp=seq->firstcmp;
-        hDefCmp lastcmp=NULL;
+        hDefCmp lastcmp=nullptr;
         double fixfirst=0.0;
         double fixlast=0.0;
         for( ; cmp; lastcmp=cmp, cmp=cmp->nextcmp )
@@ -1174,9 +1174,9 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
     INT2 nseq=0;
     INT2 nver=0;
     int idseq;
-    hDefVer ver=0;
+    hDefVer ver=nullptr;
 
-    (*pdef) = NULL;
+    (*pdef) = nullptr;
 
     TRACE_LNZDEF(("create_def_mod"));
     version = check_header(binsrc, &indexloc);
@@ -1190,7 +1190,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
     TRACE_LNZDEF(("Loading deformation model"));
 
     sts = STS_OK;
-    ver=0;
+    ver=nullptr;
     if( version < 3 ) { sts=create_def_ver( &ver ); def->firstver=ver; }
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, indexloc, def->name );
     if( sts == STS_OK && version < 3 )
@@ -1386,7 +1386,7 @@ StatusType utlCreateLinzDef( hBinSrc blob, hLinzDefModel *pdef )
     StatusType sts;
     hDefMod def;
 
-    (*pdef) = NULL;
+    (*pdef) = nullptr;
     sts = create_def_mod( &def, blob );
     if( sts == STS_OK ) (*pdef) = def;
 

@@ -24,7 +24,7 @@ static const std::vector<ListControlOption> obsHighlightOptions =
 class ObsHighlightDialog : public wxSimpleDialog
 {
 public:
-    ObsHighlightDialog( wxHelpController *help = 0 );
+    ObsHighlightDialog( wxHelpController *help = nullptr );
 
 protected:
     virtual void ReadData();

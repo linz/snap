@@ -174,7 +174,7 @@ struct listing_def
     listing_column col[MAX_COLUMNS];
 };
 
-static listing_def *listing_format = NULL;
+static listing_def *listing_format = nullptr;
 static listing_def data_format[NOBSTYPE] = {0};
 static int listing_title = -1;
 static int title_id[NOBSTYPE] = {0};
@@ -872,7 +872,7 @@ static void set_calculated_fields( survdata *sd, trgtdata *t )
     if( WANT(OF_SLPDST) )
     {
         double value;
-        value = calc_distance( stf, 0.0, stt, 0.0, NULL, NULL );
+        value = calc_distance( stf, 0.0, stt, 0.0, nullptr, nullptr );
         set_residual_field_value(OF_SLPDST,obs_precision[SD],value);
     }
     if( WANT(OF_ARCDST) )
@@ -882,7 +882,7 @@ static void set_calculated_fields( survdata *sd, trgtdata *t )
         double hgtt;
         hgtf = - (stf->OHgt + stf->GUnd);
         hgtt = - (stt->OHgt + stt->GUnd);
-        value = calc_distance( stf, hgtf, stt, hgtt, NULL, NULL );
+        value = calc_distance( stf, hgtf, stt, hgtt, nullptr, nullptr );
         value *= ellipsoidal_distance_correction( stf, stt );
         set_residual_field_value(OF_ARCDST,obs_precision[ED],value);
     }
@@ -898,14 +898,14 @@ static void set_calculated_fields( survdata *sd, trgtdata *t )
         }
         if( WANT(OF_AZIMUTH) )
         {
-            value = calc_azimuth( stf, 0.0, stt, 0.0, 0, NULL, NULL );
+            value = calc_azimuth( stf, 0.0, stt, 0.0, 0, nullptr, nullptr );
             while( value > TWOPI ) value -= TWOPI;
             while( value < 0.0 ) value += TWOPI;
             set_residual_field_dms( OF_AZIMUTH, *azimuthFormat, value*RTOD );
         }
         if( WANT( OF_PRJAZ ) && isproj)
         {
-            value = calc_prj_azimuth( net, stf, 0.0, stt, 0.0, NULL, NULL );
+            value = calc_prj_azimuth( net, stf, 0.0, stt, 0.0, nullptr, nullptr );
             while( value > TWOPI ) value -= TWOPI;
             while( value < 0.0 ) value += TWOPI;
             set_residual_field_dms( OF_PRJAZ, *azimuthFormat, value*RTOD );
@@ -914,7 +914,7 @@ static void set_calculated_fields( survdata *sd, trgtdata *t )
     if( WANT(OF_HGTDIFF) )
     {
         double value;
-        value = calc_hgt_diff( stf, 0.0, stt, 0.0, NULL, NULL );
+        value = calc_hgt_diff( stf, 0.0, stt, 0.0, nullptr, nullptr );
         set_residual_field_value( OF_HGTDIFF, obs_precision[LV], value );
     }
 }
@@ -1311,7 +1311,7 @@ void print_residuals( FILE *out )
         }
     }
 
-    listing_format = NULL;
+    listing_format = nullptr;
     listing_title = -1;
     last_file_loc = -1;
 
@@ -1425,7 +1425,7 @@ static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trg
     if( output_csv_shape )
     {
         double ef, nf, et=0, nt=0;
-        projection *prj = is_projection(net->crdsys) ? net->crdsys->prj : 0;
+        projection *prj = is_projection(net->crdsys) ? net->crdsys->prj : nullptr;
         int ndp = prj ? 4 : 9;
         if( prj )
         {
@@ -1569,8 +1569,8 @@ void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, doub
     const std::array<std::string_view,3> *comp = output_csv_vecenu ? &topocomp : &xyzcomp;
     int topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
 
-    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, 0);
-    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC | topo,0,veccvr);
+    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, nullptr);
+    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC | topo,nullptr,veccvr);
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_RESVEC | topo,res,rescvr);
     convert_cvr_to_secorr( veccvr );
     convert_cvr_to_secorr( rescvr );
@@ -1632,8 +1632,8 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
     int cvridx[3] = {0,2,5};
     int topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
 
-    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, 0);
-    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC | topo,0,veccvr);
+    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, nullptr);
+    calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC | topo,nullptr,veccvr);
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_RESVEC | topo,res,rescvr);
     convert_cvr_to_secorr( veccvr );
     convert_cvr_to_secorr( rescvr );

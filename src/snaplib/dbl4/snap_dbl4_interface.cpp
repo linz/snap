@@ -143,10 +143,10 @@ int utlCreateReadonlyFileBlob( const std::string &filename, hBlob *blob )
 {
     FILE *f;
     StatusType sts;
-    *blob = NULL;
+    *blob = nullptr;
     f = fopen(filename.c_str(),"rb");
     if( ! f ) return FILE_OPEN_ERROR;
-    sts = utlCreateBlobHandle( NULL, blob );
+    sts = utlCreateBlobHandle( nullptr, blob );
     if( *blob ) (*blob)->pvBlob=f;
     return sts;
 }

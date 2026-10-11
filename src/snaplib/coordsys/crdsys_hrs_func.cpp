@@ -204,7 +204,7 @@ static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *heigh
     {
         double llh1[3];
         double exu1[3];
-        sts=convert_coords( ghrfd->rfconv, llh, llh1, 0, 0 );
+        sts=convert_coords( ghrfd->rfconv, llh, llh1, nullptr, nullptr );
         if( sts == OK ) sts=calculate_geoid_exu(gd,llh1[CRD_LAT],llh1[CRD_LON],exu1);
         if( sts == OK ) sts=convert_coords( ghrfd->irfconv, llh1, llh1, exu1, exu1 );
         if( sts == OK )

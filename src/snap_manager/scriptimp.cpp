@@ -26,14 +26,14 @@ Token::~Token()
     while( del )
     {
         Token *delnext = del->next;
-        del->next = 0;
+        del->next = nullptr;
         delete del;
         del = delnext;
     }
 }
 ostream &Token::Print( const wxString &prefix, ostream &str )
 {
-    for( Token *tok = this; tok != 0; tok = tok->Next() )
+    for( Token *tok = this; tok != nullptr; tok = tok->Next() )
     {
         tok->print( prefix, str );
     }
@@ -45,7 +45,7 @@ ostream &Token::PrintSubtoken( Token *subtoken, const wxString &prefix, ostream 
     wxString subprefix("   ");
     subprefix += prefix;
 
-    for( Token *tok = subtoken; tok != 0; tok = tok->Next() )
+    for( Token *tok = subtoken; tok != nullptr; tok = tok->Next() )
     {
         tok->print( subprefix, str );
     }
@@ -55,7 +55,7 @@ ostream &Token::PrintSubtoken( Token *subtoken, const wxString &prefix, ostream 
 int Token::Count()
 {
     int i = 0;
-    for( Token *t = this; t != 0; t = t->Next() )
+    for( Token *t = this; t != nullptr; t = t->Next() )
     {
         i++;
     }
@@ -175,7 +175,7 @@ Value FunctionToken::evaluate()
     Value pv;
     if( params ) pv = params->GetValueList();
 
-    Owner()->EvaluateFunction( name, params ? &pv : 0, v );
+    Owner()->EvaluateFunction( name, params ? &pv : nullptr, v );
 
     LOG(("Evaluated %s as %s\n","FunctionToken",v.AsString()));
     return v;
@@ -460,8 +460,8 @@ MenuItem::MenuItem( ScriptImp *owner, Token *menu_name_expression, Token *descri
 MenuItem::MenuItem( MenuItem &src ) :
     Token( src.Owner() )
 {
-    menu_name_expression=0;
-    description_expression=0;
+    menu_name_expression=nullptr;
+    description_expression=nullptr;
     id=src.id;
     menu_name = src.menu_name_expression->GetValue().AsString();
     description = src.description_expression->GetValue().AsString();
@@ -545,7 +545,7 @@ Value StatementBlockToken::evaluate()
 {
     Value v;
     RunPermission rp( Owner(), elOk );
-    for( Token *s = statements; rp.CanRun() && s != 0; s = s->Next() )
+    for( Token *s = statements; rp.CanRun() && s != nullptr; s = s->Next() )
     {
         v = s->GetValue();
     }
@@ -781,11 +781,11 @@ bool RunPermission::CanRun() { return owner->exitLevel == elOk; }
 ScriptImp::ScriptImp( EnvBase &environment ) :
     environment( environment)
 {
-    frame = 0;
+    frame = nullptr;
     stackDepth = 0;
     exitLevel = elOk;
-    program = 0;
-    source = 0;
+    program = nullptr;
+    source = nullptr;
     sourceFile = wxString("");
 }
 
@@ -835,7 +835,7 @@ void ScriptImp::PopStack()
         StackFrame *oldframe = frame;
         frame = oldframe->next;
         delete oldframe;
-        variables = frame ? &(frame->variables) : 0;
+        variables = frame ? &(frame->variables) : nullptr;
     }
 }
 
@@ -847,16 +847,16 @@ bool ScriptImp::ExecuteScript( const std::string &filename )
     if( scriptFile.good() )
     {
         source = &scriptFile;
-        program = 0;
+        program = nullptr;
         sourceFile = wxString(filename);
         int parse_result = parse();
         sourceFile = wxString("");
         Token *prog = program;
-        program = 0;
-        source = 0;
+        program = nullptr;
+        source = nullptr;
         scriptFile.close();
 
-        result = (parse_result && (prog != 0));
+        result = (parse_result && (prog != nullptr));
         if( result )
         {
             Run(prog);
@@ -989,7 +989,7 @@ MenuItem *ScriptImp::AddMenuItem( MenuItem *item )
     else
     {
         delete( item );
-        item=0;
+        item=nullptr;
     }
     return item;
 }
@@ -1126,7 +1126,7 @@ Token *ScriptImp::InterpolateString(const wxString &dtext )
     {
         return new StringToken(this,text);
     }
-    Token *result = 0;
+    Token *result = nullptr;
     wxString value;
     wxString name;
 

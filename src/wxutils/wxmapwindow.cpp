@@ -31,7 +31,7 @@ wxMapWindowEvent::wxMapWindowEvent( const wxMapWindowEvent &event ) :
 
 wxMapDragger::wxMapDragger()
 {
-    mapWindow = 0;
+    mapWindow = nullptr;
     dragging = false;
     canDrag = false;
     moveOriginOnShift = false;
@@ -43,14 +43,14 @@ wxMapDragger::wxMapDragger()
 
 wxMapDragger::~wxMapDragger()
 {
-    if( mapWindow ) mapWindow->SetDragger(0);
+    if( mapWindow ) mapWindow->SetDragger(nullptr);
 }
 
 void wxMapDragger::AttachToMapWindow( wxMapWindow *newWindow )
 {
     if( mapWindow != newWindow )
     {
-        if( mapWindow ) mapWindow->SetDragger(0);
+        if( mapWindow ) mapWindow->SetDragger(nullptr);
         mapWindow = newWindow;
     }
 }
@@ -395,9 +395,9 @@ void wxMapWindow::SetupMapWindow()
     scale.SetNotifyWindowId( GetId() );
     SetBackgroundColour( *wxWHITE );
     SetCursor( wxCursor(wxCURSOR_CROSS) );
-    dragger = 0;
-    map = 0;
-    symbology = 0;
+    dragger = nullptr;
+    map = nullptr;
+    symbology = nullptr;
     sendPositionEvent = false;
     overlayResetTimer.SetOwner( this );
 }
@@ -417,7 +417,7 @@ void wxMapWindow::OnOverlayResetTimer( wxTimerEvent & WXUNUSED(event) )
 
 wxMapWindow::~wxMapWindow()
 {
-    SetDragger( 0 );
+    SetDragger( nullptr );
 }
 
 IMPLEMENT_DYNAMIC_CLASS( wxMapWindow, wxWindow );
@@ -436,7 +436,7 @@ void wxMapWindow::SetDragger( wxMapDragger *newDragger )
 {
     wxMapDragger *oldDragger = dragger;
     dragger = newDragger;
-    if( oldDragger ) oldDragger->AttachToMapWindow( 0 );
+    if( oldDragger ) oldDragger->AttachToMapWindow( nullptr );
     if( dragger ) dragger->AttachToMapWindow( this );
 }
 

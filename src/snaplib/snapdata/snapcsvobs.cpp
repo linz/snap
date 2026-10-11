@@ -104,7 +104,7 @@ datatypedef *SnapCsvObs::CsvObservation::getDataType()
 
 void SnapCsvObs::CsvObservation::definitionError(const string &message)
 {
-    if (_owner != 0)
+    if (_owner != nullptr)
     {
         _owner->definitionError(message);
     }
@@ -116,7 +116,7 @@ void SnapCsvObs::CsvObservation::definitionError(const string &message)
 
 void SnapCsvObs::CsvObservation::runtimeError(const string &message)
 {
-    if (_owner != 0)
+    if (_owner != nullptr)
     {
         _owner->runtimeError(message);
     }
@@ -231,7 +231,7 @@ void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std:
 SnapCsvObs::CsvClassification *SnapCsvObs::CsvObservation::addClassification(const string &classname)
 {
     CsvClassification *clsf = classification(classname);
-    if (clsf != 0)
+    if (clsf != nullptr)
     {
         definitionError(string("Classification ") + classname + " defined more than once");
     }
@@ -257,7 +257,7 @@ SnapCsvObs::CsvClassification *SnapCsvObs::CsvObservation::classification(const 
             return (*c).get();
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void SnapCsvObs::CsvObservation::dataError(const std::string &message)

@@ -47,9 +47,9 @@ struct LinzDefModel
 static void delete_linzdefmodel( LinzDefModel *model )
 {
     if( model == nullptr ) return;
-    if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
-    if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
-    if( model->blob ) { utlBlobClose(model->blob); model->blob = NULL; }
+    if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = nullptr; }
+    if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = nullptr; }
+    if( model->blob ) { utlBlobClose(model->blob); model->blob = nullptr; }
     delete [] model->stdefs;
     delete model;
 }
@@ -59,23 +59,23 @@ static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch
     LinzDefModel *model;
     int sts;
 
-    model = NULL;
+    model = nullptr;
 
     auto deffile = find_coordsys_data_file( pmodel, ".ldm" );
-    if( !deffile ) return NULL;
+    if( !deffile ) return nullptr;
 
     model = new LinzDefModel;
-    model->blob = NULL;
-    model->binsrc = NULL;
-    model->linzdef = NULL;
+    model->blob = nullptr;
+    model->binsrc = nullptr;
+    model->linzdef = nullptr;
     model->epoch = pepoch;
-    model->stdefs = NULL;
+    model->stdefs = nullptr;
 
     sts = utlCreateReadonlyFileBlob( *deffile, &(model->blob) );
     if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
     if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
 
-    if( sts != STS_OK ) { delete_linzdefmodel( model ); model = NULL; }
+    if( sts != STS_OK ) { delete_linzdefmodel( model ); model = nullptr; }
 
     return model;
 }
@@ -137,7 +137,7 @@ static int init_linzdef_deformation( void *deformation )
         xyz[CRD_LAT] = st->ELat;
         xyz[CRD_LON] = st->ELon;
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
-        if( convert_coords( &tovcs, xyz, NULL, xyz, NULL ) != OK )
+        if( convert_coords( &tovcs, xyz, nullptr, xyz, nullptr ) != OK )
         {
             sprintf(buf,"Cannot convert coordinates of %.20s to deformation model coordinate system %.20s",
                     st->Code.c_str(), vcs->code.c_str());
@@ -246,7 +246,7 @@ int create_linzdef_deformation( deformation_model **model, const std::string &pm
     int sts;
     LinzDefModel *ldm;
 
-    (*model) = NULL;
+    (*model) = nullptr;
     sts = INVALID_DATA;
     ldm = init_linzdefmodel( pmodel, pepoch );
     if( ldm )

@@ -49,7 +49,7 @@ BEGIN_EVENT_TABLE( SnapplotLoadLog, wxFrame )
 END_EVENT_TABLE()
 
 SnapplotLoadLog::SnapplotLoadLog() :
-    wxFrame( 0, wxID_ANY, "Loading Snapplot ... ", wxDefaultPosition, wxDefaultSize )
+    wxFrame( nullptr, wxID_ANY, "Loading Snapplot ... ", wxDefaultPosition, wxDefaultSize )
 {
     logging = false;
 

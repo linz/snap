@@ -21,7 +21,7 @@ BEGIN_EVENT_TABLE( wxMainProgWindow, wxDialog )
 END_EVENT_TABLE()
 
 wxMainProgWindow::wxMainProgWindow( const wxString &title, bool hasProgress, bool reportTimes ) :
-    wxDialog( 0, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
+    wxDialog( nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
               wxCAPTION | wxRESIZE_BORDER | wxSYSTEM_MENU | wxCLOSE_BOX ),
     hasProgress( hasProgress ),
     reportTimes ( reportTimes )
@@ -66,8 +66,8 @@ wxMainProgWindow::wxMainProgWindow( const wxString &title, bool hasProgress, boo
     flags2.Expand().Border().Proportion(1);
     sizer->Add( logText, flags2 );
 
-    progressText = 0;
-    progressGauge = 0;
+    progressText = nullptr;
+    progressGauge = nullptr;
 
     if( hasProgress )
     {
@@ -114,9 +114,9 @@ wxMainProgWindow::~wxMainProgWindow()
 
     uninstall_progress_meter();
 
-    set_printf_target( 0 );
+    set_printf_target( nullptr );
 
-    instance = 0;
+    instance = nullptr;
 }
 
 void wxMainProgWindow::OnCloseButton( wxCommandEvent & WXUNUSED(event) )
@@ -270,4 +270,4 @@ void wxMainProgWindow::EndMeter()
     if( instance ) instance->DoEndMeter();
 }
 
-wxMainProgWindow *wxMainProgWindow::instance = 0;
+wxMainProgWindow *wxMainProgWindow::instance = nullptr;

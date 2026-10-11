@@ -108,7 +108,7 @@ int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgt
             /* Trial conversion to check coordinates can be converted */
 
             reset_station_list( nw, 0 );
-            while( sts == OK && NULL != (st = next_station(nw)) )
+            while( sts == OK && nullptr != (st = next_station(nw)) )
             {
                 sts=convert_stn_coords( &cconv, st, hgtfixopt, 1 );
                 if( sts != OK ) break;
@@ -127,7 +127,7 @@ int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgt
             /* If all OK, then actually convert coordinates */
 
             reset_station_list( nw, 0 );
-            while( NULL != (st = next_station(nw)) )
+            while( nullptr != (st = next_station(nw)) )
             {
                 sts=convert_stn_coords( &cconv, st, hgtfixopt, 0 );
             }
@@ -223,14 +223,14 @@ void get_network_coordinates( network *nw, station *st, double crd[3] )
     gcrd[CRD_LAT] = st->ELat;
     gcrd[CRD_LON] = st->ELon;
     gcrd[CRD_HGT] = st->OHgt + st->GUnd;
-    convert_coords( & nw->ccnet, gcrd, NULL, crd, NULL );
+    convert_coords( & nw->ccnet, gcrd, nullptr, crd, nullptr );
 }
 
 
 void set_network_coordinates( network *nw, station *st, double crd[3] )
 {
     double gcrd[3];
-    convert_coords( & nw->ccgeo, crd, NULL, gcrd, NULL );
+    convert_coords( & nw->ccgeo, crd, nullptr, gcrd, nullptr );
     modify_network_station_coords( nw, st, gcrd[CRD_LAT], gcrd[CRD_LON],
                                    gcrd[CRD_HGT]-st->GUnd );
 }
@@ -271,7 +271,7 @@ int station_id( network *nw, station *st )
 
 station *station_ptr( network *nw, int istn )
 {
-    if( !nw->stnlist ) return NULL;
+    if( !nw->stnlist ) return nullptr;
     return sl_station_ptr( nw->stnlist, istn );
 }
 
@@ -283,7 +283,7 @@ int   find_station_sorted_id( network *nw, std::string_view code )
 
 station *station_sorted_ptr( network *nw, int sortedid )
 {
-    if( !nw->stnlist ) return 0;
+    if( !nw->stnlist ) return nullptr;
     return sl_station_sorted_ptr( nw->stnlist, sortedid );
 }
 
@@ -299,7 +299,7 @@ void reset_station_list( network *nw, int sorted )
 
 station *next_station( network *nw )
 {
-    if( !nw->stnlist ) return NULL;
+    if( !nw->stnlist ) return nullptr;
     return sl_next_station( nw->stnlist );
 }
 

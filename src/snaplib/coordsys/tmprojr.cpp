@@ -46,7 +46,7 @@ static param_def tmparams[]  =
     }
 };
 
-static projection_type *tm_type = NULL;
+static projection_type *tm_type = nullptr;
 
 
 static int tm_bind_ellipsoid( void *data, ellipsoid *el )
@@ -86,7 +86,7 @@ projection *create_tm_projection(  double cm, double sf, double lto,
     projection *prj;
 
     if( !tm_type ) register_tm_projection();
-    if( !tm_type ) return NULL;
+    if( !tm_type ) return nullptr;
 
     prj = new projection( *tm_type );
 

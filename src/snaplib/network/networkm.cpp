@@ -28,11 +28,11 @@ int merge_network( network *base, network *data, int mergeopts,
     int istn;
     int convertcoords;
     station *st, *stnew;
-    station **stnewlist = 0;
-    station **stdellist = 0;
+    station **stnewlist = nullptr;
+    station **stdellist = nullptr;
     ellipsoid &el=*base->crdsys->rf->el;
     int nnew = 0;
-    int *classmap=NULL;
+    int *classmap=nullptr;
     int nclass=0;
 
     int overwrite = mergeopts & NW_MERGEOPT_OVERWRITE;
@@ -78,7 +78,7 @@ int merge_network( network *base, network *data, int mergeopts,
         if( istn && ! updatestn ) continue;
         if( ! istn && ! addnew ) continue;
         stnewlist[nnew] = st;
-        stdellist[nnew] = istn ? station_ptr(base,istn) : 0;
+        stdellist[nnew] = istn ? station_ptr(base,istn) : nullptr;
         nnew++;
     }
 
@@ -155,7 +155,7 @@ int merge_network( network *base, network *data, int mergeopts,
             }
         }
 
-        stnew=0;
+        stnew=nullptr;
         if( st0 )
         {
             if( overwrite )

@@ -174,7 +174,7 @@ int create_crdsys_deformation( deformation_model **model )
     int sts;
     CrdsysDefModel *ldm;
 
-    (*model) = NULL;
+    (*model) = nullptr;
     sts = OK;
     ldm = init_csdefmodel( );
     if( ldm )

@@ -59,7 +59,7 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
     wxSimpleDialog( "Observation listing options")
 {
     obsToShow = 0;
-    lbFieldList = 0;
+    lbFieldList = nullptr;
     int nClassification = obs_classes.count();
 
     nFieldList = boost::numeric_cast<int>( fieldListOptions.size() ) + nClassification;

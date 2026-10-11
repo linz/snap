@@ -31,7 +31,7 @@ public:
     class CsvValue
     {
     public:
-        CsvValue(const std::string &name) : _name(name), _column(0) {}
+        CsvValue(const std::string &name) : _name(name), _column(nullptr) {}
         ~CsvValue();
         const std::string &name() {
             return _name;

@@ -77,7 +77,7 @@ coordsys *copy_coordsys( coordsys *cs )
 coordsys *related_coordsys( coordsys *cs, int type )
 {
     coordsys *copy;
-    if( type == CSTP_PROJECTION && cs->crdtype != CSTP_PROJECTION ) return NULL;
+    if( type == CSTP_PROJECTION && cs->crdtype != CSTP_PROJECTION ) return nullptr;
     copy = copy_coordsys( cs );
     if( !copy ) return copy;
     if( type != CSTP_CARTESIAN && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;

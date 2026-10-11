@@ -115,7 +115,7 @@ class_value *class_type::find_value( int value_id, int create )
         if( std::get<int>(cv.value) == value_id ) return &cv;
     }
 
-    if( ! create ) return NULL;
+    if( ! create ) return nullptr;
 
     return add_value( value_id );
 }

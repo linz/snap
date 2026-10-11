@@ -524,8 +524,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
         dummy1.modify_xyz( d1xyz, *el );
         dummy2.modify_xyz( d2xyz, *el );
 
-        convert_coords( &from_xyz, d1xyz, NULL, d1xyz, NULL );
-        convert_coords( &from_xyz, d2xyz, NULL, d2xyz, NULL );
+        convert_coords( &from_xyz, d1xyz, nullptr, d1xyz, nullptr );
+        convert_coords( &from_xyz, d2xyz, nullptr, d2xyz, nullptr );
 
         obs_prj_brng = atan2( d2xyz[CRD_EAST]-d1xyz[CRD_EAST], d2xyz[CRD_NORTH]-d1xyz[CRD_NORTH] );
         /* obs_bearing = RTOD * atan2( d2xyz[CRD_EAST]-d1xyz[CRD_EAST], d2xyz[CRD_NORTH]-d1xyz[CRD_NORTH] );
@@ -533,8 +533,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
         while( obs_bearing < 0.0 ) obs_bearing += 360.0;
         */
 
-        convert_coords( &from_xyz, from->XYZ, NULL, d1xyz, NULL );
-        convert_coords( &from_xyz, to->XYZ, NULL, d2xyz, NULL );
+        convert_coords( &from_xyz, from->XYZ, nullptr, d1xyz, nullptr );
+        convert_coords( &from_xyz, to->XYZ, nullptr, d2xyz, nullptr );
 
         calc_prj_brng = atan2( d2xyz[CRD_EAST]-d1xyz[CRD_EAST], d2xyz[CRD_NORTH]-d1xyz[CRD_NORTH] );
         /*
@@ -555,11 +555,11 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
         ppm_prj_brng_err = brngppm;
         rf_prj_brng_err = brngrf;
 
-        obs_dist =  calc_distance( &dummy1, -dummy1.OHgt, &dummy2, -dummy2.OHgt, NULL,
-                                   NULL );
+        obs_dist =  calc_distance( &dummy1, -dummy1.OHgt, &dummy2, -dummy2.OHgt, nullptr,
+                                   nullptr );
 
-        calc_dist =  calc_distance( from, -from->OHgt, to, -to->OHgt, NULL,
-                                    NULL );
+        calc_dist =  calc_distance( from, -from->OHgt, to, -to->OHgt, nullptr,
+                                    nullptr );
 
         obs_dist *= ellipsoidal_distance_correction(from,to);
         calc_dist *= ellipsoidal_distance_correction(from,to);
@@ -577,7 +577,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
         rf_ell_dist_err = distrf;
 
         vecdiff = 2.0 * calc_distance( &dummy1, -dummy1.OHgt, from, -from->OHgt,
-                                       NULL, NULL);
+                                       nullptr, nullptr);
         vecppm = 0.0;
         if( obs_dist > 1.0e-6 ) vecppm = fabs(vecdiff/obs_dist);
         if( vecppm < 1.0e-6 ) vecrf = 999999.0; else vecrf = 1.0/vecppm;
@@ -643,7 +643,7 @@ static int list_stations( FILE *out, TableWriter &table )
         st = stnptr(istn);
         sa = stnadj(st);
 
-        convert_coords( &from_xyz, st->XYZ, NULL, enh, NULL );
+        convert_coords( &from_xyz, st->XYZ, nullptr, enh, nullptr );
         stn_code = st->Code;
         stn_name = st->Name;
         stn_order = net->order( net->station_order( st ) );
@@ -729,9 +729,9 @@ static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int
 static config_item main_commands[] =
 {
     {"angle_format",&config,CFG_ABSOLUTE,0,read_angle_format,0,0},
-    {"text",NULL,CFG_ABSOLUTE,0,read_text,0,0},
+    {"text",nullptr,CFG_ABSOLUTE,0,read_text,0,0},
     {"table",&config,CFG_ABSOLUTE,0,read_table,0,0},
-    {NULL}
+    {nullptr}
 };
 
 enum { CHAR_DELIM, CHAR_QUOTE, CHAR_ESCAPE };
@@ -744,8 +744,8 @@ static config_item table_commands[] =
     {"escape",&config,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_ESCAPE},
     {"column",&config,CFG_ABSOLUTE,0,read_column,CFG_REQUIRED,0},
     {"angle_format",&config,CFG_ABSOLUTE,0,read_angle_format,0,0},
-    {"end_table",NULL,CFG_ABSOLUTE,0,STORE_AS_STRING,CFG_END,0},
-    {NULL}
+    {"end_table",nullptr,CFG_ABSOLUTE,0,STORE_AS_STRING,CFG_END,0},
+    {nullptr}
 };
 
 namespace {
@@ -1139,7 +1139,7 @@ int main( int argc, char *argv[] )
 {
     coordsys *xyzcs;
     double lat, lon;
-    CFG_FILE *cfg = 0;
+    CFG_FILE *cfg = nullptr;
     std::optional<std::string> cfn;
     const char *basecfn, *ofn;
 

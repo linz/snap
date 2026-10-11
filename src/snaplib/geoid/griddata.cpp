@@ -199,7 +199,7 @@ static int create_grid_def( grid_def **defr, const std::string &filename, short 
             return INVALID_DATA;
         }
         rows[i].fileloc = loc;
-        rows[i].cacheloc = NULL;
+        rows[i].cacheloc = nullptr;
 #ifdef DEBUG_GRID
         printf("%03d %06ld\n",i,rows[i].fileloc);
 #endif
@@ -252,9 +252,9 @@ static short load_row2_dim( grid_def *def, long *data )
     int undef2;
     int v = 0;
     int ndim;
-    signed char *pc = 0;
-    short *ps = 0;
-    long *pl = 0;
+    signed char *pc = nullptr;
+    short *ps = nullptr;
+    long *pl = nullptr;
 
     ndim = def->ngrdval;
 
@@ -443,7 +443,7 @@ static long *get_row( grid_def *def, short lat )
             cr = &def->cache[loc];
             cr->data = new long[def->rowsize];
             cr->next = def->cache_mru;
-            cr->prev = 0;
+            cr->prev = nullptr;
             if( cr->next )
             {
                 cr->next->prev = cr;
@@ -454,7 +454,7 @@ static long *get_row( grid_def *def, short lat )
         else
         {
             cr = def->cache_lru;
-            cr->lat->cacheloc = 0;
+            cr->lat->cacheloc = nullptr;
         }
         cr->lat = fr;
         fr->cacheloc = cr;
@@ -462,12 +462,12 @@ static long *get_row( grid_def *def, short lat )
         if( def->rowfmt == 1 )
         {
             sts = load_row1( def, cr->data );
-            if( sts != OK ) return 0;
+            if( sts != OK ) return nullptr;
         }
         else
         {
             sts = load_row2( def, cr->data );
-            if( sts != OK ) return 0;
+            if( sts != OK ) return nullptr;
         }
     }
     if( def->cache_mru != cr )
@@ -483,7 +483,7 @@ static long *get_row( grid_def *def, short lat )
         cr->prev->next = cr->next;
         def->cache_mru->prev = cr;
         cr->next = def->cache_mru;
-        cr->prev = NULL;
+        cr->prev = nullptr;
         def->cache_mru = cr;
     }
     return cr->data;
@@ -641,7 +641,7 @@ int grd_open_grid_file( const std::string &filename, int dimension, grid_def **g
 {
     grid_def *def;
     short status;
-    *grid = NULL;
+    *grid = nullptr;
     status = create_grid_def(&def,filename,dimension);
     if( status != OK ) return status;
     *grid = def;
