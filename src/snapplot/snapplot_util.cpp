@@ -80,22 +80,23 @@ int print_log_args( const char *format, va_list args )
     return len;
 }
 
-static int error_handler( int sts, const char *msg1, const char *msg2 )
+static int error_handler( const int sts, const std::string_view msg1, const error_message msg2 )
 {
-    const char *blank = "";
+    const wxString text1{ std::string( msg1 ) };
+    const wxString text2( msg2 ? std::string( *msg2 ) : std::string() );
     if( FATAL_ERROR_CONDITION(sts) )
     {
         // For fatal errors run wxMessageBox directly so that user sees it before process
         // is aborted.  Don't use wxLogError, as this calls abort(), which fires up Windows
         // error handler ... too severe for what I'm calling a fatal error!
 
-        wxMessageBox( wxString::Format("%s %s\nAborting.", msg1 ? msg1 : blank, msg2 ? msg2 : blank ),
+        wxMessageBox( wxString::Format("%s %s\nAborting.", text1, text2 ),
                       "Error", wxOK | wxICON_EXCLAMATION );
-        // wxLogError( "%s %s\n", msg1 ? msg1 : blank, msg2 ? msg2 : blank );
+        // wxLogError( "%s %s\n", text1, text2 );
     }
     else if ( WARNING_ERROR_CONDITION(sts) )
     {
-        wxLogWarning( "%s %s\n", msg1 ? msg1 : blank, msg2 ? msg2 : blank );
+        wxLogWarning( "%s %s\n", text1, text2 );
         // wxLogWarning's target (see ImplementErrorHandler below) only buffers
         // messages in memory, with nothing in the UI that ever displays them -
         // so a caller that wants this specific warning seen must ask for it
@@ -103,13 +104,13 @@ static int error_handler( int sts, const char *msg1, const char *msg2 )
         // unprompted.
         if( SHOW_DIALOG_CONDITION(sts) )
         {
-            wxMessageBox( wxString::Format("%s %s", msg1 ? msg1 : blank, msg2 ? msg2 : blank ),
+            wxMessageBox( wxString::Format("%s %s", text1, text2 ),
                           "Warning", wxOK | wxICON_EXCLAMATION );
         }
     }
     else
     {
-        wxLogMessage("%s %s\n", msg1 ? msg1 : blank, msg2 ? msg2 : blank );
+        wxLogMessage("%s %s\n", text1, text2 );
     }
     return sts;
 }

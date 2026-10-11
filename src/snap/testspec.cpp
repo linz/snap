@@ -34,6 +34,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <vector>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "testspec.h"
 #include "relerror.h"
@@ -41,13 +43,12 @@
 #include "stnobseq.h"
 #include "snap/snapglob.h"
 #include "util/probfunc.h"
-#include "util/chkalloc.h"
 #include "output.h"
 #include "util/progress.h"
 #include "util/errdef.h"
 
 static SpecDef *spechead = NULL;
-static int *stn_testids = NULL;
+static std::vector<int> stn_testids;
 static int ntestid = 0;
 
 static int spec_apriori = 1;
@@ -55,7 +56,7 @@ static int listopts = SPEC_LIST_NONE;
 
 int do_accuracy_tests = 0;
 
-static void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids, int listopts );
+static void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector<int> &stn_testids, int listopts );
 
 
 void set_spec_apriori( int isapriori )
@@ -69,7 +70,7 @@ void set_spec_listoption( int option )
 }
 
 
-int define_spec( char *name, double conf,
+int define_spec( std::string_view name, double conf,
                  int goth, double habs, double hppm, double hmax,
                  int gotv, double vabs, double vppm, double vmax )
 {
@@ -78,44 +79,25 @@ int define_spec( char *name, double conf,
 
     for( spec = spechead; spec; spec = spec->next )
     {
-        if( _stricmp(name,spec->name) == 0 )
+        if( boost::algorithm::iequals(name,spec->name) )
         {
             return INCONSISTENT_DATA;
         }
         nextloc = &(spec->next);
     }
 
-
-    spec = (SpecDef *) check_malloc( sizeof(SpecDef) + strlen(name) + 1 );
-    spec->next = NULL;
-    spec->name =  ((char *)(spec)) + sizeof(SpecDef);
-    strcpy(spec->name,name);
-    _strupr(spec->name);
-    spec->confidence = conf;
-    spec->htolabs = habs;
-    spec->htolppm = hppm;
-    spec->htolmax = hmax;
-    spec->gothtol = goth;
-    spec->vtolabs = vabs;
-    spec->vtolppm = vppm;
-    spec->vtolmax = vmax;
-    spec->gotvtol = gotv;
-    spec->htolfactor = 0.0;
-    spec->vtolfactor = 0.0;
-    spec->testid = 0;
-
-    (*nextloc) = spec;
+    (*nextloc) = new SpecDef( name, conf, goth, habs, hppm, hmax, gotv, vabs, vppm, vmax );
 
     return OK;
 }
 
-int get_spec_testid( char *name, int *testid )
+int get_spec_testid( std::string_view name, int *testid )
 {
     SpecDef *spec;
 
     for( spec = spechead; spec; spec = spec->next )
     {
-        if( _stricmp(name,spec->name) == 0 ) break;
+        if( boost::algorithm::iequals(name,spec->name) ) break;
     }
 
     if( ! spec ) return INVALID_DATA;
@@ -136,16 +118,10 @@ int get_spec_testid( char *name, int *testid )
 
 int set_station_spec_testid( int stnid, int testid, int add )
 {
-    int nstns;
-    int istn;
-    nstns = number_of_stations(net);
-    if( ! stn_testids )
+    const int nstns = number_of_stations(net);
+    if( stn_testids.empty() )
     {
-        stn_testids = (int *) check_malloc( sizeof(int) * (nstns+1) );
-        for( istn = 0; istn <= nstns; istn++ )
-        {
-            stn_testids[istn] = 0;
-        }
+        stn_testids.assign( nstns+1, 0 );
     }
     if( stnid < 1 || stnid > nstns ) return INVALID_DATA;
     if( add )
@@ -161,7 +137,7 @@ int set_station_spec_testid( int stnid, int testid, int add )
 
 static void print_spec( FILE *out, SpecDef *spec )
 {
-    fprintf( out,"\nTesting order specifications: %s\n",spec->name);
+    fprintf( out,"\nTesting order specifications: %s\n",spec->name.c_str());
     fprintf( out,"\nBased on %.2lf %s confidence limits\n",spec->confidence,
              spec_apriori ? "apriori" : "aposteriori" );
     if( spec->gothtol )
@@ -205,7 +181,7 @@ void test_specifications( void )
     int istn;
 
     if( ! ntestid ) return;
-    if( ! stn_testids ) return;
+    if( stn_testids.empty() ) return;
 
     print_section_header( lst, "ACCURACY SPECIFICATION TESTS" );
 
@@ -283,7 +259,7 @@ void test_specifications( void )
 
 
 
-void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids, int listopts )
+void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector<int> &stn_testids, int listopts )
 {
     int istn;
     int nstns;
@@ -412,7 +388,7 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
             }
 
             fprintf(lst,"     %-*s  ",
-                    stn_name_width, stnptr(istn)->Code );
+                    stn_name_width, stnptr(istn)->Code.c_str() );
             if( gothtol ) fprintf(lst,"    %8.2lf",hratio);
             if( gotvtol ) fprintf(lst,"    %8.2lf",vratio);
             fprintf(lst,"\n");
@@ -430,7 +406,7 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
         fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailh);
         if( istnmaxh )
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
-                    maxhratio, stnptr(istnmaxh)->Code );
+                    maxhratio, stnptr(istnmaxh)->Code.c_str() );
     }
 
     if( gotvtol )
@@ -440,7 +416,7 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
         fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailv);
         if( istnmaxv )
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
-                    maxvratio, stnptr(istnmaxv)->Code );
+                    maxvratio, stnptr(istnmaxv)->Code.c_str() );
     }
 
 }

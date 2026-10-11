@@ -13,79 +13,56 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <limits>
+#include <stdexcept>
 #include "util/snapctype.h"
 
 #include "util/dstring.h"
-#include "util/chkalloc.h"
 
-char *copy_string( const char *string )
+// Throws std::overflow_error if string.size() doesn't fit in the int32_t length
+// prefix, rather than silently truncating it - matching write_raw_long32's
+// precedent (util/binfile.h).
+void dump_string( const std::string &string, FILE *b )
 {
-    return copy_string_nch( string, string ? strlen(string) : 0 );
-}
-
-char *copy_string_nch( const char *string, int nch )
-{
-    char *s;
-    if( ! string || nch < 0 ) return 0;
-    s = (char *) check_malloc( nch + 1 );
-    strncpy( s, string, nch );
-    s[nch]=0;
-    return s;
-}
-
-void dump_string( const char *string, FILE *b )
-{
-    int len;
-    len = string ? strlen(string) : -1;
-    fwrite(&len,sizeof(len),1,b);
-    if( len > 0 ) fwrite(string,len,1,b);
-}
-
-char *reload_string( FILE *b )
-{
-    int len;
-    char *s;
-    fread(&len,sizeof(len),1,b);
-    if( len < 0 ) return 0;
-    s = (char *) check_malloc( len+1 );
-    fread( s, len, 1, b );
-    s[len] = 0;
-    return s;
-}
-
-int ismatch( const char *string1, const char *string2 )
-{
-    static const char *map =
-        " _______________________________"
-        "_!\"#$%&'()*+,-./0123456789:;<=>?"
-        "@abcdefghijklmnopqrstuvwxyz[\\]^_"
-        "`abcdefghijklmnopqrstuvwxyz{|}~_"
-        "________________________________"
-        "________________________________"
-        "________________________________"
-        "________________________________";
-
-    const char *s1;
-    const char *s2;
-    if( ! string1 || ! string2 ) return 0;
-    for( s1 = string1, s2=string2; ; s1++, s2++ )
+    if( string.size() > static_cast<size_t>( std::numeric_limits<int>::max() ) )
     {
-        if( *s1 != *s2 && map[(int)(*s1)] != map[(int)(*s2)] ) return 0;
-        if( ! *s1 ) break;
+        throw std::overflow_error(
+            "string of length " + std::to_string( string.size() ) +
+            " exceeds int32_t range while writing .bin file" );
     }
-    return 1;
+    int len = static_cast<int>( string.size() );
+    fwrite(&len,sizeof(len),1,b);
+    if( len > 0 ) fwrite(string.data(),len,1,b);
 }
 
-char *next_field( char **start )
+std::string reload_string( FILE *b )
 {
-    char *result=0;
-    char *s=*start;
-    while( ISSPACE(*s) ) s++;
-    (*start)=s;
-    if( ! *s ) return 0;
-    result = s;
-    while( *s && ! ISSPACE(*s) ) s++;
-    if( *s ) {*s=0; s++; }
-    (*start)=s;
-    return result;
+    int len;
+    fread(&len,sizeof(len),1,b);
+    if( len <= 0 ) return std::string();
+    std::string s( len, '\0' );
+    fread( &s[0], len, 1, b );
+    return s;
+}
+
+void dump_string( const std::optional<std::string> &string, FILE *b )
+{
+    if( !string )
+    {
+        int len = -1;
+        fwrite(&len,sizeof(len),1,b);
+        return;
+    }
+    dump_string( *string, b );
+}
+
+std::optional<std::string> reload_optional_string( FILE *b )
+{
+    int len;
+    fread(&len,sizeof(len),1,b);
+    if( len < 0 ) return std::nullopt;
+    if( len == 0 ) return std::string();
+    std::string s( len, '\0' );
+    fread( &s[0], len, 1, b );
+    return s;
 }

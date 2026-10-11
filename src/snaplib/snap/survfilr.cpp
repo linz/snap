@@ -19,6 +19,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <memory>
+#include <string>
 
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
@@ -31,7 +33,6 @@
 #include "snapdata/stnrecodefile.h"
 #include "util/progress.h"
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/xprintf.h"
@@ -40,20 +41,19 @@
 
 // #pragma warning ( disable : 4100 )
 
-static int datafile_progress( DATAFILE * )
+static bool datafile_progress( DATAFILE & )
 {
     update_file_display();
-    return 1;
+    return true;
 }
 // #pragma warning ( default : 4100 )
 
 long read_data_files( FILE *lst )
 {
-    DATAFILE *d=0;
+    std::unique_ptr<DATAFILE> d;
     survey_data_file *sd;
-    int i, c, nfile, nch, sts;
+    int i, c, nfile, sts;
     long file_errors, total_errors, misc_errors;
-    char *fname;
     stn_recode_data recodedata;
     file_context *saved_context = current_file_context();
 
@@ -63,50 +63,32 @@ long read_data_files( FILE *lst )
     recodedata.global_map=stnrecode;
     recodedata.net=net;
 
-    fname = NULL;
-    nch = 0;
     total_errors=0;
-
-    for (i = 0; i < nfile; i++ )
-    {
-        sd = survey_data_file_ptr(i);
-        c = strlen( sd->name )+1;
-        if( c > nch ) nch = c;
-    }
-    fname = (char *) check_malloc( nch );
 
     for( i = 0; i < nfile; i++ )
     {
-        char *filename;
-
         if( obsmod_ignore_datafile( obs_modifications, i )) continue;
 
         sd = survey_data_file_ptr(i);
 
         set_file_context( sd->context );
 
-        filename = sd->name;
+        const std::string &filename = sd->name;
 
-        if( d ) 
-        {
-            df_close_data_file( d );
-            d = 0;
-        }
-
-        d = df_open_data_file( filename, "survey data file" );
+        d = DATAFILE::open( filename, "survey data file" );
         if( !d )
         {
-            xprintf("\n   Unable to open data file %s\n",sd->name);
+            xprintf("\n   Unable to open data file %s\n",sd->name.c_str());
             continue;
         }
 
-        if( sd->recodefile && ! sd->recode )
+        if( sd->recodefile.has_value() && ! sd->recode )
         {
             sd->recode=create_stn_recode_map( net );
-            sts = read_station_recode_file( sd->recode, sd->recodefile, filename );
+            sts = read_station_recode_file( sd->recode, *sd->recodefile, filename );
             if( sts != OK )
             {
-                xprintf("\n   Unable to read station recode file %s\n",sd->recodefile);
+                xprintf("\n   Unable to read station recode file %s\n",sd->recodefile->c_str());
                 total_errors++;
                 continue;
             }
@@ -126,29 +108,29 @@ long read_data_files( FILE *lst )
         sd->mindate=sd->maxdate=UNDEFINED_DATE;
         sd->nnodate=0;
 
-        xprintf("\n   Reading data from %s\n",sd->name);
+        xprintf("\n   Reading data from %s\n",sd->name.c_str());
         if( lst )
         {
-            fprintf(lst,"\nData file %d: %s\n",(int) (i+1),sd->name);
+            fprintf(lst,"\nData file %d: %s\n",(int) (i+1),sd->name.c_str());
         }
 
         misc_errors=get_error_count();
         ldt_init_obs_modifications( obs_modifications );
         ldt_file( i );
-        init_file_display( d->f );
+        init_file_display( d->file() );
         switch( sd->format )
         {
         case GB_FORMAT:
-            read_gb_data( d, datafile_progress);
+            read_gb_data( *d, datafile_progress);
             break;
         case SNAP_FORMAT:
-            read_snap_data( d, datafile_progress );
+            read_snap_data( *d, datafile_progress );
             break;
         case CSV_FORMAT:
-            load_snap_csv_obs( sd->subtype, d, datafile_progress );
+            load_snap_csv_obs( sd->subtype.value_or(""), *d, datafile_progress );
             break;
         case SINEX_FORMAT:
-            load_sinex_obs( sd->subtype, d, datafile_progress );
+            load_sinex_obs( sd->subtype.value_or(""), *d, datafile_progress );
             break;
         default:
             handle_error( INTERNAL_ERROR, "Program error: Invalid file format",
@@ -161,8 +143,8 @@ long read_data_files( FILE *lst )
         {
             if( sd->mindate != UNDEFINED_DATE )
             {
-                fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,"DT?",0));
-                fprintf(lst," and %s\n",date_as_string(sd->maxdate,"DT?",0));
+                fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,DateStringFormat::timeIfNotMidnight).c_str());
+                fprintf(lst," and %s\n",date_as_string(sd->maxdate,DateStringFormat::timeIfNotMidnight).c_str());
             }
             if( sd->nnodate > 0 )
             {
@@ -173,10 +155,10 @@ long read_data_files( FILE *lst )
                 if( sd->obscount[c] )
                 {
                     xprintf("        %4ld %s%s\n",sd->obscount[c],
-                            datatype[c].name,PLURAL(sd->obscount[c]) );
+                            datatype[c].name.data(),PLURAL(sd->obscount[c]) );
                     if( lst )
                         fprintf(lst,"    %4ld %s%s\n",sd->obscount[c],
-                                datatype[c].name,PLURAL(sd->obscount[c]) );
+                                datatype[c].name.data(),PLURAL(sd->obscount[c]) );
                 }
             }
             
@@ -187,7 +169,7 @@ long read_data_files( FILE *lst )
             }
         }
 
-        file_errors = df_data_file_errcount( d );
+        file_errors = d->error_count();
         misc_errors=get_error_count()-misc_errors;
         if( misc_errors < 0 ) misc_errors=0;
         total_errors += file_errors = misc_errors;
@@ -207,15 +189,12 @@ long read_data_files( FILE *lst )
             sd->recode = 0;
         }
 
-        df_close_data_file( d );
-        d=0;
+        d.reset();
     }
     set_file_context( saved_context );
 
     set_stn_recode_func( 0, 0 );
-    if( d ) df_close_data_file( d );
-    if( fname ) check_free( fname );
-    
+
     sts=check_obsmod_station_criteria_codes( obs_modifications, net );
     if( sts >= WARNING_ERROR )
     {

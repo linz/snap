@@ -66,7 +66,7 @@ SinexDataReader::SinexDataReader(const OptionString &config)
     obsdate = UNDEFINED_DATE;
     if (datestr != "")
     {
-        obsdate = snap_datetime_parse(datestr.c_str(), 0);
+        obsdate = snap_datetime_parse(datestr);
         if (obsdate == UNDEFINED_DATE)
         {
             throw RecordError(std::string("Invalid date ") + datestr + " specified for SINEX file");
@@ -178,8 +178,8 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     // Try creating the record
 
     // coef_class_info *ci=coef_class( COEF_CLASS_REFFRM );
-    int classid = ldt_get_id(ID_COEFCLASS, COEF_CLASS_REFFRM, 0);
-    int idreffrm = ldt_get_id(ID_CLASSNAME, classid, ref_frame.c_str());
+    int classid = ldt_get_id(ID_COEFCLASS, COEF_CLASS_REFFRM, {});
+    int idreffrm = ldt_get_id(ID_CLASSNAME, classid, ref_frame);
 
     ldt_inststn(0, 0.0);
     ldt_date(obsdate);
@@ -187,7 +187,7 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     {
         for (auto pt = points.begin(); pt != points.end(); pt++)
         {
-            int tgtid = ldt_get_id(ID_STATION, 0, (*pt)->code.c_str());
+            int tgtid = ldt_get_id(ID_STATION, 0, (*pt)->code);
             if (tgtid == 0)
                 dfi.raiseError(std::string("Undefined station ") + (*pt)->code);
             ldt_lineno((*pt)->lineno);
@@ -308,11 +308,11 @@ using namespace SNAP;
 //
 // Global SINEX load function
 
-int load_sinex_obs(const char *options, DATAFILE *df, int (*check_progress)(DATAFILE *df))
+int load_sinex_obs(const std::string &options, DATAFILE &df, bool (*check_progress)(DATAFILE &df))
 {
     try
     {
-        OptionString config(options ? options : "");
+        OptionString config(options);
         LINZ::SNAP::SinexDataReader snx(config);
         DatafileInput dfi(df, check_progress);
         try
@@ -328,7 +328,7 @@ int load_sinex_obs(const char *options, DATAFILE *df, int (*check_progress)(DATA
     }
     catch (RecordError &error)
     {
-        handle_error(INVALID_DATA, error.message().c_str(), error.location().c_str());
+        handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }
     return OK;

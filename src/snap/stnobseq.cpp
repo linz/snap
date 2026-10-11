@@ -26,6 +26,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <array>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <string_view>
 
 #include "stnobseq.h"
 #include "adjparam.h"
@@ -52,16 +57,6 @@ int scale_error = 0;
 char  floating_stations=0;
 char  relative_floating=0;
 
-static void *latfmt = NULL;
-static void *lonfmt = NULL;
-
-static void setup_latlon_format( void )
-{
-    latfmt = create_dms_format(3,6,0,NULL,NULL,NULL," N"," S");
-    lonfmt = create_dms_format(3,6,0,NULL,NULL,NULL," E"," W");
-}
-
-
 void count_stn_obs( int type, int stn, char unused )
 {
     stn_adjustment *sa;
@@ -80,8 +75,8 @@ static int add_colocation_constraint( station *stcol, station *st0, double herro
     {
         char errmsg[80+STNCODELEN*2];
         sprintf(errmsg,"Cannot colocate %.*s with %.*s - already colocated with %.*s",
-                STNCODELEN,stcol->Code,STNCODELEN,st0->Code,
-                STNCODELEN,stnptr(sa->idcol)->Code );
+                STNCODELEN,stcol->Code.c_str(),STNCODELEN,st0->Code.c_str(),
+                STNCODELEN,stnptr(sa->idcol)->Code.c_str() );
         handle_error(INCONSISTENT_DATA,errmsg,NO_MESSAGE);
         return INCONSISTENT_DATA;
     }
@@ -101,34 +96,32 @@ int add_station_colocation_constraints()
     for( int i = 0; i++ < number_of_stations(net); )
     {
         station *st = stnptr(i);
-        stn_recode *recode0 = get_station_recodes( stnrecode,  st->Code );
-        if( ! recode0 ) continue;
+        const stn_recode_list *recodes = get_station_recodes( stnrecode,  st->Code );
+        if( ! recodes ) continue;
         /* Check for duplicate recodings */
         int sts0=OK;
-        for( stn_recode *recode=recode0; recode->next ; recode=recode->next )
+        for( auto recode=recodes->begin(); std::next(recode) != recodes->end(); ++recode )
         {
             if( recode->datefrom != UNDEFINED_DATE && recode->dateto != UNDEFINED_DATE ) continue;
             if( recode->datefrom == UNDEFINED_DATE && recode->dateto == UNDEFINED_DATE ) continue;
-            for( stn_recode *rec2=recode->next; rec2; rec2=rec2->next )
+            for( auto rec2=std::next(recode); rec2 != recodes->end(); ++rec2 )
             {
                 if( rec2->datefrom != UNDEFINED_DATE && rec2->dateto != UNDEFINED_DATE ) continue;
                 if( rec2->datefrom == UNDEFINED_DATE && rec2->dateto == UNDEFINED_DATE ) continue;
                 if( stncodecmp(recode->codeto,rec2->codeto) == 0 )
                 {
-                    char errmsg[100+STNCODELEN*3+MAX_DATE_LEN*2];
-                    sprintf(errmsg,"Recode of %.*s to %.*s %s %s inconsistent with %.*s %s %s",
-                            STNCODELEN,st->Code,
-                            STNCODELEN,recode->codeto,
-                            recode->datefrom == UNDEFINED_DATE ? "before" : "after",
-                            recode->datefrom == UNDEFINED_DATE ? 
-                                 date_as_string(recode->dateto,"DT?",0) : 
-                                 date_as_string(recode->datefrom,"DT?",0),
-                            STNCODELEN,rec2->codeto,
-                            rec2->datefrom == UNDEFINED_DATE ? "before" : "after",
-                            rec2->datefrom == UNDEFINED_DATE ? 
-                                 date_as_string(rec2->dateto,"DT?",0) : 
-                                 date_as_string(rec2->datefrom,"DT?",0));
-                    handle_error(INCONSISTENT_DATA,errmsg,NO_MESSAGE);
+                    const auto recodeLimit = []( const stn_recode &recode ) {
+                        const bool before = recode.datefrom == UNDEFINED_DATE;
+                        return std::string( before ? "before " : "after " ) +
+                               date_as_string( before ? recode.dateto : recode.datefrom, DateStringFormat::timeIfNotMidnight );
+                    };
+                    std::ostringstream errmsg;
+                    errmsg << "Recode of " << std::string_view(st->Code).substr(0,STNCODELEN)
+                           << " to " << std::string_view(recode->codeto).substr(0,STNCODELEN)
+                           << ' ' << recodeLimit(*recode)
+                           << " inconsistent with " << std::string_view(rec2->codeto).substr(0,STNCODELEN)
+                           << ' ' << recodeLimit(*rec2);
+                    handle_error(INCONSISTENT_DATA,errmsg.str(),NO_MESSAGE);
                     sts0=INCONSISTENT_DATA;
                 }
             }
@@ -143,7 +136,7 @@ int add_station_colocation_constraints()
         station*st0=0;
         double herror2=0.0;
         double verror2=0.0;
-        for( stn_recode *recode=recode0; recode; recode=recode->next )
+        for( auto recode=recodes->begin(); recode != recodes->end(); ++recode )
         {
             if( recode->datefrom != UNDEFINED_DATE || recode->dateto == UNDEFINED_DATE )
             {
@@ -201,7 +194,7 @@ int add_station_colocation_constraints()
         st0=st;
         herror2=0.0;
         verror2=0.0;
-        for( stn_recode *recode=recode0; recode; recode=recode->next )
+        for( auto recode=recodes->begin(); recode != recodes->end(); ++recode )
         {
             if( recode->datefrom == UNDEFINED_DATE || recode->dateto != UNDEFINED_DATE )
             {
@@ -322,29 +315,24 @@ int init_station_rowno( void )
 }
 
 
-int find_station_row( int row, char *param, int plen )
+int find_station_row( const int row, std::string_view &description )
 {
-    int istn, maxstn;
-    stn_adjustment *st;
+    constexpr std::array<std::string_view,3> crdname = {"north coordinate", "east coordinate", "height coordinate"};
 
-    const char *crdname[] = {"north coordinate", "east coordinate", "height coordinate"};
+    const int maxstn = number_of_stations(net);
 
-    maxstn = number_of_stations(net);
-
-    for( istn = 0; istn++ < maxstn; )
+    for( int istn = 0; istn++ < maxstn; )
     {
-        st = stnadj(stnptr( istn ) );
+        const stn_adjustment *st = stnadj(stnptr( istn ) );
         if( st->hrowno && (st->hrowno==row || st->hrowno==row-1) )
         {
-            strncpy( param, crdname[row-st->hrowno], plen );
-            param[plen-1] = 0;
+            description = crdname[row-st->hrowno];
             return istn;
         }
 
         if( st->vrowno == row )
         {
-            strncpy( param, crdname[2], plen );
-            param[plen-1] = 0;
+            description = crdname[2];
             return istn;
         }
     }
@@ -363,9 +351,9 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
         if( output_deformation && lst )
         {
             fprintf(lst,"Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n",
-                    stn_name_width,st->Code,date_as_year(date),
+                    stn_name_width,st->Code.c_str(),date_as_year(date),
                     denu[0],denu[1],denu[2],
-                    st->Name);
+                    st->Name.c_str());
         }
         oe_add_value( hA, irow, -(denu[0]*dst[0] + denu[1]*dst[1] + denu[2]*dst[2]) );
     }
@@ -445,7 +433,7 @@ void sum_floating_stations( int iteration )
 {
     /*  ... need to update to include co-location constraint
      */
-    char header[20];
+    const std::string header = "float_stations_" + std::to_string(iteration);
     int istn, maxstn;
     station *st;
     void *hA;
@@ -455,7 +443,6 @@ void sum_floating_stations( int iteration )
 
     if( output_observation_equations )
     {
-        sprintf(header,"float_stations_%d",iteration);
         print_json_start(lst,header);
         fprintf(lst,"\n{ \"float_stations\": [\n");
     }
@@ -471,8 +458,7 @@ void sum_floating_stations( int iteration )
         lsq_sum_obseqn( hA );
         if( output_observation_equations )
         {
-            char source[100];
-            sprintf(source,"{\"station\":\"%.20s\"}",st->Code);
+            const std::string source = std::string("{\"station\":\"") + std::string( st->Code ) + "\"}";
             if( nfloat ) fprintf(lst,",\n");
             nfloat++;
             print_obseqn_json( lst, hA, source, 2 );
@@ -550,7 +536,7 @@ void print_coordinate_changes( FILE *out )
         if( sa->hrowno || sa->vrowno )
         {
 
-            fprintf(out,"%-*s  ",stn_name_width,st->Code);
+            fprintf(out,"%-*s  ",stn_name_width,st->Code.c_str());
 
             if( sa->hrowno )
             {
@@ -578,7 +564,7 @@ void print_coordinate_changes( FILE *out )
                 fprintf(out,"    -    ");
             }
 
-            fprintf(out,"   %s\n",st->Name);
+            fprintf(out,"   %s\n",st->Name.c_str());
         }
     }
 
@@ -661,7 +647,7 @@ void print_adjusted_coordinates( FILE *lst )
     if( has_deformation_model(net->crdsys) && ignore_deformation )
     {
         fprintf(lst,"\nNote: the deformation model associated with %s has not been used\n\n",
-                cs->name);
+                cs->name.c_str());
     }
 
     adjusted = program_mode != PREANALYSIS;
@@ -697,6 +683,8 @@ void print_adjusted_coordinates( FILE *lst )
 
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     prj = net->crdsys->prj;
+    const DmsFormat latitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
+    const DmsFormat longitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
 
     if( projection_coords )
     {
@@ -715,7 +703,6 @@ void print_adjusted_coordinates( FILE *lst )
                 stn_name_width,"",adjusted ? "  (metres) ":"");
         fprintf(lst," %-*s      Height        %s Hgt err\n",
                 stn_name_width,"",adjusted ? "           ":"");
-        setup_latlon_format();
     }
 
     for( reset_station_list(net,(int)output_sorted_stations);
@@ -752,14 +739,14 @@ void print_adjusted_coordinates( FILE *lst )
         /* Print the first line - latitude or easting */
 
         fprintf(lst,"\n%c%-*s ",stnadj(st)->flag.rejected ? REJECTED_STN_FLAG : ' ',
-                stn_name_width,st->Code);
+                stn_name_width,st->Code.c_str());
         if( projection_coords )
         {
             fprintf(lst,"%13.*lf  ",(int) coord_precision, easting);
         }
         else
         {
-            fprintf(lst,"%s  ",dms_string(st->ELat*RTOD,latfmt,NULL));
+            fprintf(lst,"%s  ",dms_string(st->ELat*RTOD,latitudeFormat).c_str());
         }
 
         if( adjusted )
@@ -770,7 +757,7 @@ void print_adjusted_coordinates( FILE *lst )
 
         if( stnadj(st)->flag.adj_h ) fprintf(lst,"%8.4lf %3.0lf  ",emax*errmult,brng);
         else fprintf(lst,"   -          ");
-        fprintf(lst,"%s\n",st->Name);
+        fprintf(lst,"%s\n",st->Name.c_str());
 
 
         /* Print the second line, longitude or northing */
@@ -782,7 +769,7 @@ void print_adjusted_coordinates( FILE *lst )
         }
         else
         {
-            fprintf(lst,"  %s  ",dms_string(st->ELon*RTOD,lonfmt,NULL));
+            fprintf(lst,"  %s  ",dms_string(st->ELon*RTOD,longitudeFormat).c_str());
         }
 
         if( adjusted )
@@ -841,8 +828,6 @@ void write_station_csv()
     double dn, de, dh;
     unsigned char projection_coords;
     unsigned char geocentric_coords;
-    output_csv *csv;
-    int i;
     int defl;
     int geoid;
     int ellipsoidal;
@@ -869,94 +854,90 @@ void write_station_csv()
     prj = net->crdsys->prj;
     elp = net->crdsys->rf->el;
 
-    csv = open_snap_output_csv("stn");
+    const std::unique_ptr<output_csv> csv = open_snap_output_csv("stn");
     if( ! csv ) return;
 
-    write_csv_header( csv, "code" );
-    write_csv_header( csv, "crdsys" );
+    csv->writeHeader( "code" );
+    csv->writeHeader( "crdsys" );
     if( geocentric_coords )
     {
         /* Set ellipsoidal as true so that ellipsoidal height is calced */
         ellipsoidal=1;
-        write_csv_header( csv,"X");
-        write_csv_header( csv,"Y");
-        write_csv_header( csv,"Z");
+        csv->writeHeader("X");
+        csv->writeHeader("Y");
+        csv->writeHeader("Z");
     }
     else
     {
         if( projection_coords )
         {
-            write_csv_header( csv,"easting");
-            write_csv_header( csv,"northing");
+            csv->writeHeader("easting");
+            csv->writeHeader("northing");
         }
         else
         {
-            write_csv_header( csv,"longitude");
-            write_csv_header( csv,"latitude");
+            csv->writeHeader("longitude");
+            csv->writeHeader("latitude");
         }
-        write_csv_header( csv, ellipsoidal ? "ellheight" : "height" );
-        write_csv_header( csv, "height_type" );
+        csv->writeHeader( ellipsoidal ? "ellheight" : "height" );
+        csv->writeHeader( "height_type" );
     }
-    if( geoid ) write_csv_header( csv, "geoidhgt" );
-    if( defl ) { write_csv_header( csv, "xi"); write_csv_header( csv, "eta" ); }
+    if( geoid ) csv->writeHeader( "geoidhgt" );
+    if( defl ) { csv->writeHeader( "xi"); csv->writeHeader( "eta" ); }
     if( autofix )
     {
-        write_csv_header( csv, "autofix" );
+        csv->writeHeader( "autofix" );
     }
     if( adjusted )
     {
-        write_csv_header( csv, "mode" );
-        write_csv_header( csv, "adj_e" );
-        write_csv_header( csv, "adj_n" );
-        write_csv_header( csv, "adj_h" );
+        csv->writeHeader( "mode" );
+        csv->writeHeader( "adj_e" );
+        csv->writeHeader( "adj_n" );
+        csv->writeHeader( "adj_h" );
 
-        write_csv_header( csv, "errell_max" );
-        write_csv_header( csv, "errell_min" );
-        write_csv_header( csv, "errell_bmax" );
-        write_csv_header( csv, "errhgt" );
+        csv->writeHeader( "errell_max" );
+        csv->writeHeader( "errell_min" );
+        csv->writeHeader( "errell_bmax" );
+        csv->writeHeader( "errhgt" );
         if( projection_coords )
         {
-            write_csv_header( csv,"easting_init");
-            write_csv_header( csv,"northing_init");
+            csv->writeHeader("easting_init");
+            csv->writeHeader("northing_init");
         }
         else
         {
-            write_csv_header( csv,"longitude_init");
-            write_csv_header( csv,"latitude_init");
+            csv->writeHeader("longitude_init");
+            csv->writeHeader("latitude_init");
         }
-        write_csv_header( csv, ellipsoidal ? "ellheight_init" : "height_init" );
+        csv->writeHeader( ellipsoidal ? "ellheight_init" : "height_init" );
 
         if( floating_stations )
         {
             if( relative_floating )
             {
-                write_csv_header(csv,"rel_station");
+                csv->writeHeader("rel_station");
             }
-            write_csv_header(csv,"float_hor_err");
-            write_csv_header(csv,"float_vrt_err");
-            write_csv_header(csv,"float_de");
-            write_csv_header(csv,"float_dn");
-            write_csv_header(csv,"float_errell_max");
-            write_csv_header(csv,"float_errell_min");
-            write_csv_header(csv,"float_errell_bmax");
-            write_csv_header(csv,"float_hor_stdres");
-            write_csv_header(csv,"float_dh");
-            write_csv_header(csv,"float_errhgt");
-            write_csv_header(csv,"float_vrt_stdres");
+            csv->writeHeader("float_hor_err");
+            csv->writeHeader("float_vrt_err");
+            csv->writeHeader("float_de");
+            csv->writeHeader("float_dn");
+            csv->writeHeader("float_errell_max");
+            csv->writeHeader("float_errell_min");
+            csv->writeHeader("float_errell_bmax");
+            csv->writeHeader("float_hor_stdres");
+            csv->writeHeader("float_dh");
+            csv->writeHeader("float_errhgt");
+            csv->writeHeader("float_vrt_stdres");
         }
     }
 
-    for( i = 0; i < network_classification_count(net); i++ )
+    for( int i = 0; i < net->classification_count(); i++ )
     {
-        char fieldname[33];
-        strcpy(fieldname,"c_");
-        strncpy(fieldname+2,network_class_name(net,i+1),30);
-        fieldname[32] = 0;
-        write_csv_header(csv,fieldname);
+        csv->writeHeader( "c_" + net->class_name(i+1).substr(0,30) );
     }
-    write_csv_header(csv,"name");
-    if( output_csv_shape ) write_csv_header(csv,"shape");
-    end_output_csv_record(csv);
+    csv->writeHeader("name");
+    if( output_csv_shape ) csv->writeHeader("shape");
+    csv->endRecord();
 
     hA=create_oe(nprm);
 
@@ -989,8 +970,8 @@ void write_station_csv()
 
         easting = northing = 0.0;
 
-        write_csv_string( csv, st->Code );
-        write_csv_string(csv,net->crdsys->code);
+        csv->writeString( st->Code );
+        csv->writeString(net->crdsys->code);
 
         if( geocentric_coords )
         {
@@ -999,110 +980,110 @@ void write_station_csv()
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
             llh_to_xyz( elp, llh, xyz, 0, 0);
-            write_csv_double( csv, xyz[CRD_X], coord_precision );
-            write_csv_double( csv, xyz[CRD_Y], coord_precision );
-            write_csv_double( csv, xyz[CRD_Z], coord_precision );
+            csv->writeDouble( xyz[CRD_X], coord_precision );
+            csv->writeDouble( xyz[CRD_Y], coord_precision );
+            csv->writeDouble( xyz[CRD_Z], coord_precision );
         }
         else
         {
             if( projection_coords )
             {
                 geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
-                write_csv_double( csv, easting, coord_precision );
-                write_csv_double( csv, northing, coord_precision );
+                csv->writeDouble( easting, coord_precision );
+                csv->writeDouble( northing, coord_precision );
             }
             else
             {
-                write_csv_double( csv, st->ELon*RTOD, coord_precision+5 );
-                write_csv_double( csv, st->ELat*RTOD, coord_precision+5 );
+                csv->writeDouble( st->ELon*RTOD, coord_precision+5 );
+                csv->writeDouble( st->ELat*RTOD, coord_precision+5 );
             }
 
-            write_csv_double( csv, height, coord_precision );
-            write_csv_string( csv, ellipsoidal ? "ellipsoidal" : "orthometric" );
+            csv->writeDouble( height, coord_precision );
+            csv->writeString( ellipsoidal ? "ellipsoidal" : "orthometric" );
         }
-        if( geoid ) write_csv_double( csv, st->GUnd, coord_precision );
+        if( geoid ) csv->writeDouble( st->GUnd, coord_precision );
         if( defl )
         {
-            write_csv_double( csv, st->GXi * RTOS, 2 );
-            write_csv_double( csv, st->GEta * RTOS, 2 );
+            csv->writeDouble( st->GXi * RTOS, 2 );
+            csv->writeDouble( st->GEta * RTOS, 2 );
         }
 
         if( autofix )
         {
-            char mode[3] = { '-', '-', 0 };
+            std::string mode = "--";
             if( sa->flag.auto_h) mode[0]='H';
-            if( sa->flag.auto_v) mode[1]='V'; 
-            write_csv_string(csv,mode);
+            if( sa->flag.auto_v) mode[1]='V';
+            csv->writeString(mode);
         }
         if( adjusted )
         {
-            if( sa->flag.autoreject ) write_csv_string(csv,"*");
-            else if( sa->flag.rejected ) write_csv_string(csv,"**");
+            if( sa->flag.autoreject ) csv->writeString("*");
+            else if( sa->flag.rejected ) csv->writeString("**");
             else
             {
-                char mode[3] = { '-', '-', 0 };
+                std::string mode = "--";
                 if( sa->flag.float_h ) mode[0] = 'h';
                 else if( sa->flag.adj_h ) mode[0] = 'H';
                 if( sa->flag.float_v ) mode[1] = 'v';
                 else if( sa->flag.adj_v ) mode[1] = 'V';
-                write_csv_string(csv,mode);
+                csv->writeString(mode);
             }
 
-            write_csv_double( csv, de, coord_precision );
-            write_csv_double( csv, dn, coord_precision );
-            write_csv_double( csv, dh, coord_precision );
+            csv->writeDouble( de, coord_precision );
+            csv->writeDouble( dn, coord_precision );
+            csv->writeDouble( dh, coord_precision );
 
-            write_csv_double( csv, emax, coord_precision );
-            write_csv_double( csv, emin, coord_precision );
-            write_csv_double( csv, brng, 1 );
-            write_csv_double( csv, OHgt, coord_precision );
+            csv->writeDouble( emax, coord_precision );
+            csv->writeDouble( emin, coord_precision );
+            csv->writeDouble( brng, 1 );
+            csv->writeDouble( OHgt, coord_precision );
             if( projection_coords )
             {
                 geog_to_proj( prj, sa->initELon, sa->initELat, &easting, &northing );
-                write_csv_double( csv, easting, coord_precision );
-                write_csv_double( csv, northing, coord_precision );
+                csv->writeDouble( easting, coord_precision );
+                csv->writeDouble( northing, coord_precision );
             }
             else
             {
-                write_csv_double( csv, sa->initELon*RTOD, coord_precision+5 );
-                write_csv_double( csv, sa->initELat*RTOD, coord_precision+5 );
+                csv->writeDouble( sa->initELon*RTOD, coord_precision+5 );
+                csv->writeDouble( sa->initELat*RTOD, coord_precision+5 );
             }
 
-            write_csv_double( csv, height-dh, coord_precision );
+            csv->writeDouble( height-dh, coord_precision );
 
             if( floating_stations )
             {
                 if( relative_floating )
                 {
-                    station *stcol=0;
+                    station *stcol=nullptr;
                     if( sa->idcol )
                     {
                         stcol=stnptr(sa->idcol);
                     }
                     if( stcol )
                     {
-                        write_csv_string(csv,stcol->Code);
+                        csv->writeString(stcol->Code);
                     }
                     else
                     {
-                        write_csv_null_field(csv);
+                        csv->writeNullField();
                     }
                 }
-                if( sa->flag.float_h ) 
+                if( sa->flag.float_h )
                 {
-                    write_csv_double(csv,sa->herror,coord_precision);
+                    csv->writeDouble(sa->herror,coord_precision);
                 }
                 else
                 {
-                    write_csv_null_field(csv);
+                    csv->writeNullField();
                 }
-                if( sa->flag.float_v ) 
+                if( sa->flag.float_v )
                 {
-                    write_csv_double(csv,sa->verror,coord_precision);
+                    csv->writeDouble(sa->verror,coord_precision);
                 }
                 else
                 {
-                    write_csv_null_field(csv);
+                    csv->writeNullField();
                 }
                 
                 int nfprm=float_station_obseq( st, hA );
@@ -1124,11 +1105,11 @@ void write_station_csv()
                     brng *= RTOD;
                     while(brng < 0) brng += 180;
                     while(brng > 180) brng -= 180;
-                    write_csv_double(csv,-res[0],coord_precision);
-                    write_csv_double(csv,-res[1],coord_precision);
-                    write_csv_double(csv,emax,coord_precision);
-                    write_csv_double(csv,emin,coord_precision);
-                    write_csv_double(csv,brng,1);
+                    csv->writeDouble(-res[0],coord_precision);
+                    csv->writeDouble(-res[1],coord_precision);
+                    csv->writeDouble(emax,coord_precision);
+                    csv->writeDouble(emin,coord_precision);
+                    csv->writeDouble(brng,1);
                     if( emax > 1.0e-5 )
                     {
                         double dmax=cs*res[0]+sn*res[1];
@@ -1139,52 +1120,45 @@ void write_station_csv()
                             dmax += (dmin*dmin)/(emin*emin);
                         }
                         dmax=sqrt(dmax);
-                        write_csv_double(csv,dmax,3);
+                        csv->writeDouble(dmax,3);
                     }
                     else
                     {
-                        write_csv_null_field( csv );
+                        csv->writeNullField();
                     }
                 }
                 else
                 {
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
+                    csv->writeNullFields(6);
                 }
                 if( nfprm == 1 || nfprm == 3 )
                 {
-                    write_csv_double(csv,-res[vrow],coord_precision);
+                    csv->writeDouble(-res[vrow],coord_precision);
                     double verr=sqrt(fabs(Lij(cvr,vrow,vrow)));
-                    write_csv_double(csv,verr,coord_precision);
+                    csv->writeDouble(verr,coord_precision);
                     if( verr < 1.0e-5 )
                     {
-                        write_csv_null_field( csv );
+                        csv->writeNullField();
                     }
                     else
                     {
-                        write_csv_double( csv, fabs(res[vrow])/verr, 3 );
+                        csv->writeDouble( fabs(res[vrow])/verr, 3 );
                     }
                 }
                 else
                 {
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
+                    csv->writeNullFields(3);
                 }
             }
         }
 
-        for( i = 0; i < network_classification_count(net); i++ )
+        for( int i = 0; i < net->classification_count(); i++ )
         {
-            int iclass = get_station_class( st, i+1 );
-            write_csv_string( csv, network_class_value(net, i+1, iclass ));
+            int iclass = st->get_class( i+1 );
+            csv->writeString( net->class_value(i+1, iclass) );
         }
 
-        write_csv_string( csv, st->Name );
+        csv->writeString( st->Name );
         if( output_csv_shape )
         {
             char wkt[128];
@@ -1198,19 +1172,18 @@ void write_station_csv()
                 sprintf(wkt,"POINT(%.*lf %.*lf)",
                         coord_precision+5,st->ELon*RTOD,coord_precision+5,st->ELat*RTOD);
             }
-            write_csv_string( csv, wkt );
+            csv->writeString( wkt );
         }
-        end_output_csv_record( csv );
+        csv->endRecord();
     }
     delete_oe(hA);
-    close_output_csv( csv );
 }
 
 void print_floated_stations( FILE *out )
 {
     station *st;
     stn_adjustment *sa;
-    const char *coordname[3] = { "East", "North", "Up" };
+    constexpr std::array<std::string_view,3> coordname = { "East", "North", "Up" };
     double calccvr[6];
     double rescvr[6];
     double calc[3];
@@ -1284,17 +1257,17 @@ void print_floated_stations( FILE *out )
             double resval=res[rowno];
             double ser=sqrt(fabs(Lij(rescvr,rowno,rowno)))*semult;
             fprintf( out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ",
-                     stn_name_width, (rowno==0 ? st->Code : ""), 
+                     stn_name_width, (rowno==0 ? st->Code.c_str() : ""),
                      relative_floating ? stn_name_width+1 : 0,
-                     stcol ? stcol->Code : "",
-                     coordname[axis],
+                     stcol ? stcol->Code.c_str() : "",
+                     coordname[axis].data(),
                      (axis < 2 ? sa->herror : sa->verror)*semult,
                      sqrt(fabs(Lij(calccvr,rowno,rowno)))*semult,
                      -resval, ser);
             if( ser > 1.0e-5 )
             {
                 double stres = fabs(resval)/ ser;
-                fprintf( out, "%8.2lf %s\n", stres, residual_flag( 0, 1, stres ));
+                fprintf( out, "%8.2lf %s\n", stres, std::string( residual_flag( 0, 1, stres ) ).c_str());
             }
             else
             {

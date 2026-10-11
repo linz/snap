@@ -80,7 +80,7 @@ void SnapCsvRecode::loadRecord()
 
     if( datefromstr != "" && datefromstr != "" )
     {
-        datefrom=snap_datetime_parse( datefromstr.c_str(), 0 );
+        datefrom=snap_datetime_parse( datefromstr );
         if( datefrom == UNDEFINED_DATE ) 
         {
             dataError(string("Invalid from date ")+datefromstr);
@@ -90,7 +90,7 @@ void SnapCsvRecode::loadRecord()
 
     if( datetostr != "" && datetostr != "" )
     {
-        dateto=snap_datetime_parse( datetostr.c_str(), 0 );
+        dateto=snap_datetime_parse( datetostr );
         if( dateto == UNDEFINED_DATE ) 
         {
             dataError(string("Invalid to date ")+datetostr);
@@ -98,7 +98,7 @@ void SnapCsvRecode::loadRecord()
         }
     }
 
-    add_stn_recode_to_map( _stt, codefrom.c_str(), codeto.c_str(), datefrom, dateto );
+    add_stn_recode_to_map( _stt, codefrom, codeto, datefrom, dateto );
 }
 
 void SnapCsvRecode::dataError( const std::string &message )
@@ -114,39 +114,37 @@ void SnapCsvRecode::dataError( const std::string &message )
 
 #include "snap/stnadj.h"
 
-int read_station_recode_file( stn_recode_map *stt, const char *filename, const char *basefile  )
+int read_station_recode_file( stn_recode_map *stt, std::string_view filename, std::string_view basefile )
 {
     int sts = OK;
     try
     {
-        const char *recodefile;
-        recodefile=find_file(filename,DFLTSTRCD_EXT,basefile,FF_TRYALL,0);
+        auto recodefile = find_file( std::string( filename ), DFLTSTRCD_EXT, std::string( basefile ), FF_TRYALL, "" );
         if( ! recodefile )
         {
             std::ostringstream os;
             os << "Cannot find station recode file " << filename;
-            handle_error( INVALID_DATA, os.str().c_str(), 0 );
+            handle_error( INVALID_DATA, os.str(), NO_MESSAGE );
             return INVALID_DATA;
         }
 
-        std::string recodefilename(recodefile);
-        const char *formatfile;
-        formatfile = find_file( "stnrecode", ".dtf", recodefilename.c_str(), FF_TRYALL, CSVFORMAT_CONFIG );
+        std::string recodefilename(*recodefile);
+        auto formatfile = find_file( "stnrecode", ".dtf", recodefilename, FF_TRYALL, CSVFORMAT_CONFIG );
         if( ! formatfile )
         {
             std::ostringstream os;
             os << "Undefined delimited text file format stnrecode";
-            handle_error( INVALID_DATA, os.str().c_str(), 0 );
+            handle_error( INVALID_DATA, os.str(), NO_MESSAGE );
             return INVALID_DATA;
         }
-        SnapCsvRecode csvstnrecode( stt, formatfile );
-        DatafileInput dfi( recodefilename.c_str(),"station recode file" );
+        SnapCsvRecode csvstnrecode( stt, *formatfile );
+        DatafileInput dfi( recodefilename,"station recode file" );
         csvstnrecode.load( dfi );
         if( dfi.errorCount()) sts = INVALID_DATA;
     }
     catch( RecordError &error )
     {
-        handle_error( INVALID_DATA, error.message().c_str(), error.location().c_str() );
+        handle_error( INVALID_DATA, error.message(), error.location() );
         return INVALID_DATA;
     }
     return sts;

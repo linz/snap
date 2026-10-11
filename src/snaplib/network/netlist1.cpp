@@ -13,8 +13,6 @@
 #include <string.h>
 
 #include "network/network.h"
-#include "util/linklist.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 
 

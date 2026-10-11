@@ -34,10 +34,6 @@ StatusType utlReleaseTrig( hTrig trig);
 
 StatusType utlTrigVectorDimension( hTrig trig, int *dimension );
 
-StatusType utlTrigCoordSysDef( hTrig trig, char ** crdsys );
-
-StatusType utlTrigTitle( hTrig trig, int nTitle, char ** title );
-
 StatusType utlCalcTrig( hTrig trig, double x, double y, double * value);
 
 #endif /* DBL4_UTL_TRIG_H not defined */

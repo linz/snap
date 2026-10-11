@@ -1,0 +1,9 @@
+title Regression test - classification dependent systematic errors
+
+coordinate_file test1.crd
+data_file testsyserr.dat
+
+mode 3d data_check
+
+list observation_equations
+list parameters

@@ -24,29 +24,18 @@
 
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"
+#include "coordsys/crdsys_parse_field.h"
 
-#define READ_STRING( name, str, len ) \
-	 if( sts == OK ) { \
-        bad = name; \
-        sts = next_string_field( is, str, len ); \
-        }
-
-#define READ_DOUBLE( name, pdouble ) \
-     if( sts == OK ) { \
-         bad = name; \
-         sts = double_from_string( is, pdouble ); \
-         }
-
-ref_frame  *parse_ref_frame_def ( input_string_def *is,
-                                  ellipsoid *(*getel)(const char *code ),
-                                  ref_frame *(*getrf)(const char *code, int loadref ),
+ref_frame  *parse_ref_frame_def ( input_string_def &is,
+                                  ellipsoid *(*getel)(std::string_view code ),
+                                  ref_frame *(*getrf)(std::string_view code, int loadref ),
                                   int embedded, int loadref )
 {
-    char refcode[CRDSYS_CODE_LEN+1];
-    char refname[CRDSYS_NAME_LEN+1];
-    char elcode[CRDSYS_CODE_LEN+1];
-    char stdcode[CRDSYS_CODE_LEN+1];
-    char *stdfrm = 0;
+    std::string refcode;
+    std::string refname;
+    std::string elcode;
+    std::string stdcode;
+    std::optional<std::string> stdfrm;
     double sf, txyz[3], rxyz[3];
     double dsf, dtxyz[3], drxyz[3];
     double refdate=0.0;
@@ -56,28 +45,26 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     ref_frame_func *rff = 0;
     ref_deformation *rdf = 0;
     int sts;
-    const char *bad;
-    long loc;
+    std::string_view bad;
     int reported;
 
-    bad = NULL;
     sts = OK;
     reported = 0;
 
-    READ_STRING( "code",refcode,CRDSYS_CODE_LEN );
-    READ_STRING( "name",refname,CRDSYS_NAME_LEN );
-    loc = get_string_loc( is );
-    READ_STRING( "ellipsoid code",elcode,CRDSYS_CODE_LEN );
+    sts = read_crdsys_string( is.scanner, sts, refcode, CRDSYS_CODE_LEN, "code", bad );
+    sts = read_crdsys_string( is.scanner, sts, refname, CRDSYS_NAME_LEN, "name", bad );
+    auto loc = is.scanner.remainder();
+    sts = read_crdsys_string( is.scanner, sts, elcode, CRDSYS_CODE_LEN, "ellipsoid code", bad );
 
-    if( sts == OK && _stricmp(elcode, "ELLIPSOID") != 0 )
+    if( sts == OK && compare_ignoring_case(elcode, "ELLIPSOID") != 0 )
     {
-        set_string_loc( is, loc );
+        is.scanner = FieldScanner(loc);
         el = parse_ellipsoid_def( is, 1 );
         if( !el ) return NULL;
     }
     else
     {
-        READ_STRING( "ellipsoid_code",elcode,CRDSYS_CODE_LEN );
+        sts = read_crdsys_string( is.scanner, sts, elcode, CRDSYS_CODE_LEN, "ellipsoid_code", bad );
         el = NULL;
     }
 
@@ -94,19 +81,19 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
 
     if( sts == OK )
     {
-        READ_STRING( "base frame code", stdcode, CRDSYS_CODE_LEN );
+        sts = read_crdsys_string( is.scanner, sts, stdcode, CRDSYS_CODE_LEN, "base frame code", bad );
         if( sts == MISSING_DATA )
         {
             sts = OK;
-            strcpy( stdcode, "NONE");
+            stdcode = "NONE";
         }
     }
 
     if( sts == OK )
     {
-        if( _stricmp( stdcode, "NONE" ) == 0 )
+        if( compare_ignoring_case( stdcode, "NONE" ) == 0 )
         {
-            stdfrm = NULL;
+            stdfrm.reset();
         }
         else
         {
@@ -117,49 +104,49 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             iersunits=0;
             ierstsr=0;
             iersrates=0;
-            if( test_next_string_field( is, "IERS") )
+            if( test_next_string_field( is.scanner, "IERS") )
             {
                 iersunits=1;
             }
-            else if( test_next_string_field( is, "IERS_TSR" ) )
+            else if( test_next_string_field( is.scanner, "IERS_TSR" ) )
             {
                 iersunits=1;
                 ierstsr=1;
             }
-            else if( test_next_string_field( is, "IERS_ETSR" ) )
+            else if( test_next_string_field( is.scanner, "IERS_ETSR" ) )
             {
                 iersunits=1;
                 ierstsr=1;
                 iersrates=1;
-                READ_DOUBLE( "reference date", &refdate );
+                sts = read_crdsys_double( is.scanner, sts, refdate, "reference date", bad );
             }
 
-            READ_DOUBLE( "x translation", &txyz[0] );
-            READ_DOUBLE( "y translation", &txyz[1] );
-            READ_DOUBLE( "z translation", &txyz[2] );
+            sts = read_crdsys_double( is.scanner, sts, txyz[0], "x translation", bad );
+            sts = read_crdsys_double( is.scanner, sts, txyz[1], "y translation", bad );
+            sts = read_crdsys_double( is.scanner, sts, txyz[2], "z translation", bad );
 
-            if( ierstsr ) { READ_DOUBLE( "scale factor", &sf ); }
+            if( ierstsr ) { sts = read_crdsys_double( is.scanner, sts, sf, "scale factor", bad ); }
 
-            READ_DOUBLE( "x rotation", &rxyz[0] );
-            READ_DOUBLE( "y rotation", &rxyz[1] );
-            READ_DOUBLE( "z rotation", &rxyz[2] );
+            sts = read_crdsys_double( is.scanner, sts, rxyz[0], "x rotation", bad );
+            sts = read_crdsys_double( is.scanner, sts, rxyz[1], "y rotation", bad );
+            sts = read_crdsys_double( is.scanner, sts, rxyz[2], "z rotation", bad );
 
-            if( ! ierstsr ) { READ_DOUBLE( "scale factor", &sf ); }
+            if( ! ierstsr ) { sts = read_crdsys_double( is.scanner, sts, sf, "scale factor", bad ); }
 
-            if( sts == OK && (iersrates || test_next_string_field( is, "RATES" )))
+            if( sts == OK && (iersrates || test_next_string_field( is.scanner, "RATES" )))
             {
-                if( ! iersrates ) { READ_DOUBLE( "reference date", &refdate ); }
-                READ_DOUBLE( "x translation rate", &dtxyz[0] );
-                READ_DOUBLE( "y translation rate", &dtxyz[1] );
-                READ_DOUBLE( "z translation rate", &dtxyz[2] );
+                if( ! iersrates ) { sts = read_crdsys_double( is.scanner, sts, refdate, "reference date", bad ); }
+                sts = read_crdsys_double( is.scanner, sts, dtxyz[0], "x translation rate", bad );
+                sts = read_crdsys_double( is.scanner, sts, dtxyz[1], "y translation rate", bad );
+                sts = read_crdsys_double( is.scanner, sts, dtxyz[2], "z translation rate", bad );
 
-                if( ierstsr ) { READ_DOUBLE( "scale factor rate", &dsf ); }
+                if( ierstsr ) { sts = read_crdsys_double( is.scanner, sts, dsf, "scale factor rate", bad ); }
 
-                READ_DOUBLE( "x rotation rate", &drxyz[0] );
-                READ_DOUBLE( "y rotation rate", &drxyz[1] );
-                READ_DOUBLE( "z rotation rate", &drxyz[2] );
+                sts = read_crdsys_double( is.scanner, sts, drxyz[0], "x rotation rate", bad );
+                sts = read_crdsys_double( is.scanner, sts, drxyz[1], "y rotation rate", bad );
+                sts = read_crdsys_double( is.scanner, sts, drxyz[2], "z rotation rate", bad );
 
-                if( ! ierstsr ) { READ_DOUBLE( "scale factor rate", &dsf ); }
+                if( ! ierstsr ) { sts = read_crdsys_double( is.scanner, sts, dsf, "scale factor rate", bad ); }
 
             }
 
@@ -186,12 +173,12 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
         /* If the base frame code is the same as the reference frame, then
          * the transformation parameters must all be 0
          */
-        if( sts == OK && _stricmp(stdcode,refcode) == 0 )
+        if( sts == OK && compare_ignoring_case(stdcode,refcode) == 0 )
         {
             int i;
             int ok = 1;
 
-            stdfrm=0;
+            stdfrm.reset();
 
             for( i=0; i<3; i++ )
             {
@@ -204,10 +191,8 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             if( rff != 0 ) ok=0;
             if( ! ok )
             {
-                char errmsg[80+CRDSYS_CODE_LEN];
-                strcpy( errmsg, "Reference frame ");
-                strcat( errmsg, refcode );
-                strcat( errmsg, " cannot have a non-null transformation to itself");
+                const std::string errmsg = "Reference frame " + refcode +
+                                           " cannot have a non-null transformation to itself";
                 report_string_error( is, INVALID_DATA, errmsg );
                 sts = INVALID_DATA;
                 reported = 1;
@@ -216,7 +201,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     }
     if( sts == OK )
     {
-		bad=0;
+        bad = std::string_view();
         sts = parse_ref_deformation_def( is, &rdf );
     }
 
@@ -233,9 +218,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             el = (*getel)(elcode);
             if( !el )
             {
-                char errmsg[80];
-                strcpy( errmsg, "Cannot load ellipsoid ");
-                strcat( errmsg, elcode );
+                const std::string errmsg = "Cannot load ellipsoid " + elcode;
                 report_string_error( is, INVALID_DATA, errmsg );
                 sts = INVALID_DATA;
                 reported = 1;
@@ -244,25 +227,22 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     }
     if( sts == OK && ! embedded )
     {
-        char test[32];
-        sts = next_string_field( is, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
+        std::string test;
+        sts = read_string_field( is.scanner, test, 31 ) == FieldResult::NoMoreData ? OK : TOO_MUCH_DATA;
         if( sts != OK )
         {
-            char errmsg[100+CRDSYS_CODE_LEN];
-            sprintf(errmsg,"Extraneous data \"%s\" in definition of ref frame \"%s\"",
-                    test,refcode);
-            report_string_error(is,sts,errmsg);
+            const std::string errmsg = "Extraneous data \"" + test +
+                                       "\" in definition of ref frame \"" + refcode + "\"";
+            report_string_error( is, sts, errmsg );
             reported = 1;
         }
     }
 
     if( sts == OK )
     {
-        rf = create_ref_frame(  refcode, refname, el, stdfrm, txyz, rxyz, sf,
-                                refdate, dtxyz, drxyz, dsf );
-        rf->func = rff;
-        rf->def = rdf;
-        rf->use_iersunits=iersunits;
+        rf = new ref_frame( refcode, refname, el, stdfrm,
+                             txyz, rxyz, sf, refdate, dtxyz, drxyz, dsf,
+                             rff, rdf, iersunits );
     }
 
     /* If we are loading the base reference frame ... */
@@ -276,12 +256,10 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             ref_frame *newbase=0;
             while( check )
             {
-                if( _stricmp(check->code,base->refcode) == 0 )
+                if( compare_ignoring_case(check->code,*base->refcode) == 0 )
                 {
-                    char errmsg[80+CRDSYS_CODE_LEN];
-                    strcpy( errmsg, "Reference frame ");
-                    strcat( errmsg, check->code );
-                    strcat( errmsg, " has a cyclic base reference frame dependency");
+                    const std::string errmsg = "Reference frame " + check->code +
+                                               " has a cyclic base reference frame dependency";
                     report_string_error( is, INVALID_DATA, errmsg );
                     sts = INVALID_DATA;
                     reported = 1;
@@ -298,38 +276,36 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
              * Invalid definitions of the base system are not reported correctly,
              * the reference frame is just ignored.
              */
-            newbase=getrf(base->refcode,0);
+            newbase=getrf(*base->refcode,0);
             if( ! newbase ) break;
             base->refrf=newbase;
             base=newbase;
         }
     }
 
-    if( sts != OK && bad )
+    if( sts != OK && ! bad.empty() )
     {
-        char errmess[80]= {0};
+        std::string errmess;
         if( sts == MISSING_DATA )
         {
-            strcpy( errmess, bad);
-            strcat( errmess, " is missing" );
+            errmess = std::string( bad ) + " is missing";
         }
         else if (! reported )
         {
-            strcpy( errmess, "Invalid value for " );
-            strcat( errmess, bad );
+            errmess = "Invalid value for " + std::string( bad );
         }
-        if( errmess[0] ) report_string_error( is, sts, errmess );
+        if( ! errmess.empty() ) report_string_error( is, sts, errmess );
     }
 
     if( ! rf )
     {
-        if( el ) delete_ellipsoid( el );
-        if( rff ) delete_ref_frame_func( rff );
-        if( rdf ) delete_ref_deformation( rdf );
+        delete el;
+        delete rff;
+        delete rdf;
     }
     else if( sts != OK )
     {
-        delete_ref_frame( rf );
+        delete rf;
         rf=0;
     }
     return rf;

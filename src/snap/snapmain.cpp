@@ -44,9 +44,15 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <time.h>
 #include <exception>
+#include <filesystem>
+#include <iomanip>
+#include <optional>
+#include <sstream>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -85,7 +91,6 @@
 #include "util/binfile.h"
 #include "util/bltmatrx.h"
 #include "util/bltmatrx_mt.h"
-#include "util/chkalloc.h"
 #include "util/classify.h"
 #include "util/dstring.h"
 #include "util/errdef.h"
@@ -100,7 +105,7 @@
 static void print_help( void );
 static void print_command_file( void );
 static int read_parameters( int argc, char *argv[] );
-static void update_station_file( char *filename );
+static void update_station_file( const std::string &filename );
 static BINARY_FILE *open_dump_file( void );
 static void dump_binary_data( BINARY_FILE *b );
 static void dump_cholesky_decomposition( BINARY_FILE *b );
@@ -125,7 +130,7 @@ try
 
     CONFIGURE_RUNTIME();
 
-    get_date( run_time );
+    run_time = get_date();
 
     init_snap_globals();
 
@@ -149,15 +154,15 @@ try
 
     /* Check that the command file exists */
 
-    if( config_file && !file_exists(config_file) )
+    if( config_file && !path_exists(*config_file) )
     {
-        xprintf("\nCannot open configuration file %s\n", config_file );
+        xprintf("\nCannot open configuration file %s\n", config_file->c_str() );
         return DEFAULT_RETURN_STATUS;
     }
 
-    if( !file_exists(command_file) )
+    if( !path_exists(command_file->path) )
     {
-        xprintf("\nCannot open command file %s\n", command_file );
+        xprintf("\nCannot open command file %s\n", command_file->path.c_str() );
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -177,28 +182,28 @@ try
 
     if( config_file )
     {
-        xprintf("\nReading the configuration file %s\n", config_file);
-        if( read_configuration_file( config_file ) != OK )
+        xprintf("\nReading the configuration file %s\n", config_file->c_str());
+        if( read_configuration_file( *config_file ) != OK )
         {
-            xprintf("\nErrors loading configuration file %s\n", config_file );
+            xprintf("\nErrors loading configuration file %s\n", config_file->c_str() );
             handle_error( INVALID_DATA, "The configuration file is not correct", NO_MESSAGE );
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
     }
 
     /* Read the command file */
 
-    xprintf("\nReading the command file %s\n", command_file );
+    xprintf("\nReading the command file %s\n", command_file->path.c_str() );
 
     /* Set station initialisation for reading the station file before it is loaded by read_command_file */
     set_stnadj_init_network();
 
-    if( read_command_file( command_file ) != OK )
+    if( read_command_file( command_file->path ) != OK )
     {
-        xprintf("\nErrors loading command file %s\n", command_file );
+        xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -207,7 +212,7 @@ try
     eliminate_inconsistent_outputs();
     if( output_all_covariances )
     {
-        output_relative_covariances = 1;
+        output_relative_covariances = true;
     }
 
     /* If the command file is to be echoed to the output - do it now */
@@ -257,7 +262,7 @@ try
         if( dump == NULL )
         {
             xprintf("\nUnable to create binary file\n");
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
         create_section( dump, "OBSERVATIONS" );
@@ -270,18 +275,18 @@ try
     if( output_file_summary )
     {
         fprintf(lst,"\n\nCoordinates file %s\n    %4d stations read\n",
-                station_filename, (int) number_of_stations( net ));
+                station_file->filename.c_str(), number_of_stations( net ));
     }
 
     if( geoid_file )
     {
         if( !(net->options & NW_GEOID_HEIGHTS) || overwrite_geoid )
         {
-            sts = set_network_geoid( net, geoid_file, NW_HGTFIXEDOPT_DEFAULT, geoid_error_level );
+            sts = set_network_geoid( net, geoid_file,NW_HGTFIXEDOPT_DEFAULT, geoid_error_level );
             if( sts == INFO_ERROR ) sts=OK;
             if( sts != OK ) 
             {
-                close_output_files(0,0);
+                close_output_files(NO_MESSAGE,NO_MESSAGE);
                 return DEFAULT_RETURN_STATUS;
             }
             reset_stnadj_initial_coords();
@@ -323,14 +328,14 @@ try
         xprintf( "\n%d errors reported reading the data files\n", (int) read_errors);
         sprintf( errmess, "%d errors reported reading the data files", (int) read_errors);
         handle_error(INVALID_DATA, errmess, NO_MESSAGE );
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
     else if ( sts != OK )
     {
         xprintf("\nErrors encountered reading the data files\n");
         handle_error( INVALID_DATA, "Errors encountered reading the data files", NO_MESSAGE );
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -347,7 +352,7 @@ try
     {
         xprintf("\nErrors defining colocation constraints\n");
         handle_error(INVALID_DATA, "Errors defining colocation constraints",NO_MESSAGE);
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -359,12 +364,12 @@ try
 
     /* Now add the constraints from the command file */
 
-    xprintf("\nReading the station constraint commands %s\n", command_file );
-    if( read_command_file_constraints( command_file ) != OK )
+    xprintf("\nReading the station constraint commands %s\n", command_file->path.c_str() );
+    if( read_command_file_constraints( command_file->path ) != OK )
     {
-        xprintf("\nErrors loading command file %s\n", command_file );
+        xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -380,7 +385,7 @@ try
     {
         xprintf("\nUnable to initialise the deformation model\n");
         handle_error( INVALID_DATA, "Unable to initialised deformation model", NO_MESSAGE );
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -434,7 +439,7 @@ try
         if( sts != OK )
         {
             xprintf("\nThe adjustment cannot be solved - observations cannot be summed\n");
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
 
@@ -446,8 +451,7 @@ try
 
         if( output_normal_equations )
         {
-            char header[30];
-            sprintf(header,"normal_equations_%d",iterations);
+            const std::string header = "normal_equations_" + std::to_string(iterations);
             print_section_header( lst, "NORMAL EQUATIONS" );
             print_json_start(lst,header);
             fprintf(lst,"{\n");
@@ -477,14 +481,13 @@ try
         {
             handle_singularity( sts );
             xprintf("\nThe adjustment cannot be solved - equations are singular\n");
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
 
         if( output_normal_equations )
         {
-            char header[30];
-            sprintf(header,"solution_vector_%d",iterations);
+            const std::string header = "solution_vector_" + std::to_string(iterations);
             print_json_start(lst,header);
             lsq_print_solution_vector_json( lst, 0, 0 );
             print_json_end(lst,header);
@@ -498,7 +501,7 @@ try
         {
 
             xprintf("   Maximum adjustment is %.4lf at station %s\n",
-                    maxadj,station_code(maxstn));
+                    maxadj,station_code(maxstn).c_str());
             xprintf("   %d station adjustments exceed convergence criteria\n",
                     nstnadj );
         }
@@ -535,7 +538,7 @@ try
         if( maxadj > max_adjustment )
         {
             sprintf(errmess,"Adjustment %.4lf at station %s greater than allowable maximum",
-                    maxadj, station_code(maxstn) );
+                    maxadj, station_code(maxstn).c_str() );
             handle_error( WARNING_ERROR, errmess, NO_MESSAGE );
             break;
         }
@@ -693,7 +696,7 @@ try
         if( output_sinex ) print_coord_sinex();
     }
 
-    close_output_files( 0, 0 );
+    close_output_files( NO_MESSAGE, NO_MESSAGE );
 
 
     /* CSV flelist (after all other files) */
@@ -709,11 +712,6 @@ try
 
     delete_recorded_filenames();
 
-    /* If using debug version of memory allocator then list outstanding
-       allocations */
-
-    list_memory_allocations( lst );
-
     if( ! converged )
     {
         xprintf( "\nWARNING: Adjustment has not converged - results may be misleading\n" );
@@ -726,43 +724,40 @@ catch( const std::exception &e )
     char errmess[256];
     snprintf( errmess, sizeof(errmess), "Unexpected internal error: %s", e.what() );
     handle_error( INVALID_DATA, errmess, NO_MESSAGE );
-    close_output_files(0,0);
+    close_output_files(NO_MESSAGE,NO_MESSAGE);
     return DEFAULT_RETURN_STATUS;
 }
 catch( ... )
 {
     handle_error( INVALID_DATA, "Unexpected internal error of unknown type", NO_MESSAGE );
-    close_output_files(0,0);
+    close_output_files(NO_MESSAGE,NO_MESSAGE);
     return DEFAULT_RETURN_STATUS;
 }
 
 
 static int read_parameters( int argc, char *argv[] )
 {
-    char *arg;
     int sts;
-    char *cfg_file;
-    char *cmd_file;
+    std::optional<std::string> cfg_file;
+    std::optional<std::string> cmd_file;
 
     sts = OK;
-    cfg_file = NULL;
-    cmd_file = NULL;
 
-    output_noruntime = 0;
+    output_noruntime = false;
 
     for( argc--, argv++; sts==OK && argc; argc--, argv++ )
     {
-        arg = argv[0];
+        const std::string arg = argv[0];
         if( arg[0] == '-' )
         {
             switch( arg[1] )
             {
             case 'c':
-            case 'C': if( arg[2] )
+            case 'C': if( arg.size() > 2 )
                 {
-                    cfg_file = arg+2;
+                    cfg_file = arg.substr(2);
                 }
-                else if( argc )
+                else if( argc > 1 )
                 {
                     cfg_file = *++argv;
                     argc--;
@@ -778,15 +773,15 @@ static int read_parameters( int argc, char *argv[] )
             case 't':
             case 'T': {
                 int nthread;
-                char *topt=arg+2;
-                if( ! *topt && argc > 1 ){ argc--; argv++; topt=argv[0]; }
-                if( _stricmp(topt,"auto") == 0 )
+                std::string topt = arg.substr(2);
+                if( topt.empty() && argc > 1 ){ argc--; argv++; topt=argv[0]; }
+                if( boost::algorithm::iequals( topt, "auto" ) )
                 {
                     blt_set_number_of_threads(BLT_DEFAULT_NTHREAD);
                 }
-                else if( sscanf(topt,"%d",&nthread) != 1 )
+                else if( sscanf(topt.c_str(),"%d",&nthread) != 1 )
                 {
-                    xprintf("\nInvalid value %s for number of threads (-t switch)",topt);
+                    xprintf("\nInvalid value %s for number of threads (-t switch)",topt.c_str());
                     sts=INVALID_DATA;
                 }
                 else
@@ -800,7 +795,7 @@ static int read_parameters( int argc, char *argv[] )
 
             case 'q':
             case 'Q':
-                output_noruntime = 1;
+                output_noruntime = true;
                 break;
 
             case 'z':
@@ -820,7 +815,7 @@ static int read_parameters( int argc, char *argv[] )
         }
         else
         {
-            xprintf("\nCommand line option %s is not understood\n",arg);
+            xprintf("\nCommand line option %s is not understood\n",arg.c_str());
             sts = INVALID_DATA;
         }
     }
@@ -833,15 +828,14 @@ static int read_parameters( int argc, char *argv[] )
 
     if( sts != OK ) return sts;
 
-    set_snap_command_file( cmd_file );
+    set_snap_command_file( *cmd_file );
 
     if( cfg_file )
     {
-        const char *cf;
-        cf = find_configuration_file( cfg_file );
+        auto cf = find_configuration_file( *cfg_file );
         if( cf )
         {
-            set_snap_config_file( copy_string( cf ));
+            set_snap_config_file( *cf );
         }
     }
 
@@ -865,10 +859,10 @@ static void print_command_file( void )
 {
     FILE *cmd;
     char inrec[256];
-    cmd = fopen( command_file, "r" );
+    cmd = fopen( command_file->path.c_str(), "r" );
     if( !cmd ) return;
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
-    fprintf(lst,"\nThe command file %s contains:\n", command_file+path_len(command_file,0));
+    fprintf(lst,"\nThe command file %s contains:\n", std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
     while( fgets(inrec,256,cmd)) 
     {
         if (strlen(inrec) == 0) continue;
@@ -881,11 +875,11 @@ static void print_command_file( void )
 
     if( !config_file )  return;
 
-    cmd = fopen( config_file, "r" );
+    cmd = fopen( config_file->c_str(), "r" );
     if( !cmd ) return;
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
     fprintf(lst,"\nAdditional configuration commands were read from %s\n",
-            config_file);
+            config_file->c_str());
     while( fgets(inrec,256,cmd)) fprintf(lst,"     %s",inrec);
     fprintf(lst,"\n");
     fclose( cmd );
@@ -894,160 +888,168 @@ static void print_command_file( void )
 
 static void write_filelist_csv()
 {
-    output_csv *csv = open_snap_output_csv("filelist");
+    const std::unique_ptr<output_csv> csv = open_snap_output_csv("filelist");
     if( ! csv ) return;
-    write_csv_header(csv,"id");
-    write_csv_header(csv,"filename");
-    write_csv_header(csv,"filetype");
-    write_csv_header(csv,"filedate");
-    write_csv_header(csv,"filesize");
-    end_output_csv_record(csv);
+    csv->writeHeader("id");
+    csv->writeHeader("filename");
+    csv->writeHeader("filetype");
+    csv->writeHeader("filedate");
+    csv->writeHeader("filesize");
+    csv->endRecord();
     for( int i=0; i<recorded_filename_count(); i++ )
     {
-        const char *filetype;
-        const char *filename=recorded_filename(i,&filetype);
-        write_csv_int(csv,i);
-        write_csv_string(csv,filename);
-        write_csv_string(csv,filetype);
+        std::string filename;
+        std::string filetype;
+        recorded_filename(i,filename,filetype);
+        csv->writeInt(i);
+        csv->writeString(filename);
+        csv->writeString(filetype);
         time_t modtime=file_modtime(filename);
         if( modtime != 0 )
         {
-            char dbuf[30];
-            struct tm *ltime=localtime(&(modtime));
-            sprintf(dbuf,"%04d-%02d-%02d %02d:%02d:%02d",
-                    ltime->tm_year+1900,ltime->tm_mon+1,ltime->tm_mday,
-                    ltime->tm_hour,ltime->tm_min,ltime->tm_sec);
-            write_csv_string(csv,dbuf);
-            write_csv_int(csv,file_size(filename));
+            const struct tm *ltime=localtime(&(modtime));
+            std::ostringstream modified;
+            modified << std::setfill('0')
+                     << std::setw(4) << ltime->tm_year+1900 << '-'
+                     << std::setw(2) << ltime->tm_mon+1 << '-'
+                     << std::setw(2) << ltime->tm_mday << ' '
+                     << std::setw(2) << ltime->tm_hour << ':'
+                     << std::setw(2) << ltime->tm_min << ':'
+                     << std::setw(2) << ltime->tm_sec;
+            csv->writeString(modified.str());
+            csv->writeInt(file_size(filename));
         }
         else
         {
-            write_csv_null_field(csv);
-            write_csv_null_field(csv);
+            csv->writeNullFields(2);
         }
-        end_output_csv_record(csv);
+        csv->endRecord();
     }
-    close_output_csv( csv );
 }
 
 static void write_metadata_csv()
 {
-    char buffer[128];
-    output_csv *csv = open_snap_output_csv("metadata");
+    const std::unique_ptr<output_csv> csv = open_snap_output_csv("metadata");
     if( ! csv ) return;
-    write_csv_header(csv,"code");
-    write_csv_header(csv,"value");
-    write_csv_header(csv,"comment");
-    end_output_csv_record(csv);
+    csv->writeHeader("code");
+    csv->writeHeader("value");
+    csv->writeHeader("comment");
+    csv->endRecord();
 
-    write_csv_string(csv,"SNAPVER");
-    write_csv_string(csv,PROGRAM_VERSION);
-    write_csv_string(csv,"SNAP version");
-    end_output_csv_record(csv);
+    csv->writeString("SNAPVER");
+    csv->writeString(PROGRAM_VERSION);
+    csv->writeString("SNAP version");
+    csv->endRecord();
 
-    write_csv_string(csv,"RUNTIME");
-    write_csv_string(csv,run_time);
-    write_csv_string(csv,"Run time");
-    end_output_csv_record(csv);
+    csv->writeString("RUNTIME");
+    csv->writeString(run_time);
+    csv->writeString("Run time");
+    csv->endRecord();
 
-    write_csv_string(csv,"TITLE");
-    write_csv_string(csv,job_title);
-    write_csv_string(csv,"Job title");
-    end_output_csv_record(csv);
+    csv->writeString("TITLE");
+    csv->writeString(job_title);
+    csv->writeString("Job title");
+    csv->endRecord();
 
-    write_csv_string(csv,"CRDSYS");
-    write_csv_string(csv,net->crdsys->code);
-    write_csv_string(csv,net->crdsys->name);
-    end_output_csv_record(csv);
+    csv->writeString("CRDSYS");
+    csv->writeString(net->crdsys->code);
+    csv->writeString(net->crdsys->name);
+    csv->endRecord();
 
     if( has_deformation_model(net->crdsys) && deformation_model_epoch(net->crdsys) > 0 )
     {
-        write_csv_string(csv,"CRDSYSEPOCH");
-        write_csv_double(csv,deformation_model_epoch(net->crdsys),1);
-        write_csv_string(csv,"Coordinate system epoch");
-        end_output_csv_record(csv);
+        csv->writeString("CRDSYSEPOCH");
+        csv->writeDouble(deformation_model_epoch(net->crdsys),1);
+        csv->writeString("Coordinate system epoch");
+        csv->endRecord();
     }
 
-    write_csv_string(csv,"NOBS");
-    write_csv_int(csv,nobs+nschp);
-    write_csv_string(csv,"Number of observations");
-    end_output_csv_record(csv);
+    csv->writeString("NOBS");
+    csv->writeInt(nobs+nschp);
+    csv->writeString("Number of observations");
+    csv->endRecord();
 
-    write_csv_string(csv,"NPRM");
-    write_csv_int(csv,nprm);
-    write_csv_string(csv,"Number of parameters");
-    end_output_csv_record(csv);
+    csv->writeString("NPRM");
+    csv->writeInt(nprm);
+    csv->writeString("Number of parameters");
+    csv->endRecord();
 
-    write_csv_string(csv,"NIMP");
-    write_csv_int(csv,nschp);
-    write_csv_string(csv,"Number of implicit parameters");
-    end_output_csv_record(csv);
+    csv->writeString("NIMP");
+    csv->writeInt(nschp);
+    csv->writeString("Number of implicit parameters");
+    csv->endRecord();
 
-    write_csv_string(csv,"NCON");
-    write_csv_int(csv,ncon);
-    write_csv_string(csv,"Number of arbitrary constraints");
-    end_output_csv_record(csv);
+    csv->writeString("NCON");
+    csv->writeInt(ncon);
+    csv->writeString("Number of arbitrary constraints");
+    csv->endRecord();
 
-    write_csv_string(csv,"NDOF");
-    write_csv_int(csv,dof);
-    write_csv_string(csv,"Degrees of freedom");
-    end_output_csv_record(csv);
+    csv->writeString("NDOF");
+    csv->writeInt(dof);
+    csv->writeString("Degrees of freedom");
+    csv->endRecord();
 
-    write_csv_string(csv,"SSR");
-    write_csv_double(csv,ssr,-1);
-    write_csv_string(csv,"Sum of squared residuals");
-    end_output_csv_record(csv);
+    csv->writeString("SSR");
+    csv->writeDouble(ssr,-1);
+    csv->writeString("Sum of squared residuals");
+    csv->endRecord();
 
-    write_csv_string(csv,"SEU");
-    write_csv_double(csv,seu,5);
-    write_csv_string(csv,"Standard error of unit weight");
-    end_output_csv_record(csv);
+    csv->writeString("SEU");
+    csv->writeDouble(seu,5);
+    csv->writeString("Standard error of unit weight");
+    csv->endRecord();
 
-    write_csv_string(csv,"CONVERGED");
-    write_csv_string(csv,converged ? "Y" : "N");
-    write_csv_string(csv,"Adjustment met convergence criteria");
-    end_output_csv_record(csv);
+    csv->writeString("CONVERGED");
+    csv->writeString(converged ? "Y" : "N");
+    csv->writeString("Adjustment met convergence criteria");
+    csv->endRecord();
 
-    write_csv_string(csv,"ZERO_INVERSE");
-    write_csv_string(csv,lsq_using_zero_inverse() ? "Y" : "N");
-    write_csv_string(csv,"Inverse set to zero - calc errors not correct");
-    end_output_csv_record(csv);
+    csv->writeString("ZERO_INVERSE");
+    csv->writeString(lsq_using_zero_inverse() ? "Y" : "N");
+    csv->writeString("Inverse set to zero - calc errors not correct");
+    csv->endRecord();
 
-    write_csv_string(csv,"ERRTYPE");
-    write_csv_string(csv,apriori ? "apriori" : "aposteriori");
-    write_csv_string(csv,"Errors presented as apriori or aposteriori");
-    end_output_csv_record(csv);
+    csv->writeString("ERRTYPE");
+    csv->writeString(apriori ? "apriori" : "aposteriori");
+    csv->writeString("Errors presented as apriori or aposteriori");
+    csv->endRecord();
 
     if( got_vector_data() )
     {
-        buffer[0] = buffer[1] = 0;
-        if( output_csv_veccomp ) strcat(buffer,"-components");
-        if( output_csv_vecsum ) strcat(buffer,"-summary");
-        if( output_csv_vecinline ) strcat(buffer,"-inline");
-        if( output_csv_correlations ) strcat(buffer,"-correlations");
-        write_csv_string(csv,"VECFORMAT");
-        write_csv_string(csv,buffer+1);
-        write_csv_string(csv,"Vector format");
-        end_output_csv_record(csv);
+        std::string vecformat;
+        const auto addVecFormat = [&vecformat]( const bool selected, const std::string_view name )
+        {
+            if( ! selected ) return;
+            // Skips the first hyphen
+            if( ! vecformat.empty() ) vecformat += '-';
+            vecformat += name;
+        };
+        addVecFormat( output_csv_veccomp, "components" );
+        addVecFormat( output_csv_vecsum, "summary" );
+        addVecFormat( output_csv_vecinline, "inline" );
+        addVecFormat( output_csv_correlations, "correlations" );
+        csv->writeString("VECFORMAT");
+        csv->writeString(vecformat);
+        csv->writeString("Vector format");
+        csv->endRecord();
 
         if( output_csv_veccomp )
         {
-            write_csv_string(csv,"VECERRTYPE");
-            write_csv_string(csv,output_csv_vecenu ? "ENU" : "XYZ");
-            write_csv_string(csv,"Vector errors/residual components");
-            end_output_csv_record(csv);
+            csv->writeString("VECERRTYPE");
+            csv->writeString(output_csv_vecenu ? "ENU" : "XYZ");
+            csv->writeString("Vector errors/residual components");
+            csv->endRecord();
         }
     }
-    close_output_csv( csv );
 }
 
-static void update_station_file( char *filename)
+static void update_station_file( const std::string &filename)
 {
-    if( ! filename ) return;
+    if( filename.empty() ) return;
     if( write_station_file( PROGRAM, filename, PROGRAM_VERSION, run_time,
                             coord_precision, output_rejected_coordinates ) == OK )
     {
-        xprintf("\nNew station coordinates have been written to %s\n",filename);
+        xprintf("\nNew station coordinates have been written to %s\n",filename.c_str());
     }
     else
     {
@@ -1060,14 +1062,9 @@ static void update_station_file( char *filename)
 
 BINARY_FILE *open_dump_file( void )
 {
-    int nch;
-    char *bfn;
     BINARY_FILE *b;
 
-    nch = strlen( root_name ) + strlen( BINFILE_EXT ) + 1;
-    bfn = (char *) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, BINFILE_EXT );
+    const std::string bfn = command_file->root + BINFILE_EXT;
 
     record_filename( bfn, "snap_binary" );
 
@@ -1077,7 +1074,6 @@ BINARY_FILE *open_dump_file( void )
         handle_error( FILE_OPEN_ERROR, "Unable to open binary file", bfn );
     }
 
-    check_free( bfn );
     return b;
 }
 

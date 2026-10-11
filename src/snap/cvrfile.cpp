@@ -19,6 +19,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <array>
+#include <string>
+#include <string_view>
+#include <vector>
+
+#include <boost/numeric/conversion/cast.hpp>
+
+using boost::numeric_cast;
 
 #include "cvrfile.h"
 #include "output.h"
@@ -26,7 +34,6 @@
 #include "snap/snapglob.h"
 #include "snap/survfile.h"
 #include "util/leastsqu.h"
-#include "util/chkalloc.h"
 #include "util/progress.h"
 #include "util/dateutil.h"
 #include "util/filelist.h"
@@ -39,11 +46,8 @@ typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
 void print_coord_covariance( void )
 {
-    int nch;
-    char *bfn;
     FILE *f;
     int maxstn, istn, ncrd;
-    int *rownos;
     station *st;
     stn_adjustment *sa;
     long ncvr;
@@ -51,38 +55,28 @@ void print_coord_covariance( void )
     bltmatrix *invnorm;
     double value;
     char projection_coords;
-    void *latfmt = 0;
-    void *lonfmt = 0;
 
-    nch = strlen( root_name ) + strlen( CVRFILE_EXT ) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, CVRFILE_EXT );
+    const std::string bfn = command_file->root + CVRFILE_EXT;
 
-    f = fopen( bfn, "w" );
+    f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
         handle_error( FILE_OPEN_ERROR,"Unable to open covariance_file", bfn );
     }
     else
     {
-        xprintf("\nCreating the coordinate covariance file %s\n",bfn);
+        xprintf("\nCreating the coordinate covariance file %s\n",bfn.c_str());
         record_filename(bfn,"coord_covariance");
     }
-    check_free( bfn );
     if( !f ) return;
 
     maxstn = number_of_stations( net );
     ncrd = maxstn * 3;
-    rownos = (int *) check_malloc( ncrd * sizeof(int));
-    for( istn = 0; istn < ncrd; istn++ ) rownos[istn] = -1;
+    std::vector<int> rownos( numeric_cast<size_t>( ncrd ), -1 );
 
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
-    if( !projection_coords )
-    {
-        latfmt = create_dms_format(3,6,0,NULL,NULL,NULL," N"," S");
-        lonfmt = create_dms_format(3,6,0,NULL,NULL,NULL," E"," W");
-    }
+    const DmsFormat latitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
+    const DmsFormat longitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
 
     fprintf(f,"! Lower triangle of coordinate covariance matrix\n");
     fprintf(f,"! Number of stations, number of coords per station\n");
@@ -92,7 +86,7 @@ void print_coord_covariance( void )
     {
         st = stnptr( istn );
         sa = stnadj( st );
-        fprintf(f,"%*s ",stn_name_width,st->Code );
+        fprintf(f,"%*s ",stn_name_width,st->Code.c_str() );
         if( projection_coords )
         {
             double northing, easting;
@@ -102,8 +96,8 @@ void print_coord_covariance( void )
         }
         else
         {
-            fprintf(f,"%s ",dms_string(st->ELat*RTOD,latfmt,NULL));
-            fprintf(f,"%s ",dms_string(st->ELon*RTOD,lonfmt,NULL));
+            fprintf(f,"%s ",dms_string(st->ELat*RTOD,latitudeFormat).c_str());
+            fprintf(f,"%s ",dms_string(st->ELon*RTOD,longitudeFormat).c_str());
         }
         fprintf(f,"%13.*lf\n",(int) coord_precision,st->OHgt);
         if( sa->hrowno ) { rownos[ir] = sa->hrowno-1; rownos[ir+1] = sa->hrowno; }
@@ -136,18 +130,12 @@ void print_coord_covariance( void )
         }
     end_progress_meter();
     fclose(f);
-    check_free(rownos);
-    if( latfmt ) delete_dms_format( latfmt );
-    if( lonfmt ) delete_dms_format( lonfmt );
 }
 
 void print_coord_covariance_json( void )
 {
-    int nch;
-    char *bfn;
     FILE *f;
     int maxstn, istn, ncrd;
-    int *rownos;
     ellipsoid *elp;
     station *st;
     stn_adjustment *sa;
@@ -159,29 +147,23 @@ void print_coord_covariance_json( void )
     int geocentric_coords;
     int ellipsoidal;
 
-    nch = strlen( root_name ) + strlen(CVRFILE_EXT)+strlen( JSONFILE_EXT ) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, CVRFILE_EXT );
-    strcat( bfn, JSONFILE_EXT );
+    const std::string bfn = command_file->root + CVRFILE_EXT + JSONFILE_EXT;
 
-    f = fopen( bfn, "w" );
+    f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
         handle_error( FILE_OPEN_ERROR,"Unable to open JSON covariance_file", bfn );
     }
     else
     {
-        xprintf("\nCreating the JSON coordinate covariance file %s\n",bfn);
+        xprintf("\nCreating the JSON coordinate covariance file %s\n",bfn.c_str());
         record_filename(bfn,"coord_covariance_json");
     }
-    check_free( bfn );
     if( !f ) return;
 
     maxstn = number_of_stations( net );
     ncrd = maxstn * 3;
-    rownos = (int *) check_malloc( ncrd * sizeof(int));
-    for( istn = 0; istn < ncrd; istn++ ) rownos[istn] = -1;
+    std::vector<int> rownos( numeric_cast<size_t>( ncrd ), -1 );
 
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
@@ -191,7 +173,7 @@ void print_coord_covariance_json( void )
     elp = net->crdsys->rf->el;
 
     fprintf(f,"{\n");
-    fprintf(f,"  \"coordsys\": \"%s\",\n",net->crdsys->code);
+    fprintf(f,"  \"coordsys\": \"%s\",\n",net->crdsys->code.c_str());
     fprintf(f,"  \"stations\": [");
     for( istn = 0, ir=0; istn++ < maxstn; ir+=3)
     {
@@ -199,7 +181,7 @@ void print_coord_covariance_json( void )
         st = stnptr( istn );
         sa = stnadj( st );
         if( istn > 1 ) fprintf(f,",");
-        fprintf(f,"\n    {\n      \"code\": \"%s\",\n",st->Code);
+        fprintf(f,"\n    {\n      \"code\": \"%s\",\n",st->Code.c_str());
         fprintf(f,"      \"coord\": [");
         height=st->OHgt;
         if( ellipsoidal ) height=st->OHgt+st->GUnd;
@@ -272,7 +254,6 @@ void print_coord_covariance_json( void )
     fprintf(f,"\n  ]\n}\n");
     fclose(f);
     end_progress_meter();
-    check_free(rownos);
 }
 
 
@@ -315,7 +296,7 @@ static void station_cvr( bltmatrix* invnorm, station *st1, station *st2, tmatrix
                 icvr[i]=BLT(invnorm,irow1[i]-1,irow2[j]-1);
             }
         }
-        unrotvec(icvr,&(st2->rTopo),icvr);
+        st2->rTopo.unrotvec( icvr, icvr );
         for( i=0; i<3; i++ )
         {
             cvr[i][j]=icvr[i];
@@ -323,15 +304,13 @@ static void station_cvr( bltmatrix* invnorm, station *st1, station *st2, tmatrix
     }
     for( i=0; i<3; i++ )
     {
-        unrotvec(&(cvr[i][0]),&(st1->rTopo),&(cvr[i][0]));
+        st1->rTopo.unrotvec( &(cvr[i][0]), &(cvr[i][0]) );
     }
 }
     
 
 void print_coord_sinex( void )
 {
-    int nch;
-    char *bfn;
     FILE *f;
     int maxstn, istn;
     ellipsoid *elp;
@@ -344,22 +323,18 @@ void print_coord_sinex( void )
     tmatrix cvr;
     int badcvr=0;
 
-    nch = strlen( root_name ) + strlen(SINEX_EXT) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, SINEX_EXT );
+    const std::string bfn = command_file->root + SINEX_EXT;
 
-    f = fopen( bfn, "w" );
+    f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
         handle_error( FILE_OPEN_ERROR,"Unable to open SINEX output file", bfn );
     }
     else
     {
-        xprintf("\nCreating the SINEX file %s\n",bfn);
+        xprintf("\nCreating the SINEX file %s\n",bfn.c_str());
         record_filename(bfn,"solution_sinex");
     }
-    check_free( bfn );
     if( !f ) return;
 
     elp = net->crdsys->rf->el;
@@ -380,7 +355,8 @@ void print_coord_sinex( void )
             st = stnptr( istn );
             sa = stnadj( st );
             if( ! sa->obscount ) continue;
-            if( (int) strlen(st->Code) > maxcodlen ) maxcodlen=strlen(st->Code);
+            const int codelen = numeric_cast<int>( st->Code.size() );
+            if( codelen > maxcodlen ) maxcodlen = codelen;
             if( sa->hrowno ||  sa->vrowno ) 
             {
                 nsnxprm += 3;
@@ -444,8 +420,8 @@ void print_coord_sinex( void )
 
     /* SITE/ID block */
     {
-        void *latfmt = create_dms_format(3,1,DMSF_FMT_PREFIX_HEM,0,0,0,0,"-");
-        void *lonfmt = create_dms_format(3,1,DMSF_FMT_PREFIX_HEM,0,0,0,0,"-");
+        const DmsFormat latitudeFormat( 3, 1, DMSF_FMT_PREFIX_HEM, std::nullopt, std::nullopt, std::nullopt, std::nullopt, "-" );
+        const DmsFormat longitudeFormat( 3, 1, DMSF_FMT_PREFIX_HEM, std::nullopt, std::nullopt, std::nullopt, std::nullopt, "-" );
 
         fprintf(f,"+SITE/ID\n");
         fprintf(f,"*CODE PT __DOMES__ T _STATION DESCRIPTION__ APPROX_LON_ APPROX_LAT_ _APP_H_\n");
@@ -454,25 +430,21 @@ void print_coord_sinex( void )
             double lat;
             double lon;
             const char *mark;
-            char latbuf[20];
-            char lonbuf[20];
 
             st = stnptr( istn );
             sa = stnadj( st );
             if( ! sa->obscount ) continue;
-            mark= strlen(st->Code) <= 4 ? dflt_mark : st->Code+4;
+            mark= st->Code.size() <= 4 ? dflt_mark : st->Code.c_str()+4;
             lon=st->ELon*RTOD;
             if( lon < 0 ) lon += 360.0;
             lat=st->ELat*RTOD;
-            dms_string(lat,latfmt,latbuf);
-            dms_string(lon,lonfmt,lonbuf);
-            
+            const std::string latitudeText = dms_string(lat,latitudeFormat);
+            const std::string longitudeText = dms_string(lon,longitudeFormat);
+
             fprintf(f," %-4.4s %-2.2s %-9.9s P %-22.22s %11.11s %11.11s %7.1lf\n",
-                    st->Code,mark,st->Code,st->Name,lonbuf,latbuf,st->OHgt+st->GUnd
+                    st->Code.c_str(),mark,st->Code.c_str(),st->Name.c_str(),longitudeText.c_str(),latitudeText.c_str(),st->OHgt+st->GUnd
                    );
         }
-        delete_dms_format(latfmt);
-        delete_dms_format(lonfmt);
         fprintf(f,"-SITE/ID\n");
     }
     /*
@@ -497,7 +469,7 @@ void print_coord_sinex( void )
     }
 
     {
-        const char *params[]={"STAX","STAY","STAZ"};
+        constexpr std::array<std::string_view,3> params={"STAX","STAY","STAZ"};
         double epoch=(maxdate+mindate)/2;
         int nprm = 0;
 
@@ -514,7 +486,7 @@ void print_coord_sinex( void )
             if( ! sa->obscount ) continue;
             if( ! ( sa->hrowno ||  sa->vrowno ) ) continue;
 
-            mark= strlen(st->Code) <= 4 ? dflt_mark : st->Code+4;
+            mark= st->Code.size() <= 4 ? dflt_mark : st->Code.c_str()+4;
 
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
@@ -528,7 +500,7 @@ void print_coord_sinex( void )
             for ( int i=0; i<3; i++ )
             {
                 nprm++;
-                fprintf(f," %5d %-6.6s %-4.4s %-2.2s 0001 ",nprm,params[i],st->Code,
+                fprintf(f," %5d %-6.6s %-4.4s %-2.2s 0001 ",nprm,params[i].data(),st->Code.c_str(),
                         mark);
                 print_sinex_date(f,epoch);
                 fprintf(f," m    %d %21.14lE %11.5lE\n",

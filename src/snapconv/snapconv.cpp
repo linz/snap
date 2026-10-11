@@ -26,11 +26,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string>
 #include "util/errdef.h"
 #include "network/network.h"
 #include "util/fileutil.h"
-#include "util/dstring.h"
-#include "util/chkalloc.h"
 #include "snap/filenames.h"
 #include "util/getversion.h"
 
@@ -52,11 +51,11 @@ int main( int argc, char *argv[] )
 {
     coordsys *cs;
     network *net;
-    char msg[256];
+    std::string msg;
     char quiet = 0;
     double epoch = 0.0;
-    char *epochstr=0;
-    char *netcrdsys=0;
+    const char *epochstr=nullptr;
+    std::string netcrdsys;
     char syntax_error=0;
     int hgtfixopt=NW_HGTFIXEDOPT_ELLIPSOIDAL;
     int degopt = SET_DEGOPT_DEFAULT;
@@ -110,7 +109,7 @@ int main( int argc, char *argv[] )
                 printf("Missing value for conversion epoch (-Y)\n");
                 return 1;
             }
-            if( ! parse_crdsys_epoch( epochstr, &epoch ))
+            if( ! parse_crdsys_epoch( epochstr, epoch ))
             {
                 printf("Invalid value for conversion epoch (-Y %s)\n",epochstr);
                 return 1;
@@ -170,24 +169,22 @@ int main( int argc, char *argv[] )
         return 2;
     }
 
-    netcrdsys=copy_string(net->crdsysdef);
+    netcrdsys = net->crdsysdef;
 
-    msg[0]=0;
-    if( set_network_coordsys( net, cs, epoch, hgtfixopt, msg, 256 ) != OK )
+    if( set_network_coordsys( net, cs, epoch, hgtfixopt, msg ) != OK )
     {
-        printf("Unable to convert network coordinate system to %s\n%s\n",argv[2],msg);
+        printf("Unable to convert network coordinate system to %s\n%s\n",argv[2],msg.c_str());
         return 2;
     }
 
-    msg[0]=0;
-    if( netcrdsys )
+    msg.clear();
+    if( ! netcrdsys.empty() )
     {
-        sprintf(msg,"Converted from %.32s",netcrdsys);
-        check_free( netcrdsys );
-    }
-    if( epochstr && msg[0] )
-    {
-        sprintf(msg+strlen(msg)," at epoch %.32s",epochstr);
+        msg="Converted from "+netcrdsys.substr(0,32);
+        if( epochstr )
+        {
+            msg += " at epoch "+std::string(epochstr).substr(0,32);
+        }
     }
 
     if( degopt != SET_DEGOPT_DEFAULT )
@@ -205,7 +202,7 @@ int main( int argc, char *argv[] )
         set_network_height_coord_orthometric( net );
     }
 
-    if( write_network( net, argv[3], msg, 0, 0 ) != OK )
+    if( write_network( net, argv[3], msg, 0, nullptr ) != OK )
     {
         return 2;
     }

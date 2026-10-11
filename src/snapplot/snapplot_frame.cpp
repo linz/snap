@@ -17,6 +17,7 @@
 #include "wx_includes.hpp"
 #include <wx/popupwin.h>
 
+#include <string_view>
 #include <vector>
 
 #include "snapplot_frame.hpp"
@@ -448,9 +449,9 @@ void SnapplotFrame::CreateMenu()
             { DISPLAYBY_DATAFILE, "Data file" },
             { DISPLAYBY_OBSSTATUS, "Obs status" },
         };
-        for( int i = 1; i <= classification_count( &obs_classes ); i++ )
+        for( int i = 1; i <= obs_classes.count(); i++ )
         {
-            dimensions.push_back( { i, wxString( classification_name( &obs_classes, i ) ) } );
+            dimensions.push_back( { i, wxString( obs_classes.name( i ) ) } );
         }
 
         std::vector<wxCheckBox *> checkboxes;
@@ -530,7 +531,7 @@ void SnapplotFrame::SetupData()
     // if( map ) delete map;
     // if( symbologyKey ) delete symbologyKey;
 
-    if( command_file ) SetLabel(wxString("Snapplot - " )+ wxString(command_file));
+    if( command_file ) SetLabel(wxString("Snapplot - " )+ wxString(command_file->path));
     map = new SnapplotMap();
     mapWindow->SetMap( map );
     SetupSymbology();
@@ -567,13 +568,13 @@ void SnapplotFrame::AddStationColourOptions()
 {
     stationColourCommandFirst = nextCommandId;
     int nitems = 0;
-    for( int i = 0; i++ < network_classification_count( net ); )
+    for( int i = 0; i++ < net->classification_count(); )
     {
-        wxString menuText = wxString::Format("&%d %.40s",i,network_class_name( net,i) );
+        wxString menuText = wxString::Format("&%d %.40s",i,net->class_name(i).c_str() );
         stationColourMenu->Append( nextCommandId,
                                    menuText,
                                    wxString::Format("Colour stations according to %s",
-                                           network_class_name( net,i) )
+                                           net->class_name(i).c_str() )
                                  );
         Connect( nextCommandId, wxEVT_COMMAND_MENU_SELECTED,
                  wxCommandEventHandler(SnapplotFrame::OnCmdStationColourBy));
@@ -600,16 +601,16 @@ void SnapplotFrame::AddColourByClassifications()
 {
     // Add classifications to the colour by menu ...
 
-    if( classification_count( &obs_classes) > 0 )
+    if( obs_classes.count() > 0 )
     {
         classifyCommandFirst = nextCommandId;
-        for( int i = 0; i++ < classification_count( &obs_classes); )
+        for( int i = 0; i++ < obs_classes.count(); )
         {
-            wxString menuText = wxString::Format("&%d %.40s",i,classification_name( &obs_classes,i) );
+            wxString menuText = wxString::Format("&%d %.40s",i,obs_classes.name(i).c_str() );
             dataColourMenu->AppendCheckItem( nextCommandId,
                                     menuText,
                                     wxString::Format("Colour observations according to %s classification",
-                                            classification_name( &obs_classes,i) )
+                                            obs_classes.name(i).c_str() )
                                   );
             Connect( nextCommandId, wxEVT_COMMAND_MENU_SELECTED,
                      wxCommandEventHandler(SnapplotFrame::OnCmdColourBy));
@@ -637,11 +638,12 @@ void SnapplotFrame::AddConfigMenuItems()
         configMenuCommandFirst = nextCommandId;
         for( int i = 0; i < config_menu_item_count(); i++ )
         {
-            wxString menuText = wxString::Format("&%d %.40s",i+1,config_menu_text(i) );
+            const std::string_view menuTextView = config_menu_text(i);
+            wxString menuText = wxString::Format("&%d %.40s",i+1,menuTextView.data() );
             configMenu->Append( nextCommandId,
                                 menuText,
                                 wxString::Format("Load configuration file for %s",
-                                                 config_menu_text(i) )
+                                                 menuTextView.data() )
                               );
             Connect( nextCommandId, wxEVT_COMMAND_MENU_SELECTED,
                      wxCommandEventHandler(SnapplotFrame::OnCmdReadConfig));
@@ -670,7 +672,7 @@ void SnapplotFrame::ShowObsList()
     dataView->ChangeSelection( obsListPage );
 }
 
-void SnapplotFrame::ReadConfiguration( const char *filename )
+void SnapplotFrame::ReadConfiguration( const std::string &filename )
 {
     process_configuration_file( filename );
     UpdateColourByMenuCheck();
@@ -692,7 +694,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
 
 
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxFileDialog dlgFile(
         this,
@@ -704,7 +706,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
     );
 
     if( dlgFile.ShowModal() == wxID_OK &&
-            ! save_configuration( dlgFile.GetPath().mb_str()) )
+            ! save_configuration( dlgFile.GetPath().ToStdString() ) )
     {
         wxMessageBox(
             wxString::Format( "Unable to save configuration to %s", dlgFile.GetFilename()),
@@ -718,7 +720,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
 void SnapplotFrame::OnCmdRestoreConfig( wxCommandEvent & WXUNUSED(event) )
 {
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxString configFile = wxFileSelector(
                               "Select configuration file to restore",
@@ -732,7 +734,7 @@ void SnapplotFrame::OnCmdRestoreConfig( wxCommandEvent & WXUNUSED(event) )
 
     if( ! configFile.IsEmpty() )
     {
-        ReadConfiguration( configFile.mb_str() );
+        ReadConfiguration( configFile.ToStdString() );
     }
 }
 
@@ -740,7 +742,7 @@ void SnapplotFrame::OnCmdExportImage( wxCommandEvent & WXUNUSED(event) )
 {
 
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxFileDialog dlgFile(
         this,
@@ -786,7 +788,7 @@ void SnapplotFrame::OnCmdExportDxf( wxCommandEvent & WXUNUSED(event) )
 {
 
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxFileDialog dlgFile(
         this,
@@ -799,7 +801,7 @@ void SnapplotFrame::OnCmdExportDxf( wxCommandEvent & WXUNUSED(event) )
 
     if( dlgFile.ShowModal() != wxID_OK ) return;
 
-    if( open_dxf_file( dlgFile.GetPath().mb_str() ) != OK )
+    if( open_dxf_file( dlgFile.GetPath().ToStdString() ) != OK )
     {
         wxMessageBox(
             wxString::Format( "Unable to save DXF file to %s", dlgFile.GetFilename()),
@@ -932,7 +934,7 @@ void SnapplotFrame::OnCmdViewMapFont( wxCommandEvent & WXUNUSED(event) )
     wxFont newFont = wxGetFontFromUser( this, stationFont, "New map font style");
     if( newFont.IsOk() )
     {
-        set_station_font( newFont.GetNativeFontInfoUserDesc().mb_str() );
+        set_station_font( newFont.GetNativeFontInfoUserDesc().ToStdString() );
         mapWindow->RedrawMap();
     }
 }
@@ -1102,8 +1104,7 @@ void SnapplotFrame::OnCmdReadConfig( wxCommandEvent &event )
     int id = event.GetId();
     if( id >= configMenuCommandFirst && id <= configMenuCommandLast )
     {
-        char *filename = config_menu_filename( id - configMenuCommandFirst );
-        ReadConfiguration( filename );
+        ReadConfiguration( std::string( config_menu_filename( id - configMenuCommandFirst ) ) );
     }
 }
 
@@ -1115,7 +1116,7 @@ void SnapplotFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdHelpAbout( wxCommandEvent & WXUNUSED(event) )
 {
-    ShowHelpAbout(PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
+    ShowHelpAbout(getProgramName(),getProgramVersion(SNAPVERSION),PROGRAM_DATE);
 }
 
 void SnapplotFrame::FunctionNotImplemented( wxCommandEvent & WXUNUSED(event) )

@@ -1,0 +1,36 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 3.0.0-19d56fbe
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Sep 21 2026 08:58:39
+
+================================================================================
+                   Run at 21-SEP-2026 09:24:21 by asibthorpe
+
+
+
+
+================================================================================
+                                                            21-SEP-2026 09:24:21
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Error reading station recoding
+       Invalid hv_error abc in recode definition
+
+Error: Errors encountered in recode command
+       Line 18: File testsr16.snp
+
+Error: Error reading station recoding
+       Cannot recode from * to 1FROMSTAR
+
+Error: Errors encountered in recode command
+       Line 19: File testsr16.snp
+
+Error: The command file is not correct

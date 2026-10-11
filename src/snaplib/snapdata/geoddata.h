@@ -12,6 +12,6 @@
 #include "util/datafile.h"
 #endif
 
-int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) );
+int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) );
 
 #endif

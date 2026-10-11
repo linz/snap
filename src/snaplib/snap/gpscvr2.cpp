@@ -27,7 +27,7 @@ static double dflttmat[] = { 1.0, 0.0, 0.0,
 
 static void station_vertical( int id, double vrt[3] )
 {
-    rot_vertical( & (stnptr(id)->rTopo), vrt );
+    stnptr(id)->rTopo.rot_vertical( vrt );
 }
 
 
@@ -42,9 +42,9 @@ static void topocentre_vertical( double vrt[3] )
     {
         tlat = lt; tlon = ln;
         got_topocentre = 1;
-        init_toprot( tlat, tlon, &toporot );
+        toporot = rotmat( tlat, tlon );
     }
-    rot_vertical( &toporot, vrt );
+    toporot.rot_vertical( vrt );
 }
 
 static void get_vertical( int id, double vrt[3] )
@@ -68,11 +68,11 @@ static double *get_transformation( int rfid, int inverse )
     }
     if( inverse )
     {
-        return rftrans_invtmat( rf );
+        return &rf->invtmat[0][0];
     }
     else
     {
-        return rftrans_tmat( rf );
+        return &rf->tmat[0][0];
     }
 }
 

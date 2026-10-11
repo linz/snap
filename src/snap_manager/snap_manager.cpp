@@ -304,7 +304,7 @@ void SnapMgrFrame::OnClearLog( wxCommandEvent & WXUNUSED(event) )
 
 void SnapMgrFrame::OnCmdHelpAbout( wxCommandEvent & WXUNUSED(event) )
 {
-    ShowHelpAbout(PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
+    ShowHelpAbout(getProgramName(),getProgramVersion(SNAPVERSION),PROGRAM_DATE);
 }
 
 void SnapMgrFrame::OnActivate( wxActivateEvent & WXUNUSED(event) )

@@ -10,7 +10,7 @@
 
 /* Header file for the Polar Stereographic projection */
 
-typedef struct
+struct PSProjection
 {
     double cm;         /* Central meridian */
     double sf;         /* Central meridian scale factor */
@@ -21,7 +21,7 @@ typedef struct
     double rf;
     double e;
     double e2;
-} PSProjection;
+};
 
 void define_PSProjection( PSProjection *psp, double a, double rf,
                           double cm, double sf, double fe, double fn, char south );

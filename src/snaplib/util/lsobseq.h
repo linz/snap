@@ -8,6 +8,9 @@
 
 */
 
+#include <optional>
+#include <string_view>
+
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
 #endif
@@ -46,7 +49,7 @@
 /*                                                            */
 /*------------------------------------------------------------*/
 
-typedef struct
+struct obsrow
 {
     int    *col;    /* Column no of non-zero element */
     double *val;    /* Value of non-zero element */
@@ -54,11 +57,11 @@ typedef struct
     double  obsv;   /* The value of the observation */
     double  schv;   /* Implicitly solved parameter */
     char    flag;   /* Flag for observations */
-}  obsrow;
+};
 
 #define OE_UNUSED  1
 
-typedef struct
+struct obseqn
 {
     int     nprm;   /* Number of parameters */
     int     nrow;   /* Number of rows in equns */
@@ -69,7 +72,7 @@ typedef struct
     ltmat   cvr;    /* Covariance matrix */
     char    flag;   /* TRUE if weight matrix is diagonal */
     long    maxelt; /* Size currently allocated to the matrix*/
-}  obseqn;
+};
 
 #define OE_LOWERTRI_CVR 0    /* Covariance is lower triangle storage */
 #define OE_DIAGONAL_CVR 1    /* Covariance matrix is diagonal */
@@ -120,7 +123,8 @@ void oe_add_param( obseqn *A, int irow, int c, double v );
 
 void print_obseqn( FILE *out, void *hA );
 
-void print_obseqn_json( FILE *out, void *hA, const char *source, int nprefix );
+/// Writes the observation equation as JSON. The source, if given, is JSON text describing where the observation came from.
+void print_obseqn_json( FILE *out, void *hA, std::optional<std::string_view> source, int nprefix );
 
 #define obseqn_rows(hA) (((obseqn *)hA)->nrow)
 #define obseqn_cvr_diagonal(hA) (((obseqn *)hA)->flag & OE_DIAGONAL_CVR)

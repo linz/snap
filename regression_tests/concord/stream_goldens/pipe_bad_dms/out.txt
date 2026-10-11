@@ -1,0 +1,7 @@
+A1       -45.2878  168.7240      1
+**** Error reading data for point B2 ****  15.9 S 168 43 26.4 E 1
+**** Error reading data for point C3 ****  S 168 43 26.4 E 1
+**** Error reading data for point D4 ****  168 43 26 E 1
+**** Error reading data for point E5 ****  17 15.9 S 168 43 26.4 E 1
+F6       -45.2878  168.7240      1 junk
+**** Error reading data for point G7 ****  168 43 26.4 E 1

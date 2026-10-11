@@ -36,7 +36,7 @@ static void calc_topocentre( network *nw )
                 NULL != (st = next_station(nw));
            )
         {
-            rot_vertical( &st->rTopo, tmp );
+            st->rTopo.rot_vertical( tmp );
             for( i = 0; i<3; i++ ) vecu[i] += tmp[i];
         }
 

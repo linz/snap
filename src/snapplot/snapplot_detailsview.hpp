@@ -40,18 +40,17 @@ private:
     // Routines to build content
 
     void ClearText();
-    void AddString( const char *string, bool newLine = true );
+    void AddString( const std::string &string, bool newLine = true );
     void AddNewLine();
     void DisplayText();
-    void AddInfoText( PutTextInfo *jump, const char *text, bool addNewLine = true );
-    static void AddInfoText( void *win, PutTextInfo *jump, const char *text );
+    void AddInfoText( PutTextInfo *jump, const std::string &text, bool addNewLine = true );
+    static void AddInfoText( void *win, PutTextInfo *jump, const std::string &text );
 
     // Event handlers
 
     void OnHtmlLinkClicked( wxHtmlLinkEvent &event );
     void OnRightMouse( wxMouseEvent &event );
 
-    char buf[256];
     PutTextInfoWriter *history;
     int historyNext;
     int historyCount;

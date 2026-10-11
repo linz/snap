@@ -9,8 +9,10 @@
 */
 
 #include <stdint.h>
+#include <stdio.h>
+#include <string_view>
 
-int64_t save_note( const char *note, int continued );
+int64_t save_note( std::string_view note, int continued );
 void list_note( FILE *out, int64_t loc );
 
 #endif

@@ -8,7 +8,7 @@
 
 */
 
-typedef struct
+struct StationSizeDef
 {
     double symSize;
     double txtSize;
@@ -16,7 +16,7 @@ typedef struct
     char txtAuto;
     char dfltFont;
     char ignoreOffset;
-} StationSizeDef;
+};
 
 #ifdef __cplusplus
 //extern "C"

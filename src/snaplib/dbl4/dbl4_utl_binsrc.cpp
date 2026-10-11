@@ -24,10 +24,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
 
 #include "dbl4_utl_binsrc.h"
 
-#include "dbl4_utl_alloc.h"
 #include "dbl4_utl_error.h"
 #include "dbl4_utl_blob.h"
 
@@ -111,46 +111,40 @@ static void swap8( unsigned char *b )
 
 
 /*************************************************************************
-** Function name: check_endian
+** Function name: architecture_endian
 **//**
-**          Function to test the endian-ness of the machine on which it is
+**          Function to test the byte order of the machine on which it is
 **      executed.  It does this crudely by converting a short integer to
 **      a character buffer, and then testing the value of the first
 **      character.
 **
-**  \param big_wanted          True if want to use big-endian data,
-**                             false otherwise
-**
-**  \return                    Returns true if the byte order needs
-**                             swapping.
+**  \return                    The byte order of the machine
 **
 **************************************************************************
 */
 
-static int check_endian( int big_wanted)
+static Endian architecture_endian()
 {
-    unsigned short test = 0x01;
-    unsigned char *b;
-    int swap_bytes;
-    b = (unsigned char *) (&test);
-    /* If little endian then b[0] = 1, else b[0] = 0 */
-    swap_bytes = b[0];
-    if( ! big_wanted ) swap_bytes = ! swap_bytes;
-    return swap_bytes;
+    const unsigned short test = 0x01;
+    /* If little endian then the first byte is 1, else it is 0 */
+    return *reinterpret_cast<const unsigned char *>( &test ) == 1 ? Endian::Little : Endian::Big;
 }
 
-/*************************************************************************
-** Function name: utlIsBigEndian
-**//**
-**      Function to return the endianness of the system
-**
-**  \return                    Returns true if it is big endian
-**
-**************************************************************************
-*/
-int utlIsBigEndian()
+BinSrc::BinSrc( const hBlob source )
+    : blob( source ),
+      offset( 0 ),
+      seek_offset( 0 ),
+      arch_endian( architecture_endian() )
 {
-    return check_endian(0);
+}
+
+BinSrc::BinSrc( const BinSrc &parent, const long embeddedOffset )
+    : blob( parent.blob ),
+      offset( parent.seek_offset + embeddedOffset ),
+      seek_offset( parent.seek_offset + embeddedOffset ),
+      src_endian( parent.src_endian ),
+      arch_endian( parent.arch_endian )
+{
 }
 
 /*************************************************************************
@@ -169,8 +163,6 @@ int utlIsBigEndian()
 
 StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
 {
-    hBinSrc bs;
-
     (*binsrc) = NULL;
 
     /* Was coded with ASSERT(), but this crashed CC optimizer?! */
@@ -182,20 +174,7 @@ StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
     }
     #endif
 
-    bs = (hBinSrc) utlAlloc( sizeof( BinSrc ) );
-    if( ! bs )
-    {
-        RETURN_STATUS(STS_ALLOC_FAILED)
-    };
-
-    bs->blob = blob;
-    bs->offset = 0;
-    bs->seek_offset = 0;
-    bs->src_endian = 0;
-    bs->arch_endian = check_endian( 0 );
-    bs->swap_bytes = bs->arch_endian;
-
-    (*binsrc) = bs;
+    (*binsrc) = new BinSrc( blob );
 
     return STS_OK;
 }
@@ -220,8 +199,6 @@ StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
 
 StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc * embsrc )
 {
-    hBinSrc bs;
-
     (*embsrc) = NULL;
 
     if( ! binsrc )
@@ -229,20 +206,7 @@ StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc * embsr
         RETURN_STATUS(STS_INVALID_DATA)
     };
 
-    bs = (hBinSrc) utlAlloc( sizeof( BinSrc ) );
-    if( ! bs )
-    {
-        RETURN_STATUS(STS_ALLOC_FAILED)
-    };
-
-    bs->blob = binsrc->blob;
-    bs->seek_offset = binsrc->seek_offset + offset;
-    bs->offset = bs->seek_offset;
-    bs->src_endian = binsrc->src_endian;
-    bs->arch_endian = binsrc->arch_endian;
-    bs->swap_bytes = binsrc->swap_bytes;
-
-    (*embsrc) = bs;
+    (*embsrc) = new BinSrc( *binsrc, offset );
 
     return STS_OK;
 }
@@ -263,10 +227,7 @@ StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc * embsr
 
 StatusType utlReleaseBinSrc( hBinSrc binsrc)
 {
-    if( binsrc )
-    {
-        utlFree ( binsrc );
-    }
+    delete binsrc;
     return STS_OK;
 }
 
@@ -299,26 +260,24 @@ static long utlSetOffset( hBinSrc binsrc, long offset )
 }
 
 /*************************************************************************
-** Function name: utlBinSrcSetBigEndian
+** Function name: utlBinSrcSetEndian
 **//**
-**       Sets the endianness of the data source.  This is compared with
-**       the data architecture to determine whether the routines need to
-**       alter the byte order.
+**       Sets the byte order of the data source.  This is compared with
+**       the byte order of the architecture to determine whether the
+**       routines need to alter the byte order.
 **
 **  \param binsrc              Pointer to the hBinSrc object
 **                             released.
-**  \param bigEndian           1 if the data is big endian, 0 otherwise
+**  \param endian              The byte order of the data
 **
 **  \return                    The return status
 **
 **************************************************************************
 */
 
-StatusType utlBinSrcSetBigEndian( hBinSrc binsrc, int bigEndian)
+StatusType utlBinSrcSetEndian( hBinSrc binsrc, const Endian endian)
 {
-    binsrc->src_endian = bigEndian ? 1 : 0;
-    binsrc->swap_bytes = binsrc->src_endian;
-    if( binsrc->arch_endian ) binsrc->swap_bytes = ! binsrc->swap_bytes;
+    binsrc->src_endian = endian;
     return STS_OK;
 }
 
@@ -374,7 +333,7 @@ int utlBinSrcLoad2( hBinSrc binsrc, long offset, int nval, void *data)
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
     if( sts != STS_OK ) return sts;
     binsrc->offset = offset + size;
-    if( binsrc->swap_bytes )
+    if( binsrc->swap_bytes() )
     {
         b = (unsigned char *) data;
         while(nval--)
@@ -411,7 +370,7 @@ int utlBinSrcLoad4( hBinSrc binsrc, long offset, int nval, void *data)
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
     if( sts != STS_OK ) return sts;
     binsrc->offset = offset + size;
-    if( binsrc->swap_bytes )
+    if( binsrc->swap_bytes() )
     {
         b = (unsigned char *) data;
         while(nval--)
@@ -448,7 +407,7 @@ int utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data)
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
     if( sts != STS_OK ) return sts;
     binsrc->offset = offset + size;
-    if( binsrc->swap_bytes )
+    if( binsrc->swap_bytes() )
     {
         b = (unsigned char *) data;
         while(nval--)
@@ -465,81 +424,30 @@ int utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data)
 **//**
 **    Function to load a string from the blob.  The string is stored as a
 **    2 byte length followed by the data.  The string should be stored with
-**    a trailing null byte included - although this routine will add a null
-**    byte for safety.
-**
-**    This routine use ::utlAlloc to allocate the string that will be returned.
+**    a trailing null byte included.  The string returned ends at the first
+**    null byte, as the C string it replaces did.
 **
 **  \param binsrc              The binary source object
 **  \param offset              The offset to start reading
-**  \param data                Returns a pointer to the created string
+**  \param data                Returns the string, empty if the read fails
 **
-**  \return                    Returns a pointer to the string bufer
+**  \return                    The return status
 **
 **************************************************************************
 */
 
-StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, char **data )
+StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, std::string &data )
 {
     INT2 len;
-    char *s;
-    StatusType sts;
-    *data = NULL;
-    sts = utlBinSrcLoad2( binsrc, offset, 1, (void *) (&len) );
+    data.clear();
+    StatusType sts = utlBinSrcLoad2( binsrc, offset, 1, (void *) (&len) );
     if( sts != STS_OK ) RETURN_STATUS(sts);
-    if( len < 0 || len > BINSRC_MAX_STRING_LEN ) RETURN_STATUS(STS_INVALID_DATA);
+    if( len < 0 ) RETURN_STATUS(STS_INVALID_DATA);
 
-    s = (char *) utlAlloc( len+1 );
-    if( ! s ) RETURN_STATUS(STS_ALLOC_FAILED);
-    if( len > 0 ) sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, s );
-    if( sts != STS_OK )
-    {
-        utlFree(s);
-        RETURN_STATUS(sts);
-    }
-    s[len] = 0;
-    *data = s;
-    return STS_OK;
-}
-
-/*************************************************************************
-** Function name: utlBinSrcLoadString4
-**//**
-**    Function to load a string from the blob.  The string is stored as a
-**    4 byte length followed by the data.  The string should be stored with
-**    a trailing null byte included - although this routine will add a null
-**    byte for safety.
-**
-**    This routine use ::utlAlloc to allocate the string that will be returned.
-**
-**  \param binsrc              The binary source object
-**  \param offset              The offset to start reading
-**  \param data                Returns a pointer to the created string
-**
-**  \return                    Returns a pointer to the string bufer
-**
-**************************************************************************
-*/
-
-StatusType utlBinSrcLoadString4( hBinSrc binsrc, long offset, char **data )
-{
-    INT4 len;
-    char *s;
-    StatusType sts;
-    *data = NULL;
-    sts = utlBinSrcLoad4( binsrc, offset, 1, (void *) (&len) );
+    std::string text( len, '\0' );
+    if( len > 0 ) sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, text.data() );
     if( sts != STS_OK ) RETURN_STATUS(sts);
-    if( len < 0 || len > BINSRC_MAX_STRING_LEN ) RETURN_STATUS(STS_INVALID_DATA);
-
-    s = (char *) utlAlloc( len+1 );
-    if( ! s ) RETURN_STATUS(STS_ALLOC_FAILED);
-    if( len > 0 ) sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, s );
-    if( sts != STS_OK )
-    {
-        utlFree(s);
-        RETURN_STATUS(sts);
-    }
-    s[len] = 0;
-    *data = s;
+    text.resize( std::min( text.find( '\0' ), text.size() ) );
+    data = std::move( text );
     return STS_OK;
 }

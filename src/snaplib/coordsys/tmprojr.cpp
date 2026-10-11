@@ -72,28 +72,12 @@ static int tm_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_tm_projection( void )
 {
-    const char *code = "TM";
-    const char *name = "Transverse Mercator";
-
-    projection_type tm;
-
     if( tm_type ) return;
 
-    tm.code = code;
-    tm.name = name;
-    tm.size = sizeof(tmprojection);
-    tm.params = tmparams;
-    tm.nparams = COUNT_OF(tmparams);
-    tm.create = NULL;
-    tm.destroy = NULL;
-    tm.copy = NULL;
-    tm.identical = NULL;
-    tm.bind_ellipsoid = tm_bind_ellipsoid;
-    tm.geog_to_proj = tm_geog_to_proj;
-    tm.proj_to_geog = tm_proj_to_geog;
-    tm.calc_sf_cv = NULL;
-
-    tm_type = register_projection_type( &tm );
+    tm_type = register_projection_type( new projection_type(
+        "TM", "Transverse Mercator", sizeof(tmprojection), tmparams, COUNT_OF(tmparams),
+        nullptr, nullptr, nullptr, tm_bind_ellipsoid, nullptr,
+        tm_geog_to_proj, tm_proj_to_geog, nullptr ) );
 }
 
 projection *create_tm_projection(  double cm, double sf, double lto,
@@ -104,8 +88,7 @@ projection *create_tm_projection(  double cm, double sf, double lto,
     if( !tm_type ) register_tm_projection();
     if( !tm_type ) return NULL;
 
-    prj = create_projection( tm_type );
-    if( !prj ) return NULL;
+    prj = new projection( *tm_type );
 
     define_tmprojection( (tmprojection *) prj->data, 6378388.0, 297.0,
                          cm, sf, lto, fe, fn, utom );

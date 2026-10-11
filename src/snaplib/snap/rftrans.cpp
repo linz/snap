@@ -11,12 +11,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
+#include <memory>
+#include <vector>
+
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "snap/rftrans.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/geodetic.h"
 #include "util/dateutil.h"
+#include "util/fieldscanner.hpp"
 /* #include "errdef.h" */
 #include "util/pi.h"
 
@@ -44,329 +50,275 @@
   NOTE: Translations not implemented yet!!!
 */
 
-#define RFLIST_INC 10
-
-#define DEFAULT_REF_EPOCH 2000
-
-static rfTransformation **rflist = NULL;
-static int nrflist = 0;
-static int nrftrans = 0;
+static std::vector<std::unique_ptr<rfTransformation>> rflist;
 
 static char frames_setup = 0;
 
-static tmatrix toporot;
-static tmatrix invtoporot;
+/// The rotations to and from the topocentric system at the network topocentre,
+/// copied into each frame by setup().
+static tmatrix topocentreRotation;
+static tmatrix invTopocentreRotation;
 
 
-static int find_rftrans( const char *name )
+/// Looks up a reference frame by name, ignoring case.
+/// Returns the frame's id, which is its position in `rflist` plus one
+/// (ids start at 1, matching rftrans_from_id), or 0 if there is no such frame.
+static int find_rftrans( const std::string_view name )
 {
-    int nrf;
-
-    for( nrf = 0; nrf < nrftrans; nrf++ )
+    for( size_t index = 0; index < rflist.size(); index++ )
     {
-        if( _stricmp( rflist[nrf]->name, name ) == 0 ) return nrf+1;
+        if( compare_ignoring_case( rflist[index]->name, name ) == 0 ) return boost::numeric_cast<int>( index + 1 );
     }
     return 0;
 }
 
 
-rfTransformation *new_rftrans( void )
+/// Defines a new frame: every parameter is zero, the reference epoch is the default,
+/// and the matrices are set up straight away if the topocentre is already known.
+rfTransformation::rfTransformation( const int id, const std::string_view name, const int rftype )
+    : RfTransformationData{},
+      id( id ),
+      name( boost::algorithm::to_upper_copy( std::string( name ) ) )
 {
-    rfTransformation *rf;
+    refepoch = DEFAULT_REF_EPOCH;
+    origintype = REFFRM_ORIGIN_DEFAULT;
+    istopo = rftype == REFFRM_TOPOCENTRIC;
+    isiers = rftype == REFFRM_IERS;
 
-    rf = (rfTransformation *) check_malloc( sizeof( rfTransformation ) );
-
-    if( nrftrans >= nrflist )
-    {
-        nrflist = nrftrans + RFLIST_INC;
-        rflist = (rfTransformation **) check_realloc( rflist,
-                 nrflist * sizeof( rfTransformation *) );
-    }
-
-    rflist[nrftrans] = rf;
-    nrftrans++;
-
-    rf->name = NULL;
-    rf->id = nrftrans;
-
-    return rf;
+    if( frames_setup ) setup();
 }
 
+/// Rebuilds a frame from data read from a binary file. The stored matrices are
+/// used as they are, because snaplist and snapplot never call setup().
+rfTransformation::rfTransformation( const int id, std::string name, const RfTransformationData &data )
+    : RfTransformationData( data ),
+      id( id ),
+      name( std::move( name ) )
+{
+}
+
+/// Ids are positions in rflist plus one, so only the next id in sequence can be added.
+rfTransformation *add_rftrans( const int id, std::string name, const RfTransformationData &data )
+{
+    if( id != rftrans_count() + 1 ) return nullptr;
+    rflist.push_back( std::make_unique<rfTransformation>( id, std::move( name ), data ) );
+    return rflist.back().get();
+}
+
+/// Deletes every frame, so the next frame added gets id 1.
 void clear_rftrans_list( void )
 {
-    int i;
-    for( i = 0; i < nrftrans; i++ )
-    {
-        if( rflist[i] )
-        {
-            if( rflist[i]->name ) check_free( rflist[i]->name );
-            check_free( rflist[i] );
-        }
-    }
-    nrftrans = 0;
+    rflist.clear();
 }
 
-static int create_rftrans( const char *name, int rftype )
+/// Returns the id of the named frame, defining a new frame of type rftype
+/// (REFFRM_GEOCENTRIC, REFFRM_TOPOCENTRIC or REFFRM_IERS) if there is none.
+/// The type is ignored for a frame that already exists.
+int get_rftrans_id( const std::string_view name, const int rftype )
 {
-    rfTransformation *rf;
-    int i;
+    const int existing = find_rftrans( name );
+    if( existing ) return existing;
 
-    rf = new_rftrans();
-
-    rf->name = copy_string( name );
-    _strupr( rf->name );
-    rf->refepoch=DEFAULT_REF_EPOCH;
-    rf->usage=0;
-    rf->userates=0;
-    rf->usetrans = 0;
-    rf->origintype = REFFRM_ORIGIN_DEFAULT;
-    rf->localoriginok = 0;
-    rf->localorigin = 0;
-    rf->calctrans = 0;
-    rf->calcrot = 0;
-    rf->calcscale = 0;
-    rf->calctransrate = 0;
-    rf->calcrotrate = 0;
-    rf->calcscalerate = 0;
-    rf->istopo = rftype == REFFRM_TOPOCENTRIC;
-    rf->isiers = rftype == REFFRM_IERS;
-
-    rf->origin[0] = 0.0;
-    rf->origin[1] = 0.0;
-    rf->origin[2] = 0.0;
-
-    rf->trans[0] = 0.0;
-    rf->trans[1] = 0.0;
-    rf->trans[2] = 0.0;
-    rf->transrate[0] = 0.0;
-    rf->transrate[1] = 0.0;
-    rf->transrate[2] = 0.0;
-
-    for( i = 0; i < 14; i++ )
-    {
-        rf->prm[i] = 0.0;
-        rf->calcPrm[i] = 0;
-        rf->prmId[i] = 0;
-        rf->prmUsed[i] = 0;
-    }
-    for( i = 0; i < 105; i++ )
-    {
-        rf->prmCvr[i] = 0.0;
-    }
-
-    if( frames_setup ) setup_rftrans( rf );
-
-    return nrftrans;
+    const int id = rftrans_count() + 1;
+    rflist.push_back( std::make_unique<rfTransformation>( id, name, rftype ) );
+    return id;
 }
 
-
-int get_rftrans_id( const char *name, int rftype )
-{
-    int rf;
-
-    rf = find_rftrans( name );
-    if( !rf ) rf = create_rftrans( name, rftype );
-    return rf;
-}
-
+/// The number of frames defined, which is also the highest valid id.
 int rftrans_count( void )
 {
-    return nrftrans;
+    return boost::numeric_cast<int>( rflist.size() );
 }
 
-rfTransformation *rftrans_from_id( int id )
+/// Returns the frame with the given id (1 to rftrans_count()), or nullptr if there is none.
+rfTransformation *rftrans_from_id( const int id )
 {
-    return id > 0 && id <= nrftrans ? rflist[id-1] : NULL;
+    return id > 0 && id <= rftrans_count() ? rflist[id-1].get() : nullptr;
 }
 
-int rftrans_topocentric( rfTransformation *rf )
+/// Sets the reference date, given as a snap date and held as a decimal year.
+void rfTransformation::setRefDate( const double date )
 {
-    return rf->istopo;
+    refepoch = date_as_year(date);
 }
 
-int rftrans_iers( rfTransformation *rf )
+/// Chooses how the origin of rotation and scale is treated (one of the REFFRM_ORIGIN_ options).
+void rfTransformation::setOriginType( const int origintype )
 {
-    return rf->isiers;
+    this->origintype = origintype;
 }
 
-void set_rftrans_ref_date( rfTransformation *rf , double date )
+/// Sets the 14 parameters, in the order of the rfTx... enumeration.
+/// A parameter is only changed if defined[i] is set, and is only flagged
+/// for adjustment (never cleared) if adjust[i] is set.
+void rfTransformation::setParameters( const double val[14], const int adjust[14], const int defined[14] )
 {
-    rf->refepoch = date_as_year(date);
-}
-
-void set_rftrans_origintype( rfTransformation *rf, int origintype )
-{
-    rf->origintype = origintype;
-}
-
-void set_rftrans_parameters( rfTransformation *rf, double val[14], int calcval[14], int defined[14])
-{
-    int i;
-    for( i=0; i<14; i++ )
+    for( int i = 0; i < 14; i++ )
     {
-        if( defined[i] ) rf->prm[i]=val[i];
-        if( calcval[i] ) rf->calcPrm[i]=1;
+        if( defined[i] ) prm[i] = val[i];
+        if( adjust[i] ) calcPrm[i] = 1;
     }
 }
 
-void set_rftrans_scale( rfTransformation *rf , double scale, int adjust )
+/// Sets the scale parameter and whether it is adjusted.
+void rfTransformation::setScale( const double scale, const int adjust )
 {
-    rf->prm[rfScale] = scale;
-    rf->calcPrm[rfScale] = adjust;
+    prm[rfScale] = scale;
+    calcPrm[rfScale] = adjust;
 }
 
-
-void set_rftrans_rotation( rfTransformation *rf, double rot[3], int adjust[3] )
+/// Sets the x, y and z rotation parameters and whether each is adjusted.
+void rfTransformation::setRotation( const double rot[3], const int adjust[3] )
 {
-    int i;
-    for( i= 0; i<3; i++ )
+    for( int i = 0; i < 3; i++ )
     {
-        rf->prm[rfRotx+i] = rot[i];
-        rf->calcPrm[rfRotx+i] = adjust[i];
+        prm[rfRotx+i] = rot[i];
+        calcPrm[rfRotx+i] = adjust[i];
     }
 }
 
-
-void set_rftrans_translation( rfTransformation *rf, double tran[3], int adjust[3] )
+/// Sets the x, y and z translation parameters and whether each is adjusted.
+/// `trans` is a copy of the translation, except that for a topocentric frame it
+/// is the translation multiplied by invtoporot.
+void rfTransformation::setTranslation( const double tran[3], const int adjust[3] )
 {
-    int i;
-    for( i= 0; i<3; i++ )
+    for( int i = 0; i < 3; i++ )
     {
-        rf->prm[rfTx+i] = tran[i];
-        rf->calcPrm[rfTx+i] = adjust[i];
-        rf->trans[i] = tran[i];
+        prm[rfTx+i] = tran[i];
+        calcPrm[rfTx+i] = adjust[i];
+        trans[i] = tran[i];
     }
-    if( rf->istopo ) premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
+    if( istopo ) premult3( &invtoporot[0][0], prm+rfTx, trans, 1 );
 }
 
-void set_rftrans_scale_rate( rfTransformation *rf , double scale, int adjust )
+/// Sets the scale rate and whether it is adjusted. This and the other rate
+/// setters switch on the use of rates (userates) if any rate is non-zero or is to be adjusted.
+void rfTransformation::setScaleRate( const double scaleRate, const int adjust )
 {
-    if( scale != 0.0 || adjust ) rf->userates = 1;
-    rf->prm[rfScaleRate] = scale;
-    rf->calcPrm[rfScaleRate] = adjust;
+    if( scaleRate != 0.0 || adjust ) userates = 1;
+    prm[rfScaleRate] = scaleRate;
+    calcPrm[rfScaleRate] = adjust;
 }
 
-
-void set_rftrans_rotation_rate( rfTransformation *rf, double rot[3], int adjust[3] )
+/// Sets the x, y and z rotation rates and whether each is adjusted.
+void rfTransformation::setRotationRate( const double rotationRates[3], const int adjust[3] )
 {
-    int i;
-    for( i= 0; i<3; i++ )
+    for( int i = 0; i < 3; i++ )
     {
-        if( rot[i] != 0.0 || adjust[i] ) rf->userates=1;
-        rf->prm[rfRotxRate+i] = rot[i];
-        rf->calcPrm[rfRotxRate+i] = adjust[i];
+        if( rotationRates[i] != 0.0 || adjust[i] ) userates = 1;
+        prm[rfRotxRate+i] = rotationRates[i];
+        calcPrm[rfRotxRate+i] = adjust[i];
     }
 }
 
-
-void set_rftrans_translation_rate( rfTransformation *rf, double tran[3], int adjust[3] )
+/// Sets the x, y and z translation rates and whether each is adjusted.
+void rfTransformation::setTranslationRate( const double translationRates[3], const int adjust[3] )
 {
-    int i;
-    for( i= 0; i<3; i++ )
+    for( int i = 0; i < 3; i++ )
     {
-        if( tran[i] != 0.0 || adjust[i] ) rf->userates=1;
-        rf->prm[rfTxRate+i] = tran[i];
-        rf->calcPrm[rfTxRate+i] = adjust[i];
+        if( translationRates[i] != 0.0 || adjust[i] ) userates = 1;
+        prm[rfTxRate+i] = translationRates[i];
+        calcPrm[rfTxRate+i] = adjust[i];
     }
-    // if( rf->istopo ) premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->trans, 1 );
 }
 
-void set_rftrans_origin ( rfTransformation *rf, double origin[3] )
+/// Sets the reference point for rotation and scale. The origin counts as
+/// offset (localorigin) if any component is non-zero.
+void rfTransformation::setOrigin( const double newOrigin[3] )
 {
-    veccopy(origin,rf->origin);
-    rf->localorigin = (origin[0] != 0 || origin[1] != 0 || origin[2] != 0) ? 1 : 0;
+    std::copy_n( newOrigin, 3, origin );
+    localorigin = (newOrigin[0] != 0 || newOrigin[1] != 0 || newOrigin[2] != 0) ? 1 : 0;
 }
 
-void flag_rftrans_used( rfTransformation *rf, int usage_type )
+/// Called when a data set uses the frame: records the usage and marks the
+/// parameters that the data can determine as used. Translations are only
+/// marked as used for FRF_ABSOLUTE data.
+void rfTransformation::flagUsed( const int usage_type )
 {
-    int i;
-    rf->usage |= usage_type;
-    rf->prmUsed[rfScale] = 1;
-    rf->prmUsed[rfScaleRate] = 1;
-    for( i=0; i<3; i++ ) 
+    usage |= usage_type;
+    prmUsed[rfScale] = 1;
+    prmUsed[rfScaleRate] = 1;
+    for( int i = 0; i < 3; i++ )
     {
-        rf->prmUsed[rfRotx+i] = 1;
-        rf->prmUsed[rfRotxRate+i] = 1;
+        prmUsed[rfRotx+i] = 1;
+        prmUsed[rfRotxRate+i] = 1;
     }
     if( usage_type == FRF_ABSOLUTE )
     {
-        for( i=0; i<3; i++ ) 
+        for( int i = 0; i < 3; i++ )
         {
-            rf->prmUsed[rfTx+i] = 1;
-            rf->prmUsed[rfTxRate+i] = 1;
+            prmUsed[rfTx+i] = 1;
+            prmUsed[rfTxRate+i] = 1;
         }
     }
 }
 
-/* Determine whether it is OK to use an offset origin for
- * reference frame calculations
- */
-
-static void setup_rftrans_flags( rfTransformation *rf )
+/// Sets the flags that depend on the parameters: which kinds of parameter are
+/// adjusted (calctrans, calcrot...), whether rates are used (userates), and
+/// whether it is OK to use an offset origin for reference frame calculations
+/// (localoriginok).
+void rfTransformation::_setupFlags()
 {
-    int calctrans;
-    int calctransrate;
-
-    /* If only used vectors rather than absolute positions then
-     * then cannot calculate translations.  
+    /* If only vectors are used, rather than absolute positions, then
+     * translations cannot be calculated.
      *
-     * Only apply this if usage flag has been set..
+     * Only apply this if the usage flag has been set.
      */
 
-    if( rf->usage )
+    if( usage )
     {
-        rf->usetrans = rf->usage & FRF_ABSOLUTE ? 1 : 0;
-        if( ! rf->usetrans ) 
+        usetrans = usage & FRF_ABSOLUTE ? 1 : 0;
+        if( ! usetrans )
         {
-            rf->calcPrm[rfTx]=rf->calcPrm[rfTy]=rf->calcPrm[rfTz]=0;
-            rf->calcPrm[rfTxRate]=rf->calcPrm[rfTyRate]=rf->calcPrm[rfTzRate]=0;
+            calcPrm[rfTx]=calcPrm[rfTy]=calcPrm[rfTz]=0;
+            calcPrm[rfTxRate]=calcPrm[rfTyRate]=calcPrm[rfTzRate]=0;
         }
     }
 
     /* Set the calculation types */
-    /* calctrans and calctransrate check if all translation parameters are calculated */
+    /* allcalctrans and allcalctransrate check if all translation parameters are calculated */
 
-    rf->calctrans = (rf->calcPrm[rfTx] || rf->calcPrm[rfTy] || rf->calcPrm[rfTx]) ? 1 : 0;
-    calctrans = (rf->calcPrm[rfTx] && rf->calcPrm[rfTy] && rf->calcPrm[rfTx]);
-    rf->calcrot = (rf->calcPrm[rfRotx] || rf->calcPrm[rfRoty] || rf->calcPrm[rfRotx]) ? 1 : 0;
-    rf->calcscale = rf->calcPrm[rfScale];
+    calctrans = (calcPrm[rfTx] || calcPrm[rfTy] || calcPrm[rfTz]) ? 1 : 0;
+    const bool allcalctrans = (calcPrm[rfTx] && calcPrm[rfTy] && calcPrm[rfTz]);
+    calcrot = (calcPrm[rfRotx] || calcPrm[rfRoty] || calcPrm[rfRotz]) ? 1 : 0;
+    calcscale = calcPrm[rfScale] ? 1 : 0;
 
-    rf->calctransrate = (rf->calcPrm[rfTxRate] || rf->calcPrm[rfTyRate] || rf->calcPrm[rfTxRate]) ? 1 : 0;
-    calctransrate = (rf->calcPrm[rfTxRate] && rf->calcPrm[rfTyRate] && rf->calcPrm[rfTxRate]);
-    rf->calcrotrate = (rf->calcPrm[rfRotxRate] || rf->calcPrm[rfRotyRate] || rf->calcPrm[rfRotxRate]) ? 1 : 0;
-    rf->calcscalerate = rf->calcPrm[rfScaleRate];
+    calctransrate = (calcPrm[rfTxRate] || calcPrm[rfTyRate] || calcPrm[rfTzRate]) ? 1 : 0;
+    const bool allcalctransrate = (calcPrm[rfTxRate] && calcPrm[rfTyRate] && calcPrm[rfTzRate]);
+    calcrotrate = (calcPrm[rfRotxRate] || calcPrm[rfRotyRate] || calcPrm[rfRotzRate]) ? 1 : 0;
+    calcscalerate = calcPrm[rfScaleRate] ? 1 : 0;
 
     /* Determine whether we are interested in transformation rates at all */
 
-    rf->userates=0;
-    if( rf->prm[rfTxRate] != 0 ||
-        rf->prm[rfTyRate] != 0 ||
-        rf->prm[rfTzRate] != 0 ||
-        rf->prm[rfScaleRate] != 0 ||
-        rf->prm[rfRotxRate] != 0 ||
-        rf->prm[rfRotyRate] != 0 ||
-        rf->prm[rfRotzRate] != 0 ) rf->userates=1;
-    if( rf->calctransrate || rf->calcrotrate || rf->calcscalerate ) rf->userates=1;
+    userates=0;
+    if( prm[rfTxRate] != 0 ||
+        prm[rfTyRate] != 0 ||
+        prm[rfTzRate] != 0 ||
+        prm[rfScaleRate] != 0 ||
+        prm[rfRotxRate] != 0 ||
+        prm[rfRotyRate] != 0 ||
+        prm[rfRotzRate] != 0 ) userates=1;
+    if( calctransrate || calcrotrate || calcscalerate ) userates=1;
 
     /* Set flag for using offset origin in calculations */
-    rf->localoriginok=1;
+    localoriginok=1;
 
     /* If only using vectors then no advantage in offsetting origin */
-    if( ! rf->usetrans ) rf->localoriginok=0;
+    if( ! usetrans ) localoriginok=0;
 
     /* If the user has requested not to, then don't */
-    if( rf->origintype == REFFRM_ORIGIN_ZERO ) rf->localoriginok=0;
+    if( origintype == REFFRM_ORIGIN_ZERO ) localoriginok=0;
 
     /* If calculating rotation and scale, but not equivalent rates
      * then can't offset origin
      */
 
-    if( (rf->calcrot || rf->calcscale) && ! calctrans ) rf->localoriginok=0;
-    if( (rf->calcrotrate || rf->calcscalerate) && ! calctransrate ) rf->localoriginok=0;
+    if( (calcrot || calcscale) && ! allcalctrans ) localoriginok=0;
+    if( (calcrotrate || calcscalerate) && ! allcalctransrate ) localoriginok=0;
 
     /* If not calculating scales or rotations then no point */
 
-    if( ! (rf->calcrot || rf->calcrotrate || rf->calcscale || rf->calcscalerate ) ) rf->localoriginok=0;
+    if( ! (calcrot || calcrotrate || calcscale || calcscalerate ) ) localoriginok=0;
 }
 
 
@@ -411,7 +363,10 @@ static void calcdrotdang( int axis, double cs, double sn, tmatrix drot )
 
 #define DS (double *)
 
-static void calc_tmat( rfTransformation *rf, double *prm, tmatrix tmat, tmatrix invtmat )
+/// Calculates the matrix that converts a vector to the reference frame, and
+/// its inverse, for a set of parameters (the frame's own, or the parameters
+/// at another epoch). The scale is applied to both.
+void rfTransformation::_calcTmat( const double *parameters, tmatrix tmat, tmatrix invtmat ) const
 {
     double cs, sn;
     tmatrix mult;
@@ -420,27 +375,27 @@ static void calc_tmat( rfTransformation *rf, double *prm, tmatrix tmat, tmatrix 
     double scl;
     int i, j;
 
-    if( !rf->istopo )
+    if( !istopo )
     {
         calcrotmat( 0, 1.0, 0.0, tmat );
     }
     else
     {
-        memcpy(tmat,rf->toporot,sizeof(tmatrix) );
+        memcpy(tmat,toporot,sizeof(tmatrix) );
     }
 
     for( axis = 3; axis--; )
     {
-        angle = prm[rfRotx+axis] * STOR;
+        angle = parameters[rfRotx+axis] * STOR;
         cs = cos(angle);
         sn = sin(angle);
         calcrotmat( axis, cs, sn, mult );
         premult3( DS mult, DS tmat, DS tmat, 3 );
     }
 
-    if( rf->istopo )
+    if( istopo )
     {
-        premult3( DS (rf->invtoporot), DS tmat, DS tmat, 3 );
+        premult3( DS (invtoporot), DS tmat, DS tmat, 3 );
     }
 
     invtmat[0][0] = tmat[0][0];
@@ -455,7 +410,7 @@ static void calc_tmat( rfTransformation *rf, double *prm, tmatrix tmat, tmatrix 
 
     /* Apply the scale factor */
 
-    scl = 1.0 + prm[rfScale] * 1.0e-6;
+    scl = 1.0 + parameters[rfScale] * 1.0e-6;
 
     for( i=0; i<3; i++ ) for( j=0 ; j<3; j++ )
     {
@@ -466,35 +421,38 @@ static void calc_tmat( rfTransformation *rf, double *prm, tmatrix tmat, tmatrix 
 
 #define TMAT_CALC_MULT 10
 
-void setup_rftrans( rfTransformation *rf )
+/// Recalculates the flags, the topocentric rotations, the translations and the
+/// transformation matrices (and for rates, and their derivatives with respect
+/// to the rotations) from the frame's parameters.
+void rfTransformation::setup()
 {
     tmatrix mult;
     double angle, cs, sn, scl;
     int i, j, k, axis;
 
-    setup_rftrans_flags( rf );
+    _setupFlags();
 
     for( i = 0; i < 3; i++ ) for( j = 0; j < 3; j++ )
         {
-            rf->toporot[i][j] = toporot[i][j];
-            rf->invtoporot[i][j] = invtoporot[i][j];
+            toporot[i][j] = topocentreRotation[i][j];
+            invtoporot[i][j] = invTopocentreRotation[i][j];
         }
 
     /* Calculate the translation component */
 
-    if( !rf->istopo )
+    if( !istopo )
     {
-        rf->trans[0] = rf->prm[rfTx];
-        rf->trans[1] = rf->prm[rfTy];
-        rf->trans[2] = rf->prm[rfTz];
-        rf->transrate[0] = rf->prm[rfTxRate];
-        rf->transrate[1] = rf->prm[rfTyRate];
-        rf->transrate[2] = rf->prm[rfTzRate];
+        trans[0] = prm[rfTx];
+        trans[1] = prm[rfTy];
+        trans[2] = prm[rfTz];
+        transrate[0] = prm[rfTxRate];
+        transrate[1] = prm[rfTyRate];
+        transrate[2] = prm[rfTzRate];
     }
     else
     {
-        premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
-        premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->transrate, 1 );
+        premult3( &invtoporot[0][0], prm+rfTx, trans, 1 );
+        premult3( &invtoporot[0][0], prm+rfTxRate, transrate, 1 );
     }
 
 
@@ -502,42 +460,42 @@ void setup_rftrans( rfTransformation *rf )
     /* Calculate that transformation matrix and inverse.
      * Calculate for rates by averaging over TMAT_CALC_MULT years after ref epoch */
 
-    calc_tmat( rf, rf->prm, rf->tmat, rf->invtmat );
-    if( rf->userates )
+    _calcTmat( prm, tmat, invtmat );
+    if( userates )
     {
-        double prm[7];
+        double futurePrm[7];
         for( i=0; i<7; i++ )
         {
-            prm[i]=rf->prm[i]+rf->prm[i+7]*TMAT_CALC_MULT;
+            futurePrm[i]=prm[i]+prm[i+7]*TMAT_CALC_MULT;
         }
-        calc_tmat( rf, prm, rf->tmatrate, rf->invtmatrate );
+        _calcTmat( futurePrm, tmatrate, invtmatrate );
         for( i=0; i<3; i++ )
         {
             for( j=0; j<3; j++ )
             {
-                rf->tmatrate[i][j]=(rf->tmatrate[i][j]-rf->tmat[i][j])/TMAT_CALC_MULT;
-                rf->invtmatrate[i][j]=(rf->invtmatrate[i][j]-rf->invtmat[i][j])/TMAT_CALC_MULT;
+                tmatrate[i][j]=(tmatrate[i][j]-tmat[i][j])/TMAT_CALC_MULT;
+                invtmatrate[i][j]=(invtmatrate[i][j]-invtmat[i][j])/TMAT_CALC_MULT;
             }
         }
     }
-        
+
     /*  Calc change of coords for unit change in rotations */
 
-    if( !rf->istopo )
+    if( !istopo )
     {
-        for( i = 0; i<3; i++ ) calcrotmat( 0, 1.0, 0.0, rf->dtmatdrot[i] );
+        for( i = 0; i<3; i++ ) calcrotmat( 0, 1.0, 0.0, dtmatdrot[i] );
     }
     else
     {
         for( i=0; i<3; i++ )
         {
-            memcpy(rf->dtmatdrot[i],toporot,sizeof(tmatrix) );
+            memcpy(dtmatdrot[i],topocentreRotation,sizeof(tmatrix) );
         }
     }
 
     for( axis = 3; axis--; )
     {
-        angle = rf->prm[rfRotx+axis] * STOR;
+        angle = prm[rfRotx+axis] * STOR;
         cs = cos(angle);
         sn = sin(angle);
 
@@ -546,30 +504,30 @@ void setup_rftrans( rfTransformation *rf )
         {
             if( i != axis )
             {
-                premult3( DS mult, DS rf->dtmatdrot[i], DS rf->dtmatdrot[i], 3 );
+                premult3( DS mult, DS dtmatdrot[i], DS dtmatdrot[i], 3 );
             }
         }
         calcdrotdang( axis, cs, sn, mult );
-        premult3( DS mult, DS rf->dtmatdrot[axis], DS rf->dtmatdrot[axis], 3 );
+        premult3( DS mult, DS dtmatdrot[axis], DS dtmatdrot[axis], 3 );
     }
 
-    if( rf->istopo )
+    if( istopo )
     {
         for( i=0; i<3; i++ )
         {
-            premult3( DS (rf->invtoporot), DS rf->dtmatdrot[i], DS rf->dtmatdrot[i], 3 );
+            premult3( DS (invtoporot), DS dtmatdrot[i], DS dtmatdrot[i], 3 );
         }
     }
 
     /* Apply the scale factor */
 
-    scl = 1.0 + rf->prm[rfScale] * 1.0e-6;
+    scl = 1.0 + prm[rfScale] * 1.0e-6;
 
     for( i=0; i<3; i++ ) for( j=0 ; j<3; j++ )
     {
         for( k=0; k<3; k++ )
         {
-            rf->dtmatdrot[k][i][j] *= scl;
+            dtmatdrot[k][i][j] *= scl;
         }
     }
 }
@@ -585,45 +543,31 @@ static void setup_topo_rotations( double lt, double ln )
     clt = cos(lt); slt = sin(lt);
     cln = cos(ln); sln = sin(ln);
 
-    invtoporot[0][0] = toporot[0][0] = -sln;
-    invtoporot[1][0] = toporot[0][1] = cln;
-    invtoporot[2][0] = toporot[0][2] = 0.0;
-    invtoporot[0][1] = toporot[1][0] = -cln*slt;
-    invtoporot[1][1] = toporot[1][1] = -sln*slt;
-    invtoporot[2][1] = toporot[1][2] = clt;
-    invtoporot[0][2] = toporot[2][0] = cln*clt;
-    invtoporot[1][2] = toporot[2][1] = sln*clt;
-    invtoporot[2][2] = toporot[2][2] = slt;
+    invTopocentreRotation[0][0] = topocentreRotation[0][0] = -sln;
+    invTopocentreRotation[1][0] = topocentreRotation[0][1] = cln;
+    invTopocentreRotation[2][0] = topocentreRotation[0][2] = 0.0;
+    invTopocentreRotation[0][1] = topocentreRotation[1][0] = -cln*slt;
+    invTopocentreRotation[1][1] = topocentreRotation[1][1] = -sln*slt;
+    invTopocentreRotation[2][1] = topocentreRotation[1][2] = clt;
+    invTopocentreRotation[0][2] = topocentreRotation[2][0] = cln*clt;
+    invTopocentreRotation[1][2] = topocentreRotation[2][1] = sln*clt;
+    invTopocentreRotation[2][2] = topocentreRotation[2][2] = slt;
 }
 
 
-void setup_rftrans_list( double lt, double ln )
+/// Sets the topocentre (latitude and longitude in radians, as passed to the
+/// rotation set-up above) and sets up every frame defined so far. Frames
+/// defined later are set up as they are created.
+void setup_rftrans_list( const double lt, const double ln )
 {
-    int nrf;
-
     setup_topo_rotations( lt, ln );
 
-    for( nrf = 0; nrf < nrftrans; nrf++ )
+    for( const auto &rf : rflist )
     {
-        setup_rftrans( rflist[nrf] );
+        rf->setup();
     }
 
     frames_setup = 1;
-}
-
-double * rftrans_tmat( rfTransformation *rf )
-{
-    return (double *) (rf->tmat);
-}
-
-double * rftrans_invtmat( rfTransformation *rf )
-{
-    return (double *) (rf->invtmat);
-}
-
-const char * rftrans_name( rfTransformation *rf )
-{
-    return rf->name;
 }
 
 void rftrans_correct_vector( int rfid, double vd[3], double date )

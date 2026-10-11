@@ -378,7 +378,7 @@ public:
     ~ScriptImp();
 
     // Functions for loading menu items and programs
-    bool ExecuteScript( const char *filename );
+    bool ExecuteScript( const std::string &filename );
     void RunMenuActions( int id );
     void EnableMenuItems();
     Value Run( Token *program );

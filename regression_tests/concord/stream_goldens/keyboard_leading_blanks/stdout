@@ -1,0 +1,22 @@
+
+
+=====================================================================
+
+concord - coordinate conversion program (version X dated X)
+
+Input coordinates:  New Zealand Geodetic Datum 2000
+
+Output coordinates: New Zealand Transverse Mercator Projection
+
+You can now enter coordinates you want converted.  Your input should look
+something like this: 
+
+-41.25531  171.14238
+
+Each item should be separated by at least one blank space.
+When you have finished enter a blank line to quit the program
+
+
+Enter latitude, longitude:                             1205923.255  5004875.467
+Enter latitude, longitude:                             1684102.134  5460761.411
+Enter latitude, longitude: 

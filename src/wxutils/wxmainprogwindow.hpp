@@ -3,7 +3,10 @@
 
 #include "wx_includes.hpp"
 
+#include "util/errdef.h"
+
 #include <time.h>
+#include <vector>
 
 class wxMainProgWindow : public wxDialog
 {
@@ -15,16 +18,15 @@ private:
     void OnCloseButton( wxCommandEvent &event );
     void OnClose( wxCloseEvent &event );
 
-    void AppendMessage( char *message );
     void AppendString( const wxString &string );
     int DoPrintArgs( const char *format, va_list args );
-    int DoErrorHandler( int sts, const char *msg1, const char *msg2 );
+    int DoErrorHandler( int sts, std::string_view msg1, error_message msg2 );
     void DoInitMeter( long total_size );
     void DoUpdateMeter( long progress );
     void DoEndMeter();
 
     static int PrintArgs( const char *format, va_list args );
-    static int ErrorHandler( int sts, const char *msg1, const char *msg2 );
+    static int ErrorHandler( int sts, std::string_view msg1, error_message msg2 );
     static void InitMeter( long total_size );
     static void UpdateMeter( long progress );
     static void EndMeter();
@@ -35,8 +37,7 @@ private:
     wxButton *closeButton;
 
     wxString lastLine;
-    char *buffer;
-    int buflen;
+    std::vector<char> buffer;
     bool running;
     bool hasProgress;
     bool reportTimes;

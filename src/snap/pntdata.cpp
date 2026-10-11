@@ -29,6 +29,8 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <string>
+#include <string_view>
 
 #include "coefs.h"
 #include "notedata.h"
@@ -49,8 +51,8 @@
 #include "util/lsobseq.h"
 #include "util/pi.h"
 
-static void *latobsfmt = NULL;
-static void *lonobsfmt = NULL;
+static std::optional<DmsFormat> latitudeObservationFormat;
+static std::optional<DmsFormat> longitudeObservationFormat;
 
 void apply_pntdata_options(survdata *p)
 {
@@ -120,8 +122,8 @@ int pntdata_obseq(survdata *p, void *hA, int nextra)
 
 static void create_dms_formats(void)
 {
-    latobsfmt = create_dms_format(3, obs_precision[LT], 0, NULL, NULL, NULL, " N", " S");
-    lonobsfmt = create_dms_format(3, obs_precision[LN], 0, NULL, NULL, NULL, " E", " W");
+    latitudeObservationFormat.emplace(3, obs_precision[LT], 0, std::nullopt, std::nullopt, std::nullopt, " N", " S");
+    longitudeObservationFormat.emplace(3, obs_precision[LN], 0, std::nullopt, std::nullopt, std::nullopt, " E", " W");
 }
 
 void list_pntdata(FILE *out, survdata *p)
@@ -134,27 +136,27 @@ void list_pntdata(FILE *out, survdata *p)
     t = &pd->tgt;
     type = t->type;
 
-    if ((type == LT || type == LN) && !latobsfmt) create_dms_formats();
+    if ((type == LT || type == LN) && !latitudeObservationFormat) create_dms_formats();
 
     fputs("\n", out);
 
     list_note(out, t->noteloc);
 
     fprintf(out, "%2d:%-4d  %-*s %5.3lf  ", (int)(p->file + 1), (int)(t->lineno),
-            stn_name_width, station_code(p->from), 0.0);
+            stn_name_width, station_code(p->from).c_str(), 0.0);
 
     fprintf(out, "%*s        ", stn_name_width, "");
-    fprintf(out, "%2s%c  ", datatype[type].code,
+    fprintf(out, "%2s%c  ", datatype[type].code.data(),
             t->unused ? '*' : ' ');
 
     switch (type)
     {
     case LT:
-        fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, latobsfmt, NULL),
+        fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *latitudeObservationFormat).c_str(),
                 pd->error * RTOS);
         break;
     case LN:
-        fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, lonobsfmt, NULL),
+        fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *longitudeObservationFormat).c_str(),
                 pd->error * RTOS);
         break;
     case OH:
@@ -171,11 +173,11 @@ void list_pntdata(FILE *out, survdata *p)
         clsf = p->clsf + t->iclass;
         for (i = 0; i < t->nclass; i++, clsf++)
         {
-            char *class_name;
-            char *class_value;
-            class_name = classification_name(&obs_classes, clsf->class_id);
-            class_value = class_value_name(&obs_classes, clsf->class_id, clsf->name_id);
-            fprintf(out, "     %s = %s\n", class_name, class_value);
+            std::string class_name;
+            std::string class_value;
+            class_name = obs_classes.name(clsf->class_id);
+            class_value = obs_classes.value_name(clsf->class_id, clsf->name_id);
+            fprintf(out, "     %s = %s\n", class_name.c_str(), class_value.c_str());
         }
     }
 
@@ -185,10 +187,9 @@ void list_pntdata(FILE *out, survdata *p)
         sd = p->syserr + t->isyserr;
         for (i = 0; i < t->nsyserr; i++, sd++)
         {
-            const char *name;
-            name = syserr_name(sd->prm_id);
+            const std::string_view name = syserr_name(sd->prm_id);
             fprintf(out, "     Systematic error: %s = %lf",
-                    name, sd->influence);
+                    name.data(), sd->influence);
             fprintf(out, "\n");
         }
     }
@@ -198,7 +199,6 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
 {
     double calc, se, ser, sec, seo, sres, redundancy;
     char unused, rfunused;
-    void *fmt;
     int ndp;
     int type;
     pntdata *pd;
@@ -242,14 +242,13 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
 
     set_survdata_fields(p);
     set_trgtdata_fields(&pd->tgt, p);
-    sprintf(get_field_buffer(OF_TYPE), "%2s%c",
-            datatype[type].code, unused);
+    set_residual_type_field(datatype[type].code, unused);
 
     ndp = obs_precision[type];
 
     if (type != LT && type != LN && type != OH && type != EH)
     {
-        handle_error(INTERNAL_ERROR, "Invalid PNTDATA type in list_pntdata_residuals", 0);
+        handle_error(INTERNAL_ERROR, "Invalid PNTDATA type in list_pntdata_residuals", NO_MESSAGE);
     }
 
     errmult = 1.0;
@@ -257,11 +256,11 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
     if (type == LT || type == LN)
     {
 
-        if (!latobsfmt) create_dms_formats();
+        if (!latitudeObservationFormat) create_dms_formats();
         errmult = RTOS;
-        fmt = (type == LT) ? latobsfmt : lonobsfmt;
-        set_residual_field_dms(OF_OBS, fmt, pd->value * RTOD);
-        set_residual_field_dms(OF_CALC, fmt, calc * RTOD);
+        const DmsFormat &format = (type == LT) ? *latitudeObservationFormat : *longitudeObservationFormat;
+        set_residual_field_dms(OF_OBS, format, pd->value * RTOD);
+        set_residual_field_dms(OF_CALC, format, calc * RTOD);
     }
     else
     {
@@ -284,13 +283,13 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
     if (sres < 0.0)
     {
         set_residual_field(OF_SRES, "-  ");
-        sprintf(get_field_buffer(OF_FLAGS), "%c", rfunused);
+        set_residual_field(OF_FLAGS, std::string(1, rfunused));
     }
     else
     {
         set_residual_field_value(OF_SRES, 2, sres);
-        sprintf(get_field_buffer(OF_FLAGS), "%c%s", rfunused,
-                residual_flag((unused != ' '), 1, sres));
+        set_residual_field(OF_FLAGS,
+                std::string(1, rfunused).append( residual_flag((unused != ' '), 1, sres) ));
     }
 
     if (redundancy < 0)

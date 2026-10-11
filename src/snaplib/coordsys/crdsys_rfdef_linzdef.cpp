@@ -1,14 +1,12 @@
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
-#include "util/snapctype.h"
+#include <optional>
+#include <string_view>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_linzdef.h"
-#include "util/chkalloc.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/pi.h"
 
@@ -20,16 +18,33 @@
 
 #define VERSIONLEN 8
 
-typedef struct
+/// The opaque payload behind a LINZDEF ref_deformation's data member.
+/// File-private to this translation unit - never exposed via a header, so
+/// it has no external callers. version is truncated to VERSIONLEN
+/// characters at construction, mirroring the linzdef binary format's own
+/// fixed-width version field (dbl4_utl_lnzdef.cpp's own VERSIONLEN=8/
+/// Version typedef), which is compared byte-for-byte against version
+/// strings stored in a loaded model - the truncation is load-bearing, not
+/// an arbitrary buffer limit. loaded/loadsts/blob/binsrc/linzdef are the
+/// only fields ever mutated after construction - every real construction
+/// starts unloaded, and rf_linzdef_load populates the rest lazily, on
+/// first real use.
+struct LinzDefModel
 {
-    char *ldeffile;
-    char version[VERSIONLEN+1];
-    int loaded;
-    int loadsts;
-    hBlob blob;
-    hBinSrc binsrc;
-    hLinzDefModel linzdef;
-} LinzDefModel;
+    LinzDefModel( std::string ldeffile, const std::string &version ) :
+        ldeffile( std::move(ldeffile) ), version( version.substr(0,VERSIONLEN) ),
+        loaded(0), loadsts(OK), blob(nullptr), binsrc(nullptr), linzdef(nullptr)
+    {}
+    LinzDefModel( const LinzDefModel& ) = delete;
+
+    const std::string ldeffile; ///< Path to the linzdef model file
+    const std::string version;   ///< The model version to select, truncated to VERSIONLEN characters, or empty for the default
+    int loaded;                    ///< Whether rf_linzdef_load has run yet
+    int loadsts;                    ///< OK, or the error code from the lazy load
+    hBlob blob;                      ///< The open model file, or nullptr until loaded
+    hBinSrc binsrc;                   ///< The model's binary source, or nullptr until loaded
+    hLinzDefModel linzdef;              ///< The parsed model, or nullptr until loaded
+};
 
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */
@@ -40,31 +55,15 @@ static void rf_linzdef_delete( void *data )
 {
     LinzDefModel *model = (LinzDefModel *) data;
     if( model == NULL ) return;
-    if( model->ldeffile ) check_free( model->ldeffile );
     if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
     if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
-    if( model->linzdef ) { utlBlobClose(model->blob); model->blob = NULL; }
-    check_free(model);
-    return;
+    if( model->blob ) { utlBlobClose(model->blob); model->blob = NULL; }
+    delete model;
 }
 
-static void *rf_linzdef_create( const char *ldeffile, const char *version )
+static LinzDefModel *rf_linzdef_create( const std::string &ldeffile, const std::string &version )
 {
-    LinzDefModel *model;
-    model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));
-    model->ldeffile = copy_string(ldeffile);
-    model->version[0]=0;
-    if( version )
-    {
-        strncpy(model->version,version,VERSIONLEN);
-        model->version[VERSIONLEN]=0;
-    }
-    model->blob = NULL;
-    model->binsrc = NULL;
-    model->linzdef = NULL;
-    model->loaded = 0;
-    model->loadsts = OK;
-    return model;
+    return new LinzDefModel( ldeffile, version );
 }
 
 static int rf_linzdef_load( LinzDefModel *model )
@@ -75,7 +74,7 @@ static int rf_linzdef_load( LinzDefModel *model )
         sts = utlCreateReadonlyFileBlob( model->ldeffile, &(model->blob) );
         if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
         if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
-        if( sts == STS_OK && model->version[0] )
+        if( sts == STS_OK && ! model->version.empty() )
         {
             sts=utlSetLinzDefVersion(model->linzdef,model->version);
         }
@@ -87,7 +86,7 @@ static int rf_linzdef_load( LinzDefModel *model )
 
 static void *rf_linzdef_copy( void *src )
 {
-    if( ! src ) return 0;
+    if( ! src ) return nullptr;
     LinzDefModel *model=(LinzDefModel *) src;
     return rf_linzdef_create( model->ldeffile, model->version );
 }
@@ -97,7 +96,7 @@ static int rf_linzdef_identical( void *pld1, void *pld2 )
 {
     LinzDefModel *ld1 = (LinzDefModel *) pld1;
     LinzDefModel *ld2 = (LinzDefModel *) pld2;
-    return strcmp(ld1->ldeffile, ld2->ldeffile) == 0 ? 1 : 0;
+    return ld1->ldeffile == ld2->ldeffile ? 1 : 0;
 }
 
 /* Called for each observation to determine the east, north, and vertical
@@ -124,8 +123,7 @@ static int rf_linzdef_calc( ref_frame *rf, double lon, double lat, double epoch,
 
 static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
 {
-    char *title;
-    char buffer[128];
+    std::optional<std::string_view> title;
     int sts;
     ref_deformation *def = rf->def;
     LinzDefModel *model = (LinzDefModel *) (def->data);
@@ -142,71 +140,63 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
     else
     {
         /* Name and version */
-        buffer[0]=0;
-        sts = utlLinzDefTitle( model->linzdef, 1, &title );
+        std::string buffer;
+        sts = utlLinzDefTitle( model->linzdef, 1, title );
         if( sts == STS_OK && title )
         {
-            sprintf(buffer,"%.80s",title);
+            buffer = std::string(title->substr(0,80));
         }
-        sts = utlLinzDefTitle( model->linzdef, 3, &title );
-        if( sts == STS_OK && title && title[0] )
+        sts = utlLinzDefTitle( model->linzdef, 3, title );
+        if( sts == STS_OK && title && ! title->empty() )
         {
-            if( buffer[0] )
+            if( ! buffer.empty() )
             {
-                if( ! strstr(buffer,title) )
+                if( buffer.find(*title) == std::string::npos )
                 {
-                    sprintf(buffer+strlen(buffer)," (%.20s)",title);
+                    buffer += " (" + std::string(title->substr(0,20)) + ")";
                 }
             }
             else
             {
-                sprintf(buffer,"Version %.20s",title);
+                buffer = "Version " + std::string(title->substr(0,20));
             }
         }
         write_output_string2(os,buffer,OSW_TRIMR | OSW_SKIPBLANK,"    ");
         /* Description */
-        sts = utlLinzDefTitle( model->linzdef, 2, &title );
-        if( sts == STS_OK && title && title[0])
+        sts = utlLinzDefTitle( model->linzdef, 2, title );
+        if( sts == STS_OK && title && ! title->empty() )
         {
-            write_output_string2(os,title,OSW_TRIMR | OSW_SKIPBLANK,"    ");
+            write_output_string2(os,*title,OSW_TRIMR | OSW_SKIPBLANK,"    ");
         }
     }
     return OK;
 }
 
-int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
+ref_deformation *rfdef_parse_linzdef( input_string_def &is )
 {
-    const char *ldeffile;
-    char filename[MAX_FILENAME_LEN];
-    char version[VERSIONLEN+1];
-    int sts;
+    std::optional<std::string> ldeffile;
+    std::string filename;
+    std::string version;
 
-    sts = next_string_field( is, filename, MAX_FILENAME_LEN );
+    int sts = next_string_field( is.scanner, filename, MAX_FILENAME_LEN );
     if( sts != OK )
     {
         report_string_error( is, sts, "Missing filename for LINZDEF deformation");
-        return sts;
+        return nullptr;
     }
 
-    sts = next_string_field( is, version, VERSIONLEN+1 );
-    if( sts != OK ) { version[0]=0; sts=OK; }
+    sts = next_string_field( is.scanner, version, VERSIONLEN );
+    if( sts != OK ) { version.clear(); }
 
-    ldeffile = find_relative_file( is->sourcename, filename, ".grd" );
+    ldeffile = find_relative_file( is.sourcename, filename, ".grd" );
     if( ! ldeffile )
     {
-        char errmess[80+MAX_FILENAME_LEN];
-        sts = FILE_OPEN_ERROR;
-        sprintf(errmess,"Cannot open LINZDEF deformation grid file %s",filename);
-        report_string_error(is, sts, errmess );
-        return sts;
+        std::string errmess = "Cannot open LINZDEF deformation grid file " + filename;
+        report_string_error(is, FILE_OPEN_ERROR, errmess );
+        return nullptr;
     }
 
-    def->data = rf_linzdef_create( ldeffile, version );
-    def->delete_func = rf_linzdef_delete;
-    def->copy_func = rf_linzdef_copy;
-    def->identical = rf_linzdef_identical;
-    def->describe_func = rf_linzdef_describe;
-    def->calc_denu = rf_linzdef_calc;
-    def->apply_llh = 0;
-    return sts;
+    return new ref_deformation( "LINZDEF", rf_linzdef_create( *ldeffile, version ),
+                                 rf_linzdef_delete, rf_linzdef_copy, rf_linzdef_identical,
+                                 rf_linzdef_describe, rf_linzdef_calc, nullptr );
 }

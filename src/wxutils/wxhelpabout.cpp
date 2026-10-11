@@ -11,7 +11,7 @@
 class wxHelpAbout : public wxSimpleDialog
 {
 public:
-    wxHelpAbout(const char *progname, const char *progver, const char *progdate) :
+    wxHelpAbout(const std::string &progname, const std::string &progver, const std::string &progdate) :
         wxSimpleDialog( progname, wxOK )
     {
         wxBitmap bitmap = wxBITMAP(IDB_SPLASHSCREEN);
@@ -43,7 +43,7 @@ public:
     }
 };
 
-void ShowHelpAbout(const char *progname, const char *progver, const char *progdate)
+void ShowHelpAbout(const std::string &progname, const std::string &progver, const std::string &progdate)
 {
     wxHelpAbout helpAbout(progname,progver,progdate);
     helpAbout.RunDialog();

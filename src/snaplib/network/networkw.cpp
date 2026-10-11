@@ -9,10 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
+
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "network/network.h"
 #include "util/datafile.h"
-#include "util/chkalloc.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/errdef.h"
@@ -22,7 +24,7 @@
 /* Basic routine to write a station data file                  */
 
 
-int write_network( network *nw, const char *fname, const char *comment,
+int write_network( network *nw, const std::string &fname, const std::string_view comment,
                    int coord_precision, int (*select)(station *st) )
 {
     FILE *stf;
@@ -30,7 +32,6 @@ int write_network( network *nw, const char *fname, const char *comment,
     double northing, easting;
     char projection_coords;
     char geocentric_coords;
-    void *latfmt, *lonfmt;
     int cp;
     int nclass;
     int ellipsoidal_heights;
@@ -39,9 +40,7 @@ int write_network( network *nw, const char *fname, const char *comment,
 
     if( !nw || !nw->stnlist || !nw->crdsys ) return MISSING_DATA;
 
-    if( !fname ) return MISSING_DATA;
-
-    stf = fopen( fname, "w" );
+    stf = fopen( fname.c_str(), "w" );
     if( stf == NULL )
     {
         handle_error( FILE_OPEN_ERROR, "Unable to create new coordinate file",
@@ -55,8 +54,8 @@ int write_network( network *nw, const char *fname, const char *comment,
     geocentric_coords = is_geocentric( nw->crdsys );
     ellipsoidal_heights = nw->options & NW_ELLIPSOIDAL_HEIGHTS ? 1 : 0;
 
-    fprintf(stf,"%s\n", nw->name ? nw->name : "Unnamed network" );
-    fprintf(stf,"%s\n", nw->crdsysdef);
+    fprintf(stf,"%s\n", nw->name ? nw->name->c_str() : "Unnamed network" );
+    fprintf(stf,"%s\n", nw->crdsysdef.c_str());
     fputs("options",stf);
 
     if( ! geocentric_coords )
@@ -95,21 +94,21 @@ int write_network( network *nw, const char *fname, const char *comment,
         degrees = 1;
     }
 
-    nclass = network_classification_count(nw);
+    nclass = nw->classification_count();
     if( nclass )
     {
         int i;
         for( i = 0; i++ < nclass; )
         {
-            const char *name = network_class_name( nw, i );
-            if( nclass==1 && _stricmp(name,STATION_ORDER_CLASS_NAME)==0)
+            std::string name = nw->class_name( i );
+            if( nclass==1 && boost::algorithm::iequals(name,STATION_ORDER_CLASS_NAME))
             {
                 fputs(" station_orders",stf);
             }
             else
             {
                 fputs(" c=",stf);
-                fputs(name,stf);
+                fputs(name.c_str(),stf);
             }
         }
     }
@@ -118,7 +117,7 @@ int write_network( network *nw, const char *fname, const char *comment,
 
     /* Print details of the the program creating the file */
 
-    if( comment && strlen(comment) > 0 ) fprintf( stf,"! %s\n", comment );
+    if( ! comment.empty() ) fprintf( stf,"! %s\n", std::string( comment ).c_str() );
 
     fprintf(stf,"\n");
 
@@ -151,8 +150,8 @@ int write_network( network *nw, const char *fname, const char *comment,
         int i;
         for( i = 0; i++ < nclass; )
         {
-            const char *name = network_class_name( nw, i );
-            fprintf( stf, " %-5s", name);
+            std::string name = nw->class_name( i );
+            fprintf( stf, " %-5s", name.c_str());
         }
     }
     fprintf( stf, " Name\n");
@@ -161,15 +160,8 @@ int write_network( network *nw, const char *fname, const char *comment,
 
     reset_station_list( nw, 0 );
 
-    if( !projection_coords && !geocentric_coords && !degrees )
-    {
-        latfmt = create_dms_format(3,6,0,NULL,NULL,NULL," N"," S");
-        lonfmt = create_dms_format(3,6,0,NULL,NULL,NULL," E"," W");
-    }
-    else
-    {
-        latfmt = lonfmt = 0;
-    }
+    const DmsFormat latitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
+    const DmsFormat longitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
 
     cp = coord_precision;
     if( cp <= 0 || cp > 10 ) cp = 4;
@@ -177,7 +169,7 @@ int write_network( network *nw, const char *fname, const char *comment,
     while( NULL != (st = next_station(nw) ) )
     {
         if( select && !(*select)(st)) continue;
-        fprintf(stf,"%-5s",st->Code);
+        fprintf(stf,"%-5s",st->Code.c_str());
 
         if( projection_coords )
         {
@@ -203,8 +195,8 @@ int write_network( network *nw, const char *fname, const char *comment,
             }
             else
             {
-                fprintf(stf," %s",dms_string( st->ELat/DTOR, latfmt, NULL ));
-                fprintf(stf," %s",dms_string( st->ELon/DTOR, lonfmt, NULL ));
+                fprintf(stf," %s",dms_string( st->ELat/DTOR, latitudeFormat ).c_str());
+                fprintf(stf," %s",dms_string( st->ELon/DTOR, longitudeFormat ).c_str());
             }
             fprintf(stf," %10.*lf",cp, st->OHgt + ellipsoidal_heights * st->GUnd );
         }
@@ -228,17 +220,14 @@ int write_network( network *nw, const char *fname, const char *comment,
             int i;
             for( i = 0; i++ < nclass; )
             {
-                int clsid = get_station_class( st, i );
-                const char *cval = network_class_value( nw, i, clsid );
-                fprintf( stf, " %-5s", cval ? cval : "-" );
+                int clsid = st->get_class( i );
+                std::string cval = nw->class_value( i, clsid );
+                fprintf( stf, " %-5s", cval.empty() ? "-" : cval.c_str() );
             }
         }
 
-        fprintf(stf," %s\n", st->Name );
+        fprintf(stf," %s\n", st->Name.c_str() );
     }
-
-    if( latfmt ) check_free( latfmt );
-    if( lonfmt ) check_free( lonfmt );
 
     fclose( stf );
     return OK;

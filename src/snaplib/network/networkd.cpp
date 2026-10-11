@@ -38,7 +38,7 @@ void dump_network( network *nw, FILE *f )
 
     /* Dump the station list and coordinate system */
 
-    dump_classifications( &(nw->stnclasses), f);
+    nw->stnclasses.dump( f );
     dump_station_list( nw->stnlist, f );
 }
 
@@ -52,7 +52,7 @@ network *reload_network( FILE *f )
     /* Restore the critical static information */
 
     nw = new_network();
-    nw->name = reload_string( f );
+    nw->name = reload_optional_string( f );
     nw->crdsysdef = reload_string( f );
     fread(&nw->topolat, sizeof(nw->topolat), 1, f );
     fread(&nw->topolon, sizeof(nw->topolon), 1, f );
@@ -72,9 +72,10 @@ network *reload_network( FILE *f )
     }
     else
     {
-        set_network_coordsys( nw, cs, 0.0, 0, 0, 0 );
-        delete_coordsys( cs );
-        reload_classifications( &(nw->stnclasses), f );
+        std::string ignoredMessage;
+        set_network_coordsys( nw, cs, 0.0, 0, ignoredMessage );
+        delete cs;
+        nw->stnclasses.reload( f );
         nw->stnlist = reload_station_list( f );
     }
 

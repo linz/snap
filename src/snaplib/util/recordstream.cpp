@@ -13,7 +13,7 @@ using namespace LINZ;
 
 using std::string;
 
-RecordStream::RecordStream(const string &fname) : _str(fname.c_str()),
+RecordStream::RecordStream(const string &fname) : _str(fname),
                                                   _filename(fname)
 {
     _recordLineNo = 0;

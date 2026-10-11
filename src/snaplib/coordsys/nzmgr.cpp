@@ -32,34 +32,19 @@ static int nzmg_geog_to_proj( void *, double ln, double lt, double *e, double *n
 
 void register_nzmg_projection( void )
 {
-    const char *code = "NZMG";
-    const char *name = "New Zealand Map Grid";
-    projection_type nzmg;
-
     if( nzmg_type ) return;
 
-    nzmg.code = code;
-    nzmg.name = name;
-    nzmg.size = 0;
-    nzmg.params = 0;
-    nzmg.nparams = 0;
-    nzmg.create = 0;
-    nzmg.destroy = 0;
-    nzmg.copy = 0;
-    nzmg.identical = 0;
-    nzmg.bind_ellipsoid = 0;
-    nzmg.geog_to_proj = nzmg_geog_to_proj;
-    nzmg.proj_to_geog = nzmg_proj_to_geog;
-    nzmg.calc_sf_cv = 0;
-
-    nzmg_type = register_projection_type( &nzmg );
+    nzmg_type = register_projection_type( new projection_type(
+        "NZMG", "New Zealand Map Grid", 0, nullptr, 0,
+        nullptr, nullptr, nullptr, nullptr, nullptr,
+        nzmg_geog_to_proj, nzmg_proj_to_geog, nullptr ) );
 }
 
 projection *create_nzmg_projection( void )
 {
     if( !nzmg_type ) register_nzmg_projection();
     if( !nzmg_type ) return NULL;
-    return create_projection( nzmg_type );
+    return new projection( *nzmg_type );
 }
 
 

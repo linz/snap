@@ -30,28 +30,28 @@ enum { SD_OBSDATA, SD_VECDATA, SD_PNTDATA };
 
 enum { DS_ERR, HA_ERR, AZ_ERR, ZD_ERR, LV_ERR, LT_ERR, LN_ERR, GB_ERR, GX_ERR, OH_ERR, EH_ERR, NERRTYPE };
 
-typedef struct
+struct snap_data_type
 {
     int type;         /* As defined in DATATYPE.H */
     int errortype;    /* Index to type of default error */
     int obsclass;     /* SD_PNTDATA, SD_OBSDATA, SD_VECDATA */
     int oneonly;     /*  True if the type cannot be joined with others (eg vectors) */
     datatypedef *datatype; /* The generic type definition */
-} snap_data_type;
+};
 
-typedef struct
+struct classdata
 {
     int  class_id;  /* The index of the classification */
     int  name_id;   /* The index of the obs within the classification */
-} classdata;
+};
 
-typedef struct
+struct syserrdata
 {
     int  prm_id;    /* Id of the systematic error parameter */
     double influence; /* Influence of the parameter on the observation */
-} syserrdata;
+};
 
-typedef struct
+struct trgtdata
 {
     int  to;        /* The index of the target station */
     double tohgt;   /* The instrument height at the target station */
@@ -66,12 +66,12 @@ typedef struct
     char   unused;  /* Flags whether the observation has been rejected */
     int64_t noteloc; /* Identifies a note associated with the obs */
     double errfct;  /* Error factor applied to the obs by obs modifications */
-} trgtdata;
+};
 
 /* NOTE: each variant structure used within typedef survdata, defined
    below, must have a trgtdata as its first element */
 
-typedef struct         /* The data relating to the target station and obs */
+struct obsdata
 {
     trgtdata tgt;     /* The target data */
     double value;     /* The observation value */
@@ -86,9 +86,9 @@ typedef struct         /* The data relating to the target station and obs */
                           bearing orientation error  for azimuth data
                           distance scale factor      for any type of distance data
                           */
-} obsdata;
+};
 
-typedef struct          /* The data relating to the target station and obs */
+struct vecdata
 {
     trgtdata tgt;      /* The target data */
     double vector[3];  /* The observed vector */
@@ -96,9 +96,9 @@ typedef struct          /* The data relating to the target station and obs */
     double residual[3];/* The residuals */
     double vsres;      /* The vector standardised residual */
     int  rank;       /* The rank of vsres */
-} vecdata;
+};
 
-typedef struct          /* The data relating to the target station and obs */
+struct pntdata
 {
     trgtdata tgt;      /* The target data (even though there isn't a target!) */
     double value;     /* The observation value */
@@ -108,9 +108,9 @@ typedef struct          /* The data relating to the target station and obs */
     double residual;  /* The residual */
     double reserr;    /* The error of the residual */
     double sres;      /* The standardised residual */
-} pntdata;
+};
 
-typedef struct           /* Data relating to an observation or set of obs */
+struct survdata
 {
     int  from;        /* The instrument station */
     double fromhgt;     /* The instrument station height */
@@ -146,7 +146,7 @@ typedef struct           /* Data relating to an observation or set of obs */
     ltmat  rescvr;      /* The covariance matrix of the residuals (vector data only */
     classdata *clsf;    /* Array of classifications - observations index into this */
     syserrdata *syserr; /* The list of systematic errors */
-} survdata;
+};
 
 // The fixed-width on-disk layout of the 16 fields above `from` through
 // `prmid` - see bindata.cpp, where this table is defined and checked at

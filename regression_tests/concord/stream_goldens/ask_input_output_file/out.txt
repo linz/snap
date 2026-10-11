@@ -1,0 +1,13 @@
+
+concord - coordinate conversion program (version X dated X)
+
+Input coordinates:  New Zealand Geodetic Datum 2000
+
+Output coordinates: New Zealand Transverse Mercator Projection
+
+ID           Latitude     Longitude       Easting     Northing 
+A1,-45.25000000,168.75000000,1266497.268,4980484.778
+B2,-41.25000000,174.75000000,1746623.188,5432013.325
+
+2 coordinates converted
+0 errors occurred reading or converting coordinates

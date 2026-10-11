@@ -1,6 +1,8 @@
 #ifndef _PLOTSTNS_H
 #define _PLOTSTNS_H
 
+#include <string>
+
 /*
    $Log: plotstns.h,v $
    Revision 1.2  1996/07/12 20:33:35  CHRIS
@@ -54,8 +56,8 @@ void set_plot_projection( coordsys *cs );
 coordsys *plot_projection( void );
 char geodetic_coordsys( void );
 void init_plotstns( int adjusted );   /* Called after stations have been read */
-void format_plot_coords( double e, double n, char *buf );  /* Assumes buf is big enough!? */
-char *plot_crdsys_name();
+std::string format_plot_coords( double e, double n );
+const std::string &plot_crdsys_name();
 int projection_defined( void );
 #ifdef _BINFILE_H
 int reload_covariances( BINARY_FILE *b );
@@ -73,8 +75,8 @@ int sorted_station_number( int i );
 void init_station_list();
 void  sort_station_list_col( int icol );
 void  sort_station_list( int opt );
-char *station_list_header( void );
-char *station_list_item( int i );
+std::string station_list_header( void );
+std::string station_list_item( int i );
 void station_item_info( int i, PutTextInfo *jmp );
 void list_station_summary( void *dest, PutTextFunc f );
 void list_station_details( void *dest, PutTextFunc f, int istn );
@@ -91,7 +93,7 @@ int first_station_past_x( double value );
 void setup_station_pens( int class_id );
 // Returns the class id (or 0 for "Usage") of the active station colour-by mode.
 int get_station_colourby_class();
-void get_stationpen_definition( char *def );  /* Assumes def is big enough */
+std::string get_stationpen_definition();
 void init_plotting_stations( void );
 int station_in_view( int istn );
 int station_showable( int istn );

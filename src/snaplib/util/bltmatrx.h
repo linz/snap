@@ -27,22 +27,22 @@
 #endif
 
 
-typedef struct
+struct bltrow
 {
     double *address;  /* Address of first element of row */
     int col;          /* First column for which elements are held */
     int req;          /* First column for which elements are required */
     char alloc;       /* Address marks the beginning of an allocated block */
-} bltrow;
+};
 
-typedef struct
+struct bltmatrix
 {
     char status;      /* Status of allocation of matrix */
     int nrow;         /* Number of rows/columns */
     int nsparse;      /* The number of sparse rows, used for allocation */
     long nelement;    /* The total number of elements in the matrix */
     bltrow *row;      /* Pointer to the array of rows */
-} bltmatrix;
+};
 
 #ifdef CHECKBLT
 #include "util/errdef.h"

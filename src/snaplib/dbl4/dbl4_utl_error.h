@@ -14,6 +14,7 @@
 */
 
 #include <stdio.h>
+#include <string_view>
 
 /* Require data types */
 
@@ -88,6 +89,6 @@
 
 /* Function to exit in the event of an unmanageable error */
 
-void utlAbort( char *message );
+void utlAbort( std::string_view message );
 
 #endif /* DBL4_UTL_ERROR_H not defined */

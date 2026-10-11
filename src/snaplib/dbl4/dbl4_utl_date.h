@@ -24,8 +24,6 @@ void utlSetDateTime( DateTimeType *dt, int year, int month, int day, int hour,
 
 void utlCopyDate( DateTimeType *tgt, DateTimeType *src);
 
-StatusType utlParseDate( DateTimeType *tgt, char *str);
-
 int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 );
 
 int utlIsLeapYear( int date );

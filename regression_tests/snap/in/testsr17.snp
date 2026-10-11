@@ -1,0 +1,26 @@
+
+title Regression tests - calc recode with errors - recode suffix without for
+coordinate_file testsr7.crd
+output_coordinate_file .new
+data_file testsr13.dat
+mode 3d adjustment
+
+list command_file
+list problem_definition
+list no_input_data
+list station_recoding
+list no_iteration_summary
+list no_solution_summary
+list station_coordinates
+list floated_stations
+list no_reference_frames
+list no_parameters
+list residuals
+list no_error_summary
+list no_worst_residuals
+
+output_csv stations
+
+add_residual_column date
+
+recode suffix _RC after 2001/01/01 2-10

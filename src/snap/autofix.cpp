@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <vector>
 
 #include "autofix.h"
 #include "snap/bindata.h"
@@ -13,14 +14,13 @@
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 
-typedef struct
+struct autofix_data
 {
     int flags;
     int horstn1;
     int horstn2;
-} autofix_data;
+};
 
 /* PDOBS = horizontal position dependent observations */
 /* HDOBS = height dependent observations */
@@ -40,7 +40,7 @@ typedef struct
 #define NO_STN -1
 
 static int obsflags[NOBSTYPE];
-static autofix_data *station_autodata=0;
+static std::vector<autofix_data> station_autodata;
 static int max_station_autodata=0;
 
 static void init_obsflags()
@@ -71,8 +71,8 @@ static void init_obsflags()
             char errmess[80];
             datatypedef *dtd;
             dtd=datatypedef_from_id(i);
-            sprintf(errmess,"Data type %.20s not handled in autofix.c",dtd->name);
-            handle_error(WARNING_ERROR,errmess,NULL);
+            sprintf(errmess,"Data type %.20s not handled in autofix.c",dtd->name.data());
+            handle_error(WARNING_ERROR,errmess,NO_MESSAGE);
         }
     }
 }
@@ -80,14 +80,13 @@ static void init_obsflags()
 void init_station_autodata( int maxstn )
 {
     free_station_autofix_data();
-    station_autodata=(autofix_data *) check_malloc( (maxstn+1) * sizeof(autofix_data));
+    station_autodata.resize( maxstn+1 );
     max_station_autodata=maxstn;
-    for( int i=0; i<=maxstn; i++ )
+    for( autofix_data &afx : station_autodata )
     {
-        autofix_data *afx=&(station_autodata[i]);
-        afx->flags=0;
-        afx->horstn1=NO_STN;
-        afx->horstn2=NO_STN;
+        afx.flags=0;
+        afx.horstn1=NO_STN;
+        afx.horstn2=NO_STN;
     }
 }
 
@@ -164,20 +163,18 @@ static void merge_autofix_data( autofix_data *afxref, autofix_data *afx )
 void compile_station_autofix_data()
 {
     int maxstn;
-    bindata *bd;
     maxstn=number_of_stations( net );
     init_obsflags();
     init_station_autodata( maxstn );
 
     /* Assess observations at each node */
 
-    bd=create_bindata();
+    bindata bd;
     init_get_bindata( 0L );
     while( get_bindata( SURVDATA, bd ) == OK )
     {
-        add_survdata_fixdata( (survdata *) bd->data );
+        add_survdata_fixdata( bd.survey_data() );
     }
-    delete_bindata( bd );
 
     /* Now account for co-located stations.  The observations for these are
      * merged as they are equivalent for the purpose of locating stations.
@@ -223,7 +220,7 @@ void compile_station_autofix_data()
 int station_autofix_constraints( int istn )
 {
     int fixflags=0;
-    if( istn > 0 || istn < max_station_autodata ) 
+    if( istn > 0 && istn <= max_station_autodata )
     {
         autofix_data *afx=&(station_autodata[istn]);
         int flags = afx->flags;
@@ -242,7 +239,7 @@ int station_autofix_constraints( int istn )
     {
         char errmsg[80];
         sprintf(errmsg,"Invalid station id %d in station_autofix_constraints",istn);
-        handle_error(WARNING_ERROR,errmsg,NULL);
+        handle_error(WARNING_ERROR,errmsg,NO_MESSAGE);
     }
     return fixflags;
 }
@@ -251,7 +248,7 @@ int station_autofix_reject( int istn )
 {
     int reject=0;
 
-    if( istn > 0 || istn < max_station_autodata ) 
+    if( istn > 0 && istn <= max_station_autodata )
     {
         station *st=stnptr(istn);
         stn_adjustment *sa=stnadj(st);
@@ -275,14 +272,14 @@ int station_autofix_reject( int istn )
     {
         char errmsg[80];
         sprintf(errmsg,"Invalid station id %d in station_autofix_constraints",istn);
-        handle_error(WARNING_ERROR,errmsg,NULL);
+        handle_error(WARNING_ERROR,errmsg,NO_MESSAGE);
     }
     return reject;
 }
 
 void free_station_autofix_data()
 {
-    if( station_autodata ) check_free( station_autodata );
+    station_autodata.clear();
     max_station_autodata=0;
 }
 

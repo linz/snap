@@ -70,7 +70,6 @@
 #include <math.h>
 
 #include "util/bltmatrx.h"
-#include "util/chkalloc.h"
 #include "util/progress.h"
 #include "util/errdef.h"
 
@@ -111,13 +110,13 @@ void blt_set_small( int absolute, double value )
 static bltrow *alloc_bltrow( int nrow )
 {
     int i;
-    bltrow *row = (bltrow *) check_malloc( nrow * sizeof(bltrow) );
+    bltrow *row = new bltrow[nrow];
     for( i=0; i<nrow; i++ )
     {
         row[i].col = i;
         row[i].req = i;
         row[i].alloc = 0;
-        row[i].address = NULL;
+        row[i].address = nullptr;
     }
     return row;
 }
@@ -130,10 +129,10 @@ static void delete_bltrow( bltrow *row, int nrow )
         bltrow *r = &(row[i]);
         if( r->alloc && r->address )
         {
-            check_free( r->address );
+            delete [] r->address;
         }
     }
-    check_free( row );
+    delete [] row;
 }
 
 static void zero_bltmatrix( bltmatrix *blt )
@@ -152,8 +151,7 @@ static void zero_bltmatrix( bltmatrix *blt )
 
 bltmatrix *create_bltmatrix( int nrow )
 {
-    bltmatrix *blt;
-    blt = (bltmatrix *) check_malloc( sizeof(bltmatrix) );
+    bltmatrix *blt = new bltmatrix;
     blt->nrow = nrow;
     blt->nsparse = 0;
     blt->status = BLT_UNINIT;
@@ -167,9 +165,9 @@ void delete_bltmatrix( bltmatrix *blt )
     if( blt->row )
     {
         delete_bltrow( blt->row, blt->nrow );
-        blt->row = NULL;
+        blt->row = nullptr;
     }
-    check_free( blt );
+    delete blt;
 }
 
 static void alloc_bltrow_arrays( bltmatrix *blt )
@@ -201,7 +199,7 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
             nalloc += rowsize;
             if( nalloc > minrowsize ) break;
         }
-        address = (double *) check_malloc( nalloc * sizeof(double));
+        address = new double[nalloc];
         alloc = 1;
         while( i0 < i )
         {
@@ -210,7 +208,7 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
             bltrow *r = &(blt->row[i0]);
             if( r->alloc && r->address )
             {
-                if( lastalloc ) check_free(lastalloc);
+                delete [] lastalloc;
                 lastalloc=r->address;
             }
             r0 = r->req;
@@ -230,7 +228,7 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
         nelement += nalloc;
     }
     blt->nelement = nelement;
-    if( lastalloc ) check_free(lastalloc);
+    delete [] lastalloc;
 
     blt->status = BLT_READY;
 }
@@ -565,9 +563,10 @@ void blt_chol_inv( bltmatrix *blt )
          read from the other (aliasing), and would refuse to vectorise the inner
          loop.  Distinct allocations give it that guarantee. */
     const int nrow = blt->nrow;
-    double *tmpcol = (double *) check_malloc( nrow * BLT_INV_CACHE_SIZE * sizeof(double) );
-    double *sumcol = (double *) check_malloc( nrow * BLT_INV_CACHE_SIZE * sizeof(double) );
-    int    *dosum  = (int *)    check_malloc( nrow * sizeof(int) );
+    const size_t cachesize = static_cast<size_t>( nrow ) * BLT_INV_CACHE_SIZE;
+    double *tmpcol = new double[cachesize];
+    double *sumcol = new double[cachesize];
+    int    *dosum  = new int[nrow];
 
     init_progress_meter( blt->nelement );
 
@@ -686,9 +685,9 @@ void blt_chol_inv( bltmatrix *blt )
     blt_load_col_cache( blt, tmpcol, sumcol, dosum, 0, 0, 0, nsave );
     end_progress_meter();
 
-    check_free( tmpcol );
-    check_free( sumcol );
-    check_free( dosum );
+    delete [] tmpcol;
+    delete [] sumcol;
+    delete [] dosum;
 }
 
 void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent )
@@ -1003,12 +1002,7 @@ int main(int argc, char *argv[] )
 
     nmem = (nprm * (nprm+1))/2 + nprm;
 
-    b = check_malloc( (2*nmem+nprm)*sizeof(double) );
-    if( !b )
-    {
-        xprintf("Not enough memory");
-        return;
-    }
+    b = new double[2*nmem+nprm];
     blt = create_bltmatrix( nprm );
     bltc = create_bltmatrix( nprm );
 

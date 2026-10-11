@@ -3,6 +3,8 @@
 
 /* Definitions of functions etc used for plotting */
 
+#include <string>
+
 #define LINE(plotter,x,y,pen) map_plotter_line(plotter,x,y,pen,0)
 #define DASHED_LINE(plotter,x,y,pen) map_plotter_line(plotter,x,y,pen,1)
 #define PLOTTEXT map_plotter_text
@@ -19,15 +21,15 @@
 
 #define ALL_DONE (-1)
 
-typedef struct
+struct map_plotter
 {
     void *plotobj;
     void (*line_func)( void *plotter, double px, double py, int pen, int dashed );
-    void (*text_func)( void *plotter, double px, double py, double size, int pen, const char *text );
+    void (*text_func)( void *plotter, double px, double py, double size, int pen, const std::string &text );
     void (*ellipse_func)( void *plotter, double px, double py, double a, double b, double az, int pen );
     void (*symbol_func)( void *plotter, double px, double py, int pen, int symbol );
     double (*symbol_size_func)( void *plotter, int symbol );
-} map_plotter;
+};
 
 /* To facilitate background processing draw functions are called repeatedly
    until they return status ALL_DONE.  Otherwise they should always be called
@@ -36,7 +38,7 @@ typedef struct
 /* Drawing functions */
 
 void map_plotter_line( map_plotter *plotter, double px, double py, int pen, int dashed );
-void map_plotter_text( map_plotter *plotter, double px, double py, double size, int pen, char *text );
+void map_plotter_text( map_plotter *plotter, double px, double py, double size, int pen, const std::string &text );
 void map_plotter_ellipse( map_plotter *plotter, double px, double py, double a, double b, double az, int pen );
 void map_plotter_symbol( map_plotter *plotter, double px, double py, int pen, int symbol );
 double map_plotter_symbol_size( map_plotter *plotter, int symbol );

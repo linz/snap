@@ -29,8 +29,19 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
+#include <deque>
+#include <optional>
 #include <set>
+#include <string>
+#include <variant>
+#include <vector>
+#include <boost/algorithm/string.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 #include "util/snapctype.h"
+#include "util/fieldscanner.hpp"
+#include "util/textformat.hpp"
 
 #ifdef _WIN32
 #include <crtdbg.h>
@@ -54,7 +65,6 @@
 #include "plotfunc.h"
 #include "plotscal.h"
 #include "snap/stnadj.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "snapdata/gpscvr.h"
@@ -62,39 +72,17 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-typedef union              /* Location of data on file or in memory */
-{
-    long floc;
-    char *mloc;
-} conn_location;
-
-typedef struct conn_ptr
-{
-    conn_location l;        /* Location of connections (conn_data) */
-    int nconn;            /* Number of connections saved   */
-    int nalloc;           /* Number of connections allocated */
-    char visible;
-} conn_ptr;
-
-/* conn_ptr's are allocated in blocks of CONN_BLOCK_SIZE */
-
-#define CONN_BLOCK_SIZE 100
-
-static int nspare_conn;
-static conn_ptr *conn_block;
-static void * conn_block_alloc;
-
-typedef struct
+struct conn_cvr
 {
     double emin, emax, az;   /* Error ellipse definition */
     double sehgt;
-} conn_cvr;
+};
 
 /* Data structures used in the binary file holding the definitions of the
    connections.  These are stored in blocks of initial size
    CONN_DATA_INIT, and are doubled each time more is required */
 
-typedef struct
+struct conn_data
 {
     unsigned char flags;   /* Unused, Reverse direction */
     unsigned char type;    /* data type */
@@ -107,30 +95,57 @@ typedef struct
     int64_t bloc;          /* location of binary data in data source */
     int idata;           /* Index of data in data block in file */
     int cclass[1];        /* Classifications */
-} conn_data;
+};
 
 #define CONN_DATA_INIT 4
 
-/* tconn_ptr's are located in dynamically expanded arrays in fconn_ptr */
-/* The initial size is TCONN_ARRAY_INIT and the expansion is in units of
-   TCONN_ARRAY_INC */
-
-typedef struct
+/// The connections between a pair of stations: a block of memory holding a
+/// conn_cvr followed by room for nalloc conn_data records.
+struct conn_ptr
 {
-    conn_ptr *conn;
-    int to;
-} tconn_ptr;
+    std::vector<unsigned char> mem;  ///< The conn_cvr followed by the conn_data records
+    int nconn = 0;                   ///< Number of connections saved
+    int nalloc = 0;                  ///< Number of connections allocated
+    char visible = 0;
+
+    /// Creates a block with room for CONN_DATA_INIT connections
+    conn_ptr();
+
+    /// Doubles the number of connections the block has room for
+    void expand();
+
+    /// Copies a connection into the block
+    void write_record( int index, const conn_data *data );
+
+    /// Copies a connection out of the block
+    void read_record( int index, conn_data *data ) const;
+
+    /// Sets the covariance of the pair of stations
+    void write_cvr( const conn_cvr &cvr );
+
+    /// Gets the covariance of the pair of stations
+    void read_cvr( conn_cvr &cvr ) const;
+};
+
+/* tconn_ptr's are held in a vector in fconn_ptr, which initially has room
+   for TCONN_ARRAY_INIT of them */
+
+struct tconn_ptr
+{
+    conn_ptr *conn;   ///< The connection data, shared with the station at the other end
+    int to;           ///< The id of the target station
+
+    tconn_ptr() = delete;
+    tconn_ptr( conn_ptr *connptr, const int toid ) : conn( connptr ), to( toid ) {}
+};
 
 #define TCONN_ARRAY_INIT 5
-#define TCONN_ARRAY_INC 5
 
-typedef struct
+struct fconn_ptr
 {
-    int nconn;
-    int max_conn;
-    int eastmost_conn;
-    tconn_ptr *to;
-} fconn_ptr;
+    int eastmost_conn = -1;       ///< The id of the most easterly connected station
+    std::vector<tconn_ptr> to;    ///< The connections from the station
+};
 
 /* Flags used in definitions of connections */
 
@@ -142,12 +157,28 @@ typedef struct
 
 #define MAX_TICK   20
 
+/// A conn_data record. It is allocated to the size needed to hold a classification
+/// value for every possible classification, which is not known until the data are read.
+class ConnRecord
+{
+public:
+    /// Sets the size of the record in bytes
+    void resize( const size_t size ) { _bytes.assign( size, 0 ); }
+
+    conn_data *get() { return reinterpret_cast<conn_data *>( _bytes.data() ); }
+    conn_data *operator->() { return get(); }
+    operator conn_data *() { return get(); }
+
+private:
+    std::vector<unsigned char> _bytes;  ///< The bytes of the record
+};
+
 static int nclass = 0;
 static int conn_data_size;
-static fconn_ptr *connlst = NULL;
-static FILE *conn_file = NULL;
-static conn_data *connection;
-static conn_data *connection2;
+static std::vector<fconn_ptr> connlst;
+static std::deque<conn_ptr> conn_pool;  // A deque keeps the conn_ptr's at fixed addresses as it grows
+static ConnRecord connection;
+static ConnRecord connection2;
 static int max_conn = 0;
 static int max_obs = 0;
 static long ndata;
@@ -163,8 +194,6 @@ static double highlight_threshhold;
 
 static double hlt_offset = 0.0;   /* Used to show individual connections */
 
-static char use_conn_file = 0;
-
 /* Code to set up all the information for the connections between observations.
 
    Each station has a list of connected stations in a fconn_ptr structure.
@@ -179,9 +208,8 @@ static char use_conn_file = 0;
    a point.  This member is not initialised until it is first needed.
    (as the station plot coordinates are not defined until then).
 
-   The conn_ptr in turn is a pointer to the actual data, stored in a
-   conn_data structure.  This may be either in memory or in a temporary
-   file, according to the setting of the variable use_conn_file.
+   The conn_ptr in turn holds the actual data, stored in memory as a
+   conn_data structure for each connection.
 
    The conn_data structure is not of a fixed size, since it must
    accommodate an arbitrary number of classifications (fixed for each
@@ -190,138 +218,52 @@ static char use_conn_file = 0;
    The size of the object is conn_data_size.
 */
 
-/* Initialise the list, determine the size of a connection data block, and
-   allocate one to be used for loading the connection list. Open the
-   temporary file */
+/* Initialise the list, determine the size of a connection data record, and
+   allocate two to be used for loading the connection list */
 
 static void init_connection_list( void )
 {
-    int i, maxstn;
-    maxstn = number_of_stations( net ) + 1;
-    connlst = (fconn_ptr *) check_malloc( maxstn * sizeof(fconn_ptr) );
-    for( i = 0; i<maxstn; i++ )
-    {
-        connlst[i].nconn = connlst[i].max_conn = 0;
-        connlst[i].eastmost_conn = -1;
-        connlst[i].to = NULL;
-    }
-    if( use_conn_file )
-    {
-        conn_file = snaptmpfile();
-        if( !conn_file )
-        {
-            handle_error( FATAL_ERROR,
-                          "Cannot open scratch file for connection list\n", NO_MESSAGE );
-        }
-    }
+    const int maxstn = number_of_stations( net ) + 1;
+    connlst.assign( boost::numeric_cast<size_t>( maxstn ), fconn_ptr() );
 
-    nclass = classification_count( &obs_classes);
+    nclass = obs_classes.count();
     conn_data_size = sizeof( conn_data ) + (nclass - 1) * sizeof( int );
-    connection = (conn_data *) check_malloc( conn_data_size );
-    connection2 = (conn_data *) check_malloc( conn_data_size );
-    conn_block_alloc = NULL;
-    conn_block = NULL;
-    nspare_conn = 0;
+    connection.resize( boost::numeric_cast<size_t>( conn_data_size ) );
+    connection2.resize( boost::numeric_cast<size_t>( conn_data_size ) );
+    conn_pool.clear();
     ndata = 0;
 }
 
-static void free_connection_blocks();
-
 static void free_connection_list()
 {
-    int i;
-    int maxstn;
-
-    check_free( connection );
-    connection = NULL;
-    check_free( connection2 );
-    connection2 = NULL;
-
-    free_connection_blocks();
-
-    if( connlst )
-    {
-        maxstn = number_of_stations( net ) + 1;
-        for(  i = 0; i < maxstn; i++ )
-        {
-            check_free( connlst[i].to );
-            connlst[i].to = NULL;
-            connlst[i].nconn = 0;
-            connlst[i].max_conn = 0;
-            connlst[i].eastmost_conn = -1;
-        }
-        check_free( connlst );
-    }
-    connlst = NULL;
+    // Swapping with an empty container releases the memory, which clear() would not
+    std::deque<conn_ptr>().swap( conn_pool );
+    std::vector<fconn_ptr>().swap( connlst );
 }
 
-
-static void create_conn_data( conn_ptr *cp );
 
 static conn_ptr *allocate_conn_ptr( void )
 {
-    conn_ptr *c;
-    if( nspare_conn <= 0 )
-    {
-        void *old_conn_block_alloc = conn_block_alloc;
-        conn_block_alloc = (void *) check_malloc( sizeof( void *) + CONN_BLOCK_SIZE * sizeof( conn_ptr ) );
-        *(void **)conn_block_alloc = (void *) old_conn_block_alloc;
-        conn_block = (conn_ptr *)(((char *)conn_block_alloc) + sizeof(void *));
-        nspare_conn = CONN_BLOCK_SIZE;
-    }
-    c = conn_block++;
-    nspare_conn--;
-    create_conn_data( c );
-    return c;
-}
-
-static void free_connection_blocks()
-{
-    while( conn_block_alloc )
-    {
-        void *nextblock = *(void **)conn_block_alloc;
-        check_free( conn_block_alloc );
-        conn_block_alloc = nextblock;
-    }
+    return &conn_pool.emplace_back();
 }
 
 
-static void add_tconn_to_fconn( int from, int to, conn_ptr *cp )
+static void add_tconn_to_fconn( const int from, const int to, conn_ptr *cp )
 {
-    fconn_ptr *fp;
-    tconn_ptr *tp;
-    fp = &connlst[from];
-    if( fp->nconn >= fp->max_conn )
-    {
-        if( fp->max_conn )
-        {
-            fp->max_conn += TCONN_ARRAY_INC;
-            fp->to = (tconn_ptr *) check_realloc( fp->to, fp->max_conn * sizeof(tconn_ptr) );
-        }
-        else
-        {
-            fp->max_conn = TCONN_ARRAY_INIT;
-            fp->to = (tconn_ptr *) check_malloc( fp->max_conn * sizeof(tconn_ptr) );
-        }
-    }
-    tp = &fp->to[fp->nconn++];
-    if( fp->nconn > max_conn ) max_conn = fp->nconn;
-    tp->to = to;
-    tp->conn = cp;
+    fconn_ptr &fp = connlst[from];
+    if( fp.to.empty() ) fp.to.reserve( TCONN_ARRAY_INIT );
+    fp.to.emplace_back( cp, to );
+    max_conn = std::max( max_conn, boost::numeric_cast<int>( fp.to.size() ) );
 }
 
 
 static conn_ptr *get_connection( int from, int to )
 {
-    fconn_ptr *fp;
-    tconn_ptr *tp;
     conn_ptr *cp;
-    int i;
 
-    fp = &connlst[from];
-    for( i = fp->nconn, tp = fp->to; i--; tp++ )
+    for( const tconn_ptr &tp : connlst[from].to )
     {
-        if( tp->to == to ) return tp->conn;
+        if( tp.to == to ) return tp.conn;
     }
     cp = allocate_conn_ptr();
     add_tconn_to_fconn( from, to, cp );
@@ -330,99 +272,45 @@ static conn_ptr *get_connection( int from, int to )
 }
 
 
-/* Create a data block at the end of the file */
-
-static void create_data_space( conn_location *l, int nalloc )
+conn_ptr::conn_ptr() : mem( sizeof(conn_cvr) + CONN_DATA_INIT * conn_data_size ), nalloc( CONN_DATA_INIT )
 {
-    conn_cvr cvr = { -1.0, -1.0, -1.0, -1.0 };
-    if( use_conn_file )
-    {
-        fseek( conn_file, 0L, SEEK_END );
-        l->floc = ftell( conn_file );
-        fwrite( &cvr, sizeof(cvr), 1, conn_file );
-        while( nalloc-- )
-        {
-            fwrite( connection, conn_data_size, 1, conn_file );
-        }
-    }
-    else
-    {
-        l->mloc = (char *) check_malloc( sizeof(cvr) + nalloc * conn_data_size );
-        memcpy( l->mloc, &cvr, sizeof(cvr) );
-    }
+    const conn_cvr cvr = { -1.0, -1.0, -1.0, -1.0 };
+    write_cvr( cvr );
 }
 
-
-static void expand_data_space( conn_location *l, int oldsize, int newsize )
+void conn_ptr::expand()
 {
-    if( use_conn_file )
-    {
-        int dsize;
-        unsigned char *dblock;
-
-        dsize = sizeof(conn_cvr) + oldsize * conn_data_size;
-        dblock = (unsigned char *) check_malloc( dsize );
-
-        fseek( conn_file, l->floc, SEEK_SET );
-        fread( dblock, dsize, 1, conn_file);
-
-        fseek( conn_file, 0L, SEEK_END );
-        l->floc = ftell( conn_file );
-        fwrite( dblock, dsize, 1, conn_file );
-        fwrite( dblock, dsize-sizeof(conn_cvr), 1, conn_file );
-        check_free( dblock );
-        fseek( conn_file, 0L, SEEK_END );
-        while( oldsize++ < newsize )
-        {
-            fwrite( connection, conn_data_size, 1, conn_file );
-        }
-    }
-    else
-    {
-        l->mloc = (char *) check_realloc( l->mloc,
-                                          sizeof(conn_cvr) + newsize * conn_data_size );
-    }
+    mem.resize( sizeof(conn_cvr) + nalloc * 2 * conn_data_size );
+    nalloc *= 2;
 }
 
-/*
-static void free_conn_data( conn_ptr *cp )
+void conn_ptr::write_record( const int index, const conn_data *data )
 {
-    if( ! use_conn_file )
-    {
-        cp->nconn = 0;
-        cp->nalloc = 0;
-        check_free( cp->l.mloc );
-        cp->l.mloc = 0;
-    }
-}
-*/
-
-
-static void create_conn_data( conn_ptr *cp )
-{
-    create_data_space( &cp->l, CONN_DATA_INIT );
-    cp->nconn = 0;
-    cp->nalloc = CONN_DATA_INIT;
+    memcpy( mem.data() + sizeof(conn_cvr) + index * conn_data_size, data, conn_data_size );
 }
 
-
-/* Copy the data block to the end of the file and expand it */
-
-static void expand_conn_data( conn_ptr *cp )
+void conn_ptr::read_record( const int index, conn_data *data ) const
 {
-    expand_data_space( &cp->l, cp->nalloc, cp->nalloc*2 );
-    cp->nalloc *= 2;
+    memcpy( data, mem.data() + sizeof(conn_cvr) + index * conn_data_size, conn_data_size );
 }
 
-/* Get the conn_ptr structure for a connection */
+void conn_ptr::write_cvr( const conn_cvr &cvr )
+{
+    memcpy( mem.data(), &cvr, sizeof(cvr) );
+}
 
-/* Add a block of data to the end of the file */
+void conn_ptr::read_cvr( conn_cvr &cvr ) const
+{
+    memcpy( &cvr, mem.data(), sizeof(cvr) );
+}
+
+/* Add a block of data to the list of connections */
 
 static void add_fconn_data( int from, int to, conn_data *data )
 {
     conn_ptr *ptr;
 
-    if( !connlst ) init_connection_list();
+    if( connlst.empty() ) init_connection_list();
 
 
     if( from == 0 ) { from = to; to = 0; }
@@ -448,21 +336,9 @@ static void add_fconn_data( int from, int to, conn_data *data )
     }
 
     ptr = get_connection( from, to );
-    if( ptr->nconn >= ptr->nalloc ) expand_conn_data( ptr );
+    if( ptr->nconn >= ptr->nalloc ) ptr->expand();
 
-    if( use_conn_file )
-    {
-        long loc;
-        loc = ptr->l.floc + sizeof(conn_cvr) + ptr->nconn * conn_data_size;
-        fseek( conn_file, loc, SEEK_SET );
-        fwrite( data, conn_data_size, 1, conn_file );
-    }
-    else
-    {
-        char *loc;
-        loc = ptr->l.mloc + sizeof(conn_cvr) + ptr->nconn * conn_data_size;
-        memcpy( loc, data, conn_data_size );
-    }
+    ptr->write_record( ptr->nconn, data );
 
     ptr->nconn++;
     if( ptr->nconn > max_obs ) max_obs = ptr->nconn;
@@ -482,18 +358,10 @@ void add_relative_covariance( int from, int to, double cvr[] )
     covar.sehgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
     if( covar.sehgt > relcvrmaxv ) relcvrmaxv = covar.sehgt;
 
-    if( !connlst ) init_connection_list();
+    if( connlst.empty() ) init_connection_list();
 
     ptr = get_connection( from, to );
-    if( use_conn_file )
-    {
-        fseek( conn_file, ptr->l.floc, SEEK_SET );
-        fwrite( &covar, sizeof(covar), 1, conn_file );
-    }
-    else
-    {
-        memcpy( ptr->l.mloc, &covar, sizeof(covar) );
-    }
+    ptr->write_cvr( covar );
 }
 
 void maximum_relative_covariance( double *h, double *v )
@@ -508,35 +376,20 @@ void maximum_relative_covariance( double *h, double *v )
 static int get_connection_data( int from, tconn_ptr *tp, conn_data *cd, int first )
 {
     static int nleft = 0;
-    static char *mloc = NULL;
+    static int nread = 0;
     static char reverse;
     conn_ptr *p = tp->conn;
     if( p->nconn == 0 ) return 0;
     if( first )
     {
-        if( use_conn_file )
-        {
-            fseek( conn_file, p->l.floc + sizeof(conn_cvr), SEEK_SET );
-        }
-        else
-        {
-            mloc = p->l.mloc + sizeof(conn_cvr);
-        }
+        nread = 0;
         nleft = p->nconn;
         reverse = from < tp->to ? 1 : 0;
     }
 
     if( nleft <= 0 ) return 0;
     nleft--;
-    if( use_conn_file )
-    {
-        fread( cd, conn_data_size, 1, conn_file );
-    }
-    else
-    {
-        memcpy( cd, mloc, conn_data_size );
-        mloc += conn_data_size;
-    }
+    p->read_record( nread++, cd );
     if( reverse )
     {
         cd->flags ^= CONN_OBS_REVERSE;
@@ -548,24 +401,9 @@ static int get_connection_data( int from, tconn_ptr *tp, conn_data *cd, int firs
 
 static void get_connection_data_by_id( int from, int to_id, int obs_id, conn_data *cd  )
 {
-    fconn_ptr *fp;
-    tconn_ptr *tp;
-    int offset;
-    conn_ptr *p;
-    fp = &connlst[from];
-    tp = &fp->to[to_id];
-    p = tp->conn;
-    offset = sizeof(conn_cvr) + obs_id * conn_data_size;
-    if( use_conn_file )
-    {
-        fseek( conn_file, p->l.floc + offset, SEEK_SET );
-        fread( cd, conn_data_size, 1, conn_file );
-    }
-    else
-    {
-        memcpy( cd, p->l.mloc + offset, conn_data_size );
-    }
-    if( from < tp->to )
+    const tconn_ptr &tp = connlst[from].to[to_id];
+    tp.conn->read_record( obs_id, cd );
+    if( from < tp.to )
     {
         cd->flags ^= CONN_OBS_REVERSE;
         if( datatype[cd->type].isdirectional )
@@ -576,13 +414,12 @@ static void get_connection_data_by_id( int from, int to_id, int obs_id, conn_dat
 
 static int get_connection_to_id( int from, int to )
 {
-    fconn_ptr *fp;
-    int to_id;
     if( from == 0 ) { from = to; to = 0; }
-    fp = &connlst[from];
-    for( to_id = 0; to_id < fp->nconn; to_id++ )
+    const std::vector<tconn_ptr> &tos = connlst[from].to;
+    const int nto = boost::numeric_cast<int>( tos.size() );
+    for( int to_id = 0; to_id < nto; to_id++ )
     {
-        if( fp->to[to_id].to == to ) return to_id;
+        if( tos[to_id].to == to ) return to_id;
     }
     return -1;
 }
@@ -610,15 +447,7 @@ static int get_connection_obs_id( int from, int to_id, int64_t bloc, int index )
 
 void get_relative_covariance( conn_ptr *ptr, conn_cvr *cvr )
 {
-    if( use_conn_file )
-    {
-        fseek( conn_file, ptr->l.floc, SEEK_SET );
-        fread( cvr, sizeof(conn_cvr), 1, conn_file );
-    }
-    else
-    {
-        memcpy( cvr, ptr->l.mloc, sizeof(conn_cvr) );
-    }
+    ptr->read_cvr( *cvr );
 }
 
 /* Record an observation in the connection list */
@@ -638,7 +467,7 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
     trgtdata *t;
     int i, j, iclass;
 
-    if( !connlst ) init_connection_list();
+    if( connlst.empty() ) init_connection_list();
 
     connection->bloc = bloc;
 
@@ -820,77 +649,64 @@ void set_displayby_enabled( const int id, const bool enabled )
     }
 }
 
-static char *range_name_alloc = NULL;
-static const char **range_names = NULL;
-static double *range_values = NULL;
-static int nranges = 0;
-static int reverse_range = 0;
+// Range i runs up to range_values[i]. The names are in key order, which is
+// the reverse of range_values order if reverse_range is set.
+static std::vector<double> range_values;
+static std::vector<std::string> range_names;
+static bool reverse_range = false;
 
 static double maxsres = 3.0;
 static int  nsres = 6;
 static int  nrfac = 5;
 static double sresmult;
 
-#define LABEL_SIZE 64
-
 static void free_range_pens()
 {
-    if( range_name_alloc ) check_free( range_name_alloc );
-    range_name_alloc = NULL;
-    range_names = NULL;
-    range_values = NULL;
+    range_names.clear();
+    range_values.clear();
 }
 
-static void setup_ranges( double maxval, int ninterval, int reverse, const char *name, const char *prefix )
+static void setup_ranges( double maxval, int ninterval, const bool reverse, const std::string &name, const std::string_view prefix )
 {
-    char *data;
-    int i;
-
     if( maxval < 0.0 ) maxval = 1.0;
     if( maxval > 100.0 ) maxval = 100.0;
     if( ninterval < 2 || ninterval > 20 ) ninterval = 5;
     ninterval++;
     free_range_pens();
-    data = (char *) check_malloc( ninterval * (sizeof(char *)+sizeof(double)+LABEL_SIZE) );
-    range_name_alloc = data;
-    range_values = (double *) data;
-    data += ninterval * sizeof(double);
-    range_names = (const char **) data;
-    data += ninterval * sizeof(char *);
     reverse_range = reverse;
-    nranges = reverse_range ? ninterval-1 : 0;
+    range_values.resize( ninterval );
+    range_names.resize( ninterval );
 
-    for( i = 0; i < ninterval; i++ )
+    for( int i = 0; i < ninterval; i++ )
     {
         range_values[i] = (maxval * (i+1))/(ninterval-1);
+        std::string label = std::string( prefix ) + std::to_string( i ) + "|";
         if( i == 0 )
         {
-            sprintf( data, "%s%d| 0.00 - %5.2lf",prefix,i,range_values[i] );
+            label += " 0.00 - " + format_fixed( range_values[i], 2, 5 );
         }
         else if( i == ninterval-1 )
         {
-            sprintf( data, "%s%d|%5.2lf - ",prefix,i,range_values[i-1]);
+            label += format_fixed( range_values[i-1], 2, 5 ) + " - ";
         }
         else
         {
-            sprintf( data, "%s%d|%5.2lf - %5.2lf", prefix,i,range_values[i-1],range_values[i] );
+            label += format_fixed( range_values[i-1], 2, 5 ) + " - " + format_fixed( range_values[i], 2, 5 );
         }
-        range_names[nranges] = data;
-        if( reverse_range ) nranges--; else nranges++;
-        data += LABEL_SIZE;
+        range_names[reverse_range ? ninterval-1-i : i] = std::move( label );
     }
-    nranges = ninterval;
 
     // Only give the list its default rainbow colouring when it's freshly
     // built - a cache hit means copy_layer() has already restored whatever
     // colours were previously chosen, and this would overwrite them.
-    if( setup_data_layers( nranges, range_names, name, 0 ) ) {
+    if( setup_data_layers( range_names, name, false ) ) {
         set_pen_colour_range();
     }
 }
 
 static int get_range_pen( double value )
 {
+    const int nranges = boost::numeric_cast<int>( range_values.size() );
     int i;
     for( i=0; i<nranges-1; i++ )
     {
@@ -902,7 +718,7 @@ static int get_range_pen( double value )
 
 static void setup_datatype_pens( void )
 {
-    setup_data_layers( 0, NULL, NULL, 0 );
+    setup_data_layers( {}, "", false );
 }
 
 static const char *nmApostStdRes = "Aposteriori std residuals";
@@ -916,7 +732,7 @@ static const char *cdRedundancy = "RDC_";
 // data_user_layers left null, the same way setup_datatype_pens() does.
 static void setup_datafile_pens( void )
 {
-    setup_data_layers( 0, NULL, NULL, 0 );
+    setup_data_layers( {}, "", false );
 }
 
 // Evicts the cached residual list before overwriting maxsres/nsres if either
@@ -966,7 +782,7 @@ void setup_data_pens( int type )
     if( type == DPEN_BY_SRES )
     {
         data_pen_type = DPEN_BY_SRES;
-        setup_ranges( maxsres, nsres, 1, aposteriori_sres ? nmApostStdRes : nmStdRes, cdStdRes );
+        setup_ranges( maxsres, nsres, true, aposteriori_sres ? nmApostStdRes : nmStdRes, cdStdRes );
         sresmult = 1.0;
         if( aposteriori_sres ) sresmult = 1.0/seu;
     }
@@ -974,7 +790,7 @@ void setup_data_pens( int type )
     else if( type == DPEN_BY_RFAC )
     {
         data_pen_type = DPEN_BY_RFAC;
-        setup_ranges( 1.0, nrfac, 0, nmRedundancy, cdRedundancy );
+        setup_ranges( 1.0, nrfac, false, nmRedundancy, cdRedundancy );
     }
 
     else if( type == DPEN_BY_FILE )
@@ -1000,53 +816,69 @@ int get_data_pen_type()
     return data_pen_type;
 }
 
-int set_datapen_definition( char *def )
+/// Parses the whole of field as an int, with no trailing characters.
+static std::optional<int> parse_whole_int( const std::string_view field )
 {
-    char *fld;
-    int pen_data_type;
-    fld = strtok( def, " \t\n\r" );
+    const auto parsed = parse_leading_field<int>( field );
+    if( !parsed || parsed->result.ptr != field.data() + field.size() ) return std::nullopt;
+    return parsed->value;
+}
+
+int set_datapen_definition( const std::string_view def )
+{
+    constexpr std::string_view delimiters = " \t\n\r";
+    FieldScanner scanner( def );
+    auto fld = scanner.nextToken( delimiters );
     if( !fld ) return MISSING_DATA;
-    if( _stricmp( def, "by_type") == 0 )
+    int pen_data_type;
+    if( boost::algorithm::iequals( *fld, "by_type" ) )
     {
         pen_data_type = DPEN_BY_TYPE;
     }
-    else if( _stricmp( def, "by_file") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_file" ) )
     {
         pen_data_type = DPEN_BY_FILE;
     }
-    else if( _stricmp( def, "by_redundancy") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_redundancy" ) )
     {
-        int ngrp;
-        char garbage[2];
-        fld = strtok(NULL," \t\r\n");
-        ngrp = 5;
-        if( fld && sscanf(fld,"%d%1c",&ngrp,garbage) != 1 ) return INVALID_DATA;
+        int ngrp = 5;
+        fld = scanner.nextToken( delimiters );
+        if( fld )
+        {
+            const auto parsedGroups = parse_whole_int( *fld );
+            if( !parsedGroups ) return INVALID_DATA;
+            ngrp = *parsedGroups;
+        }
         pen_data_type = DPEN_BY_RFAC;
         nrfac = ngrp;
     }
-    else if( _stricmp( def, "by_std_residual") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_std_residual" ) )
     {
-        int apost, ngrp;
-        double maxsr;
-        char garbage[2];
-        fld = strtok(NULL," \t\r\n");
-        maxsr = 3.0;
-        ngrp = 6;
-        apost = 1;
-        if( fld && _stricmp(fld,"aposteriori") == 0 )
+        double maxsr = 3.0;
+        int ngrp = 6;
+        int apost = 1;
+        fld = scanner.nextToken( delimiters );
+        if( fld && boost::algorithm::iequals( *fld, "aposteriori" ) )
         {
-            fld = strtok(NULL," \t\r\n");
+            fld = scanner.nextToken( delimiters );
         }
-        else if( fld && _stricmp(fld,"apriori") == 0 )
+        else if( fld && boost::algorithm::iequals( *fld, "apriori" ) )
         {
             apost = 0;
-            fld = strtok(NULL," \t\r\n");
+            fld = scanner.nextToken( delimiters );
         }
         if( fld )
         {
-            if( sscanf(fld,"%lf%1c",&maxsr,garbage) != 1 ) return INVALID_DATA;
-            fld = strtok(NULL," \t\r\n");
-            if( fld && sscanf(fld,"%d%1c",&ngrp,garbage) != 1 ) return INVALID_DATA;
+            const auto parsedMaxsr = parse_double( *fld );
+            if( !parsedMaxsr ) return INVALID_DATA;
+            maxsr = *parsedMaxsr;
+            fld = scanner.nextToken( delimiters );
+            if( fld )
+            {
+                const auto parsedGroups = parse_whole_int( *fld );
+                if( !parsedGroups ) return INVALID_DATA;
+                ngrp = *parsedGroups;
+            }
         }
 
         pen_data_type = DPEN_BY_SRES;
@@ -1054,15 +886,15 @@ int set_datapen_definition( char *def )
         aposteriori_sres = apost;
         nsres = ngrp;
     }
-    else if( _stricmp( def, "by_classification") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_classification" ) )
     {
         int i, found;
-        fld = strtok(NULL," \t\r\n");
+        fld = scanner.nextToken( delimiters );
         if( ! fld ) return MISSING_DATA;
         found = 0;
-        for( i = 0; i++ < classification_count( &obs_classes); )
+        for( i = 0; i++ < obs_classes.count(); )
         {
-            if( _stricmp( fld, classification_name( &obs_classes,i)) == 0 )
+            if( boost::algorithm::iequals( *fld, obs_classes.name(i)) )
             {
                 found = 1;
                 break;
@@ -1081,21 +913,17 @@ int set_datapen_definition( char *def )
     return OK;
 }
 
-void get_datapen_definition( char *def )
+std::string get_datapen_definition()
 {
     switch( data_pen_type )
     {
-    case DPEN_BY_TYPE:  strcpy(def,"by_type"); break;
-    case DPEN_BY_FILE:  strcpy(def,"by_file"); break;
-    case DPEN_BY_RFAC:  sprintf(def,"by_redundancy %d\n", nrfac ); break;
-    case DPEN_BY_SRES:  sprintf(def,"by_std_residual %s %.3lf %d\n",
-                                    aposteriori_sres ? "aposteriori" : "apriori",
-                                    maxsres, nsres );
-        break;
-
-    default:            sprintf(def,"by_classification %s",
-                                    classification_name( &obs_classes,data_pen_type));
-        break;
+    case DPEN_BY_TYPE:  return "by_type";
+    case DPEN_BY_FILE:  return "by_file";
+    case DPEN_BY_RFAC:  return "by_redundancy " + std::to_string( nrfac ) + "\n";
+    case DPEN_BY_SRES:  return std::string( "by_std_residual " ) +
+                               ( aposteriori_sres ? "aposteriori " : "apriori " ) +
+                               format_fixed( maxsres, 3 ) + " " + std::to_string( nsres ) + "\n";
+    default:            return "by_classification " + obs_classes.name( data_pen_type );
     }
 }
 
@@ -1168,15 +996,15 @@ static int obs_station_showable( int istn )
     return show_hidden_stn_obs || station_showable(istn);
 }
 
-typedef struct
+struct pendef
 {
-    int pen;
-    unsigned char flags;
-    unsigned char highlight;
-} pendef;
+    int pen = 0;
+    unsigned char flags = 0;
+    unsigned char highlight = 0;
+};
 
 static int max_pens;
-static pendef *pens = NULL;
+static std::vector<pendef> pens;
 
 int plot_connections( map_plotter *plotter, int first, int offset_opt, double offset, int redraw )
 {
@@ -1200,7 +1028,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
     int first_conn;
     conn_cvr cvr;
 
-    if( !connlst ) return ALL_DONE;
+    if( connlst.empty() ) return ALL_DONE;
 
     highlight = redraw == PCONN_REDRAW_HIGHLIGHT ? 1 : 0;
 
@@ -1241,7 +1069,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
     if( !pltused && !pltrejected && !pltunused ) return ALL_DONE;
 
-    if( !pens ) pens = (pendef *) check_malloc( sizeof(pendef) * max_obs );
+    if( pens.empty() ) pens.resize( boost::numeric_cast<size_t>( max_obs ) );
 
     if( first < 0 ) { first = 0; count = maxstn; }
     else count = 1;
@@ -1272,7 +1100,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
         fp = &connlst[from];
 
-        for( tp = fp->to, ntp = fp->nconn; ntp--; tp++ )
+        for( tp = fp->to.data(), ntp = boost::numeric_cast<int>( fp->to.size() ); ntp--; tp++ )
         {
 
             /* Skip over point data */
@@ -1537,25 +1365,42 @@ double get_obs_highlight_offset()
 /* Create and maintain a sorted index of the standardised        */
 /* residuals                                                     */
 
-typedef struct
+struct SresDef
 {
     int from;
     int to_id;
     int obs_id;
     char unused;
-    union
-    {
-        const char *cpr;
-        double fval;
-        long ival;
-    } cmpval;
-} SresDef;
+
+    /// Recomputes the sort key - derived from this record's own
+    /// from/to_id/obs_id - for the given display field.
+    void set_sort_key( int order );
+
+    /// Compares this record's sort key to another's, returning a
+    /// strcmp-style result (negative/zero/positive). Both records must
+    /// have been given a sort key for the same display field.
+    int compare( const SresDef &other ) const;
+
+    /// Compares two records by instrument station, using this record's
+    /// sort key as a station code. Ties are broken by each record's
+    /// target station, looked up via connlst using its own from/to_id.
+    int compare_from( const SresDef &other ) const;
+
+    /// Compares two records by the two stations they connect, treating a
+    /// connection and its reverse as the same line. Each record's own two
+    /// endpoints are its sort key (as a station code) and its target
+    /// station, looked up via connlst using its own from/to_id.
+    int compare_line( const SresDef &other ) const;
+
+private:
+    std::variant<std::string, double, long> cmpval;
+};
 
 #define MAX_DISPLAY_FIELDS 32
 
-static SresDef *srList = NULL;
-static long *srIndex = NULL;
-static long *srIndex2 = NULL;
+static std::vector<SresDef> srList;
+static std::vector<long> srIndex;
+static std::vector<long> srIndex2;
 static long srListCount = 0;
 static long srIndexCount = 0;
 static int srListMode = SRL_ALL;
@@ -1587,13 +1432,13 @@ struct
 };
 
 
-int get_display_field_code( const char *field )
+int get_display_field_code( const std::string_view field )
 {
     int i;
     int fieldCode = 0;
     for( i = 0; displayFieldDefs[i].name; i++ )
     {
-        if( _stricmp(field, displayFieldDefs[i].name) == 0 )
+        if( boost::algorithm::iequals( field, displayFieldDefs[i].name ) )
         {
             fieldCode = displayFieldDefs[i].code;
             break;
@@ -1601,9 +1446,9 @@ int get_display_field_code( const char *field )
     }
     if( fieldCode == 0 )
     {
-        for( i = 0; i++ < classification_count( &obs_classes); )
+        for( i = 0; i++ < obs_classes.count(); )
         {
-            if( _stricmp( field, classification_name( &obs_classes,i)) == 0 )
+            if( boost::algorithm::iequals( field, obs_classes.name(i)) )
             {
                 fieldCode = i;
                 break;
@@ -1613,63 +1458,55 @@ int get_display_field_code( const char *field )
     return fieldCode;
 }
 
-const char *get_display_field_name( int fieldCode )
+std::optional<std::string> get_display_field_name( int fieldCode )
 {
-    const char *fieldName = NULL;
-    int j;
-    for( j = 0; displayFieldDefs[j].name; j++ )
+    for( int j = 0; displayFieldDefs[j].name; j++ )
     {
-        if( displayFieldDefs[j].code  == fieldCode )
+        if( displayFieldDefs[j].code == fieldCode )
         {
-            fieldName = displayFieldDefs[j].name;
-            break;
+            return displayFieldDefs[j].name;
         }
     }
-    if( fieldName == NULL && fieldCode > 0 )
+    if( fieldCode > 0 )
     {
-        fieldName = classification_name( &obs_classes,fieldCode);
+        return obs_classes.name(fieldCode);
     }
-    return fieldName;
+    return std::nullopt;
 }
 
 
-int read_display_fields_definition( char *def )
+int read_display_fields_definition( const std::string_view def )
 {
-    char *fld;
+    constexpr std::string_view delimiters = " \t\n\r";
+    FieldScanner scanner( def );
     nDisplayFields = 0;
-    while( nDisplayFields < MAX_DISPLAY_FIELDS  &&
-            NULL != (fld = strtok( def, " \t\n\r" ) ) )
+    while( nDisplayFields < MAX_DISPLAY_FIELDS )
     {
-        int fieldCode = get_display_field_code(fld);
+        const auto fld = scanner.nextToken( delimiters );
+        if( !fld ) break;
+        const int fieldCode = get_display_field_code( *fld );
         if( fieldCode != 0 )
         {
             displayFields[nDisplayFields++] = fieldCode;
         }
-        def = NULL;
     }
     return OK;
 }
 
 
-void write_display_fields_definition( char *def, int nchar )
+std::string write_display_fields_definition()
 {
-    int nch = 0;
-    int i;
-    for( i = 0; i < nDisplayFields; i++ )
+    std::string def;
+    for( int i = 0; i < nDisplayFields; i++ )
     {
-        const char *fieldName;
-        fieldName = get_display_field_name(displayFields[i]);
-        if( fieldName != NULL )
+        const auto fieldName = get_display_field_name( displayFields[i] );
+        if( fieldName )
         {
-            int fnlen;
-            fnlen = strlen(fieldName);
-            if( fnlen + nch + 2 > nchar ) break;
-            if( nch ) def[nch++] = ' ';
-            strcpy( def+nch, fieldName );
-            nch += fnlen;
+            if( !def.empty() ) def += ' ';
+            def += *fieldName;
         }
     }
-    def[nch] = 0;
+    return def;
 }
 
 
@@ -1689,10 +1526,9 @@ static void set_display_field_widths( void )
             int j;
             for( j = 0; j < survey_data_file_count(); j++ )
             {
-                char *filnam = survey_data_file_name(j);
+                std::string filnam = survey_data_file_name(j);
                 int dfw;
-                if( !filnam ) continue;
-                dfw = strlen(filnam);
+                dfw = filnam.size();
                 if( dfw > width ) width = dfw;
             }
             width  += 5;  /* Leave a bit of space */
@@ -1702,12 +1538,10 @@ static void set_display_field_widths( void )
         {
             int j;
             width = 7;  /* Default string for "Default" is 7 chrs */
-            for( j = 0; j < class_value_count( &obs_classes,fldCode); j++ )
+            for( j = 0; j < obs_classes.value_count(fldCode); j++ )
             {
-                char *valnam =  class_value_name( &obs_classes, fldCode, j );
-                int dfw;
-                if( !valnam ) continue;
-                dfw = strlen( valnam );
+                std::string valnam = obs_classes.value_name( fldCode, j );
+                int dfw = numeric_cast<int>(valnam.size());
                 if( dfw > width ) width = dfw;
             }
             width += 5; /* Leave a bit of space! */
@@ -1767,51 +1601,67 @@ int get_displayed_fields( int *fields, int maxFields )
     }
     return nDisplayFields;
 }
-/* Sorts based on preset floating point numbers */
 /* Note: all sorts include comparison of srIndex2 values to retain original sort order
    where new is no different */
 
-static int cmp_srdef_float_base( const void *p1, const void *p2, char reverse )
+int SresDef::compare( const SresDef &other ) const
+{
+    if( std::holds_alternative<double>(cmpval) )
+    {
+        double diff = std::get<double>(cmpval) - std::get<double>(other.cmpval);
+        return diff < 0.0 ? -1 : diff > 0.0 ? 1 : 0;
+    }
+    if( std::holds_alternative<long>(cmpval) )
+    {
+        long diff = std::get<long>(cmpval) - std::get<long>(other.cmpval);
+        return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+    }
+    return stncodecmp( std::get<std::string>(cmpval), std::get<std::string>(other.cmpval) );
+}
+
+int SresDef::compare_from( const SresDef &other ) const
+{
+    int cmp = compare( other );
+    if( cmp != 0 ) return cmp;
+    int to1 = connlst[from].to[to_id].to;
+    int to2 = connlst[other.from].to[other.to_id].to;
+    if( to1 == to2 ) return 0;
+    if( to1 == 0 || to2 == 0 ) return to1 - to2;
+    return stncodecmp( stnptr(to1)->Code, stnptr(to2)->Code );
+}
+
+int SresDef::compare_line( const SresDef &other ) const
+{
+    std::string_view f1 = std::get<std::string>(cmpval);
+    std::string_view f2 = std::get<std::string>(other.cmpval);
+    int to1 = connlst[from].to[to_id].to;
+    int to2 = connlst[other.from].to[other.to_id].to;
+    std::string_view t1 = to1 ? std::string_view( stnptr(to1)->Code ) : std::string_view();
+    std::string_view t2 = to2 ? std::string_view( stnptr(to2)->Code ) : std::string_view();
+
+    if( stncodecmp(f1,t1) > 0 ) std::swap( t1, f1 );
+    if( stncodecmp(f2,t2) > 0 ) std::swap( t2, f2 );
+
+    int cmp = stncodecmp( f1, f2 );
+    if( cmp == 0 ) cmp = stncodecmp(t1,t2);
+    return cmp;
+}
+
+static int cmp_srdef_generic( const void *p1, const void *p2 )
 {
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    double diff = srList[i1].cmpval.fval - srList[i2].cmpval.fval;
-    if( reverse ) diff = -diff;
-    if( diff < 0.0 ) return -1;
-    if( diff > 0.0 ) return 1;
-    return srIndex2[i1] - srIndex2[i2];
-}
-
-static int cmp_srdef_float( const void *p1, const void *p2 )
-{
-    return cmp_srdef_float_base( p1, p2, 0 );
+    int cmp = srList[i1].compare(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
+    return cmp;
 }
 
 static int cmp_srdef_reversefloat( const void *p1, const void *p2 )
 {
-    return cmp_srdef_float_base( p1, p2, 1 );
-}
-
-/* Based on int value */
-
-static int cmp_srdef_int( const void *p1, const void *p2 )
-{
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    long diff = srList[i1].cmpval.ival - srList[i2].cmpval.ival;
-    if( diff < 0.0 ) return -1;
-    if( diff > 0.0 ) return 1;
-    return srIndex2[i1] - srIndex2[i2];
-}
-
-/* Sorts based on predefined character string */
-
-static int cmp_srdef_stri( const void *p1, const void *p2 )
-{
-    long i1 = * (long *) p1;
-    long i2 = * (long *) p2;
-    int cmp = _stricmp( srList[i1].cmpval.cpr, srList[i2].cmpval.cpr);
-    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
+    int cmp = -srList[i1].compare(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
     return cmp;
 }
 
@@ -1823,19 +1673,8 @@ static int cmp_srdef_from( const void *p1, const void *p2 )
 {
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    SresDef *sr1 = srList + i1;
-    SresDef *sr2 = srList + i2;
-    int cmp;
-    int to1, to2;
-
-    cmp = stncodecmp( sr1->cmpval.cpr, sr2->cmpval.cpr );
-    if( cmp != 0 ) return cmp;
-    to1 = connlst[srList[i1].from].to[srList[i1].to_id].to;
-    to2 = connlst[srList[i2].from].to[srList[i2].to_id].to;
-    if( to1 == to2 ) return 0;
-    if( to1 == 0 || to2 == 0 ) return to1 - to2;
-    cmp = stncodecmp( stnptr(to1)->Code, stnptr(to2)->Code );
-    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
+    int cmp = srList[i1].compare_from(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
     return cmp;
 }
 
@@ -1845,27 +1684,8 @@ static int cmp_srdef_line( const void *p1, const void *p2 )
 {
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    SresDef *sr1 = srList + i1;
-    SresDef *sr2 = srList + i2;
-    int cmp;
-    int to1, to2;
-    const char *f1, *f2;
-    const char *t1, *t2;
-
-    f1 = sr1->cmpval.cpr;
-    f2 = sr2->cmpval.cpr;
-    to1 = connlst[srList[i1].from].to[srList[i1].to_id].to;
-    to2 = connlst[srList[i2].from].to[srList[i2].to_id].to;
-    t1 = to1 ? stnptr(to1)->Code : "";
-    t2 = to2 ? stnptr(to2)->Code : "";
-
-    if( stncodecmp(f1,t1) > 0 ) { const char *t = t1; t1 = f1; f1 = t; }
-    if( stncodecmp(f2,t2) > 0 ) { const char *t = t2; t2 = f2; f2 = t; }
-
-    cmp = stncodecmp( f1, f2 );
-    if( cmp == 0 ) cmp = stncodecmp(t1,t2);
-    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
-
+    int cmp = srList[i1].compare_line(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
     return cmp;
 }
 
@@ -1880,7 +1700,7 @@ static int cmp_srdef_fileloc( const void *p1, const void *p2 )
     get_connection_data_by_id( srList[i1].from, srList[i1].to_id, srList[i1].obs_id, connection );
     get_connection_data_by_id( srList[i2].from, srList[i2].to_id, srList[i2].obs_id, connection2 );
 
-    cmp = strcmp(survey_data_file_name( connection->file ),survey_data_file_name( connection2->file ));
+    cmp = survey_data_file_name( connection->file ).compare(survey_data_file_name( connection2->file ));
     if( cmp == 0 ) { cmp = connection->line - connection2->line; }
     if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
 
@@ -1890,12 +1710,12 @@ static int cmp_srdef_fileloc( const void *p1, const void *p2 )
 static void create_sres_index( void )
 {
     int from;
-    if( srList ) return;
+    if( ! srList.empty() ) return;
     if( !ndata ) return;
-    if( !connlst ) return;
-    srList = (SresDef *) check_malloc( ndata * sizeof(SresDef) );
-    srIndex = (long *) check_malloc( ndata * sizeof(long) );
-    srIndex2 = (long *) check_malloc( ndata * sizeof(long) );
+    if( connlst.empty() ) return;
+    srList.resize( ndata );
+    srIndex.assign( boost::numeric_cast<size_t>( ndata ), 0 );
+    srIndex2.assign( boost::numeric_cast<size_t>( ndata ), 0 );
     srListCount = 0;
     srIndexCount = 0;
     for( from = 1; from <= number_of_stations(net); from++ )
@@ -1903,7 +1723,7 @@ static void create_sres_index( void )
         fconn_ptr *fp;
         int to_id;
         fp = &connlst[from];
-        for( to_id = 0; to_id < fp->nconn; to_id++ )
+        for( to_id = 0; to_id < boost::numeric_cast<int>( fp->to.size() ); to_id++ )
         {
             tconn_ptr *tp;
             int obs_id;
@@ -1917,7 +1737,7 @@ static void create_sres_index( void )
                 // assert( srListCount < ndata );
                 if( srListCount >= ndata ) break;
                 if( connection->flags & CONN_OBS_REVERSE ) continue;
-                sr = srList + srListCount;
+                sr = &srList[srListCount];
                 srListCount++;
                 sr->from = from;
                 sr->to_id = to_id;
@@ -1935,8 +1755,8 @@ static void SetupSresIndex( void )
     int (*cmp_func)( const void *p1, const void *p2 );
 
     if( indexValid ) return;
-    if( !srList ) create_sres_index();
-    if( !srList ) return;
+    if( srList.empty() ) create_sres_index();
+    if( srList.empty() ) return;
     srIndexCount = 0;
 
     /* Save the old index order to make the sort preserve order */
@@ -1954,7 +1774,7 @@ static void SetupSresIndex( void )
 
     for( idata = 0; idata < srListCount; idata++ )
     {
-        SresDef *sr = srList + idata;
+        SresDef *sr = &srList[idata];
         int valid = 1;
         switch( srListMode )
         {
@@ -1964,63 +1784,8 @@ static void SetupSresIndex( void )
         }
         if( valid )
         {
-            station *sfrom;
-            station *sto;
-            int to;
-            double value;
-
             srIndex[srIndexCount++] = idata;
-            switch (srListOrder)
-            {
-            case SRF_FROM:
-            case SRF_TO:      sr->cmpval.cpr = stnptr(sr->from)->Code;
-                break;
-            case SRF_TYPE:    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.cpr = datatype[connection->type].code;
-                break;
-            case SRF_STATUS:  get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.cpr =   (connection->flags & CONN_REJECTED ) ? "reject" :
-                                   (connection->flags & CONN_UNUSED) ? "unused" : "";
-                break;
-            case SRF_SRES:    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.fval = connection->sres;
-                break;
-            case SRF_RFAC:    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.fval = connection->rfac;
-                break;
-            case SRF_OBSID:   get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.ival = connection->id;
-                break;
-            case SRF_FILE:
-            case SRF_LINENO:
-                break;
-            case SRF_DATE:
-                get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.fval=connection->date;
-                break;
-            case SRF_LENGTH:  value = 0.0;
-                to = connlst[sr->from].to[sr->to_id].to;
-                if( to )
-                {
-                    sfrom = stnptr(sr->from);
-                    sto = stnptr(to);
-                    value = calc_distance( sfrom, 0.0, sto, 0.0, NULL, NULL );
-                    value *= ellipsoidal_distance_correction( sfrom, sto );
-                }
-                sr->cmpval.fval = value;
-                break;
-            default:          if( srListOrder > 0 )
-                {
-                    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                    sr->cmpval.cpr = class_value_name( &obs_classes, srListOrder,
-                                                       connection->cclass[srListOrder-1] );
-                }
-                else
-                {
-                    sr->cmpval.cpr = "";
-                }
-                break;
-            }
+            sr->set_sort_key( srListOrder );
         }
     }
 
@@ -2030,21 +1795,87 @@ static void SetupSresIndex( void )
     {
     case SRF_FROM:    cmp_func = cmp_srdef_from; break;
     case SRF_TO:      cmp_func = cmp_srdef_line; break;
-    case SRF_TYPE:    cmp_func = cmp_srdef_stri; break;
-    case SRF_STATUS:  cmp_func = cmp_srdef_stri; break;
+    case SRF_TYPE:    cmp_func = cmp_srdef_generic; break;
+    case SRF_STATUS:  cmp_func = cmp_srdef_generic; break;
     case SRF_SRES:    cmp_func = cmp_srdef_reversefloat; break;
-    case SRF_RFAC:    cmp_func = cmp_srdef_float; break;
-    case SRF_DATE:    cmp_func = cmp_srdef_float; break;
-    case SRF_OBSID:   cmp_func = cmp_srdef_int; break;
+    case SRF_RFAC:    cmp_func = cmp_srdef_generic; break;
+    case SRF_DATE:    cmp_func = cmp_srdef_generic; break;
+    case SRF_OBSID:   cmp_func = cmp_srdef_generic; break;
     case SRF_FILE:
     case SRF_LINENO:  cmp_func = cmp_srdef_fileloc; break;
-    case SRF_LENGTH:  cmp_func = cmp_srdef_float; break;
-    default:          cmp_func = cmp_srdef_stri; break;
+    case SRF_LENGTH:  cmp_func = cmp_srdef_generic; break;
+    default:          cmp_func = cmp_srdef_generic; break;
     }
 
-    qsort( srIndex, srIndexCount, sizeof(long), cmp_func );
+    qsort( srIndex.data(), srIndexCount, sizeof(long), cmp_func );
     indexValid = 1;
     set_display_field_widths();
+}
+
+void SresDef::set_sort_key( int order )
+{
+    switch (order)
+    {
+    case SRF_FROM:
+    case SRF_TO:      cmpval = std::string( stnptr(from)->Code );
+        break;
+    case SRF_TYPE:    get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = std::string( datatype[connection->type].code );
+        break;
+    case SRF_STATUS:  get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval =   (connection->flags & CONN_REJECTED ) ? "reject" :
+                   (connection->flags & CONN_UNUSED) ? "unused" : "";
+        break;
+    case SRF_SRES:    get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = (double) connection->sres;
+        break;
+    case SRF_RFAC:    get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = (double) connection->rfac;
+        break;
+    case SRF_OBSID:   get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = (long) connection->id;
+        break;
+    case SRF_FILE:
+    case SRF_LINENO:
+        break;
+    case SRF_DATE:
+        get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = connection->date;
+        break;
+    case SRF_LENGTH:
+        {
+            double value = 0.0;
+            int to = connlst[from].to[to_id].to;
+            if( to )
+            {
+                station *sfrom = stnptr(from);
+                station *sto = stnptr(to);
+                value = calc_distance( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
+                value *= ellipsoidal_distance_correction( sfrom, sto );
+            }
+            cmpval = value;
+        }
+        break;
+    default:
+        if( order > 0 )
+        {
+            get_connection_data_by_id( from, to_id, obs_id, connection );
+            cmpval = obs_classes.value_name( order, connection->cclass[order-1] );
+        }
+        else
+        {
+            cmpval = "";
+        }
+        break;
+    }
+    // stncodecmp (used by compare_from/compare_line) already folds case
+    // itself, and every other consumer of a string sort key needs a
+    // case-insensitive ordering too - canonicalise once here rather than
+    // on every comparison during the sort.
+    if( std::holds_alternative<std::string>(cmpval) )
+    {
+        cmpval = boost::algorithm::to_upper_copy(std::get<std::string>(cmpval));
+    }
 }
 
 
@@ -2102,19 +1933,12 @@ long sres_index_count( void )
     return srIndexCount;
 }
 
-#define SRES_BUF_SIZE 1024
-static char sres_buf[SRES_BUF_SIZE];
-
-char *sres_list_header()
+std::string sres_list_header()
 {
-    int nch;
-    int i;
-    sres_buf[0] = 0;
-    nch = 0;
-    for( i = 0; i < nDisplayFields; i++ )
+    std::string header;
+    for( int i = 0; i < nDisplayFields; i++ )
     {
-        const char *data;
-        int datalen;
+        std::string data;
         int number = 0;
         switch( displayFields[i] )
         {
@@ -2131,7 +1955,7 @@ char *sres_list_header()
         case SRF_LENGTH:	data = "Length"; number = 1; break;
         default:          if( displayFields[i] > 0 )
             {
-                data = classification_name( &obs_classes, displayFields[i] );
+                data = obs_classes.name( displayFields[i] );
             }
             else
             {
@@ -2139,62 +1963,49 @@ char *sres_list_header()
             }
             break;
         }
-        if( ! data ) data = "";
-        datalen = strlen( data );
-        if( datalen < displayFieldWidths[i] ) datalen = displayFieldWidths[i];
-        if( nch + datalen + 2 > SRES_BUF_SIZE ) break;
-        if( i ) { sres_buf[nch++] = '\t'; }
-        sprintf( sres_buf + nch, "%s%-*.*s", number ? " " : "", datalen, datalen, data );
-        nch += datalen + number;
+        const int datalen = std::max( numeric_cast<int>( data.size() ), displayFieldWidths[i] );
+        if( i ) header += '\t';
+        if( number ) header += ' ';
+        header += data;
+        header.append( numeric_cast<size_t>( datalen ) - data.size(), ' ' );
     }
-    return sres_buf;
+    return header;
 }
 
-static char *pdate_as_string( double date, char *buffer )
+/// Returns the date as text, empty if it is undefined
+static std::string pdate_as_string( const double date )
 {
-    if( date == UNDEFINED_DATE )
-    {
-        buffer[0]=0;
-    }
-    else
-    {
-        date_as_string(date,"DT?",buffer);
-    }
-    return buffer;
+    return date == UNDEFINED_DATE ? std::string() : date_as_string(date,DateStringFormat::timeIfNotMidnight);
 }
 
-char *sres_item_description( long id )
+std::string sres_item_description( long id )
 {
     SresDef *sr;
     station *sfrom;
     station *sto;
     tconn_ptr *tp;
-    int nch;
-    int i;
     double value;
     float sres;
     if( !indexValid ) SetupSresIndex();
-    if( !indexValid ) return NULL;
-    if( id < 0 || id >= srIndexCount ) return NULL;
+    if( !indexValid ) return std::string();
+    if( id < 0 || id >= srIndexCount ) return std::string();
     id = srIndex[id];
-    sr = srList + id;
+    sr = &srList[id];
     sfrom = stnptr( sr->from );
     tp = &connlst[sr->from].to[sr->to_id];
-    sto = tp->to ? stnptr( tp->to ) : NULL;
+    sto = tp->to ? stnptr( tp->to ) : nullptr;
     get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
     sres = connection->sres;
     if( aposteriori_errors && seu > 0.0 ) sres /= seu;
-    sres_buf[0] = 0;
-    nch = 0;
-    for( i = 0; i < nDisplayFields; i++ )
+    std::string description;
+    for( int i = 0; i < nDisplayFields; i++ )
     {
-        const char *data = 0;
+        std::string data;
         char number[32];
-        int datalen;
         switch( displayFields[i] )
         {
         case SRF_FROM:    data = sfrom->Code; break;
-        case SRF_TO:      data = sto ? sto->Code : ""; break;
+        case SRF_TO:      data = sto ? sto->Code.c_str() : ""; break;
         case SRF_TYPE:    data = datatype[connection->type].code; break;
         case SRF_STATUS:  data =   (connection->flags & CONN_REJECTED ) ? "reject" :
                                        (connection->flags & CONN_UNUSED) ? "unused" : "";
@@ -2211,12 +2022,11 @@ char *sres_item_description( long id )
             data = number;
             break;
         case SRF_DATE:
-            pdate_as_string( connection->date,number);
-            data=number;
+            data=pdate_as_string( connection->date );
             break;
         case SRF_LENGTH:  if( sto )
             {
-                value = calc_distance( sfrom, 0.0, sto, 0.0, NULL, NULL );
+                value = calc_distance( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
                 value *= ellipsoidal_distance_correction( sfrom, sto );
                 sprintf(number,"%.2lf",value);
             }
@@ -2228,7 +2038,7 @@ char *sres_item_description( long id )
             break;
         default:          if( displayFields[i] > 0 )
             {
-                data = class_value_name( &obs_classes, displayFields[i],
+                data = obs_classes.value_name( displayFields[i],
                                          connection->cclass[displayFields[i]-1] );
             }
             else
@@ -2237,14 +2047,10 @@ char *sres_item_description( long id )
             }
             break;
         }
-        if( !data ) { number[0] = 0; data = number; }
-        datalen = strlen( data );
-        if( nch + datalen + 2 > SRES_BUF_SIZE ) break;
-        if( i > 0 ) { sres_buf[nch++] = '\t'; }
-        strcpy( sres_buf+nch, data );
-        nch += datalen;
+        if( i > 0 ) description += '\t';
+        description += data;
     }
-    return sres_buf;
+    return description;
 }
 
 void sres_item_info( long id, PutTextInfo *jmp )
@@ -2256,7 +2062,7 @@ void sres_item_info( long id, PutTextInfo *jmp )
     if( !indexValid ) return;
     if( id < 0 || id >= srIndexCount ) return;
     id = srIndex[id];
-    sr = srList + id;
+    sr = &srList[id];
     tp = &connlst[sr->from].to[sr->to_id];
     jmp->type = ptfObs;
     jmp->from = sr->from;
@@ -2273,11 +2079,11 @@ void set_eastmost_conn( int from )
     tconn_ptr *t;
     int i;
     double e, n, emost;
-    if( !connlst ) return;
+    if( connlst.empty() ) return;
     fp = &connlst[from];
     get_station_coordinates( from, &emost, &n );
     fp->eastmost_conn = from;
-    for( t = fp->to, i = fp->nconn; i--; t++ )
+    for( t = fp->to.data(), i = boost::numeric_cast<int>( fp->to.size() ); i--; t++ )
     {
         if( t->to )
         {
@@ -2327,7 +2133,7 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
     int i;
     long current_xyindex;
     *from = *to = 0;
-    if( !connlst ) return 0;
+    if( connlst.empty() ) return 0;
     current_xyindex = get_xyindex_version();
     if( current_xyindex != xyindex_used )
     {
@@ -2356,7 +2162,7 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
         if( fp->eastmost_conn < 0 ) set_eastmost_conn( f );
         get_station_coordinates( fp->eastmost_conn, &e2, &n2 );
         if( e2 > end_e ) continue;  /* Can't get close enough */
-        for( it = fp->nconn, tp = fp->to; it--; tp++ )
+        for( it = boost::numeric_cast<int>( fp->to.size() ), tp = fp->to.data(); it--; tp++ )
         {
             double nearest;
             if( !tp->to ) continue;
@@ -2382,7 +2188,7 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
 
 int get_connection_count( int istn )
 {
-    return connlst ? connlst[istn].nconn : 0;
+    return connlst.empty() ? 0 : boost::numeric_cast<int>( connlst[istn].to.size() );
 }
 
 int connection_observation_count( int from, int index )
@@ -2390,9 +2196,9 @@ int connection_observation_count( int from, int index )
     tconn_ptr *tp;
     fconn_ptr *fp;
     conn_ptr *p;
-    if( !connlst ) return 0;
+    if( connlst.empty() ) return 0;
     fp = &connlst[from];
-    if( index < 0 || index >= fp->nconn ) return 0;
+    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) return 0;
     tp = &fp->to[index];
     p = tp->conn;
     return p ? p->nconn : 0;
@@ -2404,9 +2210,9 @@ int get_connected_station( int from, int index, char *visible )
     fconn_ptr *fp;
     int to;
 
-    if( !connlst ) return -1;
+    if( connlst.empty() ) return -1;
     fp = &connlst[from];
-    if( index < 0 || index >= fp->nconn ) return -1;
+    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) return -1;
     tp = &fp->to[index];
     to = tp->to;
     if( visible )
@@ -2421,26 +2227,17 @@ int get_connected_station( int from, int index, char *visible )
 
 /**********************************************************************/
 
-typedef struct
+struct ConnData
 {
     int nto;
     double dist;
     double azimuth;
-} ConnData;
+};
 
-static double *connAz = NULL;
-static int *connId = NULL;
-static char buf[256+MAX_FILENAME_LEN];
-
-static void *angle_format( void )
-{
-    static void *fmt = NULL;
-    if( !fmt )
-    {
-        fmt = create_dms_format( 3, 1, 0, NULL, NULL, NULL, NULL, NULL );
-    }
-    return fmt;
-}
+static const DmsFormat angleFormat( 3, 1 );
+static const DmsFormat signedAngleFormat( 3, 1, 1, " ", " ", "", " ", "-" );
+static const DmsFormat latitudeObservationFormat( 3, 1, 1, " ", " ", "", "N", "S" );
+static const DmsFormat longitudeObservationFormat( 3, 1, 1, " ", " ", "", "E", "W" );
 
 void list_connections( void *dest, PutTextFunc f, int from )
 {
@@ -2452,20 +2249,19 @@ void list_connections( void *dest, PutTextFunc f, int from )
     int first_conn;
     int pntdata_id;
     PutTextInfo jump;
-    if( !connlst || max_conn < 1 ) return;
+    if( connlst.empty() || max_conn < 1 ) return;
 
     jump.type = ptfNone;
 
-    sprintf( buf, "%-10s %8s %7s  %s","To","Length","Azimuth","Observations" );
-    (*f)( dest, &jump, buf);
+    (*f)( dest, &jump, pad_right( "To", 10 ) + " " + pad_left( "Length", 8 ) + " " + pad_left( "Azimuth", 7 ) + "  Observations" );
 
-    if( !connAz ) connAz = (double *) check_malloc( max_conn * sizeof( double ) );
-    if( !connId ) connId = (int *) check_malloc( max_conn * sizeof( int ) );
-    nconn=0;
     fp = &connlst[from];
+    std::vector<double> connAz( fp->to.size() );
+    std::vector<int> connId( fp->to.size() );
+    nconn=0;
     fs = stnptr( from );
     pntdata_id = -1;
-    for( id = 0; id < fp->nconn; id++ )
+    for( id = 0; id < boost::numeric_cast<int>( fp->to.size() ); id++ )
     {
         tp = &fp->to[id];
         if( !tp->to ) pntdata_id = id;
@@ -2495,17 +2291,14 @@ void list_connections( void *dest, PutTextFunc f, int from )
         int i;
         int to;
         double d;
-        int nc;
-        char *b;
         int count[NOBSTYPE][2];
         id = connId[ic];
         tp = &fp->to[id];
         to = tp->to;
         ts = stnptr( to );
         jump.to = to;
-        d = calc_distance( fs, 0.0, ts, 0.0, NULL, NULL );
-        sprintf( buf, "%-10s %7.1lfm N%05.1lfE  %n", ts->Code, d, connAz[id], &nc);
-        b = buf+nc;
+        d = calc_distance( fs, 0.0, ts, 0.0, nullptr, nullptr );
+        std::string line = pad_right( ts->Code, 10 ) + " " + format_fixed( d, 1, 7 ) + "m N" + format_fixed( connAz[id], 1, 5, '0' ) + "E  ";
         for( i = 0; i < NOBSTYPE; i++ ) count[i][0] = count[i][1] = 0;
         for( first_conn = 1;
                 get_connection_data( from, tp, connection, first_conn);
@@ -2522,13 +2315,11 @@ void list_connections( void *dest, PutTextFunc f, int from )
             {
                 if( count[i][0] )
                 {
-                    sprintf(b," >%s(%d)%n",datatype[i].code, count[i][0], &nc );
-                    b += nc;
+                    line += " >" + std::string( datatype[i].code ) + "(" + std::to_string( count[i][0] ) + ")";
                 }
                 if( count[i][1] )
                 {
-                    sprintf(b," <%s(%d)%n",datatype[i].code, count[i][1], &nc );
-                    b += nc;
+                    line += " <" + std::string( datatype[i].code ) + "(" + std::to_string( count[i][1] ) + ")";
                 }
             }
             else
@@ -2536,12 +2327,11 @@ void list_connections( void *dest, PutTextFunc f, int from )
                 int total = count[i][0] + count[i][1];
                 if( total )
                 {
-                    sprintf(b," %s(%d)%n",datatype[i].code, total, &nc );
-                    b += nc;
+                    line += " " + std::string( datatype[i].code ) + "(" + std::to_string( total ) + ")";
                 }
             }
         }
-        (*f)( dest, &jump, buf);
+        (*f)( dest, &jump, line );
     }
 
     if( pntdata_id >= 0 )
@@ -2558,38 +2348,32 @@ void list_connections( void *dest, PutTextFunc f, int from )
                 first_conn = 0, jump.obs_id++ )
         {
 
-            int obstype;
-            int nch;
-            obstype = connection->type;
+            const int obstype = connection->type;
 
-            sprintf(buf,"%-22s",datatype[obstype].name);
-            nch = strlen(buf);
+            std::string line = pad_right( std::string( datatype[obstype].name ), 22 );
 
             if( binary_data )
             {
                 float sres;
                 sres = connection->sres;
                 if( aposteriori_errors ) sres /= seu;
-                sprintf(buf+nch,"  S.R. %7.3f", sres );
-                nch = strlen(buf);
+                line += "  S.R. " + format_fixed( sres, 3, 7 );
                 if( connection->flags & CONN_REJECTED )
                 {
-                    sprintf(buf+nch," %-11s","Rejected");
+                    line += " " + pad_right( "Rejected", 11 );
                 }
                 else if( connection->flags & CONN_UNUSED )
                 {
-                    sprintf(buf+nch," %-11s","Not used");
+                    line += " " + pad_right( "Not used", 11 );
                 }
                 else
                 {
-                    sprintf(buf+nch," Rdncy %5.3f",connection->rfac);
+                    line += " Rdncy " + format_fixed( connection->rfac, 3, 5 );
                 }
-                nch = strlen(buf);
             }
-            sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
-                    MAX_FILENAME_LEN,
-                    survey_data_file_name( connection->file ));
-            (*f)( dest, &jump, buf );
+            line += "   Line " + pad_left( std::to_string( connection->line ), 2 ) + ": "
+                    + survey_data_file_name( connection->file ).substr( 0, MAX_FILENAME_LEN );
+            (*f)( dest, &jump, line );
         }
     }
 }
@@ -2608,12 +2392,10 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
     jmp.type = ptfStation;
     jmp.from = from;
 
-    sprintf( buf,"From %s: %.50s", sfrom->Code,sfrom->Name);
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "From " + std::string( sfrom->Code ) + ": " + sfrom->Name.substr( 0, 50 ) );
 
     jmp.from = to;
-    sprintf( buf,"To   %s: %.50s", sto->Code,sto->Name);
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "To   " + std::string( sto->Code ) + ": " + sto->Name.substr( 0, 50 ) );
 
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
@@ -2627,10 +2409,9 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
     hd = calc_hgt_diff( sfrom, 0.0, sto, 0.0, NULL, NULL );
     edist = calc_ellipsoidal_distance( sfrom, sto, NULL, NULL );
 
-    sprintf( buf, "Slope dist %.3lf  Ell dist %.3lf   Az %s  Hgt diff %.3lf",
-             dist,edist,dms_string(az,angle_format(),NULL),hd);
     jmp.type = ptfNone;
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Slope dist " + format_fixed( dist, 3 ) + "  Ell dist " + format_fixed( edist, 3 )
+                      + "   Az " + dms_string( az, angleFormat ) + "  Hgt diff " + format_fixed( hd, 3 ) );
     if( !geodetic_coordsys() )
     {
         double x1, y1;
@@ -2643,9 +2424,7 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
             az = atan2( x2-x1, y2-y1 ) * RTOD;
             while( az > 360.0 ) az -= 360.0;
             while( az < 0.0 ) az += 360.0;
-            sprintf(buf, "Projection distance %.3lf  azimuth %s", dist,
-                    dms_string( az, angle_format(), NULL) );
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, "Projection distance " + format_fixed( dist, 3 ) + "  azimuth " + dms_string( az, angleFormat ) );
         }
     }
     (*f)( dest, &jmp, "" );
@@ -2663,10 +2442,10 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
     list_line_statistics( dest, f, from, to );
 
-    if( !connlst ) return;
+    if( connlst.empty() ) return;
     fp = &connlst[from];
     tp = 0;
-    for( i = 0; i < fp->nconn; i++ )
+    for( i = 0; i < boost::numeric_cast<int>( fp->to.size() ); i++ )
     {
         if( fp->to[i].to  == to ) { tp = &fp->to[i]; break;}
     }
@@ -2680,25 +2459,15 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
     if( binary_data )
     {
-        int nch;
-        if( aposteriori_errors )
-        {
-            strcpy(buf,"Aposteriori ");
-        }
-        else
-        {
-            strcpy(buf,"Apriori ");
-        }
-        nch = strlen(buf);
+        std::string prefix = aposteriori_errors ? "Aposteriori " : "Apriori ";
         if( use_confidence_limit )
         {
-            sprintf(buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
+            prefix += format_fixed( confidence_limit, 2 ) + "% conf. lim. ";
         }
         else if( confidence_limit != 1.0 )
         {
-            sprintf(buf+nch,"%.1lf times ", confidence_limit);
+            prefix += format_fixed( confidence_limit, 1 ) + " times ";
         }
-        nch = strlen(buf);
 
         if( cvr.emax > 0.0 && dimension != 1 )
         {
@@ -2712,17 +2481,15 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
             emax = cvr.emax * errell_factor * 1000.0;
             emin = cvr.emin * errell_factor * 1000.0;
 
-            sprintf(buf+nch,"error ellipse %.1lfmm at N%.0lfE, %.1lfmm at N%.0lfE",
-                    emax,b1,emin,b2 );
-            (*f)( dest, &jump, buf );
+            (*f)( dest, &jump, prefix + "error ellipse " + format_fixed( emax, 1 ) + "mm at N" + format_fixed( b1, 0 )
+                               + "E, " + format_fixed( emin, 1 ) + "mm at N" + format_fixed( b2, 0 ) + "E" );
         }
 
         if( cvr.sehgt && dimension != 2 )
         {
             double hgterr;
             hgterr = cvr.sehgt * hgterr_factor * 1000.0;
-            sprintf(buf+nch,"height error %.1lfmm",hgterr);
-            (*f)( dest, &jump, buf );
+            (*f)( dest, &jump, prefix + "height error " + format_fixed( hgterr, 1 ) + "mm" );
         }
     }
 
@@ -2739,52 +2506,38 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
             first_conn = 0, jump.obs_id++ )
     {
 
-        char reverse;
-        int obstype;
-        int nch;
+        const int obstype = connection->type;
 
-        obstype = connection->type;
+        const bool reverse = datatype[obstype].isdirectional &&
+                             connection->flags & CONN_OBS_REVERSE;
 
-        reverse = datatype[obstype].isdirectional &&
-                  connection->flags & CONN_OBS_REVERSE;
-
-        sprintf(buf,"%s %5s",datatype[obstype].name, reverse ? "(rvs)" : "");
-        buf[0] = TOUPPER(buf[0]);
-        for( nch = strlen(buf); nch < 26; nch++ ) { buf[nch] = ' ';}
-        buf[nch] = 0;
+        std::string line = std::string( datatype[obstype].name ) + " " + pad_left( reverse ? "(rvs)" : "", 5 );
+        line[0] = static_cast<char>( TOUPPER( line[0] ) );
+        line = pad_right( line, 26 );
 
         if( binary_data )
         {
             float sres;
             sres = connection->sres;
             if( aposteriori_errors ) sres /= seu;
-            sprintf(buf+nch,"  S.R. %7.3f", sres );
-            nch = strlen(buf);
+            line += "  S.R. " + format_fixed( sres, 3, 7 );
             if( connection->flags & CONN_REJECTED )
             {
-                sprintf(buf+nch," %-11s","Rejected");
+                line += " " + pad_right( "Rejected", 11 );
             }
             else if( connection->flags & CONN_UNUSED )
             {
-                sprintf(buf+nch," %-11s","Not used");
+                line += " " + pad_right( "Not used", 11 );
             }
             else
             {
-                sprintf(buf+nch," Rdncy %5.3f",connection->rfac);
+                line += " Rdncy " + format_fixed( connection->rfac, 3, 5 );
             }
-            nch = strlen(buf);
         }
-        {
-            char dbuff[32];
-            pdate_as_string( connection->date, dbuff );
-            sprintf( buf+nch, "%21s", dbuff );
-            nch=strlen(buf);
-        }
-        nch=strlen(buf);
-        sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
-                MAX_FILENAME_LEN,
-                survey_data_file_name( connection->file ));
-        (*f)( dest, &jump, buf );
+        line += pad_left( pdate_as_string( connection->date ), 21 );
+        line += "   Line " + pad_left( std::to_string( connection->line ), 2 ) + ": "
+                + survey_data_file_name( connection->file ).substr( 0, MAX_FILENAME_LEN );
+        (*f)( dest, &jump, line );
     }
 }
 
@@ -2804,7 +2557,6 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     station *sfrom, *sto;
     double semult, srmult;
     int type;
-    void *dms_format = NULL;
 
 
     o = & sd->obs.odata[index];
@@ -2817,30 +2569,22 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     jmp.type = ptfStation;
     jmp.from = sd->from;
 
-    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name);
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "From:  " + pad_right( sfrom->Code, 10 ) + "  " + sfrom->Name.substr( 0, 50 ) );
 
     jmp.from = o->tgt.to;
-    sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name);
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "To:    " + pad_right( sto->Code, 10 ) + "  " + sto->Name.substr( 0, 50 ) );
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
     if( have_obs_ids )
     {
-        sprintf(buf,"Id: %d", o->tgt.id );
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Id: " + std::to_string( o->tgt.id ) );
     }
 
     if( sd->date != UNDEFINED_DATE )
     {
-        char dbuff[32];
-        pdate_as_string( sd->date, dbuff );
-        sprintf(buf,"Date/time:  %s",dbuff);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
-    sprintf(buf,"Source: Line %d,  %s",  (int) (o->tgt.lineno),
-            survey_data_file_name( sd->file ) );
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Source: Line " + std::to_string( o->tgt.lineno ) + ",  " + survey_data_file_name( sd->file ) );
     if( o->tgt.noteloc ) display_note_text( dest, f, o->tgt.noteloc );
 
     if( o->tgt.nclass )
@@ -2849,75 +2593,62 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
         classdata *c;
         for( n = o->tgt.nclass, c = sd->clsf + o->tgt.iclass; n--; c++ )
         {
-            sprintf(buf,"%s: %s", classification_name( &obs_classes, c->class_id ),
-                    class_value_name( &obs_classes, c->class_id, c->name_id ) );
-            (*f)(dest, &jmp, buf );
+            (*f)(dest, &jmp, obs_classes.name( c->class_id ) + ": " + obs_classes.value_name( c->class_id, c->name_id ) );
         }
     }
     (*f)(dest, &jmp, "");
 
     type = o->tgt.type;
-    sprintf(buf,"Observation type: %s",datatype[type].name);
-    if(  o->tgt.unused & REJECT_OBS_BIT ) strcat(buf,"  (rejected)");
-    else if(  o->tgt.unused ) strcat( buf, "  (not used)");
-    (*f)( dest, &jmp, buf );
-    sprintf(buf,"H.I.  %.3lfm       H.T.  %.3lfm",sd->fromhgt,
-            o->tgt.tohgt );
-    (*f)( dest, &jmp, buf );
+    std::string typeText = "Observation type: " + std::string( datatype[type].name );
+    if(  o->tgt.unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
+    else if(  o->tgt.unused ) typeText += "  (not used)";
+    (*f)( dest, &jmp, typeText );
+    (*f)( dest, &jmp, "H.I.  " + format_fixed( sd->fromhgt, 3 ) + "m       H.T.  " + format_fixed( o->tgt.tohgt, 3 ) + "m" );
     if( datatype[type].isangle )
     {
-        if( !dms_format ) dms_format = create_dms_format(3,1,1," "," ",""," ","-");
-        sprintf(buf,"Observed value:  %s  +/-  %6.1lf",
-                dms_string(degree_angle(o->value), dms_format, NULL ),
-                o->error*semult*RTOS );
+        (*f)( dest, &jmp, "Observed value:  " + dms_string( degree_angle( o->value ), signedAngleFormat )
+                          + "  +/-  " + format_fixed( o->error*semult*RTOS, 1, 6 ) );
     }
     else
     {
-        sprintf(buf,"Observed value:  %12.4lf  +/-  %6.4lf",o->value,o->error*semult);
+        (*f)( dest, &jmp, "Observed value:  " + format_fixed( o->value, 4, 12 ) + "  +/-  " + format_fixed( o->error*semult, 4, 6 ) );
     }
-    (*f)( dest, &jmp, buf );
 
     if( binary_data )
     {
         if( datatype[type].isangle )
         {
-            int nch;
             double obslength, altres;
-            sprintf(buf,"Calculated:      %s  +/-  %6.1lf",
-                    dms_string(degree_angle(o->calc), dms_format, NULL ),
-                    o->calcerr*semult*RTOS );
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.1lf  +/-  %6.1f%n",o->residual*RTOS,
-                    o->reserr*semult*RTOS, &nch );
+            (*f)( dest, &jmp, "Calculated:      " + dms_string( degree_angle( o->calc ), signedAngleFormat )
+                              + "  +/-  " + format_fixed( o->calcerr*semult*RTOS, 1, 6 ) );
+            std::string residualText = "Residual:        " + format_fixed( o->residual*RTOS, 1, 12 )
+                                       + "  +/-  " + format_fixed( o->reserr*semult*RTOS, 1, 6 );
 
             switch( type )
             {
             case AZ:
             case ZD:
-                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,NULL,NULL);
+                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,nullptr,nullptr);
                 altres = o->residual*obslength;
                 if( type == ZD ) altres *= sin( o->value );
-                sprintf( buf+nch,"     (%.3lfm offset)", altres);
+                residualText += "     (" + format_fixed( altres, 3 ) + "m offset)";
                 break;
             case HA:
             case PB:
-                obslength = calc_ellipsoidal_distance( stnptr(sd->from), stnptr(o->tgt.to),NULL,NULL);
+                obslength = calc_ellipsoidal_distance( stnptr(sd->from), stnptr(o->tgt.to),nullptr,nullptr);
                 altres = o->residual*obslength;
                 if( type == ZD ) altres *= sin( o->value );
-                sprintf( buf+nch,"     (%.3lfm offset)", altres);
+                residualText += "     (" + format_fixed( altres, 3 ) + "m offset)";
                 break;
             }
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, residualText );
         }
         else
         {
-            int nch;
             double obslength;
-            sprintf(buf,"Calculated:      %12.4lf  +/-  %6.4lf",o->calc,
-                    o->calcerr*semult);
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.4lf  +/-  %6.4lf%n",o->residual,
-                    o->reserr*semult, &nch);
+            (*f)( dest, &jmp, "Calculated:      " + format_fixed( o->calc, 4, 12 ) + "  +/-  " + format_fixed( o->calcerr*semult, 4, 6 ) );
+            std::string residualText = "Residual:        " + format_fixed( o->residual, 4, 12 )
+                                       + "  +/-  " + format_fixed( o->reserr*semult, 4, 6 );
 
             switch( type )
             {
@@ -2928,53 +2659,46 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
             case DR:
                 if( o->value > 0.0 )
                 {
-                    sprintf(buf+nch, "    (%.2lfppm)",
-                            1.0e6*o->residual/o->value );
+                    residualText += "    (" + format_fixed( 1.0e6*o->residual/o->value, 2 ) + "ppm)";
                 }
                 break;
             case LV:
-                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,NULL,NULL);
+                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,nullptr,nullptr);
                 if( obslength > 0 )
                 {
-                    sprintf(buf+nch,"   (%.2lfppm of distance between stations)",
-                            1.0e6*o->residual/obslength );
+                    residualText += "   (" + format_fixed( 1.0e6*o->residual/obslength, 2 ) + "ppm of distance between stations)";
                 }
                 break;
             }
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, residualText );
         }
-        sprintf(buf,"Standardised Residual: %-10.3lf",o->sres*srmult);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Standardised Residual: " + pad_right( format_fixed( o->sres*srmult, 3 ), 10 ) );
     }
 
-    buf[0] = 0;
+    std::string parameterText;
     if( type == ZD && o->refcoef)
     {
-        sprintf(buf,"%s (%.3lf)",param_name(o->refcoef), param_value(o->refcoef) );
+        parameterText = std::string( param_name( o->refcoef ) ) + " (" + format_fixed( param_value( o->refcoef ), 3 ) + ")";
     }
     else if( o->prm_id && (type == ED || type == MD || type == HD || type == SD || type == DR ))
     {
-        sprintf( buf, "   %s  (%.1lfppm)", param_name( o->prm_id ), param_value(o->prm_id));
+        parameterText = "   " + std::string( param_name( o->prm_id ) ) + "  (" + format_fixed( param_value( o->prm_id ), 1 ) + "ppm)";
     }
     else if( o->prm_id && (type == AZ || type == PB) )
     {
-        sprintf( buf, "   %s  (%.1lfsec)", param_name( o->prm_id ), param_value( o->prm_id) );
+        parameterText = "   " + std::string( param_name( o->prm_id ) ) + "  (" + format_fixed( param_value( o->prm_id ), 1 ) + "sec)";
     }
-    if( buf[0] ) (*f)( dest, &jmp, buf );
+    if( !parameterText.empty() ) (*f)( dest, &jmp, parameterText );
 
     if( datatype[type].joinsgroup )
     {
         int iobs;
         obsdata *o;
         (*f)(dest, &jmp, "" );
-        sprintf(buf,"Related observations from station %s",stnptr(sd->from)->Code);
-        (*f)(dest, &jmp, buf );
-        strcpy( buf, "     Target         Observed");
-        if( binary_data ) strcat( buf, "   Residual    S.R." );
-        (*f)(dest, &jmp, buf );
+        (*f)(dest, &jmp, "Related observations from station " + std::string( stnptr(sd->from)->Code ) );
+        (*f)(dest, &jmp, std::string( "     Target         Observed" ) + ( binary_data ? "   Residual    S.R." : "" ) );
         for( iobs=0, o=sd->obs.odata; iobs < sd->nobs; iobs++, o++ )
         {
-            int nch;
             if( o->tgt.type != type ) continue;
             if( iobs == index )
             {
@@ -2998,36 +2722,26 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
                     jmp.type = ptfLine;
                 }
             }
-            sprintf(buf,"     %-10s  %n",stnptr(o->tgt.to)->Code,&nch);
+            std::string line = "     " + pad_right( stnptr(o->tgt.to)->Code, 10 ) + "  ";
             if( datatype[type].isangle )
             {
-                int nch2;
-                sprintf(buf+nch,"%s%n",
-                        dms_string(o->value * RTOD, dms_format, NULL ),&nch2 );
-                nch += nch2;
+                line += dms_string( o->value * RTOD, signedAngleFormat );
                 if( binary_data )
                 {
-                    sprintf(buf+nch,"  %7.1lf  %7.2lf%s",o->residual*RTOS,o->sres*srmult,
-                            o->tgt.unused ? "  (not used)" : "" );
+                    line += "  " + format_fixed( o->residual*RTOS, 1, 7 ) + "  " + format_fixed( o->sres*srmult, 2, 7 )
+                            + ( o->tgt.unused ? "  (not used)" : "" );
                 }
             }
             else
             {
-                int nch2;
-                sprintf(buf+nch,"%12.4lf%n",o->value,&nch2);
-                nch += nch2;
+                line += format_fixed( o->value, 4, 12 );
                 if( binary_data )
                 {
-                    sprintf(buf+nch,"  %7.4lf  %7.2lf%s",o->residual,o->sres*srmult,
-                            o->tgt.unused ? "  (not used)" : "" );
+                    line += "  " + format_fixed( o->residual, 4, 7 ) + "  " + format_fixed( o->sres*srmult, 2, 7 )
+                            + ( o->tgt.unused ? "  (not used)" : "" );
                 }
             }
-            (*f)(dest,&jmp,buf);
-        }
-        if( type == DR && binary_data )
-        {
-            sprintf( buf, "Group scale factor = %.1lfppm +/- %.1lfppm",
-                     sd->schval, sd->schvar*semult );
+            (*f)(dest,&jmp,line);
         }
     }
 }
@@ -3047,7 +2761,6 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     int ispoint;
     double oxyz[3], eoxyz[3], cxyz[3], ecxyz[3], renu[3], erenu[6],
            sres[3], rfac[3], small;
-    int nch;
     double obslen, calclen, reslen, vsres;
     int axis, rank;
     small = 0.0;
@@ -3087,57 +2800,46 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     jmp.type = ptfStation;
     jmp.from = from;
 
-    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name);
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "From:  " + pad_right( sfrom->Code, 10 ) + "  " + sfrom->Name.substr( 0, 50 ) );
 
     if( to )
     {
         sto = stnptr( to );
         jmp.from = to;
-        sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "To:    " + pad_right( sto->Code, 10 ) + "  " + sto->Name.substr( 0, 50 ) );
     }
 
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
     if( have_obs_ids )
     {
-        char idbuf[32];
-        sprintf( buf, "Id:" );
+        std::string idText = "Id:";
         if( ofrom != VD_REF_STN )
         {
-            sprintf( idbuf," %d", v[ofrom].tgt.id );
-            strcat(buf,idbuf);
+            idText += " " + std::to_string( v[ofrom].tgt.id );
         }
         if( oto != VD_REF_STN )
         {
-            sprintf( idbuf," %d", v[oto].tgt.id );
-            strcat(buf,idbuf);
+            idText += " " + std::to_string( v[oto].tgt.id );
         }
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, idText );
     }
 
     if( sd->date != UNDEFINED_DATE )
     {
-        char dbuff[32];
-        pdate_as_string( sd->date, dbuff );
-        sprintf(buf,"Date/time:  %s",dbuff);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
-    sprintf(buf,"Source: Line %d,  %s",  (int) (tgt->lineno),
-            survey_data_file_name( sd->file ) );
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Source: Line " + std::to_string( tgt->lineno ) + ",  " + survey_data_file_name( sd->file ) );
     if( tgt->noteloc ) display_note_text( dest, f, tgt->noteloc );
-    buf[0] = 0;
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "" );
     type = tgt->type;
-    sprintf(buf,"Observation type: %s",datatype[type].name);
-    if( index >= sd->nobs ) strcat( buf, "  (calculated)");
-    if( unused & REJECT_OBS_BIT ) strcat( buf, "  (rejected)");
-    else if( unused ) strcat( buf, "  (not used)");
-    (*f)( dest, &jmp, buf );
-    if( sd->reffrm ) sprintf(buf,"Reference frame: %s",rftrans_from_id(sd->reffrm)->name);
-    (*f)( dest, &jmp, buf );
+    std::string typeText = "Observation type: " + std::string( datatype[type].name );
+    if( index >= sd->nobs ) typeText += "  (calculated)";
+    if( unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
+    else if( unused ) typeText += "  (not used)";
+    (*f)( dest, &jmp, typeText );
+    if( sd->reffrm ) (*f)( dest, &jmp, "Reference frame: " + rftrans_from_id(sd->reffrm)->name );
+    std::string heightText;
     if( datatype[type].ispoint )
     {
         calc_vecdata_point( sd, oto, VD_OBSVEC | VD_STDERR, oxyz, eoxyz );
@@ -3150,7 +2852,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
                                 NULL, rfac );
             small = (rfac[0]+rfac[1]+rfac[2])*1.0e-3;
         }
-        sprintf(buf,"H.I.  %.3lfm",v[oto].tgt.tohgt);
+        heightText = "H.I.  " + format_fixed( v[oto].tgt.tohgt, 3 ) + "m";
     }
     else
     {
@@ -3164,20 +2866,18 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
                                  NULL, rfac );
             small = (rfac[0]+rfac[1]+rfac[2])*1.0e-3;
         }
-        sprintf(buf,"H.I.  %.3lfm       H.T.  %.3lfm",
-                (ofrom == VD_REF_STN) ? sd->fromhgt : v[ofrom].tgt.tohgt,
-                (oto == VD_REF_STN) ? sd->fromhgt : v[oto].tgt.tohgt );
+        heightText = "H.I.  " + format_fixed( (ofrom == VD_REF_STN) ? sd->fromhgt : v[ofrom].tgt.tohgt, 3 )
+                     + "m       H.T.  " + format_fixed( (oto == VD_REF_STN) ? sd->fromhgt : v[oto].tgt.tohgt, 3 ) + "m";
     }
-    (*f)(dest, &jmp, buf );
+    (*f)(dest, &jmp, heightText );
 
-    strcpy(buf,"     Observed (XYZ)");
-    if( binary_data ) strcat(buf,"     Calculated (XYZ)   Residual (ENU)    S.R  Redundancy");
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, std::string( "     Observed (XYZ)" )
+                      + ( binary_data ? "     Calculated (XYZ)   Residual (ENU)    S.R  Redundancy" : "" ) );
     obslen = sqrt( oxyz[0]*oxyz[0] + oxyz[1]*oxyz[1] + oxyz[2]*oxyz[2] );
     ndp = (obslen < 999999.0) ? 4 : 3;
     for( axis = 0; axis < 3; axis++ )
     {
-        sprintf( buf, "%12.*lf %7.*lf%n",ndp,oxyz[axis],ndp,eoxyz[axis]*semult,&nch);
+        std::string axisText = format_fixed( oxyz[axis], ndp, 12 ) + " " + format_fixed( eoxyz[axis]*semult, ndp, 7 );
         if( binary_data )
         {
             sres[axis] = erenu[axis] > small ? fabs(renu[axis]/erenu[axis]) : -1.0;
@@ -3189,24 +2889,23 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             {
                 rfac[axis] = 1.0;
             }
-            sprintf(buf+nch," %12.*lf %7.*lf %8.*lf %7.*lf %7.2lf %7.2lf",
-                    ndp,cxyz[axis], ndp,ecxyz[axis]*semult,
-                    ndp,renu[axis], ndp,erenu[axis]*semult,
-                    sres[axis]*srmult, rfac[axis] );
+            axisText += " " + format_fixed( cxyz[axis], ndp, 12 ) + " " + format_fixed( ecxyz[axis]*semult, ndp, 7 )
+                        + " " + format_fixed( renu[axis], ndp, 8 ) + " " + format_fixed( erenu[axis]*semult, ndp, 7 )
+                        + " " + format_fixed( sres[axis]*srmult, 2, 7 ) + " " + format_fixed( rfac[axis], 2, 7 );
         }
-        (*f)(dest,&jmp,buf);
+        (*f)(dest,&jmp,axisText);
     }
-    sprintf(buf,"%12.*lf%n",ndp,obslen,&nch);
+    std::string lengthText = format_fixed( obslen, ndp, 12 );
     if( binary_data )
     {
         calclen = sqrt(cxyz[0]*cxyz[0]+cxyz[1]*cxyz[1]+cxyz[2]*cxyz[2]);
         reslen = sqrt(renu[0]*renu[0]+renu[1]*renu[1]+renu[2]*renu[2]);
         calc_vecdata_vector( sd, ofrom, oto, VD_RESVEC, renu, erenu );
         vsres = vector_standardised_residual( renu, erenu, &rank );
-        sprintf(buf+nch,"         %12.*lf         %8.*lf         %7.2lf",
-                ndp,calclen, ndp,reslen, vsres*srmult );
+        lengthText += "         " + format_fixed( calclen, ndp, 12 ) + "         " + format_fixed( reslen, ndp, 8 )
+                      + "         " + format_fixed( vsres*srmult, 2, 7 );
     }
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, lengthText );
 
     if( tgt->nclass )
     {
@@ -3215,9 +2914,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
         (*f)(dest, &jmp, "Classifications");
         for( n = tgt->nclass, c = sd->clsf + tgt->iclass; n--; c++ )
         {
-            sprintf(buf,"     %-15s  %s", classification_name( &obs_classes, c->class_id ),
-                    class_value_name( &obs_classes, c->class_id, c->name_id ) );
-            (*f)(dest, &jmp, buf );
+            (*f)(dest, &jmp, "     " + pad_right( obs_classes.name( c->class_id ), 15 ) + "  " + obs_classes.value_name( c->class_id, c->name_id ) );
         }
     }
 
@@ -3226,12 +2923,9 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     {
         int iobs;
         (*f)( dest, &jmp, "" );
-        sprintf(buf,"Other %s in set referenced to station %s",
-                ispoint ? "points" : "vectors", sfrom->Code);
-        (*f)( dest, &jmp, buf );
-        strcpy(buf,"     To             Distance");
-        if(binary_data) strcat(buf,"          Residual (E,N,U)        Std.Res");
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, std::string( "Other " ) + ( ispoint ? "points" : "vectors" ) + " in set referenced to station " + std::string( sfrom->Code ) );
+        (*f)( dest, &jmp, std::string( "     To             Distance" )
+                          + ( binary_data ? "          Residual (E,N,U)        Std.Res" : "" ) );
         for( iobs = ispoint ? 0 : -1; iobs < sd->nobs; iobs++ )
         {
             int otgt;
@@ -3271,35 +2965,35 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             if( obs_id < 0 ) jmp.type = ptfNone;
             if( ispoint )
             {
-                calc_vecdata_point( sd, otgt, VD_OBSVEC, oxyz, NULL );
+                calc_vecdata_point( sd, otgt, VD_OBSVEC, oxyz, nullptr );
                 obslen = sqrt( oxyz[0]*oxyz[0] + oxyz[1]*oxyz[1] + oxyz[2]*oxyz[2] );
-                sprintf(buf,"     %-10s   %12.4lf%n",stnptr(to)->Code, obslen, &nch );
+                std::string line = "     " + pad_right( stnptr(to)->Code, 10 ) + "   " + format_fixed( obslen, 4, 12 );
                 if( binary_data )
                 {
                     calc_vecdata_point( sd, otgt, VD_RESVEC, renu, erenu );
                     vsres = vector_standardised_residual( renu, erenu, &rank );
                     calc_vecdata_point( sd,otgt, VD_RESVEC | VD_TOPOCENTRIC,
-                                        renu, NULL );
-                    sprintf(buf+nch,"   %8.4lf %8.4lf %8.4lf   %7.2lf",
-                            renu[0],renu[1],renu[2], vsres*srmult );
+                                        renu, nullptr );
+                    line += "   " + format_fixed( renu[0], 4, 8 ) + " " + format_fixed( renu[1], 4, 8 ) + " " + format_fixed( renu[2], 4, 8 )
+                            + "   " + format_fixed( vsres*srmult, 2, 7 );
                 }
-                (*f)(dest,&jmp,buf);
+                (*f)(dest,&jmp,line);
             }
             else
             {
-                calc_vecdata_vector( sd, ofrom, otgt, VD_OBSVEC, oxyz, NULL );
+                calc_vecdata_vector( sd, ofrom, otgt, VD_OBSVEC, oxyz, nullptr );
                 obslen = sqrt( oxyz[0]*oxyz[0] + oxyz[1]*oxyz[1] + oxyz[2]*oxyz[2] );
-                sprintf(buf,"     %-10s   %12.4lf%n",stnptr(to)->Code, obslen, &nch );
+                std::string line = "     " + pad_right( stnptr(to)->Code, 10 ) + "   " + format_fixed( obslen, 4, 12 );
                 if( binary_data )
                 {
                     calc_vecdata_vector( sd, ofrom, otgt, VD_RESVEC, renu, erenu );
                     vsres = vector_standardised_residual( renu, erenu, &rank );
                     calc_vecdata_vector( sd, ofrom, otgt, VD_RESVEC | VD_TOPOCENTRIC,
-                                         renu, NULL );
-                    sprintf(buf+nch,"   %8.4lf %8.4lf %8.4lf   %7.2lf",
-                            renu[0],renu[1],renu[2], vsres*srmult );
+                                         renu, nullptr );
+                    line += "   " + format_fixed( renu[0], 4, 8 ) + " " + format_fixed( renu[1], 4, 8 ) + " " + format_fixed( renu[2], 4, 8 )
+                            + "   " + format_fixed( vsres*srmult, 2, 7 );
                 }
-                (*f)(dest,&jmp,buf);
+                (*f)(dest,&jmp,line);
             }
         }
     }
@@ -3313,11 +3007,6 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     station *sfrom;
     double semult, srmult;
     int type;
-    void *lat_format = NULL;
-    void *lon_format = NULL;
-    void *dms_format = NULL;
-    void *fmt;
-
 
     p = & sd->obs.pdata[index];
     semult = aposteriori_errors ? seu : 1.0;
@@ -3328,86 +3017,53 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     jmp.type = ptfStation;
     jmp.from = sd->from;
 
-    sprintf( buf,"Station:  %-10s  %.50s", sfrom->Code,sfrom->Name);
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Station:  " + pad_right( sfrom->Code, 10 ) + "  " + sfrom->Name.substr( 0, 50 ) );
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
     if( have_obs_ids )
     {
-        sprintf(buf,"Id: %d", p->tgt.id );
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Id: " + std::to_string( p->tgt.id ) );
     }
     if( sd->date != UNDEFINED_DATE )
     {
-        char dbuff[32];
-        pdate_as_string( sd->date, dbuff );
-        sprintf(buf,"Date/time:  %s",dbuff);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
-    sprintf(buf,"Source: Line %d,  %s",  (int) (p->tgt.lineno),
-            survey_data_file_name( sd->file ) );
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Source: Line " + std::to_string( p->tgt.lineno ) + ",  " + survey_data_file_name( sd->file ) );
     if( p->tgt.noteloc ) display_note_text( dest, f, p->tgt.noteloc );
-    buf[0] = 0;
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "" );
     type = p->tgt.type;
-    sprintf(buf,"Observation type: %s",datatype[type].name);
-    if(  p->tgt.unused & REJECT_OBS_BIT ) strcat(buf,"  (rejected)");
-    else if(  p->tgt.unused ) strcat( buf, "  (not used)");
-    (*f)( dest, &jmp, buf );
-    fmt = 0;
-    if( type == LT )
-    {
-        if( !lat_format ) lat_format = create_dms_format(3,1,1," "," ","","N","S");
-        fmt = lat_format;
-    }
-    else if( type == LN )
-    {
-        if( !lon_format ) lon_format = create_dms_format(3,1,1," "," ","","E","W");
-        fmt = lon_format;
-    }
-    else if( datatype[type].isangle )
-    {
-        if( !dms_format ) dms_format = create_dms_format(3,1,1," "," ",""," ","-");
-        fmt = dms_format;
-    }
+    std::string typeText = "Observation type: " + std::string( datatype[type].name );
+    if(  p->tgt.unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
+    else if(  p->tgt.unused ) typeText += "  (not used)";
+    (*f)( dest, &jmp, typeText );
+    /* Only used for angle observations, which includes latitude and longitude */
+    const DmsFormat &format = type == LT ? latitudeObservationFormat
+                              : type == LN ? longitudeObservationFormat : signedAngleFormat;
     if( datatype[type].isangle )
     {
-        sprintf(buf,"Observed value:  %s  +/-  %6.1lf",
-                dms_string(p->value * RTOD, fmt, NULL ),
-                p->error*semult*RTOS );
+        (*f)( dest, &jmp, "Observed value:  " + dms_string( p->value * RTOD, format )
+                          + "  +/-  " + format_fixed( p->error*semult*RTOS, 1, 6 ) );
     }
     else
     {
-        sprintf(buf,"Observed value:  %12.4lf  +/-  %6.4lf",p->value,p->error*semult);
+        (*f)( dest, &jmp, "Observed value:  " + format_fixed( p->value, 4, 12 ) + "  +/-  " + format_fixed( p->error*semult, 4, 6 ) );
     }
-    (*f)( dest, &jmp, buf );
 
     if( binary_data )
     {
         if( datatype[type].isangle )
         {
-            int nch;
-            sprintf(buf,"Calculated:      %s  +/-  %6.1lf",
-                    dms_string(p->calc * RTOD, fmt, NULL ),
-                    p->calcerr*semult*RTOS );
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.1lf  +/-  %6.1f%n",p->residual*RTOS,
-                    p->reserr*semult*RTOS, &nch );
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, "Calculated:      " + dms_string( p->calc * RTOD, format )
+                              + "  +/-  " + format_fixed( p->calcerr*semult*RTOS, 1, 6 ) );
+            (*f)( dest, &jmp, "Residual:        " + format_fixed( p->residual*RTOS, 1, 12 )
+                              + "  +/-  " + format_fixed( p->reserr*semult*RTOS, 1, 6 ) );
         }
         else
         {
-            int nch;
-            sprintf(buf,"Calculated:      %12.4lf  +/-  %6.4lf",p->calc,
-                    p->calcerr*semult);
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.4lf  +/-  %6.4lf%n",p->residual,
-                    p->reserr*semult, &nch);
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, "Calculated:      " + format_fixed( p->calc, 4, 12 ) + "  +/-  " + format_fixed( p->calcerr*semult, 4, 6 ) );
+            (*f)( dest, &jmp, "Residual:        " + format_fixed( p->residual, 4, 12 ) + "  +/-  " + format_fixed( p->reserr*semult, 4, 6 ) );
         }
-        sprintf(buf,"Standardised Residual: %-10.3lf",p->sres*srmult);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Standardised Residual: " + pad_right( format_fixed( p->sres*srmult, 3 ), 10 ) );
     }
 
 
@@ -3418,9 +3074,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
         (*f)(dest, &jmp, "Classifications");
         for( n = p->tgt.nclass, c = sd->clsf + p->tgt.iclass; n--; c++ )
         {
-            sprintf(buf,"     %-15s  %s", classification_name( &obs_classes, c->class_id ),
-                    class_value_name( &obs_classes, c->class_id, c->name_id ) );
-            (*f)(dest, &jmp, buf );
+            (*f)(dest, &jmp, "     " + pad_right( obs_classes.name( c->class_id ), 15 ) + "  " + obs_classes.value_name( c->class_id, c->name_id ) );
         }
     }
 }
@@ -3432,10 +3086,10 @@ void list_single_observation( void *dest, PutTextFunc f, int from, int to, int o
     int to_id;
     survdata *sd;
 
-    if( !connlst ) return;
+    if( connlst.empty() ) return;
     fp = &connlst[from];
     tp = 0;
-    for( to_id = 0; to_id < fp->nconn; to_id++ )
+    for( to_id = 0; to_id < boost::numeric_cast<int>( fp->to.size() ); to_id++ )
     {
         if( fp->to[to_id].to  == to ) { tp = &fp->to[to_id]; break;}
     }
@@ -3457,27 +3111,13 @@ void list_single_observation( void *dest, PutTextFunc f, int from, int to, int o
 
 void free_connection_resources()
 {
-    if( srList ) check_free( srList );
-    srList = NULL;
-    if( srIndex ) check_free( srIndex );
-    srIndex = NULL;
-    if( srIndex2 ) check_free( srIndex2 );
-    srIndex2 = NULL;
-    if( connAz ) check_free( connAz );
-    connAz = NULL;
-    if( connId ) check_free( connId );
-    connId = NULL;
-    if( pens ) check_free( pens );
-    pens = NULL;
+    srList.clear();
+    // Swapping with an empty vector releases the memory, which clear() would not
+    std::vector<long>().swap( srIndex );
+    std::vector<long>().swap( srIndex2 );
+    std::vector<pendef>().swap( pens );
     max_pens = 0;
     free_range_pens();
 
     free_connection_list();
-
-    if( conn_file )
-    {
-        fclose( conn_file );
-        conn_file = NULL;
-    }
-
 }

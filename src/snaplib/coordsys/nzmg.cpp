@@ -14,7 +14,7 @@
   From L+S technical note set 1973/32
 */
 
-typedef struct { double real, imag; } complex;
+struct complex { double real, imag; };
 
 static double a =  6378388.0;
 static double n0 = 6023150.0;

@@ -1,0 +1,30 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 3.0.0-2d48f763
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Oct  8 2026 10:26:42
+
+================================================================================
+                   Run at  8-OCT-2026 10:29:15 by asibthorpe
+
+
+
+
+================================================================================
+                                                             8-OCT-2026 10:29:15
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Error reading station recoding
+       "for" missing in "recode suffix" definition
+
+Error: Errors encountered in recode command
+       Line 26: File testsr17.snp
+
+Error: The command file is not correct

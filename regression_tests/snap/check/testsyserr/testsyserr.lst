@@ -1,0 +1,274 @@
+================================================================================
+
+                          PROGRAM SNAP  Version 2.8.8
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Sep 30 2026 15:17:54
+
+================================================================================
+                   Run at 30-SEP-2026 15:18:02 by asibthorpe
+
+
+
+Program options read from testsyserr.snp
+
+Job: Regression test - classification dependent systematic errors
+
+
+Solution type: 3d data checking
+
+
+Coordinates file test1.crd
+       5 stations read
+
+Data file 1: testsyserr.dat
+       4 observations do not have a date
+       4 ellipsoidal distances
+
+
+
+================================================================================
+Regression test - classification dependent systematic errors   30-SEP-2026 15:18:02
+
+                             OBSERVATION EQUATIONS
+
+================================================================================
+
+BEGIN_JSON obs_equation_1
+{
+  "nparam":0,
+  "obs_equations": [
+{
+  "source": {"file": "testsyserr.dat","lineno": 11, "station": "1 - 2", "obsid": 1, "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31158344e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+ 1.06090000e-04
+  ]
+},
+{
+  "source": {"file": "testsyserr.dat","lineno": 12, "station": "1 - 3", "obsid": 2, "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value":  3.76542921e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+ 1.12360000e-04
+  ]
+},
+{
+  "source": {"file": "testsyserr.dat","lineno": 13, "station": "1 - 2", "obsid": 3, "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31158344e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+ 1.06090000e-04
+  ]
+},
+{
+  "source": {"file": "testsyserr.dat","lineno": 14, "station": "1 - 3", "obsid": 4, "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value":  3.76542921e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+ 1.12360000e-04
+  ]
+}
+]}
+
+END_JSON obs_equation_1
+
+
+
+================================================================================
+Regression test - classification dependent systematic errors   30-SEP-2026 15:18:02
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d data checking
+
+
+Number of observations:               4
+Number of parameters:                 0
+
+Degrees of freedom:                   4
+Sum of squared residuals:             0.00003
+Standard error of unit weight:        0.00252
+
+The probability of an SSR this low is 0.000% (from Chi squared (4))
+
+You may have over-estimated the errors of the data.
+
+
+
+================================================================================
+Regression test - classification dependent systematic errors   30-SEP-2026 15:18:02
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          Node one
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 2      41 00 25.200000 S      -         -          Node two
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 3      41 00 28.800000 S      -         -          Node three
+       173 19 58.800000 E      -         -
+              70.0000          -         -
+
+ 4      41 00 46.800000 S      -         -          Node four
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 5      41 00 25.200000 S      -         -          Node five
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+
+
+================================================================================
+Regression test - classification dependent systematic errors   30-SEP-2026 15:18:02
+
+                                OTHER PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Parameter                          value         +/-
+Systematic: EDM_CONST/EDM            0.00000       -     
+Systematic: EDM_CONST/TAPE           0.00000       -     
+Systematic: EDM_SCALE                0.00000       -     
+
+
+
+================================================================================
+Regression test - classification dependent systematic errors   30-SEP-2026 15:18:02
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+The following codes are used to identify data types
+   ED  ellipsoidal distances
+
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+File testsyserr.dat: line 11
+
+1     2     ED      889.2687 0.0103    889.2687 0.0000 -0.0000 0.0103   0.00     
+
+1     3     ED     1152.1500 0.0106   1152.1500 0.0000  0.0000 0.0106   0.00     
+
+1     2     ED      889.2687 0.0103    889.2687 0.0000 -0.0000 0.0103   0.00     
+
+1     3     ED     1152.1500 0.0106   1152.1500 0.0000  0.0000 0.0106   0.00     
+
+
+
+================================================================================
+Regression test - classification dependent systematic errors   30-SEP-2026 15:18:02
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+ellipsoidal distance                        0.00    4     -      -    0.00    4
+
+
+
+================================================================================
+Regression test - classification dependent systematic errors   30-SEP-2026 15:18:02
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 4 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:   4    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   0    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 4 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+1      3       ED     0.004    0.283         12  testsyserr.dat
+
+1      3       ED     0.004    0.283         14  testsyserr.dat
+
+1      2       ED     0.000    0.018         11  testsyserr.dat
+
+1      2       ED     0.000    0.018         13  testsyserr.dat

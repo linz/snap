@@ -27,11 +27,6 @@ Value::Value( double value) : next(0)
     SetValue( value );
 }
 
-Value::Value( const char *value ) : next(0)
-{
-    SetValue( wxString(value) );
-}
-
 void Value::SetValue( bool value )
 {
     if( value ) { stringValue = wxString("true"); }
@@ -185,7 +180,7 @@ Script::~Script()
     delete implementation;
 }
 
-bool Script::ExecuteScript( const char *filename )
+bool Script::ExecuteScript( const std::string &filename )
 {
     return implementation->ExecuteScript( filename );
 }

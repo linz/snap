@@ -40,14 +40,20 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "dbl4_utl_lnzdef.h"
 #include "dbl4_utl_trig.h"
 #include "dbl4_utl_grid.h"
 #include "dbl4_utl_date.h"
 
-#include "dbl4_utl_alloc.h"
 #include "dbl4_utl_error.h"
+#include "util/stringlimited.hpp"
 
 /* Note: code below assumes headers are all the same length */
 
@@ -63,93 +69,105 @@ typedef enum { defEvalZero, defEvalFixed, defEvalInterp } DefEvalMode;
 typedef enum { defValueDeformation, defValueVelocity } DefValueType;
 
 #define VERSIONLEN 8
-typedef char Version[VERSIONLEN+1];
-const char *defaultStartVer="00000000";
-const char *defaultEndVer="99999999";
+using Version = StringLimited<VERSIONLEN>;
+constexpr std::string_view defaultStartVer = "00000000";
+constexpr std::string_view defaultEndVer = "99999999";
 
-typedef struct
+struct CrdRange
 {
     double xmin;
     double ymin;
     double xmax;
     double ymax;
-} CrdRange, *hCrdRange;
+};
 
-typedef struct
+struct TimeModelPoint
 {
     double year;
     double factor;
-} TimeModelPoint, *hTimeModelPoint;
+};
 
-typedef struct s_DefCmp
+struct DefCmp
 {
-    int id;
-    char *description;
-    DateTimeType refdate;
-    CrdRange range;
-    int dimension;
-    DefEvalMode beforemode; /* LINZDEF version 1 parameter */
-    DefEvalMode aftermode; /* LINZDEF version 1 parameter */
-    INT2 nTimeModel;
-    double factor0;
-    hTimeModelPoint timeModel;
-    DefModelType type;
-    INT4 offset;
-    hBinSrc refbinsrc;
-    hBinSrc binsrc;
+    int id = 0;
+    std::string description;
+    DateTimeType refdate = {};
+    CrdRange range = {};
+    int dimension = 0;
+    DefEvalMode beforemode = defEvalZero; /* LINZDEF version 1 parameter */
+    DefEvalMode aftermode = defEvalZero; /* LINZDEF version 1 parameter */
+    double factor0 = 0.0;
+    std::vector<TimeModelPoint> timeModel;
+    DefModelType type = defModelGrid;
+    INT4 offset = 0;
+    hBinSrc const refbinsrc;
+    hBinSrc binsrc = nullptr;
     union
     {
         hGrid grid;
         hTrig trig;
-    } model;
-    Boolean loaded;
-    StatusType loadstatus;
-    struct s_DefCmp *nextcmp;
-} DefCmp, *hDefCmp;
+    } model = {};
+    bool loaded = false;
+    StatusType loadstatus = STS_OK;
+    DefCmp *nextcmp = nullptr;
 
-typedef struct s_DefSeq
-{
-    int id;
-    char *name;
-    char *description;
-    DateTimeType startdate;
-    DateTimeType enddate;
-    CrdRange range;
-    int dimension;
-    DefValueType valtype; /* LINZDEF version 1 parameter */
-    Boolean zerobeyond;
-    Boolean nested;
-    hDefCmp firstcmp;
-    hDefCmp lastcmp;
-    Version startver;
-    Version endver;
-    Boolean enabled;
-    struct s_DefSeq *nextseq;
-} DefSeq, *hDefSeq;
+    /// Creates a component that will load its model from the binary source
+    explicit DefCmp( const hBinSrc source ) : refbinsrc( source ) {}  ///< The source of the deformation model
 
-typedef struct s_DefVer
-{
-    Version version;
-    DateTimeType versiondate;
-    char *description;
-    struct s_DefVer *nextver;
-} DefVer, *hDefVer;
+    /// The number of points in the time model
+    INT2 nTimeModel() const { return boost::numeric_cast<INT2>( timeModel.size() ); }
+};
+typedef DefCmp *hDefCmp;
 
-typedef struct
+struct DefSeq
 {
-    char *name;
-    char *crdsyscode;
-    DateTimeType startdate;
-    DateTimeType enddate;
-    CrdRange range;
-    Boolean isgeographical;
-    int nsequences;
-    hDefSeq firstseq;
-    hDefSeq lastseq;
-    hDefVer firstver;
-    hDefVer currver;
-    hBinSrc binsrc;
-} DefMod, *hDefMod;
+    int id = 0;
+    std::string name;
+    std::string description;
+    DateTimeType startdate = {};
+    DateTimeType enddate = {};
+    CrdRange range = {};
+    int dimension = 0;
+    DefValueType valtype = defValueDeformation; /* LINZDEF version 1 parameter */
+    bool zerobeyond = false;
+    bool nested = false;
+    hDefCmp firstcmp = nullptr;
+    hDefCmp lastcmp = nullptr;
+    Version startver{ defaultStartVer };
+    Version endver{ defaultEndVer };
+    bool enabled = false;
+    DefSeq *nextseq = nullptr;
+};
+typedef DefSeq *hDefSeq;
+
+struct DefVer
+{
+    Version version{ defaultStartVer };
+    DateTimeType versiondate = {};
+    std::optional<std::string> description;  ///< Absent if not loaded, which differs from an empty description
+    DefVer *nextver = nullptr;
+};
+typedef DefVer *hDefVer;
+
+struct DefMod
+{
+    std::string name;
+    std::string crdsyscode;
+    DateTimeType startdate = {};
+    DateTimeType enddate = {};
+    CrdRange range = {};
+    bool isgeographical = false;
+    int nsequences = 0;
+    hDefSeq firstseq = nullptr;
+    hDefSeq lastseq = nullptr;
+    hDefVer firstver = nullptr;
+    hDefVer currver = nullptr;
+    hBinSrc const binsrc;
+
+    /// Creates a model with no sequences or versions
+    explicit DefMod( const hBinSrc source ) : binsrc( source ) {}  ///< The source the model is read from
+};
+typedef DefMod *hDefMod;
 
 
 
@@ -176,7 +194,7 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     char buf[80];
     INT4 len;
     int version;
-    int big_endian=0;
+    Endian endian = Endian::Little;
     version = 0;
     len = strlen( LNZDEF_FILE_HEADER_1L );
     if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) return 0;
@@ -184,34 +202,34 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     if(  memcmp( buf, LNZDEF_FILE_HEADER_1L, len ) == 0 )
     {
         version = 1;
-        big_endian = 0;
+        endian = Endian::Little;
     }
     else if(  memcmp( buf, LNZDEF_FILE_HEADER_1B, len ) == 0 )
     {
         version = 1;
-        big_endian = 1;
+        endian = Endian::Big;
     }
     else if(  memcmp( buf, LNZDEF_FILE_HEADER_2B, len ) == 0 )
     {
         version = 2;
-        big_endian = 1;
+        endian = Endian::Big;
     }
     else if(  memcmp( buf, LNZDEF_FILE_HEADER_2L, len ) == 0 )
     {
         version = 2;
-        big_endian = 0;
+        endian = Endian::Little;
     }
     else if(  memcmp( buf, LNZDEF_FILE_HEADER_3B, len ) == 0 )
     {
         version = 3;
-        big_endian = 1;
+        endian = Endian::Big;
     }
     else if(  memcmp( buf, LNZDEF_FILE_HEADER_3L, len ) == 0 )
     {
         version = 3;
-        big_endian = 0;
+        endian = Endian::Little;
     }
-    utlBinSrcSetBigEndian( binsrc, big_endian );
+    utlBinSrcSetEndian( binsrc, endian );
 
     if( utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, indexloc ) != STS_OK ) return
             0;
@@ -235,11 +253,6 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
 
 static void delete_def_comp( hDefCmp cmp )
 {
-    if( cmp->description )
-    {
-        utlFree( cmp->description );
-        cmp->description = NULL;
-    }
     /*> If a grid or triangulation model has been loaded to calculate the
         component, then release it with utlReleaseGrid or utlReleaseTrig */
 
@@ -268,13 +281,9 @@ static void delete_def_comp( hDefCmp cmp )
         utlReleaseBinSrc(cmp->binsrc);
         cmp->binsrc = 0;
     }
-    if( cmp->timeModel )
-    {
-        utlFree( cmp->timeModel );
-    }
 
     /*> Release memory allocated to the component */
-    utlFree( cmp );
+    delete cmp;
 }
 
 
@@ -297,18 +306,6 @@ static void delete_def_seq( hDefSeq seq )
     hDefCmp cmp;
     hDefCmp nextcmp;
 
-    /*> Delete any string resources */
-    if( seq->name )
-    {
-        utlFree( seq->name );
-        seq->name = NULL;
-    }
-    if( seq->description )
-    {
-        utlFree( seq->description );
-        seq->description = NULL;
-    }
-
     /*> Delete all deformation components with delete_def_comp */
     cmp  = seq->firstcmp;
     while( cmp )
@@ -321,7 +318,7 @@ static void delete_def_seq( hDefSeq seq )
     seq->lastcmp = NULL;
 
     /*> Release memory allocated to the sequence object */
-    utlFree( seq );
+    delete seq;
 }
 
 /*************************************************************************
@@ -342,19 +339,6 @@ static void delete_def_mod( hDefMod mod )
 {
     hDefSeq seq, nextseq;
 
-    /*> Deallocate string resources */
-
-    if( mod->name )
-    {
-        utlFree(mod->name);
-        mod->name = NULL;
-    }
-    if( mod->crdsyscode )
-    {
-        utlFree(mod->crdsyscode);
-        mod->crdsyscode = NULL;
-    }
-
     /*> Delete each deformation sequence with delete_def_seq */
 
     seq = mod->firstseq;
@@ -371,17 +355,12 @@ static void delete_def_mod( hDefMod mod )
     {
         hDefVer ver=mod->firstver;
         mod->firstver=ver->nextver;
-        if( ver->description ) 
-        {
-            utlFree( ver->description );
-            ver->description=0;
-        }
-        utlFree(ver);
+        delete ver;
     }
 
     /*> Release the model itself */
 
-    utlFree( mod );
+    delete mod;
 }
 
 
@@ -415,41 +394,54 @@ static StatusType load_date( hBinSrc binsrc, long offset, DateTimeType *date )
 }
 
 
-/*************************************************************************
-** Function name: load_version_field
-**//**
-**    Load a version identifier (VERSION, VERSION_NUMBER, VERSION_START,
-**    or VERSION_END) into a fixed-size buffer. VERSION_NUMBER (version
-**    1/2) and VERSION (version 3) have always accepted strings longer
-**    than VERSIONLEN by silently truncating them, so rejectOverlength
-**    must be false for those two to preserve that behaviour. Only
-**    VERSION_START/VERSION_END have always rejected them.
-**
-**  \param binsrc              The binary source object
-**  \param dest                The destination buffer (VERSIONLEN+1 bytes)
-**  \param rejectOverlength     If true, reject strings longer than
-**                             VERSIONLEN instead of truncating them
-**
-**  \return                    The return status
-**
-**************************************************************************
-*/
-
-static StatusType load_version_field( const hBinSrc binsrc, Version dest, const bool rejectOverlength )
+/// Loads the description of a version, which stays absent if the load fails.
+/// Returns the return status.
+static StatusType load_version_description(
+    const hBinSrc binsrc,  ///< The binary source object
+    DefVer &ver )          ///< The version whose description is set
 {
-    char *data=0;
-    const StatusType sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &data );
+    std::string text;
+    const StatusType sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, text );
     if( sts != STS_OK ) {
         RETURN_STATUS( sts );
     }
-    if( rejectOverlength && strlen(data) > VERSIONLEN ) {
-        utlFree(data);
+    ver.description = std::move( text );
+    return STS_OK;
+}
+
+
+/// Loads a version identifier (VERSION, VERSION_NUMBER, VERSION_START, or
+/// VERSION_END) into a version of at most VERSIONLEN characters.
+/// VERSION_NUMBER (version 1/2) and VERSION (version 3) have always accepted
+/// strings longer than VERSIONLEN by silently truncating them, so
+/// rejectOverlength must be false for those two to preserve that behaviour.
+/// Only VERSION_START/VERSION_END have always rejected them.
+/// Returns the return status.
+static StatusType load_version_field(
+    const hBinSrc binsrc,          ///< The binary source object
+    Version &dest,                 ///< The version to set
+    const bool rejectOverlength )  ///< If true, reject strings longer than VERSIONLEN instead of truncating them
+{
+    std::string data;
+    const StatusType sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, data );
+    if( sts != STS_OK ) {
+        RETURN_STATUS( sts );
+    }
+    if( rejectOverlength && data.size() > VERSIONLEN ) {
         RETURN_STATUS( STS_INVALID_DATA );
     }
-    strncpy( dest, data, VERSIONLEN );
-    dest[VERSIONLEN] = 0;
-    utlFree(data);
+    dest.assign( data );
     return STS_OK;
+}
+
+
+/// Orders two versions as strcmp would: negative if the first is earlier,
+/// zero if they are equal and positive if it is later.
+static int compare_versions(
+    const Version &version1,   ///< The first version
+    const Version &version2 )  ///< The second version
+{
+    return std::string_view( version1 ).compare( std::string_view( version2 ) );
 }
 
 
@@ -487,30 +479,14 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
     /*> Allocate a DefCmp object */
 
     (*pcmp) = NULL;
-    cmp = (hDefCmp) utlAlloc( sizeof( DefCmp ) );
-    if( ! cmp ) RETURN_STATUS(STS_ALLOC_FAILED);
+    cmp = new DefCmp( binsrc );
 
     TRACE_LNZDEF(("Loading component"));
-
-    cmp->id = 0;
-    cmp->description = NULL;
-    cmp->binsrc = NULL;
-    cmp->refbinsrc = binsrc;
-    cmp->loaded = BLN_FALSE;
-    cmp->loadstatus = STS_OK;
-    cmp->beforemode = defEvalZero;
-    cmp->aftermode = defEvalZero;
-    cmp->nTimeModel = 0;
-    cmp->timeModel = 0;
-    cmp->factor0 = 0.0;
-    cmp->type = defModelGrid;
-    cmp->nextcmp = NULL;
-    cmp->dimension = 0;
 
     /*> Load the object from the binary source file */
 
     sts = STS_OK;
-    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(cmp->description) );
+    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, cmp->description );
     if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &(cmp->refdate) );
 
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->range.ymin) );
@@ -537,8 +513,7 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
 
         if( isvel )
         {
-            cmp->nTimeModel=3;
-            cmp->timeModel=(hTimeModelPoint) utlAlloc(sizeof(TimeModelPoint)*3);
+            cmp->timeModel.resize(3);
             cmp->timeModel[0].year=utlDateAsYear(&(seq->startdate));
             cmp->timeModel[0].factor=usebefore ? cmp->timeModel[0].year-refyear : 0.0;
             cmp->timeModel[1].year=refyear;
@@ -549,11 +524,10 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
         else 
         {
             cmp->factor0 = cmp->beforemode == defEvalFixed ? 1.0 : 0.0;
-            cmp->nTimeModel=nTimeModel;
-            cmp->timeModel=(hTimeModelPoint) utlAlloc(sizeof(TimeModelPoint)*nTimeModel);
+            cmp->timeModel.resize( boost::numeric_cast<size_t>( nTimeModel ) );
             for( i = 0; i < nTimeModel; i++ )
             {
-                hTimeModelPoint tmi = &(cmp->timeModel[i]);
+                TimeModelPoint *tmi = &(cmp->timeModel[i]);
                 tmi->year=refyear;
                 if( i < iref )
                 {
@@ -575,16 +549,17 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
         if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &tmtype );
         /* Can only handle type 1 (piecewise linear) time models */
         if( tmtype != 1 ) SET_STATUS(sts, STS_INVALID_DATA);
-        if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &(cmp->nTimeModel) );
+        INT2 nTimeModel = 0;
+        if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &nTimeModel );
         if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->factor0) );
-        if( sts == STS_OK && cmp->nTimeModel > 0 )
+        if( sts == STS_OK && nTimeModel > 0 )
         {
             INT2 i;
-            cmp->timeModel=(hTimeModelPoint) utlAlloc(sizeof(TimeModelPoint)*cmp->nTimeModel);
-            for( i = 0; i < cmp->nTimeModel; i++ )
+            cmp->timeModel.resize( boost::numeric_cast<size_t>( nTimeModel ) );
+            for( i = 0; i < nTimeModel; i++ )
             {
                 DateTimeType eventDate;
-                hTimeModelPoint tmi = &(cmp->timeModel[i]);
+                TimeModelPoint *tmi = &(cmp->timeModel[i]);
                 if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &eventDate );
                 if( sts == STS_OK ) tmi->year = utlDateAsYear( &eventDate );
                 if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(tmi->factor) );
@@ -613,9 +588,8 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
         RETURN_STATUS( sts );
     }
 
-    TRACE_LNZDEF(("Component %s loaded",
-                  cmp->description ? cmp->description : "(No description)"));
-    TRACE_LNZDEF(("Component built with  %d time steps",cmp->nTimeModel));
+    TRACE_LNZDEF(("Component %s loaded",cmp->description.c_str()));
+    TRACE_LNZDEF(("Component built with  %d time steps",cmp->nTimeModel()));
 
     (*pcmp) = cmp;
 
@@ -648,7 +622,7 @@ static StatusType load_component_model( hDefCmp cmp )
 
     if( cmp->loadstatus != STS_OK ) RETURN_STATUS( cmp->loadstatus );
 
-    TRACE_LNZDEF(("Loading component model %s at offset %d",cmp->description,cmp->offset));
+    TRACE_LNZDEF(("Loading component model %s at offset %d",cmp->description.c_str(),cmp->offset));
 
     /*> Create a new binary source object from the original source with the
         model offset applied using utlCreateEmbeddedBinSrc */
@@ -682,9 +656,9 @@ static StatusType load_component_model( hDefCmp cmp )
         RETURN_STATUS( sts );
     };
 
-    cmp->loaded = BLN_TRUE;
+    cmp->loaded = true;
 
-    TRACE_LNZDEF(("Component model %s loaded",cmp->description));
+    TRACE_LNZDEF(("Component model %s loaded",cmp->description.c_str()));
 
     return sts;
 }
@@ -774,20 +748,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
     /*> Allocate the DefSeq object */
 
     (*pseq) = NULL;
-    seq = (hDefSeq) utlAlloc( sizeof( DefSeq ) );
-    if( ! seq ) RETURN_STATUS(STS_ALLOC_FAILED);
-
-    /*> Initialise resource pointers in the object */
-
-    seq->id = 0;
-    seq->name = NULL;
-    seq->description = NULL;
-    seq->firstcmp = NULL;
-    seq->lastcmp = NULL;
-    seq->nextseq = NULL;
-    seq->nested= BLN_FALSE;
-    strcpy(seq->startver,defaultStartVer);
-    strcpy(seq->endver,defaultEndVer);
+    seq = new DefSeq();
 
     sts = STS_OK;
 
@@ -795,8 +756,8 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
         start and end dates, coordinate range, and dimension and model value
         type */
 
-    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(seq->name) );
-    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(seq->description) );
+    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, seq->name );
+    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, seq->description );
     if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &(seq->startdate) );
     if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &(seq->enddate) );
 
@@ -812,10 +773,10 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
     seq->dimension = dimension;
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &zerobeyond );
-    seq->zerobeyond = zerobeyond ? BLN_TRUE : BLN_FALSE;
+    seq->zerobeyond = zerobeyond != 0;
 
     if( sts == STS_OK && version >= 2 ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &nested );
-    seq->nested = nested ? BLN_TRUE : BLN_FALSE;
+    seq->nested = nested != 0;
 
     if( sts == STS_OK && version >= 3 )
     {
@@ -827,7 +788,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ncomponents );
 
-    TRACE_LNZDEF(("Deformation component sequence header loaded: %s",seq->name));
+    TRACE_LNZDEF(("Deformation component sequence header loaded: %s",seq->name.c_str()));
 
     /*> Load the each of the sequence components with load_component */
 
@@ -860,7 +821,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
             hDefCmp nextcmp=cmp->nextcmp;
             if( cmp->beforemode == defEvalInterp )
             {
-                hTimeModelPoint tmi=&(cmp->timeModel[0]);
+                TimeModelPoint *tmi=&(cmp->timeModel[0]);
                 if( lastcmp )
                 {
                     tmi->year = utlDateAsYear(&(lastcmp->refdate));
@@ -879,7 +840,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
             }
             if( cmp->aftermode == defEvalInterp )
             {
-                hTimeModelPoint tmi=&(cmp->timeModel[cmp->nTimeModel-1]);
+                TimeModelPoint *tmi=&(cmp->timeModel[cmp->nTimeModel()-1]);
                 if( nextcmp )
                 {
                     tmi->year = utlDateAsYear(&(nextcmp->refdate));
@@ -900,7 +861,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
         if( fixfirst != 0.0 )
         {
             cmp=seq->firstcmp->nextcmp;
-            if( cmp->nTimeModel > 1 )
+            if( cmp->nTimeModel() > 1 )
             {
                 cmp->timeModel[0].year=utlDateAsYear(&(seq->startdate));
                 cmp->timeModel[0].factor=fixfirst;
@@ -911,7 +872,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
             int ntm;
             cmp=seq->firstcmp;
             while( cmp->nextcmp->nextcmp ) cmp=cmp->nextcmp;
-            ntm=cmp->nTimeModel-1;
+            ntm=cmp->nTimeModel()-1;
             if( ntm > 0 )
             {
                 cmp->timeModel[ntm].year=utlDateAsYear(&(seq->enddate));
@@ -929,7 +890,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
         RETURN_STATUS(sts);
     }
 
-    TRACE_LNZDEF(("Deformation sequence components loaded: %s",seq->name));
+    TRACE_LNZDEF(("Deformation sequence components loaded: %s",seq->name.c_str()));
 
     (*pseq) = seq;
     return sts;
@@ -950,7 +911,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
 **************************************************************************
 */
 
-static StatusType check_range( hCrdRange range, double x, double y )
+static StatusType check_range( const CrdRange *range, double x, double y )
 {
     if( x < range->xmin || x > range->xmax ||
             y < range->ymin || y > range->ymax ) RETURN_STATUS( STS_CRD_RANGE_ERR );
@@ -1022,9 +983,9 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
         /*>> Evaluate the scale factor to apply to the component based on the time
              model */
 
-        ntm = cmp->nTimeModel-1;
+        ntm = cmp->nTimeModel()-1;
         factor=cmp->factor0;
-        if( cmp->nTimeModel > 0 )
+        if( cmp->nTimeModel() > 0 )
         {
             if( date <= cmp->timeModel[0].year )
             {
@@ -1036,7 +997,7 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
             }
             else
             {
-                hTimeModelPoint tm0, tm1;
+                TimeModelPoint *tm0, *tm1;
                 for( i=1; i <= ntm; i++ )
                 {
                     if( date <= cmp->timeModel[i].year )
@@ -1184,13 +1145,7 @@ static StatusType add_sequence( hDefSeq seq, double date, double x,
 
 static StatusType create_def_ver( hDefVer *phver )
 {
-    *phver=0;
-    hDefVer ver = (hDefVer) utlAlloc( sizeof(DefVer) );
-    if( ! ver ) RETURN_STATUS(STS_ALLOC_FAILED);
-    strcpy(ver->version,defaultStartVer);
-    ver->description=0;
-    ver->nextver=0;
-    *phver=ver;
+    *phver=new DefVer();
     return STS_OK;
 }
 
@@ -1230,33 +1185,24 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
     {
         RETURN_STATUS(STS_INVALID_DATA);
     }
-    def = (hDefMod) utlAlloc( sizeof( DefMod ) );
-    if( ! def ) RETURN_STATUS(STS_ALLOC_FAILED);
-
-    def->name = NULL;
-    def->crdsyscode = NULL;
-    def->firstseq = NULL;
-    def->lastseq = NULL;
-    def->firstver = NULL;
-    def->currver = NULL;
-    def->binsrc = binsrc;
+    def = new DefMod( binsrc );
 
     TRACE_LNZDEF(("Loading deformation model"));
 
     sts = STS_OK;
     ver=0;
     if( version < 3 ) { sts=create_def_ver( &ver ); def->firstver=ver; }
-    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, indexloc, &(def->name) );
+    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, indexloc, def->name );
     if( sts == STS_OK && version < 3 )
     {
         Version tmpver;
         sts = load_version_field( binsrc, tmpver, false );
-        if( sts == STS_OK && tmpver[0] ) {
-            strcpy( ver->version, tmpver );
+        if( sts == STS_OK && ! tmpver.empty() ) {
+            ver->version = tmpver;
         }
     }
-    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->crdsyscode) );
-    if( sts == STS_OK && version < 3 ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(ver->description) );
+    if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->crdsyscode );
+    if( sts == STS_OK && version < 3 ) sts = load_version_description( binsrc, *ver );
     if( sts == STS_OK  && version < 3 ) sts = load_date( binsrc, BINSRC_CONTINUE, &(ver->versiondate) );
     if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &(def->startdate) );
     if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &(def->enddate) );
@@ -1267,7 +1213,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(def->range.xmax) );
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &isgeog );
-    def->isgeographical = isgeog ? BLN_TRUE : BLN_FALSE;
+    def->isgeographical = isgeog != 0;
 
     if( version >= 3 )
     {
@@ -1282,13 +1228,13 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
 
             sts = load_version_field( binsrc, ver->version, false );
             if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &(ver->versiondate) );
-            if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(ver->description) );
+            if( sts == STS_OK ) sts = load_version_description( binsrc, *ver );
         }
     }
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &nseq );
 
-    TRACE_LNZDEF(("Deformation model header loaded: %s",def->name));
+    TRACE_LNZDEF(("Deformation model header loaded: %s",def->name.c_str()));
 
     idseq = 0;
     while( sts == STS_OK && nseq-- )
@@ -1307,7 +1253,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
 
     if( sts == STS_OK && ! (def->firstver) )
     {
-        TRACE_LNZDEF(("Deformation model %s has no version information",def->name));
+        TRACE_LNZDEF(("Deformation model %s has no version information",def->name.c_str()));
         SET_STATUS(sts, STS_INVALID_DATA );
     }
 
@@ -1319,7 +1265,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
         ver=def->firstver;
         while( ver )
         {
-            if( strcmp(ver->version, def->currver->version) > 0 )
+            if( compare_versions( ver->version, def->currver->version ) > 0 )
             {
                 def->currver=ver;
             }
@@ -1334,7 +1280,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
         RETURN_STATUS( sts );
     }
 
-    TRACE_LNZDEF(("Deformation model loaded: %s",def->name));
+    TRACE_LNZDEF(("Deformation model loaded: %s",def->name.c_str()));
 
 
     *pdef = def;
@@ -1469,112 +1415,81 @@ StatusType utlReleaseLinzDef( hLinzDefModel def )
     return STS_OK;
 }
 
-/*************************************************************************
-** Function name: utlSetLinzDefVersion
-**//**
-**    Release the resources allocated to a LinzDefModel object.
-**
-**  \param def                 The model to release
-**  \param version             The version to configure for
-**
-**  \return                    The return status
-**
-**************************************************************************
-*/
-
-StatusType utlSetLinzDefVersion( hLinzDefModel pdef, const char *version )
+/// Sets the version of the model to use, and enables the sequences that apply
+/// to it.  Returns the return status.
+StatusType utlSetLinzDefVersion(
+    hLinzDefModel pdef,               ///< The model
+    const std::string_view version )  ///< The version to configure for
 {
-    hDefMod def = (hDefMod) pdef;
+    hDefMod def = static_cast<hDefMod>( pdef );
     hDefVer ver;
     hDefSeq seq;
     if( ! def ) RETURN_STATUS( STS_INVALID_DATA );
-    if( ! version ) return STS_OK;
-    TRACE_LNZDEF(("Setting deformation model to version %s",version));
+    TRACE_LNZDEF(("Setting deformation model to version %s",std::string(version).c_str()));
 
     ver=def->firstver;
     while( ver )
     {
-        if( strcmp(version,ver->version) == 0 ) break;
+        if( std::string_view( ver->version ) == version ) break;
         ver=ver->nextver;
     }
-    if( ! ver ) 
+    if( ! ver )
     {
         TRACE_LNZDEF(("Cannot set model to version %s - not a valid version",
-                    version));
+                    std::string(version).c_str()));
         RETURN_STATUS( STS_INVALID_DATA );
     }
     def->currver=ver;
     for( seq=def->firstseq; seq; seq=seq->nextseq )
     {
         int ok=1;
-        if( strcmp(ver->version,seq->startver) < 0 ) ok=0;
-        if( strcmp(ver->version,seq->endver) >= 0 ) ok=0;
-        seq->enabled = ok ? BLN_TRUE: BLN_FALSE;
+        if( compare_versions(ver->version,seq->startver) < 0 ) ok=0;
+        if( compare_versions(ver->version,seq->endver) >= 0 ) ok=0;
+        seq->enabled = ok != 0;
         TRACE_LNZDEF(("%s sequence %d %s",ok ? "Enabling" : "Disabling",
-                    seq->id,seq->name));
+                    seq->id,seq->name.c_str()));
     }
     return STS_OK;
 }
 
 
-/*************************************************************************
-** Function name: utlLinzDefCoordSysDef
-**//**
-**    Get the coordinate system code for the model.
-**
-**  \param def                 The deformation model
-**  \param crdsys              Receives a pointer to a string defining
-**                             the coordinate system code.
-**
-**  \return                    The return status
-**
-**************************************************************************
-*/
-
-StatusType utlLinzDefCoordSysDef( hLinzDefModel def, char ** crdsys )
+/// Gets the coordinate system code for the model, which stays valid while the
+/// model does.  Returns the return status.
+StatusType utlLinzDefCoordSysDef(
+    hLinzDefModel def,          ///< The deformation model
+    std::string_view &crdsys )  ///< Receives the coordinate system code, empty if the call fails
 {
-    (*crdsys) = NULL;
+    crdsys = std::string_view();
     if( ! def ) RETURN_STATUS( STS_INVALID_DATA );
-    (*crdsys) = ((hDefMod) def)->crdsyscode;
+    crdsys = static_cast<hDefMod>( def )->crdsyscode;
     return STS_OK;
 }
 
 
-/*************************************************************************
-** Function name: utlLinzDefTitle
-**//**
-**    Returns text description information from a LinzDefModel deformation model
-**
-**  \param def                 The model
-**  \param nTitle              Identifies what is to be returned.
-**                               1 is the name
-**                               2 is the description
-**                               3 is the version number
-**  \param title               Returns a pointer to the text
-**
-**  \return                    The return status
-**
-**************************************************************************
-*/
-
-StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, char ** title )
+/// Returns text description information from a LinzDefModel deformation
+/// model.  Returns the return status.
+StatusType utlLinzDefTitle(
+    hLinzDefModel def,                        ///< The model
+    int nTitle,                               ///< What to return: 1 is the name, 2 is the description, 3 is the version number
+    std::optional<std::string_view> &title )  ///< Receives the text while the model is valid, or nothing if there is none
 {
-    (*title) = NULL;
+    title = std::nullopt;
     if( ! def ) RETURN_STATUS( STS_INVALID_DATA );
     if( nTitle < 1 || nTitle > 3 ) RETURN_STATUS( STS_INVALID_DATA );
+    const hDefMod model = static_cast<hDefMod>( def );
     switch( nTitle )
     {
     case 1:
-        (*title) = ((hDefMod) def)->name;
+        title = std::string_view( model->name );
         break;
     case 2:
-        (*title) = ((hDefMod) def)->currver->description;
+        if( model->currver->description ) title = std::string_view( *model->currver->description );
         break;
     case 3:
         {
-        char *version=((hDefMod) def)->currver->version;
-        if( version && strcmp(version,"00000000") == 0 ){ version += 8; }
-        (*title) = version;
+        std::string_view version = model->currver->version;
+        if( version == "00000000" ){ version = std::string_view(); }
+        title = version;
         }
         break;
     }

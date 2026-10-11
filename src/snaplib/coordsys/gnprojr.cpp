@@ -63,28 +63,12 @@ static int gn_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_gnomic_projection( void )
 {
-    const char *code = "GN";
-    const char *name = "Gnomic";
-
-    projection_type gn;
-
     if( gn_type ) return;
 
-    gn.code = code;
-    gn.name = name;
-    gn.size = sizeof(GnomicProjection);
-    gn.params = gnparams;
-    gn.nparams = COUNT_OF(gnparams);
-    gn.create = NULL;
-    gn.destroy = NULL;
-    gn.copy = NULL;
-    gn.identical = NULL;
-    gn.bind_ellipsoid = gn_bind_ellipsoid;
-    gn.geog_to_proj = gn_geog_to_proj;
-    gn.proj_to_geog = gn_proj_to_geog;
-    gn.calc_sf_cv = NULL;
-
-    gn_type = register_projection_type( &gn );
+    gn_type = register_projection_type( new projection_type(
+        "GN", "Gnomic", sizeof(GnomicProjection), gnparams, COUNT_OF(gnparams),
+        nullptr, nullptr, nullptr, gn_bind_ellipsoid, nullptr,
+        gn_geog_to_proj, gn_proj_to_geog, nullptr ) );
 }
 
 projection *create_gnomic_projection(  double orglat, double orglon,
@@ -96,8 +80,7 @@ projection *create_gnomic_projection(  double orglat, double orglon,
     if( !gn_type ) register_gnomic_projection();
     if( !gn_type ) return NULL;
 
-    prj = create_projection( gn_type );
-    if( !prj ) return NULL;
+    prj = new projection( *gn_type );
 
     define_gnomic_projection( (GnomicProjection *) prj->data, 6378388.0, 297.0,
                               orglat, orglon, fe, fn );

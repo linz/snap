@@ -1,3 +1,6 @@
+#include <array>
+#include <string>
+
 #include "wx_includes.hpp"
 #include "wxmapwindow.hpp"
 #include "wxsymbology.hpp"
@@ -65,8 +68,8 @@ class MyApp: public wxApp
 
 class TestSource : public wxTabbedTextSource
 {
-	const char *header="row\tname\tcount";
-	const char *data[3]={
+	const std::string header="row\tname\tcount";
+	const std::array<std::string,3> data={
 		"row1\tvalue1\tFred",
 		"row2\tvalue2\tFrodo Baggins",
 		"row3\tvalue3\tKermit the frog"
@@ -76,9 +79,9 @@ class TestSource : public wxTabbedTextSource
 public:
 	TestSource(){};
 	virtual ~TestSource(){};
-	virtual char *GetHeader(){ return (char *) TestSource::header;}
+	virtual std::string GetHeader(){ return header;}
 	virtual int GetRowCount(){ return rowcount; }
-	virtual char *GetRow( int i ){ return (char *) (TestSource::data[i]); }
+	virtual std::string GetRow( int i ){ return data[i]; }
 };
 
 class MyFrame: public wxFrame

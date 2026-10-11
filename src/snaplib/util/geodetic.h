@@ -17,24 +17,45 @@
 
 typedef double vector3[3];            /* The basic 3d vector */
 
-typedef struct                        /* Definition of a rotation matrix */
+/// A rotation between the geocentric axes and the axes of a local system at a
+/// point, held in compressed form as the cosine and sine of the latitude and
+/// longitude that define the local system.  The members are public because
+/// station's on-disk layout (STATION_DISK_FIELDS) writes them as four doubles.
+struct rotmat
 {
-    double cslt;           /* in compressed form.             */
-    double snlt;
-    double csln;
-    double snln;
-} rotmat;
+    // The defaults give the identity rotation: the local axes coincide with
+    // the geocentric axes (latitude +90 degrees, longitude -90 degrees).
+    double cslt = 0.0;
+    double snlt = 1.0;
+    double csln = 0.0;
+    double snln = -1.0;
 
-/* Definition of topocentric and gravitational coordinate systems */
+    rotmat() = default;
 
-void init_toprot( double Lat, double Lon, rotmat *topo ) ;
-void init_gravrot( double Lat, double Lon, double Xi, double Eta, rotmat *grav ) ;
+    /// The topocentric system at a point.
+    rotmat( double Lat,   ///< Latitude (radians)
+            double Lon ); ///< Longitude (radians)
 
-/* Functions to rotate vectors */
+    /// The gravimetric system at a point: the topocentric system at the
+    /// latitude Lat+Xi and the longitude Lon+Eta/cos(Lat+Xi).
+    static rotmat gravimetric( double Lat,   ///< Latitude (radians)
+                               double Lon,   ///< Longitude (radians)
+                               double Xi,    ///< Added to the latitude
+                               double Eta ); ///< Divided by cos(latitude) and added to the longitude
 
-void rotvec ( vector3 in, rotmat *rot, vector3 out ) ;
-void unrotvec( vector3 in, rotmat *rot, vector3 out );
-void rot_vertical( rotmat *rot, vector3 vrt );
+    /// Rotates a vector from the geocentric axes to the local axes.  The
+    /// input and output may be the same vector.
+    void rotvec( vector3 in, vector3 out ) const;
+
+    /// Rotates a vector from the local axes to the geocentric axes.  The
+    /// input and output may be the same vector.
+    void unrotvec( vector3 in, vector3 out ) const;
+
+    /// The local vertical as a unit vector in the geocentric axes.
+    void rot_vertical( vector3 vrt ) const;
+};
+
+static_assert( sizeof(rotmat) == 4*sizeof(double), "rotmat is written to disk as four doubles" );
 
 /* Basic vector functions */
 

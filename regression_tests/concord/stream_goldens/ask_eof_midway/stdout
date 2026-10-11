@@ -1,0 +1,8 @@
+
+concord:  Coordinate conversion program
+
+Input coordinates:
+    Enter input coord sys code or ?:     Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)
+    Enter input coordinate order(default EN):     Enter angle format (D = deg, M = deg mins, H = deg min secs, default H): concord: Unexpected EOF in input
+
+Enter concord -H for a list of command line parameters

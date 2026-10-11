@@ -13,7 +13,7 @@ TYPE (default: release):
 TARGET (default: all):
     all        Build all targets
     snap_cmd   Build command-line tools only
-    test       Build snap_cmd and run regression tests
+    test       Build snap_cmd and the unit tests, and run the regression and unit tests
     install    Build all and install to system (release only, requires a
                clean git tree, so VERSIONID reflects what was actually built)
     package    Build a Debian package (Linux, release only; --build-dir sets SNAP_BUILD_DIR),
@@ -173,7 +173,7 @@ def cmake_build(build_d: Path, targets: list[str] | None = None, jobs: int | Non
 
 
 def run_tests(build_type: str) -> None:
-    """Runs testall.pl against the already-built snap_cmd targets."""
+    """Runs testall.pl (the regression suites and the unit tests) against the already-built targets."""
     testall = REPO_ROOT / "regression_tests" / "testall.pl"
     cmd: list[str | Path] = ["perl", testall, "-e"]
     if build_type == "release":
@@ -326,7 +326,7 @@ def main() -> None:  # pylint: disable=too-many-branches
         cmake_build(build_d, targets=SNAP_CMD_TARGETS, jobs=args.jobs)
         copy_config_files(build_d, args.type)
     elif args.target == "test":
-        cmake_build(build_d, targets=SNAP_CMD_TARGETS + ["binroundtrip"], jobs=args.jobs)
+        cmake_build(build_d, targets=SNAP_CMD_TARGETS + ["binroundtrip", "unit_tests"], jobs=args.jobs)
         copy_config_files(build_d, args.type)
         run_tests(args.type)
     elif args.target == "install":

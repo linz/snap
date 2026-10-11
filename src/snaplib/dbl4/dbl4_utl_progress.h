@@ -15,6 +15,8 @@
 **************************************************************************
 */
 
+#include <string_view>
+
 #ifndef DBL4_TYPES_H
 #include "dbl4_types.h"
 #endif
@@ -22,7 +24,7 @@
 #define PROG_TEMP_MSG -1
 #define PROG_NO_BAR   -2
 
-StatusType utlShowProgress( const char *state, int percent );
+StatusType utlShowProgress( std::string_view state, int percent );
 
 #endif
 

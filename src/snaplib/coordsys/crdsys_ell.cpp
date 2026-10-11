@@ -8,47 +8,19 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
 #include "coordsys/coordsys.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
+#include <boost/algorithm/string/case_conv.hpp>
 
-
-void init_ellipsoid( ellipsoid *el, double a, double rf )
+ellipsoid::ellipsoid( const std::string &code_, const std::string &name_, const double a_, const double rf_ ) :
+    code( boost::algorithm::to_upper_copy(code_) ),
+    name( name_ ),
+    a( a_ ),
+    b( rf_==0.0 ? a_ : a_-a_/rf_ ),
+    rf( rf_ ),
+    a2( a_*a_ ),
+    b2( b*b ),
+    a2b2( a2-b2 )
 {
-    el->a = a;
-    el->rf = rf;
-    el->b = rf==0.0 ? a : a-a/rf;
-    el->a2 = a*a;
-    el->b2 = el->b * el->b;
-    el->a2b2 = el->a2 - el->b2;
-}
-
-ellipsoid *create_ellipsoid( const char *code, const char *name, double a, double rf )
-{
-    ellipsoid *el;
-    el = (ellipsoid *) check_malloc( sizeof(ellipsoid) );
-    el->code = copy_string( code );
-    _strupr( el->code );
-    el->name = copy_string( name );
-    init_ellipsoid( el, a, rf );
-    return el;
-}
-
-
-ellipsoid *copy_ellipsoid( ellipsoid *el )
-{
-    if( el == NULL ) return NULL;
-    return create_ellipsoid( el->code, el->name, el->a, el->rf );
-}
-
-void delete_ellipsoid( ellipsoid *el )
-{
-    if( !el ) return;
-    check_free( el->code );
-    check_free( el->name );
-    check_free( el );
 }
 
 int identical_ellipsoids( ellipsoid *el1, ellipsoid *el2 )
@@ -56,4 +28,3 @@ int identical_ellipsoids( ellipsoid *el1, ellipsoid *el2 )
     if( el1->a == el2->a && el1->rf == el2->rf ) return 1;
     return 0;
 }
-

@@ -8,7 +8,7 @@
 
 */
 
-typedef struct
+struct EMProjection
 {
     double cm;
     double rlat;
@@ -16,7 +16,7 @@ typedef struct
     double rf;
     double e;
     double c;
-} EMProjection;
+};
 
 void define_EMProjection( EMProjection *em, double a, double rf, double cm, double rlat );
 void geod_em( EMProjection *em, double lat, double lon, double *ce, double *cn );

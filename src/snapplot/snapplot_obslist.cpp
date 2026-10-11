@@ -14,7 +14,7 @@ SnapplotObsSource::~SnapplotObsSource()
 {
 }
 
-char *SnapplotObsSource::GetHeader()
+std::string SnapplotObsSource::GetHeader()
 {
     return sres_list_header();
 }
@@ -24,7 +24,7 @@ int SnapplotObsSource::GetRowCount()
     return sres_index_count();
 }
 
-char *SnapplotObsSource::GetRow( int i )
+std::string SnapplotObsSource::GetRow( const int i )
 {
     return sres_item_description( i );
 }

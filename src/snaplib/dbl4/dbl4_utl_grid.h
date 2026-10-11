@@ -29,10 +29,6 @@ StatusType utlReleaseGrid( hGrid grid);
 
 StatusType utlGridVectorDimension( hGrid grid, int *dimension );
 
-StatusType utlGridCoordSysDef( hGrid grid, char ** crdsys );
-
-StatusType utlGridTitle( hGrid grid, int nTitle, char ** title );
-
 StatusType utlCalcGridLinear( hGrid grid, double x, double y, double * value);
 
 StatusType utlCalcGridCubic( hGrid grid, double x, double y, double * value);

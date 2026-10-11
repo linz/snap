@@ -84,7 +84,7 @@ class wktPolygon
     public:
         wktPolygon( bool islatlon=1 );
         ~wktPolygon();
-        int readFile( const char *file );
+        int readFile( const std::string &file );
         bool contains( double lon, double lat );
     private:
         bool islatlon;
@@ -116,7 +116,7 @@ bool wktPolygon::contains( double lon, double lat )
     return inside;
 }
 
-int wktPolygon::readFile( const char *file )
+int wktPolygon::readFile( const std::string &file )
 {
     ifstream f(file);
     if( ! f )
@@ -156,14 +156,15 @@ int wktPolygon::readFile( const char *file )
     return isOk;
 }
 
-void *read_polygon_wkt( const char *filename, int islonlat )
+void *read_polygon_wkt( const std::string &filename, const int islonlat )
 {
     wktPolygon *pgn = new wktPolygon( islonlat != 0 );
     if( ! pgn->readFile( filename ) )
     {
-        return 0;
+        delete pgn;
+        return nullptr;
     }
-    return (void *) pgn;
+    return static_cast<void *>( pgn );
 }
 
 void delete_polygon( void *pgn)

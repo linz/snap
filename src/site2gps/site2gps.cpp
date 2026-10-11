@@ -28,7 +28,7 @@ void print_gps_baselines( FILE *out, int *stn, int nstns )
         station *s2;
         s2 = station_ptr( net, stn[j] );
         calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, NULL, NULL );
-        fprintf(out,"%-5s %-5s %10.3lf %10.3lf %10.3lf\n",s1->Code,s2->Code,
+        fprintf(out,"%-5s %-5s %10.3lf %10.3lf %10.3lf\n",s1->Code.c_str(),s2->Code.c_str(),
                 dxyz[0],dxyz[1],dxyz[2] );
     }
 }
@@ -39,12 +39,12 @@ void print_multistation_gps( FILE *out, int *stn, int nstns )
     int i;
     vector3 dxyz;
     s1 = station_ptr( net, stn[0] );
-    fprintf(out,"%s\n",s1->Code);
+    fprintf(out,"%s\n",s1->Code.c_str());
     for( i = 1; i < nstns; i++ )
     {
         s2 = station_ptr( net, stn[i] );
         calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, NULL, NULL );
-        fprintf(out,"%-5s %10.3lf %10.3lf %10.3lf\n",s2->Code,
+        fprintf(out,"%-5s %10.3lf %10.3lf %10.3lf\n",s2->Code.c_str(),
                 dxyz[0],dxyz[1],dxyz[2] );
     }
 }
@@ -150,7 +150,7 @@ int main( int argc, char *argv[] )
 
     install_default_crdsys_file();
 
-    if( read_station_file( argv[1], NULL, STN_FORMAT_SNAP, 0, 0, UNDEFINED_DATE ) != OK )
+    if( read_station_file( argv[1], "", STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE ) != OK )
     {
         printf("Cannot open coordinate file %s\n",argv[1]);
         return 0;
@@ -162,13 +162,8 @@ int main( int argc, char *argv[] )
         printf("No stations loaded from coordinate file\n");
         return 0;
     }
-    stn = (int *) malloc( 2 * nostns * sizeof(int) );
-    dst = (double *) malloc( nostns * sizeof(double) );
-    if( !stn || !dst )
-    {
-        printf("Insufficient memory for program\n");
-        return 0;
-    }
+    stn = new int[2 * nostns];
+    dst = new double[nostns];
     stn2 = stn + nostns;
 
     if( !autolist && (NULL == (in = fopen(argv[2],"r"))))

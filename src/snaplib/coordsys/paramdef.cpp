@@ -14,6 +14,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
+#include <string>
 #include "util/errdef.h"
 #include "coordsys/paramdef.h"
 #include "util/dms.h"
@@ -23,9 +25,6 @@
 	char buf[40];           \
    sprintf(buf,fmt,*(type*)address); \
    return (*os->write)(buf,os->sink)
-
-void *latfmt = NULL;
-void *lonfmt = NULL;
 
 int print_int( output_string_def *os, void *address )
 {
@@ -65,58 +64,47 @@ int print_radians( output_string_def *os, void *address )
     return (*os->write)(buf,os->sink);
 }
 
-static void define_dms_formats( void )
-{
-    latfmt = create_dms_format(3,4,0,NULL,NULL,NULL,"N","S");
-    lonfmt = create_dms_format(3,4,0,NULL,NULL,NULL,"E","W");
-}
-
 int print_latitude( output_string_def *os, void *address )
 {
-    const char *buf;
-    if( !latfmt ) define_dms_formats();
-    buf = dms_string( * (double *) address * RTOD, latfmt, NULL );
-    return (*os->write)(buf,os->sink);
+    static const DmsFormat latitudeFormat( 3, 4, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
+    const std::string text = dms_string( * static_cast<double *>( address ) * RTOD, latitudeFormat );
+    return (*os->write)(text,os->sink);
 }
 
 int print_longitude( output_string_def *os, void *address )
 {
-    const char *buf;
-    if( !latfmt ) define_dms_formats();
-    buf = dms_string( * (double *) address * RTOD, lonfmt, NULL );
-    return (*os->write)(buf,os->sink);
+    static const DmsFormat longitudeFormat( 3, 4, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
+    const std::string text = dms_string( * static_cast<double *>( address ) * RTOD, longitudeFormat );
+    return (*os->write)(text,os->sink);
 }
 
 
-int read_radians( input_string_def *is, void *address )
+int read_radians( FieldScanner &scanner, void *address )
 {
     double rad;
     int sts;
-    sts = double_from_string( is, &rad );
+    sts = double_from_string( scanner, &rad );
     if( sts == OK ) rad *= DTOR;
     *(double *)address = rad;
     return sts;
 }
 
-int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base )
+int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base )
 {
     int sts;
     int iprm;
-    char errmess[128];
     sts = OK;
     for( iprm = 0; iprm < nprm; iprm++, prms++ )
     {
-        sts = (*prms->read)( is, OFFSET_ADDRESS(base,prms->offset) );
+        sts = (*prms->read)( is.scanner, OFFSET_ADDRESS(base,prms->offset) );
         if( sts == MISSING_DATA )
         {
-            sprintf(errmess,"%s is missing",prms->name);
-            report_string_error( is, sts, errmess );
+            report_string_error( is, sts, std::string( prms->name ) + " is missing" );
             break;
         }
         else if ( sts != OK )
         {
-            sprintf(errmess,"Invalid definition of %s",prms->name);
-            report_string_error( is, sts, errmess );
+            report_string_error( is, sts, "Invalid definition of " + std::string( prms->name ) );
             break;
         }
     }
@@ -124,26 +112,24 @@ int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base
 }
 
 void print_param_list( output_string_def *os, param_def *prms, int nprm,
-                       void *base, const char *prefix )
+                       void *base, const std::string_view prefix )
 {
     int iprm;
-    int maxlen = 0;
+    size_t maxlen = 0;
     for( iprm = 0; iprm < nprm; iprm++ )
     {
-        int prmlen;
         if( !prms[iprm].print ) continue;
-        prmlen = strlen( prms[iprm].name );
-        if( prmlen > maxlen ) maxlen = prmlen;
+        maxlen = std::max( maxlen, prms[iprm].name.size() );
     }
-    if( maxlen > 80 ) maxlen = 80;
+    maxlen = std::min( maxlen, static_cast<size_t>( 80 ) );
     for( iprm = 0; iprm < nprm; iprm++ )
     {
-        char buf[81];
         param_def *pd = prms+iprm;
         if( !pd->print ) continue;
-        if( prefix ) write_output_string( os, prefix );
-        sprintf( buf, "%-*.*s",maxlen,maxlen,pd->name );
-        write_output_string( os, buf );
+        if( !prefix.empty() ) write_output_string( os, prefix );
+        const std::string_view name = pd->name.substr( 0, maxlen );
+        write_output_string( os, name );
+        write_output_string( os, std::string( maxlen - name.size(), ' ' ) );
         write_output_string( os, "  " );
         (*pd->print)( os, OFFSET_ADDRESS( base, pd->offset ));
         write_output_string( os, "\n" );

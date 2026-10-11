@@ -12,13 +12,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "coordsys/crdsys_prj.h"
 #include "util/errdef.h"
 #include "coordsys/psproj.h"
 #include "coordsys/psprojr.h"
 
-static int read_north_south( input_string_def *is, void *address );
+static int read_north_south( FieldScanner &scanner, void *address );
 static int print_north_south( output_string_def *os, void *address );
 
 static param_def psparams[]  =
@@ -71,28 +72,12 @@ static int ps_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_ps_projection( void )
 {
-    const char *code = "PS";
-    const char *name = "Polar Stereographic";
-
-    projection_type ps;
-
     if( ps_type ) return;
 
-    ps.code = code;
-    ps.name = name;
-    ps.size = sizeof(PSProjection);
-    ps.params = psparams;
-    ps.nparams = COUNT_OF(psparams);
-    ps.create = NULL;
-    ps.destroy = NULL;
-    ps.copy = NULL;
-    ps.identical = NULL;
-    ps.bind_ellipsoid = ps_bind_ellipsoid;
-    ps.geog_to_proj = ps_geog_to_proj;
-    ps.proj_to_geog = ps_proj_to_geog;
-    ps.calc_sf_cv = NULL;
-
-    ps_type = register_projection_type( &ps );
+    ps_type = register_projection_type( new projection_type(
+        "PS", "Polar Stereographic", sizeof(PSProjection), psparams, COUNT_OF(psparams),
+        nullptr, nullptr, nullptr, ps_bind_ellipsoid, nullptr,
+        ps_geog_to_proj, ps_proj_to_geog, nullptr ) );
 }
 
 projection *create_ps_projection(  double cm, double sf,
@@ -103,8 +88,7 @@ projection *create_ps_projection(  double cm, double sf,
     if( !ps_type ) register_ps_projection();
     if( !ps_type ) return NULL;
 
-    prj = create_projection( ps_type );
-    if( !prj ) return NULL;
+    prj = new projection( *ps_type );
 
     define_PSProjection( (PSProjection *) prj->data, 6378388.0, 297.0,
                          cm, sf, fe, fn, south);
@@ -112,17 +96,16 @@ projection *create_ps_projection(  double cm, double sf,
     return prj;
 }
 
-static int read_north_south( input_string_def *is, void *address )
+static int read_north_south( FieldScanner &scanner, void *address )
 {
-    char def[11];
-    int sts;
-    sts = next_string_field( is, def, 10 );
+    std::string def;
+    int sts = next_string_field( scanner, def, 10 );
     if( sts != OK ) return sts;
-    if( _stricmp(def,"north") == 0 )
+    if( boost::algorithm::iequals(def,"north") )
     {
         *(char *)address = 0;
     }
-    else if( _stricmp(def,"south") == 0 )
+    else if( boost::algorithm::iequals(def,"south") )
     {
         *(char *) address = 1;
     }

@@ -1,6 +1,7 @@
 #include "snapconfig.h"
 #include "wxsimpledialog.hpp"
 #include <wx/checklst.h>
+#include <boost/numeric/conversion/cast.hpp>
 #include "snapplot_help.hpp"
 
 //extern "C"
@@ -10,27 +11,25 @@
 //}
 
 
-static ListControlOption obsListOptions[] =
+static const std::vector<ListControlOption> obsListOptions =
 {
     { "All observations", SRL_ALL },
     { "Used observations", SRL_USED },
     { "Unused observations", SRL_UNUSED },
-    { "Rejected observations", SRL_REJECTED },
-    {0,0}
+    { "Rejected observations", SRL_REJECTED }
 };
 
 // Note: The order here should match the order initialised for displayFields in plotconn.c
-static ListControlOption fieldListOptions[] =
+static const std::vector<ListControlOption> fieldListOptions =
 {
-	{ "Obs id", SRF_OBSID },   	
-	{ "Date", SRF_DATE }, 
-	{ "Data type", SRF_TYPE },
+    { "Obs id", SRF_OBSID },
+    { "Date", SRF_DATE },
+    { "Data type", SRF_TYPE },
     { "Status", SRF_STATUS },
     { "Standardised residual", SRF_SRES },
     { "Redundancy factor", SRF_RFAC },
     { "Line length", SRF_LENGTH },
-    { "Source filename", SRF_FILE },
-    {0,0}
+    { "Source filename", SRF_FILE }
 };
 
 // If fields are added then the maximum default fields must be increased...
@@ -61,10 +60,9 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
 {
     obsToShow = 0;
     lbFieldList = 0;
-    int nClassification = classification_count( &obs_classes);
+    int nClassification = obs_classes.count();
 
-    for( nFieldList = 0; fieldListOptions[nFieldList].name != 0; nFieldList++ ) {};
-    nFieldList += nClassification;
+    nFieldList = boost::numeric_cast<int>( fieldListOptions.size() ) + nClassification;
 
     // Note: +1 to account for SRF_LINENO
     fieldList = new int[ nFieldList + nDefaultFields + 1 ];
@@ -78,16 +76,16 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
     wxArrayString options;
     int nField = 0;
 
-    for( int i = 0; fieldListOptions[i].name != 0; i++ )
+    for( const ListControlOption &option : fieldListOptions )
     {
-        options.Add(fieldListOptions[i].name);
-        fieldLookupCode[nField++] = fieldListOptions[i].value;
+        options.Add( wxString(option.name) );
+        fieldLookupCode[nField++] = option.value;
     }
 
     // Note: classifications are 1 based, not 0 based
     for( int i = 0; i++ < nClassification; )
     {
-        options.Add(wxString(classification_name( &obs_classes,i)));
+        options.Add(wxString(obs_classes.name(i)));
         fieldLookupCode[nField++] = i;
     }
     sizer2->Add( Label("Fields to list"),flags );

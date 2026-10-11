@@ -100,40 +100,6 @@ void utlCopyDate( DateTimeType *tgt, DateTimeType *src)
 
 
 /*************************************************************************
-** Function name: utlParseDate
-**//**
-**    Copies a date time type.
-**
-**  \param tgt                 The destination for the date
-**  \param str                 The source for the date
-**
-**  \return                    STS_INVALID_DATA if the string
-**                             cannot be parsed.
-**
-**************************************************************************
-*/
-
-StatusType utlParseDate( DateTimeType *tgt, char *str)
-{
-    tgt->dtYear = tgt->dtMon = tgt->dtDay = 0;
-    tgt->dtHour = tgt->dtMin = 0;
-    tgt->dtSec = 0.0;
-    tgt->years = 0.0;
-    if( sscanf(str,"%hd/%hd/%hd",
-               &tgt->dtMon,&tgt->dtDay,&tgt->dtYear) != 3 &&
-            sscanf(str,"%hd-%hd-%hd %hd:%hd:%f",
-                   &tgt->dtYear, &tgt->dtMon,&tgt->dtDay,
-                   &tgt->dtHour, &tgt->dtMin, &tgt->dtSec)
-            != 6 )
-    {
-        RETURN_STATUS(STS_INVALID_DATA);
-    }
-
-    return STS_OK;
-}
-
-
-/*************************************************************************
 ** Function name: utlCompareDate
 **//**
 **    Compares two dates, and returns 1 if the first is greater, -1 if the

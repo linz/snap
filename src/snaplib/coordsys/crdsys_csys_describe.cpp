@@ -14,6 +14,8 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <array>
+#include <string_view>
 
 #include "util/errdef.h"
 #include "coordsys/crdsys_prj.h"
@@ -36,11 +38,11 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
     char translation;
     char scale;
     char rotation;
-    const char *iers_components[]= {"Translation","IERS rotation","Scale"};
-    const char *std_components[]= {"Translation","Rotation","Scale"};
+    constexpr std::array<std::string_view,3> iers_components= {"Translation","IERS rotation","Scale"};
+    constexpr std::array<std::string_view,3> std_components= {"Translation","Rotation","Scale"};
     const char *ratestr="       rate";
-    const char *iers_units[]= {"mm","mas","ppb"};
-    const char *std_units[]= {"m","sec","ppm"};
+    constexpr std::array<std::string_view,3> iers_units= {"mm","mas","ppb"};
+    constexpr std::array<std::string_view,3> std_units= {"m","sec","ppm"};
 
     write_output_string( os, "Reference frame: " );
     write_output_string( os, rf->name );
@@ -68,15 +70,15 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         char unitstr[20];
         double uf=rf->use_iersunits ? 1000.0 : 1.0;
         double af=rf->use_iersunits ? -1000.0 : 1.0;
-        const char **components=rf->use_iersunits ? iers_components : std_components;
-        const char **units=rf->use_iersunits ? iers_units : std_units;
+        const std::array<std::string_view,3> *components=rf->use_iersunits ? &iers_components : &std_components;
+        const std::array<std::string_view,3> *units=rf->use_iersunits ? &iers_units : &std_units;
         const char *format1="    %-14s %8s  %10.5lf %10.5lf %10.5lf\n";
         const char *format2="    %-14s %8s  %10.5lf\n";
         const char *format3="    %-14s %8s  %7.2lf\n";
         int rates = rf->use_rates;
 
         write_output_string( os, "  Relative to ");
-        write_output_string( os, rf->refcode);
+        write_output_string( os, *rf->refcode );
         write_output_string( os, "\n" );
         if( rates )
         {
@@ -85,13 +87,13 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         }
         if( translation )
         {
-            sprintf(unitstr,"(%s)",units[0]);
-            sprintf(out,format1,components[0],unitstr,
+            sprintf(unitstr,"(%s)",(*units)[0].data());
+            sprintf(out,format1,(*components)[0].data(),unitstr,
                     uf*rf->txyz[0], uf*rf->txyz[1], uf*rf->txyz[2] );
             write_output_string( os, out );
             if( rates )
             {
-                sprintf(unitstr,"(%s/yr)",units[0]);
+                sprintf(unitstr,"(%s/yr)",(*units)[0].data());
                 sprintf(out,format1,ratestr,unitstr,
                         uf*rf->dtxyz[0], uf*rf->dtxyz[1], uf*rf->dtxyz[2] );
                 write_output_string( os, out );
@@ -99,13 +101,13 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         }
         if( rotation )
         {
-            sprintf(unitstr,"(%s)",units[1]);
-            sprintf(out,format1,components[1],unitstr,
+            sprintf(unitstr,"(%s)",(*units)[1].data());
+            sprintf(out,format1,(*components)[1].data(),unitstr,
                     af*rf->rxyz[0], af*rf->rxyz[1], af*rf->rxyz[2] );
             write_output_string( os, out );
             if( rates )
             {
-                sprintf(unitstr,"(%s/yr)",units[1]);
+                sprintf(unitstr,"(%s/yr)",(*units)[1].data());
                 sprintf(out,format1,ratestr,unitstr,
                         af*rf->drxyz[0], af*rf->drxyz[1], af*rf->drxyz[2] );
                 write_output_string( os, out );
@@ -113,12 +115,12 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         }
         if( scale )
         {
-            sprintf(unitstr,"(%s)",units[2]);
-            sprintf(out,format2,components[2],unitstr,uf*rf->scale);
+            sprintf(unitstr,"(%s)",(*units)[2].data());
+            sprintf(out,format2,(*components)[2].data(),unitstr,uf*rf->scale);
             write_output_string( os, out );
             if( rates )
             {
-                sprintf(unitstr,"(%s/yr)",units[2]);
+                sprintf(unitstr,"(%s/yr)",(*units)[2].data());
                 sprintf(out,format2,ratestr,unitstr,uf*rf->dscale);
                 write_output_string( os, out );
             }
@@ -133,10 +135,10 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
 int describe_projection( output_string_def *os, projection *prj )
 {
     if( !prj ) return OK;
-    if( prj->type->name )
+    if( ! prj->type->name.empty() )
     {
         write_output_string( os, "Projection: " );
-        write_output_string( os, prj->type->name);
+        write_output_string( os, prj->type->name );
         write_output_string( os, "\n" );
     }
 
@@ -151,12 +153,9 @@ int describe_projection( output_string_def *os, projection *prj )
 int describe_vdatum( output_string_def *os, vdatum *hrs )
 {
     if( !hrs ) return OK;
-    if( hrs->name )
-    {
-        write_output_string( os, "Heights: " );
-        write_output_string( os, hrs->name);
-        write_output_string( os, "\n" );
-    }
+    write_output_string( os, "Heights: " );
+    write_output_string( os, hrs->name );
+    write_output_string( os, "\n" );
     return OK;
 }
 

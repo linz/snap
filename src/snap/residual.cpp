@@ -33,9 +33,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
+#include <array>
+#include <string>
+#include <vector>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "snap/snapglob.h"
-#include "util/chkalloc.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "output.h"
@@ -45,7 +49,7 @@
 #include "notedata.h"
 #include "snap/datastat.h"
 
-typedef struct
+struct residual
 {
     int from;
     int to;
@@ -56,12 +60,12 @@ typedef struct
     char unused;
     double sres;
     int64_t note;
-} residual;
+};
 
-#define MAXRANK 3
+inline constexpr int MAXRANK = 3;
 
-static residual *worstlst[2][MAXRANK];
-static int nworst[2][MAXRANK];
+/* The worst residuals, largest first, indexed by used then rank - 1 */
+static std::array<std::array<std::vector<residual>, MAXRANK>, 2> worstlst;
 static long totalcount = 0;
 
 static double flagval[3][2][2];  /* rank, unused, level */
@@ -118,23 +122,18 @@ static void setup_flag_values( void )
 }
 
 
-const char *residual_flag( int unused, int rank, double sres )
+std::string_view residual_flag( const int unused, int rank, double sres )
 {
-    const static char *blank = "";
-    const static char *flag1 = FLAG1;
-    const static char *flag2 = FLAG2;
-    int used;
-
     if( !flag_values_set ) setup_flag_values();
 
     rank--;
     if( rank < 0 || rank > 2 ) rank = 2;
-    used = unused ? 0 : 1;
+    const int used = unused ? 0 : 1;
 
     if( sres < 0.0 ) sres = -sres;
-    if( sres > flagval[rank][used][1] ) return flag2;
-    if( sres > flagval[rank][used][0] ) return flag1;
-    return blank;
+    if( sres > flagval[rank][used][1] ) return FLAG2;
+    if( sres > flagval[rank][used][0] ) return FLAG1;
+    return "";
 }
 
 
@@ -145,8 +144,6 @@ void save_residual( int from, int to, int id, int type,
     int i, level;
     int used;
     residual rs;
-    residual *ws;
-    int nws;
 
     if( sres < 0 || rank < 1 || rank > MAXRANK ) return;
     if( ! apriori )
@@ -171,8 +168,8 @@ void save_residual( int from, int to, int id, int type,
     {
         for( i = 0; i < MAXRANK; i++ )
         {
-            worstlst[0][i] = worstlst[1][i] = NULL;
-            nworst[0][i] = nworst[1][i] = 0;
+            worstlst[0][i].clear();
+            worstlst[1][i].clear();
         }
 
         for( i=0; i<3; i++ )
@@ -185,24 +182,14 @@ void save_residual( int from, int to, int id, int type,
     rank--;
     if( sres < 0.0 ) sres = -sres;
 
-    if( worstlst[used][rank] == NULL )
-    {
-        worstlst[used][rank] = (residual *) check_malloc( (maxworst + 1) * sizeof(residual) );
-    }
+    /* Insert after any residuals at least as large, then drop the smallest if over the limit */
 
-    ws = worstlst[used][rank];
-    nws = nworst[used][rank];
-
-    for( i = nws; i-- && ws[i].sres < sres; )
-    {
-        memcpy( ws+i+1, ws+i, sizeof(residual) );
-    }
-
-    i++;
-    memcpy( ws+i, &rs, sizeof(residual) );
-
-    if( nws < maxworst ) nws++;
-    nworst[used][rank] = nws;
+    const size_t limit = boost::numeric_cast<size_t>( maxworst );
+    std::vector<residual> &worst = worstlst[used][rank];
+    if( worst.empty() ) worst.reserve( limit + 1 );
+    worst.insert( std::partition_point( worst.begin(), worst.end(),
+                                        [sres]( const residual &w ) { return w.sres >= sres; } ), rs );
+    if( worst.size() > limit ) worst.pop_back();
 
     if( !flag_values_set ) setup_flag_values();
     if( sres <= flagval[rank][used][0] ) level = 0;
@@ -217,8 +204,8 @@ void save_residual( int from, int to, int id, int type,
 void print_worst_residuals( FILE *out )
 {
     double prob[2][MAXRANK];
-    int index[2][MAXRANK];
-    residual *ws;
+    size_t index[2][MAXRANK];
+    const residual *ws;
     double maxprob;
     int i, j, maxi, maxj, nwslist, level;
     int useall, iused, imin, imax;
@@ -266,7 +253,7 @@ void print_worst_residuals( FILE *out )
 
         nwslist = 0;
         for( i=imin; i<=imax; i++ ) for( j=0; j<MAXRANK; j++ )
-                nwslist += nworst[i][j];
+                nwslist += boost::numeric_cast<int>( worstlst[i][j].size() );
 
         if( !nwslist ) continue;
         if( nwslist >= maxworst ) nwslist = maxworst;
@@ -281,7 +268,7 @@ void print_worst_residuals( FILE *out )
         for( i = imin; i <= imax; i++ ) for( j = 0; j < MAXRANK; j++ )
             {
                 index[i][j] = 0;
-                if( index[i][j] < nworst[i][j] )
+                if( index[i][j] < worstlst[i][j].size() )
                 {
                     prob[i][j] = residual_significance( worstlst[i][j][0].sres, i, j+1 );
                 }
@@ -297,7 +284,7 @@ void print_worst_residuals( FILE *out )
             maxi = maxj = -1; maxprob = -2.0;
             for( i=imin; i<=imax; i++ ) for( j=0; j<MAXRANK; j++ )
                 {
-                    if( index[i][j] < nworst[i][j] && prob[i][j] > maxprob )
+                    if( index[i][j] < worstlst[i][j].size() && prob[i][j] > maxprob )
                     {
                         maxi = i;
                         maxj = j;
@@ -306,7 +293,7 @@ void print_worst_residuals( FILE *out )
                 }
             if( maxi < 0 ) break;
 
-            ws = worstlst[maxi][maxj]+index[maxi][maxj];
+            ws = &worstlst[maxi][maxj][index[maxi][maxj]];
             from = ws->from;
             to = ws->to;
             if( ! from ) { from = to; to = 0; }
@@ -314,14 +301,14 @@ void print_worst_residuals( FILE *out )
             list_note( out, ws->note );
 
             fprintf(out,"\n%-*s  %-*s",
-                    stn_name_width, station_code(from),
-                    stn_name_width, to ? station_code(to) : "");
+                    stn_name_width, station_code(from).c_str(),
+                    stn_name_width, to ? station_code(to).c_str() : "");
             if( have_obs_ids )
             {
                 fprintf( out, " %7d", ws->id );
             }
             fprintf(out,"   %-2s%c  %7.3lf  ",
-                    datatype[ws->type].code,ws->unused,
+                    datatype[ws->type].code.data(),ws->unused,
                     ws->sres);
             if( prob[maxi][maxj] > 0.0 )
             {
@@ -331,13 +318,14 @@ void print_worst_residuals( FILE *out )
             {
                 fputs("   -   ", out );
             }
-            fprintf(out," %-3s",residual_flag( 1-maxi, maxj+1,ws->sres) );
-            fprintf(out,"  %5d  %s\n",(int)(ws->line),survey_data_file_name(ws->file));
+            fprintf(out," %-3s",std::string( residual_flag( 1-maxi, maxj+1,ws->sres) ).c_str() );
+            fprintf(out,"  %5d  %s\n",(int)(ws->line),survey_data_file_name(ws->file).c_str());
 
+            // Now the next residual in this list, which is read below
             index[maxi][maxj]++;
-            if( index[maxi][maxj] < nworst[maxi][maxj] )
+            if( index[maxi][maxj] < worstlst[maxi][maxj].size() )
             {
-                prob[maxi][maxj] = residual_significance(ws[1].sres,maxi,maxj+1);
+                prob[maxi][maxj] = residual_significance(worstlst[maxi][maxj][index[maxi][maxj]].sres,maxi,maxj+1);
             }
         }
     }

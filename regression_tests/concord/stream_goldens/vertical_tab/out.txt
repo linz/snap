@@ -1,0 +1,3 @@
+**** Error reading data for point A1-45 ****  A1-45.25 168.75
+**** Error reading data for point B2 ****  B2 -41 174.75
+C3       1811845.291  5513742.649

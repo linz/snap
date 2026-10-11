@@ -55,44 +55,62 @@ The procedure requires the following sequence of calls
 #include <math.h>
 #include <string.h>
 #include <cstddef>
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
 
-#include "util/chkalloc.h"
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "util/dstring.h"
 #include "snap/genparam.h"
-#include "util/linklist.h"
 #include "util/binfile.h"
 #include "util/errdef.h"
+#include "util/fieldscanner.hpp"
 #include "util/wildcard.h"
 
-typedef struct
+struct prm_action
 {
     unsigned char action;
-    union
-    {
-        param *p;
-        char  *n;
-    } prm;
-    union
-    {
-        double v;
-        param *p;
-    } value;
-} prm_action;
+    param *prm = nullptr;         ///< the parameter acted on, unless PA_WILDCARD is set
+    std::string wildcard;         ///< pattern for the parameters acted on, if PA_WILDCARD is set
+    double value = 0.0;           ///< the value assigned, for PA_SET and PA_ADJ
+    param *matchprm = nullptr;    ///< the parameter matched to, for PA_MATCH
+
+    /// Sets or adjusts one parameter to a value.
+    prm_action( unsigned char action, param *prm, double value )
+        : action( action ), prm( prm ), value( value ) {}
+
+    /// Sets or adjusts every parameter matching a name pattern to a value.
+    prm_action( unsigned char action, std::string_view pattern, double value )
+        : action( action ), wildcard( pattern ), value( value ) {}
+
+    /// Makes one parameter identical to another.
+    prm_action( unsigned char action, param *prm, param *matchprm )
+        : action( action ), prm( prm ), matchprm( matchprm ) {}
+
+    /// Makes every parameter matching a name pattern identical to another parameter.
+    prm_action( unsigned char action, std::string_view pattern, param *matchprm )
+        : action( action ), wildcard( pattern ), matchprm( matchprm ) {}
+};
 
 #define PA_SET       1
 #define PA_ADJ       2
 #define PA_MATCH     3
 #define PA_WILDCARD  8
 
-#define PRMLIST_INC 20
+/// The parameters in the order they were defined. The parameter id is the index plus one.
+static std::vector<std::unique_ptr<param>> prmlist;
 
-static int nparam = 0;
-static int nprmlist = 0;
-static param** prmlist = NULL;
-static int* srtlist = NULL;
-static void *action_list = NULL;
+/// The parameter ids in case insensitive name order.
+static std::vector<int> srtlist;
 
-static const char *coefprefix[] =
+static std::vector<prm_action> action_list;
+
+static constexpr std::array<std::string_view,4> coefprefix =
 {
     "Refr coef ",
     "Scale error ",
@@ -107,9 +125,7 @@ static int prefixlen[] =
     14,
     12
 };
-#define MAXPFXLEN 14
 #define COEFLEN 20
-#define MAXCOEFLEN MAXPFXLEN+COEFLEN
 
 static double default_refcoef = DEFAULT_REFCOEF;
 
@@ -123,13 +139,13 @@ void set_default_refcoef( double value )
 
 int param_count( void )
 {
-    return nparam;
+    return boost::numeric_cast<int>( prmlist.size() );
 }
 
-static unsigned int hash( const char *name )
+static unsigned int hash( std::string_view name )
 {
-    unsigned int h;
-    for( h = 0; *name; name++ ) h = (h<<3) + h + *name;
+    unsigned int h = 0;
+    for( const char ch : name ) h = (h<<3) + h + ch;
     return h;
 }
 
@@ -150,48 +166,36 @@ static param *reset_param( param *p, double value, int adjust )
 
 static void sort_param( int n )
 {
-    const char *name;
     int np;
 
     np = srtlist[n];
-    name = param_name( np );
+    const std::string_view name = param_name( np );
     while( n > 0 )
     {
-        if( _stricmp( param_name(srtlist[n-1]), name ) <= 0 ) break;
+        if( compare_ignoring_case( param_name(srtlist[n-1]), name ) <= 0 ) break;
         srtlist[n] = srtlist[n-1];
         n--;
     }
     srtlist[n] = np;
 }
 
-int define_param( const char *name, double value, int adjust )
+int define_param( std::string_view name, double value, int adjust )
 {
-    int p;
-    param *prm;
-
-    p = find_param( name );
+    int p = find_param( name );
     if( !p )
     {
-        prm = (param *) check_malloc( sizeof(param));
-        prm->name = copy_string( name );
+        auto prm = std::make_unique<param>();
+        prm->name = name;
         prm->hash = hash(name);
         prm->identical = 0;
         prm->flags = 0;
 
-        if( nparam >= nprmlist )
-        {
-            nprmlist = nparam + PRMLIST_INC;
-            prmlist = (param **) check_realloc( prmlist, nprmlist * sizeof(param));
-            srtlist = (int *) check_realloc( srtlist, nprmlist * sizeof(int));
-        }
-
-        prmlist[nparam] = prm;
-        srtlist[nparam] = nparam+1;
-        nparam++;
-        sort_param(nparam-1);
-        p = nparam;
+        prmlist.push_back( std::move( prm ) );
+        p = param_count();
+        srtlist.push_back( p );
+        sort_param( p-1 );
     }
-    reset_param( prmlist[p-1], value, adjust );
+    reset_param( prmlist[p-1].get(), value, adjust );
     return p;
 }
 
@@ -205,39 +209,36 @@ void flag_param_listed( int p )
     if( p ) prmlist[p-1]->flags |= PRM_LISTED;
 }
 
-static int get_param_id( param *p )
+static int get_param_id( const param *p )
 {
-    int i;
-    for( i = 0; i < nparam; i++ )
+    for( int i = 0; i < param_count(); i++ )
     {
-        if( prmlist[i] == p ) return i+1;
+        if( prmlist[i].get() == p ) return i+1;
     }
     return 0;
 }
 
 param * param_from_id( int pid )
 {
-    if( pid <= 0 || pid > nparam ) return 0;
-    return prmlist[pid - 1];
+    if( pid <= 0 || pid > param_count() ) return nullptr;
+    return prmlist[pid - 1].get();
 }
 
 static param *identical_param_ptr( param *p )
 {
     if( !p->identical ) return p;
-    return prmlist[p->identical-1];
+    return prmlist[p->identical-1].get();
 }
 
 int sorted_param_id( int n )
 {
-    if( n <= 0 || n > nparam ) return 0;
+    if( n <= 0 || n > param_count() ) return 0;
     return srtlist[n-1];
 }
 
 static void merge_params( param *p1, param *p2 )
 {
-    int p2id;
-    int np;
-    if( !nparam ) return;
+    if( prmlist.empty() ) return;
 
     p1 = identical_param_ptr( p1 );
     p2 = identical_param_ptr( p2 );
@@ -249,7 +250,7 @@ static void merge_params( param *p1, param *p2 )
     p2->flags |= p1->flags & PRM_USED;
     p1->flags = p2->flags;
 
-    if( _stricmp(p1->name, p2->name) > 0  )
+    if( _stricmp(p1->name.c_str(), p2->name.c_str()) > 0  )
     {
         param *ptmp;
         ptmp = p1;
@@ -258,27 +259,24 @@ static void merge_params( param *p1, param *p2 )
     }
 
     p2->identical = get_param_id( p1 );
-    p2id = get_param_id( p2 );
-    for( np = 0; np < nparam; np++ )
+    const int p2id = get_param_id( p2 );
+    for( const std::unique_ptr<param> &prm : prmlist )
     {
-        if( prmlist[np]->identical == p2id )
-            prmlist[np]->identical = p2->identical;
+        if( prm->identical == p2id )
+            prm->identical = p2->identical;
     }
 
 }
 
-int find_param( const char *name )
+int find_param( std::string_view name )
 {
-    int p;
-    unsigned int hashedname;
-    if( !nparam ) return 0;
-    hashedname = hash(name);
-    for( p = 0; p < nparam; p++ )
-    {
-        if( hashedname == prmlist[p]->hash &&
-                strcmp( prmlist[p]->name, name ) == 0 ) return p+1;
-    }
-    return 0;
+    const unsigned int hashedname = hash(name);
+    const auto found = std::find_if( prmlist.begin(), prmlist.end(),
+        [&]( const std::unique_ptr<param> &prm )
+        {
+            return hashedname == prm->hash && prm->name == name;
+        } );
+    return found == prmlist.end() ? 0 : boost::numeric_cast<int>( found - prmlist.begin() ) + 1;
 }
 
 double param_value( int p )
@@ -297,44 +295,35 @@ void update_param_value( int pid, double value, double var )
     }
 }
 
-const char *param_name( int p )
+std::string_view param_name( int p )
 {
-    return p ? prmlist[p-1]->name : "";
+    return p ? std::string_view( prmlist[p-1]->name ) : std::string_view( "" );
 }
 
 
-static void do_action( prm_action *pa )
+static void do_action( const prm_action &pa )
 {
-    switch( pa->action )
+    switch( pa.action )
     {
-    case PA_SET:   reset_param( pa->prm.p, pa->value.v, 0 ); break;
-    case PA_ADJ:   reset_param( pa->prm.p, pa->value.v, 1 ); break;
-    case PA_MATCH: merge_params( pa->prm.p, pa->value.p ); break;
+    case PA_SET:   reset_param( pa.prm, pa.value, 0 ); break;
+    case PA_ADJ:   reset_param( pa.prm, pa.value, 1 ); break;
+    case PA_MATCH: merge_params( pa.prm, pa.matchprm ); break;
     }
 }
 
 static void do_prm_actions( void )
 {
-    prm_action *pa;
-    prm_action apa;
-    param *p;
-    int np;
-
-    if( !action_list ) return;
-
-    reset_list_pointer( action_list );
-    while ( NULL != (pa = (prm_action *) next_list_item(action_list)) )
+    for( const prm_action &pa : action_list )
     {
-        if( pa->action & PA_WILDCARD )
+        if( pa.action & PA_WILDCARD )
         {
-            memcpy( &apa, pa, sizeof( prm_action ) );
+            prm_action apa = pa;
             apa.action &= ~PA_WILDCARD;
-            for( np=0; np < nparam; np++ )
+            for( const std::unique_ptr<param> &p : prmlist )
             {
-                p = prmlist[np];
-                if( ! wildcard_match(pa->prm.n,p->name ) ) continue;
-                apa.prm.p = p;
-                do_action( &apa );
+                if( ! wildcard_match(pa.wildcard,p->name) ) continue;
+                apa.prm = p.get();
+                do_action( apa );
             }
         }
         else
@@ -346,14 +335,10 @@ static void do_prm_actions( void )
 
 static void merge_common_params( void )
 {
-    param *p, *ip;
-    int np;
-
-    for( np = 0; np < nparam; np++ )
+    for( const int pid : srtlist )
     {
-
-        p = param_from_id(srtlist[np]);
-        ip = identical_param_ptr(p);
+        param *p = param_from_id(pid);
+        param *ip = identical_param_ptr(p);
         if( ip != identical_param_ptr(ip) )
         {
             merge_params( p, identical_param_ptr(ip) );
@@ -361,24 +346,12 @@ static void merge_common_params( void )
     }
 }
 
-int find_param_row( int row, char *name, int nlen )
+std::optional<std::string> find_param_row( const int row )
 {
-    param *p;
-    int np;
-    if( !nparam ) return 0;
-
-    for( np = 0; np < nparam; np++ )
-    {
-        p = prmlist[np];
-
-        if( p->rowno == row )
-        {
-            strncpy( name, p->name, nlen-1 );
-            name[nlen-1] = 0;
-            return 1;
-        }
-    }
-    return 0;
+    const auto found = std::find_if( prmlist.begin(), prmlist.end(),
+        [row]( const std::unique_ptr<param> &p ) { return p->rowno == row; } );
+    if( found == prmlist.end() ) return std::nullopt;
+    return (*found)->name;
 }
 
 
@@ -386,71 +359,42 @@ int param_rowno( int pid )
 {
     param *p;
     if( !pid ) return 0;
-    p = identical_param_ptr(prmlist[pid-1]);
+    p = identical_param_ptr(prmlist[pid-1].get());
     if( !p ) return 0;
     return p->rowno;
 }
 
 int identical_param( int pid )
 {
-    param *p;
     if( !pid ) return 0;
-    p = prmlist[pid-1];
+    const param *p = prmlist[pid-1].get();
     return p ? p->identical : 0;
 }
 
-static void add_prm_action( prm_action *pa )
-{
-    void *npa;
-    if( !action_list ) action_list = create_list( sizeof(prm_action));
-    npa = add_to_list( action_list, NEW_ITEM );
-    memcpy( npa, pa, sizeof(prm_action) );
-}
-
-
 void define_param_value( int pid, double value, int adjust )
 {
-    prm_action pa;
-    pa.prm.p = prmlist[pid-1];
-    pa.value.v = value;
-    pa.action = adjust ? PA_ADJ : PA_SET;
-    add_prm_action( &pa );
+    action_list.emplace_back( adjust ? PA_ADJ : PA_SET, prmlist[pid-1].get(), value );
 }
 
-void wildcard_param_value( char *name, double value, int adjust )
+void wildcard_param_value( std::string_view name, double value, int adjust )
 {
-    prm_action pa;
-    pa.prm.n = copy_string( name );
-    pa.value.v = value;
-    pa.action = (adjust ? PA_ADJ : PA_SET ) | PA_WILDCARD;
-    add_prm_action( &pa );
+    action_list.emplace_back( (adjust ? PA_ADJ : PA_SET) | PA_WILDCARD, name, value );
 }
 
 void define_param_match( int pid1, int pid2 )
 {
-    prm_action pa;
-    pa.prm.p = prmlist[pid1-1];
-    pa.value.p = prmlist[pid2-1];
-    pa.action = PA_MATCH;
-    add_prm_action( &pa );
+    action_list.emplace_back( PA_MATCH, prmlist[pid1-1].get(), prmlist[pid2-1].get() );
 }
 
-void wildcard_param_match( char *name, int pid )
+void wildcard_param_match( std::string_view name, int pid )
 {
-    prm_action pa;
-    pa.prm.n = copy_string( name );
-    pa.value.p = prmlist[pid-1];
-    pa.action = PA_MATCH | PA_WILDCARD;
-    add_prm_action( &pa );
+    action_list.emplace_back( PA_MATCH | PA_WILDCARD, name, prmlist[pid-1].get() );
 }
 
 
 int init_param_rowno( int nextprm )
 {
-    param *p;
-    int np;
-
-    if( !nparam ) return nextprm;
+    if( prmlist.empty() ) return nextprm;
 
     /* Sort needed for merging parameters to word correctly */
     /* Apply parameter constraints, etc */
@@ -458,16 +402,16 @@ int init_param_rowno( int nextprm )
     do_prm_actions();
     merge_common_params();
 
-    for( np = 0; np < nparam; np++ )
+    for( const int pid : srtlist )
     {
-        p = param_from_id(srtlist[np]);
+        param *p = param_from_id(pid);
         p->rowno = 0;
         if( p->identical ) continue;
         if( !(p->flags & PRM_ADJUST ) ) continue;
         if( !(p->flags & PRM_USED) )
         {
             char errmsg[80];
-            sprintf(errmsg,"Parameter %.40s cannot be calculated",p->name);
+            sprintf(errmsg,"Parameter %.40s cannot be calculated",p->name.c_str());
             handle_error( WARNING_ERROR, errmsg, NO_MESSAGE );
             continue;
         }
@@ -478,43 +422,18 @@ int init_param_rowno( int nextprm )
 
 void clear_param_list( void )
 {
-    if( action_list )
-    {
-        free_list( action_list, NO_ACTION );
-        action_list = NULL;
-    }
-    if( nparam )
-    {
-        param *p;
-        int np;
-        for( np = 0; np < nparam; np++ )
-        {
-            p = prmlist[np];
-            if( p )
-            {
-                if( p->name ) check_free( p->name );
-                check_free( p );
-            }
-        }
-        nparam = 0;
-    }
-
-    if( nprmlist )
-    {
-        check_free( prmlist );
-        check_free( srtlist );
-        prmlist = NULL;
-        srtlist = NULL;
-        nprmlist = 0;
-    }
+    action_list.clear();
+    prmlist.clear();
+    srtlist.clear();
 }
 
 
 // Single source of truth for the fixed-width on-disk param layout, excluding
 // `name` (handled separately via dump_string/reload_string, since it's a
-// pointer). `name` is the struct's first field, so it sits entirely before this
-// table's first entry rather than in the middle - unlike rftrndmp.cpp's table,
-// there's no interior gap here to skip when checking contiguity below.
+// variable-length std::string). `name` is the struct's first field, so it
+// sits entirely before this table's first entry rather than in the middle -
+// unlike rftrndmp.cpp's table, there's no interior gap here to skip when
+// checking contiguity below.
 //
 // hash and flags get an explicitly unsigned kind (UInt32/UInt8) rather than
 // Int32/Int8: converting an unsigned value that doesn't fit the corresponding
@@ -568,8 +487,8 @@ static_assert(param_disk_fields_contiguous(),
 
 // Writes PARAM_DISK_FIELDS in table order through the fixed-width disk-cast
 // templates from binfile.h. name is handled separately via dump_string (it's
-// a pointer, out of scope for this fixed-width table) - together, this
-// covers every field of param.
+// a variable-length std::string, out of scope for this fixed-width table) -
+// together, this covers every field of param.
 static void write_param_fixed_width( const param &p, FILE *f )
 {
     for_each_disk_field( p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT,
@@ -587,120 +506,105 @@ static void read_param_fixed_width( FILE *f, param &p )
 
 void dump_parameters( BINARY_FILE *b )
 {
-    int np, nprm;
     create_section( b, "MISCPARAMS" );
-    nprm = nparam;
+    const int nprm = param_count();
     fwrite( &nprm, sizeof(nprm), 1, b->f );
-    for( np = 0; np < nparam; np++ )
+    for( const std::unique_ptr<param> &p : prmlist )
     {
-        write_param_fixed_width( *prmlist[np], b->f );
-        dump_string( prmlist[np]->name, b->f );
+        write_param_fixed_width( *p, b->f );
+        dump_string( p->name, b->f );
     }
-    fwrite( srtlist, sizeof(int), nparam, b->f );
+    fwrite( srtlist.data(), sizeof(int), srtlist.size(), b->f );
     end_section( b );
 }
 
 int reload_parameters( BINARY_FILE *b )
 {
-    int np, nprm;
     clear_param_list();
     if( find_section( b, "MISCPARAMS" ) != OK ) return MISSING_DATA;
+    int nprm = 0;
     if( fread( &nprm, sizeof(nprm), 1, b->f ) != 1 ) return INVALID_DATA;
-    if( nprm )
+    if( nprm < 0 ) return INVALID_DATA;
+
+    std::vector<std::unique_ptr<param>> params;
+    for( int np = 0; np < nprm; np++ )
     {
-        nprmlist = nprm;
-        prmlist = (param **) check_malloc( nprm * sizeof(param *) );
-        srtlist = (int *) check_malloc( nprm * sizeof(int) );
-    }
-    for( np = 0; np < nprm; np++ )
-    {
-        param *p;
-        p = (param *) check_malloc( sizeof(param) );
+        auto p = std::make_unique<param>();
         read_param_fixed_width( b->f, *p );
         p->name = reload_string( b->f );
-        if( !p->name ) return INVALID_DATA;
-        prmlist[np] = p;
+        if( p->name.empty() ) return INVALID_DATA;
+        params.push_back( std::move( p ) );
     }
-    if( (int) fread(srtlist,sizeof(int),nprm,b->f) != nprm ) return INVALID_DATA;
-    nparam = nprm;
+
+    std::vector<int> sorted( params.size() );
+    if( fread( sorted.data(), sizeof(int), sorted.size(), b->f ) != sorted.size() ) return INVALID_DATA;
+    prmlist = std::move( params );
+    srtlist = std::move( sorted );
 
     return check_end_section( b );
 }
 
 
-#define MAXCOEFLEN MAXPFXLEN+COEFLEN
-
-static void make_prmname( char *prmname, int type, const char *name )
+/// Builds the full parameter name from the prefix for the parameter type and the
+/// upper case coefficient name, truncated to fit COEFLEN.
+static std::string make_prmname( int type, std::string_view name )
 {
-    char *coefname;
-    strcpy( prmname, coefprefix[type]);
-    coefname = prmname+prefixlen[type];
-    strncpy( coefname,name,COEFLEN);
-    coefname[COEFLEN-1] = 0;
-    _strupr( coefname );
+    std::string prmname( coefprefix[type] );
+    const size_t prefixchars = prmname.size();
+    prmname.append( name.substr( 0, COEFLEN-1 ) );
+    std::transform( prmname.begin()+prefixchars, prmname.end(), prmname.begin()+prefixchars,
+                    []( unsigned char ch ) { return std::toupper( ch ); } );
+    return prmname;
 }
 
-int get_param( int type, const char *name, int create )
+int get_param( int type, std::string_view name, int create )
 {
-    int prm;
-    char  prmname[MAXCOEFLEN];
+    const std::string prmname = make_prmname( type, name );
 
-    make_prmname( prmname, type, name );
-
-    prm = find_param( prmname );
+    int prm = find_param( prmname );
     if( create && !prm )
     {
-        double dflt = type == PRM_REFCOEF && _stricmp(name,"zero") ? default_refcoef : 0;
+        const double dflt = type == PRM_REFCOEF && compare_ignoring_case(name,"zero") != 0 ? default_refcoef : 0;
         prm = define_param( prmname, dflt, 0 );
     }
 
     return prm;
 }
 
-const char *param_type_name( int type, int pid )
+std::string_view param_type_name( int type, int pid )
 {
-    return param_name(pid)+prefixlen[type];
+    const std::string_view name = param_name(pid);
+    return name.substr( std::min<size_t>( prefixlen[type], name.size() ) );
 }
 
-void configure_param( int type, const char *name, double value, int adjust )
+void configure_param( int type, std::string_view name, double value, int adjust )
 {
-    int prm;
-    int len;
-
-    len = strlen(name);
-    if( !len ) return;
+    if( name.empty() ) return;
 
     if( has_wildcard(name))
     {
-        char wildcard[MAXCOEFLEN];
-        make_prmname( wildcard, type, name );
-        wildcard_param_value( wildcard, value, adjust );
+        wildcard_param_value( make_prmname( type, name ), value, adjust );
     }
     else
     {
-        prm = get_param( type, name, 1 );
+        const int prm = get_param( type, name, 1 );
         define_param_value( prm, value, adjust );
     }
 }
 
-void configure_param_match( int type, const char *coef1, const char *coef2 )
+void configure_param_match( int type, std::string_view coef1, std::string_view coef2 )
 {
-    int p1, p2, len;
+    const int p2 = get_param( type, coef2, 1 );
 
-    p2 = get_param( type, coef2, 1 );
+    if( coef1.empty() ) return;
 
-    len = strlen(coef1);
-    if( !len ) return;
-
-    if( coef1[len-1] == '*' )
+    if( coef1.back() == '*' )
     {
-        char wildcard[MAXCOEFLEN];
-        make_prmname( wildcard, type, coef1);
-        wildcard_param_match( wildcard, p2 );
+        wildcard_param_match( make_prmname( type, coef1 ), p2 );
     }
     else
     {
-        p1 = get_param( type, coef1, 1 );
+        const int p1 = get_param( type, coef1, 1 );
         define_param_match( p1, p2 );
     }
 }

@@ -4,39 +4,27 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <iostream>
+#include <string>
+#include <string_view>
 #include "dbl4_utl_error.h"
 #include "dbl4_utl_trace.h"
-#include "dbl4_utl_alloc.h"
 #include "dbl4_utl_yield.h"
 #include "dbl4_utl_progress.h"
 #include "dbl4_utl_blob.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "dbl4/snap_dbl4_interface.h"
 
-#define MAX_MSG_LEN 256
-
 static int lastpercent = 0;
-static char laststate[MAX_MSG_LEN+1] = {0};
+static std::string laststate;
 static int tracing = -1;
-
-void * utlAlloc( size_t size)
-{
-    return check_malloc( size );
-}
-
-void utlFree( void * block)
-{
-    check_free( block );
-}
-
 
 StatusType utlCheckAbort( )
 {
     return STS_OK;
 }
 
-StatusType utlShowProgress( const char *state, int percent )
+StatusType utlShowProgress( const std::string_view state, int percent )
 {
     /*
         if( strcmp(state,laststate) != 0 || percent != lastpercent ) {
@@ -50,21 +38,20 @@ StatusType utlShowProgress( const char *state, int percent )
            fflush(stdout);
            }
     */
-    if( strcmp(state,laststate) != 0 )
+    if( state != laststate )
     {
-        printf("%s\n",state);
+        printf("%s\n",std::string(state).c_str());
     }
-    strncpy(laststate,state,MAX_MSG_LEN);
-    laststate[MAX_MSG_LEN] = 0;
+    laststate = state;
     lastpercent = percent;
 
     return utlCheckAbort();
 }
 
 
-void utlAbort( char *message )
+void utlAbort( const std::string_view message )
 {
-    fprintf(stderr,"%s\n",message);
+    std::cerr << message << '\n';
     exit(1);
 }
 
@@ -152,14 +139,14 @@ void utlReleaseBlobDB( void * blob)
     fclose((FILE *) blob);
 }
 
-int utlCreateReadonlyFileBlob( const char *filename, hBlob *blob )
+int utlCreateReadonlyFileBlob( const std::string &filename, hBlob *blob )
 {
     FILE *f;
     StatusType sts;
     *blob = NULL;
-    f = fopen(filename,"rb");
+    f = fopen(filename.c_str(),"rb");
     if( ! f ) return FILE_OPEN_ERROR;
-    sts = utlCreateBlobHandle( NULL, blob, BLN_FALSE );
+    sts = utlCreateBlobHandle( NULL, blob );
     if( *blob ) (*blob)->pvBlob=f;
     return sts;
 }
