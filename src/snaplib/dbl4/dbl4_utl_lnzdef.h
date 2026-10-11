@@ -24,7 +24,7 @@
 #include <optional>
 #include <string_view>
 
-typedef void *hLinzDefModel;
+using hLinzDefModel = void *;
 
 StatusType utlCreateLinzDef( hBinSrc blob, hLinzDefModel *def );
 

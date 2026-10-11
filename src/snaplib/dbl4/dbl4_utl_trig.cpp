@@ -88,7 +88,7 @@ struct TrigDef
     std::vector<INT4> pttopoidx;
     std::vector<INT2> topodata;
 };
-typedef TrigDef *hTrigDef;
+using hTrigDef = TrigDef *;
 
 struct PointDef
 {
@@ -99,14 +99,14 @@ struct PointDef
     short *nodeid;
     short *opposite;
 };
-typedef PointDef *hPointDef;
+using hPointDef = PointDef *;
 
 
 struct TriangleDef
 {
     PointDef pts[3];
 };
-typedef TriangleDef *hTriangleDef;
+using hTriangleDef = TriangleDef *;
 
 
 /*************************************************************************

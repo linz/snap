@@ -16,8 +16,8 @@
 #include "snapdata/survdata.h"
 #endif
 
-typedef void (*VRTFUNC)( int id, double vrt[3] );
-typedef double * (*XFMFUNC)( int reffrm, int inverse );
+using VRTFUNC = void (*)( int id, double vrt[3] );
+using XFMFUNC = double * (*)( int reffrm, int inverse );
 
 void init_gps_covariances( VRTFUNC vrtfunc, XFMFUNC xfmfunc );
 VRTFUNC gps_vrtfunc( void );

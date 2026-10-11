@@ -86,7 +86,7 @@ using error_message = std::optional<std::string_view>;
 /* A handler is always passed a message for msg1 - handle_error substitutes
    a default when mess1 is absent. */
 
-typedef int (*errhandler_type)( int sts, std::string_view msg1, error_message msg2 );
+using errhandler_type = int (*)( int sts, std::string_view msg1, error_message msg2 );
 
 int handle_error( int sts, error_message mess1, error_message mess2 );
 int default_error_handler( int sts, std::string_view mess1, error_message mess2 );

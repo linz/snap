@@ -39,7 +39,7 @@ struct BlobType
 {
     void *pvBlob = nullptr;      ///< Data blob read/write functions
 };
-typedef BlobType *hBlob;
+using hBlob = BlobType *;
 
 #define BLOB_SEEK_SET    0
 #define BLOB_SEEK_CUR    1

@@ -205,7 +205,7 @@ network:
 
 ------------------------------------------------------------------------*/
 
-typedef void (*stationfunc)( station *st);
+using stationfunc = void (*)( station *st);
 
 /// Every field is set explicitly by the constructor. Nothing is known
 /// yet at either real construction site (a plain stack network net; or
@@ -343,7 +343,7 @@ private:
  * Function to process stations
  */
 
-typedef void (*stnfunc)(station *st, void *data);
+using stnfunc = void (*)(station *st, void *data);
 struct stnmultifunc_data { void *data1; stnfunc func1; void *data2; stnfunc func2; };
 
 /*------------------------------------------------------------------------

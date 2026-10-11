@@ -217,7 +217,7 @@ static double nice_number( double value )
     return nice * *best;
 }
 
-typedef void (*component_func)( double *h, double *v );
+using component_func = void (*)( double *h, double *v );
 
 // Shared by every calc_default_*_scale() function below. componentFunc supplies
 // the raw horizontal/vertical magnitude (max_covariance_component,

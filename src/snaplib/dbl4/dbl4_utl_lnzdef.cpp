@@ -64,9 +64,9 @@
 #define LNZDEF_FILE_HEADER_3L "LINZ deformation model v3.0L\r\n\x1A"
 #define LNZDEF_FILE_HEADER_3B "LINZ deformation model v3.0B\r\n\x1A"
 
-typedef enum { defModelGrid, defModelTrig } DefModelType;
-typedef enum { defEvalZero, defEvalFixed, defEvalInterp } DefEvalMode;
-typedef enum { defValueDeformation, defValueVelocity } DefValueType;
+using DefModelType = enum { defModelGrid, defModelTrig };
+using DefEvalMode = enum { defEvalZero, defEvalFixed, defEvalInterp };
+using DefValueType = enum { defValueDeformation, defValueVelocity };
 
 #define VERSIONLEN 8
 using Version = StringLimited<VERSIONLEN>;
@@ -117,7 +117,7 @@ struct DefCmp
     /// The number of points in the time model
     INT2 nTimeModel() const { return boost::numeric_cast<INT2>( timeModel.size() ); }
 };
-typedef DefCmp *hDefCmp;
+using hDefCmp = DefCmp *;
 
 struct DefSeq
 {
@@ -138,7 +138,7 @@ struct DefSeq
     bool enabled = false;
     DefSeq *nextseq = nullptr;
 };
-typedef DefSeq *hDefSeq;
+using hDefSeq = DefSeq *;
 
 struct DefVer
 {
@@ -147,7 +147,7 @@ struct DefVer
     std::optional<std::string> description;  ///< Absent if not loaded, which differs from an empty description
     DefVer *nextver = nullptr;
 };
-typedef DefVer *hDefVer;
+using hDefVer = DefVer *;
 
 struct DefMod
 {
@@ -167,7 +167,7 @@ struct DefMod
     /// Creates a model with no sequences or versions
     explicit DefMod( const hBinSrc source ) : binsrc( source ) {}  ///< The source the model is read from
 };
-typedef DefMod *hDefMod;
+using hDefMod = DefMod *;
 
 
 

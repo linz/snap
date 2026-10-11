@@ -32,7 +32,7 @@ struct crdsys_list_item
     const crdsys_source_def *source = nullptr;
 };
 
-typedef std::vector<crdsys_list_item> crdsys_list;
+using crdsys_list = std::vector<crdsys_list_item>;
 
 static crdsys_list rflist;
 static crdsys_list ellist;

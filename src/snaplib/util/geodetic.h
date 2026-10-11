@@ -15,7 +15,7 @@
 #ifndef _GEODETIC_H
 #define _GEODETIC_H
 
-typedef double vector3[3];            /* The basic 3d vector */
+using vector3 = double[3];            /* The basic 3d vector */
 
 /// A rotation between the geocentric axes and the axes of a local system at a
 /// point, held in compressed form as the cosine and sine of the latitude and
