@@ -650,7 +650,7 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
     if( sts != STS_OK )
     {
         delete_trig_def(trig);
-        trig = 0;
+        trig = nullptr;
         RETURN_STATUS(sts);
     }
 
@@ -679,9 +679,9 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
 static hTrigDef trig_def_from_handle( void *handle)
 {
     hTrigDef def;
-    if( ! handle ) return 0;
+    if( ! handle ) return nullptr;
     def = (hTrigDef) handle;
-    if( def->magic != (INT4) MAGIC_NUMBER ) return 0;
+    if( def->magic != (INT4) MAGIC_NUMBER ) return nullptr;
     return def;
 }
 
@@ -707,8 +707,8 @@ StatusType utlCreateTrig( hBinSrc binsrc, hTrig *trig)
     hTrigDef def;
     StatusType sts;
 
-    def=0;
-    *trig = 0;
+    def=nullptr;
+    *trig = nullptr;
     sts = create_trig_def( &def, binsrc );
     if( sts == STS_OK ) *trig =  (void *) def;
     TRACE_TRIG(("utlCreateTrig %llX",reinterpret_cast<unsigned long long>(*trig)));

@@ -255,11 +255,11 @@ try
 
     /* Open the binary dump file ready to hold the data */
 
-    dump = NULL;
+    dump = nullptr;
     if( output_binary_file )
     {
         dump = open_dump_file();
-        if( dump == NULL )
+        if( dump == nullptr )
         {
             xprintf("\nUnable to create binary file\n");
             close_output_files(NO_MESSAGE,NO_MESSAGE);
@@ -268,7 +268,7 @@ try
         create_section( dump, "OBSERVATIONS" );
     }
 
-    init_bindata( dump ? dump->f : NULL);
+    init_bindata( dump ? dump->f : nullptr);
 
     /* Read the data defined in the control file into the binary data file */
 
@@ -302,7 +302,7 @@ try
     }
 
     init_load_snap();
-    read_errors = read_data_files( output_file_summary ? lst : NULL );
+    read_errors = read_data_files( output_file_summary ? lst : nullptr );
     sts = term_load_snap();
     end_bindata();
     if( dump ) end_section( dump );
@@ -1101,7 +1101,7 @@ void dump_covariance_matrix( BINARY_FILE *b )
 void dump_cholesky_decomposition( BINARY_FILE *b )
 {
     bltmatrix *blt = lsq_get_decomposition();
-    if( blt == NULL ) return;
+    if( blt == nullptr ) return;
     create_section( b, "CHOLESKI_DECOMPOSITION" );
     dump_bltmatrix(blt,b->f);
     end_section(b);

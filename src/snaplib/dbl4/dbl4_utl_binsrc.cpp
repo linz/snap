@@ -163,7 +163,7 @@ BinSrc::BinSrc( const BinSrc &parent, const long embeddedOffset )
 
 StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
 {
-    (*binsrc) = NULL;
+    (*binsrc) = nullptr;
 
     /* Was coded with ASSERT(), but this crashed CC optimizer?! */
     #ifndef NDEBUG
@@ -199,7 +199,7 @@ StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
 
 StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc * embsrc )
 {
-    (*embsrc) = NULL;
+    (*embsrc) = nullptr;
 
     if( ! binsrc )
     {

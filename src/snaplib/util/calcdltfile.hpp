@@ -66,10 +66,10 @@ private:
 class NamedValue : public CalcValue
 {
 public:
-    NamedValue( const string &colname, CalcValue *dfltValue = 0 ) :
-        _colname(colname), _colvalue(0), _default( dfltValue ? dfltValue->clone() : 0 ) {}
+    NamedValue( const string &colname, CalcValue *dfltValue = nullptr ) :
+        _colname(colname), _colvalue(nullptr), _default( dfltValue ? dfltValue->clone() : nullptr ) {}
     NamedValue( const string &colname, const std::string &dfltValue ) :
-        _colname(colname), _colvalue(0), _default( new StringValue(dfltValue) ) {}
+        _colname(colname), _colvalue(nullptr), _default( new StringValue(dfltValue) ) {}
     NamedValue( const NamedValue &ccol );
     virtual NamedValue *clone() const;
 

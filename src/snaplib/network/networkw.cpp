@@ -41,7 +41,7 @@ int write_network( network *nw, const std::string &fname, const std::string_view
     if( !nw || !nw->stnlist || !nw->crdsys ) return MISSING_DATA;
 
     stf = fopen( fname.c_str(), "w" );
-    if( stf == NULL )
+    if( stf == nullptr )
     {
         handle_error( FILE_OPEN_ERROR, "Unable to create new coordinate file",
                       fname);
@@ -166,7 +166,7 @@ int write_network( network *nw, const std::string &fname, const std::string_view
     cp = coord_precision;
     if( cp <= 0 || cp > 10 ) cp = 4;
 
-    while( NULL != (st = next_station(nw) ) )
+    while( nullptr != (st = next_station(nw) ) )
     {
         if( select && !(*select)(st)) continue;
         fprintf(stf,"%-5s",st->Code.c_str());
@@ -184,7 +184,7 @@ int write_network( network *nw, const std::string &fname, const std::string_view
             llh[CRD_LAT] = st->ELat;
             llh[CRD_LON] = st->ELon;
             llh[CRD_HGT] = st->OHgt + st->GUnd;
-            llh_to_xyz( nw->crdsys->rf->el, llh, xyz, NULL, NULL );
+            llh_to_xyz( nw->crdsys->rf->el, llh, xyz, nullptr, nullptr );
             fprintf(stf," %12.*lf %12.*lf %12.*lf",cp,xyz[0],cp,xyz[1],cp,xyz[2] );
         }
         else

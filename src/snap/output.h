@@ -111,8 +111,8 @@ SCOPE FILE *err;
 #else
 std::string lst_name;
 std::string err_name;
-FILE *lst = 0;
-FILE *err = 0;
+FILE *lst = nullptr;
+FILE *err = nullptr;
 
 #endif
 

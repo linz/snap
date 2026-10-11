@@ -28,7 +28,7 @@ class ScriptImp;
 class Token
 {
 public:
-    Token( ScriptImp *owner) : owner(owner), next(0) {}
+    Token( ScriptImp *owner) : owner(owner), next(nullptr) {}
     virtual ~Token();
 
     Value GetValue();
@@ -98,7 +98,7 @@ private:
 class FunctionToken : public Token
 {
 public:
-    FunctionToken( ScriptImp *owner, wxString name, Token *params = 0 ) : Token( owner ), name(name), params(params) {}
+    FunctionToken( ScriptImp *owner, wxString name, Token *params = nullptr ) : Token( owner ), name(name), params(params) {}
     virtual ~FunctionToken();
     virtual Value evaluate();
     virtual void print( const wxString &prefix, ostream &str );
@@ -173,7 +173,7 @@ private:
 class ExitToken : public Token
 {
 public:
-    ExitToken( ScriptImp *owner, ExitLevel level, Token *expression = 0 )
+    ExitToken( ScriptImp *owner, ExitLevel level, Token *expression = nullptr )
         : Token(owner), level(level), expression(expression) {}
     virtual ~ExitToken();
     virtual Value evaluate();
@@ -186,7 +186,7 @@ private:
 class StatementBlockToken : public Token
 {
 public:
-    StatementBlockToken( ScriptImp *owner, Token *statements = 0 ) : Token(owner), statements(statements) {};
+    StatementBlockToken( ScriptImp *owner, Token *statements = nullptr ) : Token(owner), statements(statements) {};
     virtual ~StatementBlockToken();
     void AddStatements( Token *newStatements )
     {
@@ -220,7 +220,7 @@ enum OperatorType
 class Operator : public Token
 {
 public:
-    Operator( ScriptImp *owner, OperatorType type, Token *operand1, Token *operand2 = 0 )
+    Operator( ScriptImp *owner, OperatorType type, Token *operand1, Token *operand2 = nullptr )
         : Token( owner ), type(type), operand1(operand1), operand2(operand2) {}
     virtual ~Operator();
     virtual Value evaluate();
@@ -267,7 +267,7 @@ class DialogControlToken : public Token
 {
 public:
     DialogControlToken( ScriptImp *owner, DialogControlTokenType type,
-                        Token *label = 0, Token *variable = 0, Token *selector = 0, Token *info = 0 )
+                        Token *label = nullptr, Token *variable = nullptr, Token *selector = nullptr, Token *info = nullptr )
         : Token(owner),
           type(type),
           label(label),
@@ -282,8 +282,8 @@ public:
     VariableToken *Variable() { return variable; }
     Token *Label() { return label; }
     Token *Selector() { return selector; }
-    Token *Info() { return (type == ctButton || type == ctValidator) ? 0 : info; }
-    Token *Actions() { return (type == ctButton || type == ctValidator) ? info : 0; }
+    Token *Info() { return (type == ctButton || type == ctValidator) ? nullptr : info; }
+    Token *Actions() { return (type == ctButton || type == ctValidator) ? info : nullptr; }
 private:
     DialogControlTokenType type;
     Token *label;
@@ -297,7 +297,7 @@ class MenuItem : public Token
     class Functions
     {
     public:
-        Functions() : refcount(1), actions(0), requirements(0){}
+        Functions() : refcount(1), actions(nullptr), requirements(nullptr){}
         ~Functions();
         int refcount;
         Token *actions;
@@ -351,8 +351,8 @@ private:
 class StackFrame
 {
 public:
-    StackFrame( const wxString &name) :  name(name), variables(), next(0) {}
-    StackFrame( ) :  name(""), variables(), next(0) {}
+    StackFrame( const wxString &name) :  name(name), variables(), next(nullptr) {}
+    StackFrame( ) :  name(""), variables(), next(nullptr) {}
     wxString name;
     VariableList variables;
     StackFrame *next;

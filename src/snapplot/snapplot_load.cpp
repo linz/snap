@@ -255,7 +255,7 @@ int snapplot_load( int argc, char *argv[] )
         }
         for( const std::string &file : filelist )
         {
-            add_data_file( file, SNAP_FORMAT, std::nullopt, std::nullopt, 0 );
+            add_data_file( file, SNAP_FORMAT, std::nullopt, std::nullopt, nullptr );
         }
     }
 

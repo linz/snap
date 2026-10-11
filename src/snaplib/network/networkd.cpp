@@ -68,7 +68,7 @@ network *reload_network( FILE *f )
     {
         /* Really want some better error handling here */
         delete_network( nw );
-        nw = NULL;
+        nw = nullptr;
     }
     else
     {

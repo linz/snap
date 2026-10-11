@@ -46,8 +46,8 @@ static int reload_relative_covariances( BINARY_FILE *b );
    it exists and is OK, or create a temporary file if it does not (or is not)
 */
 
-static BINARY_FILE *b = NULL;
-static FILE *f = NULL;
+static BINARY_FILE *b = nullptr;
+static FILE *f = nullptr;
 static std::optional<bindata> bd;
 
 int reload_binary_data( )
@@ -206,6 +206,6 @@ void open_data_source( void )
 void close_data_source( void )
 {
     bd.reset();
-    if( b ) {close_binary_file(b); b = NULL; }
-    if( f ) {fclose(f); f = NULL;}
+    if( b ) {close_binary_file(b); b = nullptr; }
+    if( f ) {fclose(f); f = nullptr;}
 }

@@ -49,7 +49,7 @@ using boost::numeric_cast;
 static survdata data;
 static int next_id=1;
 static int inst_id=0;
-static trgtdata *tgt = NULL;
+static trgtdata *tgt = nullptr;
 static int tgt_id=0;
 static double tgt_hgt;
 static long file_lineno;
@@ -137,12 +137,12 @@ static double (*calc_func)( int type, long id1, long id2 );
 /* Specifications for reweighting, rejecting, and ignoring observations */
 
 static double err_factor=1.0;
-static void *pobsmod=0;
+static void *pobsmod=nullptr;
 
 /* A function for recoding station codes read from data files */
 
-static std::optional<recode_result> (*recode_func)( void *recodedata, std::string_view code, double date ) = 0;
-static void *recode_data=0; 
+static std::optional<recode_result> (*recode_func)( void *recodedata, std::string_view code, double date ) = nullptr;
+static void *recode_data=nullptr; 
 static int recoding=0;
 
 /* The function for computing gps covariances is handled with a function
@@ -150,7 +150,7 @@ static int recoding=0;
    interested in gps covariances */
 
 static void (*gpscvr_func)( survdata *vd, int cvrtype,
-                            double *mmerr ) = 0;
+                            double *mmerr ) = nullptr;
 
 static int cvrtype;
 static double cvr_mmerr[9];
@@ -334,16 +334,16 @@ void init_load_data( void (*usedata)( survdata *sd ),
     id_func = idfunc;
     code_func = codefunc;
     calc_func = calcfunc;
-    pobsmod = 0;
+    pobsmod = nullptr;
     err_factor=1.0;
 
     data.nobs = 0;
     noteloc = 0;
-    tgt = NULL;
+    tgt = nullptr;
     tgt_id = 0;
-    od = NULL;
-    vd = NULL;
-    pd = NULL;
+    od = nullptr;
+    vd = nullptr;
+    pd = nullptr;
     init_coef_class_id();
 }
 
@@ -722,8 +722,8 @@ double ldt_calc_value( int calc_type, long id1, long id2 )
         {
             case CALC_DISTANCE:
             case CALC_HDIST:
-                id1=get_recoded_id( id1, 0 );
-                id2=get_recoded_id( id2, 0 );
+                id1=get_recoded_id( id1, nullptr );
+                id2=get_recoded_id( id2, nullptr );
                 break;
         }
     }
@@ -792,12 +792,12 @@ void ldt_inststn( int stn_id, double ihgt )
     data.nprms = 0;
     data.prmid = 0;
 
-    tgt = NULL;
+    tgt = nullptr;
     tgt_id = 0;
     trgt_init_nobs = 0;
-    od = NULL;
-    vd = NULL;
-    pd = NULL;
+    od = nullptr;
+    vd = nullptr;
+    pd = nullptr;
     inst_cancelled = stn_id < 0 ? 1 : 0;
     ndata_cancelled = 0;
 }
@@ -880,14 +880,14 @@ ltmat ldt_covariance( int type, double* mmerr )
     if( data.format != SD_VECDATA )
     {
         report_error( "ldt_covariance" );
-        return NULL;
+        return nullptr;
     }
 
     if( !gpscvr_func || inst_cancelled )
     {
-        data.cvr = NULL;
-        data.calccvr = NULL;
-        data.rescvr = NULL;
+        data.cvr = nullptr;
+        data.calccvr = nullptr;
+        data.rescvr = nullptr;
     }
     else
     {
@@ -1168,7 +1168,7 @@ static void recode_stations()
     if( data.from )
     {
         lastid=data.from;
-        data.from=get_recoded_id( data.from, 0 );
+        data.from=get_recoded_id( data.from, nullptr );
         if( data.from <= 0 ) inst_cancelled=1;
     }
     for( i=0; i < data.nobs; i++ )
@@ -1176,7 +1176,7 @@ static void recode_stations()
         trgtdata *tgt=get_trgtdata(&data,i);
         if( tgt->to > lastid ) lastid=tgt->to;
         if( ! tgt->to ) continue;
-        tgt->to=get_recoded_id( tgt->to, 0 );
+        tgt->to=get_recoded_id( tgt->to, nullptr );
         if( tgt->to <= 0 && ! (tgt->unused & IGNORE_OBS_BIT) ) 
         {
             ndata_cancelled++;

@@ -31,12 +31,12 @@ wxMapDrawer::wxMapDrawer( wxDC &dc, wxMapScale &scale, Symbology &symbology ) :
     points = new wxPoint[maxPoints];
     //
     currentColour =wxColour("BLACK");
-    currentSymbol = 0;
+    currentSymbol = nullptr;
 
     // TextStyle calculates the size based upon 10pt = refsize
 
     defaultTextStyle = new TextStyle("default",wxFont( 10, wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL ));
-    currentTextStyle = 0;
+    currentTextStyle = nullptr;
 }
 
 wxMapDrawer::~wxMapDrawer()
@@ -222,7 +222,7 @@ void wxMapDrawer::PlotText( const MapPoint &pt, TextAlign alignment, const wxStr
     ClearLine();
     wxPoint ppt;
     scale.WorldToPlot( pt, ppt );
-    TextStyle *style = currentTextStyle == 0 ? defaultTextStyle : currentTextStyle;
+    TextStyle *style = currentTextStyle == nullptr ? defaultTextStyle : currentTextStyle;
     style->Render( dc, ppt, text,alignment,refSize,currentColour);
 }
 

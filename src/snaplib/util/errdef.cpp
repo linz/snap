@@ -29,8 +29,8 @@
 
 #include "util/errdef.h" /* Error code definitions */
 
-static errhandler_type user_error_handler = (errhandler_type)0;
-static FILE *error_file = NULL;
+static errhandler_type user_error_handler = (errhandler_type)nullptr;
+static FILE *error_file = nullptr;
 static int error_level = 0;
 static int use_prefix = 1;
 static int error_count = 0;

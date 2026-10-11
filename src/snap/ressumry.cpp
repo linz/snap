@@ -76,7 +76,7 @@ struct error_total
 /* Static data used for summing obs .. should be moved to dynamically allocated structure */
 
 static int enu_period=0;
-static error_total *total = NULL;
+static error_total *total = nullptr;
 static int obstype_index[NOBSTYPE];
 static int obstype_from_index[NOBSTYPE*4];
 static int obsenu_from_index[NOBSTYPE*4];

@@ -18,7 +18,7 @@
 #include "coordsys/lambertr.h"
 #include "util/pi.h"
 
-static projection_type *LCC_type = NULL;
+static projection_type *LCC_type = nullptr;
 
 static param_def LCCparams[] =
 {
@@ -66,7 +66,7 @@ static int LCC_proj_to_geog( void *data, double e, double n, double *ln, double 
 
 static int LCC_geog_to_proj( void *data, double ln, double lt, double *e, double *n )
 {
-    convertGeogToLCC( (LCCProjection *) data, ln, lt, e, n, NULL, NULL );
+    convertGeogToLCC( (LCCProjection *) data, ln, lt, e, n, nullptr, nullptr );
     return OK;
 }
 
@@ -86,7 +86,7 @@ projection *create_lcc_projection(  double sp1, double sp2,
     projection *prj;
 
     if( !LCC_type ) register_lcc_projection();
-    if( !LCC_type ) return NULL;
+    if( !LCC_type ) return nullptr;
 
     prj = new projection( *LCC_type );
 

@@ -38,7 +38,7 @@ static param_def gnparams[]  =
     },
 };
 
-static projection_type *gn_type = NULL;
+static projection_type *gn_type = nullptr;
 
 
 static int gn_bind_ellipsoid( void *data, ellipsoid *el )
@@ -78,7 +78,7 @@ projection *create_gnomic_projection(  double orglat, double orglon,
     projection *prj;
 
     if( !gn_type ) register_gnomic_projection();
-    if( !gn_type ) return NULL;
+    if( !gn_type ) return nullptr;
 
     prj = new projection( *gn_type );
 

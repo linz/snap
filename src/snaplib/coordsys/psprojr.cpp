@@ -46,7 +46,7 @@ static param_def psparams[]  =
     },
 };
 
-static projection_type *ps_type = NULL;
+static projection_type *ps_type = nullptr;
 
 
 static int ps_bind_ellipsoid( void *data, ellipsoid *el )
@@ -86,7 +86,7 @@ projection *create_ps_projection(  double cm, double sf,
     projection *prj;
 
     if( !ps_type ) register_ps_projection();
-    if( !ps_type ) return NULL;
+    if( !ps_type ) return nullptr;
 
     prj = new projection( *ps_type );
 

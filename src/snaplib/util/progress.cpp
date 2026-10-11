@@ -45,7 +45,7 @@ static int meter_drawn;
 static int npts;
 static int newline=0;
 static int showmeter=1;
-static FILE *infile = NULL;
+static FILE *infile = nullptr;
 
 static void default_init_progress_meter( long total_size );
 static void default_update_progress_meter( long progress );
@@ -157,7 +157,7 @@ void end_file_display( void )
 {
     if( !infile ) return;
     end_progress_meter();
-    infile = NULL;
+    infile = nullptr;
 }
 
 void install_progress_meter( progress_meter_def *meter )
@@ -169,9 +169,9 @@ void install_progress_meter( progress_meter_def *meter )
 
 void uninstall_progress_meter( void )
 {
-    init_meter = NULL;
-    update_meter = NULL;
-    end_meter = NULL;
+    init_meter = nullptr;
+    update_meter = nullptr;
+    end_meter = nullptr;
 }
 
 void reinstall_default_progress_meter( void )

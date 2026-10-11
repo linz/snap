@@ -27,7 +27,7 @@ private:
     wxString logString;
 };
 
-static wxStringLog *logger = 0;
+static wxStringLog *logger = nullptr;
 
 wxStringLog::wxStringLog()
 {
@@ -51,7 +51,7 @@ int print_log(const char *format, ... )
 int print_log_args( const char *format, va_list args )
 {
     int len;
-    static char * buffer = 0;
+    static char * buffer = nullptr;
     static int buflen = 0;
     va_list copy;
 
@@ -65,7 +65,7 @@ int print_log_args( const char *format, va_list args )
     len = vsnprintf( buffer, buflen, format, args );
     if( buflen < len+1 )
     {
-        if( buffer ) { delete [] buffer; buffer = 0; }
+        if( buffer ) { delete [] buffer; buffer = nullptr; }
         buflen = 1024;
         while( buflen < len+1 ) buflen += 1024;
         buffer = new char[buflen];

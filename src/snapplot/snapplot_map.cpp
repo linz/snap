@@ -163,7 +163,7 @@ void *SnapplotMap::StartDrawing()
 {
     rebuild_station_symbols();
     startDrawing = true;
-    return 0;
+    return nullptr;
 }
 
 void SnapplotMap::EndDrawing( void * WXUNUSED(state) )

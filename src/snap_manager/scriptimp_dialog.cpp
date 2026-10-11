@@ -17,8 +17,8 @@ public:
     wxString stringVal;
     wxString selector;
     ScriptDialogControl() :
-        token(0),
-        control(0),
+        token(nullptr),
+        control(nullptr),
         boolVal(false),
         intVal(0),
         stringVal(""),
@@ -56,7 +56,7 @@ private:
 ScriptDialog::ScriptDialog( wxString label, Token *controllist, long buttons )
     : wxSimpleDialog( label, buttons )
 {
-    controls = 0;
+    controls = nullptr;
     nControls = controllist->Count();
     if( nControls > 0 )
     {
@@ -146,7 +146,7 @@ void ScriptDialog::AddControls()
         Value v( false );
         if( ctk.Variable() ) { ctk.Variable()->GetValue( v ); }
 
-        wxControl *wxctrl = 0;
+        wxControl *wxctrl = nullptr;
         switch( ctk.Type() )
         {
         case ctLabel:

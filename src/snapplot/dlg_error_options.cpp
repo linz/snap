@@ -11,7 +11,7 @@
 class ErrorOptionsDialog : public wxSimpleDialog
 {
 public:
-    ErrorOptionsDialog( wxHelpController *help = 0 );
+    ErrorOptionsDialog( wxHelpController *help = nullptr );
     virtual void ReadData();
     virtual void Apply();
 

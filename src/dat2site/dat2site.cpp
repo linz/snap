@@ -310,7 +310,7 @@ static void link_station( station *s, stn *st )
 
 static stn *get_station( std::string_view code )
 {
-    stn *st=0;
+    stn *st=nullptr;
     if( net )
     {
         station *s=find_network_station(code);
@@ -321,7 +321,7 @@ static stn *get_station( std::string_view code )
         st=find_stn(code);
     }
     if( st  ) return st;
-    if( stations_frozen ) return 0;
+    if( stations_frozen ) return nullptr;
     return new_stn( code );
 }
 
@@ -359,7 +359,7 @@ static int get_station_id( std::string_view code )
 
 static stn *station_from_id( int id )
 {
-    stn *st=0;
+    stn *st=nullptr;
     station *s=stnptr(id);
     if( s ) st=(stn *)(s->hook);
     if( st && st->id == id ) return st;
@@ -375,13 +375,13 @@ static double ds_calc_arc_distance( stn *from, stn *to )
 {
     if( ! from->st || ! to->st ) return 0.0;
     return calc_distance( from->st, -from->st->OHgt, to->st, -to->st->OHgt,
-                          NULL, NULL );
+                          nullptr, nullptr );
 }
 
 static double ds_calc_azimuth( stn *from, stn *to )
 {
     if( ! from->st || ! to->st ) return 0.0;
-    return calc_azimuth( from->st, 0.0, to->st, 0.0, 0, NULL, NULL );
+    return calc_azimuth( from->st, 0.0, to->st, 0.0, 0, nullptr, nullptr );
 }
 
 static double ds_calc_height_diff( stn *from, stn *to )
@@ -651,7 +651,7 @@ static void load_data( survdata *sd )
     stn *from;
     stn *to;
     if( listonly ) return;
-    from = sd->from ? station_from_id( sd->from ) : 0;
+    from = sd->from ? station_from_id( sd->from ) : nullptr;
     if( sd->format == SD_OBSDATA )
     {
         obsdata *o;
@@ -1561,7 +1561,7 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
         xyz[CRD_LAT] = cn->to->st->ELat;
         xyz[CRD_LON] = cn->to->st->ELon;
         xyz[CRD_HGT] = cn->to->st->OHgt;
-        if( convert_coords( &toitrf, xyz, NULL, xyz, NULL ) != OK ) continue;
+        if( convert_coords( &toitrf, xyz, nullptr, xyz, nullptr ) != OK ) continue;
         if( cn->to->fixed & ST_FIXV )
         {
             index = nhor++;
@@ -1600,7 +1600,7 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
         xyz[i] = (calc_xyz[order[j1]][i] + calc_xyz[order[j2]][i])/2;
     }
 
-    if( convert_coords( &tonet, xyz, NULL, xyz, NULL ) != OK ) return 0;
+    if( convert_coords( &tonet, xyz, nullptr, xyz, nullptr ) != OK ) return 0;
     *lat += xyz[CRD_LAT];
     *lon += xyz[CRD_LON];
     *hgt += xyz[CRD_HGT];
@@ -1648,7 +1648,7 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
     }
 
 
-    if( convert_coords( &tonet, st->gx.xyz, NULL, llh, NULL ) != OK ) return 0;
+    if( convert_coords( &tonet, st->gx.xyz, nullptr, llh, nullptr ) != OK ) return 0;
     *lat += llh[CRD_LAT];
     *lon += llh[CRD_LON];
     *hgt += llh[CRD_HGT];
@@ -1892,7 +1892,7 @@ static int fix_with_dsds( stn *st, double *lt, double *ln, double *hgt )
     if( !setup_plane_projection_at(st) ) return 0;
 
     qmax = 0.0;
-    cnd1 = cnd2 = NULL;
+    cnd1 = cnd2 = nullptr;
     d12 = 0.0;
     FOR_ALL_CONNECTIONS(st,cn)
     {
@@ -1996,7 +1996,7 @@ static int fix_with_dshaha( stn *st, double *lt, double *ln, double *hgt )
     /* Seek a pair with a distance and the largest distance to the
        other station */
 
-    cnd1 = cnd2 = NULL;
+    cnd1 = cnd2 = nullptr;
     qmax = 0.0;
     FOR_ALL_CONNECTIONS(st,cn)
     {
@@ -2625,7 +2625,7 @@ static std::string logname;
 static int gotroot = 0;
 static char newcrdfile = 0;
 
-static FILE *logfile = NULL;
+static FILE *logfile = nullptr;
 
 
 static void set_logname( const std::string &name )
@@ -2674,7 +2674,7 @@ static int get_net_coordsys( void )
         if( is_geocentric(cs) )
         {
             delete cs;
-            cs = NULL;
+            cs = nullptr;
             printf("Cannot use a geocentric (XYZ) coordinate system\n");
         }
         if( cs ) break;
@@ -2798,7 +2798,7 @@ static int add_stations( void )
         if( ! get_option("     Is this all correct? Y/N: ",1) ) continue;
         if( ! geodetic )
         {
-            if( convert_coords( &cnv, llh, NULL, llh, NULL ) != OK )
+            if( convert_coords( &cnv, llh, nullptr, llh, nullptr ) != OK )
             {
                 printf("     Cannot convert these coordinates to latitude and longitude\n");
                 continue;
@@ -2918,14 +2918,14 @@ static int read_include_file( CFG_FILE *cfg, std::string_view string, void *valu
 
 static config_item snap_commands[] =
 {
-    {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
-    {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
-    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,0 , 0},
-    {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
-    {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,1},
-    {"include",NULL,CFG_ABSOLUTE,0,read_include_file,0,0},
+    {"coordinate_file",nullptr,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
+    {"add_coordinate_file",nullptr,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
+    {"output_coordinate_file",nullptr,CFG_ABSOLUTE,0,set_output_coordinate_file,0 , 0},
+    {"data_file",nullptr,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
+    {"recode",nullptr,CFG_ABSOLUTE,0,read_recode_command,0,1},
+    {"include",nullptr,CFG_ABSOLUTE,0,read_include_file,0,0},
     // {"gps_antenna_height",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_ANTENNA_OFFSET},
-    {NULL}
+    {nullptr}
 };
 
 

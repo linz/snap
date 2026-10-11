@@ -141,7 +141,7 @@ static code_loc *find_code_loc( crdsys_file_source *csf, int type, std::string_v
     code_loc *loc;
     if( type < 0  || type >= CS_COORDSYS_COUNT )
     {
-        return 0;
+        return nullptr;
     }
     loc=csf->codes[type];
     while( loc && ! boost::algorithm::iequals(loc->code,code) ) loc=loc->next;
@@ -153,7 +153,7 @@ static void delete_code_locs( code_loc **codes )
     code_loc *code;
     code_loc *next;
     code = (*codes);
-    (*codes)=0;
+    (*codes)=nullptr;
     while( code )
     {
         next = code->next;
@@ -241,9 +241,9 @@ static int get_codes( void *pcfs,
 static code_loc *get_code_loc( crdsys_file_source *cfs, int type, long id )
 {
     code_loc *cl;
-    if( !cfs ) return 0;
-    if( type < 0 || type >= CS_COORDSYS_COUNT ) return 0;
-    if( id < 0 ) return 0;
+    if( !cfs ) return nullptr;
+    if( type < 0 || type >= CS_COORDSYS_COUNT ) return nullptr;
+    if( id < 0 ) return nullptr;
     cl=cfs->codes[type];
     while( cl && id--) cl=cl->next;
     return cl;

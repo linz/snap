@@ -33,7 +33,7 @@ static void calc_topocentre( network *nw )
     {
 
         for( reset_station_list( nw, 0 );
-                NULL != (st = next_station(nw));
+                nullptr != (st = next_station(nw));
            )
         {
             st->rTopo.rot_vertical( tmp );
@@ -73,6 +73,6 @@ void get_network_topocentre_xyz( network *nw, double *xyz )
     double llh[3];
     get_network_topocentre( nw, &(llh[CRD_LAT]), &(llh[CRD_LON]) );
     llh[CRD_HGT]=0.0;
-    llh_to_xyz( nw->crdsys->rf->el, llh, xyz, 0, 0 );
+    llh_to_xyz( nw->crdsys->rf->el, llh, xyz, nullptr, nullptr );
 }
 

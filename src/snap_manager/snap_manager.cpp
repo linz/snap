@@ -80,11 +80,11 @@ BEGIN_EVENT_TABLE( SnapMgrFrame, wxFrame )
 END_EVENT_TABLE()
 
 SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
-    wxFrame(NULL, wxID_ANY, "SNAP")
+    wxFrame(nullptr, wxID_ANY, "SNAP")
 {
     nScriptMenuItems = 0;
-    logger = 0;
-    logCtrl = 0;
+    logger = nullptr;
+    logCtrl = nullptr;
 
     // Setup the main logging window ..
 
@@ -148,7 +148,7 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
 SnapMgrFrame::~SnapMgrFrame()
 {
-    wxLog::SetActiveTarget(0);
+    wxLog::SetActiveTarget(nullptr);
     delete logger;
     // delete help;
     config->SetPath( "/History" );

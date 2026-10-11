@@ -113,7 +113,7 @@ static int rf_xyz_apply( ref_frame *rf,  double llh[3], double epochfrom, double
     if( epochfrom == 0 ) epochfrom = dxyz->refepoch;
     if( epochto == 0 ) epochto = dxyz->refepoch;
     if( epochfrom == epochto ) return OK;
-    llh_to_xyz( rf->el, llh, xyz, 0, 0);
+    llh_to_xyz( rf->el, llh, xyz, nullptr, nullptr);
     calc_dxyz(dxyz,xyz,epochfrom-epochto,xyzdif);
     for( i = 0; i < 3; i++ ) xyz[i] += xyzdif[i];
     xyz_to_llh( rf->el, xyz, llh );

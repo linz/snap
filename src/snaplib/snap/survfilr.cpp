@@ -101,7 +101,7 @@ long read_data_files( FILE *lst )
         }
         else
         {
-            set_stn_recode_func( 0, 0 );
+            set_stn_recode_func( nullptr, nullptr );
         }
 
         for( c = 0; c < NOBSTYPE; c++ ) sd->obscount[c] = 0;
@@ -186,14 +186,14 @@ long read_data_files( FILE *lst )
         if( sd->recode ) 
         {
             delete_stn_recode_map( sd->recode );
-            sd->recode = 0;
+            sd->recode = nullptr;
         }
 
         d.reset();
     }
     set_file_context( saved_context );
 
-    set_stn_recode_func( 0, 0 );
+    set_stn_recode_func( nullptr, nullptr );
 
     sts=check_obsmod_station_criteria_codes( obs_modifications, net );
     if( sts >= WARNING_ERROR )

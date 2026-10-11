@@ -14,7 +14,7 @@
 #include "coordsys/nzmg.h"
 #include "coordsys/nzmgr.h"
 
-static projection_type *nzmg_type = NULL;
+static projection_type *nzmg_type = nullptr;
 
 // #pragma warning (disable : 4100)
 
@@ -43,7 +43,7 @@ void register_nzmg_projection( void )
 projection *create_nzmg_projection( void )
 {
     if( !nzmg_type ) register_nzmg_projection();
-    if( !nzmg_type ) return NULL;
+    if( !nzmg_type ) return nullptr;
     return new projection( *nzmg_type );
 }
 

@@ -47,8 +47,8 @@ static std::optional<std::string> imgname;
 
 static std::optional<std::forward_list<std::string>> config_dir_list;
 
-static file_context *current_context = 0;
-static file_context *context_list = 0;
+static file_context *current_context = nullptr;
+static file_context *context_list = nullptr;
 
 #define SNAPTMP_TEMPLATE "SNAP_TMP_XXXXXX"
 

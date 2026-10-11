@@ -7,22 +7,22 @@ using namespace std;
 
 // Script variable class
 
-Value::Value() : next(0)
+Value::Value() : next(nullptr)
 {
     SetValue(false);
 }
 
-Value::Value( wxString value ) : next(0)
+Value::Value( wxString value ) : next(nullptr)
 {
     SetValue( value );
 }
 
-Value::Value( bool value) : next(0)
+Value::Value( bool value) : next(nullptr)
 {
     SetValue( value );
 }
 
-Value::Value( double value) : next(0)
+Value::Value( double value) : next(nullptr)
 {
     SetValue( value );
 }
@@ -55,7 +55,7 @@ Value::Value( const Value &value, bool valueOnly )
     doubleValue = value.doubleValue;
     stringValue = value.stringValue;
     boolValue = value.boolValue;
-    next = 0;
+    next = nullptr;
     if( ! valueOnly && value.Next() ) SetNext(value.Next());
 }
 
@@ -82,7 +82,7 @@ Value::~Value()
     if( next )
     {
         Value *v=next;
-        next=0;
+        next=nullptr;
         delete v;
     }
 }
@@ -94,7 +94,7 @@ Value &Value::operator = ( const Value &value )
         boolValue = value.boolValue;
         doubleValue = value.doubleValue;
         stringValue = value.stringValue;
-        if( next ) { Value *v=next; next=0; delete( v ); }
+        if( next ) { Value *v=next; next=nullptr; delete( v ); }
         if( value.Next() ) SetNext(value.Next());
     }
     return *this;

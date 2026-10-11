@@ -1,4 +1,5 @@
 Checks: >
-  -*
+  -*,
+  modernize-use-nullptr
 HeaderFilterRegex: 'src/.*'
 ExcludeHeaderFilterRegex: 'third_party'

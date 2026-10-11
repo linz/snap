@@ -122,19 +122,19 @@ END_EVENT_TABLE()
 
 // SnapPlot frame constructor
 SnapplotFrame::SnapplotFrame()
-    : wxFrame(NULL, wxID_ANY, "Snapplot",
+    : wxFrame(nullptr, wxID_ANY, "Snapplot",
               wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE)
 {
 
-    map = 0;
-    dataColourMenu = 0;
-    stationColourMenuItem = 0;
-    stationColourMenu = 0;
-    displayMenu = 0;
-    configMenu = 0;
-    ignoreOffsetsItem = 0;
-    help = 0;
+    map = nullptr;
+    dataColourMenu = nullptr;
+    stationColourMenuItem = nullptr;
+    stationColourMenu = nullptr;
+    displayMenu = nullptr;
+    configMenu = nullptr;
+    ignoreOffsetsItem = nullptr;
+    help = nullptr;
     nextCommandId = CMD_USER_CONFIG_FIRST;
     classifyCommandFirst = 0;
     classifyCommandLast = 0;
@@ -142,8 +142,8 @@ SnapplotFrame::SnapplotFrame()
     stationColourCommandLast = 0;
     configMenuCommandFirst = 0;
     configMenuCommandLast = 0;
-    printData = 0;
-    pageData = 0;
+    printData = nullptr;
+    pageData = nullptr;
     zoomOnFind = true;
 
     // Set the size to the maximum available on the display

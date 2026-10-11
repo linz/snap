@@ -151,7 +151,7 @@ struct DMS
 
 static int printf_func( std::string_view s, void *dummy );
 
-output_string_def printf_writer = {0,printf_func};
+output_string_def printf_writer = {nullptr,printf_func};
 
 static void clear_screen(void)
 {
@@ -1248,7 +1248,7 @@ static void setup_transformation( void )
     {
         if (input_ne) { in1 = inxyz+CRD_NORTH; in2 = inxyz+CRD_EAST;}
         else          { in1 = inxyz+CRD_EAST; in2 = inxyz+CRD_NORTH;}
-        if( input_h ) in3 = inxyz+CRD_HGT; else in3 = NULL;
+        if( input_h ) in3 = inxyz+CRD_HGT; else in3 = nullptr;
     }
     else if(is_geodetic(input_cs))
     {
@@ -1263,7 +1263,7 @@ static void setup_transformation( void )
             in1 = inxyz+CRD_LON; in2 = inxyz+CRD_LAT;
             indms1 = ew_string; indms2 = ns_string;
         }
-        if( input_h ) in3 = inxyz+CRD_HGT; else in3 = NULL;
+        if( input_h ) in3 = inxyz+CRD_HGT; else in3 = nullptr;
     }
     else
     {
@@ -1279,7 +1279,7 @@ static void setup_transformation( void )
     {
         if (output_ne) { out1 = outxyz+CRD_NORTH; out2 = outxyz+CRD_EAST;}
         else          { out1 = outxyz+CRD_EAST; out2 = outxyz+CRD_NORTH;}
-        if( output_h ) out3 = outxyz+CRD_HGT; else out3 = NULL;
+        if( output_h ) out3 = outxyz+CRD_HGT; else out3 = nullptr;
     }
     else if(is_geodetic(output_cs))
     {
@@ -1294,7 +1294,7 @@ static void setup_transformation( void )
             out1 = outxyz+CRD_LON; out2 = outxyz+CRD_LAT;
             outdms1 = ew_string; outdms2 = ns_string;
         }
-        if( output_h ) out3 = outxyz+CRD_HGT; else out3 = NULL;
+        if( output_h ) out3 = outxyz+CRD_HGT; else out3 = nullptr;
     }
     else
     {

@@ -151,7 +151,7 @@ static double snap_calc_value( int type, long id1, long id2 )
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
         if( !st1 || ! st2 ) return 0.0;
-        dist = calc_distance( st1, 0.0, st2, 0.0, NULL, NULL );
+        dist = calc_distance( st1, 0.0, st2, 0.0, nullptr, nullptr );
         return dist;
     }
     else if ( type == CALC_HDIST )
@@ -160,7 +160,7 @@ static double snap_calc_value( int type, long id1, long id2 )
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
         if( !st1 || ! st2 ) return 0.0;
-        dist = calc_horizontal_distance( st1, st2, NULL, NULL );
+        dist = calc_horizontal_distance( st1, st2, nullptr, nullptr );
         return dist;
     }
     return 0.0;
@@ -219,7 +219,7 @@ void load_connections( )
 {
     init_load_plot();
     set_binary_data( 0 );
-    read_data_files( NULL );
+    read_data_files( nullptr );
     term_load_plot();
     load_observations_from_binary();
     list_missing_stations();

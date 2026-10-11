@@ -212,9 +212,9 @@ wxSimpleDialog::wxSimpleDialog( wxString title, long buttonFlags )
         wxDefaultSize
     )
 {
-    help = 0;
-    helpButton = 0;
-    lastWindow = 0;
+    help = nullptr;
+    helpButton = nullptr;
+    lastWindow = nullptr;
     nextId = wxID_HIGHEST+1;
     this->buttonFlags = buttonFlags;
     sizer = new wxBoxSizer( wxVERTICAL );
@@ -640,7 +640,7 @@ void wxSimpleDialog::AddButtonsAndSize()
         AddSpacer();
     }
     SetSizerAndFit( sizer );
-    lastWindow = ResetTabOrder( sizer, 0 );
+    lastWindow = ResetTabOrder( sizer, nullptr );
 }
 
 // Crude work-around to try and get first focusable window focussed when dialog
@@ -657,7 +657,7 @@ void wxSimpleDialog::OnIdle( wxIdleEvent & WXUNUSED(event) )
 
         lastWindow->SetFocus();
         lastWindow->Navigate();
-        lastWindow = 0;
+        lastWindow = nullptr;
     }
 }
 
@@ -695,7 +695,7 @@ bool wxSimpleDialog::RunDialog()
 {
     if( helpButton )
     {
-        helpButton->Show( help != 0 );
+        helpButton->Show( help != nullptr );
     }
     ReadData();
     int result = ShowModal();

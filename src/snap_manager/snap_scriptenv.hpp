@@ -46,7 +46,7 @@ private:
     wxString &GetCoordSysList();
     wxString &GetHeightRefList();
     // GetMenuItem - creates parents if parent is not null
-    wxMenuItem *GetMenuItem( const wxString &name, wxMenu **parent=0, bool createParents=false );
+    wxMenuItem *GetMenuItem( const wxString &name, wxMenu **parent=nullptr, bool createParents=false );
     wxMenuItem *GetMenuItemByLabel( wxMenu *menu, const wxString &label, bool wantSubMenu );
     size_t GetMenuInsertPosition( wxMenu *menu );
 

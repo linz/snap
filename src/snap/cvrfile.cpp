@@ -200,7 +200,7 @@ void print_coord_covariance_json( void )
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
-            llh_to_xyz( elp, llh, xyz, 0, 0);
+            llh_to_xyz( elp, llh, xyz, nullptr, nullptr);
             fprintf(f,"%.*lf,%.*lf,%.*lf]\n",
                     (int) coord_precision,xyz[0],
                     (int) coord_precision,xyz[1],
@@ -491,7 +491,7 @@ void print_coord_sinex( void )
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=st->OHgt+st->GUnd;
-            llh_to_xyz( elp, llh, xyz, 0, 0);
+            llh_to_xyz( elp, llh, xyz, nullptr, nullptr);
 
             station_cvr(invnorm,st,st,cvr);
             stnconstraint=2;

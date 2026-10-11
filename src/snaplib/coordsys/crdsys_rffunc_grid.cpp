@@ -56,7 +56,7 @@ static rf_grid_def *rf_grid_create( const std::string &filename, int type )
 
 static void rf_grid_open_file( rf_grid_def *gd )
 {
-    grid_def *grid = NULL;
+    grid_def *grid = nullptr;
     if( gd->status != OK ) return;
     grd_open_grid_file(gd->filename,2,&grid);
     if( grid )
@@ -128,9 +128,9 @@ static int rf_grid_xyz_to_std( ref_frame *rf, double xyz[3], double date )
         llh[CRD_LAT] += dllh[CRD_LAT]*DTOR;
     }
 
-    llh_to_xyz( rf->el, llh, xyz, NULL, NULL );
+    llh_to_xyz( rf->el, llh, xyz, nullptr, nullptr );
     rff = rf->func;
-    rf->func = NULL;
+    rf->func = nullptr;
     xyz_to_std( rf, xyz, date );
     rf->func = rff;
     return sts;
@@ -150,7 +150,7 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
     if( gd->status == OK && ! gd->grid ) rf_grid_open_file( gd );
     if( gd->status != OK ) return gd->status;
     rff = rf->func;
-    rf->func = NULL;
+    rf->func = nullptr;
     std_to_xyz( rf, xyz, date );
     rf->func = rff;
     xyz_to_llh( rf->el, xyz, llh );
@@ -164,7 +164,7 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
     if( sts != OK ) return sts;
     llh[CRD_LON] -= dllh[CRD_LON]*DTOR;
     llh[CRD_LAT] -= dllh[CRD_LAT]*DTOR;
-    llh_to_xyz( rf->el, llh, xyz, NULL, NULL );
+    llh_to_xyz( rf->el, llh, xyz, nullptr, nullptr );
     return OK;
 }
 

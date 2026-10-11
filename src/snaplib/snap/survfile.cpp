@@ -56,7 +56,7 @@ static int add_data_file_nocopy( const std::string &name, int format, const std:
     sd->nnodate=0;
     for( i=0; i < NOBSTYPE; i++ ) sd->obscount[i]=0;
     sd->usage = 0;
-    sd->recode=0;
+    sd->recode=nullptr;
     return nsdindx-1;
 
 }
@@ -83,7 +83,7 @@ void delete_survey_data_file_recodes()
     {
         survey_data_file *sd=sdindx[i];
         if( sd->recode ) delete_stn_recode_map( sd->recode );
-        sd->recode=0;
+        sd->recode=nullptr;
     }
 }
 
@@ -95,7 +95,7 @@ void delete_survey_file_list()
         survey_data_file *sd=sdindx[i];
         if( sd->recode ) delete_stn_recode_map( sd->recode );
         delete sd;
-        sdindx[i] = 0;
+        sdindx[i] = nullptr;
     }
     delete [] sdindx;
     sdindx=nullptr;

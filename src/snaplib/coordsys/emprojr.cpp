@@ -30,7 +30,7 @@ static param_def emparams[]  =
     },
 };
 
-static projection_type *em_type = NULL;
+static projection_type *em_type = nullptr;
 
 
 static int em_bind_ellipsoid( void *data, ellipsoid *el )
@@ -68,7 +68,7 @@ projection *create_em_projection(  double cm, double sp )
     projection *prj;
 
     if( !em_type ) register_em_projection();
-    if( !em_type ) return NULL;
+    if( !em_type ) return nullptr;
 
     prj = new projection( *em_type );
 

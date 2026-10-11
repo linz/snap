@@ -310,7 +310,7 @@ snapfile_def::snapfile_def( DATAFILE &datafile ) :
 
 static snap_data_type *obstype_from_code( std::string_view code )
 {
-    snap_data_type *sdt = 0;
+    snap_data_type *sdt = nullptr;
     datatypedef *dt = datatypedef_from_code( code );
     if( dt )
     {
@@ -1563,7 +1563,7 @@ static void init_read_vector_error( snapfile_def *sd )
 {
     sd->nvecobs = 0;
     sd->nvecgood = 0;
-    sd->currvecerr = NULL;
+    sd->currvecerr = nullptr;
 }
 
 

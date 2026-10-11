@@ -68,7 +68,7 @@ constexpr size_t end_section_length = sizeof(ENDSECTION) - 1;
 
 BINARY_FILE *create_binary_file( const std::string &fname, const std::string &signature )
 {
-    FILE *f = NULL;
+    FILE *f = nullptr;
     BINARY_FILE *b;
     char zero = 0;
 
@@ -95,7 +95,7 @@ BINARY_FILE *create_binary_file( const std::string &fname, const std::string &si
     f = fopen( fname.c_str(), "w+b" );
 #endif
 
-    if( !f ) return NULL;
+    if( !f ) return nullptr;
 
     b = new BINARY_FILE;
     fwrite(signature.data(), signature.size(), 1, f );
@@ -124,7 +124,7 @@ BINARY_FILE *create_binary_file( const std::string &fname, const std::string &si
 
 BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string &signature )
 {
-    FILE *f = NULL;
+    FILE *f = nullptr;
     BINARY_FILE *b;
 
     /* Note: this implementation has
@@ -154,14 +154,14 @@ BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string
 #else
     f = fopen( fname.c_str(), "rb" );
 #endif
-    if( !f ) return { NULL, BinFileOpenResult::NotFound };
+    if( !f ) return { nullptr, BinFileOpenResult::NotFound };
 
     const std::string expectedSignature = signature + SIG_TRAILER;
     std::string sig(expectedSignature.size(), '\0');
     if( fread( sig.data(), sig.size(), 1, f ) != 1 || sig != expectedSignature )
     {
         fclose(f);
-        return { NULL, BinFileOpenResult::InvalidVersion };
+        return { nullptr, BinFileOpenResult::InvalidVersion };
     }
 
     b = new BINARY_FILE;

@@ -28,9 +28,9 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
     std::string rfcode;
     std::string typecode;
     int cstype = CSTP_CARTESIAN;
-    ref_frame *rf = NULL;
-    projection *prj = NULL;
-    coordsys *cs = NULL;
+    ref_frame *rf = nullptr;
+    projection *prj = nullptr;
+    coordsys *cs = nullptr;
     char got_range;
     double range[4];
     std::string_view bad;
@@ -46,13 +46,13 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         if( compare_ignoring_case( rfcode, "REF_FRAME" ) != 0 )
         {
             is.scanner = FieldScanner(savedBeforeRfCode);
-            rf = parse_ref_frame_def( is, 0, 0, 1, 1 );
-            if( !rf ) return NULL;
+            rf = parse_ref_frame_def( is, nullptr, nullptr, 1, 1 );
+            if( !rf ) return nullptr;
         }
         else
         {
             sts = read_crdsys_string( is.scanner, sts, rfcode, CRDSYS_CODE_LEN, "Reference frame code", bad );
-            rf = NULL;
+            rf = nullptr;
         }
     }
 
@@ -83,12 +83,12 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         if( !prj )
         {
             delete rf;
-            return NULL;
+            return nullptr;
         }
     }
     else
     {
-        prj = NULL;
+        prj = nullptr;
     }
 
     got_range = 0;
@@ -144,7 +144,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
     {
         delete prj;
         delete rf;
-        return NULL;
+        return nullptr;
     }
 
     cs = new coordsys( cscode, csname, cstype, rf, prj, "file:" + is.sourcename );

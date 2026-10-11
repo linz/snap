@@ -9,7 +9,7 @@
 SnapplotMapDragger::SnapplotMapDragger( int pickTolerance )
     : pickTolerance(pickTolerance)
 {
-    connections = 0;
+    connections = nullptr;
     radius = 10;
     shiftStation = false;
     SetAutoZoomPanMode();
@@ -103,7 +103,7 @@ void SnapplotMapDragger::DrawDragger( wxDC &dc )
 
 void SnapplotMapDragger::DeleteConnections()
 {
-    if( connections != 0 ) delete [] connections;
-    connections = 0;
+    if( connections != nullptr ) delete [] connections;
+    connections = nullptr;
     nConnections = 0;
 }

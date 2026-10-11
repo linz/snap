@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "util/xprintf.h"
 
-static xprintf_func pf = 0;
+static xprintf_func pf = nullptr;
 
 int xprintf( const char *format, ... )
 {

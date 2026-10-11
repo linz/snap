@@ -63,7 +63,7 @@ struct connections
 };
 
 
-static connections *connlst = NULL;
+static connections *connlst = nullptr;
 static int maxconnlst;
 static int nconnlst;
 static int lastnode;
@@ -76,7 +76,7 @@ static int *order1, *order2;
 static void init_connection( connections *conn )
 {
         conn->count = conn->maxcount = 0;
-        conn->list = NULL;
+        conn->list = nullptr;
 }
 
 int init_connections( int nnodes )
@@ -168,7 +168,7 @@ static void add_station_connection( int stn, connections *conn )
 
 void add_connection( int stn1, int stn2 )
 {
-    if( connlst == NULL ) return;
+    if( connlst == nullptr ) return;
     if( stn1 > nconnlst || stn2 > nconnlst )
     {
         int maxstn=stn1 > stn2 ? stn1 : stn2;
@@ -181,7 +181,7 @@ void add_connection( int stn1, int stn2 )
 
 int get_connection_count( int stn )
 {
-    if( connlst == NULL ) return -1;
+    if( connlst == nullptr ) return -1;
     if( stn > nconnlst ) return 0;
     return connlst[stn].count;
 }
@@ -189,7 +189,7 @@ int get_connection_count( int stn )
 int get_connection( int stn, int nconn )
 {
     connections *conn;
-    if( connlst == NULL ) return -1;
+    if( connlst == nullptr ) return -1;
     if( stn > nconnlst ) return -1;
     conn = connlst+stn;
     if( nconn < 0 || nconn >= conn->count ) return -1;

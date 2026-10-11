@@ -718,7 +718,7 @@ static void sdcRAInitAllocRow( SDCTestImp *sdci )
 
 static unsigned char *sdcRAAllocRow( SDCTestImp *sdci, int row, int col0 )
 {
-    if( sdci->relstatus[row] ) return 0;
+    if( sdci->relstatus[row] ) return nullptr;
     const int nalloc=(row-col0+2)/2;
 
     /* Use the first block from the current one onwards that has room, else add a new block */
@@ -2019,7 +2019,7 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
 
     for( i = 1; i < sdci->nreltest; i++ )
     {
-        unsigned char *relstatus = 0;
+        unsigned char *relstatus = nullptr;
 
         int istni = sdci->lookup[i];
         long sdcstni=sdcStationId(sdci,istni);

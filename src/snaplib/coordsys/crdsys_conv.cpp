@@ -318,7 +318,7 @@ int convert_coords( coord_conversion *conv,
     from = conv->from;
     to = conv->to;
 
-    geoid = texu != 0;
+    geoid = texu != nullptr;
 
     for( i = 0; i<3; i++ )
     {
@@ -349,7 +349,7 @@ int convert_coords( coord_conversion *conv,
         for( int i=0; sts==OK && i<conv->nhrf_from; i++ )
         {
             double offset;
-            sts=calc_vdatum_func( conv->hrf[i], xyz, &offset, 0 );
+            sts=calc_vdatum_func( conv->hrf[i], xyz, &offset, nullptr );
             xyz[CRD_HGT] += offset;
         }
         if( sts != OK )
@@ -360,7 +360,7 @@ int convert_coords( coord_conversion *conv,
 
     if( conv->need_xyz && ! isgeoc )
     {
-        llh_to_xyz( from->rf->el, xyz, xyz, 0, 0 );
+        llh_to_xyz( from->rf->el, xyz, xyz, nullptr, nullptr );
         isgeoc=1;
     }
 
@@ -395,7 +395,7 @@ int convert_coords( coord_conversion *conv,
                 /*  Apply change to reference frame axes */
                 if( ! defonly )
                 {
-                    if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
+                    if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, nullptr, nullptr ); isgeoc=1; }
                     sts = xyz_to_std( rf, xyz, conv->epochconv );
                     if( sts != OK )
                     {
@@ -408,7 +408,7 @@ int convert_coords( coord_conversion *conv,
             {
                 if( ! defonly )
                 {
-                    if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
+                    if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, nullptr, nullptr ); isgeoc=1; }
                     sts = std_to_xyz( rf, xyz, conv->epochconv );
                     if( sts != OK ) 
                     {
@@ -440,7 +440,7 @@ int convert_coords( coord_conversion *conv,
 
             if( crf->need_xyz && ! isgeoc )
             {
-                llh_to_xyz( rf->el, xyz, xyz, 0, 0 );
+                llh_to_xyz( rf->el, xyz, xyz, nullptr, nullptr );
                 isgeoc=1;
             }
         }
@@ -454,7 +454,7 @@ int convert_coords( coord_conversion *conv,
         for( int i=0; sts==OK && i<conv->nhrf_to; i++ )
         {
             double offset;
-            sts=calc_vdatum_func( conv->hrf[conv->nhrf_from+i], xyz, &offset, 0 );
+            sts=calc_vdatum_func( conv->hrf[conv->nhrf_from+i], xyz, &offset, nullptr );
             xyz[CRD_HGT] -= offset;
         }
         if( sts != OK )
@@ -505,7 +505,7 @@ int convert_coords( coord_conversion *conv,
         }
         else if( conv->to_geoc )
         {
-            if( ! isgeoc ) llh_to_xyz( to->rf->el, xyz, xyz, 0, 0 );
+            if( ! isgeoc ) llh_to_xyz( to->rf->el, xyz, xyz, nullptr, nullptr );
         }
         else if( isgeoc )
         {

@@ -92,7 +92,7 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
 
     isvecdif = v->obs.vdata->tgt.type == GB;
 
-    st1 = isvecdif ? stnptr( v->from ) : NULL;
+    st1 = isvecdif ? stnptr( v->from ) : nullptr;
     hgt1 = v->fromhgt;
 
     if( v-> options )
@@ -380,7 +380,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
 
             calc_vecdata_vector( v, VD_REF_STN, iobs,
                                  VD_OBSVEC | VD_STDERR | resopt,
-                                 NULL, redundancy );
+                                 nullptr, redundancy );
 
 
             serlim = (redundancy[0]+redundancy[1]+redundancy[2])*0.3e-4;

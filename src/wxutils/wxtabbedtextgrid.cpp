@@ -38,9 +38,9 @@ wxTabbedTextTable::wxTabbedTextTable()
     nrow = 0;
     ncol = 0;
     currow = -1;
-    colWidth = 0;
-    colName = 0;
-    rightJustify = 0;
+    colWidth = nullptr;
+    colName = nullptr;
+    rightJustify = nullptr;
 
 }
 
@@ -71,13 +71,13 @@ bool wxTabbedTextTable::GetColRightJustify( int col )
 
 wxString wxTabbedTextTable::GetColLabelValue( int col )
 {
-    if( colName == 0 ) return "";
+    if( colName == nullptr ) return "";
     return colName[ col ];
 }
 
 wxString wxTabbedTextTable::GetValue( int row, int col )
 {
-    if( ttsource == 0 ) return "";
+    if( ttsource == nullptr ) return "";
     if( row != currow ) GetRow( row );
     wxString value( rowData[col] );
     if( rightJustify[col] ) value.Append("  ");
@@ -130,11 +130,11 @@ std::string_view wxTabbedTextTable::_trimBlanks( std::string_view column )
 
 void wxTabbedTextTable::ClearSource()
 {
-    ttsource = 0;
+    ttsource = nullptr;
     rowData.clear();
-    if( colWidth != 0 ) { delete [] colWidth; colWidth = 0; }
-    if( colName != 0 ) { delete [] colName; colName = 0; }
-    if( rightJustify != 0 ) { delete [] rightJustify; rightJustify = 0; }
+    if( colWidth != nullptr ) { delete [] colWidth; colWidth = nullptr; }
+    if( colName != nullptr ) { delete [] colName; colName = nullptr; }
+    if( rightJustify != nullptr ) { delete [] rightJustify; rightJustify = nullptr; }
     currow = -1;
 }
 
@@ -142,7 +142,7 @@ void wxTabbedTextTable::SetSource( wxTabbedTextSource *source )
 {
     ClearSource();
     ttsource = source;
-    if( ttsource != 0 )
+    if( ttsource != nullptr )
     {
         nrow = ttsource->GetRowCount();
 
@@ -227,7 +227,7 @@ wxTabbedTextGrid::wxTabbedTextGrid(wxWindow* parent, wxWindowID id, const wxPoin
 
 wxTabbedTextGrid::~wxTabbedTextGrid()
 {
-    SetTable( 0, false, wxGrid::wxGridSelectRows );
+    SetTable( nullptr, false, wxGrid::wxGridSelectRows );
     delete table;
 }
 

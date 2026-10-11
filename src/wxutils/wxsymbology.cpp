@@ -11,7 +11,7 @@
 ColourPalette::Item::Item( ColourPalette *palette, const wxColour &colour ) :
     palette(palette),
     colour(colour),
-    bitmap(0)
+    bitmap(nullptr)
 {
 }
 
@@ -73,7 +73,7 @@ ColourPalette::~ColourPalette()
     for( int nitem = 0; nitem < size; nitem++ )
     {
         delete palette[nitem];
-        palette[nitem] = 0;
+        palette[nitem] = nullptr;
     }
     delete [] palette;
 }
@@ -169,7 +169,7 @@ SymbologyList::~SymbologyList()
         for( int i = 0; i < size; i++ )
         {
             delete symbologies[i];
-            symbologies[i] = 0;
+            symbologies[i] = nullptr;
         }
         delete [] symbologies;
     }
@@ -199,7 +199,7 @@ int SymbologyList::Size() const { return size; }
 SymbologyBase *SymbologyList::GetSymbology( int i ) const
 {
     if( i >= 0 && i < size ) return symbologies[i];
-    return 0;
+    return nullptr;
 }
 
 SymbologyBase *SymbologyList::GetSymbology( wxString name ) const
@@ -403,8 +403,8 @@ void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &
 PointSymbology::PointSymbology( wxString name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
     SymbologyBase( name )
 {
-    pointOffsets = 0;
-    next = 0;
+    pointOffsets = nullptr;
+    next = nullptr;
     SetSymbol( nNodes, size, indent, clrBorder, clrFill );
 }
 
@@ -417,9 +417,9 @@ PointSymbology::~PointSymbology()
 void PointSymbology::SetSymbol( int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill )
 {
     if( next ) delete next;
-    next = 0;
+    next = nullptr;
     if( pointOffsets ) delete [] pointOffsets;
-    pointOffsets = 0;
+    pointOffsets = nullptr;
 
     if( nNodes < -10 || nNodes > 10 ) nNodes = 0;
     if( nNodes > -3 && nNodes < 3 ) nNodes = 0;

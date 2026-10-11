@@ -28,8 +28,8 @@
 
 /* Global variables holding the definition of the network */
 
-network *net = NULL;
-stn_recode_map *stnrecode = NULL;
+network *net = nullptr;
+stn_recode_map *stnrecode = nullptr;
 std::optional<StationFile> station_file;
 std::string output_station_filespec;
 int station_filetype = STN_FORMAT_SNAP;
@@ -73,7 +73,7 @@ static void create_stn_adjustment( station *st )
 
 void set_stnadj_init_network( void )
 {
-    set_network_initstn_func( 0, create_stn_adjustment, delete_stn_adjustment );
+    set_network_initstn_func( nullptr, create_stn_adjustment, delete_stn_adjustment );
 }
 
 static void clear_stnadj_globals( void )
@@ -140,7 +140,7 @@ int read_station_file( const std::string &fname, const std::string &base_dir, co
         else
         {
             if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
-            sts=merge_network( net, stndata, mergeopts, mergedate, 0 );
+            sts=merge_network( net, stndata, mergeopts, mergedate, nullptr );
             delete_network(stndata);
         }
     }

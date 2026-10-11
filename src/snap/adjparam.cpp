@@ -46,7 +46,7 @@ void update_params( int get_covariance )
             if( rn )
             {
                 rn--;   /* Convert to 0 based numbers */
-                lsq_get_params( &rn, 1, &delta, get_covariance ? &covar : NULL );
+                lsq_get_params( &rn, 1, &delta, get_covariance ? &covar : nullptr );
                 update_param_value( np, param_value(np) + delta, covar );
             }
         }
@@ -64,7 +64,7 @@ void update_params( int get_covariance )
             if( rn )
             {
                 rn--;   /* Convert to 0 based numbers */
-                lsq_get_params( &rn, 1, &delta, get_covariance ? &covar : NULL );
+                lsq_get_params( &rn, 1, &delta, get_covariance ? &covar : nullptr );
                 update_obs_param_value( np, value + delta, covar );
             }
         }
@@ -182,7 +182,7 @@ void print_adjusted_parameters( FILE *out )
             const std::string &name=get_obs_param_name(np);
             double value=get_obs_param_value(np);
             fprintf(out,"%-30.30s   %11.5lf  ",name.c_str(),value);
-            if( get_obs_param_rowno(np,0) ) 
+            if( get_obs_param_rowno(np,nullptr) ) 
             {
                 double covar=sqrt(get_obs_param_covar(np))*semult;
                 fprintf(out,"%11.5lf\n",covar);

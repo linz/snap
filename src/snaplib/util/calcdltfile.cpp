@@ -36,10 +36,10 @@ void StringValue::calcValue( string &value )
 // NamedValue
 
 NamedValue::NamedValue( const NamedValue &ccol ) :
-   _default(0), _binder(0)
+   _default(nullptr), _binder(nullptr)
 {
     _colname = ccol._colname;
-    _colvalue = 0;
+    _colvalue = nullptr;
 }
 
 NamedValue *NamedValue::clone() const
@@ -54,7 +54,7 @@ NamedValue &NamedValue::setDefault(  CalcValue *dfltValue )
     if( _default )
     {
         delete _default;
-        _default = 0;
+        _default = nullptr;
     }
     if( dfltValue )
     {
@@ -65,7 +65,7 @@ NamedValue &NamedValue::setDefault(  CalcValue *dfltValue )
 }
 void NamedValue::bind( const BindSource *binder )
 {
-    _colvalue = 0;
+    _colvalue = nullptr;
     if( binder )
     {
         _colvalue = binder->value( _colname );
@@ -121,29 +121,29 @@ const string *LookupMapImp::lookup( const string &key ) const
     map<const string, const string>::const_iterator match = find(keyval);
     if( match != end() ){ return &(match->second); }
     if( _default.size()) return &(_default);
-    return 0;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////
 // LookupValue
 
 LookupValue::LookupValue() :
-        _source(0),
-        _binder(0)
+        _source(nullptr),
+        _binder(nullptr)
 {
 }
 
 LookupValue::LookupValue( const LookupValue &lcol )
 {
-    _binder = 0;
+    _binder = nullptr;
     _map = lcol._map;
     if( lcol._source ) _source = lcol._source->clone();
-    else _source = 0;
+    else _source = nullptr;
 }
 
 LookupValue::~LookupValue()
 {
-    setSource(0);
+    setSource(nullptr);
 }
 
 LookupValue *LookupValue::clone() const
@@ -156,7 +156,7 @@ LookupValue &LookupValue::setSource( CalcValue *source )
     if( _source )
     {
         delete _source;
-        _source = 0;
+        _source = nullptr;
     }
     if( source )
     {
@@ -196,14 +196,14 @@ void LookupValue::calcValue( string &value )
 // ConcatValue
 
 ConcatValue::ConcatValue() : 
-    _default(0),
-    _binder(0)
+    _default(nullptr),
+    _binder(nullptr)
 {
 }
 
 ConcatValue::ConcatValue( const ConcatValue &ccol ) :
-    _default(0),
-    _binder(0)
+    _default(nullptr),
+    _binder(nullptr)
 
 {
     for( vector<CalcValue *>::const_iterator c = ccol._components.begin(); c < ccol._components.end(); c++ )
@@ -231,7 +231,7 @@ void ConcatValue::clear()
         delete *c;
     }
     _components.clear();
-    setDefault(0);
+    setDefault(nullptr);
 }
 
 ConcatValue &ConcatValue::setDefault( CalcValue *dfltValue )
@@ -239,7 +239,7 @@ ConcatValue &ConcatValue::setDefault( CalcValue *dfltValue )
     if( _default )
     {
         delete _default;
-        _default = 0;
+        _default = nullptr;
     }
     if( dfltValue )
     {
@@ -290,7 +290,7 @@ std::string *CalcReader::BindSource::value( const std::string &name ) const
 {
     Column *c = _reader.findColumn(name);
     if( c ) return &(c->value());
-    return 0;
+    return nullptr;
 }
 
 Column & CalcReader::addColumn( const std::string &name, const CalcValue &column )

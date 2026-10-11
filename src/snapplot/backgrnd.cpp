@@ -224,7 +224,7 @@ static void load_background_file( const background_file &bf )
                 }
                 got_conversion = 1;
             }
-            if( convert_coords(&cnv,xyz,NULL,xyz,NULL) != OK ) continue;
+            if( convert_coords(&cnv,xyz,nullptr,xyz,nullptr) != OK ) continue;
         }
         if( oldfirstpt && pen == 0 ) pen = 1;
         firstpt = 0;

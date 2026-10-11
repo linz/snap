@@ -41,10 +41,10 @@ vdatum *parse_vdatum_def ( input_string_def &is,
     double offset;
     int isgeoid;
     int isgrid;
-    vdatum *hrs = 0;
-    ref_frame *baserf = 0;
-    vdatum *basehrs = 0;
-    vdatum_func *hrf = 0;
+    vdatum *hrs = nullptr;
+    ref_frame *baserf = nullptr;
+    vdatum *basehrs = nullptr;
+    vdatum_func *hrf = nullptr;
 
     int sts;
 

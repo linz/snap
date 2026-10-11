@@ -310,7 +310,7 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     {
         if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1,
                                       (void *) (&(def->rows[i].fileloc)) );
-        def->rows[i].cacheloc = 0;
+        def->rows[i].cacheloc = nullptr;
 
         TRACE_GRID2(("            %03d %06ld",i,def->rows[i].fileloc));
     }
@@ -324,8 +324,8 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     def->maxcache = MAXCACHE;
     def->cache.resize( boost::numeric_cast<size_t>( def->maxcache ) + 1 );
     def->ncache = 0;
-    def->cache_mru = 0;
-    def->cache_lru = 0;
+    def->cache_mru = nullptr;
+    def->cache_lru = nullptr;
 
     def->magic = MAGIC_NUMBER;
 
@@ -407,9 +407,9 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
     INT4 undef2;
     INT4 v = 0;
     int ndim;
-    INT1 *pc = 0;
-    INT2 *ps = 0;
-    INT4 *pl = 0;
+    INT1 *pc = nullptr;
+    INT2 *ps = nullptr;
+    INT4 *pl = nullptr;
     hBinSrc binsrc;
 
 
@@ -670,7 +670,7 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
             cr = &def->cache[loc];
             cr->data.resize( boost::numeric_cast<size_t>( def->rowsize ) );
             cr->next = def->cache_mru;
-            cr->prev = 0;
+            cr->prev = nullptr;
             if( cr->next )
             {
                 cr->next->prev = cr;
@@ -681,7 +681,7 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
         else
         {
             cr = def->cache_lru;
-            cr->lat->cacheloc = 0;
+            cr->lat->cacheloc = nullptr;
         }
         cr->lat = fr;
         fr->cacheloc = cr;
@@ -710,7 +710,7 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
         cr->prev->next = cr->next;
         def->cache_mru->prev = cr;
         cr->next = def->cache_mru;
-        cr->prev = 0;
+        cr->prev = nullptr;
         def->cache_mru = cr;
     }
     *row = cr->data.data();
@@ -954,9 +954,9 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
 static grid_def_crs * grid_def_from_handle( void *handle)
 {
     grid_def_crs *def;
-    if( ! handle ) return 0;
+    if( ! handle ) return nullptr;
     def = (grid_def_crs *) handle;
-    if( def->magic != MAGIC_NUMBER ) return 0;
+    if( def->magic != MAGIC_NUMBER ) return nullptr;
     return def;
 }
 
@@ -980,7 +980,7 @@ StatusType utlCreateGrid( hBinSrc binsrc, hGrid *grid)
 {
     grid_def_crs *def;
     StatusType sts;
-    *grid = 0;
+    *grid = nullptr;
     sts = create_grid_def( &def, binsrc );
     if( sts == STS_OK ) *grid =  (void *) def;
     return sts;

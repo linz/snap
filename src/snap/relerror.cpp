@@ -78,7 +78,7 @@ static void init_calc_covar( void )
     oldxfm = gps_xfmfunc();
     oldfixed = gps_vertical_fixed();
     set_gps_vertical_fixed(0);
-    init_gps_covariances( station_vertical, (XFMFUNC) 0 );
+    init_gps_covariances( station_vertical, (XFMFUNC) nullptr );
     hA = create_oe( nprm );
 }
 
@@ -94,7 +94,7 @@ static void calc_covar( int istn1, int istn2, double *relcvr )
     /* Calculate the vector covariance (XYZ system) */
     double vec[3];
     calc_relative_obseq( stnptr(istn1), stnptr(istn2), hA );
-    lsq_calc_obs( hA, vec, NULL, NULL, NULL, 0, relcvr, NULL );
+    lsq_calc_obs( hA, vec, nullptr, nullptr, nullptr, 0, relcvr, nullptr );
     /* Convert to topocentric */
     transform_vec_to_topo( istn1, istn2, 0, vec, relcvr );
 }
@@ -242,7 +242,7 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, const std::vector
             ntest++;
             update_progress_meter( ntest );
             calc_covar( istn, jstn, covar );
-            veclen = calc_distance( stnptr(istn), 0.0, stnptr(jstn), 0.0, NULL, NULL );
+            veclen = calc_distance( stnptr(istn), 0.0, stnptr(jstn), 0.0, nullptr, nullptr );
             hratio = vratio = 0.0;
             if( gothtol )
             {

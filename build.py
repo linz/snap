@@ -307,9 +307,6 @@ def _tidy(fix: bool, jobs: int | None, build_d: Path) -> None:
     )
 
     cmd: list[str | Path] = [run_clang_tidy, "-p", build_d, "-clang-tidy-binary", clang_tidy, "-quiet"]
-    # No check is enabled in .clang-tidy yet.  Remove this option when the first check is enabled, so that
-    # an empty check list (a missing comma silently produces one) is an error and not a pass.
-    cmd.append("-allow-no-checks")
     if jobs:
         cmd.append(f"-j{jobs}")
     if fix:

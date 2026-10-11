@@ -11,8 +11,8 @@
 //}
 void wxStationSelectorTable::Setup()
 {
-    id = 0;
-    selected = 0;
+    id = nullptr;
+    selected = nullptr;
     nrows = used_station_count();
     if( nrows <= 0 ) return;
 
@@ -40,8 +40,8 @@ void wxStationSelectorTable::CleanUp()
 {
     if( id ) delete [] id;
     if( selected ) delete [] selected;
-    id = 0;
-    selected = 0;
+    id = nullptr;
+    selected = nullptr;
     selectedAttr->DecRef();
     unselectedAttr->DecRef();
 }
@@ -158,7 +158,7 @@ wxStationSelectorGrid::wxStationSelectorGrid(wxWindow* parent, wxWindowID id, co
 
 wxStationSelectorGrid::~wxStationSelectorGrid()
 {
-    SetTable( 0 );
+    SetTable( nullptr );
     delete table;
 }
 

@@ -89,7 +89,7 @@ void sl_add_station_at_id( station_list *sl, station *st )
 {
     int id=st->id;
     if( id <= sl->lastid ) return;
-    while( sl->lastid < id-1 ) sl_add_station(sl,0);
+    while( sl->lastid < id-1 ) sl_add_station(sl,nullptr);
     sl_add_station(sl,st);
 }
 
@@ -98,7 +98,7 @@ void sl_remove_station( station_list *sl, station *st )
     int id = st->id;
     if( id > 0 && id <= sl->lastid && sl->index[id] == st )
     {
-        sl->index[id]=0;
+        sl->index[id]=nullptr;
         st->id=0;
         sl->count--;
         if( id <= sl->maxsortid ) sl->maxsortid=0;
@@ -204,7 +204,7 @@ int sl_reindex_stations( station_list *sl )
     for( int i=1; i <= sl->lastid; i++ )
     {
         station *st=sl->index[i];
-        if( st == 0 )
+        if( st == nullptr )
         {
             nremove++;
         }
@@ -288,13 +288,13 @@ int sl_station_id( station_list *, station *st )
 
 station *sl_station_ptr( station_list *sl, int istn )
 {
-    if( istn < 1 || istn > sl->lastid ) return NULL;
+    if( istn < 1 || istn > sl->lastid ) return nullptr;
     return sl->index[istn];
 }
 
 station *sl_station_sorted_ptr( station_list *sl, int istn )
 {
-    if( istn < 1 || istn > sl->nsorted ) return NULL;
+    if( istn < 1 || istn > sl->nsorted ) return nullptr;
     return sl->codeindex[istn];
 }
 
@@ -318,7 +318,7 @@ void sl_reset_station_list( station_list *sl, int sorted )
 
 station *sl_next_station( station_list *sl )
 {
-    station *st=0;
+    station *st=nullptr;
 
     if( sl->usesorted )
     {

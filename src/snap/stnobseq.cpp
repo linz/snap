@@ -133,7 +133,7 @@ int add_station_colocation_constraints()
         }
 
         /* Process before ### updates */
-        station*st0=0;
+        station*st0=nullptr;
         double herror2=0.0;
         double verror2=0.0;
         for( auto recode=recodes->begin(); recode != recodes->end(); ++recode )
@@ -161,7 +161,7 @@ int add_station_colocation_constraints()
                 /* If disconnected then breaks link with previous versions */
                 else
                 {
-                    st0=0;
+                    st0=nullptr;
                     herror2=0.0;
                     verror2=0.0;
                 }
@@ -174,7 +174,7 @@ int add_station_colocation_constraints()
                     sts0=add_colocation_constraint( st0, stto, sqrt(herror2), sqrt(verror2) );
                     if( sts0 != OK ) sts=sts0;
                 }
-                st0=0;
+                st0=nullptr;
                 herror2=0.0;
                 verror2=0.0;
             }
@@ -500,7 +500,7 @@ void update_station_coords( void )
                 int rows[2];
                 rows[1] = sa->hrowno;
                 rows[0] = rows[1]-1;
-                lsq_get_params( rows, 2, change, NULL );
+                lsq_get_params( rows, 2, change, nullptr );
                 lon += change[0] / st->dEdLn;
                 lat += change[1] / st->dNdLt;
             }
@@ -509,7 +509,7 @@ void update_station_coords( void )
             {
                 int rows[1];
                 rows[0] = sa->vrowno-1;
-                lsq_get_params( rows, 1, change, NULL );
+                lsq_get_params( rows, 1, change, nullptr );
                 hgt += change[0];
             }
 
@@ -530,7 +530,7 @@ void print_coordinate_changes( FILE *out )
             stn_name_width,"Code");
 
     for( reset_station_list(net, (int)output_sorted_stations);
-            NULL != (st = next_station( net )); )
+            nullptr != (st = next_station( net )); )
     {
         sa = stnadj( st );
         if( sa->hrowno || sa->vrowno )
@@ -543,7 +543,7 @@ void print_coordinate_changes( FILE *out )
                 int rows[2];
                 rows[1] = sa->hrowno;
                 rows[0] = rows[1]-1;
-                lsq_get_params( rows, 2, change, NULL );
+                lsq_get_params( rows, 2, change, nullptr );
                 fprintf(out,"%9.*lf  %9.*lf  ", (int) coord_precision,
                         change[0], (int) coord_precision, change[1]);
             }
@@ -556,7 +556,7 @@ void print_coordinate_changes( FILE *out )
             {
                 int rows[1];
                 rows[0] = sa->vrowno-1;
-                lsq_get_params( rows, 1, change, NULL );
+                lsq_get_params( rows, 1, change, nullptr );
                 fprintf(out,"%9.*lf",(int) coord_precision,change[0]);
             }
             else
@@ -706,7 +706,7 @@ void print_adjusted_coordinates( FILE *lst )
     }
 
     for( reset_station_list(net,(int)output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
 
         sa = stnadj(st);
@@ -841,7 +841,7 @@ void write_station_csv()
     adjusted = 0;
     autofix = 0;
     for( reset_station_list(net,(int)output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
 
         sa = stnadj(st);
@@ -942,7 +942,7 @@ void write_station_csv()
     hA=create_oe(nprm);
 
     for( reset_station_list(net,(int)output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
 
         sa = stnadj(st);
@@ -979,7 +979,7 @@ void write_station_csv()
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
-            llh_to_xyz( elp, llh, xyz, 0, 0);
+            llh_to_xyz( elp, llh, xyz, nullptr, nullptr);
             csv->writeDouble( xyz[CRD_X], coord_precision );
             csv->writeDouble( xyz[CRD_Y], coord_precision );
             csv->writeDouble( xyz[CRD_Z], coord_precision );
@@ -1092,7 +1092,7 @@ void write_station_csv()
                 double res[3]={0.0,0.0,0.0};
                 if( nfprm )
                 {
-                    lsq_calc_obs( hA, calc, res, 0, 0, 0, calccvr, cvr );
+                    lsq_calc_obs( hA, calc, res, nullptr, nullptr, 0, calccvr, cvr );
                 }
                     
                 int vrow=0;
@@ -1234,7 +1234,7 @@ void print_floated_stations( FILE *out )
     void *hA = create_oe( nprm );
 
     for( reset_station_list(net,(int)output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
         int nfprm=float_station_obseq(st,hA);
         if( ! nfprm ) continue;
@@ -1242,9 +1242,9 @@ void print_floated_stations( FILE *out )
         int axis0=nfprm==1 ? 2 : 0;
         int axis1=nfprm==2 ? 2 : 3;
 
-        lsq_calc_obs( hA, calc, res, 0, 0, 0, calccvr, rescvr );
+        lsq_calc_obs( hA, calc, res, nullptr, nullptr, 0, calccvr, rescvr );
         sa=stnadj(st);
-        station *stcol=0;
+        station *stcol=nullptr;
         if( relative_floating && sa->idcol ) 
         {
             stcol=stnptr(sa->idcol);
@@ -1274,7 +1274,7 @@ void print_floated_stations( FILE *out )
                 fprintf( out, "     -\n");
             }
             rowno++;
-            stcol=0;
+            stcol=nullptr;
         }
     }
     delete_oe( hA );
@@ -1287,7 +1287,7 @@ void print_station_offsets( FILE * )
     char first=1;
 
     for( reset_station_list(net,(int)output_sorted_stations);
-            NULL != (st = next_station(net)); )
+            nullptr != (st = next_station(net)); )
     {
         if( ! station_has_offset(st)) continue;
         if( first )
@@ -1333,7 +1333,7 @@ void max_station_adjustment( double tol, int *pmaxadjstn,
                 int rows[2];
                 rows[1] = sa->hrowno;
                 rows[0] = rows[1]-1;
-                lsq_get_params( rows, 2, change, NULL );
+                lsq_get_params( rows, 2, change, nullptr );
                 adj = change[0]*change[0] + change[1]*change[1];
             }
 
@@ -1341,7 +1341,7 @@ void max_station_adjustment( double tol, int *pmaxadjstn,
             {
                 int rows[1];
                 rows[0] = sa->vrowno-1;
-                lsq_get_params( rows, 1, change, NULL );
+                lsq_get_params( rows, 1, change, nullptr );
                 adj += change[0]*change[0];
             }
 

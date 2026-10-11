@@ -27,7 +27,7 @@ void print_gps_baselines( FILE *out, int *stn, int nstns )
     {
         station *s2;
         s2 = station_ptr( net, stn[j] );
-        calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, NULL, NULL );
+        calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr );
         fprintf(out,"%-5s %-5s %10.3lf %10.3lf %10.3lf\n",s1->Code.c_str(),s2->Code.c_str(),
                 dxyz[0],dxyz[1],dxyz[2] );
     }
@@ -43,7 +43,7 @@ void print_multistation_gps( FILE *out, int *stn, int nstns )
     for( i = 1; i < nstns; i++ )
     {
         s2 = station_ptr( net, stn[i] );
-        calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, NULL, NULL );
+        calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr );
         fprintf(out,"%-5s %10.3lf %10.3lf %10.3lf\n",s2->Code.c_str(),
                 dxyz[0],dxyz[1],dxyz[2] );
     }
@@ -61,7 +61,7 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
     {
         double d;
         s2 = station_ptr( net, stn[i] );
-        d = calc_distance( s1, 0.0, s2, 0.0, NULL, NULL );
+        d = calc_distance( s1, 0.0, s2, 0.0, nullptr, nullptr );
         if( d < minlen || d > maxlen ) continue;
         stn[istn++] = stn[i];
     }
@@ -70,12 +70,12 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
     if( !dst ) return istn;
 
     s2 = station_ptr( net, stn[1] );
-    dst[1] = calc_distance( s1, 0.0, s2, 0.0, NULL, NULL );
+    dst[1] = calc_distance( s1, 0.0, s2, 0.0, nullptr, nullptr );
     for( i = 2; i < istn; i++ )
     {
         int si = stn[i];
         int j;
-        double d = calc_distance( s1, 0.0, station_ptr(net, si), 0.0, NULL, NULL );
+        double d = calc_distance( s1, 0.0, station_ptr(net, si), 0.0, nullptr, nullptr );
         j = i-1;
         if( j > nmax ) j = nmax;
 
@@ -95,7 +95,7 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
 
 int main( int argc, char *argv[] )
 {
-    FILE *in=NULL, *out;
+    FILE *in=nullptr, *out;
     int *stn;
     int *stn2;
     double *dst;
@@ -166,13 +166,13 @@ int main( int argc, char *argv[] )
     dst = new double[nostns];
     stn2 = stn + nostns;
 
-    if( !autolist && (NULL == (in = fopen(argv[2],"r"))))
+    if( !autolist && (nullptr == (in = fopen(argv[2],"r"))))
     {
         printf("Cannot open list file %s\n",argv[2]);
         return 0;
     }
 
-    if( NULL == (out = fopen(argv[(autolist ? 2 :3)],"w")))
+    if( nullptr == (out = fopen(argv[(autolist ? 2 :3)],"w")))
     {
         printf("Cannot open output data file %s\n",argv[(autolist ? 2 : 3)]);
         return 0;
@@ -212,7 +212,7 @@ int main( int argc, char *argv[] )
 
             if( !fgets(inrec,512,in) ) break;
             if( inrec[0] == '!' || inrec[0] == '#' ) { fputs(inrec,out); continue; }
-            for( code = strtok(inrec," \t\r\n"); code; code = strtok(NULL," \t\r\n") )
+            for( code = strtok(inrec," \t\r\n"); code; code = strtok(nullptr," \t\r\n") )
             {
                 int id;
                 int i;

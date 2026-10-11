@@ -56,7 +56,7 @@ public:
     virtual bool Validate( wxWindow *parent );
 
 private:
-    wxString *value=0;
+    wxString *value=nullptr;
     char delimiter=0;
 };
 
@@ -84,7 +84,7 @@ public:
 
     // Stuff for creating controls
 
-    wxStaticText *Label( wxString text, wxWindow *window = 0 );
+    wxStaticText *Label( wxString text, wxWindow *window = nullptr );
     wxTextCtrl *TextBox( wxString &string, int nch = 20, int nlines = 1, wxString validChar = wxEmptyString );
     wxTextCtrl *NumberBox( int &value, bool positive = true, int nch = 10 );
     wxTextCtrl *NumberBox( double &value, bool positive = true, int ndp = 2, int nch = 12 );
@@ -109,7 +109,7 @@ public:
     // Stuff for adding controls in the constructor
 
     void AddSpacer();
-    wxStaticText *AddLabel(wxString label, wxWindow *window = 0 );
+    wxStaticText *AddLabel(wxString label, wxWindow *window = nullptr );
     wxTextCtrl *AddTextBox(wxString label, wxString &string, int nch = 20, int nlines = 1, wxString validChar = wxEmptyString );
     wxListBox *AddListBox( wxString label, wxString &string, wxString options, int type, int width=-1, int height=-1 );
     wxTextCtrl *AddNumberBox(wxString label, int &value, bool positive = true, int nch = 10 );
