@@ -84,7 +84,8 @@ TIDY_BUILD_DIR = REPO_ROOT / "build-tidy"
 
 # The files clang-tidy runs on: every C++ source under src/, except the vendored third_party
 # code and scriptimp_parse.cpp, which lapg generates from its grammar and which is overwritten
-# by every build.  Anchored at REPO_ROOT so tools/lapg/src is not matched.
+# by every build.  Anchored at REPO_ROOT so tools/lapg/src is not matched.  clang-tidy only runs
+# on files in the compile database, so src/wxtest, which has no CMake target, is not analysed.
 TIDY_FILE_REGEX = rf"^{re.escape(str(REPO_ROOT))}/src/(?!third_party/)(?!.*/scriptimp_parse\.cpp$).*\.cpp$"
 
 
@@ -267,13 +268,15 @@ def find_clang_tidy() -> str:
 
 
 def find_run_clang_tidy() -> str:
-    """Finds the run-clang-tidy driver script, preferring the one at REQUIRED_CLANG_VERSION, or aborts.
-    Any version of the script will do, because find_clang_tidy's binary is passed to it explicitly."""
-    for name in (f"run-clang-tidy-{REQUIRED_CLANG_VERSION}", "run-clang-tidy"):
-        path = shutil.which(name)
-        if path:
-            return path
-    print(f"ABORTED: run-clang-tidy (from the clang-tidy {REQUIRED_CLANG_VERSION} package) is required - see BUILD.md")
+    """Finds the run-clang-tidy driver at REQUIRED_CLANG_VERSION, or aborts.  An unversioned driver can
+    belong to a different LLVM, whose options and output differ."""
+    path = shutil.which(f"run-clang-tidy-{REQUIRED_CLANG_VERSION}")
+    if path:
+        return path
+    print(
+        f"ABORTED: run-clang-tidy-{REQUIRED_CLANG_VERSION} (from the clang-tidy-{REQUIRED_CLANG_VERSION} "
+        "package) is required - see BUILD.md"
+    )
     sys.exit(1)
 
 
@@ -287,7 +290,7 @@ def _tidy(fix: bool, jobs: int | None, build_d: Path) -> None:
     clang_tidy = find_clang_tidy()
     run_clang_tidy = find_run_clang_tidy()
 
-    # Always the GUI build: it is the only configuration that compiles every source file.
+    # Always the GUI build: it is the configuration that compiles the most source files.
     run(
         [
             "cmake",
@@ -430,7 +433,7 @@ def main() -> None:  # pylint: disable=too-many-branches
             print(f"{args.target} target only supported for debug builds")
             sys.exit(1)
         if args.no_gui:
-            print(f"ABORTED: {args.target} always configures with the GUI on, so that every source file is checked")
+            print(f"ABORTED: {args.target} always configures with the GUI on, so that the GUI sources are checked")
             sys.exit(1)
         tidy_build_d = args.build_dir if args.build_dir else TIDY_BUILD_DIR
         if args.target == "tidy":
