@@ -9,12 +9,12 @@ class SnapplotMapPrinter : public wxPrintout
 {
 public:
     SnapplotMapPrinter( const wxString &title, wxMap *map, wxMapScale *scale, Symbology *symbology );
-    ~SnapplotMapPrinter();
+    ~SnapplotMapPrinter() override;
     //
-    bool OnPrintPage(int page);
-    bool HasPage(int page);
-    bool OnBeginDocument(int startPage, int endPage);
-    void GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo);
+    bool OnPrintPage(int page) override;
+    bool HasPage(int page) override;
+    bool OnBeginDocument(int startPage, int endPage) override;
+    void GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo) override;
 
 private:
     wxMap *sourceMap;

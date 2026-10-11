@@ -21,9 +21,9 @@ class wxOptionValidatorBase : public wxValidator
 public:
     wxOptionValidatorBase( const std::vector<ListControlOption> &options, int *value = nullptr );
     wxOptionValidatorBase( const wxOptionValidatorBase &validator );
-    virtual bool TransferToWindow();
-    virtual bool TransferFromWindow();
-    virtual bool Validate( wxWindow *parent );
+    bool TransferToWindow() override;
+    bool TransferFromWindow() override;
+    bool Validate( wxWindow *parent ) override;
 protected:
     virtual int GetSelectedIndex()=0;
     virtual void SetSelectedIndex( int i )=0;
@@ -37,10 +37,10 @@ class wxRadioBoxOptionValidator : public wxOptionValidatorBase
 public:
     wxRadioBoxOptionValidator( const std::vector<ListControlOption> &options, int *value = nullptr ) : wxOptionValidatorBase(options,value) {};
     wxRadioBoxOptionValidator( const wxRadioBoxOptionValidator &validator ) : wxOptionValidatorBase(validator) {};
-    virtual wxValidator *Clone() const { return new wxRadioBoxOptionValidator( *this ); }
+    wxValidator *Clone() const override { return new wxRadioBoxOptionValidator( *this ); }
 protected:
-    virtual int GetSelectedIndex();
-    virtual void SetSelectedIndex( int i );
+    int GetSelectedIndex() override;
+    void SetSelectedIndex( int i ) override;
 };
 
 
@@ -50,10 +50,10 @@ public:
     wxSimpleListBoxValidator( char delimiter, wxString *value );
     wxSimpleListBoxValidator( const wxSimpleListBoxValidator &validator );
 
-    virtual wxValidator *Clone() const { return new wxSimpleListBoxValidator( *this ); }
-    virtual bool TransferToWindow();
-    virtual bool TransferFromWindow();
-    virtual bool Validate( wxWindow *parent );
+    wxValidator *Clone() const override { return new wxSimpleListBoxValidator( *this ); }
+    bool TransferToWindow() override;
+    bool TransferFromWindow() override;
+    bool Validate( wxWindow *parent ) override;
 
 private:
     wxString *value=nullptr;
@@ -66,10 +66,10 @@ public:
     wxFilePickerValidator( wxString *filename, const wxString &message = wxEmptyString );
     wxFilePickerValidator( const wxFilePickerValidator &validator );
 
-    virtual wxValidator *Clone() const { return new wxFilePickerValidator( *this ); }
-    virtual bool TransferToWindow();
-    virtual bool TransferFromWindow();
-    virtual bool Validate( wxWindow *parent );
+    wxValidator *Clone() const override { return new wxFilePickerValidator( *this ); }
+    bool TransferToWindow() override;
+    bool TransferFromWindow() override;
+    bool Validate( wxWindow *parent ) override;
 
 private:
     wxString *filename;
@@ -80,7 +80,7 @@ class wxSimpleDialog : public wxDialog
 {
 public:
     wxSimpleDialog( wxString title, long buttonFlags  = wxOK | wxCANCEL | wxHELP );
-    virtual ~wxSimpleDialog();
+    ~wxSimpleDialog() override;
 
     // Stuff for creating controls
 

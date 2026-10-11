@@ -41,11 +41,11 @@ class ObsListOptionsDialog : public wxSimpleDialog
 {
 public:
     ObsListOptionsDialog( wxHelpController *help );
-    ~ObsListOptionsDialog();
+    ~ObsListOptionsDialog() override;
 
 protected:
-    virtual void ReadData();
-    virtual void Apply();
+    void ReadData() override;
+    void Apply() override;
 
 private:
     int obsToShow;

@@ -138,9 +138,9 @@ class WhitespaceFormat : public Format
 {
 public:
     WhitespaceFormat() {}
-    WhitespaceFormat *clone() const;
+    WhitespaceFormat *clone() const override;
 protected:
-    virtual bool parseRecord();
+    bool parseRecord() override;
 };
 
 class CsvFormat : public Format
@@ -148,12 +148,12 @@ class CsvFormat : public Format
 public:
     CsvFormat( char delimiter=',', char escape='"', char quote='"') :
         _delimiter(delimiter), _escape(escape), _quote(quote) {}
-    CsvFormat *clone() const;
+    CsvFormat *clone() const override;
     void setDelimiter( char delimiter ) { _delimiter = delimiter; }
     void setQuote( char quote ) { _quote = quote; }
     void setEscape( char escape ) { _escape = escape; }
 protected:
-    virtual bool parseRecord();
+    bool parseRecord() override;
 private:
     char _delimiter;
     char _escape;

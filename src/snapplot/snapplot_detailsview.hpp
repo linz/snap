@@ -21,7 +21,7 @@ class SnapplotDetailsView : public wxHtmlWindow
 {
 public:
     SnapplotDetailsView( wxWindow *parent );
-    ~SnapplotDetailsView();
+    ~SnapplotDetailsView() override;
     void Show( const PutTextInfo &info );
     void RefreshText();
 

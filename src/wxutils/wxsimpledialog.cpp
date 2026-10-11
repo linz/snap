@@ -85,10 +85,10 @@ public:
     wxControlWithItemsValidator( wxControlWithItems *ctrl, const std::vector<ListControlOption> &options, int *value = nullptr ):
         wxOptionValidatorBase(options,value), ctrl(ctrl) {};
     wxControlWithItemsValidator( const wxControlWithItemsValidator &validator ) : wxOptionValidatorBase(validator), ctrl(validator.ctrl) {};
-    virtual wxValidator *Clone() const { return new wxControlWithItemsValidator( *this ); }
+    wxValidator *Clone() const override { return new wxControlWithItemsValidator( *this ); }
 protected:
-    virtual int GetSelectedIndex();
-    virtual void SetSelectedIndex( int i );
+    int GetSelectedIndex() override;
+    void SetSelectedIndex( int i ) override;
 private:
     wxControlWithItems *ctrl;
 };

@@ -20,10 +20,10 @@ class DatafileInput : public RecordInputBase
 public:
     DatafileInput( const std::string &filename, const std::string &description = "data file" );
     DatafileInput( DATAFILE &df, bool (*check_progress)( DATAFILE &df ) = nullptr );
-    virtual bool getNextLine( std::string &line );
+    bool getNextLine( std::string &line ) override;
     // Return true if the error is handled
-    virtual bool handleError( const RecordError &error );
-    virtual int lineNumber();
+    bool handleError( const RecordError &error ) override;
+    int lineNumber() override;
     int errorCount();
     bool aborted() { return _aborted; }
 private:

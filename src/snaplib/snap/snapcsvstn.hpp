@@ -44,14 +44,14 @@ namespace LINZ
 
         public:
             SnapCsvStn(network *net, const std::string &name, const OptionString &config = OptionString(""));
-            virtual ~SnapCsvStn();
+            ~SnapCsvStn() override;
 
         protected:
-            virtual void loadDefinitionCommand(const std::string &command, RecordStream &rs);
-            virtual void readerAttached();
-            virtual void initialiseLoadData();
-            virtual void loadRecord();
-            virtual void terminateLoadData();
+            void loadDefinitionCommand(const std::string &command, RecordStream &rs) override;
+            void readerAttached() override;
+            void initialiseLoadData() override;
+            void loadRecord() override;
+            void terminateLoadData() override;
 
         private:
             void findClassColumns(CalcReader *reader, const std::string &colName);

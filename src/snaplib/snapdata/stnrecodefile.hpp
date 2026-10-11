@@ -18,12 +18,12 @@ class SnapCsvRecode : public SnapCsvBase
 
 public:
     SnapCsvRecode( stn_recode_map *stt, const std::string &name );
-    virtual ~SnapCsvRecode();
+    ~SnapCsvRecode() override;
 
 protected:
-    virtual void loadDefinitionCommand( const std::string &command, RecordStream &rs );
-    virtual void readerAttached();
-    virtual void loadRecord();
+    void loadDefinitionCommand( const std::string &command, RecordStream &rs ) override;
+    void readerAttached() override;
+    void loadRecord() override;
 
 private:
     void dataError( const std::string &message );

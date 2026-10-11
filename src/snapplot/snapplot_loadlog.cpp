@@ -12,7 +12,7 @@ class SnapplotLoadLogger : public wxLog
 {
 public:
     SnapplotLoadLogger( SnapplotLoadLog *logWindow );
-    void DoLogText(const wxString &msg);
+    void DoLogText(const wxString &msg) override;
 private:
     SnapplotLoadLog *logWindow;
 

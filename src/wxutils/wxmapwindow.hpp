@@ -22,7 +22,7 @@ public:
     const wxMouseEvent &GetMouseEvent() { return mouseEvent; }
 
     // required for sending with wxPostEvent()
-    virtual wxEvent* Clone() const { return new wxMapWindowEvent(*this); }
+    wxEvent* Clone() const override { return new wxMapWindowEvent(*this); }
 
 
 private:
@@ -130,16 +130,16 @@ class wxMapScaleDragger : public wxMapDragger
 {
 public:
     wxMapScaleDragger();
-    virtual bool InitDrag( const wxMouseEvent &event );
-    virtual void SetDragCursor();
-    virtual void EndDrag();
+    bool InitDrag( const wxMouseEvent &event ) override;
+    void SetDragCursor() override;
+    void EndDrag() override;
     void SetZoomDragMode( ZoomDragMode newMode );
     void SetAutoZoomPanMode( bool newMode = true );
 protected:
     // protected, not private: a subclass may need to call this base
     // implementation directly (qualified, non-virtually) from within its
     // own override, which requires at least protected access.
-    virtual void DrawDragger( wxDC &dc );
+    void DrawDragger( wxDC &dc ) override;
 private:
     void ZoomTo( const MapRect &newRect );
     ZoomDragMode zoomMode;
@@ -158,7 +158,7 @@ class wxMapWindow : public wxWindow
 public:
     wxMapWindow();
     wxMapWindow( wxWindow *parent, wxWindowID id );
-    ~wxMapWindow();
+    ~wxMapWindow() override;
 
     wxMapScale &GetScale() { return scale; }
     Symbology *GetSymbology() { return symbology; }

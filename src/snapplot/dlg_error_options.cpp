@@ -12,8 +12,8 @@ class ErrorOptionsDialog : public wxSimpleDialog
 {
 public:
     ErrorOptionsDialog( wxHelpController *help = nullptr );
-    virtual void ReadData();
-    virtual void Apply();
+    void ReadData() override;
+    void Apply() override;
 
 private:
     int aPosteriori;

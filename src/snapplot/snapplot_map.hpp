@@ -14,12 +14,12 @@ class SnapplotMap : public wxMap
 {
 public:
     SnapplotMap();
-    virtual ~SnapplotMap();
-    virtual void GetMapExtents( MapRect &extents );
-    virtual void GetLayer( Symbology &symbology );
-    virtual void *StartDrawing();
-    virtual bool DrawSome( wxMapDrawer &drawer, void *state );
-    virtual void EndDrawing( void *state );
+    ~SnapplotMap() override;
+    void GetMapExtents( MapRect &extents ) override;
+    void GetLayer( Symbology &symbology ) override;
+    void *StartDrawing() override;
+    bool DrawSome( wxMapDrawer &drawer, void *state ) override;
+    void EndDrawing( void *state ) override;
 private:
 
     enum

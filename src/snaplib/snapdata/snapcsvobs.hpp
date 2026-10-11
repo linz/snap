@@ -136,14 +136,14 @@ namespace LINZ
 
         public:
             SnapCsvObs(const std::string &name, const OptionString &config = OptionString(""));
-            virtual ~SnapCsvObs();
+            ~SnapCsvObs() override;
 
         protected:
-            virtual void loadDefinitionCommand(const std::string &command, RecordStream &rs);
-            virtual void readerAttached();
-            virtual void initialiseLoadData();
-            virtual void loadRecord();
-            virtual void terminateLoadData();
+            void loadDefinitionCommand(const std::string &command, RecordStream &rs) override;
+            void readerAttached() override;
+            void initialiseLoadData() override;
+            void loadRecord() override;
+            void terminateLoadData() override;
 
         private:
             void loadObservationDefinition(RecordStream &rs, CsvObservation &obs);

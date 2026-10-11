@@ -149,7 +149,7 @@ public:
     // font size to points.
 
     PointSymbology( wxString name, int nNodes = 0, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
-    ~PointSymbology();
+    ~PointSymbology() override;
 
     void SetSymbol( int nNodes = 0, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
     void AddSymbol( int nNodes, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
@@ -203,7 +203,7 @@ class TextStyle : public SymbologyBase
 {
 public:
     TextStyle( wxString name, const wxFont &font, const wxColour &colour = wxNullColour );
-    ~TextStyle();
+    ~TextStyle() override;
 
     void SetFont( const wxFont &font, const wxColour &colour = wxNullColour );
     void Render( wxDC &dc, wxPoint &pt, wxString string, const TextAlign &alignment, int refSize, const wxColour &defaultColour );

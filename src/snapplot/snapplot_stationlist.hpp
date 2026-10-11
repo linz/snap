@@ -9,17 +9,17 @@ class SnapplotStationSource : public wxTabbedTextSource
 {
 public:
     SnapplotStationSource();
-    ~SnapplotStationSource();
-    virtual std::string GetHeader();
-    virtual int GetRowCount();
-    virtual std::string GetRow( int i );
+    ~SnapplotStationSource() override;
+    std::string GetHeader() override;
+    int GetRowCount() override;
+    std::string GetRow( int i ) override;
 };
 
 class SnapplotStationList : public wxTabbedTextGrid
 {
 public:
     SnapplotStationList( wxWindow* parent, wxWindowID id );
-    ~SnapplotStationList();
+    ~SnapplotStationList() override;
     void Reload();
 private:
     void OnLabelLeftClick( wxGridEvent &event );

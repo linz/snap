@@ -30,7 +30,7 @@ public:
     const PutTextInfo &GetInfo() const { return info; }
 
     // required for sending with wxPostEvent()
-    virtual wxEvent* Clone() const;
+    wxEvent* Clone() const override;
 
 private:
     PutTextInfo info;

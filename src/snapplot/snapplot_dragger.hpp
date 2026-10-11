@@ -8,13 +8,13 @@ class SnapplotMapDragger : public wxMapScaleDragger
 public:
     SnapplotMapDragger( int tolerance = 10 );
     ~SnapplotMapDragger();
-    virtual bool InitDrag( const wxMouseEvent &event );
+    bool InitDrag( const wxMouseEvent &event ) override;
     // virtual void SetDragCursor();
-    virtual void EndDrag();
+    void EndDrag() override;
     void SetPickTolerance( int tolerance ) { pickTolerance = tolerance; }
 
 protected:
-    virtual void DrawDragger( wxDC &dc );
+    void DrawDragger( wxDC &dc ) override;
 
 private:
     bool shiftStation;

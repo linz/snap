@@ -48,7 +48,7 @@ class SnapJob : public SnapJobFile
 public:
     static wxString SnapUser();
     SnapJob( wxString fileName );
-    ~SnapJob();
+    ~SnapJob() override;
 
     wxString Title();
     wxString CoordinateFilename();
@@ -67,7 +67,7 @@ public:
     bool Save();
     bool IsSaved();
 
-    virtual bool Update();
+    bool Update() override;
 
 private:
     // Function loads commands from the command file, noting

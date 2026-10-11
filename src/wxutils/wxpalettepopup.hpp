@@ -45,7 +45,7 @@ class wxPalettePopup : public wxPopupTransientWindow
 {
 public:
     wxPalettePopup( ColourPalette *palette, wxWindow* parent, wxWindowID id = wxID_ANY );
-    ~wxPalettePopup();
+    ~wxPalettePopup() override;
 
     void SetPalette( ColourPalette *newPalette );
     ColourPalette *Palette() { return palette; }
