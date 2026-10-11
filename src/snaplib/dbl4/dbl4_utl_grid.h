@@ -21,7 +21,7 @@
 #include "dbl4_utl_binsrc.h"
 #endif
 
-typedef void *hGrid;
+using hGrid = void *;
 
 StatusType utlCreateGrid( hBinSrc blob, hGrid * grid);
 

@@ -22,7 +22,7 @@
 /// Called by report_string_error() to report a parse error, with whatever
 /// opaque context input_string_def::source carries (e.g. a DATAFILE*, cast
 /// back to its concrete type by the handler).
-typedef int (*input_string_errfunc)( void *source, int status, std::string_view message );
+using input_string_errfunc = int (*)( void *source, int status, std::string_view message );
 
 /// A cursor over one piece of input text being parsed field-by-field, plus
 /// enough context to attribute a parse error back to where the text came
@@ -43,7 +43,7 @@ struct input_string_def
 /* Output string def - defines a way of sending strings to some form
    of output device */
 
-typedef int (*output_string_func)( std::string_view string, void *sink );
+using output_string_func = int (*)( std::string_view string, void *sink );
 
 struct output_string_def
 {

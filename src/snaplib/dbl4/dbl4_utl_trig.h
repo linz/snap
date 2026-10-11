@@ -26,7 +26,7 @@
 #define TRGDAT_FILE_HEADER_1 "SNAP trig binary v2.0 \r\n\x1A"
 #define TRGDAT_FILE_HEADER_2 "CRS trig binary v2.0  \r\n\x1A"
 
-typedef void *hTrig;
+using hTrig = void *;
 
 StatusType utlCreateTrig( hBinSrc blob, hTrig * trig);
 

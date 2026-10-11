@@ -15,7 +15,7 @@
 #include <string>
 #include <string_view>
 
-typedef double tmatrix[3][3];   /* Vector transformation matrix */
+using tmatrix = double[3][3];   /* Vector transformation matrix */
 
 /* Parameters of a reference frame transformation */
 /* Note: Code control.c (snap) assumes these are ordered as for

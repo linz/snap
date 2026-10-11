@@ -20,8 +20,8 @@
 
 /* Integer types */
 
-typedef long IdType;
-typedef int  StatusType;        /* Used for function return values */
+using IdType = long;
+using StatusType = int;        /* Used for function return values */
 
 /* Date types */
 
@@ -38,8 +38,8 @@ struct DateTimeType
 
 /* Database handle types */
 
-typedef void *DBHandle;
-typedef void *DBRowHandle;
+using DBHandle = void *;
+using DBRowHandle = void *;
 
 /* Integers of specific sizes */
 

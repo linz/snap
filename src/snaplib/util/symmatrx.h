@@ -12,7 +12,7 @@
 #ifndef _SYMMATRX_H
 #define _SYMMATRX_H
 
-typedef double *ltmat;
+using ltmat = double *;
 
 
 /*------------------------------------------------------------*/

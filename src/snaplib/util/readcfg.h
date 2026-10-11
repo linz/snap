@@ -77,7 +77,7 @@ struct CFG_FILE
 /* Definition of an item in a configuration file - the user supplies an
    array of items to the read_config_file routine */
 
-typedef int (*config_store_func)( CFG_FILE *cfg, std::string_view valst, void *value, int vallen, int code);
+using config_store_func = int (*)( CFG_FILE *cfg, std::string_view valst, void *value, int vallen, int code);
 
 struct config_item
 {

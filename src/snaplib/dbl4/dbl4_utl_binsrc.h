@@ -44,7 +44,7 @@ struct BinSrc
     /// True if the byte order of the values read has to be reversed
     bool swap_bytes() const { return src_endian != arch_endian; }
 };
-typedef BinSrc *hBinSrc;
+using hBinSrc = BinSrc *;
 
 /* The offset value to specify to continue reading from the last read
    statement */

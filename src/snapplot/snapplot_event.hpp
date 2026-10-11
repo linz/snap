@@ -43,7 +43,7 @@ DECLARE_EVENT_TYPE( wxEVT_SHOW_DETAILVIEW, -1 )
 DECLARE_EVENT_TYPE( wxEVT_ZOOM_MAPVIEW, -1 )
 DECLARE_EVENT_TYPE( wxEVT_LOCATE_MAPVIEW, -1 )
 
-typedef void (wxEvtHandler::*wxSnapplotEventFunction)(wxSnapplotEvent&);
+using wxSnapplotEventFunction = void (wxEvtHandler::*)(wxSnapplotEvent&);
 
 #define EVT_SNAPPLOT_EVENT( eventtype, fn) \
     DECLARE_EVENT_TABLE_ENTRY( eventtype, wxID_ANY, -1, \

@@ -23,7 +23,7 @@ struct PutTextInfo
 };
 
 
-typedef void (*PutTextFunc)( void *object, PutTextInfo *jump, const std::string &text );
+using PutTextFunc = void (*)( void *object, PutTextInfo *jump, const std::string &text );
 
 /* Calls a PutTextFunc, passing no PutTextInfo */
 

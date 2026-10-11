@@ -14,7 +14,7 @@ public:
 };
 
 
-typedef void (wxEvtHandler::*wxSimpleEventFunction)(wxSimpleEvent&);
+using wxSimpleEventFunction = void (wxEvtHandler::*)(wxSimpleEvent&);
 
 #define EVT_SIMPLE_EVENT( eventtype, fn) \
     DECLARE_EVENT_TABLE_ENTRY( eventtype, wxID_ANY, -1, \

@@ -41,8 +41,8 @@ void set_obs_modifications_network( void *obsmod, network *nw );
 /* Crude fix to avoid snapdata dependency on snap.  Would be nicer with environment pointer.
  * For C++ rewrite! */
 
-typedef int (*fileid_func)(std::string_view filename, file_context *context);
-typedef std::string (*filename_func)(int ifile);
+using fileid_func = int (*)(std::string_view filename, file_context *context);
+using filename_func = std::string (*)(int ifile);
 void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc, filename_func namefunc );
 
 /* Add modifications based on a string specifying multiple criteria */

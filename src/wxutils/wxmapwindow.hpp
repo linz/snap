@@ -31,7 +31,7 @@ private:
     DECLARE_NO_ASSIGN_CLASS( wxMapWindowEvent )
 };
 
-typedef void (wxEvtHandler::*wxMapWindowEventFunction)(wxMapWindowEvent&);
+using wxMapWindowEventFunction = void (wxEvtHandler::*)(wxMapWindowEvent&);
 
 #define EVT_MAPWINDOW_EVENT( eventtype, fn) \
     DECLARE_EVENT_TABLE_ENTRY( eventtype, wxID_ANY, -1, \

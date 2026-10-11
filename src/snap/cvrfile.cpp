@@ -42,7 +42,7 @@ using boost::numeric_cast;
 #include "util/pi.h"
 #include "util/getversion.h"
 
-typedef double tmatrix[3][3];   /* Vector transformation matrix */
+using tmatrix = double[3][3];   /* Vector transformation matrix */
 
 void print_coord_covariance( void )
 {

@@ -22,16 +22,16 @@
 
 #include <stdlib.h>
 
-typedef int mi_boolean;
-typedef long mi_integer;
-typedef char mi_lvarchar;
-typedef char mi_string;
-typedef double mi_double_precision;
-typedef void *MI_CONNECTION;
-typedef void *MI_ROW;
-typedef void *MI_ROW_DESC;
-typedef void *MI_DATUM;
-typedef long MI_LO_HANDLE;
+using mi_boolean = int;
+using mi_integer = long;
+using mi_lvarchar = char;
+using mi_string = char;
+using mi_double_precision = double;
+using MI_CONNECTION = void *;
+using MI_ROW = void *;
+using MI_ROW_DESC = void *;
+using MI_DATUM = void *;
+using MI_LO_HANDLE = long;
 
 #define MI_NORMAL_VALUE 0
 #define MI_ERROR 1
