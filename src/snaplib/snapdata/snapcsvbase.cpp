@@ -218,7 +218,7 @@ bool SnapCsvBase::checkColumns()
 }
         if (!_reader->findColumn(*col))
         {
-            std::string missing=*col;
+            const std::string& missing=*col;
             missingCols.push_back(missing);
         }
     }
@@ -365,7 +365,7 @@ void SnapCsvBase::loadValueDefinition(const std::string &valuestr, CsvValue &val
     bool haveDefault=false;
     for (; imatch != end; imatch++)
     {
-        auto match = *imatch;
+        const auto& match = *imatch;
         // default ...
         if (match[1].length() > 0)
         {
@@ -490,7 +490,7 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
     RGX::sregex_iterator end;
     for (; imatch != end; imatch++)
     {
-        auto match = *imatch;
+        const auto& match = *imatch;
         string nextpart;
         // default ...
         if (match[1].length() > 0)
