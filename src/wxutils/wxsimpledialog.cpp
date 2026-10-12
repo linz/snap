@@ -20,6 +20,9 @@ wxOptionValidatorBase::wxOptionValidatorBase( const std::vector<ListControlOptio
 }
 
 wxOptionValidatorBase::wxOptionValidatorBase( const wxOptionValidatorBase &validator ) :
+    // The base is default-constructed on purpose, because wxValidator's copy constructor would copy
+    // the window that the original is attached to.
+    // NOLINTNEXTLINE(readability-redundant-member-init)
     wxValidator(),
     _value(validator._value),
     _optValues(validator._optValues)
