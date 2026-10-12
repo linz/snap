@@ -10,7 +10,6 @@
 
 
 wxOptionValidatorBase::wxOptionValidatorBase( const std::vector<ListControlOption> &options, int *const value ) :
-    wxValidator(),
     _value(value)
 {
     for( const ListControlOption &option : options )

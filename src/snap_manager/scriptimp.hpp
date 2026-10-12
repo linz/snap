@@ -351,8 +351,8 @@ private:
 class StackFrame
 {
 public:
-    StackFrame( const wxString &name) :  name(name), variables(), next(nullptr) {}
-    StackFrame( ) :  name(""), variables(), next(nullptr) {}
+    StackFrame( const wxString &name) :  name(name), next(nullptr) {}
+    StackFrame( ) :  name(""), next(nullptr) {}
     wxString name;
     VariableList variables;
     StackFrame *next;
