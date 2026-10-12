@@ -21,7 +21,8 @@ Checks: >
   readability-string-compare,
   performance-faster-string-find,
   readability-simplify-boolean-expr,
-  modernize-use-emplace
+  modernize-use-emplace,
+  readability-else-after-return
 CheckOptions:
   # string_view("") is not the same as string_view(): data() of the second is a null pointer, which
   # printf-style code cannot take.  Only std::string is checked.
