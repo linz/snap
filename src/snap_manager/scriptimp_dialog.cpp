@@ -31,7 +31,7 @@ public:
 class ScriptDialog : public wxSimpleDialog
 {
 public:
-    ScriptDialog( wxString label, Token *controls, long buttons );
+    ScriptDialog( const wxString& label, Token *controls, long buttons );
     ~ScriptDialog() override;
     void ResetInitialValues();
 
@@ -55,7 +55,7 @@ private:
 
 };
 
-ScriptDialog::ScriptDialog( wxString label, Token *controllist, long buttons )
+ScriptDialog::ScriptDialog( const wxString& label, Token *controllist, long buttons )
     : wxSimpleDialog( std::move(label), buttons )
 {
     controls = nullptr;

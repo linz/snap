@@ -80,7 +80,7 @@ public:
     int AddSymbology( SymbologyBase *symbology );
     [[nodiscard]] int Size() const;
     [[nodiscard]] SymbologyBase *GetSymbology( int i ) const;
-    [[nodiscard]] SymbologyBase *GetSymbology( wxString name ) const;
+    [[nodiscard]] SymbologyBase *GetSymbology( const wxString& name ) const;
     [[nodiscard]] int GetSymbologyId( const wxString& name ) const;
     [[nodiscard]] int GetSymbologyByIdentifier( const wxString& uid ) const;
 private:
@@ -105,7 +105,7 @@ class LayerSymbology : public SymbologyBase
 public:
     enum Type { label = 0, hasColour = 1, hasStatus = 2, hasColourAndStatus = 3 };
 
-    LayerSymbology( wxString name, int type, int colourId, bool show, bool isControlCheckbox = false, bool colourEditable = true );
+    LayerSymbology( const wxString& name, int type, int colourId, bool show, bool isControlCheckbox = false, bool colourEditable = true );
     [[nodiscard]] int Type() const;
     [[nodiscard]] int ColourId() const;
     void SetColourId( int newColourId );
@@ -148,7 +148,7 @@ public:
     // size is relative to a reference size on a DC, maybe based on converting a standard
     // font size to points.
 
-    PointSymbology( wxString name, int nNodes = 0, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
+    PointSymbology( const wxString& name, int nNodes = 0, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
     ~PointSymbology() override;
 
     void SetSymbol( int nNodes = 0, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
@@ -202,11 +202,11 @@ private:
 class TextStyle : public SymbologyBase
 {
 public:
-    TextStyle( wxString name, const wxFont &font, const wxColour &colour = wxNullColour );
+    TextStyle( const wxString& name, const wxFont &font, const wxColour &colour = wxNullColour );
     ~TextStyle() override;
 
     void SetFont( const wxFont &font, const wxColour &colour = wxNullColour );
-    void Render( wxDC &dc, wxPoint &pt, wxString string, const TextAlign &alignment, int refSize, const wxColour &defaultColour );
+    void Render( wxDC &dc, wxPoint &pt, const wxString& string, const TextAlign &alignment, int refSize, const wxColour &defaultColour );
 private:
     wxFont font;
     int baseSize;
@@ -230,18 +230,18 @@ public:
     void AddTitle(wxString name);
     void AddSpacer();
     [[nodiscard]] int LayerCount() const;
-    [[nodiscard]] int GetLayerByName( wxString name ) const;
-    [[nodiscard]] int GetLayerByIdentifier( wxString uid ) const;
+    [[nodiscard]] int GetLayerByName( const wxString& name ) const;
+    [[nodiscard]] int GetLayerByIdentifier( const wxString& uid ) const;
     [[nodiscard]] LayerSymbology &GetLayer( int i ) const;
     [[nodiscard]] const wxColour &LayerColour( int i ) const;
     [[nodiscard]] const wxBitmap &LayerBitmap( int i ) const;
     // Note: Symbology takes over ownership of PointSymbology
     int AddPointSymbol( PointSymbology *ptsym );
-    [[nodiscard]] int GetPointSymbolId( wxString name ) const;
+    [[nodiscard]] int GetPointSymbolId( const wxString& name ) const;
     [[nodiscard]] PointSymbology *GetPointSymbol( int i ) const;
     // TextStyle ... basically just a wrapper around wxFont...
     int AddTextStyle( TextStyle *txtsym );
-    [[nodiscard]] int GetTextStyleId( wxString name ) const;
+    [[nodiscard]] int GetTextStyleId( const wxString& name ) const;
     [[nodiscard]] TextStyle *GetTextStyle( int i ) const;
 
     [[nodiscard]] bool ShowLayer( int i ) const;

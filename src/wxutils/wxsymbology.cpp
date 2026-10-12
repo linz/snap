@@ -211,7 +211,7 @@ SymbologyBase *SymbologyList::GetSymbology( int i ) const
     return nullptr;
 }
 
-SymbologyBase *SymbologyList::GetSymbology( wxString name ) const
+SymbologyBase *SymbologyList::GetSymbology( const wxString& name ) const
 {
     return GetSymbology( GetSymbologyId( std::move(name) ));
 }
@@ -239,7 +239,7 @@ int SymbologyList::GetSymbologyByIdentifier( const wxString& uid ) const
 
 // LayerSymbology. Simple class defining a symbology.
 
-LayerSymbology::LayerSymbology(wxString name, int type, int colourId, bool show, const bool isControlCheckbox, const bool colourEditable) :
+LayerSymbology::LayerSymbology(const wxString& name, int type, int colourId, bool show, const bool isControlCheckbox, const bool colourEditable) :
     SymbologyBase(std::move(name)),
     type(type),
     colourId(colourId),
@@ -362,7 +362,7 @@ void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, const wxString
 
 // TextStyle : Used to plot text
 
-TextStyle::TextStyle(wxString name, const wxFont &font, const wxColour &colour ) :
+TextStyle::TextStyle(const wxString& name, const wxFont &font, const wxColour &colour ) :
     SymbologyBase(std::move(name))
 {
     SetFont( font, colour );
@@ -379,7 +379,7 @@ void TextStyle::SetFont( const wxFont &font, const wxColour &colour )
     this->colour = colour;
 }
 
-void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &alignment, int refSize, const wxColour &defaultColour)
+void TextStyle::Render(wxDC &dc, wxPoint &pt, const wxString& string, const TextAlign &alignment, int refSize, const wxColour &defaultColour)
 {
     if( refSize != fontRefSize )
     {
@@ -403,7 +403,7 @@ void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &
 
 // TODO: Use symmetry to avoid rounding errors making unsymmetric symbols
 
-PointSymbology::PointSymbology( wxString name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
+PointSymbology::PointSymbology( const wxString& name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
     SymbologyBase( std::move(name) )
 {
     pointOffsets = nullptr;
@@ -596,12 +596,12 @@ int Symbology::LayerCount() const
     return layers.Size();
 }
 
-int Symbology::GetLayerByName( wxString name ) const
+int Symbology::GetLayerByName( const wxString& name ) const
 {
     return layers.GetSymbologyId( std::move(name) );
 }
 
-int Symbology::GetLayerByIdentifier( wxString uid ) const
+int Symbology::GetLayerByIdentifier( const wxString& uid ) const
 {
     return layers.GetSymbologyByIdentifier( std::move(uid) );
 }
@@ -638,7 +638,7 @@ int Symbology::AddPointSymbol( PointSymbology *ptsym )
     return pointSymbols.AddSymbology( ptsym );
 }
 
-int Symbology::GetPointSymbolId( wxString name ) const
+int Symbology::GetPointSymbolId( const wxString& name ) const
 {
     return pointSymbols.GetSymbologyId( std::move(name) );
 }
@@ -653,7 +653,7 @@ int Symbology::AddTextStyle( TextStyle *txtsym )
     return textStyles.AddSymbology( txtsym );
 }
 
-int Symbology::GetTextStyleId( wxString name ) const
+int Symbology::GetTextStyleId( const wxString& name ) const
 {
     return textStyles.GetSymbologyId( std::move(name) );
 }
