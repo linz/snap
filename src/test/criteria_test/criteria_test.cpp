@@ -247,7 +247,7 @@ void check_station_list_file_problems()
 
     // A file that includes itself
     const std::string self=(files.dir / "self.lst").generic_string();
-    files.write( "self.lst", "AAA\n@" + self + "\n" );
+    static_cast<void>( files.write( "self.lst", "AAA\n@" + self + "\n" ) );
     psc=new_station_criteria();
     check( compile_station_criteria( psc, tn.nw, "@" + self, "" ) != OK, "a station list file that uses itself is an error" );
     delete_station_criteria( psc );
