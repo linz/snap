@@ -377,7 +377,7 @@ bool wxMapScale::NextPoint( wxPoint &pt, bool &start )
     default: return false;
     }
     npt--;
-    return 1;
+    return true;
 }
 
 void wxMapScale::NotifyWindow()

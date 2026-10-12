@@ -165,7 +165,7 @@ long read_data_files( FILE *lst )
             if( sd->recode && recodes_used( sd->recode ) )
             {
                 fprintf(lst,"    Recoding stations:\n");
-                print_stn_recode_list( lst, sd->recode, 1, stn_name_width, "    ");
+                print_stn_recode_list( lst, sd->recode, true, stn_name_width, "    ");
             }
         }
 

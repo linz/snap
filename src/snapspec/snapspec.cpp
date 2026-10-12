@@ -2174,7 +2174,7 @@ static int read_station_config_file( const std::string &filename, stn_relacc_arr
                 }
             }
         }
-        if( ! haveEol ){ while( 1 ) { int c=fgetc(f); if( c == '\n' || c == EOF ) break; } }
+        if( ! haveEol ){ while( true ) { int c=fgetc(f); if( c == '\n' || c == EOF ) break; } }
     }
     fclose(f);
     if( nbadstn > 0 )

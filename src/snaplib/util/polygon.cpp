@@ -12,7 +12,7 @@ using namespace std;
 class wktRing
 {
     public:
-        wktRing( bool islatlon=1 ) : islatlon( islatlon ) {}
+        wktRing( bool islatlon=true ) : islatlon( islatlon ) {}
         bool isValid();
         void addPoint( double lon, double lat );
         bool contains( double lon, double lat );
@@ -82,7 +82,7 @@ bool wktRing::contains( double lon, double lat )
 class wktPolygon
 {
     public:
-        wktPolygon( bool islatlon=1 );
+        wktPolygon( bool islatlon=true );
         ~wktPolygon();
         int readFile( const std::string &file );
         bool contains( double lon, double lat );
