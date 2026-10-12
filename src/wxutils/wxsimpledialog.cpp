@@ -471,7 +471,7 @@ void wxSimpleDialog::AddSpacer()
 
 wxStaticText *wxSimpleDialog::AddLabel(const wxString& label, wxWindow *window )
 {
-    wxStaticText *lb = Label(std::move(label), window);
+    wxStaticText *lb = Label(label, window);
     AddControl( wxEmptyString, lb );
     return lb;
 }
@@ -479,41 +479,41 @@ wxStaticText *wxSimpleDialog::AddLabel(const wxString& label, wxWindow *window )
 wxTextCtrl *wxSimpleDialog::AddTextBox(const wxString& label, wxString &string, int nch, int nlines, wxString validChar )
 {
     wxTextCtrl *txtctrl = TextBox( string, nch, nlines, std::move(validChar) );
-    AddControl( std::move(label), txtctrl );
+    AddControl( label, txtctrl );
     return txtctrl;
 }
 
 wxTextCtrl *wxSimpleDialog::AddNumberBox(const wxString& label, int &value, bool positive, int nch )
 {
     wxTextCtrl *txtctrl = NumberBox( value, positive, nch );
-    AddControl( std::move(label), txtctrl );
+    AddControl( label, txtctrl );
     return txtctrl;;
 }
 
 wxTextCtrl *wxSimpleDialog::AddNumberBox(const wxString& label, double &value, bool positive, int ndp, int nch )
 {
     wxTextCtrl *txtctrl =  NumberBox( value, positive, ndp, nch );
-    AddControl( std::move(label), txtctrl );
+    AddControl( label, txtctrl );
     return txtctrl;
 }
 
 wxListBox *wxSimpleDialog::AddListBox(const wxString& label, wxString &string, wxString options, int type, int width, int height )
 {
     wxListBox *listbox = ListBox( string, std::move(options), type, width, height );
-    AddControl( std::move(label), listbox );
+    AddControl( label, listbox );
     return listbox;
 }
 
 wxRadioBox *wxSimpleDialog::AddRadioBox(const wxString& label, int &value, wxString options, bool horizontal )
 {
-    wxRadioBox *rb = RadioBox( value, std::move(options), std::move(label), horizontal );
+    wxRadioBox *rb = RadioBox( value, std::move(options), label, horizontal );
     AddControl( wxEmptyString, rb );
     return rb;
 }
 
 wxRadioBox *wxSimpleDialog::AddRadioBox(const wxString& label, int &value, const std::vector<ListControlOption> &options, bool horizontal )
 {
-    wxRadioBox *rb = RadioBox( value, options, std::move(label), horizontal );
+    wxRadioBox *rb = RadioBox( value, options, label, horizontal );
     AddControl( wxEmptyString, rb );
     return rb;
 }
@@ -521,34 +521,34 @@ wxRadioBox *wxSimpleDialog::AddRadioBox(const wxString& label, int &value, const
 wxChoice *wxSimpleDialog::AddDropDownBox(const wxString& label, int &value, wxString options )
 {
     wxChoice *ddb = DropDownBox( value, std::move(options) );
-    AddControl( std::move(label), ddb );
+    AddControl( label, ddb );
     return ddb;
 }
 
 wxChoice *wxSimpleDialog::AddDropDownBox(const wxString& label, int &value, const std::vector<ListControlOption> &options )
 {
     wxChoice *ddb = DropDownBox( value, options );
-    AddControl( std::move(label), ddb );
+    AddControl( label, ddb );
     return ddb;
 }
 
 wxCheckBox *wxSimpleDialog::AddCheckBox(const wxString& label, bool &value )
 {
-    wxCheckBox *cb = CheckBox( std::move(label), value );
+    wxCheckBox *cb = CheckBox( label, value );
     AddControl( wxEmptyString, cb );
     return cb;
 }
 
 wxFilePickerCtrl *wxSimpleDialog::AddOpenFileBox( const wxString& label, wxString &string, const wxString& wildcard, const wxString& message )
 {
-    wxFilePickerCtrl *fp = OpenFileBox( string, label, std::move(wildcard), std::move(message) );
+    wxFilePickerCtrl *fp = OpenFileBox( string, label, wildcard, message );
     AddControl( label, fp );
     return fp;
 }
 
 wxFilePickerCtrl *wxSimpleDialog::AddSaveFileBox( const wxString& label, wxString &string, const wxString& wildcard, const wxString& message )
 {
-    wxFilePickerCtrl *fp = SaveFileBox( string, label, std::move(wildcard), std::move(message) );
+    wxFilePickerCtrl *fp = SaveFileBox( string, label, wildcard, message );
     AddControl( label, fp );
     return fp;
 }
@@ -556,7 +556,7 @@ wxFilePickerCtrl *wxSimpleDialog::AddSaveFileBox( const wxString& label, wxStrin
 
 wxButton *wxSimpleDialog::AddButton( const wxString& label, wxObjectEventFunction function )
 {
-    wxButton *button = Button(std::move(label),function);
+    wxButton *button = Button(label,function);
     AddControl( wxEmptyString, button );
     return button;
 }

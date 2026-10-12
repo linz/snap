@@ -1,4 +1,3 @@
-#include <utility>
 
 #include "snapconfig.h"
 #include "wx_includes.hpp"
@@ -56,7 +55,7 @@ private:
 };
 
 ScriptDialog::ScriptDialog( const wxString& label, Token *controllist, long buttons )
-    : wxSimpleDialog( std::move(label), buttons )
+    : wxSimpleDialog( label, buttons )
 {
     controls = nullptr;
     nControls = controllist->Count();
