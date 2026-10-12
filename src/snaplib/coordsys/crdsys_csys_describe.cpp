@@ -12,8 +12,8 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <array>
 #include <string_view>
 

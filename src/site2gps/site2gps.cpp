@@ -7,9 +7,9 @@
 
 #define GETVERSION_SET_PROGRAM_DATE
 #include "snapconfig.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include "snap/stnadj.h"
 #include "util/errdef.h"
 #include "util/dateutil.h"

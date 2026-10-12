@@ -11,9 +11,9 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 #include <algorithm>
 #include <cctype>
 #include <memory>

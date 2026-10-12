@@ -1,5 +1,5 @@
 #include "snapconfig.h"
-#include <stdio.h>
+#include <cstdio>
 #include <optional>
 #include <string>
 

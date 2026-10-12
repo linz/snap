@@ -17,7 +17,7 @@
 
 /* Define a binary file containing a list of binary sections */
 
-#include <stdint.h>
+#include <cstdint>
 #include <limits>
 #include <stdexcept>
 #include <string>

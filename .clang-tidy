@@ -16,7 +16,8 @@ Checks: >
   readability-static-accessed-through-instance,
   misc-unused-using-decls,
   readability-container-size-empty,
-  readability-delete-null-pointer
+  readability-delete-null-pointer,
+  modernize-deprecated-headers
 CheckOptions:
   # string_view("") is not the same as string_view(): data() of the second is a null pointer, which
   # printf-style code cannot take.  Only std::string is checked.

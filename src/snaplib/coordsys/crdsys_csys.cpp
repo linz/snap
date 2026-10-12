@@ -8,8 +8,8 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "coordsys/coordsys.h"
 #include "util/errdef.h"

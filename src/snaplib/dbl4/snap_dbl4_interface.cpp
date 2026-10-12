@@ -1,9 +1,9 @@
 #include "snapconfig.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstdarg>
 #include <iostream>
 #include <string>
 #include <string_view>

@@ -2,10 +2,10 @@
 #include "snapconfig.h"
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <memory.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <thread>
 #include <vector>
 

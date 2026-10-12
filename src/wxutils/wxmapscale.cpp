@@ -3,7 +3,7 @@
 
 #include "wxmapscale.hpp"
 #include "wxsimpleevent.hpp"
-#include <math.h>
+#include <cmath>
 
 DEFINE_EVENT_TYPE(WX_MAPWINDOW_SCALE_CHANGED);
 

@@ -1,7 +1,7 @@
 #ifndef _XPRINTF_H
 #define _XPRINTF_H
 
-#include <stdarg.h>
+#include <cstdarg>
 
 using xprintf_func = int (*)( const char *format, va_list args );
 

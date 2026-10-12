@@ -6,8 +6,8 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "util/errdef.h"
 #include "util/fieldscanner.hpp"

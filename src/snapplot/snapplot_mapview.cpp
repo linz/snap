@@ -1,7 +1,7 @@
 #include "snapconfig.h"
 #include "snapplot_mapview.hpp"
 #include "snapplot_event.hpp"
-#include <math.h>
+#include <cmath>
 
 //extern "C" {
 #include "plotpens.h"

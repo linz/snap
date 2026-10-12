@@ -31,8 +31,8 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <filesystem>
@@ -41,7 +41,7 @@
 #include <string_view>
 #include <vector>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
 

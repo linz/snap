@@ -14,7 +14,7 @@
 
 #include <string_view>
 
-#include "stddef.h"
+#include <cstddef>
 
 /* Definition of parameters of an object.  Used to create lists of parameters which
    can be used for input or output of a system definition */

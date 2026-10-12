@@ -16,9 +16,9 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 #include <array>
 #include <string>
 #include <string_view>

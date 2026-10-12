@@ -12,9 +12,9 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
+#include <cstdio>
+#include <cmath>
+#include <cstring>
 
 #ifndef DEBUG
 #ifndef NDEBUG
@@ -22,7 +22,7 @@
 #endif
 #endif
 
-#include <assert.h>
+#include <cassert>
 
 #include "snapdata/gpscvr.h"
 #include "snapdata/datatype.h"

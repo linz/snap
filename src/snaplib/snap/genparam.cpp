@@ -51,9 +51,9 @@ The procedure requires the following sequence of calls
 
 */
 
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
+#include <cstdio>
+#include <cmath>
+#include <cstring>
 #include <cstddef>
 #include <algorithm>
 #include <array>

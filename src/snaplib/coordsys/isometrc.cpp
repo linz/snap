@@ -8,7 +8,7 @@
 
 */
 
-#include <math.h>
+#include <cmath>
 #include "util/pi.h"
 #include "coordsys/isometrc.h"
 

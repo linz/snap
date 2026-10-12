@@ -20,7 +20,7 @@
 **************************************************************************
 */
 
-#include <stdlib.h>
+#include <cstdlib>
 
 using mi_boolean = int;
 using mi_integer = long;

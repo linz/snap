@@ -3,10 +3,10 @@
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 /* Note: this 1980s code due for rewrite                         */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #include <array>
 #include <fstream>
 #include <iostream>

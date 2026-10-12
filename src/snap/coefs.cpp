@@ -9,9 +9,9 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
+#include <cstdio>
+#include <cmath>
+#include <cstring>
 
 #include "adjparam.h"
 #include "coefs.h"

@@ -1,5 +1,5 @@
 #include "snapconfig.h"
-#include <stdio.h>
+#include <cstdio>
 #include "util/xprintf.h"
 
 static xprintf_func pf = nullptr;

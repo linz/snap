@@ -4,8 +4,8 @@
 // print_log captures output intended for command line user ..
 
 #include "snapplot_util.hpp"
-#include <stdio.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdarg>
 
 //extern "C" {
 #include "snapplot_util.h"

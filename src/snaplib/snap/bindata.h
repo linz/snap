@@ -10,7 +10,7 @@
 
 /* The following structure holds indexes data types */
 
-#include <stdint.h>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>

@@ -12,7 +12,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include "snap/gpscvr2.h"
 #include "snapdata/survdata.h"
 #include "snapdata/gpscvr.h"

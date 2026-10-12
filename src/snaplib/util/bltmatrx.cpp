@@ -64,10 +64,10 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <memory.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 #include "util/bltmatrx.h"
 #include "util/progress.h"

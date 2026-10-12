@@ -18,9 +18,9 @@ that the file had not been modified in the mean time - tricky .
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <string>
 #include <vector>
 

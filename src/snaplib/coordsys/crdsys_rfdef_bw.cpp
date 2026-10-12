@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include "util/errdef.h"
 #include "util/iostring.h"
 #include "util/pi.h"

@@ -4,7 +4,7 @@
 #include "wxnumbervalidator.hpp"
 #include <wx/tokenzr.h>
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include <boost/numeric/conversion/cast.hpp>
 

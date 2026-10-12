@@ -9,7 +9,7 @@
 
 */
 
-#include <math.h>
+#include <cmath>
 
 #include "coordsys/gnproj.h"
 #include "coordsys/isometrc.h"

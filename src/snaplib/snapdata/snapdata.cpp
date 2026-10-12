@@ -34,9 +34,9 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 #include <algorithm>
 #include <iterator>
 #include <string>
@@ -52,7 +52,7 @@
 #define NDEBUG
 #endif
 #endif
-#include <assert.h>
+#include <cassert>
 
 #include "snapdata/snapdata.h"
 #include "util/dstring.h"

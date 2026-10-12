@@ -2,8 +2,8 @@
 // Classes for managing the symbology in the SNAPPLOT application.
 
 #include "wxsymbology.hpp"
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 // ColourPalette::Item: A class holding a colour definition and a corresponding
 // bitmap for a ColourPalette.

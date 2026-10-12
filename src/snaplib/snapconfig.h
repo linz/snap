@@ -36,8 +36,8 @@
 
 #else
 // va_copy not defined on Visual Studio pre 2008
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
 #define ftell64 _ftelli64
 #define fseek64 _fseeki64
 #ifndef va_copy

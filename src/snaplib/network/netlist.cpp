@@ -8,15 +8,15 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <algorithm>
 #include <cctype>
 #include <string_view>
 #include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
-#include <assert.h>
+#include <cassert>
 
 #include "network/network.h"
 #include "util/fieldscanner.hpp"

@@ -25,10 +25,10 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #include <algorithm>
 #include <deque>
 #include <optional>
@@ -47,7 +47,7 @@ using boost::numeric_cast;
 #include <crtdbg.h>
 #define assert _ASSERTE
 #else
-#include <assert.h>
+#include <cassert>
 #endif
 
 /* #include <ccwin/cccolour.h> */

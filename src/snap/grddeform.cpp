@@ -1,6 +1,6 @@
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <string>
 
 #include "snap/snapglob.h"

@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "coordsys/coordsys.h"
 #include "geoid/geoid.h"

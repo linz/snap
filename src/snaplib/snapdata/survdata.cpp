@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"

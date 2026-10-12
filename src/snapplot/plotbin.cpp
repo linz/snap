@@ -11,13 +11,13 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <optional>
 #include <string>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 
 #include "util/errdef.h"
 #include "util/fileutil.h"

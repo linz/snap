@@ -18,9 +18,9 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstdint>
 #include <string>
 #include <string_view>
 

@@ -28,8 +28,8 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include "util/binfile.h"
 #include "util/leastsqu.h"

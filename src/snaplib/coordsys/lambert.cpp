@@ -20,7 +20,7 @@
 
 */
 
-#include <math.h>
+#include <cmath>
 #include "coordsys/lambert.h"
 #include "util/pi.h"
 

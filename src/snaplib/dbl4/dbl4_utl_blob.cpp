@@ -32,8 +32,8 @@
 
 #include "dbl4_common.h"
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 #include "dbl4_utl_blob.h"
 #include "dbl4_utl_error.h"

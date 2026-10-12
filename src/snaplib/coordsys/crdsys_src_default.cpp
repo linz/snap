@@ -19,9 +19,9 @@ The coordinate system file is located in one of the following places.
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/nzmgr.h"

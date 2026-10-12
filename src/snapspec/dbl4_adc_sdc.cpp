@@ -17,11 +17,11 @@
 
 #include "dbl4_common.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <math.h>
-#include <time.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdarg>
+#include <cmath>
+#include <ctime>
 #include <deque>
 #include <memory>
 #include <vector>

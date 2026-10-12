@@ -27,8 +27,8 @@
 
 */
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include <string>
 #include <string_view>
 

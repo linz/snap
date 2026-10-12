@@ -25,9 +25,9 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
+#include <cstdio>
+#include <cmath>
+#include <cstring>
 #include <array>
 #include <string>
 #include <string_view>

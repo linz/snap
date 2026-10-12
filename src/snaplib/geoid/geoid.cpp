@@ -18,15 +18,15 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <boost/numeric/conversion/cast.hpp>
 #include "util/fileutil.h"
-#include "string.h"
+#include <cstring>
 #include "util/errdef.h"
 #include "util/dstring.h"
 #include "geoid/geoid.h"

@@ -8,8 +8,8 @@
 
 */
 
-#include <stdint.h>
-#include <stdio.h>
+#include <cstdint>
+#include <cstdio>
 #include <string_view>
 
 int64_t save_note( std::string_view note, int continued );

@@ -5,7 +5,7 @@
 #include "snapplot_util.hpp"
 #include "wx/fs_zip.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #define GETVERSION_SET_PROGRAM_DATE
 #include "util/getversion.h"
