@@ -57,33 +57,30 @@ double ParseAngle::parseAngle(AngleFormat format, const string &value, const str
     {
         throw ParseAngleException(string("Invalid angle degrees/minutes/seconds: ") + value);
     }
-    else
+    int deg = atoi(match[2].str().c_str());
+    int min = atoi(match[3].str().c_str());
+    double sec = atof((match[4].str() + "." + match[5].str()).c_str());
+    angle = deg + min / 60.0 + sec / 3600.0;
+    string hem = match[1].str() + match[6].str();
+    if (!hem.empty())
     {
-        int deg = atoi(match[2].str().c_str());
-        int min = atoi(match[3].str().c_str());
-        double sec = atof((match[4].str() + "." + match[5].str()).c_str());
-        angle = deg + min / 60.0 + sec / 3600.0;
-        string hem = match[1].str() + match[6].str();
-        if (!hem.empty())
+        bool ok = false;
+        if (sign.length() == 2 && hem.length() == 1)
         {
-            bool ok = false;
-            if (sign.length() == 2 && hem.length() == 1)
+            ok = true;
+            boost::to_upper(hem);
+            if (hem[0] == '-' || hem[0] == sign[1])
             {
-                ok = true;
-                boost::to_upper(hem);
-                if (hem[0] == '-' || hem[0] == sign[1])
-                {
-                    angle = -angle;
-                }
-                else if (hem[0] != sign[0])
-                {
-                    ok = false;
-                }
+                angle = -angle;
             }
-            if (!ok)
+            else if (hem[0] != sign[0])
             {
-                throw ParseAngleException(string("Badly formatted angle: " + value));
+                ok = false;
             }
+        }
+        if (!ok)
+        {
+            throw ParseAngleException(string("Badly formatted angle: " + value));
         }
     }
     return angle;

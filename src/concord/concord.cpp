@@ -913,7 +913,7 @@ static void prompt_for_proj(coordsys *&proj,
             {
                 dms = AF_RAD; break;
             }
-            else if( instring[0] == 'h' || instring[0] == 'H' ||
+            if( instring[0] == 'h' || instring[0] == 'H' ||
                      instring[0] == 's' || instring[0] == 'S' )
             {
                 break;
