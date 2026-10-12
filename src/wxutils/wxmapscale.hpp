@@ -124,7 +124,8 @@ private:
 inline
 bool wxMapScale::GetPoint( wxPoint &pt, bool &start )
 {
-    if( !npt ) return false;
+    if( !npt ) { return false;
+}
     return NextPoint( pt, start );
 }
 

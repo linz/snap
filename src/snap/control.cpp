@@ -221,7 +221,8 @@ static config_item snap_commands[] =
 
 static void initialise_config( void )
 {
-    if( config_initialised ) return;
+    if( config_initialised ) { return;
+}
     stations_read = 0;
     dflt_herr = dflt_verr = 1.0;
     dflt_rc = DEFAULT_REFCOEF;
@@ -287,7 +288,8 @@ static int process_configuration_file( const std::string &file_name, const char 
     CFG_FILE *cfg;
     int sts;
 
-    if( ! path_exists( file_name ) ) return FILE_OPEN_ERROR;
+    if( ! path_exists( file_name ) ) { return FILE_OPEN_ERROR;
+}
 
     initialise_config();
     cfg = open_config_file( file_name, COMMENT_CHAR );
@@ -295,8 +297,9 @@ static int process_configuration_file( const std::string &file_name, const char 
     {
         record_filename(get_config_filename(cfg),"configuration");
         set_config_read_options( cfg,  CFG_SET_PATH );
-        if( cfg_only ) set_config_command_flag( cfg, CONFIG_CMD );
-        else set_config_ignore_flag( cfg, CONSTRAINT_CMD );
+        if( cfg_only ) { set_config_command_flag( cfg, CONFIG_CMD );
+        } else { set_config_ignore_flag( cfg, CONSTRAINT_CMD );
+}
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
         sts = sts ? INVALID_DATA : OK;
@@ -336,7 +339,8 @@ int process_default_configuration( void )
         if( path_exists( spec ))
         {
             sts1 = read_configuration_file( spec );
-            if( sts == OK ) sts = sts1;
+            if( sts == OK ) { sts = sts1;
+}
         }
     }
 
@@ -344,7 +348,8 @@ int process_default_configuration( void )
     if( path_exists( spec ))
     {
         sts1 = read_configuration_file( spec );
-        if( sts == OK ) sts = sts1;
+        if( sts == OK ) { sts = sts1;
+}
     }
     return sts;
 }
@@ -364,45 +369,52 @@ static int read_program_mode( CFG_FILE *cfg, std::string_view string, void *, in
         if( boost::algorithm::iequals(*opt,"horizontal") || boost::algorithm::iequals(*opt,"2d") )
         {
             dimension = 2;
-            if( dimset ) sts = INVALID_DATA;
+            if( dimset ) { sts = INVALID_DATA;
+}
             dimset = true;
         }
         else if( boost::algorithm::iequals(*opt,"vertical") || boost::algorithm::iequals(*opt,"1d") )
         {
             dimension = 1;
-            if( dimset ) sts = INVALID_DATA;
+            if( dimset ) { sts = INVALID_DATA;
+}
             dimset = true;
         }
         else if( boost::algorithm::iequals(*opt,"3d") )
         {
             dimension = 3;
-            if( dimset ) sts = INVALID_DATA;
+            if( dimset ) { sts = INVALID_DATA;
+}
             dimset = true;
         }
         else if( boost::algorithm::iequals(*opt,"preanalysis") ||
                  boost::algorithm::iequals(*opt,"network_analysis") )
         {
             program_mode = PREANALYSIS;
-            if( modeset ) sts = INVALID_DATA;
+            if( modeset ) { sts = INVALID_DATA;
+}
             modeset = true;
         }
         else if( boost::algorithm::iequals(*opt,"adjustment") )
         {
             program_mode = ADJUST;
-            if( modeset ) sts = INVALID_DATA;
+            if( modeset ) { sts = INVALID_DATA;
+}
             modeset = true;
         }
         else if( boost::algorithm::iequals(*opt,"data_check") )
         {
             program_mode = DATA_CHECK;
-            if( modeset ) sts = INVALID_DATA;
+            if( modeset ) { sts = INVALID_DATA;
+}
             modeset = true;
         }
         else if( boost::algorithm::iequals(*opt,"data_consistency") ||
                  boost::algorithm::iequals(*opt,"free_net_adjustment") )
         {
             program_mode = DATA_CONSISTENCY;
-            if( modeset ) sts = INVALID_DATA;
+            if( modeset ) { sts = INVALID_DATA;
+}
             modeset = true;
         }
         else
@@ -488,9 +500,12 @@ static void set_station_mode( station *st, void *modep )
     {
         int istn = find_station(net,st->Code);
         int fixflags=station_autofix_constraints( istn );
-        if( ! (fixflags & AUTOFIX_HOR ) ) fixhor=0;
-        if( ! (fixflags & AUTOFIX_VRT ) ) fixver=0;
-        if( ! (fixhor | fixver ) ) return;
+        if( ! (fixflags & AUTOFIX_HOR ) ) { fixhor=0;
+}
+        if( ! (fixflags & AUTOFIX_VRT ) ) { fixver=0;
+}
+        if( ! (fixhor | fixver ) ) { return;
+}
     }
 
     sa = stnadj(st);
@@ -509,13 +524,15 @@ static void set_station_mode( station *st, void *modep )
     case FIX_STATIONS:    
         if(fixhor) 
         { 
-            if( sa->flag.adj_h ) sa->flag.auto_h=fixauto; 
+            if( sa->flag.adj_h ) { sa->flag.auto_h=fixauto; 
+}
             sa->flag.adj_h = 0; 
             sa->flag.float_h=0; 
         }
         if(fixver) 
         { 
-            if( sa->flag.adj_v ) sa->flag.auto_v=fixauto; 
+            if( sa->flag.adj_v ) { sa->flag.auto_v=fixauto; 
+}
             sa->flag.adj_v = 0; 
             sa->flag.float_v=0; 
         }
@@ -742,7 +759,8 @@ static int read_use_zero_inverse( CFG_FILE *cfg, std::string_view string, void *
     {
         sts = readcfg_boolean( cfg, string, &option, 1, 0 );
     }
-    if( sts == OK ) lsq_set_use_zero_inverse( option );
+    if( sts == OK ) { lsq_set_use_zero_inverse( option );
+}
     return sts;
 }
 
@@ -812,7 +830,8 @@ static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code
         }
     }
 
-    if( !rcname ) sts = MISSING_DATA;
+    if( !rcname ) { sts = MISSING_DATA;
+}
 
     auto st = scanner.next();
 
@@ -827,7 +846,8 @@ static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code
             case PRM_REFCOEF: set_coef_class( COEF_CLASS_REFCOEF, *rcname ); break;
             }
         }
-        if( st ) sts = INVALID_DATA;
+        if( st ) { sts = INVALID_DATA;
+}
         return sts;
     }
 
@@ -848,11 +868,14 @@ static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code
         if( st )
         {
             auto value = parse_leading<double>(*st);
-            if( !value ) sts = INVALID_DATA; else rc = *value;
+            if( !value ) { sts = INVALID_DATA; } else { rc = *value;
+}
             st = scanner.next();
-            if( st && *st == "?" ) calculate = 1;
+            if( st && *st == "?" ) { calculate = 1;
+}
         }
-        if( sts == OK ) configure_param( code, *rcname, rc, calculate );
+        if( sts == OK ) { configure_param( code, *rcname, rc, calculate );
+}
     }
     else
     {
@@ -877,7 +900,8 @@ static int read_rfscale( CFG_FILE *, std::string_view string, void *, int, int )
         else
         {
             auto value = parse_leading<double>(*st);
-            if( !value ) return INVALID_DATA;
+            if( !value ) { return INVALID_DATA;
+}
             scale = *value;
         }
     }
@@ -951,7 +975,8 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
         if( prmname )
         {
             set_coef_class( COEF_CLASS_REFFRM, *prmname );
-            if( scanner.next() ) sts = INVALID_DATA;
+            if( scanner.next() ) { sts = INVALID_DATA;
+}
         }
         else
         {
@@ -998,11 +1023,11 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
         else if( boost::algorithm::iequals( *prmname, "origin" ) )
         {
             prmname=scanner.next();
-            if( prmname && boost::algorithm::iequals(*prmname,"zero") ) origintype=REFFRM_ORIGIN_ZERO;
-            else if( prmname && *prmname=="0" ) origintype=REFFRM_ORIGIN_ZERO;
-            else if( prmname && boost::algorithm::iequals(*prmname,"topocentre") ) origintype=REFFRM_ORIGIN_TOPOCENTRE;
-            else if( prmname && boost::algorithm::iequals(*prmname,"default") ) origintype=REFFRM_ORIGIN_DEFAULT;
-            else
+            if( prmname && boost::algorithm::iequals(*prmname,"zero") ) { origintype=REFFRM_ORIGIN_ZERO;
+            } else if( prmname && *prmname=="0" ) { origintype=REFFRM_ORIGIN_ZERO;
+            } else if( prmname && boost::algorithm::iequals(*prmname,"topocentre") ) { origintype=REFFRM_ORIGIN_TOPOCENTRE;
+            } else if( prmname && boost::algorithm::iequals(*prmname,"default") ) { origintype=REFFRM_ORIGIN_DEFAULT;
+            } else
             {
                 sprintf(errmess,"Invalid origin type %.20s for reference frame %.20s",
                         prmname?std::string(*prmname).c_str():"",rfnameStr.c_str());
@@ -1083,7 +1108,8 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
             {
                 if( first )
                 {
-                    while( nval--) calcval[ival++]=calculate;
+                    while( nval--) { calcval[ival++]=calculate;
+}
                     break;
                 }
                 sprintf(errmess,"Missing %.20s value for reference frame %.20s command",
@@ -1098,7 +1124,8 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
             {
                 if( first )
                 {
-                    while( nval--) calcval[ival++]=calculate;
+                    while( nval--) { calcval[ival++]=calculate;
+}
                     pending=prmname;
                     break;
                 }
@@ -1154,7 +1181,8 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
-        for( i=0; i<14; i++) val[i]=0.001*val[i];
+        for( i=0; i<14; i++) { val[i]=0.001*val[i];
+}
         for( i=0; i<3; i++ ) { val[i+rfRotx]*=-1.0; val[i+rfRotxRate]*=-1.0; }
     }
 
@@ -1181,8 +1209,10 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
         }
     }
 
-    if( origintype != REFFRM_ORIGIN_DEFAULT ) rf->setOriginType( origintype );
-    if( date != UNDEFINED_DATE ) rf->setRefDate( date );
+    if( origintype != REFFRM_ORIGIN_DEFAULT ) { rf->setOriginType( origintype );
+}
+    if( date != UNDEFINED_DATE ) { rf->setRefDate( date );
+}
 
     rf->setParameters( val, calcval, defined );
     return OK;
@@ -1205,7 +1235,8 @@ std::optional<std::string> decodeResidualTitle( std::string_view &remaining )
     std::size_t i = 0;
     for( ; result.size() < 80; i++ )
     {
-        if( i >= remaining.size() || remaining[i] == ':' ) break;
+        if( i >= remaining.size() || remaining[i] == ':' ) { break;
+}
         if( remaining[i] == '_' )
         {
             result += ' ';
@@ -1215,13 +1246,15 @@ std::optional<std::string> decodeResidualTitle( std::string_view &remaining )
             if( remaining[i] == '\\' )
             {
                 i++;
-                if( i >= remaining.size() ) break;
+                if( i >= remaining.size() ) { break;
+}
             }
             result += remaining[i];
         }
     }
     remaining.remove_prefix( std::min(i,remaining.size()) );
-    if( result.empty() ) return std::nullopt;
+    if( result.empty() ) { return std::nullopt;
+}
     return result;
 }
 }
@@ -1230,7 +1263,8 @@ static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *,
 {
     FieldScanner scanner(string);
     auto typesField = scanner.next();
-    if( !typesField ) return MISSING_DATA;
+    if( !typesField ) { return MISSING_DATA;
+}
 
     /* If types doesn't define valid types, then assume it is all and
      * use as column definition */
@@ -1252,7 +1286,8 @@ static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *,
         else
         {
             auto colField = scanner.next();
-            if( ! colField ) break;
+            if( ! colField ) { break;
+}
             column = *colField;
         }
 
@@ -1289,15 +1324,19 @@ static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *,
         {
             /* Reading the titles, only if we have a : separator, then
                a character after it. */
-            if( remaining.empty() ) continue;
+            if( remaining.empty() ) { continue;
+}
             remaining.remove_prefix(1);
-            if( remaining.empty() ) continue;
-            if( i == 1 ) ttl1 = decodeResidualTitle( remaining );
-            else ttl2 = decodeResidualTitle( remaining );
+            if( remaining.empty() ) { continue;
+}
+            if( i == 1 ) { ttl1 = decodeResidualTitle( remaining );
+            } else { ttl2 = decodeResidualTitle( remaining );
+}
         }
         if( valid )
         {
-            if( add_residual_field( columnName, width, ttl1, ttl2 ) != OK ) valid = false;
+            if( add_residual_field( columnName, width, ttl1, ttl2 ) != OK ) { valid = false;
+}
         }
         if( !valid )
         {
@@ -1324,7 +1363,8 @@ static int read_output_precision( CFG_FILE *cfg, std::string_view string, void *
         }
         for( type = 0; type < NOBSTYPE; type++ )
         {
-            if( boost::algorithm::iequals(*st,datatype[type].code) ) break;
+            if( boost::algorithm::iequals(*st,datatype[type].code) ) { break;
+}
         }
         if( type == NOBSTYPE )
         {
@@ -1388,7 +1428,8 @@ static int read_pb_use_datum_trans( CFG_FILE *cfg, std::string_view string, void
     {
         sts = readcfg_boolean( cfg, string, &option, 1, 0 );
     }
-    if( sts == OK ) set_bproj_use_datum_transformation( option );
+    if( sts == OK ) { set_bproj_use_datum_transformation( option );
+}
     return sts;
 }
 
@@ -1439,10 +1480,13 @@ static int read_set_obs_option( CFG_FILE *cfg, std::string_view string, void *, 
         return OK;
     }
 
-    if( selection_prefix.empty() && criteria.empty() ) selection_prefix="all_observations";
+    if( selection_prefix.empty() && criteria.empty() ) { selection_prefix="all_observations";
+}
     std::string selection = selection_prefix;
-    if( ! selection_prefix.empty() && ! criteria.empty() ) selection += " ";
-    if( ! criteria.empty() ) selection += criteria;
+    if( ! selection_prefix.empty() && ! criteria.empty() ) { selection += " ";
+}
+    if( ! criteria.empty() ) { selection += criteria;
+}
     obsmod=snap_obs_modifications(true);
     result=add_obs_option_modification(cfg,obsmod,selection,set,option);
     return result;
@@ -1498,7 +1542,8 @@ static int read_error_type( CFG_FILE *cfg, std::string_view string, void *, int,
 
     FieldScanner scanner(string);
     auto fld = scanner.next();
-    if( !fld ) return MISSING_DATA;
+    if( !fld ) { return MISSING_DATA;
+}
     if( boost::algorithm::iequals( *fld, "aposteriori" ) )
     {
         apriori = 0;
@@ -1536,7 +1581,8 @@ static int read_error_type( CFG_FILE *cfg, std::string_view string, void *, int,
                 return OK;
             }
             fld = scanner.next();
-            if( ! fld ) return MISSING_DATA;
+            if( ! fld ) { return MISSING_DATA;
+}
             if( boost::algorithm::iequals(*fld,"standard_error") )
             {
                 useconf = 0;
@@ -1659,7 +1705,8 @@ static int read_deformation_model(CFG_FILE *cfg, std::string_view string, void *
             else if( boost::algorithm::iequals(value,"linz") || boost::algorithm::iequals(value,"linzdef") )
             {
                 type = DTP_LINZDEF;
-                if( epoch < 0 ) epoch = 0;
+                if( epoch < 0 ) { epoch = 0;
+}
             }
             else if( boost::algorithm::iequals(value,"none") )
             {
@@ -1756,7 +1803,8 @@ static int read_specification_command(CFG_FILE *cfg, std::string_view string, vo
     auto confField = scanner.next();
     auto parsedConf = confField ? parse_leading_field<double>(*confField) : std::nullopt;
     std::string_view confSuffix;
-    if( parsedConf ) confSuffix = confField->substr( parsedConf->result.ptr - confField->data() );
+    if( parsedConf ) { confSuffix = confField->substr( parsedConf->result.ptr - confField->data() );
+}
     if( ! parsedConf || confSuffix.empty() || confSuffix[0] != '%' )
     {
         send_config_error( cfg, INVALID_DATA, "Missing confidence in specification command" );
@@ -1771,7 +1819,8 @@ static int read_specification_command(CFG_FILE *cfg, std::string_view string, vo
         int errdir = 0;
 
         auto dirField = scanner.next();
-        if( ! dirField ) break;
+        if( ! dirField ) { break;
+}
 
         if( truncatedIEquals(*dirField,20,"horizontal") )
         {
@@ -1798,7 +1847,8 @@ static int read_specification_command(CFG_FILE *cfg, std::string_view string, vo
             // case. Rewind to the checkpoint so the outer loop re-reads it.
             const std::string_view checkpoint = scanner.remainder();
             auto valField = scanner.next();
-            if( ! valField ) break;
+            if( ! valField ) { break;
+}
             auto parsedErr = parse_leading_field<double>(*valField);
             if( ! parsedErr )
             {
@@ -1842,7 +1892,8 @@ static int read_specification_command(CFG_FILE *cfg, std::string_view string, vo
             }
 
             errtypflg |= errtyp;
-            if( errtypflg == 28 ) break;
+            if( errtypflg == 28 ) { break;
+}
         }
         if( errtypflg == 0 )
         {
@@ -1850,7 +1901,8 @@ static int read_specification_command(CFG_FILE *cfg, std::string_view string, vo
             return OK;
         }
 
-        if( errdirflg == 3 ) break;
+        if( errdirflg == 3 ) { break;
+}
     }
 
 
@@ -1922,7 +1974,8 @@ static int set_magic_number( CFG_FILE *, std::string_view string ,void *, int, i
     auto valField = idField ? scanner.next() : std::nullopt;
     auto idOpt = idField ? parse_leading<int>(*idField) : std::nullopt;
     auto valOpt = valField ? parse_leading<double>(*valField) : std::nullopt;
-    if( !idOpt || !valOpt ) return INVALID_DATA;
+    if( !idOpt || !valOpt ) { return INVALID_DATA;
+}
     int id = *idOpt;
     double val = *valOpt;
 
@@ -1958,7 +2011,8 @@ static int read_configuration_command( CFG_FILE *cfg, std::string_view string ,v
                 std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} ) )
     {
         const std::string cfgfile(*cfgfileField);
-        if( ! firstFile ) firstFile = cfgfile;
+        if( ! firstFile ) { firstFile = cfgfile;
+}
         auto resolved = find_file( cfgfile, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT,
                              std::nullopt, FF_TRYPROJECT,
                              cfg_only ? SNAP_CONFIG_SECTION : "" );

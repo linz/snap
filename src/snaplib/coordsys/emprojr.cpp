@@ -55,7 +55,8 @@ static int em_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_em_projection( void )
 {
-    if( em_type ) return;
+    if( em_type ) { return;
+}
 
     em_type = register_projection_type( new projection_type(
         "EM", "Equatorial Mercator", sizeof(EMProjection), emparams, COUNT_OF(emparams),
@@ -67,8 +68,10 @@ projection *create_em_projection(  double cm, double sp )
 {
     projection *prj;
 
-    if( !em_type ) register_em_projection();
-    if( !em_type ) return nullptr;
+    if( !em_type ) { register_em_projection();
+}
+    if( !em_type ) { return nullptr;
+}
 
     prj = new projection( *em_type );
 

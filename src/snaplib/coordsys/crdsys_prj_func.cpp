@@ -16,13 +16,15 @@
 
 int proj_to_geog( projection *prj, double e, double n, double *lon, double *lat )
 {
-    if( !prj || !prj->type || !prj->type->proj_to_geog  ) return INVALID_DATA;
+    if( !prj || !prj->type || !prj->type->proj_to_geog  ) { return INVALID_DATA;
+}
     return (*prj->type->proj_to_geog)( prj->data, e, n, lon, lat );
 }
 
 int geog_to_proj( projection *prj, double lon, double lat, double *e, double *n )
 {
-    if( !prj || !prj->type || !prj->type->geog_to_proj) return INVALID_DATA;
+    if( !prj || !prj->type || !prj->type->geog_to_proj) { return INVALID_DATA;
+}
     return (*prj->type->geog_to_proj)( prj->data, lon, lat, e, n );
 }
 

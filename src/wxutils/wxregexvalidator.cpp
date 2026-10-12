@@ -18,7 +18,8 @@ wxRegexpStringValidator::wxRegexpStringValidator( wxString *value, const wxStrin
     {
         wxStringTokenizer tok( rules, rules.Mid(0,1), wxTOKEN_RET_EMPTY );
         tok.GetNextToken();  // Skip initial blank
-        if( tok.HasMoreTokens() ) validChars = tok.GetNextToken();
+        if( tok.HasMoreTokens() ) { validChars = tok.GetNextToken();
+}
         if( tok.HasMoreTokens() )
         {
             regexstr = tok.GetNextToken();
@@ -28,9 +29,11 @@ wxRegexpStringValidator::wxRegexpStringValidator( wxString *value, const wxStrin
                 regex.Compile(regexstr,wxRE_ADVANCED );
             }
         }
-        if( tok.HasMoreTokens() ) message = tok.GetNextToken();
+        if( tok.HasMoreTokens() ) { message = tok.GetNextToken();
+}
     }
-    if( message.IsEmpty() && haveRegex ) message = wxString("Invalid text entered");
+    if( message.IsEmpty() && haveRegex ) { message = wxString("Invalid text entered");
+}
     showMessage = ! message.IsSameAs(wxT("silent"));
     if( ! validChars.IsEmpty() )
     {

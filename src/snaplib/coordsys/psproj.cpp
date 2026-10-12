@@ -48,7 +48,8 @@ void psp_geod( PSProjection *psp, double ce, double cn, double *slam, double *sp
     deast=ce-psp->fe;
     dnorth=cn-psp->fn;
 
-    if( !psp->south ) dnorth = -dnorth;
+    if( !psp->south ) { dnorth = -dnorth;
+}
     dlam=atan2(deast,dnorth);
     r=_hypot(deast,dnorth);
     q=log(psp->k/r);
@@ -56,9 +57,12 @@ void psp_geod( PSProjection *psp, double ce, double cn, double *slam, double *sp
     *sphi = geodetic_from_isometric(q,psp->e);
 
     *slam=psp->cm+dlam;
-    while (*slam > PI) *slam -= TWOPI;
-    while (*slam < -PI ) *slam += TWOPI;
-    if( psp->south ) *sphi = -*sphi;
+    while (*slam > PI) { *slam -= TWOPI;
+}
+    while (*slam < -PI ) { *slam += TWOPI;
+}
+    if( psp->south ) { *sphi = -*sphi;
+}
 }
 
 
@@ -97,7 +101,8 @@ void geod_psp(PSProjection *psp, double slam, double sphi, double *cee, double *
         *cee=r*sin(slam)+psp->fe;
         *cnn=r*cos(slam);
 
-        if (!psp->south ) *cnn = -*cnn;
+        if (!psp->south ) { *cnn = -*cnn;
+}
     }
 
     *cnn += psp->fn;

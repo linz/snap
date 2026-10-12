@@ -118,7 +118,8 @@ void nzmg_geod( double e, double n, double *ln, double *lt )
 
     z0.real = (n-n0)/a;     z0.imag = (e-e0)/a;
     z1.real = cfb2[5].real; z1.imag = cfb2[5].imag;
-    for (i=5; i--; ) cadd(&z1, cmult(&z1, &z1, &z0), cfb2+i );
+    for (i=5; i--; ) { cadd(&z1, cmult(&z1, &z1, &z0), cfb2+i );
+}
     cmult(&z1,&z1,&z0);
 
     for(it=2; it--; )
@@ -139,7 +140,8 @@ void nzmg_geod( double e, double n, double *ln, double *lt )
 
     tmp = z1.real;
     sum = cfl[8];
-    for (i=8; i--;) sum = sum*tmp + cfl[i];
+    for (i=8; i--;) { sum = sum*tmp + cfl[i];
+}
     sum *= tmp/3600.0e-5;
     *lt = (lt0+sum)/rad2deg;
 }
@@ -153,12 +155,14 @@ void geod_nzmg( double ln, double lt, double *e, double *n )
 
     lt = (lt*rad2deg - lt0) * 3600.0e-5;
     sum = cfi[9];;
-    for (i = 9; i--;) sum = sum*lt+cfi[i];
+    for (i = 9; i--;) { sum = sum*lt+cfi[i];
+}
     sum *= lt;
 
     z1.real = sum; z1.imag = ln-ln0/rad2deg;
     z0.real = cfb1[5].real; z0.imag = cfb1[5].imag;
-    for ( i=5; i--;) cadd(&z0,cmult(&z0,&z0,&z1),cfb1+i);
+    for ( i=5; i--;) { cadd(&z0,cmult(&z0,&z0,&z1),cfb1+i);
+}
     cmult(&z0,&z0,&z1);
 
     *n = n0+z0.real*a;

@@ -41,8 +41,9 @@ int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff )
         std::string gridfile;
         std::string description;
         sts = next_string_field( is.scanner, gridtype, 20 );
-        if( sts == OK )
+        if( sts == OK ) {
             sts = next_string_field( is.scanner, gridfile, MAX_FILENAME_LEN );
+}
         if( sts == OK )
         {
             gfile = find_relative_file( is.sourcename, gridfile, ".grd" );
@@ -99,7 +100,8 @@ ref_frame_func::~ref_frame_func()
 
 ref_frame_func * copy_ref_frame_func( ref_frame_func *rff )
 {
-    if( ! rff ) return nullptr;
+    if( ! rff ) { return nullptr;
+}
     return new ref_frame_func( rff->type, rff->description, rff->copy_data( rff->data ),
                                 rff->delete_data, rff->describe_func, rff->copy_data,
                                 rff->identical, rff->xyz_to_std_func, rff->std_to_xyz_func );
@@ -107,9 +109,13 @@ ref_frame_func * copy_ref_frame_func( ref_frame_func *rff )
 
 int identical_ref_frame_func(  ref_frame_func *rff1,  ref_frame_func *rff2 )
 {
-    if( rff1 && ! rff2 ) return 0;
-    if( rff2 && ! rff1 ) return 0;
-    if( !rff1 && ! rff2 ) return 1;
-    if( rff1->type != rff2->type ) return 0;
+    if( rff1 && ! rff2 ) { return 0;
+}
+    if( rff2 && ! rff1 ) { return 0;
+}
+    if( !rff1 && ! rff2 ) { return 1;
+}
+    if( rff1->type != rff2->type ) { return 0;
+}
     return rff1->identical( rff1->data, rff2->data );
 }

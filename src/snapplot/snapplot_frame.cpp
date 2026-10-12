@@ -187,10 +187,14 @@ SnapplotFrame::SnapplotFrame()
 
 SnapplotFrame::~SnapplotFrame()
 {
-    if( map ) delete map;
-    if( help ) delete help;
-    if( printData ) delete printData;
-    if( pageData ) delete pageData;
+    if( map ) { delete map;
+}
+    if( help ) { delete help;
+}
+    if( printData ) { delete printData;
+}
+    if( pageData ) { delete pageData;
+}
 }
 
 
@@ -506,8 +510,10 @@ void SnapplotFrame::CreateMenu()
         wxRect mapRect = mapWindow->GetScreenRect();
         wxSize popupSize = sizer->GetMinSize();
         int x = mapRect.GetLeft() + ( mapRect.GetWidth() - popupSize.GetWidth() ) / 2;
-        if( x > frameRect.GetRight() - popupSize.GetWidth() ) x = frameRect.GetRight() - popupSize.GetWidth();
-        if( x < frameRect.GetLeft() ) x = frameRect.GetLeft();
+        if( x > frameRect.GetRight() - popupSize.GetWidth() ) { x = frameRect.GetRight() - popupSize.GetWidth();
+}
+        if( x < frameRect.GetLeft() ) { x = frameRect.GetLeft();
+}
         popup->Position( wxPoint( x, clientTopLeft.y ), wxSize( 0, 0 ) );
         popup->Popup();
     }, displaySelectOptionsItem->GetId() );
@@ -531,7 +537,8 @@ void SnapplotFrame::SetupData()
     // if( map ) delete map;
     // if( symbologyKey ) delete symbologyKey;
 
-    if( command_file ) SetLabel(wxString("Snapplot - " )+ wxString(command_file->path));
+    if( command_file ) { SetLabel(wxString("Snapplot - " )+ wxString(command_file->path));
+}
     map = new SnapplotMap();
     mapWindow->SetMap( map );
     SetupSymbology();
@@ -753,7 +760,8 @@ void SnapplotFrame::OnCmdExportImage( wxCommandEvent & WXUNUSED(event) )
         wxFD_SAVE | wxFD_OVERWRITE_PROMPT
     );
 
-    if( dlgFile.ShowModal() != wxID_OK ) return;
+    if( dlgFile.ShowModal() != wxID_OK ) { return;
+}
 
     wxBitmap mapImage = mapWindow->CreateImage();
     wxImage img = mapImage.ConvertToImage();
@@ -799,7 +807,8 @@ void SnapplotFrame::OnCmdExportDxf( wxCommandEvent & WXUNUSED(event) )
         wxFD_SAVE | wxFD_OVERWRITE_PROMPT
     );
 
-    if( dlgFile.ShowModal() != wxID_OK ) return;
+    if( dlgFile.ShowModal() != wxID_OK ) { return;
+}
 
     if( open_dxf_file( dlgFile.GetPath().ToStdString() ) != OK )
     {
@@ -827,10 +836,11 @@ void SnapplotFrame::OnCmdPrintMap( wxCommandEvent & WXUNUSED(event) )
 
     if (!printer.Print(this, &printout, true ))
     {
-        if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
+        if (wxPrinter::GetLastError() == wxPRINTER_ERROR) {
             wxMessageBox("There was a problem printing.\nPerhaps your current printer is not set correctly?", "Printing", wxOK);
-        else
+        } else {
             wxMessageBox("Printing cancelled", "Printing", wxOK);
+}
     }
     else
     {
@@ -941,12 +951,14 @@ void SnapplotFrame::OnCmdViewMapFont( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdDataOptions( wxCommandEvent & WXUNUSED(event) )
 {
-    if( RunObsOptsDialog( help )) mapWindow->RedrawMap();
+    if( RunObsOptsDialog( help )) { mapWindow->RedrawMap();
+}
 }
 
 void SnapplotFrame::OnCmdDataHighlight( wxCommandEvent & WXUNUSED(event) )
 {
-    if( SetupObsHighlights( help ) ) mapWindow->RedrawMap();
+    if( SetupObsHighlights( help ) ) { mapWindow->RedrawMap();
+}
 }
 
 void SnapplotFrame::OnCmdDataListOptions( wxCommandEvent & WXUNUSED(event) )
@@ -982,13 +994,15 @@ void SnapplotFrame::OnCmdColourBy( wxCommandEvent &event )
             // wx already auto-checked this item on click; if the dialog is
             // cancelled, data_pen_type hasn't changed, so the checkmark needs
             // restoring to whichever mode is still actually active.
-            if( SetupStandardisedResidualPens( help ) ) SetupDataPens(DPEN_BY_SRES);
-            else UpdateColourByMenuCheck();
+            if( SetupStandardisedResidualPens( help ) ) { SetupDataPens(DPEN_BY_SRES);
+            } else { UpdateColourByMenuCheck();
+}
             break;
         case CMD_COLOURBY_REDUNDANCY:
             // See CMD_COLOURBY_RESIDUAL above.
-            if( SetupRedundancyFactorPens( help ) ) SetupDataPens(DPEN_BY_RFAC);
-            else UpdateColourByMenuCheck();
+            if( SetupRedundancyFactorPens( help ) ) { SetupDataPens(DPEN_BY_RFAC);
+            } else { UpdateColourByMenuCheck();
+}
             break;
         }
     }
@@ -1064,18 +1078,21 @@ void SnapplotFrame::OnCmdErrorOptions( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdStationHighlight( wxCommandEvent & WXUNUSED(event) )
 {
-    if( SetupStationHighlights( false, help ) ) mapWindow->RedrawMap();
+    if( SetupStationHighlights( false, help ) ) { mapWindow->RedrawMap();
+}
 }
 
 void SnapplotFrame::OnCmdStationHideShow( wxCommandEvent & WXUNUSED(event) )
 {
-    if( SetupStationHighlights( true, help ) ) mapWindow->RedrawMap();
+    if( SetupStationHighlights( true, help ) ) { mapWindow->RedrawMap();
+}
 }
 
 void SnapplotFrame::OnCmdStationIgnoreOffsets( wxCommandEvent & WXUNUSED(event) )
 {
     use_station_offsets( ! using_station_offsets());
-    if( offset_station_count() > 0 ) mapWindow->RedrawMap();
+    if( offset_station_count() > 0 ) { mapWindow->RedrawMap();
+}
 }
 
 void SnapplotFrame::OnCmdStationFindStation( wxCommandEvent & WXUNUSED(event) )
@@ -1110,7 +1127,8 @@ void SnapplotFrame::OnCmdReadConfig( wxCommandEvent &event )
 
 void SnapplotFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
 {
-    if( help ) help->DisplaySection( HELPBASE "index.html");
+    if( help ) { help->DisplaySection( HELPBASE "index.html");
+}
     wxLaunchDefaultBrowser(helpUrl);
 }
 

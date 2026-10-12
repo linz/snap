@@ -69,12 +69,14 @@ datatypedef datatype[] =
 int datatype_from_code( std::string_view code )
 {
     int i;
-    if( compare_ignoring_case( code, "GPS" ) == 0 ) code = "GB";
+    if( compare_ignoring_case( code, "GPS" ) == 0 ) { code = "GB";
+}
     for( i=0; i < NOBSTYPE; i++ )
     {
         if( compare_ignoring_case( datatype[i].code, code ) == 0 )
         {
-            if( datatype[i].id != i ) handle_error( INTERNAL_ERROR, "Data type id inconsistent in datatype.c",NO_MESSAGE);
+            if( datatype[i].id != i ) { handle_error( INTERNAL_ERROR, "Data type id inconsistent in datatype.c",NO_MESSAGE);
+}
             return i;
         }
     }
@@ -84,7 +86,8 @@ int datatype_from_code( std::string_view code )
 datatypedef *datatypedef_from_code( std::string_view code )
 {
     int i = datatype_from_code(code);
-    if( i < NOBSTYPE ) return &(datatype[i]);
+    if( i < NOBSTYPE ) { return &(datatype[i]);
+}
     return nullptr;
 }
 

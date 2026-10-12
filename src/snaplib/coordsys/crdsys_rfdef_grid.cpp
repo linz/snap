@@ -39,8 +39,10 @@ static ref_deformation_grid *rf_grid_create( const std::string &filename, double
 
 static int rf_grid_open_file( ref_deformation_grid *gd )
 {
-    if( gd->grid ) return OK;
-    if( gd->status != OK ) return gd->status;
+    if( gd->grid ) { return OK;
+}
+    if( gd->status != OK ) { return gd->status;
+}
     grd_open_grid_file( gd->filename,2,&(gd->grid));
     if( ! gd->grid )
     {
@@ -52,8 +54,10 @@ static int rf_grid_open_file( ref_deformation_grid *gd )
 static void rf_grid_delete( void *pgd )
 {
     ref_deformation_grid *gd = (ref_deformation_grid *) pgd;
-    if( ! gd ) return;
-    if( gd->grid ) grd_delete_grid( gd->grid );
+    if( ! gd ) { return;
+}
+    if( gd->grid ) { grd_delete_grid( gd->grid );
+}
     delete gd;
 }
 
@@ -67,7 +71,8 @@ static int rf_grid_identical( void *pgd1, void *pgd2 )
 {
     ref_deformation_grid *gd1 = (ref_deformation_grid *) pgd1;
     ref_deformation_grid *gd2 = (ref_deformation_grid *) pgd2;
-    if( gd1->refepoch != gd2->refepoch ) return 0;
+    if( gd1->refepoch != gd2->refepoch ) { return 0;
+}
     return gd1->filename == gd2->filename ? 1 : 0;
 }
 
@@ -79,7 +84,8 @@ static int rf_grid_describe(  ref_frame *rf, output_string_def *os )
     ref_deformation_grid *gd = (ref_deformation_grid *)(def->data);
     write_output_string(os,"Gridded velocity deformation model\n");
     sts = rf_grid_open_file( gd );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
     for( i = 1; i <= 3; i++ )
     {
         const std::optional<std::string> &text = gd->grid->title(i);
@@ -100,10 +106,13 @@ static int rf_grid_calc( ref_frame *rf, double lon, double lat, double epoch, do
     ref_deformation_grid *gd = (ref_deformation_grid *)(def->data);
     denu[0] = denu[1] = denu[2] = 0.0;
     sts = rf_grid_open_file( gd );
-    if( sts != OK ) return sts;
-    if( epoch == 0 ) return OK;
+    if( sts != OK ) { return sts;
+}
+    if( epoch == 0 ) { return OK;
+}
     epoch -= gd->refepoch;
-    if( epoch == 0 ) return OK;
+    if( epoch == 0 ) { return OK;
+}
     sts = grd_calc_linear( gd->grid, lon*RTOD, lat*RTOD, denu );
     denu[0] *= epoch;
     denu[1] *= epoch;
@@ -118,15 +127,21 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
     int i;
     ref_deformation *def = rf->def;
     ref_deformation_grid *gd = (ref_deformation_grid *)(def->data);
-    if( epochfrom == 0 ) epochfrom = gd->refepoch;
-    if( epochto == 0 ) epochto = gd->refepoch;
-    if( epochfrom == epochto ) return OK;
+    if( epochfrom == 0 ) { epochfrom = gd->refepoch;
+}
+    if( epochto == 0 ) { epochto = gd->refepoch;
+}
+    if( epochfrom == epochto ) { return OK;
+}
     sts = rf_grid_open_file( gd );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
     denu[0] = denu[1] = denu[2] = 0.0;
     sts = grd_calc_linear( gd->grid, llh[CRD_LON]*RTOD, llh[CRD_LAT]*RTOD, denu );
-    if( sts != OK ) return sts;
-    for( i = 0; i < 3; i++ ) denu[i] *= (epochto-epochfrom);
+    if( sts != OK ) { return sts;
+}
+    for( i = 0; i < 3; i++ ) { denu[i] *= (epochto-epochfrom);
+}
     return rf_apply_enu_deformation_to_llh( rf, llh, denu );
 }
 

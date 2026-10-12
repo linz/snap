@@ -54,7 +54,8 @@ void write_run_date_field( FILE *const f, const std::string &runDate )
 bool read_run_date_field( FILE *const f, std::string &runDate )
 {
     std::array<char,GETDATELEN> field{};
-    if( fread( field.data(), GETDATELEN, 1, f ) != 1 ) return false;
+    if( fread( field.data(), GETDATELEN, 1, f ) != 1 ) { return false;
+}
     const std::string_view text( field.data(), field.size() );
     runDate = std::string( text.substr( 0, text.find( '\0' ) ) );
     return true;

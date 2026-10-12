@@ -73,7 +73,8 @@ static void rmat_from_vertical( double rmat[3][3] )
         scalevec( vece, 1.0/r );              /* East vector */
         vecn[2] = r;
         r = sqrt( 1.0-r*r)/r;
-        if( vecu[2] > 0.0 ) r = -r;
+        if( vecu[2] > 0.0 ) { r = -r;
+}
         vecn[0] = vecu[0]*r;
         vecn[1] = vecu[1]*r;                  /* North vector */
     }
@@ -93,7 +94,8 @@ static void midpoint_rmat( int st1, int st2, double rmat[3][3] )
     assert(vertfunc != NULL);
     vecu = rmat[2];
     vecu[0] = vecu[1] = vecu[2] = 0.0;
-    if( st1 ) (*vertfunc)( st1, vecu );
+    if( st1 ) { (*vertfunc)( st1, vecu );
+}
     if( st2 ) { (*vertfunc)( st2, tmp ); vecadd(vecu,tmp,vecu); }
 
     rmat_from_vertical( rmat );
@@ -105,7 +107,8 @@ static void set_midpoint_rmat( survdata *sd, double rmat[3][3] )
     assert(vertfunc != NULL);
     vecu = rmat[2];
     vecu[0] = vecu[1] = vecu[2] = 0.0;
-    if( sd->from ) (*vertfunc)( sd->from, vecu );
+    if( sd->from ) { (*vertfunc)( sd->from, vecu );
+}
     for( int iobs=0; iobs < sd->nobs; iobs++ )
     {
         int to=sd->obs.vdata[iobs].tgt.to;
@@ -130,7 +133,8 @@ static void get_enu_rmat( int st1, int st2, double rmat[3][3] )
 {
     if( fixed_gps_vertical )
     {
-        if( !fixed_rmat_calculated )  set_gps_vertical();
+        if( !fixed_rmat_calculated ) {  set_gps_vertical();
+}
         memcpy( rmat, fixed_rmat, sizeof(fixed_rmat) );
         return;
     }
@@ -142,7 +146,8 @@ static void get_set_enu_rmat( survdata *sd, double rmat[3][3] )
 {
     if( fixed_gps_vertical )
     {
-        if( !fixed_rmat_calculated )  set_gps_vertical();
+        if( !fixed_rmat_calculated ) {  set_gps_vertical();
+}
         memcpy( rmat, fixed_rmat, sizeof(fixed_rmat) );
         return;
     }
@@ -252,10 +257,11 @@ static void transform_cvr( double xform[3][3], ltmat cvr )
 
     /* Now form the transformed covariance matrix */
 
-    for( i = 0, k=0; i<3; i++ ) for( j=0; j<=i; j++, k++ )
+    for( i = 0, k=0; i<3; i++ ) { for( j=0; j<=i; j++, k++ )
         {
             cvr[k] = vecdot( fullcvr[i], xform[j] );
         }
+}
 
 }
 
@@ -299,14 +305,16 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
         return;
     }
 
-    if( fixed_gps_vertical ) get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+    if( fixed_gps_vertical ) { get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+}
 
     /* Clear out the covariance matrix */
 
-    for( iobs = 0; iobs < vd->nobs*3; iobs++ ) for( jobs = 0; jobs <= iobs; jobs++ )
+    for( iobs = 0; iobs < vd->nobs*3; iobs++ ) { for( jobs = 0; jobs <= iobs; jobs++ )
         {
             Lij( cvr, iobs, jobs ) = 0.0;
         }
+}
 
     /* Calculate the covariances of the supplied vectors and
        also store their component in the correlations */
@@ -316,7 +324,8 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
 
         /* Generate the covariance matrix */
 
-        if( !fixed_gps_vertical ) get_enu_rf_xform( vd->from, t[iobs].tgt.to, vd->reffrm, xform );
+        if( !fixed_gps_vertical ) { get_enu_rf_xform( vd->from, t[iobs].tgt.to, vd->reffrm, xform );
+}
         calc_default_cvr( veclen(t[iobs].vector ), tcvr, mmerr2, ppmerr2 );
         transform_cvr( xform, tcvr );
 
@@ -334,7 +343,8 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
 
         for( jobs = 0; jobs < vd->nobs; jobs ++ )
         {
-            if( jobs == iobs ) continue;
+            if( jobs == iobs ) { continue;
+}
             int jobs3 = jobs*3;
 
             Lij(cvr, iobs3,  jobs3  ) += tcvr[0]/2;
@@ -351,13 +361,14 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
 
     /* Now determine the covariances of the derived vectors */
 
-    for( iobs = 1; iobs < vd->nobs; iobs++ ) for( jobs = 0; jobs < iobs; jobs++ )
+    for( iobs = 1; iobs < vd->nobs; iobs++ ) { for( jobs = 0; jobs < iobs; jobs++ )
         {
 
             /* Generate the covariance matrix */
 
-            if( !fixed_gps_vertical )
+            if( !fixed_gps_vertical ) {
                 get_enu_rf_xform( t[iobs].tgt.to, t[jobs].tgt.to, vd->reffrm, xform );
+}
             vecdif( t[iobs].vector, t[jobs].vector, dif );
             calc_default_cvr( veclen(dif), tcvr, mmerr2, ppmerr2 );
             transform_cvr( xform, tcvr );
@@ -376,6 +387,7 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
             Lij(cvr, iobs3+2,jobs3+2) -= tcvr[5]/2;
 
         }
+}
 }
 
 
@@ -404,20 +416,24 @@ static void build_default_point_cvr( survdata *vd, double *mmerr )
     for( i=0; i<3; i++)
     {
         abserr2[i] = mmerr[i]*mmerr[i]*1.0e-6;
-        if( nobs < 2 ) continue;
+        if( nobs < 2 ) { continue;
+}
         mmerr2[i] = mmerr[i+3]*mmerr[i+3]*1.0e-6;
         ppmerr2[i] = mmerr[i+6]*mmerr[i+6]*1.0e-12;
-        if( mmerr2[i] > 0.0 || ppmerr2[i] > 0.0) havecvr = 1;
+        if( mmerr2[i] > 0.0 || ppmerr2[i] > 0.0) { havecvr = 1;
+}
     }
 
-    if( fixed_gps_vertical ) get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+    if( fixed_gps_vertical ) { get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+}
 
     /* Clear out the covariance matrix */
 
-    for( iobs = 0; iobs < vd->nobs*3; iobs++ ) for( jobs = 0; jobs <= iobs; jobs++ )
+    for( iobs = 0; iobs < vd->nobs*3; iobs++ ) { for( jobs = 0; jobs <= iobs; jobs++ )
         {
             Lij( cvr, iobs, jobs ) = 0.0;
         }
+}
 
     /* Calculate the covariances of the supplied vectors and
        also store their component in the correlations */
@@ -427,7 +443,8 @@ static void build_default_point_cvr( survdata *vd, double *mmerr )
 
         /* Generate the covariance matrix */
 
-        if( !fixed_gps_vertical ) get_enu_rf_xform( t[iobs].tgt.to, t[iobs].tgt.to, vd->reffrm, xform );
+        if( !fixed_gps_vertical ) { get_enu_rf_xform( t[iobs].tgt.to, t[iobs].tgt.to, vd->reffrm, xform );
+}
         calc_default_cvr( 0.0, tcvr, abserr2, abserr2 );
         transform_cvr( xform, tcvr );
 
@@ -443,11 +460,13 @@ static void build_default_point_cvr( survdata *vd, double *mmerr )
 
         /* Now handle the off-diagonal elements */
 
-        if( ! havecvr ) continue;
+        if( ! havecvr ) { continue;
+}
         for( jobs = 0; jobs < iobs; jobs ++ )
         {
 
-            if( !fixed_gps_vertical ) get_enu_rf_xform( t[iobs].tgt.to, t[iobs].tgt.to, vd->reffrm, xform );
+            if( !fixed_gps_vertical ) { get_enu_rf_xform( t[iobs].tgt.to, t[iobs].tgt.to, vd->reffrm, xform );
+}
             vecdif(t[iobs].vector,t[jobs].vector, dif);
             calc_default_cvr( veclen(dif), tcvr, mmerr2, ppmerr2 );
             transform_cvr( xform, tcvr );
@@ -480,7 +499,8 @@ static void diagonal_cvr_to_covariance( survdata *vd )
     n = vd->nobs * 3;
     for( i = 0; i<n; i++ )
     {
-        for( j = 0; j<i; j++ ) Lij(cvr,i,j) = 0.0;
+        for( j = 0; j<i; j++ ) { Lij(cvr,i,j) = 0.0;
+}
         Lij(cvr,i,i) *= Lij(cvr,i,i);
     }
 
@@ -523,7 +543,8 @@ static void topocentric_cvr_to_xyz( survdata *vd, bool correlation )
 
     /* Initialise */
 
-    if( fixed_gps_vertical ) get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+    if( fixed_gps_vertical ) { get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+}
 
     for( iobs = 0; iobs < vd->nobs; iobs++ )
     {
@@ -546,8 +567,9 @@ static void topocentric_cvr_to_xyz( survdata *vd, bool correlation )
         tcvr[5] = Lij( cvr, iobs3, iobs3 )*Lij( cvr, iobs3, iobs3 );
 
 
-        if( !fixed_gps_vertical )
+        if( !fixed_gps_vertical ) {
             get_enu_rf_xform( vd->from, t[iobs].tgt.to, vd->reffrm, xform );
+}
 
         transform_cvr( xform, tcvr );
 
@@ -571,12 +593,14 @@ static void correlation_cvr_to_covariance( survdata *vd )
     cvr = vd->cvr;
     n = vd->nobs*3;
 
-    for( i=1; i<n; i++ ) for( j=0; j<i; j++ )
+    for( i=1; i<n; i++ ) { for( j=0; j<i; j++ )
         {
             Lij(cvr,i,j) *= Lij(cvr,i,i) * Lij(cvr,j,j);
         }
+}
 
-    for( i=0; i<n; i++ ) Lij(cvr,i,i) *= Lij(cvr,i,i);
+    for( i=0; i<n; i++ ) { Lij(cvr,i,i) *= Lij(cvr,i,i);
+}
 }
 
 
@@ -588,10 +612,11 @@ static void calc_gps_covariance( survdata *vd, int cvrtype, double *mmerr )
     {
 
     case CVR_DEFAULT:
-        if( datatype[vd->obs.vdata->tgt.type].ispoint )
+        if( datatype[vd->obs.vdata->tgt.type].ispoint ) {
             build_default_point_cvr( vd, mmerr );
-        else
+        } else {
             build_default_baseline_cvr( vd, mmerr );
+}
         break;
 
     case CVR_DIAGONAL:    diagonal_cvr_to_covariance( vd );
@@ -634,8 +659,10 @@ void transform_vec_to_topo( int from, int to, int rf,
     double xform[3][3];
 
     get_rf_enu_xform( from, to, rf, xform );
-    if(vec) premult3( (double *) xform, vec, vec, 1 );
-    if(cvr) transform_cvr( xform, cvr );
+    if(vec) { premult3( (double *) xform, vec, vec, 1 );
+}
+    if(cvr) { transform_cvr( xform, cvr );
+}
 }
 
 
@@ -661,15 +688,17 @@ void transform_xyz_cvr_to_topocentric( survdata *vd, ltmat cvr )
 
     /* Initialise */
 
-    if( fixed_gps_vertical ) get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+    if( fixed_gps_vertical ) { get_enu_rf_xform( 0, 0, vd->reffrm, xform );
+}
 
     for( iobs = 0; iobs < vd->nobs; iobs++ )
     {
 
         /* Set up the transformation for the iobs'th observation */
 
-        if( !fixed_gps_vertical )
+        if( !fixed_gps_vertical ) {
             get_rf_enu_xform( vd->from, t[iobs].tgt.to, vd->reffrm, xform );
+}
 
         /* Convert the iobs x iobs submatrix */
 
@@ -694,7 +723,8 @@ void transform_xyz_cvr_to_topocentric( survdata *vd, ltmat cvr )
 
         for( jobs = 0; jobs < vd->nobs; jobs++ )
         {
-            if( jobs == iobs ) continue;
+            if( jobs == iobs ) { continue;
+}
             jobs3 = jobs * 3;
             for( j = jobs3; j < jobs3+3; j++ )
             {
@@ -730,15 +760,18 @@ double vector_standardised_residual( double vec[3], ltmat cvr, int *rank )
         for ( j=0, rj = cvr; j<= i; j++, rj+=j )
         {
             r1=ri; r2=rj; sum=0.0;
-            for( k=0; k<j; k++ ) sum -= *r1++ * *r2++;
+            for( k=0; k<j; k++ ) { sum -= *r1++ * *r2++;
+}
             sum += *r1;
             if ( i==j )
             {
                 if( sum < small ) { (*rank)--; *r1 = 1.0; }
-                else *r1 = sqrt( sum );
+                else { *r1 = sqrt( sum );
+}
             }
-            else
+            else {
                 *r1 = sum/ *r2;
+}
         }
     }
 
@@ -748,7 +781,8 @@ double vector_standardised_residual( double vec[3], ltmat cvr, int *rank )
 
     for ( i=0, r1=cvr; i<3; i++ )
     {
-        for (k = 0, sum=0.0; k<i; k++ ) sum -= *r1++ * vec[k];
+        for (k = 0, sum=0.0; k<i; k++ ) { sum -= *r1++ * vec[k];
+}
         vec[i] = (vec[i]+sum) / *r1++;
         prod += vec[i] * vec[i];
     }
@@ -759,7 +793,8 @@ double vector_standardised_residual( double vec[3], ltmat cvr, int *rank )
     if( *rank )
     {
         prod /= *rank;
-        if( prod > 0 ) prod = sqrt(prod); else prod = 0.0;
+        if( prod > 0 ) { prod = sqrt(prod); } else { prod = 0.0;
+}
     }
 
     else
@@ -780,14 +815,19 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
     int vtype;
     int sfrom, sto;
 
-    if( datatype[vd->obs.vdata[0].tgt.type].ispoint ) return calc_vecdata_point(vd,to,type,vec,cvr);
+    if( datatype[vd->obs.vdata[0].tgt.type].ispoint ) { return calc_vecdata_point(vd,to,type,vec,cvr);
+}
 
-    if( vd->format != SD_VECDATA ) return INVALID_DATA;
+    if( vd->format != SD_VECDATA ) { return INVALID_DATA;
+}
     pvec = vec;
     pcvr = cvr;
-    if( pcvr && type & VD_STDERR ) pcvr = lcvr;
-    if( to < VD_REF_STN || to > vd->nobs ) return INVALID_DATA;
-    if( from < VD_REF_STN || from > vd->nobs ) return INVALID_DATA;
+    if( pcvr && type & VD_STDERR ) { pcvr = lcvr;
+}
+    if( to < VD_REF_STN || to > vd->nobs ) { return INVALID_DATA;
+}
+    if( from < VD_REF_STN || from > vd->nobs ) { return INVALID_DATA;
+}
     vtype = type & VD_TYPEMASK;
     switch( vtype )
     {
@@ -864,7 +904,7 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
             pcvr[4] += Lij(source,j3+2,j3+1);
             pcvr[5] += Lij(source,j3+2,j3+2);
 
-            if( to != VD_REF_STN ) for( pc = pcvr, ic = 0; ic < 3; ic++ )
+            if( to != VD_REF_STN ) { for( pc = pcvr, ic = 0; ic < 3; ic++ )
                 {
                     int i3c = i3 + ic;
                     int j3c = j3 + ic;
@@ -873,6 +913,7 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
                         *pc -= Lij(source, i3c, j3+jc) + Lij( source, j3c, i3+jc );
                     }
                 }
+}
         }
     }
 
@@ -880,8 +921,9 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
 
     sfrom = (from == VD_REF_STN) ? vd->from : vd->obs.vdata[from].tgt.to;
     sto =  (to == VD_REF_STN) ? vd->from : vd->obs.vdata[to].tgt.to;
-    if( type & VD_TOPOCENTRIC )
+    if( type & VD_TOPOCENTRIC ) {
         transform_vec_to_topo( sfrom, sto, vd->reffrm, pvec, pcvr);
+}
 
     if( pcvr && type & VD_STDERR )
     {
@@ -904,11 +946,14 @@ int calc_vecdata_point( survdata *vd, int to, int type,
     int vtype;
     int sto;
 
-    if( vd->format != SD_VECDATA ) return INVALID_DATA;
+    if( vd->format != SD_VECDATA ) { return INVALID_DATA;
+}
     pvec = vec;
     pcvr = cvr;
-    if( pcvr && type & VD_STDERR ) pcvr = lcvr;
-    if( to < 0 || to >= vd->nobs ) return INVALID_DATA;
+    if( pcvr && type & VD_STDERR ) { pcvr = lcvr;
+}
+    if( to < 0 || to >= vd->nobs ) { return INVALID_DATA;
+}
     vtype = type & VD_TYPEMASK;
     switch( vtype )
     {
@@ -953,8 +998,9 @@ int calc_vecdata_point( survdata *vd, int to, int type,
 
     sto =  vd->obs.vdata[to].tgt.to;
 
-    if( type & VD_TOPOCENTRIC )
+    if( type & VD_TOPOCENTRIC ) {
         transform_vec_to_topo( sto, sto, vd->reffrm, pvec, pcvr);
+}
 
     if( pcvr && type & VD_STDERR )
     {
@@ -973,18 +1019,22 @@ void gps_covar_apply_obs_error_factor( survdata *sd, int iobs, double factor )
     int ncvr=sd->nobs*3;
     int i3=iobs*3;
     double factor2=factor*factor;
-    if( ! sd->cvr ) return;
+    if( ! sd->cvr ) { return;
+}
     for( int row=0; row<i3; row++ )
     {
-        for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= factor;
+        for( int col=i3; col < i3+3; col++ ) { Lij(sd->cvr,row,col) *= factor;
+}
     }
     for( int row=i3; row<i3+3; row++ )
     {
-        for( int col=i3; col <= row; col++ ) Lij(sd->cvr,row,col) *= factor2;
+        for( int col=i3; col <= row; col++ ) { Lij(sd->cvr,row,col) *= factor2;
+}
     }
     for( int row=i3+3; row<ncvr; row++ )
     {
-        for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= factor;
+        for( int col=i3; col < i3+3; col++ ) { Lij(sd->cvr,row,col) *= factor;
+}
     }
     tgt->errfct *= factor;
 }
@@ -996,7 +1046,8 @@ void gps_covar_apply_obs_offset_error( survdata *sd, int iobs, double varhor, do
     double ocvr[6];
     vecdata *vd=sd->obs.vdata+iobs;
     ltmat cvr=sd->cvr;
-    if( ! cvr ) return;
+    if( ! cvr ) { return;
+}
     get_enu_rf_xform( 0, vd->tgt.to, sd->reffrm, xform );
     ocvr[0]=varhor;
     ocvr[1]=0.0;
@@ -1020,10 +1071,12 @@ void gps_covar_apply_set_error_factor( survdata *sd, double factor )
     int i;
     vecdata *vd;
     ltmat cvr=sd->cvr;
-    if( ! cvr ) return;
+    if( ! cvr ) { return;
+}
     for( int row=0; row<i3; row++ )
     {
-        for( int col=0; col <= row; col++ ) Lij(cvr,row,col) *= factor2;
+        for( int col=0; col <= row; col++ ) { Lij(cvr,row,col) *= factor2;
+}
     }
     for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
     {
@@ -1036,7 +1089,8 @@ void gps_covar_apply_centroid_error( survdata *sd, double varhor, double varvrt 
     double xform[3][3];
     double ocvr[6];
     ltmat cvr=sd->cvr;
-    if( ! cvr ) return;
+    if( ! cvr ) { return;
+}
     get_set_enu_rf_xform( sd, xform );
     ocvr[0]=varhor;
     ocvr[1]=0.0;
@@ -1075,7 +1129,8 @@ void gps_covar_apply_basestation_offset_error( survdata *sd, double varhor, doub
     double xform[3][3];
     double ocvr[6];
     ltmat cvr=sd->cvr;
-    if( ! cvr ) return;
+    if( ! cvr ) { return;
+}
     get_enu_rf_xform( 0, sd->from, sd->reffrm, xform );
     ocvr[0]=varhor;
     ocvr[1]=0.0;

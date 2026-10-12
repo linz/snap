@@ -42,7 +42,8 @@ bool compute_use_rates( const double dtxyz[3], const double drxyz[3], double dsc
 {
     for( int i=0; i<3; i++ )
     {
-        if( dtxyz[i] != 0 || drxyz[i] != 0 ) return true;
+        if( dtxyz[i] != 0 || drxyz[i] != 0 ) { return true;
+}
     }
     return dscale != 0.0;
 }
@@ -86,8 +87,10 @@ ref_frame::~ref_frame()
 
 ref_frame *copy_ref_frame( ref_frame *rf )
 {
-    if( rf == nullptr ) return nullptr;
-    if( ! rf->el ) return nullptr;
+    if( rf == nullptr ) { return nullptr;
+}
+    if( ! rf->el ) { return nullptr;
+}
     ellipsoid *el = new ellipsoid( *rf->el );
     ref_frame_func *func = copy_ref_frame_func( rf->func );
     ref_deformation *def = copy_ref_deformation( rf->def );
@@ -103,32 +106,46 @@ ref_frame *copy_ref_frame( ref_frame *rf )
 
 int identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 )
 {
-    if( ! identical_datum( rf1, rf2 )  ) return 0;
-    if( ! identical_ref_deformation(rf1->def,rf2->def)) return 0;
-    if( rf1->def && rf1->defepoch != rf2->defepoch ) return 0;
+    if( ! identical_datum( rf1, rf2 )  ) { return 0;
+}
+    if( ! identical_ref_deformation(rf1->def,rf2->def)) { return 0;
+}
+    if( rf1->def && rf1->defepoch != rf2->defepoch ) { return 0;
+}
     return 1;
 }
 
 int identical_datum( ref_frame *rf1, ref_frame *rf2 )
 {
     int i;
-    if( rf1->refcode && ! rf2->refcode ) return 0;
-    if( ! rf1->refcode && rf2->refcode ) return 0;
+    if( rf1->refcode && ! rf2->refcode ) { return 0;
+}
+    if( ! rf1->refcode && rf2->refcode ) { return 0;
+}
     /* If no reference frame code then transformations are meaningless */
     if( rf1->refcode )
     {
-        if( *rf1->refcode != *rf2->refcode ) return 0;
-        if( rf1->refdate != rf2->refdate ) return 0;
+        if( *rf1->refcode != *rf2->refcode ) { return 0;
+}
+        if( rf1->refdate != rf2->refdate ) { return 0;
+}
         for( i=0; i<3; i++ )
         {
-            if( rf1->txyz[i] != rf2->txyz[i] ) return 0;
-            if( rf1->rxyz[i] != rf2->rxyz[i] ) return 0;
-            if( rf1->dtxyz[i] != rf2->dtxyz[i] ) return 0;
-            if( rf1->drxyz[i] != rf2->drxyz[i] ) return 0;
+            if( rf1->txyz[i] != rf2->txyz[i] ) { return 0;
+}
+            if( rf1->rxyz[i] != rf2->rxyz[i] ) { return 0;
+}
+            if( rf1->dtxyz[i] != rf2->dtxyz[i] ) { return 0;
+}
+            if( rf1->drxyz[i] != rf2->drxyz[i] ) { return 0;
+}
         }
-        if( rf1->scale != rf2->scale ) return 0;
-        if( rf1->dscale != rf2->dscale ) return 0;
-        if( ! identical_ref_frame_func(rf1->func,rf2->func)) return 0;
+        if( rf1->scale != rf2->scale ) { return 0;
+}
+        if( rf1->dscale != rf2->dscale ) { return 0;
+}
+        if( ! identical_ref_frame_func(rf1->func,rf2->func)) { return 0;
+}
     }
     return 1;
 }

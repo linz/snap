@@ -56,7 +56,8 @@ projection_type *find_projection_type( const std::string &code )
     prj_list *pt;
     for( pt = prj_types; pt; pt = pt->next )
     {
-        if( boost::algorithm::iequals( code, pt->prj_type->code ) ) return pt->prj_type;
+        if( boost::algorithm::iequals( code, pt->prj_type->code ) ) { return pt->prj_type;
+}
     }
     return nullptr;
 }

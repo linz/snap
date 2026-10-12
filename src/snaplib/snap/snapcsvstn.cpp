@@ -108,7 +108,8 @@ void SnapCsvStn::readerAttached()
 void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName)
 {
     int len = colName.size() - 1;
-    if (len < 0) return;
+    if (len < 0) { return;
+}
     if (colName[len] != '*')
     {
         Column *c = reader->findColumn(colName);
@@ -142,8 +143,10 @@ void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName
         if (len > 0)
         {
             string colprefix = name.substr(0, len);
-            if (!boost::iequals(prefix, colprefix)) continue;
-            if (offset) name = name.substr(offset);
+            if (!boost::iequals(prefix, colprefix)) { continue;
+}
+            if (offset) { name = name.substr(offset);
+}
         }
         _classCols.push_back(CsvClassColumn(_net, name, c));
     }
@@ -333,7 +336,8 @@ void SnapCsvStn::loadRecord()
     }
     bool geodetic = !(_projection || _geocentric);
 
-    if (!_cs) return;
+    if (!_cs) { return;
+}
 
     if (cscode != _cscode)
     {
@@ -343,7 +347,8 @@ void SnapCsvStn::loadRecord()
 
     std::string heightType = _hgttype.value();
     boost::to_lower(heightType);
-    if (heightType == "") heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
+    if (heightType == "") { heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
+}
 
     ords = _projection ? &prjords : _geocentric ? &xyzords : &llhords;
     _crdlon.setName(std::string((*ords)[0]));
@@ -394,8 +399,10 @@ void SnapCsvStn::loadRecord()
     }
     else
     {
-        if (!(_crdlon >> crdlon)) dataError(string((*ords)[0]) + " is missing or invalid");
-        if (!(_crdlat >> crdlat)) dataError(string((*ords)[1]) + " is missing or invalid");
+        if (!(_crdlon >> crdlon)) { dataError(string((*ords)[0]) + " is missing or invalid");
+}
+        if (!(_crdlat >> crdlat)) { dataError(string((*ords)[1]) + " is missing or invalid");
+}
     }
     if (!_geocentric && _crdhgt.value() != "" && !(_crdhgt >> crdhgt))
     {
@@ -411,18 +418,22 @@ void SnapCsvStn::loadRecord()
         if (_crdund.value() != "")
         {
             _geoidDefined = true;
-            if (!(_crdund >> crdund)) dataError("Invalid geoid undulation");
-            if (_ellipsoidalHeights) crdhgt -= crdund;
+            if (!(_crdund >> crdund)) { dataError("Invalid geoid undulation");
+}
+            if (_ellipsoidalHeights) { crdhgt -= crdund;
+}
         }
         if (_crdxi.value() != "")
         {
             _deflectionDefined = true;
-            if (!(_crdxi >> crdxi)) dataError("Invalid deflection east");
+            if (!(_crdxi >> crdxi)) { dataError("Invalid deflection east");
+}
         }
         if (_crdeta.value() != "")
         {
             _deflectionDefined = true;
-            if (!(_crdeta >> crdeta)) dataError("Invalid deflection north");
+            if (!(_crdeta >> crdeta)) { dataError("Invalid deflection north");
+}
         }
     }
 
@@ -432,9 +443,11 @@ void SnapCsvStn::loadRecord()
         dataError("Missing stations code");
     }
     string name = _name.value();
-    if (name == "") name = code;
+    if (name == "") { name = code;
+}
 
-    if (_dataError) return;
+    if (_dataError) { return;
+}
 
     if (_projection)
     {
@@ -490,9 +503,12 @@ void SnapCsvStn::terminateLoadData()
         return;
     }
     _net->options = 0;
-    if (_ellipsoidalHeights) _net->options += NW_ELLIPSOIDAL_HEIGHTS;
-    if (_geoidDefined) _net->options += NW_GEOID_HEIGHTS | NW_EXPLICIT_GEOID;
-    if (_deflectionDefined) _net->options += NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
+    if (_ellipsoidalHeights) { _net->options += NW_ELLIPSOIDAL_HEIGHTS;
+}
+    if (_geoidDefined) { _net->options += NW_GEOID_HEIGHTS | NW_EXPLICIT_GEOID;
+}
+    if (_deflectionDefined) { _net->options += NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
+}
     _net->options += NW_DEC_DEGREES;
 
     /* If recalculating geoid info then do so without raising errors */
@@ -533,7 +549,8 @@ int load_snap_csv_stations(network *net, const std::string &filename, const std:
         {
             record_filename(deffile, "csv_station_format");
         }
-        if (dfi.errorCount()) sts = INVALID_DATA;
+        if (dfi.errorCount()) { sts = INVALID_DATA;
+}
     }
     catch (RecordError &error)
     {

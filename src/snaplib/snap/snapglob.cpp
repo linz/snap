@@ -43,7 +43,8 @@ static bool initialised=false;
 
 void init_snap_globals()
 {
-    if( initialised ) return;
+    if( initialised ) { return;
+}
     for( const char *const variable : { "SNAPUSER", "USERNAME", "USER" } )
     {
         const char *const value = getenv( variable );
@@ -93,13 +94,15 @@ void init_snap_globals()
 
 std::string CommandFile::_locate( const std::string &name )
 {
-    if( path_exists( name ) ) return name;
+    if( path_exists( name ) ) { return name;
+}
 
     constexpr std::array<std::string_view, 3> extensions{ DFLTCOMMAND_EXT, DFLTCOMMAND_EXT2, DFLTCOMMAND_EXT3 };
     for( const std::string_view extension : extensions )
     {
         const std::string candidate = std::string(name).append(extension);
-        if( path_exists(candidate) ) return candidate;
+        if( path_exists(candidate) ) { return candidate;
+}
     }
     return name;
 }
@@ -113,7 +116,8 @@ CommandFile::CommandFile( const std::string &name )
 
 void set_snap_command_file( const std::string &cmd_file )
 {
-    if( ! initialised ) init_snap_globals();
+    if( ! initialised ) { init_snap_globals();
+}
     command_file.emplace( cmd_file );
     push_file_context( command_file->dir );
 }
@@ -121,13 +125,15 @@ void set_snap_command_file( const std::string &cmd_file )
 
 void set_snap_config_file( const std::string &cfg_file )
 {
-    if( ! initialised ) init_snap_globals();
+    if( ! initialised ) { init_snap_globals();
+}
     config_file = cfg_file;
 }
 
 void *snap_obs_modifications( bool create )
 {
-    if( ! initialised ) init_snap_globals();
+    if( ! initialised ) { init_snap_globals();
+}
     if( (! obs_modifications) && create)
     {
         obs_modifications=new_obs_modifications( net, &obs_classes );
@@ -149,7 +155,8 @@ static void write_job_title_field( FILE *const f )
 static bool read_job_title_field( FILE *const f )
 {
     std::array<char,JOBTITLELEN+1> field{};
-    if( fread( field.data(), field.size(), 1, f ) != 1 ) return false;
+    if( fread( field.data(), field.size(), 1, f ) != 1 ) { return false;
+}
     const std::string_view text( field.data(), field.size() );
     job_title = std::string( text.substr( 0, text.find( '\0' ) ) );
     return true;
@@ -157,7 +164,8 @@ static bool read_job_title_field( FILE *const f )
 
 void dump_snap_globals( BINARY_FILE *b )
 {
-    if( ! initialised ) init_snap_globals();
+    if( ! initialised ) { init_snap_globals();
+}
     create_section( b, "SNAP_GLOBALS" );
 
     write_job_title_field( b->f );
@@ -189,9 +197,11 @@ void dump_snap_globals( BINARY_FILE *b )
 
 int reload_snap_globals( BINARY_FILE *b )
 {
-    if( ! initialised ) init_snap_globals();
+    if( ! initialised ) { init_snap_globals();
+}
 
-    if( find_section( b, "SNAP_GLOBALS" ) != OK ) return MISSING_DATA;
+    if( find_section( b, "SNAP_GLOBALS" ) != OK ) { return MISSING_DATA;
+}
 
     read_job_title_field( b->f );
     read_run_date_field( b->f, run_time );
@@ -213,7 +223,8 @@ int reload_snap_globals( BINARY_FILE *b )
     reload_bin(b, taumax[1]);
     reload_bin(b, coord_precision);
     reload_bin(b, have_obs_ids);
-    if( check_end_section(b) == OK ) return OK;
+    if( check_end_section(b) == OK ) { return OK;
+}
     reload_bin(b, errconflim);
     reload_bin(b, errconfval);
     return check_end_section( b );
@@ -229,7 +240,8 @@ void dump_obs_classes( BINARY_FILE *b )
 
 int reload_obs_classes( BINARY_FILE *b )
 {
-    if( find_section( b, "OBS_CLASSES") != OK ) return MISSING_DATA;
+    if( find_section( b, "OBS_CLASSES") != OK ) { return MISSING_DATA;
+}
     obs_classes.reload( b->f );
     return check_end_section(b);
 }

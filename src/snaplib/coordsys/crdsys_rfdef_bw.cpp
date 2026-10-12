@@ -25,7 +25,8 @@ struct ref_deformation_xyz
         for( int i = 0; i < 3; i++ )
         {
             shift[i] = 0;
-            for( int j=0; j<3; j++) tmat[i][j] = 0;
+            for( int j=0; j<3; j++) { tmat[i][j] = 0;
+}
         }
     }
     ref_deformation_xyz( const ref_deformation_xyz& ) = delete;
@@ -49,7 +50,8 @@ static void *rf_xyz_copy( void *pdxyz )
     for( int i = 0; i < 3; i++ )
     {
         dxyz2->shift[i] = dxyz->shift[i];
-        for( int j = 0; j < 3; j++ ) dxyz2->tmat[i][j] = dxyz->tmat[i][j];
+        for( int j = 0; j < 3; j++ ) { dxyz2->tmat[i][j] = dxyz->tmat[i][j];
+}
     }
     return dxyz2;
 }
@@ -58,7 +60,8 @@ static int rf_xyz_identical( void *pgd1, void *pgd2 )
 {
     ref_deformation_xyz *gd1 = (ref_deformation_xyz *) pgd1;
     ref_deformation_xyz *gd2 = (ref_deformation_xyz *) pgd2;
-    if( gd1->refepoch != gd2->refepoch ) return 0;
+    if( gd1->refepoch != gd2->refepoch ) { return 0;
+}
     return gd1->description == gd2->description ? 1 : 0;
 }
 
@@ -79,7 +82,8 @@ static void calc_dxyz( ref_deformation_xyz *dxyz, double xyz[3], double years, d
     for( i = 0; i < 3; i++ )
     {
         double dv = dxyz->shift[i];
-        for( j=0; j < 3; j++ ) dv += dxyz->tmat[i][j]*xyz[j];
+        for( j=0; j < 3; j++ ) { dv += dxyz->tmat[i][j]*xyz[j];
+}
         xyzdif[i] = dv*years;
     }
 }
@@ -96,7 +100,8 @@ static int rf_xyz_calc( ref_frame *rf, double lon, double lat, double epoch, dou
 
     llh_to_xyz( rf->el, xyz, xyz,&dedln,&dndlt);
     calc_dxyz(dxyz,xyz,epoch-dxyz->refepoch,xyzdif);
-    for( i = 0; i < 3; i++ ) xyz[i] += xyzdif[i];
+    for( i = 0; i < 3; i++ ) { xyz[i] += xyzdif[i];
+}
     xyz_to_llh( rf->el, xyz, xyz );
     denu[0] = (xyz[CRD_LON]-lon)*dedln;
     denu[1] = (xyz[CRD_LAT]-lat)*dndlt;
@@ -110,12 +115,16 @@ static int rf_xyz_apply( ref_frame *rf,  double llh[3], double epochfrom, double
     int i;
     ref_deformation *def = rf->def;
     ref_deformation_xyz *dxyz = (ref_deformation_xyz *)(def->data);
-    if( epochfrom == 0 ) epochfrom = dxyz->refepoch;
-    if( epochto == 0 ) epochto = dxyz->refepoch;
-    if( epochfrom == epochto ) return OK;
+    if( epochfrom == 0 ) { epochfrom = dxyz->refepoch;
+}
+    if( epochto == 0 ) { epochto = dxyz->refepoch;
+}
+    if( epochfrom == epochto ) { return OK;
+}
     llh_to_xyz( rf->el, llh, xyz, nullptr, nullptr);
     calc_dxyz(dxyz,xyz,epochfrom-epochto,xyzdif);
-    for( i = 0; i < 3; i++ ) xyz[i] += xyzdif[i];
+    for( i = 0; i < 3; i++ ) { xyz[i] += xyzdif[i];
+}
     xyz_to_llh( rf->el, xyz, llh );
     return OK;
 }

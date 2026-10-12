@@ -11,24 +11,28 @@ void filter_line( std::string &line, const CommentRule &comment )
 
     for( char c : line )
     {
-        if( cmnt && c == *cmnt ) iscmt = true;
+        if( cmnt && c == *cmnt ) { iscmt = true;
+}
 
         if( !iscmt && c != '\r' && c != '\x1A' )
         {
             line[writePos++] = ISSPACE(c) ? ' ' : c;
         }
 
-        if( comment.whole_line_only ) cmnt = std::nullopt;
+        if( comment.whole_line_only ) { cmnt = std::nullopt;
+}
     }
     line.resize( writePos );
 }
 
 int cap_line( std::string &line, const std::size_t max_len )
 {
-    if( line.size() <= max_len ) return 0;
+    if( line.size() <= max_len ) { return 0;
+}
 
     std::size_t i = max_len;
-    while( i < line.size() && ISSPACE(line[i]) ) ++i;
+    while( i < line.size() && ISSPACE(line[i]) ) { ++i;
+}
     const int overrun = static_cast<int>( line.size() - i );
 
     line.resize( max_len );

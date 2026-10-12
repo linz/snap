@@ -185,9 +185,11 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
             oe_value( hA, irow+axis, t->vector[axis] - dif[axis] );
             /* set station obseq also applies any station deformation to the
                the observed value */
-            if( isvecdif ) set_station_obseq( st1, dst1[axis], hA, irow+axis, v->date );
+            if( isvecdif ) { set_station_obseq( st1, dst1[axis], hA, irow+axis, v->date );
+}
             set_station_obseq( st2, dst2[axis], hA, irow+axis, v->date );
-            if( unused ) oe_flag_unused( hA, irow+axis );
+            if( unused ) { oe_flag_unused( hA, irow+axis );
+}
         }
     }
 
@@ -197,9 +199,11 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
     veccvr = v->cvr;
     nrow = v->nobs * 3;
 
-    for( irow = 0; irow < nrow; irow ++ )
-        for( jrow = 0; jrow <= irow; jrow++ )
+    for( irow = 0; irow < nrow; irow ++ ) {
+        for( jrow = 0; jrow <= irow; jrow++ ) {
             *oecvr++ = *veccvr++;
+}
+}
 
     return OK;
 }
@@ -254,7 +258,8 @@ void list_vecdata( FILE *out, survdata  *v )
                 fprintf( out, "%*s        ",stn_name_width,"");
             }
 
-            if( ! isvecdif ) fprintf( out, "%*s        ",stn_name_width,"");
+            if( ! isvecdif ) { fprintf( out, "%*s        ",stn_name_width,"");
+}
 
             if( axis == 0 )
             {
@@ -270,11 +275,13 @@ void list_vecdata( FILE *out, survdata  *v )
 
             if( v->nobs == 1 )
             {
-                for( j = 0; j<3; j++ ) fprintf(out,"  %12.8lf",Lij(v->cvr,axis,j));
+                for( j = 0; j<3; j++ ) { fprintf(out,"  %12.8lf",Lij(v->cvr,axis,j));
+}
             }
 
-            if( axis == 0 && iobs == 0 ) fprintf(out,"   %s",
+            if( axis == 0 && iobs == 0 ) { fprintf(out,"   %s",
                                   rftrans_from_id(v->reffrm)->name.c_str());
+}
 
             fputs("\n", out );
         }
@@ -329,7 +336,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
     // char isvecdif;
 
 
-    if( !output_rejected_stations && rejected_station( v->from ) ) return;
+    if( !output_rejected_stations && rejected_station( v->from ) ) { return;
+}
 
     firstobs = 1;
 
@@ -395,7 +403,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
                 else
                 {
                     sres[axis] = res[axis]/resse[axis];
-                    if( sres[axis] < 0.0 ) sres[axis] = -sres[axis];
+                    if( sres[axis] < 0.0 ) { sres[axis] = -sres[axis];
+}
                 }
                 if( unused == ' ' && redundancy[axis] > 0.0 )
                 {
@@ -424,7 +433,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
                     // Don't want to reduce precision for longer lines any more...
                     // Doesn't apply for GX observations.
                     // if( ndp && obslength > 999999.0 ) ndp--; 
-                    if( obslength <= 0.0 ) obslength = 1.0;  /* Avoid divide by 0 */
+                    if( obslength <= 0.0 ) { obslength = 1.0;  /* Avoid divide by 0 */
+}
                     obslength /= 1.0e6;
                     set_trgtdata_fields(&t->tgt,v);
                     set_residual_type_field( datatype[t->tgt.type].code, unused );
@@ -554,7 +564,8 @@ void calc_vecdata_residuals( survdata  *v, lsdata *l )
         rescvr[5] = Lij(srcvr,iobs3+2,iobs3+2);
 
         t->vsres = vector_standardised_residual( res, rescvr, &t->rank );
-        if( !t->rank ) t->vsres = -1.0;
+        if( !t->rank ) { t->vsres = -1.0;
+}
 
         /* Save the residual ... */
 

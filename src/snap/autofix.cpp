@@ -46,7 +46,8 @@ static int max_station_autodata=0;
 static void init_obsflags()
 {
     int i;
-    for( i=0; i < NOBSTYPE; i++ ) obsflags[i]=0;
+    for( i=0; i < NOBSTYPE; i++ ) { obsflags[i]=0;
+}
     obsflags[GB] = HAS_3D;
     obsflags[GX] = HAS_3D;
     obsflags[SD] = HAS_DIST | HAS_HDOBS;
@@ -93,7 +94,8 @@ void init_station_autodata( int maxstn )
 static void add_autofix( int from, int to, int flags )
 {
     autofix_data *afx;
-    if( from <= 0 || from > max_station_autodata ) return;
+    if( from <= 0 || from > max_station_autodata ) { return;
+}
     afx=&(station_autodata[from]);
     afx->flags |= flags;
     if( flags & IS_HOR && to != NO_STN )
@@ -119,7 +121,8 @@ static void add_survdata_fixdata( survdata *sd )
     for( int i = 0; i < sd->nobs; i++ )
     {
         t = get_trgtdata( sd, i );
-        if( t->unused ) continue;
+        if( t->unused ) { continue;
+}
         type=t->type;
         dtd=datatypedef_from_id( type );
         flags=obsflags[type];
@@ -128,8 +131,10 @@ static void add_survdata_fixdata( survdata *sd )
         if( ispoint )
         {
            /* Point obs reference the from station unless also vector */
-           if( ! dtd->isvector ) to=from;
-           if( ! rejected_station(to) ) add_autofix( to, NO_STN, flags );
+           if( ! dtd->isvector ) { to=from;
+}
+           if( ! rejected_station(to) ) { add_autofix( to, NO_STN, flags );
+}
         }
         else if( ! rejected_station(from) && ! rejected_station(to) )
         {

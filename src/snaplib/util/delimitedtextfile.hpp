@@ -211,7 +211,8 @@ public:
     // Getting column information
 
     int columnCount() const { return _columns.size(); }
-    const Column &column( int i ) const { if( i >= (int) _columns.size()) columnIndexError(i); return *(_columns[i]); }
+    const Column &column( int i ) const { if( i >= (int) _columns.size()) { columnIndexError(i); 
+}return *(_columns[i]); }
     const Column &column( const std::string &name ) const { return columnNamed( name ); }
     const Column &operator[] ( int i ) const { return column(i); }
     const Column &operator[] ( const std::string &name ) const { return column(name); }

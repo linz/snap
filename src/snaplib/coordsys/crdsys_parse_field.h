@@ -34,7 +34,8 @@ inline int read_crdsys_string(
     std::string_view fieldname, ///< the name to report if the read fails
     std::string_view &bad )     ///< set to fieldname if a read is attempted
 {
-    if( status != OK ) return status;
+    if( status != OK ) { return status;
+}
     bad = fieldname;
     return field_status( read_string_field( scanner, value, maxlength ) );
 }
@@ -63,7 +64,8 @@ inline int read_crdsys_double(
     std::string_view fieldname, ///< the name to report if the read fails
     std::string_view &bad )     ///< set to fieldname if a read is attempted
 {
-    if( status != OK ) return status;
+    if( status != OK ) { return status;
+}
     bad = fieldname;
     return field_status( read_double_field( scanner, value ) );
 }

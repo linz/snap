@@ -53,9 +53,12 @@ static const DmsFormat &angle_format( const int type )
     static const DmsFormat azimuthFormat( 3, obs_precision[AZ] );
     static const DmsFormat projectionBearingFormat( 3, obs_precision[PB] );
     static const DmsFormat zenithDistanceFormat( 3, obs_precision[ZD] );
-    if( type == PB ) return projectionBearingFormat;
-    if( type == AZ ) return azimuthFormat;
-    if( type == ZD ) return zenithDistanceFormat;
+    if( type == PB ) { return projectionBearingFormat;
+}
+    if( type == AZ ) { return azimuthFormat;
+}
+    if( type == ZD ) { return zenithDistanceFormat;
+}
     return horizontalAngleFormat;
 }
 
@@ -158,7 +161,8 @@ void apply_obsdata_options( survdata *o )
         for( int i=0; i<o->nobs; i++ )
         {
             trgtdata *t = get_trgtdata( o, i );
-            if( t->type == DR ) t->type = SD;
+            if( t->type == DR ) { t->type = SD;
+}
         }
     }
 }
@@ -279,8 +283,10 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
                 value -= brngref_correction( t->prm_id, hA, iobs );
             }
 
-            while( value > PI ) value -= PI*2;
-            while( value <- PI ) value += PI*2;
+            while( value > PI ) { value -= PI*2;
+}
+            while( value <- PI ) { value += PI*2;
+}
             value = t->value - value;
             break;
 
@@ -297,8 +303,10 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
             }
             value = t->value - value;
             value -= brngref_correction( t->prm_id, hA, iobs );
-            while( value > PI ) value -= PI*2;
-            while( value < -PI ) value += PI*2;
+            while( value > PI ) { value -= PI*2;
+}
+            while( value < -PI ) { value += PI*2;
+}
             value = t->value - value;
             break;
 
@@ -347,7 +355,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
     double mde;
 
 
-    if( !output_rejected_stations && rejected_station( o->from ) ) return;
+    if( !output_rejected_stations && rejected_station( o->from ) ) { return;
+}
 
     maxtype = output_sort_by_type ? NOBSTYPE : 1;
 
@@ -367,7 +376,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
 
             ok = output_sort_by_type && t->tgt.type == itype;
 
-            if( ok ) ok = output_rejected_stations || !rejected_station( t->tgt.to );
+            if( ok ) { ok = output_rejected_stations || !rejected_station( t->tgt.to );
+}
 
             if( ok )
             {
@@ -415,7 +425,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                 }
 
                 std::string typecode( datatype[type].code );
-                if( unused != ' ' ) typecode += unused;
+                if( unused != ' ' ) { typecode += unused;
+}
                 set_residual_field( OF_TYPE, typecode );
 
                 calc = t->calc;
@@ -423,7 +434,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                 sec = t->calcerr*semult;
                 ser = t->reserr*semult;
                 sres = t->sres;
-                if( sres >= 0.0 ) sres /= semult;
+                if( sres >= 0.0 ) { sres /= semult;
+}
                 mde = calculate_mde( seo, ser );
 
                 if( unused == ' ' && t->error > 0.0 )
@@ -439,8 +451,10 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                 if( datatype[type].isangle )
                 {
                     calc *= RTOD;
-                    if( calc < 0.0 ) calc += 360.0;
-                    if( calc >= 360.0 ) calc -= 360.0;
+                    if( calc < 0.0 ) { calc += 360.0;
+}
+                    if( calc >= 360.0 ) { calc -= 360.0;
+}
                     set_residual_field_dms( OF_OBS, angle_format(type), t->value*RTOD);
                     set_residual_field_value( OF_OBSERR, ndp, seo*RTOS );
                     set_residual_field_dms( OF_CALC, angle_format(type), calc );
@@ -482,7 +496,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                 case PB:
                     obslength = calc_distance( stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0,nullptr,nullptr);
                     altres = t->residual*obslength;
-                    if( type == ZD ) altres *= sin( t->value );
+                    if( type == ZD ) { altres *= sin( t->value );
+}
                     set_residual_field_value( OF_ALTRES, 3, altres );
                     break;
 
@@ -526,7 +541,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
 
                 print_residual_line( out );
 
-                if( type == DR ) distratios = 1;
+                if( type == DR ) { distratios = 1;
+}
             }
 
         }
@@ -535,7 +551,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
         {
             double se;
             se = o->schvar;
-            if( se > 0.0 ) se = sqrt(se);
+            if( se > 0.0 ) { se = sqrt(se);
+}
             se *= semult;
 
             fprintf(out,"\n%*sDistance scale factor %.1lfppm +/- %.1lfppm\n",
@@ -569,8 +586,9 @@ void calc_obsdata_residuals( survdata *o, lsdata *l )
     {
 
         t = &o->obs.odata[iobs];
-        if( unused || rejected_station(t->tgt.to) || t->tgt.unused )
+        if( unused || rejected_station(t->tgt.to) || t->tgt.unused ) {
             t->tgt.unused |= UNUSED_OBS_BIT;
+}
 
         t->calc = t->value - l->res[iobs];
         t->calcerr = *ccvr > 0.0 ? sqrt(*ccvr) : 0.0;

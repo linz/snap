@@ -20,7 +20,8 @@ static void calc_topocentre( network *nw )
     double topolat, topolon;
     double vecu[3], tmp[3], r;
 
-    for( i=0; i<3; i++ ) vecu[i] = 0.0;
+    for( i=0; i<3; i++ ) { vecu[i] = 0.0;
+}
 
     /* Add together the vertical vectors of all the stations to get a vector
        in the mean direction */
@@ -37,7 +38,8 @@ static void calc_topocentre( network *nw )
            )
         {
             st->rTopo.rot_vertical( tmp );
-            for( i = 0; i<3; i++ ) vecu[i] += tmp[i];
+            for( i = 0; i<3; i++ ) { vecu[i] += tmp[i];
+}
         }
 
         /* Calculate the corresponding latitude and longitude */
@@ -63,7 +65,8 @@ void set_network_topocentre( network *nw, double lat, double lon )
 
 void get_network_topocentre( network *nw, double *lat, double *lon )
 {
-    if( !nw->got_topocentre ) calc_topocentre(nw);
+    if( !nw->got_topocentre ) { calc_topocentre(nw);
+}
     *lat = nw->topolat;
     *lon = nw->topolon;
 }

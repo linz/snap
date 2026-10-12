@@ -24,11 +24,14 @@ SnapplotMapDragger::~SnapplotMapDragger()
 bool SnapplotMapDragger::InitDrag( const wxMouseEvent &event )
 {
     shiftStation = event.ShiftDown() && event.ControlDown();
-    if( ! shiftStation ) return wxMapScaleDragger::InitDrag( event );
+    if( ! shiftStation ) { return wxMapScaleDragger::InitDrag( event );
+}
 
-    if( ! mapWindow ) return false;
+    if( ! mapWindow ) { return false;
+}
     wxMapScale &scale = mapWindow->GetScale();
-    if( ! scale.IsValid() ) return false;
+    if( ! scale.IsValid() ) { return false;
+}
 
     MapPoint refpt;
     scale.PlotToWorld( dragStartPoint, refpt );
@@ -36,7 +39,8 @@ bool SnapplotMapDragger::InitDrag( const wxMouseEvent &event )
     double tolerance = pickTolerance * scale.GetScale();
 
     istn = nearest_station( refpt.x, refpt.y, tolerance );
-    if( ! istn ) return false;
+    if( ! istn ) { return false;
+}
 
     // Ok, we have liftoff!!!
 
@@ -52,7 +56,8 @@ bool SnapplotMapDragger::InitDrag( const wxMouseEvent &event )
         {
             char visible;
             int to = get_connected_station( istn, nc, &visible );
-            if( !to || !visible ) continue;
+            if( !to || !visible ) { continue;
+}
             MapPoint &pt = connections[nConnections++];
             get_station_coordinates( to, &pt.x, &pt.y );
         }
@@ -103,7 +108,8 @@ void SnapplotMapDragger::DrawDragger( wxDC &dc )
 
 void SnapplotMapDragger::DeleteConnections()
 {
-    if( connections != nullptr ) delete [] connections;
+    if( connections != nullptr ) { delete [] connections;
+}
     connections = nullptr;
     nConnections = 0;
 }

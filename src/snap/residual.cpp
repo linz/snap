@@ -97,7 +97,8 @@ static void setup_flag_values( void )
             if( apriori )
             {
                 value = inv_chi2_distn( prob, rank );
-                if( value > 0.0 ) value = sqrt( value/rank );
+                if( value > 0.0 ) { value = sqrt( value/rank );
+}
                 flagval[rank-1][0][level] = flagval[rank-1][1][level] = value;
             }
             else
@@ -124,15 +125,20 @@ static void setup_flag_values( void )
 
 std::string_view residual_flag( const int unused, int rank, double sres )
 {
-    if( !flag_values_set ) setup_flag_values();
+    if( !flag_values_set ) { setup_flag_values();
+}
 
     rank--;
-    if( rank < 0 || rank > 2 ) rank = 2;
+    if( rank < 0 || rank > 2 ) { rank = 2;
+}
     const int used = unused ? 0 : 1;
 
-    if( sres < 0.0 ) sres = -sres;
-    if( sres > flagval[rank][used][1] ) return FLAG2;
-    if( sres > flagval[rank][used][0] ) return FLAG1;
+    if( sres < 0.0 ) { sres = -sres;
+}
+    if( sres > flagval[rank][used][1] ) { return FLAG2;
+}
+    if( sres > flagval[rank][used][0] ) { return FLAG1;
+}
     return "";
 }
 
@@ -145,10 +151,12 @@ void save_residual( int from, int to, int id, int type,
     int used;
     residual rs;
 
-    if( sres < 0 || rank < 1 || rank > MAXRANK ) return;
+    if( sres < 0 || rank < 1 || rank > MAXRANK ) { return;
+}
     if( ! apriori )
     {
-        if( seu <= 0.0 ) return;
+        if( seu <= 0.0 ) { return;
+}
         sres /= seu;
     }
 
@@ -180,21 +188,26 @@ void save_residual( int from, int to, int id, int type,
 
     used = unused == ' ' ? 1 : 0;
     rank--;
-    if( sres < 0.0 ) sres = -sres;
+    if( sres < 0.0 ) { sres = -sres;
+}
 
     /* Insert after any residuals at least as large, then drop the smallest if over the limit */
 
     const size_t limit = boost::numeric_cast<size_t>( maxworst );
     std::vector<residual> &worst = worstlst[used][rank];
-    if( worst.empty() ) worst.reserve( limit + 1 );
+    if( worst.empty() ) { worst.reserve( limit + 1 );
+}
     worst.insert( std::partition_point( worst.begin(), worst.end(),
                                         [sres]( const residual &w ) { return w.sres >= sres; } ), rs );
-    if( worst.size() > limit ) worst.pop_back();
+    if( worst.size() > limit ) { worst.pop_back();
+}
 
-    if( !flag_values_set ) setup_flag_values();
-    if( sres <= flagval[rank][used][0] ) level = 0;
-    else if( sres <= flagval[rank][used][1] ) level = 1;
-    else level = 2;
+    if( !flag_values_set ) { setup_flag_values();
+}
+    if( sres <= flagval[rank][used][0] ) { level = 0;
+    } else if( sres <= flagval[rank][used][1] ) { level = 1;
+    } else { level = 2;
+}
 
     nsigres[used][level]++;
 
@@ -210,7 +223,8 @@ void print_worst_residuals( FILE *out )
     int i, j, maxi, maxj, nwslist, level;
     int useall, iused, imin, imax;
 
-    if( totalcount <= 0 ) return;
+    if( totalcount <= 0 ) { return;
+}
 
     print_section_header( out, "MOST SIGNIFICANT RESIDUALS" );
     print_zero_inverse_warning( out );
@@ -220,7 +234,8 @@ void print_worst_residuals( FILE *out )
 
     for( i=0; i<3; i++ )
     {
-        if( i < 2 ) fprintf(out,"Under"); else fprintf(out,"Over ");
+        if( i < 2 ) { fprintf(out,"Under"); } else { fprintf(out,"Over ");
+}
         level = i < 2 ? i : 1;
         fprintf(out,"%6.2lf%%%c significant    Used: %3ld    Unused: %3ld\n",
                 flag_level[level], taumax[level] ? 'M':' ',
@@ -252,20 +267,25 @@ void print_worst_residuals( FILE *out )
         }
 
         nwslist = 0;
-        for( i=imin; i<=imax; i++ ) for( j=0; j<MAXRANK; j++ )
+        for( i=imin; i<=imax; i++ ) { for( j=0; j<MAXRANK; j++ ) {
                 nwslist += boost::numeric_cast<int>( worstlst[i][j].size() );
+}
+}
 
-        if( !nwslist ) continue;
-        if( nwslist >= maxworst ) nwslist = maxworst;
+        if( !nwslist ) { continue;
+}
+        if( nwslist >= maxworst ) { nwslist = maxworst;
+}
 
         fprintf(out,"\n\nThe following table lists the %d worst residuals",
                 (int)nwslist);
-        if( !useall ) fprintf( out," of %s data", iused ? "used" : "rejected" );
+        if( !useall ) { fprintf( out," of %s data", iused ? "used" : "rejected" );
+}
 
         fprintf(out,"\n\n%-*s  %-*s%s  Type     S.R.  Sig (%%)       Line  File\n",
                 stn_name_width,"From",stn_name_width,"To",have_obs_ids ? "      Id" : "");
 
-        for( i = imin; i <= imax; i++ ) for( j = 0; j < MAXRANK; j++ )
+        for( i = imin; i <= imax; i++ ) { for( j = 0; j < MAXRANK; j++ )
             {
                 index[i][j] = 0;
                 if( index[i][j] < worstlst[i][j].size() )
@@ -273,6 +293,7 @@ void print_worst_residuals( FILE *out )
                     prob[i][j] = residual_significance( worstlst[i][j][0].sres, i, j+1 );
                 }
             }
+}
 
         while( nwslist-- )
         {
@@ -282,7 +303,7 @@ void print_worst_residuals( FILE *out )
             /* Find the largest probability */
 
             maxi = maxj = -1; maxprob = -2.0;
-            for( i=imin; i<=imax; i++ ) for( j=0; j<MAXRANK; j++ )
+            for( i=imin; i<=imax; i++ ) { for( j=0; j<MAXRANK; j++ )
                 {
                     if( index[i][j] < worstlst[i][j].size() && prob[i][j] > maxprob )
                     {
@@ -291,7 +312,9 @@ void print_worst_residuals( FILE *out )
                         maxprob = prob[i][j];
                     }
                 }
-            if( maxi < 0 ) break;
+}
+            if( maxi < 0 ) { break;
+}
 
             ws = &worstlst[maxi][maxj][index[maxi][maxj]];
             from = ws->from;

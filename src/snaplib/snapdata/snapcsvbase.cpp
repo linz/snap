@@ -29,8 +29,9 @@ SnapCsvBase::CsvValue::~CsvValue()
 void SnapCsvBase::CsvValue::setName(const std::string name)
 {
     _name = name;
-    if (_column != nullptr)
+    if (_column != nullptr) {
         _column->setName(name);
+}
 }
 
 void SnapCsvBase::CsvValue::attach(CalcReader *reader)
@@ -186,10 +187,12 @@ void SnapCsvBase::attachReader(CalcReader *reader)
 bool SnapCsvBase::checkColumns()
 {
     bool ok = true;
-    if (!_reader)
+    if (!_reader) {
         return ok;
+}
     std::vector<std::string> *cols = &_requiredColumns;
-    if( cols->size() == 0) cols = &_usedColumns;
+    if( cols->size() == 0) { cols = &_usedColumns;
+}
 
     std::vector<std::string> missingCols;
     for (auto col = cols->begin(); col < cols->end(); col++)
@@ -203,7 +206,8 @@ bool SnapCsvBase::checkColumns()
                 continue;
             }
         }
-        if( colok ) continue;
+        if( colok ) { continue;
+}
         for( auto n = _optionalColumns.begin(); n < _optionalColumns.end(); n++ )
         {
             if( boost::iequals(*col,*n))
@@ -212,7 +216,8 @@ bool SnapCsvBase::checkColumns()
                 continue;
             }
         }
-        if( colok ) continue;
+        if( colok ) { continue;
+}
         if (!_reader->findColumn(*col))
         {
             std::string missing=*col;
@@ -492,8 +497,9 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
         // default ...
         if (match[1].length() > 0)
         {
-            if (value.length() > 0)
+            if (value.length() > 0) {
                 break;
+}
         }
         // Numeric value
         else if (match[2].length() > 0)
@@ -550,8 +556,9 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
         }
         if (nextpart.length() > 0)
         {
-            if (value.length() > 0)
+            if (value.length() > 0) {
                 value += " ";
+}
             value += nextpart;
         }
     }
@@ -605,12 +612,13 @@ void SnapCsvBase::loadColumnsDefinition(RecordStream &rs, std::vector<std::strin
 static char getChar(const std::string &chardef)
 {
     char c = 0;
-    if (boost::iequals(chardef, string("tab")))
+    if (boost::iequals(chardef, string("tab"))) {
         c = '\t';
-    else if (boost::iequals(chardef, string("space")))
+    } else if (boost::iequals(chardef, string("space"))) {
         c = ' ';
-    else if (chardef.size() == 1)
+    } else if (chardef.size() == 1) {
         c = chardef[0];
+}
     return c;
 }
 
@@ -645,8 +653,9 @@ void SnapCsvBase::loadFormatDefinition(const std::string &formatstr)
             char escape = getChar(match[5].str());
             _format.reset(new CsvFormat(delim, escape, quote));
         }
-        if (match[6].length() > 0)
+        if (match[6].length() > 0) {
             _options.setUseHeader(false);
+}
     }
     else
     {

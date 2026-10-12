@@ -14,7 +14,8 @@ void wxStationSelectorTable::Setup()
     id = nullptr;
     selected = nullptr;
     nrows = used_station_count();
-    if( nrows <= 0 ) return;
+    if( nrows <= 0 ) { return;
+}
 
     id = new int[nrows];
     int nstns = number_of_stations(net);
@@ -38,8 +39,10 @@ void wxStationSelectorTable::Setup()
 
 void wxStationSelectorTable::CleanUp()
 {
-    if( id ) delete [] id;
-    if( selected ) delete [] selected;
+    if( id ) { delete [] id;
+}
+    if( selected ) { delete [] selected;
+}
     id = nullptr;
     selected = nullptr;
     selectedAttr->DecRef();
@@ -195,6 +198,8 @@ void wxStationSelectorGrid::OnGridRangeSelect( wxGridRangeSelectEvent &event )
 void wxStationSelectorGrid::OnGridLabelLeftClick( wxGridEvent &event )
 {
     int col = event.GetCol();
-    if( col == 0 ) SortByCode();
-    if( col == 1 ) SortByName();
+    if( col == 0 ) { SortByCode();
+}
+    if( col == 1 ) { SortByName();
+}
 }

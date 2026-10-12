@@ -32,7 +32,8 @@ static int nzmg_geog_to_proj( void *, double ln, double lt, double *e, double *n
 
 void register_nzmg_projection( void )
 {
-    if( nzmg_type ) return;
+    if( nzmg_type ) { return;
+}
 
     nzmg_type = register_projection_type( new projection_type(
         "NZMG", "New Zealand Map Grid", 0, nullptr, 0,
@@ -42,8 +43,10 @@ void register_nzmg_projection( void )
 
 projection *create_nzmg_projection( void )
 {
-    if( !nzmg_type ) register_nzmg_projection();
-    if( !nzmg_type ) return nullptr;
+    if( !nzmg_type ) { register_nzmg_projection();
+}
+    if( !nzmg_type ) { return nullptr;
+}
     return new projection( *nzmg_type );
 }
 

@@ -101,8 +101,10 @@ void convertGeogToLCC( LCCProjection *lp,
     lt = lt * lp->rev;
     r = lp->a*lp->F*pow(calc_t(lp->e, lt) , lp->n);
     th = ln-lp->ln0;
-    while ( th < -PI ) th += TWOPI;
-    while ( th > PI ) th -= TWOPI;
+    while ( th < -PI ) { th += TWOPI;
+}
+    while ( th > PI ) { th -= TWOPI;
+}
     th *= lp->n;
     *ce = r * sin(th) + lp->e0;
     *cn = lp->rev*(lp->r0 - r * cos(th)) + lp->n0;
@@ -133,7 +135,8 @@ void convertLCCToGeog( LCCProjection *lp,
     cn = lp->r0 - (lp->rev)*(cn - lp->n0);
 
     r = _hypot( ce, cn );
-    if( lp->n < 0 ) r = -r;
+    if( lp->n < 0 ) { r = -r;
+}
     t = pow( r / (lp->a * lp->F), 1.0/lp->n);
 
     lt0 = PI/2.0 - 2.0*atan(t);
@@ -143,7 +146,8 @@ void convertLCCToGeog( LCCProjection *lp,
     {
         es = lp->e * sin(lt0);
         lt1 = PI/2 - 2.0*atan( t * pow( (1-es)/(1+es), lp->e/2 ) );
-        if( fabs(lt0-lt1) < TOLERANCE ) break;
+        if( fabs(lt0-lt1) < TOLERANCE ) { break;
+}
         lt0 = lt1;
     }
     while( it++ < MAX_IT );
@@ -156,8 +160,10 @@ void convertLCCToGeog( LCCProjection *lp,
 
     es = lp->n > 0 ? 1 : -1;
     *ln = atan2( es * ce, es * cn )/lp->n + lp->ln0;
-    while( *ln > PI ) *ln -= TWOPI;
-    while( *ln < -PI ) *ln += TWOPI;
+    while( *ln > PI ) { *ln -= TWOPI;
+}
+    while( *ln < -PI ) { *ln += TWOPI;
+}
 }
 
 

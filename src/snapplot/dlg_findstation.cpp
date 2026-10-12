@@ -31,7 +31,8 @@ FindStationDialog::FindStationDialog( wxHelpController *help )
     AddSpacer();
     AddCheckBox("Zoom map to station", zoomMap );
     AddButtonsAndSize();
-    if( help ) SetupHelp( help,  HELPBASE "dlg_find_station.html"  );
+    if( help ) { SetupHelp( help,  HELPBASE "dlg_find_station.html"  );
+}
 }
 
 bool FindStationDialog::Validate()

@@ -313,7 +313,8 @@ double calc_prj_azimuth( network *net, station *st1, double hgt1, station *st2, 
     if( !is_projection(net->crdsys) || dst1 || dst2 )
     {
         angle = calc_azimuth(st1, hgt1, st2, hgt2, 0, dst1, dst2 );
-        if( !is_projection(net->crdsys ) ) return angle;
+        if( !is_projection(net->crdsys ) ) { return angle;
+}
     }
 
 

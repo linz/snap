@@ -145,9 +145,11 @@ int utlCreateReadonlyFileBlob( const std::string &filename, hBlob *blob )
     StatusType sts;
     *blob = nullptr;
     f = fopen(filename.c_str(),"rb");
-    if( ! f ) return FILE_OPEN_ERROR;
+    if( ! f ) { return FILE_OPEN_ERROR;
+}
     sts = utlCreateBlobHandle( nullptr, blob );
-    if( *blob ) (*blob)->pvBlob=f;
+    if( *blob ) { (*blob)->pvBlob=f;
+}
     return sts;
 }
 

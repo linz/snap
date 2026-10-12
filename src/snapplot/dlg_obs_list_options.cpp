@@ -104,7 +104,8 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
 
     AddButtonsAndSize();
 
-    if( help ) SetupHelp( help, HELPBASE "dlg_obs_listing_options.html"  );
+    if( help ) { SetupHelp( help, HELPBASE "dlg_obs_listing_options.html"  );
+}
 }
 
 ObsListOptionsDialog::~ObsListOptionsDialog()
@@ -137,13 +138,15 @@ void ObsListOptionsDialog::ReadData()
 void ObsListOptionsDialog::Apply()
 {
     int nf = 0;
-    for( int i = 0; i < nDefaultFields; i++ ) fieldList[nf++] = defaultFields[i];
+    for( int i = 0; i < nDefaultFields; i++ ) { fieldList[nf++] = defaultFields[i];
+}
     for( size_t i = 0; i < lbFieldList->GetCount(); i++ )
     {
         if( lbFieldList->IsChecked(i) )
         {
             fieldList[nf++] = fieldLookupCode[i];
-            if( fieldLookupCode[i] == SRF_FILE ) fieldList[nf++] = SRF_LINENO;
+            if( fieldLookupCode[i] == SRF_FILE ) { fieldList[nf++] = SRF_LINENO;
+}
         }
     }
 

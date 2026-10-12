@@ -38,7 +38,8 @@ int write_network( network *nw, const std::string &fname, const std::string_view
     char degrees = 0;
     char explicit_geoid=nw->options & NW_EXPLICIT_GEOID;
 
-    if( !nw || !nw->stnlist || !nw->crdsys ) return MISSING_DATA;
+    if( !nw || !nw->stnlist || !nw->crdsys ) { return MISSING_DATA;
+}
 
     stf = fopen( fname.c_str(), "w" );
     if( stf == nullptr )
@@ -117,7 +118,8 @@ int write_network( network *nw, const std::string &fname, const std::string_view
 
     /* Print details of the the program creating the file */
 
-    if( ! comment.empty() ) fprintf( stf,"! %s\n", std::string( comment ).c_str() );
+    if( ! comment.empty() ) { fprintf( stf,"! %s\n", std::string( comment ).c_str() );
+}
 
     fprintf(stf,"\n");
 
@@ -142,8 +144,10 @@ int write_network( network *nw, const std::string &fname, const std::string_view
     }
     if( explicit_geoid )
     {
-        if( nw->options & NW_DEFLECTIONS ) fprintf(stf," %5s %5s","Xi","Eta" );
-        if( nw->options & NW_GEOID_HEIGHTS ) fprintf(stf," %7s","G.Hgt" );
+        if( nw->options & NW_DEFLECTIONS ) { fprintf(stf," %5s %5s","Xi","Eta" );
+}
+        if( nw->options & NW_GEOID_HEIGHTS ) { fprintf(stf," %7s","G.Hgt" );
+}
     }
     if( nclass )
     {
@@ -164,11 +168,13 @@ int write_network( network *nw, const std::string &fname, const std::string_view
     const DmsFormat longitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
 
     cp = coord_precision;
-    if( cp <= 0 || cp > 10 ) cp = 4;
+    if( cp <= 0 || cp > 10 ) { cp = 4;
+}
 
     while( nullptr != (st = next_station(nw) ) )
     {
-        if( select && !(*select)(st)) continue;
+        if( select && !(*select)(st)) { continue;
+}
         fprintf(stf,"%-5s",st->Code.c_str());
 
         if( projection_coords )

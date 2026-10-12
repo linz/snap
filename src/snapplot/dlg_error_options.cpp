@@ -44,7 +44,8 @@ ErrorOptionsDialog::ErrorOptionsDialog( wxHelpController *help )
                 CheckBox( "A&utoscale", vrtAutoScale ),
                 0);
     AddButtonsAndSize();
-    if( help ) SetupHelp( help,  HELPBASE "dlg_error_options.html"  );
+    if( help ) { SetupHelp( help,  HELPBASE "dlg_error_options.html"  );
+}
 }
 
 void ErrorOptionsDialog::ReadData()
@@ -70,10 +71,12 @@ void ErrorOptionsDialog::Apply()
     errconfval=confLimit;
     set_confidence_limit();
     double scl = horErrorFactor;
-    if( horAutoScale ) scl = 1.1 * scl / calc_default_error_scale();
+    if( horAutoScale ) { scl = 1.1 * scl / calc_default_error_scale();
+}
     set_errell_exaggeration( scl, horAutoScale ? 1 : 0 );
     scl = vrtErrorFactor;
-    if( vrtAutoScale ) scl = 1.1 * scl / calc_default_height_error_scale();
+    if( vrtAutoScale ) { scl = 1.1 * scl / calc_default_height_error_scale();
+}
     set_hgterr_exaggeration( scl, vrtAutoScale ? 1 : 0 );
 }
 

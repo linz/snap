@@ -65,7 +65,7 @@ int snapplot_load( int argc, char *argv[] )
     for( narg = 1; narg < argc; narg++ )
     {
         const std::string arg = argv[narg];
-        if( arg[0] == '-' ) switch( arg[1] )
+        if( arg[0] == '-' ) { switch( arg[1] )
             {
 
             case 'i':
@@ -139,7 +139,7 @@ int snapplot_load( int argc, char *argv[] )
 
             }
 
-        else if( !firstfile )
+        } else if( !firstfile )
         {
             firstfile = arg;
         }
@@ -208,8 +208,10 @@ int snapplot_load( int argc, char *argv[] )
     {
         sts = reload_binary_data();
         binary_data = sts == OK;
-        if( sts == NO_MORE_DATA ) sts = OK;  /* No binary file */
-        if( sts != OK ) return 0;
+        if( sts == NO_MORE_DATA ) { sts = OK;  /* No binary file */
+}
+        if( sts != OK ) { return 0;
+}
     }
     else
     {
@@ -273,7 +275,8 @@ int snapplot_load( int argc, char *argv[] )
         }
     }
 
-    if( projcs ) set_plot_projection( projcs );
+    if( projcs ) { set_plot_projection( projcs );
+}
 
     init_plotstns( binary_data );
 

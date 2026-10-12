@@ -140,7 +140,8 @@ int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
                     read_double_field( scanner, value ) ) == FieldResult::Ok;
         }
 
-        if( sts ) sts = read_double_field( scanner, error ) == FieldResult::Ok;
+        if( sts ) { sts = read_double_field( scanner, error ) == FieldResult::Ok;
+}
         if( sts && heights )
         {
             sts = read_double_field( scanner, fromhgt ) == FieldResult::Ok &&
@@ -164,7 +165,8 @@ int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
 
         if( from >= 0 )
         {
-            if( inobs ) ldt_end_data();
+            if( inobs ) { ldt_end_data();
+}
             inobs = false;
             if( from == 0 )
             {
@@ -179,7 +181,8 @@ int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
             inobs = true;
         }
 
-        if( !inobs ) continue;
+        if( !inobs ) { continue;
+}
 
         if( to <= 0 )
         {
@@ -189,7 +192,8 @@ int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
         }
 
         const bool unused = error < 0;
-        if( unused ) error = -error;
+        if( unused ) { error = -error;
+}
         error *= errfct;
 
         if( error < 1.0e-12 )
@@ -203,7 +207,8 @@ int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
         ldt_lineno( d.line_number() );
         ldt_value( &value );
         ldt_error( &error );
-        if( unused ) ldt_unused();
+        if( unused ) { ldt_unused();
+}
         if( refcoef )
         {
             if( refclassid == -1 )
@@ -215,7 +220,8 @@ int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
         }
     }
 
-    if( inobs ) ldt_end_data();
+    if( inobs ) { ldt_end_data();
+}
 
     return rtnsts;
 }

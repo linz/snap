@@ -31,8 +31,9 @@ bool SnapplotMapPrinter::HasPage(int page)
 
 bool SnapplotMapPrinter::OnBeginDocument(int startPage, int endPage)
 {
-    if (!wxPrintout::OnBeginDocument(startPage, endPage))
+    if (!wxPrintout::OnBeginDocument(startPage, endPage)) {
         return false;
+}
 
     return true;
 }
@@ -40,7 +41,8 @@ bool SnapplotMapPrinter::OnBeginDocument(int startPage, int endPage)
 bool SnapplotMapPrinter::OnPrintPage(int WXUNUSED(page) )
 {
     wxDC *dc = GetDC();
-    if( ! dc ) return false;
+    if( ! dc ) { return false;
+}
 
     // Lots of queries here trying to make scaling of fonts work ..
 

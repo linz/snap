@@ -43,14 +43,16 @@ wxMapDragger::wxMapDragger()
 
 wxMapDragger::~wxMapDragger()
 {
-    if( mapWindow ) mapWindow->SetDragger(nullptr);
+    if( mapWindow ) { mapWindow->SetDragger(nullptr);
+}
 }
 
 void wxMapDragger::AttachToMapWindow( wxMapWindow *newWindow )
 {
     if( mapWindow != newWindow )
     {
-        if( mapWindow ) mapWindow->SetDragger(nullptr);
+        if( mapWindow ) { mapWindow->SetDragger(nullptr);
+}
         mapWindow = newWindow;
     }
 }
@@ -91,7 +93,8 @@ void wxMapDragger::SetMapCursor( const wxCursor & cursor )
 
 void wxMapDragger::ProcessMouseEvent( wxMouseEvent &event )
 {
-    if( ! mapWindow ) return;
+    if( ! mapWindow ) { return;
+}
 
     if( ! dragging )
     {
@@ -197,7 +200,8 @@ void wxMapDragger::ProcessMouseEvent( wxMouseEvent &event )
 
 void wxMapDragger::ProcessMouseCaptureLostEvent(wxMouseCaptureLostEvent & WXUNUSED(event))
 {
-    if( ! mapWindow ) return;
+    if( ! mapWindow ) { return;
+}
 
     // No EndDrag() here - the view never changed, so unlike the end/cancel
     // path in ProcessMouseEvent there's no pending repaint to wait for.
@@ -276,10 +280,13 @@ wxMapScaleDragger::wxMapScaleDragger()
 
 bool wxMapScaleDragger::InitDrag( const wxMouseEvent &event )
 {
-    if( zoomMode == zdmNone ) return false;
-    if( ! mapWindow->GetScale().IsValid() ) return false;
+    if( zoomMode == zdmNone ) { return false;
+}
+    if( ! mapWindow->GetScale().IsValid() ) { return false;
+}
 
-    if( ! event.LeftIsDown() ) return false;
+    if( ! event.LeftIsDown() ) { return false;
+}
 
     if( autoZoomPanMode )
     {
@@ -436,8 +443,10 @@ void wxMapWindow::SetDragger( wxMapDragger *newDragger )
 {
     wxMapDragger *oldDragger = dragger;
     dragger = newDragger;
-    if( oldDragger ) oldDragger->AttachToMapWindow( nullptr );
-    if( dragger ) dragger->AttachToMapWindow( this );
+    if( oldDragger ) { oldDragger->AttachToMapWindow( nullptr );
+}
+    if( dragger ) { dragger->AttachToMapWindow( this );
+}
 }
 
 void wxMapWindow::SetSendPositionEvent( bool sendPosition )
@@ -469,7 +478,8 @@ void wxMapWindow::OnMouseEvent( wxMouseEvent &event )
     {
         wxPoint mousePoint( event.GetX(), event.GetY() );
         scale.PlotToWorld( mousePoint, cursorPosition );
-        if( sendPositionEvent ) ForwardMouseEvent( WX_MAPWINDOW_POSITION, event );
+        if( sendPositionEvent ) { ForwardMouseEvent( WX_MAPWINDOW_POSITION, event );
+}
         if( dragger )
         {
             dragger->ProcessMouseEvent( event );
@@ -483,7 +493,8 @@ void wxMapWindow::OnMouseEvent( wxMouseEvent &event )
 
 void wxMapWindow::OnMouseCaptureLost(wxMouseCaptureLostEvent &event)
 {
-    if( dragger ) dragger->ProcessMouseCaptureLostEvent( event );
+    if( dragger ) { dragger->ProcessMouseCaptureLostEvent( event );
+}
 }
 
 void wxMapWindow::ForwardMouseEvent( wxEventType type, const wxMouseEvent &event )
@@ -509,7 +520,8 @@ void wxMapWindow::RefreshCursorPosition()
     // A zoom/pan changes the scale without the mouse moving, so the position
     // readout (only ever recomputed from a real mouse event) would otherwise
     // keep showing the coordinate under the old scale until the next move.
-    if( ! scale.IsValid() ) return;
+    if( ! scale.IsValid() ) { return;
+}
 
     wxPoint mousePoint = ScreenToClient( wxGetMousePosition() );
     scale.PlotToWorld( mousePoint, cursorPosition );

@@ -95,7 +95,8 @@ BINARY_FILE *create_binary_file( const std::string &fname, const std::string &si
     f = fopen( fname.c_str(), "w+b" );
 #endif
 
-    if( !f ) return nullptr;
+    if( !f ) { return nullptr;
+}
 
     b = new BINARY_FILE;
     fwrite(signature.data(), signature.size(), 1, f );
@@ -154,7 +155,8 @@ BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string
 #else
     f = fopen( fname.c_str(), "rb" );
 #endif
-    if( !f ) return { nullptr, BinFileOpenResult::NotFound };
+    if( !f ) { return { nullptr, BinFileOpenResult::NotFound };
+}
 
     const std::string expectedSignature = signature + SIG_TRAILER;
     std::string sig(expectedSignature.size(), '\0');
@@ -250,8 +252,10 @@ int find_section( BINARY_FILE *b, const std::string &section )
     while( next )
     {
         fseek64( b->f, next, SEEK_SET );
-        if( fread( &next, sizeof(next), 1, b->f ) != 1 ) break;
-        if( fread( match.data(), nch, 1, b->f ) != 1 ) break;
+        if( fread( &next, sizeof(next), 1, b->f ) != 1 ) { break;
+}
+        if( fread( match.data(), nch, 1, b->f ) != 1 ) { break;
+}
         // match is always nch = section.size()+1 bytes long regardless of
         // what section name actually sits on disk at this position, so a
         // plain std::string equality against match itself (which compares
@@ -287,7 +291,8 @@ int check_end_section( BINARY_FILE *bin )
     loc=ftell64(bin->f);
     std::string endsec(end_section_length+1, '\0');
     if( fread( endsec.data(), end_section_length+1, 1, bin->f ) == 1 &&
-            std::string_view(endsec.c_str()) == ENDSECTION ) return OK;
+            std::string_view(endsec.c_str()) == ENDSECTION ) { return OK;
+}
     fseek64( bin->f, loc, SEEK_SET );
     return INVALID_DATA;
 }

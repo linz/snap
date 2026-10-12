@@ -127,7 +127,8 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, std::string_view string, v
         }
     }
 
-    if( sts != OK ) abort_config_file( cfg );
+    if( sts != OK ) { abort_config_file( cfg );
+}
 
     /* Return NO_MORE_DATA to terminate reading config file */
     return sts == OK ? OK : ABORT_CONFIG_FILE;
@@ -208,8 +209,10 @@ int add_coordinate_file( CFG_FILE *cfg, std::string_view string, void *value, in
             return ABORT_CONFIG_FILE;
         }
     }
-    if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
-    if( sts != OK ) return ABORT_CONFIG_FILE;
+    if( ! mergeopts ) { mergeopts = NW_MERGEOPT_ADDNEW;
+}
+    if( sts != OK ) { return ABORT_CONFIG_FILE;
+}
     return load_merge_coordinate_file( cfg, scanner.remainder(), value, len, mergeopts, mergedate );
 }
 
@@ -243,8 +246,10 @@ int load_offset_file( CFG_FILE *cfg, std::string_view string, void *, int, int )
     }
     const std::string filenameStr(*filename);
 
-    if( station_file ) filespec = find_relative_file( station_file->filespec, filenameStr, DFLTSTOFFS_EXT );
-    if( ! filespec ) filespec = find_file( filenameStr, DFLTSTOFFS_EXT, get_config_directory(cfg), FF_TRYALL, "" );
+    if( station_file ) { filespec = find_relative_file( station_file->filespec, filenameStr, DFLTSTOFFS_EXT );
+}
+    if( ! filespec ) { filespec = find_file( filenameStr, DFLTSTOFFS_EXT, get_config_directory(cfg), FF_TRYALL, "" );
+}
     if(! filespec )
     {
         send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
@@ -379,19 +384,22 @@ int read_obs_modification_command( CFG_FILE *cfg, std::string_view string, void 
     {
         int ok;
         input_string_def is(string);
-        if( test_next_string_field(is.scanner,"offset_error") ) code=OBS_MOD_OFFSET_ERROR;
-        else if( test_next_string_field(is.scanner,"centroid_error") ) code=OBS_MOD_CENTROID_ERROR;
+        if( test_next_string_field(is.scanner,"offset_error") ) { code=OBS_MOD_OFFSET_ERROR;
+        } else if( test_next_string_field(is.scanner,"centroid_error") ) { code=OBS_MOD_CENTROID_ERROR;
+}
         if( code != OBS_MOD_REWEIGHT )
         {
             ok=double_from_string(is.scanner,&errval1);
             if( ok != OK )
             {
-                if( errval1 < 0.0 ) ok=INVALID_DATA;
+                if( errval1 < 0.0 ) { ok=INVALID_DATA;
+}
             }
             auto saved=is.scanner.remainder();
             if( ok == OK && double_from_string(is.scanner,&errval2) == OK )
             {
-                if( errval2 < 0.0 ) ok=INVALID_DATA;
+                if( errval2 < 0.0 ) { ok=INVALID_DATA;
+}
             }
             else
             {
@@ -419,7 +427,8 @@ int read_obs_modification_command( CFG_FILE *cfg, std::string_view string, void 
             }
             test_next_string_field(is.scanner,"by");
             ok=double_from_string(is.scanner,&errval1);
-            if( errval1 <= 0.0 ) ok=INVALID_DATA;
+            if( errval1 <= 0.0 ) { ok=INVALID_DATA;
+}
         }
         if( ok != OK )
         {
@@ -478,7 +487,8 @@ int read_classification_command( CFG_FILE *cfg, std::string_view string, void *,
         {
             action |= OBS_MOD_IGNORE;
         }
-        if( action ) st = scanner.next();
+        if( action ) { st = scanner.next();
+}
     }
 
     if( isdatafile && st && boost::algorithm::iequals(*st,"ignore_missing") )
@@ -522,7 +532,8 @@ int read_classification_command( CFG_FILE *cfg, std::string_view string, void *,
         {
             action |= OBS_MOD_IGNORE;
         }
-        if( action ) st = scanner.next();
+        if( action ) { st = scanner.next();
+}
     }
 
     if( st )
@@ -555,10 +566,12 @@ int read_classification_command( CFG_FILE *cfg, std::string_view string, void *,
             return OK;
         }
         errfct = *value;
-        if( errfct != 1.0 ) action |= OBS_MOD_REWEIGHT;
+        if( errfct != 1.0 ) { action |= OBS_MOD_REWEIGHT;
+}
     }
 
-    if( ! action ) return OK;
+    if( ! action ) { return OK;
+}
 
     obs_modifications=snap_obs_modifications( true );
 
@@ -577,7 +590,8 @@ int read_recode_command( CFG_FILE *cfg, std::string_view string, void *, int, in
                           "Stations cannot be recoded before the station file is loaded");
         return OK;
     }
-    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
+    if( ! stnrecode ) { stnrecode=create_stn_recode_map( net );
+}
     if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
     {
         send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );

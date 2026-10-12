@@ -38,7 +38,8 @@ void Value::SetValue( bool value )
 void Value::SetValue( const wxString &value )
 {
     stringValue = value;
-    if( ! value.ToDouble( &doubleValue ) ) doubleValue=0.0;
+    if( ! value.ToDouble( &doubleValue ) ) { doubleValue=0.0;
+}
     boolValue = value != "";
 }
 
@@ -56,7 +57,8 @@ Value::Value( const Value &value, bool valueOnly )
     stringValue = value.stringValue;
     boolValue = value.boolValue;
     next = nullptr;
-    if( ! valueOnly && value.Next() ) SetNext(value.Next());
+    if( ! valueOnly && value.Next() ) { SetNext(value.Next());
+}
 }
 
 void Value::SetNext( Value *v )
@@ -67,7 +69,8 @@ void Value::SetNext( Value *v )
 void Value::SetNext( const Value &v )
 {
     Value *np=this;
-    while( np->next ) np=np->next;
+    while( np->next ) { np=np->next;
+}
     Value *nv = new Value(v);
     np->next = nv;
 }
@@ -95,7 +98,8 @@ Value &Value::operator = ( const Value &value )
         doubleValue = value.doubleValue;
         stringValue = value.stringValue;
         if( next ) { Value *v=next; next=nullptr; delete( v ); }
-        if( value.Next() ) SetNext(value.Next());
+        if( value.Next() ) { SetNext(value.Next());
+}
     }
     return *this;
 }
@@ -103,21 +107,24 @@ Value &Value::operator = ( const Value &value )
 wxString Value::AsString(int index) const
 {
     const Value *vp=this;
-    while( index-- && vp ) vp=vp->next;
+    while( index-- && vp ) { vp=vp->next;
+}
     return vp ? vp->stringValue : wxString();
 }
 
 bool Value::AsBool(int index) const
 {
     const Value *vp=this;
-    while( index-- && vp ) vp=vp->next;
+    while( index-- && vp ) { vp=vp->next;
+}
     return vp ? vp->boolValue : false;
 }
 
 double Value::AsDouble(int index) const
 {
     const Value *vp=this;
-    while( index-- && vp ) vp=vp->next;
+    while( index-- && vp ) { vp=vp->next;
+}
     return vp ? vp->doubleValue :  0.0;
 }
 

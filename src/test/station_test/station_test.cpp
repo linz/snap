@@ -25,7 +25,8 @@ int failures = 0;
 
 void check_equal( const int actual, const int expected, const std::string &description )
 {
-    if( actual == expected ) return;
+    if( actual == expected ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << ": expected " << expected << " got " << actual << "\n";
 }
@@ -46,7 +47,8 @@ std::string class_values( const station &stn, const int count )
     std::string values;
     for( int classId = 1; classId <= count; classId++ )
     {
-        if( classId > 1 ) values += ",";
+        if( classId > 1 ) { values += ",";
+}
         values += std::to_string( stn.get_class( classId ) );
     }
     return values;
@@ -55,7 +57,8 @@ std::string class_values( const station &stn, const int count )
 void check_values( const station &stn, const int count, const std::string &expected, const std::string &description )
 {
     const std::string actual = class_values( stn, count );
-    if( actual == expected ) return;
+    if( actual == expected ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
 }

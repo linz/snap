@@ -21,8 +21,10 @@ using boost::numeric_cast;
 
 void delete_station( station *st )
 {
-    if( !st ) return;
-    if( st->ts ) delete_station_offset( st );
+    if( !st ) { return;
+}
+    if( st->ts ) { delete_station_offset( st );
+}
     delete st;
 }
 
@@ -45,7 +47,8 @@ void station::set_class( const int class_id, const int value )
 
 int station::get_class( const int class_id ) const
 {
-    if( class_id > 0 && numeric_cast<size_t>( class_id ) <= classval.size() ) return classval[class_id-1];
+    if( class_id > 0 && numeric_cast<size_t>( class_id ) <= classval.size() ) { return classval[class_id-1];
+}
     // handle_error( INCONSISTENT_DATA, "Invalid class id in get_station_class",NO_MESSAGE);
     return 0;
 }
@@ -106,6 +109,8 @@ void station::modify_xyz( double xyz[3], ellipsoid &el )
 void stnmultifunc( station *st, void *data )
 {
     stnmultifunc_data *smd=(stnmultifunc_data *) data;
-    if( smd->func1 ) (*(smd->func1))(st,smd->data1);
-    if( smd->func2 ) (*(smd->func2))(st,smd->data2);
+    if( smd->func1 ) { (*(smd->func1))(st,smd->data1);
+}
+    if( smd->func2 ) { (*(smd->func2))(st,smd->data2);
+}
 }

@@ -37,25 +37,29 @@ coordsys::coordsys( const std::string &code_, const std::string &name_, int type
     vunits( metre_units ),
     vmult( 1.0 )
 {
-    if( prj && rf->el ) set_projection_ellipsoid( prj, rf->el );
+    if( prj && rf->el ) { set_projection_ellipsoid( prj, rf->el );
+}
 }
 
 coordsys::~coordsys()
 {
-    if( ownsrf ) delete rf;
+    if( ownsrf ) { delete rf;
+}
     delete prj;
     delete hrs;
 }
 
 coordsys *copy_coordsys( coordsys *cs )
 {
-    if( !cs ) return nullptr;
+    if( !cs ) { return nullptr;
+}
     coordsys *copy = new coordsys( cs->code, cs->name, cs->crdtype,
                                     copy_ref_frame(cs->rf), cs->prj ? new projection( *cs->prj ) : nullptr,
                                     cs->source );
     copy->hrs = copy_vdatum( cs->hrs );
-    if( copy->prj && copy->rf->el )
+    if( copy->prj && copy->rf->el ) {
         set_projection_ellipsoid( copy->prj, copy->rf->el );
+}
     if( cs->gotrange )
     {
         if( cs->crdtype == CSTP_PROJECTION )
@@ -77,10 +81,13 @@ coordsys *copy_coordsys( coordsys *cs )
 coordsys *related_coordsys( coordsys *cs, int type )
 {
     coordsys *copy;
-    if( type == CSTP_PROJECTION && cs->crdtype != CSTP_PROJECTION ) return nullptr;
+    if( type == CSTP_PROJECTION && cs->crdtype != CSTP_PROJECTION ) { return nullptr;
+}
     copy = copy_coordsys( cs );
-    if( !copy ) return copy;
-    if( type != CSTP_CARTESIAN && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;
+    if( !copy ) { return copy;
+}
+    if( type != CSTP_CARTESIAN && type != CSTP_PROJECTION ) { type = CSTP_GEODETIC;
+}
     copy->crdtype = (char) type;
     if( type == CSTP_GEODETIC )
     {
@@ -96,7 +103,8 @@ coordsys *related_coordsys( coordsys *cs, int type )
 
 bool coordsys_vdatum_compatible( coordsys *cs, vdatum *hrs )
 {
-    if( is_geocentric( cs ) ) return false;
+    if( is_geocentric( cs ) ) { return false;
+}
     return identical_datum( vdatum_ref_frame(hrs), cs->rf );
 }
 
@@ -108,7 +116,8 @@ vdatum *coordsys_vdatum( coordsys *cs )
 int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf )
 {
     int sts=OK;
-    if( cs->ownsrf ) delete cs->rf;
+    if( cs->ownsrf ) { delete cs->rf;
+}
     cs->ownsrf=1;
     cs->setrf=1;
     cs->rf=rf;
@@ -119,7 +128,8 @@ int set_coordsys_vdatum( coordsys *cs, vdatum *hrs )
 {
     int sts=OK;
     if( cs->hrs ) { delete cs->hrs; cs->hrs=nullptr; }
-    if( ! hrs ) return sts;
+    if( ! hrs ) { return sts;
+}
 
     /* Check that vertical datum datum matches coordinate datum,
      * If not then just delete it. */
@@ -192,8 +202,10 @@ void define_coordsys_range( coordsys *cs, double emin, double nmin, double emax,
     {
         proj_to_geog( cs->prj, emin, nmin, &cs->lnmin, &cs->ltmin );
         proj_to_geog( cs->prj, emax, nmax, &cs->lnmax, &cs->ltmax );
-        while( cs->lnmax > cs->lnmin ) cs->lnmax -= TWOPI;
-        while( cs->lnmax < cs->lnmin ) cs->lnmax += TWOPI;
+        while( cs->lnmax > cs->lnmin ) { cs->lnmax -= TWOPI;
+}
+        while( cs->lnmax < cs->lnmin ) { cs->lnmax += TWOPI;
+}
     }
 }
 
@@ -201,7 +213,8 @@ void define_coordsys_range( coordsys *cs, double emin, double nmin, double emax,
 int check_coordsys_range( coordsys *cs, double xyz[3] )
 {
     int sts;
-    if( !cs->gotrange ) return OK;
+    if( !cs->gotrange ) { return OK;
+}
     sts = OK;
     if( cs->crdtype == CSTP_GEODETIC )
     {
@@ -209,17 +222,23 @@ int check_coordsys_range( coordsys *cs, double xyz[3] )
         if( lon <= cs->lnmin || lon >= cs->lnmax )
         {
             sts = INCONSISTENT_DATA;
-            while( lon < cs->lnmin ) lon += TWOPI;
-            while( lon > cs->lnmax ) lon -= TWOPI;
-            if( lon < cs->lnmin ) sts = INVALID_DATA;
+            while( lon < cs->lnmin ) { lon += TWOPI;
+}
+            while( lon > cs->lnmax ) { lon -= TWOPI;
+}
+            if( lon < cs->lnmin ) { sts = INVALID_DATA;
+}
         }
-        if( xyz[CRD_LAT] < cs->ltmin || xyz[CRD_LAT] > cs->ltmax ) sts = INVALID_DATA;
-        if( sts == INCONSISTENT_DATA ) xyz[CRD_LON] = lon;
+        if( xyz[CRD_LAT] < cs->ltmin || xyz[CRD_LAT] > cs->ltmax ) { sts = INVALID_DATA;
+}
+        if( sts == INCONSISTENT_DATA ) { xyz[CRD_LON] = lon;
+}
     }
     else if( cs->crdtype == CSTP_PROJECTION )
     {
         if( xyz[CRD_EAST] < cs->emin || xyz[CRD_EAST] > cs->emax ||
-                xyz[CRD_NORTH] < cs->nmin || xyz[CRD_NORTH] > cs->nmax ) sts = INVALID_DATA;
+                xyz[CRD_NORTH] < cs->nmin || xyz[CRD_NORTH] > cs->nmax ) { sts = INVALID_DATA;
+}
     }
     return sts;
 }
@@ -252,20 +271,27 @@ double deformation_model_epoch( coordsys *cs )
 
 int identical_coordinate_systems( coordsys *cs1, coordsys *cs2 )
 {
-    if( cs1->crdtype != cs2->crdtype ) return 0;
+    if( cs1->crdtype != cs2->crdtype ) { return 0;
+}
     if( cs1->crdtype == CSTP_PROJECTION &&
-            !identical_projections( cs1->prj, cs2->prj ) ) return 0;
-    if( !identical_ellipsoids( cs1->rf->el, cs2->rf->el ) ) return 0;
-    if( !identical_ref_frame_axes( cs1->rf, cs2->rf ) ) return 0;
+            !identical_projections( cs1->prj, cs2->prj ) ) { return 0;
+}
+    if( !identical_ellipsoids( cs1->rf->el, cs2->rf->el ) ) { return 0;
+}
+    if( !identical_ref_frame_axes( cs1->rf, cs2->rf ) ) { return 0;
+}
     return 1;
 }
 
 int related_coordinate_systems( coordsys *cs1, coordsys *cs2 )
 {
     if( cs1->crdtype == CSTP_PROJECTION && cs2->crdtype == CSTP_PROJECTION &&
-            !identical_projections( cs1->prj, cs2->prj )) return 0;
-    if( !identical_ellipsoids( cs1->rf->el, cs2->rf->el ) ) return 0;
-    if( !identical_ref_frame_axes( cs1->rf, cs2->rf ) ) return 0;
+            !identical_projections( cs1->prj, cs2->prj )) { return 0;
+}
+    if( !identical_ellipsoids( cs1->rf->el, cs2->rf->el ) ) { return 0;
+}
+    if( !identical_ref_frame_axes( cs1->rf, cs2->rf ) ) { return 0;
+}
     return 1;
 }
 
@@ -274,7 +300,8 @@ int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu
     double llh1[3];
     if( ! cs->hrs )
     {
-        if( height ) *height=0.0;
+        if( height ) { *height=0.0;
+}
         if( exu ){ exu[0]=exu[1]=exu[2]=0.0; }
         return OK;
     }

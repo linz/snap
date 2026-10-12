@@ -115,23 +115,24 @@ void utlCopyDate( DateTimeType *tgt, DateTimeType *src)
 
 int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 )
 {
-    if( dt1->dtYear > dt2->dtYear ) return 1;
-    else if( dt1->dtYear < dt2->dtYear ) return -1;
+    if( dt1->dtYear > dt2->dtYear ) { return 1;
+    } else if( dt1->dtYear < dt2->dtYear ) { return -1;
 
-    else if( dt1->dtMon > dt2->dtMon ) return 1;
-    else if( dt1->dtMon < dt2->dtMon ) return -1;
+    } else if( dt1->dtMon > dt2->dtMon ) { return 1;
+    } else if( dt1->dtMon < dt2->dtMon ) { return -1;
 
-    else if( dt1->dtDay > dt2->dtDay ) return 1;
-    else if( dt1->dtDay < dt2->dtDay ) return -1;
+    } else if( dt1->dtDay > dt2->dtDay ) { return 1;
+    } else if( dt1->dtDay < dt2->dtDay ) { return -1;
 
-    else if( dt1->dtHour > dt2->dtHour ) return 1;
-    else if( dt1->dtHour < dt2->dtHour ) return -1;
+    } else if( dt1->dtHour > dt2->dtHour ) { return 1;
+    } else if( dt1->dtHour < dt2->dtHour ) { return -1;
 
-    else if( dt1->dtMin > dt2->dtMin ) return 1;
-    else if( dt1->dtMin < dt2->dtMin ) return -1;
+    } else if( dt1->dtMin > dt2->dtMin ) { return 1;
+    } else if( dt1->dtMin < dt2->dtMin ) { return -1;
 
-    else if( dt1->dtSec > dt2->dtSec ) return 1;
-    else if( dt1->dtSec < dt2->dtSec ) return -1;
+    } else if( dt1->dtSec > dt2->dtSec ) { return 1;
+    } else if( dt1->dtSec < dt2->dtSec ) { return -1;
+}
 
     return 0;
 }
@@ -152,9 +153,12 @@ int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 )
 
 int utlIsLeapYear( int year )
 {
-    if( year % 4 != 0 ) return 0;
-    if( year % 100 != 0 ) return 1;
-    if( year % 400 != 0 ) return 0;
+    if( year % 4 != 0 ) { return 0;
+}
+    if( year % 100 != 0 ) { return 1;
+}
+    if( year % 400 != 0 ) { return 0;
+}
     return 1;
 }
 
@@ -188,7 +192,8 @@ double utlDateAsYear( DateTimeType *date )
     /* Make sure the date is in range ... could put in an assertion, but
        for present just ignore errors */
 
-    if( mon < 1 || mon > 12 ) mon = 1;
+    if( mon < 1 || mon > 12 ) { mon = 1;
+}
 
     /* Calculate the number of days if this isn't a leap year */
 
@@ -200,7 +205,8 @@ double utlDateAsYear( DateTimeType *date )
 
     if( utlIsLeapYear( date->dtYear ) )
     {
-        if( mon > 2 ) days++;
+        if( mon > 2 ) { days++;
+}
         ndays++;
     }
 

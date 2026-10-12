@@ -60,7 +60,8 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     {
         is.scanner = FieldScanner(loc);
         el = parse_ellipsoid_def( is, 1 );
-        if( !el ) return nullptr;
+        if( !el ) { return nullptr;
+}
     }
     else
     {
@@ -182,13 +183,19 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
 
             for( i=0; i<3; i++ )
             {
-                if( txyz[i] != 0.0 ) ok = 0;
-                if( dtxyz[i] != 0.0 ) ok = 0;
-                if( rxyz[i] != 0.0 ) ok = 0;
-                if( drxyz[i] != 0.0 ) ok = 0;
+                if( txyz[i] != 0.0 ) { ok = 0;
+}
+                if( dtxyz[i] != 0.0 ) { ok = 0;
+}
+                if( rxyz[i] != 0.0 ) { ok = 0;
+}
+                if( drxyz[i] != 0.0 ) { ok = 0;
+}
             }
-            if( sf != 0.0 || dsf != 0.0 ) ok=0;
-            if( rff != nullptr ) ok=0;
+            if( sf != 0.0 || dsf != 0.0 ) { ok=0;
+}
+            if( rff != nullptr ) { ok=0;
+}
             if( ! ok )
             {
                 const std::string errmsg = "Reference frame " + refcode +
@@ -267,7 +274,8 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
                 }
                 check=check->refrf;
             }
-            if( sts != OK ) break;
+            if( sts != OK ) { break;
+}
             /* Get the base reference frame.  If this is null, then exit.  It
              * will be NULL if there is no corresponding reference frame (ie an
              * arbitrary base system) or if the last base reference frame is
@@ -277,7 +285,8 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
              * the reference frame is just ignored.
              */
             newbase=getrf(*base->refcode,0);
-            if( ! newbase ) break;
+            if( ! newbase ) { break;
+}
             base->refrf=newbase;
             base=newbase;
         }
@@ -294,7 +303,8 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
         {
             errmess = "Invalid value for " + std::string( bad );
         }
-        if( ! errmess.empty() ) report_string_error( is, sts, errmess );
+        if( ! errmess.empty() ) { report_string_error( is, sts, errmess );
+}
     }
 
     if( ! rf )

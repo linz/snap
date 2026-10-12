@@ -108,7 +108,8 @@ void vecadd2( vector3 vec1, double mult1, vector3 vec2, double mult2,
               vector3 res )
 {
     int i;
-    for (i=0; i<3; i++) res[i] = vec1[i]*mult1 + vec2[i]*mult2;
+    for (i=0; i<3; i++) { res[i] = vec1[i]*mult1 + vec2[i]*mult2;
+}
 }
 
 void vecadd( vector3 vec1, vector3 vec2, vector3 sum )
@@ -152,7 +153,8 @@ void premult3( double *m1, double *m2, double *mr, int ndim )
         for( j = 0; j < 3; j++ )
         {
             sum = 0.0;
-            for( k = 0; k < 3; k++ ) sum += m1[jk++]*col[k];
+            for( k = 0; k < 3; k++ ) { sum += m1[jk++]*col[k];
+}
             mr[ij] = sum;
             ij += ndim;
         }

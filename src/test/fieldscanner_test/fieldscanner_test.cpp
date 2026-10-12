@@ -26,7 +26,8 @@ const std::optional<std::vector<QuoteFollowOption>> whitespaceOrEnd{
 
 void check( bool condition, const std::string &description )
 {
-    if( condition ) return;
+    if( condition ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << "\n";
 }

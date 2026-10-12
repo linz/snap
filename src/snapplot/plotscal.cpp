@@ -204,13 +204,17 @@ static double nice_number( double value )
     double nice;
     double *best;
     static double goodvalues[] = { 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, -1.0 };
-    if ( value < 0.0 ) value = -value;
+    if ( value < 0.0 ) { value = -value;
+}
     nice = 0.000001;
-    while( nice < value ) nice *= 10.0;
+    while( nice < value ) { nice *= 10.0;
+}
     nice /= 10.0;
 
-    for( best = goodvalues+1; *best > 0.0; best++ )
-        if( nice * *best > value ) break;
+    for( best = goodvalues+1; *best > 0.0; best++ ) {
+        if( nice * *best > value ) { break;
+}
+}
 
     best--;
 
@@ -227,7 +231,8 @@ using component_func = void (*)( double *h, double *v );
 // makes that single magnitude span about 1/20th of the visible plot extent.
 static double component_scale( const component_func componentFunc, const bool useHorizontal, const double factor )
 {
-    if( !got_covariances() ) return 0.0;
+    if( !got_covariances() ) { return 0.0;
+}
     double h, v;
     componentFunc( &h, &v );
     const double cvrmax = (useHorizontal ? h : v) * factor;
@@ -269,8 +274,10 @@ double calc_default_vrt_adjustment_scale( void )
 
 static void autoscale_errors( void )
 {
-    if( autoscale_ellipse ) errell_scale = nice_number( calc_default_error_scale() * ell_autosf );
-    if( autoscale_hgterr ) hgterr_scale = nice_number( calc_default_height_error_scale() * he_autosf );
+    if( autoscale_ellipse ) { errell_scale = nice_number( calc_default_error_scale() * ell_autosf );
+}
+    if( autoscale_hgterr ) { hgterr_scale = nice_number( calc_default_height_error_scale() * he_autosf );
+}
 
     rel_errell_scale = nice_number( calc_default_relative_ellipse_scale() * ell_autosf );
     rel_hgterr_scale = nice_number( calc_default_relative_height_scale() * he_autosf );
@@ -291,8 +298,10 @@ static void autoscale_sizes( void )
 
     dfltscale = calc_default_stn_size();
 
-    if( autoscale_txtsize ) stn_name_size = nice_number( dfltscale * 2 * txt_autosf);
-    if( autoscale_stnsize ) stn_symbol_size = nice_number( dfltscale * stn_autosf );
+    if( autoscale_txtsize ) { stn_name_size = nice_number( dfltscale * 2 * txt_autosf);
+}
+    if( autoscale_stnsize ) { stn_symbol_size = nice_number( dfltscale * stn_autosf );
+}
 
 }
 

@@ -129,7 +129,8 @@ char geodetic_coordsys()
 std::string format_plot_coords( const double e, const double n )
 {
     std::string text;
-    if( ! plot_crdsys ) return text;
+    if( ! plot_crdsys ) { return text;
+}
 
     if( using_station_offsets() && offset_station_count() )
     {
@@ -168,7 +169,8 @@ void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azema
     v2 = (cvr[2]-cvr[0])/2.0;
     v3 = cvr[1];
     v4 = v2*v2+v3*v3;
-    if( v4 > 0.0 ) v4 = sqrt(v4);
+    if( v4 > 0.0 ) { v4 = sqrt(v4);
+}
     *azemax = v4 > 0.0 ? atan2( v3, v2 ) / 2.0 : 0.0 ;
     v2 = v1-v4;
     v1 = v1+v4;
@@ -283,7 +285,8 @@ static void build_sort_index( void )
     station *stn;
     double emax, emin, b1, dxyz[3], hgterr;
 
-    if( ! no_good_stations || ! sortIndex || sortValues.empty() ) return;
+    if( ! no_good_stations || ! sortIndex || sortValues.empty() ) { return;
+}
     for( i = 0; i < no_good_stations; i++ )
     {
         int istn = sortIndex[i];
@@ -379,7 +382,8 @@ void init_station_list()
 
     /* No stations loaded yet, or none to list, then return */
 
-    if( ! no_good_stations ) return;
+    if( ! no_good_stations ) { return;
+}
     slist_field[ slist_ncols++] = STNF_CODE;
     if( projection_defined() )
     {
@@ -460,13 +464,15 @@ std::string station_list_header( void )
         }
 
         // Messy business setting column to desired length, etc ..
-        if( icol ) header += '\t';
+        if( icol ) { header += '\t';
+}
         if( ! title.empty() && title.front() == ' ' ) { len++; }
         header += title;
         // TODO: Fix up header for sorted column  .. requires resetting header without
         // changing column widths ..
         // if( slist_field[icol] == indexCol ) { header += '*'; len--; }
-        if( title.size() < len ) header.append( len - title.size(), ' ' );
+        if( title.size() < len ) { header.append( len - title.size(), ' ' );
+}
     }
 
     return header;
@@ -491,7 +497,8 @@ std::string station_list_item( const int istnsrt )
 
     for( int icol = 0; icol < slist_ncols; icol++ )
     {
-        if( icol ) row += '\t';
+        if( icol ) { row += '\t';
+}
         switch( slist_field[icol] )
         {
         case STNF_CODE: row += std::string_view( stn->Code ); break;
@@ -657,7 +664,8 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
                 {
                     status += "Fixed horizontally";
                 }
-                if( dimension != 2 ) status += ", ";
+                if( dimension != 2 ) { status += ", ";
+}
             }
             if( dimension != 2 )
             {
@@ -693,10 +701,13 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
             double b1, b2, emax, emin;
             get_error_ellipse( istn, &emax, &emin, &b1 );
             b1 *= RTOD;
-            while( b1 < 0.0 ) b1 += 180.0;
-            while( b1 > 180.0 ) b1 -= 180.0;
+            while( b1 < 0.0 ) { b1 += 180.0;
+}
+            while( b1 > 180.0 ) { b1 -= 180.0;
+}
             b2 = b1 + 90.0;
-            if( b2 > 180.0 ) b2 -= 180.0;
+            if( b2 > 180.0 ) { b2 -= 180.0;
+}
 
             emax *= errell_factor * 1000.0;
             emin *= errell_factor * 1000.0;
@@ -732,7 +743,8 @@ void sort_station_list_col( int icol )
 
 void sort_station_list( int opt )
 {
-    if( ! no_good_stations ) return;
+    if( ! no_good_stations ) { return;
+}
     /* If already sorted ... */
     if( sortIndex && indexCol == opt )
     {
@@ -840,16 +852,19 @@ void init_plotstns( int adjusted )
             stns[istn].dn = n - xyz[CRD_NORTH];
             stns[istn].de = e - xyz[CRD_EAST];
             ds = _hypot( stns[istn].de, stns[istn].dn );
-            if( ds > adjmaxh ) adjmaxh = ds;
+            if( ds > adjmaxh ) { adjmaxh = ds;
+}
             stns[istn].dh = st->OHgt - sa->initOHgt;
-            if( fabs(stns[istn].dh) > adjmaxv ) adjmaxv = fabs(stns[istn].dh);
+            if( fabs(stns[istn].dh) > adjmaxv ) { adjmaxv = fabs(stns[istn].dh);
+}
         }
         else
         {
             stns[istn].dn = stns[istn].de = stns[istn].dh = 0.0;
         }
 
-        if( sa->flag.ignored ) continue;
+        if( sa->flag.ignored ) { continue;
+}
 
         if( ! no_good_stations++ )
         {
@@ -858,21 +873,27 @@ void init_plotstns( int adjusted )
         }
         else
         {
-            if( n > nmax ) nmax = n; else if (n < nmin ) nmin = n;
-            if( e > emax ) emax = e; else if (e < emin ) emin = e;
+            if( n > nmax ) { nmax = n; } else if (n < nmin ) { nmin = n;
+}
+            if( e > emax ) { emax = e; } else if (e < emin ) { emin = e;
+}
         }
 
         if( sa->flag.adj_h )
         {
-            if( sa->flag.adj_v ) nadjust3++; else nadjusth++;
+            if( sa->flag.adj_v ) { nadjust3++; } else { nadjusth++;
+}
         }
-        else if( sa->flag.adj_v ) nadjustv++;
+        else if( sa->flag.adj_v ) { nadjustv++;
+}
 
         symbol = FREE_STN_SYM;
         switch( dimension )
         {
-        case 1: if( !sa->flag.adj_v ) symbol = VRT_FIXED_STN_SYM; break;
-        case 2: if( !sa->flag.adj_h ) symbol = HOR_FIXED_STN_SYM; break;
+        case 1: if( !sa->flag.adj_v ) { symbol = VRT_FIXED_STN_SYM; 
+}break;
+        case 2: if( !sa->flag.adj_h ) { symbol = HOR_FIXED_STN_SYM; 
+}break;
         case 3: if( !sa->flag.adj_v || !sa->flag.adj_h )
             {
                 symbol = FIXED_STN_SYM;
@@ -895,11 +916,13 @@ void init_plotstns( int adjusted )
         {
             st = stnptr(istn);
             sa = stnadj( st );
-            if( sa->flag.ignored ) continue;
+            if( sa->flag.ignored ) { continue;
+}
             xyindex[iGood] = istn;
             sortIndex[iGood] = istn;
             iGood++;
-            if( iGood >= no_good_stations ) break;
+            if( iGood >= no_good_stations ) { break;
+}
         }
         no_good_stations = iGood;
     }
@@ -932,7 +955,8 @@ int used_station_count()
 
 int sorted_station_number( int i )
 {
-    if( i < 0 || i >= no_good_stations || !sortIndex ) return -1;
+    if( i < 0 || i >= no_good_stations || !sortIndex ) { return -1;
+}
     return sortIndex[i];
 }
 
@@ -950,7 +974,8 @@ int reload_covariances( BINARY_FILE *b )
 
     cvrmaxh = cvrmaxv = 0.0;
 
-    if( find_section( b, "STATION_COVARIANCES" ) != OK ) return MISSING_DATA;
+    if( find_section( b, "STATION_COVARIANCES" ) != OK ) { return MISSING_DATA;
+}
 
     nstns = number_of_stations( net );
     covar = new covariance[nstns+1];
@@ -960,9 +985,11 @@ int reload_covariances( BINARY_FILE *b )
         fread( cvr, sizeof(cvr), 1, b->f );
         calc_error_ellipse( cvr, &covar[istn].emax, &covar[istn].emin,
                             &covar[istn].az );
-        if( covar[istn].emax > cvrmaxh ) cvrmaxh = covar[istn].emax;
+        if( covar[istn].emax > cvrmaxh ) { cvrmaxh = covar[istn].emax;
+}
         covar[istn].sehgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
-        if( covar[istn].sehgt > cvrmaxv ) cvrmaxv = covar[istn].sehgt;
+        if( covar[istn].sehgt > cvrmaxv ) { cvrmaxv = covar[istn].sehgt;
+}
     }
 
     return check_end_section( b );
@@ -975,14 +1002,18 @@ int got_covariances( void )
 
 void max_covariance_component( double *h, double *v )
 {
-    if( h ) *h = cvrmaxh;
-    if( v ) *v = cvrmaxv;
+    if( h ) { *h = cvrmaxh;
+}
+    if( v ) { *v = cvrmaxv;
+}
 }
 
 void max_adjustment_component( double *h, double *v)
 {
-    if( h ) *h = adjmaxh;
-    if( v ) *v = adjmaxv;
+    if( h ) { *h = adjmaxh;
+}
+    if( v ) { *v = adjmaxv;
+}
 }
 
 
@@ -1004,19 +1035,23 @@ static int find_spanning( double px )
 {
     int i1,i2,i3;
     double x1, x2, x3, y;
-    if( no_good_stations <= 1 ) return 0;
+    if( no_good_stations <= 1 ) { return 0;
+}
     validate_xyindex();
     i1=0;
     i2=no_good_stations-1;
     get_station_coordinates( xyindex[i1], &x1, &y );
-    if( x1 >= px) return i1;
+    if( x1 >= px) { return i1;
+}
     get_station_coordinates( xyindex[i2], &x2, &y );
-    if( x2 < px) return i2;
+    if( x2 < px) { return i2;
+}
     while( i1+1 < i2 )
     {
         i3 = (i1+i2)/2;
         get_station_coordinates( xyindex[i3], &x3, &y );
-        if( x3 < px) i1 = i3; else i2 = i3;
+        if( x3 < px) { i1 = i3; } else { i2 = i3;
+}
     }
     return i1;
 }
@@ -1033,14 +1068,17 @@ void set_station_offset( int istn, double oe, double on )
     if( fabs(oe) > 0.001 || fabs(on) > 0.001 )
     {
         stns[istn].flags |= PSFLG_OFFSET;
-        if( !was_offset ) noffset++;
+        if( !was_offset ) { noffset++;
+}
     }
     else
     {
         stns[istn].flags &= ~PSFLG_OFFSET;
-        if( was_offset ) noffset--;
+        if( was_offset ) { noffset--;
+}
     }
-    if( apply_station_offsets ) xyindex_valid = 0;
+    if( apply_station_offsets ) { xyindex_valid = 0;
+}
 }
 
 int get_station_offset( int istn, double *oe, double *on )
@@ -1065,12 +1103,14 @@ void use_station_offsets( int on )
 {
     if( on )
     {
-        if( noffset && ! apply_station_offsets ) xyindex_valid = 0;
+        if( noffset && ! apply_station_offsets ) { xyindex_valid = 0;
+}
         apply_station_offsets = 1;
     }
     else
     {
-        if( noffset && apply_station_offsets ) xyindex_valid = 0;
+        if( noffset && apply_station_offsets ) { xyindex_valid = 0;
+}
         apply_station_offsets = 0;
     }
 }
@@ -1109,23 +1149,25 @@ int nearest_station( double px, double py, double tol )
     double de,dst,idst;
     double x, y;
 
-    if( no_good_stations < 1 ) return 0;
+    if( no_good_stations < 1 ) { return 0;
+}
     validate_xyindex();
 
     in = i1 = i2 = find_spanning( px );
     get_station_coordinates( xyindex[in], &x, &y );
     dst = fabs(x - px) + fabs(y - py);
     valid = stns[xyindex[in]].flags & PSFLG_VISIBLE && dst < tol;
-    if( !valid ) dst = tol;
+    if( !valid ) { dst = tol;
+}
     while( i1 > 0 || i2 < no_good_stations-1 )
     {
         if( --i1 >= 0 )
         {
             get_station_coordinates( xyindex[i1], &x, &y );
             de = px - x;
-            if( de>dst )
+            if( de>dst ) {
                 i1 = 0;
-            else if( stns[xyindex[i1]].flags & PSFLG_VISIBLE &&
+            } else if( stns[xyindex[i1]].flags & PSFLG_VISIBLE &&
                      (idst=de+fabs(py-y)) < dst )
                 { in=i1; dst=idst; valid = 1; }
         }
@@ -1134,9 +1176,9 @@ int nearest_station( double px, double py, double tol )
         {
             get_station_coordinates( xyindex[i2], &x, &y );
             de = x - px;
-            if( de>dst )
+            if( de>dst ) {
                 i2 = no_good_stations;
-            else if( stns[xyindex[i2]].flags & PSFLG_VISIBLE &&
+            } else if( stns[xyindex[i2]].flags & PSFLG_VISIBLE &&
                      (idst=de+fabs(py-y)) < dst)
                 { in=i2; dst=idst; valid = 1;}
         }
@@ -1169,13 +1211,17 @@ int station_in_view( int istn )
 
 int station_showable( int istn )
 {
-    if( station_hidden( istn ) ) return 0;
-    if( ignored_station( istn ) ) return 0;
-    if( ! option_selected(symbol_opt[stns[istn].symbol]) ) return 0;
+    if( station_hidden( istn ) ) { return 0;
+}
+    if( ignored_station( istn ) ) { return 0;
+}
+    if( ! option_selected(symbol_opt[stns[istn].symbol]) ) { return 0;
+}
     if( stn_colourby_class > 0 )
     {
         int cvalue = stnptr(istn)->get_class(stn_colourby_class);
-        if( ! pen_selected(station_class_pen( cvalue )) ) return 0;
+        if( ! pen_selected(station_class_pen( cvalue )) ) { return 0;
+}
     }
     return 1;
 }
@@ -1251,8 +1297,10 @@ void flag_station_visible( int istn )
 
 void setup_station_pens( int class_id )
 {
-    if( class_id < 0 || class_id > net->classification_count()) class_id = 0;
-    if( class_id == stn_colourby_class ) return;
+    if( class_id < 0 || class_id > net->classification_count()) { class_id = 0;
+}
+    if( class_id == stn_colourby_class ) { return;
+}
     stn_colourby_class = class_id;
     setup_station_layers(class_id);
 }
@@ -1264,7 +1312,8 @@ int get_station_colourby_class()
 
 std::string get_stationpen_definition()
 {
-    if( stn_colourby_class == 0 ) return "usage";
+    if( stn_colourby_class == 0 ) { return "usage";
+}
     return net->class_name(stn_colourby_class);
 }
 
@@ -1290,7 +1339,8 @@ int plot_stations( map_plotter *plotter, int first, int highlightonly )
 
     plot_them = option_selected( SYMBOL_OPT );
 
-    if( !plot_them ) return ALL_DONE;
+    if( !plot_them ) { return ALL_DONE;
+}
 
     if( first < 0 ) { first = 0; count = nstns; }
     else {count = 5; }
@@ -1302,9 +1352,11 @@ int plot_stations( map_plotter *plotter, int first, int highlightonly )
 
         if( !count-- ) { return istn-1; }
 
-        if( ! station_plotable(istn) ) continue;
+        if( ! station_plotable(istn) ) { continue;
+}
 
-        if( !plot_them ) continue;
+        if( !plot_them ) { continue;
+}
 
         symbol = stns[istn].symbol;
         highlighted = station_highlighted( istn );
@@ -1315,7 +1367,8 @@ int plot_stations( map_plotter *plotter, int first, int highlightonly )
         }
         else
         {
-            if( highlightonly ) continue;
+            if( highlightonly ) { continue;
+}
             if( stn_colourby_class > 0 )
             {
                 pen = stnptr(istn)->get_class( stn_colourby_class );
@@ -1345,14 +1398,18 @@ int plot_covariances( map_plotter *plotter, int first )
     int count;
     double eemult;
 
-    if( dimension == 1 ) return ALL_DONE;
-    if( !covar ) return ALL_DONE;
+    if( dimension == 1 ) { return ALL_DONE;
+}
+    if( !covar ) { return ALL_DONE;
+}
 
     pen = get_pen(ELLIPSE_PEN);
-    if( !pen_visible( pen ) || !option_selected(ELLIPSE_OPT) ) return ALL_DONE;
+    if( !pen_visible( pen ) || !option_selected(ELLIPSE_OPT) ) { return ALL_DONE;
+}
 
     if( first < 0 ) {first = 0; count = nstns; }
-    else count = 5;
+    else { count = 5;
+}
 
     eemult = errell_factor * errell_scale;
 
@@ -1361,7 +1418,8 @@ int plot_covariances( map_plotter *plotter, int first )
 
         if( !count-- ) { return istn-1; }
 
-        if( ! station_plotable( istn ) ) continue;
+        if( ! station_plotable( istn ) ) { continue;
+}
 
         get_station_coordinates( istn, &x, &y );
 
@@ -1383,23 +1441,28 @@ int plot_height_errors( map_plotter *plotter, int first )
     int istn, count, pen;
     double x, y, he, s1;
 
-    if( dimension == 2 ) return ALL_DONE;
-    if( !covar ) return ALL_DONE;
+    if( dimension == 2 ) { return ALL_DONE;
+}
+    if( !covar ) { return ALL_DONE;
+}
 
     pen = get_pen(HGTERR_PEN);
-    if( !pen_visible(pen) || !option_selected(HGTERR_OPT) ) return ALL_DONE;
+    if( !pen_visible(pen) || !option_selected(HGTERR_OPT) ) { return ALL_DONE;
+}
 
     s1 = stn_symbol_size  / 2.0;
 
     if( first < 0 ) {first = 0; count = nstns; }
-    else count = 5;
+    else { count = 5;
+}
 
     for( istn = first; istn++ < nstns; )
     {
 
         if( !count-- ) { return istn-1; }
 
-        if( ! station_plotable( istn ) ) continue;
+        if( ! station_plotable( istn ) ) { continue;
+}
 
         get_station_coordinates( istn, &x, &y );
 
@@ -1427,10 +1490,12 @@ int plot_station_names( map_plotter *plotter, int first )
     const int pltnames = option_selected(NAME_OPT);
     const int pltcodes = option_selected(CODE_OPT);
 
-    if( !pltnames && !pltcodes ) return ALL_DONE;
+    if( !pltnames && !pltcodes ) { return ALL_DONE;
+}
 
     const int pen = get_pen(TEXT_PEN);
-    if( !pen_visible(pen) ) return ALL_DONE;
+    if( !pen_visible(pen) ) { return ALL_DONE;
+}
 
     const double s1 = stn_symbol_size*0.6;
 
@@ -1442,7 +1507,8 @@ int plot_station_names( map_plotter *plotter, int first )
 
         if( !count-- ) { return istn-1; }
 
-        if( ! station_plotable( istn ) ) continue;
+        if( ! station_plotable( istn ) ) { continue;
+}
 
         double x, y;
         get_station_coordinates( istn, &x, &y );
@@ -1478,7 +1544,8 @@ int plot_adjustments( map_plotter *plotter, int first )
     double x, y, dx, dy, dh;
     int plthor, pltvrt, penhor, penvrt;
 
-    if( !stations_adjusted ) return ALL_DONE;
+    if( !stations_adjusted ) { return ALL_DONE;
+}
 
     penhor = get_pen(HOR_ADJ_PEN);
     penvrt = get_pen(HGT_ADJ_PEN);
@@ -1488,17 +1555,20 @@ int plot_adjustments( map_plotter *plotter, int first )
     pltvrt = dimension != 2 && option_selected(HGT_ADJ_OPT)
              && pen_visible(penvrt);
 
-    if( !plthor && !pltvrt ) return ALL_DONE;
+    if( !plthor && !pltvrt ) { return ALL_DONE;
+}
 
     if( first < 0 ) {first = 0; count = nstns; }
-    else count = 5;
+    else { count = 5;
+}
 
     for( istn = first; istn++ < nstns; )
     {
 
         if( !count-- ) { return istn-1; }
 
-        if( ! station_plotable( istn ) ) continue;
+        if( ! station_plotable( istn ) ) { continue;
+}
 
         get_station_coordinates( istn, &x, &y );
 

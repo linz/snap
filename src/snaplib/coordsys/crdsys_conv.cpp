@@ -137,19 +137,25 @@ bool coord_conversion::_findCommonReferenceFrame( int &nfrom, int &nto, bool &ch
                 }
                 break;
             }
-            if( ! to_rf ) break;
+            if( ! to_rf ) { break;
+}
             toCode = to_rf->refcode;
             to_rf=to_rf->refrf;
             nto++;
-            if( nfrom+nto > CONVMAXRF ) break;
-            if( ! toCode ) break;
+            if( nfrom+nto > CONVMAXRF ) { break;
+}
+            if( ! toCode ) { break;
+}
         }
-        if( common_rf || ! from_rf ) break;
+        if( common_rf || ! from_rf ) { break;
+}
         fromCode = from_rf->refcode;
         from_rf=from_rf->refrf;
         nfrom++;
-        if( nfrom > CONVMAXRF ) break;
-        if( ! fromCode ) break;
+        if( nfrom > CONVMAXRF ) { break;
+}
+        if( ! fromCode ) { break;
+}
     }
     return common_rf;
 }
@@ -194,7 +200,8 @@ void coord_conversion::_defineReferenceFrameSteps( const int nfrom, const int nt
         rframe=crf[i].rf;
 
         /* Check  whether changing ellipsoid, so must have xyz coords */
-        if( ! identical_ellipsoids(rframe->el,nextrf->el) ) crf[i].need_xyz=1;
+        if( ! identical_ellipsoids(rframe->el,nextrf->el) ) { crf[i].need_xyz=1;
+}
         nextrf=rframe;
         if( ! epochNeeded && ! crf[i].def_only )
         {
@@ -205,11 +212,13 @@ void coord_conversion::_defineReferenceFrameSteps( const int nfrom, const int nt
                     rframe->drxyz[0] != 0.0 ||
                     rframe->drxyz[1] != 0.0 ||
                     rframe->drxyz[2] != 0.0 ||
-                    rframe->dscale != 0.0 )
+                    rframe->dscale != 0.0 ) {
                 epochNeeded=true;
+}
         }
     }
-    if( ! identical_ellipsoids(from->rf->el,nextrf->el) ) need_xyz=1;
+    if( ! identical_ellipsoids(from->rf->el,nextrf->el) ) { need_xyz=1;
+}
 
     if( epochNeeded && convepoch==0.0 )
     {
@@ -226,8 +235,10 @@ void coord_conversion::_defineVerticalDatumSteps( const bool refFrameChanges )
     int ntoHrs=0;
     vdatum *fhrs;
     vdatum *thrs;
-    for( fhrs=from->hrs; fhrs; fhrs=fhrs->basehrs ) nfromHrs++;
-    for( thrs=to->hrs; thrs; thrs=thrs->basehrs ) ntoHrs++;
+    for( fhrs=from->hrs; fhrs; fhrs=fhrs->basehrs ) { nfromHrs++;
+}
+    for( thrs=to->hrs; thrs; thrs=thrs->basehrs ) { ntoHrs++;
+}
 
     /* If have vertical datum conversion on from and to, and identical
      * reference frames, then see if we can reduce the number of
@@ -245,7 +256,8 @@ void coord_conversion::_defineVerticalDatumSteps( const bool refFrameChanges )
         while( nhrff > 0 )
         {
             nhrff--;
-            if( ! identical_vdatum_func( fhrs->func, thrs->func ) ) nmin=nhrff;
+            if( ! identical_vdatum_func( fhrs->func, thrs->func ) ) { nmin=nhrff;
+}
             fhrs=fhrs->basehrs;
             thrs=thrs->basehrs;
         }
@@ -286,10 +298,14 @@ coordsys *conversion_to_coordsys( coord_conversion *conv )
 
 static int check_crdsys_range( coordsys *cs, double llh[3] )
 {
-    if( llh[CRD_LAT] < cs->ltmin || llh[CRD_LAT] > cs->ltmax ) return 0;
-    while( llh[CRD_LON] < cs->lnmin ) llh[CRD_LON] += TWOPI;
-    while( llh[CRD_LON] > cs->lnmax ) llh[CRD_LON] -= TWOPI;
-    if( llh[CRD_LON] < cs->lnmin ) return 0;
+    if( llh[CRD_LAT] < cs->ltmin || llh[CRD_LAT] > cs->ltmax ) { return 0;
+}
+    while( llh[CRD_LON] < cs->lnmin ) { llh[CRD_LON] += TWOPI;
+}
+    while( llh[CRD_LON] > cs->lnmax ) { llh[CRD_LON] -= TWOPI;
+}
+    if( llh[CRD_LON] < cs->lnmin ) { return 0;
+}
     return 1;
 }
 
@@ -310,7 +326,8 @@ int convert_coords( coord_conversion *conv,
 
     /* Do the reference frames have a consistent frame */
 
-    if( ! conv->valid ) return INVALID_DATA;
+    if( ! conv->valid ) { return INVALID_DATA;
+}
 
     /* Clear out any old error message */
     conv->errmsg.clear();
@@ -328,8 +345,9 @@ int convert_coords( coord_conversion *conv,
 
     /* Convert from projection to lat long height */
 
-    if( conv->from_prj ) proj_to_geog( from->prj,
+    if( conv->from_prj ) { proj_to_geog( from->prj,
                                            xyz[CRD_EAST], xyz[CRD_NORTH], xyz+CRD_LON, xyz+CRD_LAT );
+}
     isgeoc = conv->from_geoc;
 
     /* Convert the undulation to orthometric height, and convert the
@@ -382,14 +400,16 @@ int convert_coords( coord_conversion *conv,
                     if( isgeoc ) { xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
                     if( tgtepoch != rf->defepoch )
                     {
-                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) { gllh[i]-=xyz[i]; 
+}}
                         sts=apply_ref_deformation_llh( rf, xyz, rf->defepoch, tgtepoch );
                         if( sts != OK ) 
                         {
                             conv->errmsg="Cannot apply "+rf->code+" deformation model";
                             break;
                         }
-                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) { gllh[i]+=xyz[i]; 
+}}
                     }
                 }
                 /*  Apply change to reference frame axes */
@@ -426,14 +446,16 @@ int convert_coords( coord_conversion *conv,
                     if( isgeoc ) { xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
                     if( srcepoch != rf->defepoch )
                     {
-                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) { gllh[i]-=xyz[i]; 
+}}
                         sts=apply_ref_deformation_llh( rf, xyz, srcepoch, rf->defepoch );
                         if( sts != OK ) 
                         {
                             conv->errmsg="Cannot apply "+rf->code+" deformation model";
                             break;
                         }
-                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) { gllh[i]+=xyz[i]; 
+}}
                     }
                 }
             }
@@ -505,7 +527,8 @@ int convert_coords( coord_conversion *conv,
         }
         else if( conv->to_geoc )
         {
-            if( ! isgeoc ) llh_to_xyz( to->rf->el, xyz, xyz, nullptr, nullptr );
+            if( ! isgeoc ) { llh_to_xyz( to->rf->el, xyz, xyz, nullptr, nullptr );
+}
         }
         else if( isgeoc )
         {
@@ -519,12 +542,14 @@ int convert_coords( coord_conversion *conv,
     {
         if( tenh )
         {
-            for( i=0; i<3; i++ ) tenh[i] = xyz[i];
+            for( i=0; i<3; i++ ) { tenh[i] = xyz[i];
+}
         }
 
         if( texu )
         {
-            for( i=0; i<3; i++ ) texu[i] = geoid ? gllh[i] : 0.0;
+            for( i=0; i<3; i++ ) { texu[i] = geoid ? gllh[i] : 0.0;
+}
         }
     }
 
@@ -535,8 +560,10 @@ int convert_coords( coord_conversion *conv,
 
 int en_coords_in_range( coordsys *cs, double e, double n )
 {
-    if( !cs->gotrange ) return 1;
-    if( !is_projection(cs) ) return 1;
+    if( !cs->gotrange ) { return 1;
+}
+    if( !is_projection(cs) ) { return 1;
+}
     if( e >= cs->emin && e <= cs->emax && n >= cs->nmin && n <= cs->nmax )
     {
         return 1;
@@ -549,10 +576,12 @@ int ll_coords_in_range( coordsys *cs, double *lon, double *lat )
 {
     double llh[3];
     int result;
-    if( !cs->gotrange ) return 1;
+    if( !cs->gotrange ) { return 1;
+}
     llh[CRD_LAT] = *lat;
     llh[CRD_LON] = *lon;
     result = check_crdsys_range( cs, llh );
-    if( result ) *lon = llh[CRD_LON];
+    if( result ) { *lon = llh[CRD_LON];
+}
     return result;
 }

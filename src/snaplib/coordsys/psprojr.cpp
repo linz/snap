@@ -72,7 +72,8 @@ static int ps_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_ps_projection( void )
 {
-    if( ps_type ) return;
+    if( ps_type ) { return;
+}
 
     ps_type = register_projection_type( new projection_type(
         "PS", "Polar Stereographic", sizeof(PSProjection), psparams, COUNT_OF(psparams),
@@ -85,8 +86,10 @@ projection *create_ps_projection(  double cm, double sf,
 {
     projection *prj;
 
-    if( !ps_type ) register_ps_projection();
-    if( !ps_type ) return nullptr;
+    if( !ps_type ) { register_ps_projection();
+}
+    if( !ps_type ) { return nullptr;
+}
 
     prj = new projection( *ps_type );
 
@@ -100,7 +103,8 @@ static int read_north_south( FieldScanner &scanner, void *address )
 {
     std::string def;
     int sts = next_string_field( scanner, def, 10 );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
     if( boost::algorithm::iequals(def,"north") )
     {
         *(char *)address = 0;

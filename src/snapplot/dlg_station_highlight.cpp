@@ -306,13 +306,15 @@ void StationHighlightDialog::SelectStations( bool select )
                 mask |= stationSelectionOption[i].mask;
             }
         }
-        if( ! mask ) return;
+        if( ! mask ) { return;
+}
     }
     else if( stnSelOpt == scOrder )
     {
         wxString strOrder = txtSelValue->GetValue().Trim().Trim(false);
         iorder = net->order_id( strOrder.ToStdString(), 0 );
-        if( iorder <= 0 ) return;
+        if( iorder <= 0 ) { return;
+}
     }
     else
     {
@@ -322,22 +324,26 @@ void StationHighlightDialog::SelectStations( bool select )
             wxMessageBox("Threshold value must be a number","Error",wxOK | wxICON_EXCLAMATION );
             return;
         }
-        if( stnSelOpt == scHorErr && errell_factor > 0.0 ) value /= errell_factor;
-        if( stnSelOpt == scVrtErr && hgterr_factor > 0.0 ) value /= hgterr_factor;
+        if( stnSelOpt == scHorErr && errell_factor > 0.0 ) { value /= errell_factor;
+}
+        if( stnSelOpt == scVrtErr && hgterr_factor > 0.0 ) { value /= hgterr_factor;
+}
     }
 
     for( i= 0; i < stationSelector->StationCount(); i++ )
     {
         // No point testing station if status won't be changed..
         bool selected = stationSelector->IsSelected(i);
-        if( selected == select ) continue;
+        if( selected == select ) { continue;
+}
 
         station *st = nullptr;
         stn_adjustment *sa = nullptr;
         int istn = stationSelector->StationNumber( i );
         st = stnptr( istn );
 
-        if( ! st ) continue;
+        if( ! st ) { continue;
+}
         sa = stnadj( st );
 
         // For each criteria type apply the tests, and continue
@@ -348,7 +354,8 @@ void StationHighlightDialog::SelectStations( bool select )
         }
         else if( stnSelOpt == scStatus )
         {
-            if( ! sa ) continue;
+            if( ! sa ) { continue;
+}
             unsigned char stnMask = flgAll;
             if( sa->flag.rejected )
             {
@@ -358,28 +365,35 @@ void StationHighlightDialog::SelectStations( bool select )
             {
                 if( sa->flag.adj_h )
                 {
-                    if( sa->flag.float_h ) stnMask |= flgHFlt; else stnMask |= flgHAdj;
+                    if( sa->flag.float_h ) { stnMask |= flgHFlt; } else { stnMask |= flgHAdj;
+}
                 }
-                else stnMask |= flgHFix;
+                else { stnMask |= flgHFix;
+}
                 if( sa->flag.adj_v )
                 {
-                    if( sa->flag.float_v ) stnMask |= flgVFlt; else stnMask |= flgVAdj;
+                    if( sa->flag.float_v ) { stnMask |= flgVFlt; } else { stnMask |= flgVAdj;
+}
                 }
-                else stnMask |= flgVFix;
+                else { stnMask |= flgVFix;
+}
             }
-            if( ! ((mask & stnMask) == mask) ) continue;
+            if( ! ((mask & stnMask) == mask) ) { continue;
+}
         }
         else if( stnSelOpt == scOrder )
         {
             int orderid = st->get_class( net->orderclsid );
-            if( orderid != iorder ) continue;
+            if( orderid != iorder ) { continue;
+}
         }
         else
         {
             double emax, emin, b1;
             double dxyz[3];
 
-            if( ! sa ) continue;
+            if( ! sa ) { continue;
+}
             double testValue = 0.0;
             switch( stnSelOpt )
             {
@@ -407,7 +421,8 @@ void StationHighlightDialog::SelectStations( bool select )
                 break;
             }
 
-            if( testValue <= value ) continue;
+            if( testValue <= value ) { continue;
+}
         }
 
         // If got this far then apply the new selection option
@@ -426,7 +441,8 @@ void StationHighlightDialog::OnIdle( wxIdleEvent & WXUNUSED(event) )
     {
         if( stationSelector->IsSelected(i) ) { nSel++; }
     }
-    if( nSel == nSelected ) return;
+    if( nSel == nSelected ) { return;
+}
     nSelected = nSel;
     wxString labelStr = wxString::Format("%d/%d stations %s",
                                          nSelected, stationSelector->StationCount(),

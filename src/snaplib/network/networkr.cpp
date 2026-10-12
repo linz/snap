@@ -56,7 +56,8 @@ int read_network( network *nw, std::string_view fname, int options )
     nw->clear();
 
     const std::unique_ptr<DATAFILE> stf = DATAFILE::open( fname, "station coordinate file" );
-    if( ! stf ) return FILE_OPEN_ERROR;
+    if( ! stf ) { return FILE_OPEN_ERROR;
+}
 
     /* Read in the name of the network */
 
@@ -209,7 +210,8 @@ int read_network( network *nw, std::string_view fname, int options )
 
     /* Geocentric coordinates always have ellipsoidal heights */
 
-    if( geocentric_coords ) file_options |= NW_ELLIPSOIDAL_HEIGHTS;
+    if( geocentric_coords ) { file_options |= NW_ELLIPSOIDAL_HEIGHTS;
+}
 
     /* Now on to the station coordinates themselves */
 
@@ -235,7 +237,8 @@ int read_network( network *nw, std::string_view fname, int options )
 
         std::string stcode;
         bool sts = read_string_field( scanner, stcode, STNCODELEN ) == FieldResult::Ok;
-        if( ! sts ) continue;
+        if( ! sts ) { continue;
+}
         boost::algorithm::to_upper( stcode );
 
         if( projection_coords )
@@ -243,8 +246,10 @@ int read_network( network *nw, std::string_view fname, int options )
             double easting = 0.0;
             double northing = 0.0;
             sts = read_number( easting ) && read_number( northing );
-            if( sts ) proj_to_geog(nw->crdsys->prj,easting,northing,&lon,&lat);
-            if( sts ) sts = read_number( hgt );
+            if( sts ) { proj_to_geog(nw->crdsys->prj,easting,northing,&lon,&lat);
+}
+            if( sts ) { sts = read_number( hgt );
+}
         }
         else if( geocentric_coords )
         {
@@ -278,8 +283,10 @@ int read_network( network *nw, std::string_view fname, int options )
                   read_string_field( scanner, lnh, 1 ) == FieldResult::Ok;
             if( sts )
             {
-                if( lth[0] == 's' || lth[0] == 'S' ) lat = -lat;
-                if( lnh[0] == 'w' || lnh[0] == 'W' ) lon = -lon;
+                if( lth[0] == 's' || lth[0] == 'S' ) { lat = -lat;
+}
+                if( lnh[0] == 'w' || lnh[0] == 'W' ) { lon = -lon;
+}
                 sts = read_number( hgt );
             }
         }
@@ -297,7 +304,8 @@ int read_network( network *nw, std::string_view fname, int options )
         if( sts && file_options & NW_GEOID_HEIGHTS )
         {
             sts = read_number( und );
-            if( sts && file_options & NW_ELLIPSOIDAL_HEIGHTS ) hgt -= und;
+            if( sts && file_options & NW_ELLIPSOIDAL_HEIGHTS ) { hgt -= und;
+}
         }
 
         if( sts && nclass > 0 )
@@ -306,13 +314,15 @@ int read_network( network *nw, std::string_view fname, int options )
             for( int i = 1; i <= nclass; i++ )
             {
                 sts = read_string_field( scanner, value, MAXFIELDLEN ) == FieldResult::Ok;
-                if( ! sts ) break;
+                if( ! sts ) { break;
+}
                 clsids[i] = nw->class_value_id( i, value, 1 );
             }
         }
 
         std::string stname;
-        if( sts && read_remaining_text( scanner, stname, MAXFIELDLEN ) != FieldResult::Ok ) stname = stcode;
+        if( sts && read_remaining_text( scanner, stname, MAXFIELDLEN ) != FieldResult::Ok ) { stname = stcode;
+}
 
         if( !sts )
         {
@@ -349,7 +359,8 @@ int read_network( network *nw, std::string_view fname, int options )
     */
 
     const int sts=remove_duplicate_network_stations( nw, 1, stf.get(), delete_duplicate_station );
-    if( dfsts == OK ) dfsts = sts;
+    if( dfsts == OK ) { dfsts = sts;
+}
 
     /* If recalculating geoid info then do so without raising errors */
     if( coordsys_heights_orthometric(nw->crdsys) )

@@ -74,7 +74,8 @@ static void check_value_id( const classifications *csf, int cid, int id )
 
 static void clean_name( std::string &name )
 {
-    for( char &c : name ) { if( ISSPACE(c) ) c = '_'; }
+    for( char &c : name ) { if( ISSPACE(c) ) { c = '_'; 
+}}
 }
 
 class_value *class_type::add_value( std::variant<std::string,int> new_value )
@@ -93,9 +94,11 @@ int class_type::value_id( std::string_view value_name, int create )
     int cmax = numeric_cast<int>(value.size());
     for( int i=0; i<cmax; i++ )
     {
-        if( is_name_match(std::get<std::string>(value[i].value), value_name) ) return i;
+        if( is_name_match(std::get<std::string>(value[i].value), value_name) ) { return i;
+}
     }
-    if( ! create ) return CLASS_VALUE_NOT_DEFINED;
+    if( ! create ) { return CLASS_VALUE_NOT_DEFINED;
+}
 
     std::string cleaned( value_name );
     clean_name( cleaned );
@@ -112,10 +115,12 @@ class_value *class_type::find_value( int value_id, int create )
 
     for( auto &cv : value )
     {
-        if( std::get<int>(cv.value) == value_id ) return &cv;
+        if( std::get<int>(cv.value) == value_id ) { return &cv;
+}
     }
 
-    if( ! create ) return nullptr;
+    if( ! create ) { return nullptr;
+}
 
     return add_value( value_id );
 }
@@ -125,15 +130,18 @@ int classifications::find_or_create_id( std::string_view name, ClassValueType ty
     int class_count = numeric_cast<int>(class_index.size());
     for( int i = 0; i<class_count; i++ )
     {
-        if( is_name_match(name, class_index[i]->name) ) return i+1;
+        if( is_name_match(name, class_index[i]->name) ) { return i+1;
+}
     }
-    if( ! create ) return 0;
+    if( ! create ) { return 0;
+}
 
     std::string cleaned( name );
     clean_name( cleaned );
     auto ct = std::make_unique<class_type>( std::move(cleaned), type );
     /* Set up the default classification */
-    if( type == ClassValueType::Char ) ct->value_id( "Default", 1 );
+    if( type == ClassValueType::Char ) { ct->value_id( "Default", 1 );
+}
 
     class_index.push_back( std::move(ct) );
     return numeric_cast<int>(class_index.size());
@@ -167,7 +175,8 @@ void classifications::set_default_value( int class_id, const std::string &dflt )
     class_id--;
     class_type *ct = class_index[class_id].get();
 
-    if( ct->type != ClassValueType::Char ) return;
+    if( ct->type != ClassValueType::Char ) { return;
+}
     if( ! ct->value.empty() )
     {
         ct->value[0].value = dflt;
@@ -198,7 +207,8 @@ int classifications::value_count( int class_id ) const
 {
     CHECK_CLASS_ID(class_id);
     class_type *ct = class_index[class_id-1].get();
-    if( ct->type == ClassValueType::Int ) return 0;
+    if( ct->type == ClassValueType::Int ) { return 0;
+}
 
     return numeric_cast<int>(ct->value.size());
 }

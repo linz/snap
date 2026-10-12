@@ -72,7 +72,8 @@ static int tm_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_tm_projection( void )
 {
-    if( tm_type ) return;
+    if( tm_type ) { return;
+}
 
     tm_type = register_projection_type( new projection_type(
         "TM", "Transverse Mercator", sizeof(tmprojection), tmparams, COUNT_OF(tmparams),
@@ -85,8 +86,10 @@ projection *create_tm_projection(  double cm, double sf, double lto,
 {
     projection *prj;
 
-    if( !tm_type ) register_tm_projection();
-    if( !tm_type ) return nullptr;
+    if( !tm_type ) { register_tm_projection();
+}
+    if( !tm_type ) { return nullptr;
+}
 
     prj = new projection( *tm_type );
 

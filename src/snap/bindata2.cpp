@@ -199,10 +199,11 @@ static void list_datatypes_used( FILE *out )
     int type;
 
     fprintf(out,"\nThe following codes are used to identify data types\n");
-    for( type=0; type<NOBSTYPE; type++ ) if( obstypecount[type] )
+    for( type=0; type<NOBSTYPE; type++ ) { if( obstypecount[type] )
         {
             fprintf(out,"   %-2s  %ss\n",datatype[type].code.data(),datatype[type].name.data());
         }
+}
 }
 
 
@@ -238,13 +239,15 @@ int max_syserr_params( survdata *sd )
 {
     int iobs;
     int maxsys;
-    if( !sd->nsyserr ) return 0;
+    if( !sd->nsyserr ) { return 0;
+}
     maxsys = 0;
     for( iobs = 0; iobs < sd->nobs; iobs++ )
     {
         trgtdata *t;
         t = get_trgtdata( sd, iobs);
-        if( t->nsyserr > maxsys ) maxsys = t->nsyserr;
+        if( t->nsyserr > maxsys ) { maxsys = t->nsyserr;
+}
     }
     return maxsys;
 }
@@ -262,15 +265,17 @@ static void syserr_obseq( survdata *sd, void *hA )
 
         t = get_trgtdata( sd, iobs );
         nvec = datatype[t->type].isvector ? 3 : 1;
-        if( !t->nsyserr ) continue;
+        if( !t->nsyserr ) { continue;
+}
         se = sd->syserr+t->isyserr;
-        for( isys=0; isys < t->nsyserr; isys+=nvec )
+        for( isys=0; isys < t->nsyserr; isys+=nvec ) {
             for( iaxis = 0; iaxis < nvec; iaxis++, se++ )
             {
                 double effect;
                 effect = syserr_correction(se->prm_id,se->influence,hA,irow+iaxis);
                 oe_add_value( hA, irow+iaxis, -effect );
             }
+}
     }
 }
 
@@ -291,7 +296,8 @@ static int bindata_obseq( bindata &b, void *hA )
         default: program_error("Invalid survdata format","bindata_obseq");
             break;
         }
-        if( nsyserr ) syserr_obseq( sd, hA );
+        if( nsyserr ) { syserr_obseq( sd, hA );
+}
     }
     else
     {
@@ -369,7 +375,8 @@ int sum_bindata( int iteration )
                    << "\", \"obsid\": " << tgt->obsid
                    << ", \"type\": \"" << datatype[tgt->type].code
                    << "\",\"nobs\": " << sd->nobs << "}";
-            if( nbin > 1 )  fprintf(lst,",\n");
+            if( nbin > 1 ) {  fprintf(lst,",\n");
+}
             print_obseqn_json( lst, hA, source.str(), 0 );
         }
         stsobs=lsq_sum_obseqn( hA );
@@ -386,8 +393,10 @@ int sum_bindata( int iteration )
             sts=stsobs;
         }
         nrow = obseqn_rows( hA );
-        if( nrow > maxrow ) maxrow = nrow;
-        if( !obseqn_cvr_diagonal(hA) && nrow > maxlt ) maxlt = nrow;
+        if( nrow > maxrow ) { maxrow = nrow;
+}
+        if( !obseqn_cvr_diagonal(hA) && nrow > maxlt ) { maxlt = nrow;
+}
     }
     end_progress_meter();
 
@@ -413,13 +422,15 @@ void calc_residuals( void )
 
     /* Allocate space for the least squares results */
 
-    if( maxrow <= 0 ) return;
+    if( maxrow <= 0 ) { return;
+}
 
     l.calc = new double[maxrow];
     l.res  = new double[maxrow];
 
     maxelt = ( (long)maxlt * (maxlt+1) ) / 2;
-    if( maxelt < maxrow ) maxelt = maxrow;
+    if( maxelt < maxrow ) { maxelt = maxrow;
+}
 
     l.calccvr = new double[maxelt];
     l.rescvr  = new double[maxelt];
@@ -438,13 +449,15 @@ void calc_residuals( void )
     while( true )
     {
 
-        if( get_bindata( SURVDATA, b ) != OK ) break;
+        if( get_bindata( SURVDATA, b ) != OK ) { break;
+}
 
         nbin++;
         update_progress_meter( nbin );
 
 
-        if( bindata_obseq( b, hA ) != OK ) continue;
+        if( bindata_obseq( b, hA ) != OK ) { continue;
+}
         l.diagonal = obseqn_cvr_diagonal( hA );
 
         lsq_calc_obs( hA, l.calc, l.res, &l.sch, &l.schvar,
@@ -499,14 +512,16 @@ static void print_title( FILE *out )
         {
             int width = column->width;
             std::optional<std::string_view> titleOpt = (ipass == 0) ? column->title1 : column->title2;
-            if( column->title2 ) needpass2 = 1;
+            if( column->title2 ) { needpass2 = 1;
+}
             std::string_view source = titleOpt.value_or(blank);
             if( column->column == SPACE_FIELD )
             {
                 fprintf(out,"%-*s",width," ");
                 need_space = 0;
             }
-            if( column->column == NEWLINE_FIELD ) fputc('\n',out);
+            if( column->column == NEWLINE_FIELD ) { fputc('\n',out);
+}
             if( column->column == SPACE_FIELD || column->column == NEWLINE_FIELD )
             {
                 need_space = 0;
@@ -521,8 +536,10 @@ static void print_title( FILE *out )
             {
                 listing_field_def *fld;
                 fld = fields + column->column;
-                if( fld->id == OF_OBSID && ! have_obs_ids ) continue;
-                if( need_space ) fputc( ' ', out );
+                if( fld->id == OF_OBSID && ! have_obs_ids ) { continue;
+}
+                if( need_space ) { fputc( ' ', out );
+}
                 need_space = 1;
                 justify = fld->justify;
             }
@@ -535,14 +552,17 @@ static void print_title( FILE *out )
             {
                 int len1, len2;
                 len1 = width - source.size();
-                if( justify != RIGHT_JUST ) len1 /= 2;
-                if( len1 < 0 ) len1 = 0;
+                if( justify != RIGHT_JUST ) { len1 /= 2;
+}
+                if( len1 < 0 ) { len1 = 0;
+}
                 len2 = width - len1;
                 fprintf(out,centrejst.data(),len1,blank.data(),len2,source.data());
             }
         }
         fprintf(out,"\n");
-        if( !needpass2 ) break;
+        if( !needpass2 ) { break;
+}
     }
     clear_residual_fields();
 }
@@ -554,7 +574,8 @@ int define_residual_formats( const std::string_view typelist, const int add_colu
     int status = MISSING_DATA;
     int itype;
 
-    for( itype = 0; itype < NOBSTYPE; itype++ ) defining_format[itype] = 0;
+    for( itype = 0; itype < NOBSTYPE; itype++ ) { defining_format[itype] = 0;
+}
 
     std::string_view remaining = typelist;
     while( ! remaining.empty() )
@@ -572,26 +593,30 @@ int define_residual_formats( const std::string_view typelist, const int add_colu
         }
         else if( boost::algorithm::iequals( type, "POINT" ) )
         {
-            for( itype = NOBSTYPE; itype--; ) if( datatype[itype].ispoint )
+            for( itype = NOBSTYPE; itype--; ) { if( datatype[itype].ispoint )
                 {
                     defining_format[itype] = 1;
                 }
+}
             status = OK;
         }
         else if( boost::algorithm::iequals( type, "VECTOR" ) )
         {
-            for( itype = NOBSTYPE; itype--; ) if( datatype[itype].isvector )
+            for( itype = NOBSTYPE; itype--; ) { if( datatype[itype].isvector )
                 {
                     defining_format[itype] = 1;
                 }
+}
             status = OK;
         }
         else if( boost::algorithm::iequals( type, "LINE" ) )
         {
             for( itype = NOBSTYPE; itype--; )
             {
-                if( datatype[itype].isvector ) continue;
-                if( datatype[itype].ispoint ) continue;
+                if( datatype[itype].isvector ) { continue;
+}
+                if( datatype[itype].ispoint ) { continue;
+}
                 defining_format[itype] = 1;
             }
             status = OK;
@@ -607,23 +632,28 @@ int define_residual_formats( const std::string_view typelist, const int add_colu
                     break;
                 }
             }
-            if( itype < 0 ) status = INVALID_DATA;
+            if( itype < 0 ) { status = INVALID_DATA;
+}
         }
-        if( status != OK ) break;
+        if( status != OK ) { break;
+}
     }
     /* If string doesn't define a type, then assume all types are being defined
      * and return INVALID_DATA
      */
     if( status != OK )
     {
-        for( itype = 0; itype < NOBSTYPE; itype++ ) defining_format[itype] = 1;
+        for( itype = 0; itype < NOBSTYPE; itype++ ) { defining_format[itype] = 1;
+}
     }
     for( itype = 0; itype < NOBSTYPE; itype++ )
     {
-        if( ! defining_format[itype] ) continue;
+        if( ! defining_format[itype] ) { continue;
+}
         if( add_columns )
         {
-            if( ! data_format[itype].ncolumn ) setup_default_format( itype );
+            if( ! data_format[itype].ncolumn ) { setup_default_format( itype );
+}
         }
         else
         {
@@ -638,7 +668,8 @@ int set_residual_listing_data_type( FILE *out, int newtype )
     if( listing_format != &data_format[newtype] )
     {
         listing_format = &data_format[newtype];
-        if( title_id[newtype] != listing_title ) print_title( out );
+        if( title_id[newtype] != listing_title ) { print_title( out );
+}
         listing_title = title_id[newtype];
         return 1;
     }
@@ -653,10 +684,12 @@ int set_residual_listing_data_type( FILE *out, int newtype )
 // literal (program-lifetime already) or absent.
 static std::optional<std::string_view> get_column_heading( std::optional<std::string_view> text )
 {
-    if( !text ) return std::nullopt;
+    if( !text ) { return std::nullopt;
+}
     for( const std::string &heading : headings )
     {
-        if( heading == *text ) return heading;
+        if( heading == *text ) { return heading;
+}
     }
     headings.push_front( std::string(*text) );
     return headings.front();
@@ -677,7 +710,8 @@ static int add_residual_field_def( int type, std::string_view code, int width,
     listing_def *listing_format;
 
     listing_format = &data_format[type];
-    if( listing_format->ncolumn >= MAX_COLUMNS ) return TOO_MUCH_DATA;
+    if( listing_format->ncolumn >= MAX_COLUMNS ) { return TOO_MUCH_DATA;
+}
 
     column = INVALID_FIELD;
     title1 = get_column_heading( title1 );
@@ -742,7 +776,8 @@ int add_residual_field( std::string_view code, int width,
         {
             int sts;
             sts = add_residual_field_def( itype, code, width, title1, title2 );
-            if( sts != OK ) return sts;
+            if( sts != OK ) { return sts;
+}
         }
     }
     return OK;
@@ -762,13 +797,16 @@ static void merge_residual_titles( void )
         {
             int same = 1;
             int icol;
-            if( title_id[jtype] != jtype ) continue;
+            if( title_id[jtype] != jtype ) { continue;
+}
             jdef = &data_format[jtype];
-            if( idef->ncolumn != jdef->ncolumn ) same = 0;
+            if( idef->ncolumn != jdef->ncolumn ) { same = 0;
+}
             for( icol = 0; same && icol < idef->ncolumn; icol++ )
             {
                 if( idef->col[icol].title1 != jdef->col[icol].title1 ||
-                        idef->col[icol].title2 != jdef->col[icol].title2 ) same = 0;
+                        idef->col[icol].title2 != jdef->col[icol].title2 ) { same = 0;
+}
             }
             if( same ) { title_id[itype] = jtype; break; }
         }
@@ -778,7 +816,8 @@ static void merge_residual_titles( void )
     for( itype = 0; itype < NOBSTYPE; itype++ )
     {
         /* Are the column headings identical to those for another data type */
-        if( title_id[itype] != itype ) continue;
+        if( title_id[itype] != itype ) { continue;
+}
 
         idef = &data_format[itype];
         for( icol = 0; icol < idef->ncolumn; icol++ )
@@ -787,18 +826,23 @@ static void merge_residual_titles( void )
             int ttlen;
             for( jtype = itype+1; jtype < NOBSTYPE; jtype++ )
             {
-                if( title_id[jtype] != itype ) continue;
-                if( data_format[jtype].col[icol].width > maxwidth )
+                if( title_id[jtype] != itype ) { continue;
+}
+                if( data_format[jtype].col[icol].width > maxwidth ) {
                     maxwidth = data_format[jtype].col[icol].width;
+}
             }
             ttlen = idef->col[icol].title1 ? idef->col[icol].title1->size() : 0;
-            if( ttlen > maxwidth ) maxwidth = ttlen;
+            if( ttlen > maxwidth ) { maxwidth = ttlen;
+}
             ttlen = idef->col[icol].title2 ? idef->col[icol].title2->size() : 0;
-            if( ttlen > maxwidth ) maxwidth = ttlen;
+            if( ttlen > maxwidth ) { maxwidth = ttlen;
+}
 
             for( jtype = itype; jtype < NOBSTYPE; jtype++ )
             {
-                if( title_id[jtype] != itype ) continue;
+                if( title_id[jtype] != itype ) { continue;
+}
                 data_format[jtype].col[icol].width = maxwidth;
             }
         }
@@ -822,7 +866,8 @@ void print_residual_line( FILE *out )
         }
         else if( col->column == NEWLINE_FIELD )
         {
-            if( need_space ) fputc(' ',out);
+            if( need_space ) { fputc(' ',out);
+}
             fprintf(out,"%-*s",col->width+1,"\n");
             need_space = 0;
         }
@@ -834,8 +879,10 @@ void print_residual_line( FILE *out )
         else
         {
             const listing_field_def &fld = fields[col->column];
-            if( fld.id == OF_OBSID && ! have_obs_ids ) continue;
-            if( need_space ) fputc(' ',out);
+            if( fld.id == OF_OBSID && ! have_obs_ids ) { continue;
+}
+            if( need_space ) { fputc(' ',out);
+}
             fprintf(out,(fld.justify == LEFT_JUST ? lftjst : rgtjst).data(), col->width, fld.value.c_str() );
             need_space = 1;
         }
@@ -866,7 +913,8 @@ void clear_residual_field( const int field_id )
 static void set_calculated_fields( survdata *sd, trgtdata *t )
 {
     station *stf, *stt;
-    if( ! sd->from || ! t->to ) return;
+    if( ! sd->from || ! t->to ) { return;
+}
     stf = stnptr( sd->from );
     stt = stnptr( t->to );
     if( WANT(OF_SLPDST) )
@@ -899,15 +947,19 @@ static void set_calculated_fields( survdata *sd, trgtdata *t )
         if( WANT(OF_AZIMUTH) )
         {
             value = calc_azimuth( stf, 0.0, stt, 0.0, 0, nullptr, nullptr );
-            while( value > TWOPI ) value -= TWOPI;
-            while( value < 0.0 ) value += TWOPI;
+            while( value > TWOPI ) { value -= TWOPI;
+}
+            while( value < 0.0 ) { value += TWOPI;
+}
             set_residual_field_dms( OF_AZIMUTH, *azimuthFormat, value*RTOD );
         }
         if( WANT( OF_PRJAZ ) && isproj)
         {
             value = calc_prj_azimuth( net, stf, 0.0, stt, 0.0, nullptr, nullptr );
-            while( value > TWOPI ) value -= TWOPI;
-            while( value < 0.0 ) value += TWOPI;
+            while( value > TWOPI ) { value -= TWOPI;
+}
+            while( value < 0.0 ) { value += TWOPI;
+}
             set_residual_field_dms( OF_PRJAZ, *azimuthFormat, value*RTOD );
         }
     }
@@ -1007,9 +1059,11 @@ static void setup_data_field_widths( int itype )
     listing_def *format;
     int change;
 
-    if( obstypecount[itype] == 0 ) return;
+    if( obstypecount[itype] == 0 ) { return;
+}
     change = obs_precision[itype] - datatype[itype].dfltndp;
-    if( !obs_precision[itype] ) change++;
+    if( !obs_precision[itype] ) { change++;
+}
     obswid = datatype[itype].dfltwidth + change;
     errwid = datatype[itype].dflterrwid + change;
     reswid = datatype[itype].dfltreswid + change;
@@ -1032,7 +1086,8 @@ static void setup_data_field_widths( int itype )
         case OF_CALCERR:
         case OF_RESERR:   width = errwid; break;
         }
-        if( width > width0 ) format->col[icol].width = width;
+        if( width > width0 ) { format->col[icol].width = width;
+}
     }
 }
 
@@ -1052,26 +1107,31 @@ static void setup_format_columns( listing_def *format )
     listing_column *col = format->col;
     for( ncolumn = format->ncolumn; ncolumn--; col++ )
     {
-        if( col->column == SPACE_FIELD ) continue;
-        if( col->column == NEWLINE_FIELD ) continue;
+        if( col->column == SPACE_FIELD ) { continue;
+}
+        if( col->column == NEWLINE_FIELD ) { continue;
+}
         if( col->column & CLASSIFICATION_FIELD )
         {
             int class_id, class_count, ic, len, width;
-            if( col->width ) continue;
+            if( col->width ) { continue;
+}
             class_id = col->column & ~CLASSIFICATION_FIELD;
             class_count = obs_classes.value_count( class_id );
             width = 0;
             for( ic = 0; ic < class_count; ic++ )
             {
                 len = numeric_cast<int>( obs_classes.value_name( class_id, ic ).size() );
-                if( len > width ) width = len;
+                if( len > width ) { width = len;
+}
             }
             col->width = width;
         }
         else
         {
             fields[col->column].requested = 1;
-            if( !col->width ) col->width = fields[col->column].width;
+            if( !col->width ) { col->width = fields[col->column].width;
+}
         }
     }
 }
@@ -1084,7 +1144,8 @@ static void setup_default_format( int type )
 
     fields[OF_RES].title2 = output_xyz_vector_residuals ? "X,Y,Z" : "E,N,U";
 
-    if( format->ncolumn ) return;
+    if( format->ncolumn ) { return;
+}
     if( datatype[type].ispoint )
     {
         cols = default_point_format;
@@ -1097,9 +1158,11 @@ static void setup_default_format( int type )
     {
         int fld, width;
         fld = *cols++;
-        if( fld < 0 ) break;
+        if( fld < 0 ) { break;
+}
         width = *cols++;
-        if( width < 0 ) break;
+        if( width < 0 ) { break;
+}
         add_residual_field_def( type, fields[fld].code, width, std::nullopt, std::nullopt );
     }
 }
@@ -1114,9 +1177,12 @@ static void setup_format_definitions( void )
 
 
     error = 0;
-    if( sizeof(fields)/sizeof(fields[0]) != OF_COUNT ) error = 1;
+    if( sizeof(fields)/sizeof(fields[0]) != OF_COUNT ) { error = 1;
+}
 
-    if( !error ) for( i=0; i < OF_COUNT; i++ )  if( fields[i].id != i ) { error = 1; break; }
+    if( !error ) { for( i=0; i < OF_COUNT; i++ ) {  if( fields[i].id != i ) { error = 1; break; }
+}
+}
 
     if( error )
     {
@@ -1138,7 +1204,8 @@ static void setup_format_definitions( void )
 
     for( itype = 0; itype < NOBSTYPE; itype++ )
     {
-        if( obstypecount[itype] <= 0 ) continue;
+        if( obstypecount[itype] <= 0 ) { continue;
+}
         setup_default_format( itype );
         setup_format_columns( data_format + itype );
         setup_data_field_widths( itype );
@@ -1153,7 +1220,8 @@ int got_vector_data()
     int i;
     for( i = 0; i < NOBSTYPE; i++ )
     {
-        if( datatype[i].isvector && obstypecount[i] > 0 ) return 1;
+        if( datatype[i].isvector && obstypecount[i] > 0 ) { return 1;
+}
     }
     return 0;
 }
@@ -1268,7 +1336,8 @@ void print_residuals( FILE *out )
         }
     }
 
-    if( WANT(OF_TYPE) ) list_datatypes_used( out );
+    if( WANT(OF_TYPE) ) { list_datatypes_used( out );
+}
 
     if( WANT(OF_CALC) )
     {
@@ -1322,7 +1391,8 @@ void print_residuals( FILE *out )
     if( sort_obs )
     {
         init_get_sorted_obs_loc();
-        if( file_location_frequency != 1 ) file_location_frequency = 0;
+        if( file_location_frequency != 1 ) { file_location_frequency = 0;
+}
     }
     else
     {
@@ -1337,11 +1407,13 @@ void print_residuals( FILE *out )
         if( sort_obs )
         {
             const int64_t loc = get_sorted_obs_loc();
-            if( loc < 0 ) break;
+            if( loc < 0 ) { break;
+}
             init_get_bindata( loc );
         }
 
-        if( get_bindata( SURVDATA, b ) != OK ) break;
+        if( get_bindata( SURVDATA, b ) != OK ) { break;
+}
 
         nbin++;
         update_progress_meter( nbin );
@@ -1368,14 +1440,17 @@ void print_residuals( FILE *out )
 void list_file_location( FILE *out, int file, int lineno )
 {
     static int nwait;
-    if( ! output_file_locations ) return;
-    if( file_location_frequency <= 0 ) return;
+    if( ! output_file_locations ) { return;
+}
+    if( file_location_frequency <= 0 ) { return;
+}
     if( file != last_file_loc )
     {
         last_file_loc = file;
         nwait = 1;
     }
-    if( --nwait ) return;
+    if( --nwait ) { return;
+}
     fprintf(out,"\nFile %s: line %d\n",survey_data_file_name(file).c_str(),(int)lineno);
     nwait = file_location_frequency;
 }
@@ -1388,21 +1463,25 @@ static void write_observation_csv_common_start( output_csv &csv, survdata *sd, t
     station *from = stnptr(sd->from);
     station *to = stnptr(tgt->to);
     if( ! from ) { from = to; to = nullptr; }
-    if( obsset < 0 ) obsset=tgt->obsid;
+    if( obsset < 0 ) { obsset=tgt->obsid;
+}
     std::string type( datatype[tgt->type].code );
     if( ! component.empty() && type.size()+component.size()+2 < 16 ) { type += '-'; type += component; }
     csv.writeInt( tgt->obsid );
-    if( have_obs_ids ) csv.writeInt( tgt->id );
+    if( have_obs_ids ) { csv.writeInt( tgt->id );
+}
     csv.writeString(from->Code);
-    if( to ) csv.writeString(to->Code);
-    else csv.writeNullField();
+    if( to ) { csv.writeString(to->Code);
+    } else { csv.writeNullField();
+}
     csv.writeDate(sd->date);
     csv.writeDouble(sd->fromhgt,3);
     csv.writeDouble(tgt->tohgt,3);
     csv.writeString(type);
     csv.writeInt(obsset);
-    if( to ) csv.writeDouble(calc_distance( from, 0.0, to, 0.0, nullptr, nullptr ),3);
-    else csv.writeNullField();
+    if( to ) { csv.writeDouble(calc_distance( from, 0.0, to, 0.0, nullptr, nullptr ),3);
+    } else { csv.writeNullField();
+}
     csv.writeString(tgt->unused ? "rej" : "use" );
     csv.writeDouble(tgt->errfct,3);
 }
@@ -1416,8 +1495,9 @@ static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trg
     for( int i = 0; i < obs_classes.count(); i++ )
     {
         const auto name = get_obs_classification_name(sd,tgt,i+1);
-        if( name ) csv.writeString(*name);
-        else csv.writeNullField();
+        if( name ) { csv.writeString(*name);
+        } else { csv.writeNullField();
+}
     }
     csv.writeString(survey_data_file_name(sd->file));
     csv.writeInt(tgt->lineno);
@@ -1430,7 +1510,8 @@ static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trg
         if( prj )
         {
             geog_to_proj( prj, from->ELon, from->ELat, &ef, &nf );
-            if( to ) geog_to_proj( prj, to->ELon, to->ELat, &et, &nt );
+            if( to ) { geog_to_proj( prj, to->ELon, to->ELat, &et, &nt );
+}
 
         }
         else
@@ -1476,7 +1557,8 @@ void write_obsdata_csv( output_csv &csv, survdata *sd, obsdata *o, double semult
     if( output_csv_vecinline )
     {
         nskip1 = (output_csv_vecsum ? 3 : 2);
-        if( output_csv_correlations ) nskip2 = 3;
+        if( output_csv_correlations ) { nskip2 = 3;
+}
     }
 
     if( datatype[t->type].isangle ) { ndp+=4; mult=RTOD; }
@@ -1491,7 +1573,8 @@ void write_obsdata_csv( output_csv &csv, survdata *sd, obsdata *o, double semult
     csv.writeDouble( o->reserr*mult*semult, ndp );
     csv.writeNullFields( nskip1+nskip2 );
     sres = o->sres;
-    if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
+    if( sres >= 0.0 && semult > 0.0 ) { sres /= semult;
+}
     csv.writeDouble( sres, 3 );
     csv.writeNullFields( nskip1 );
     if( o->error > 0 && ! t->unused )
@@ -1517,7 +1600,8 @@ void write_pntdata_csv( output_csv &csv, survdata *sd, pntdata *p, double semult
     if( output_csv_vecinline )
     {
         nskip1 = (output_csv_vecsum ? 3 : 2);
-        if( output_csv_correlations ) nskip2 = 3;
+        if( output_csv_correlations ) { nskip2 = 3;
+}
     }
 
     if( datatype[t->type].isangle ) { ndp+=4; mult=RTOD; }
@@ -1532,7 +1616,8 @@ void write_pntdata_csv( output_csv &csv, survdata *sd, pntdata *p, double semult
     csv.writeDouble( p->reserr*mult*semult, ndp );
     csv.writeNullFields( nskip1+nskip2 );
     sres = p->sres;
-    if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
+    if( sres >= 0.0 && semult > 0.0 ) { sres /= semult;
+}
     csv.writeDouble( sres, 3 );
     csv.writeNullFields( nskip1 );
     if( p->error > 0 && ! t->unused )
@@ -1587,9 +1672,11 @@ void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, doub
             csv.writeDouble( res[dim], ndp );
             csv.writeDouble( rescvr[cvridx[dim]]*semult, ndp+2 );
             sres = rescvr[cvridx[dim]];
-            if( sres <= 0.0 ) sres = 1.0;
+            if( sres <= 0.0 ) { sres = 1.0;
+}
             sres = res[dim] / sres;
-            if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
+            if( sres >= 0.0 && semult > 0.0 ) { sres /= semult;
+}
             csv.writeDouble( sres, 3 );
             if( veccvr[cvridx[dim]] > 0 && ! t->unused )
             {
@@ -1605,8 +1692,9 @@ void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, doub
     if( output_csv_vecsum )
     {
         double length = 0.0;
-        if( ! datatype[t->type].ispoint )
+        if( ! datatype[t->type].ispoint ) {
             length = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
+}
         write_observation_csv_common_start( csv, sd, t, {} );
         csv.writeDouble( length, ndp );
         csv.writeNullField();
@@ -1615,7 +1703,8 @@ void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, doub
         csv.writeNullField();
 
         sres = vd->vsres;
-        if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
+        if( sres >= 0.0 && semult > 0.0 ) { sres /= semult;
+}
         csv.writeDouble( sres, 3 );
         csv.writeNullField();
         write_observation_csv_common_end( csv, sd, t );
@@ -1647,7 +1736,8 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
     csv.writeDouble( vec[0], ndp );
     csv.writeDouble( vec[1], ndp );
     csv.writeDouble( vec[2], ndp );
-    if( output_csv_vecsum ) csv.writeNullField();
+    if( output_csv_vecsum ) { csv.writeNullField();
+}
 
     csv.writeDouble( veccvr[0]*semult, ndp+2 );
     csv.writeDouble( veccvr[2]*semult, ndp+2 );
@@ -1666,7 +1756,8 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
     csv.writeDouble( res[0], ndp );
     csv.writeDouble( res[1], ndp );
     csv.writeDouble( res[2], ndp );
-    if( output_csv_vecsum ) csv.writeNullField();
+    if( output_csv_vecsum ) { csv.writeNullField();
+}
     csv.writeDouble( rescvr[0]*semult, ndp+2 );
     csv.writeDouble( rescvr[2]*semult, ndp+2 );
     csv.writeDouble( rescvr[5]*semult, ndp+2 );
@@ -1679,19 +1770,23 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
     if( output_csv_vecsum )
     {
         sres = vd->vsres;
-        if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
+        if( sres >= 0.0 && semult > 0.0 ) { sres /= semult;
+}
         csv.writeDouble( sres, 3 );
     }
     for( int dim = 0; dim < 3; dim++ )
     {
 
         sres = rescvr[cvridx[dim]];
-        if( sres <= 0.0 ) sres = 1.0;
+        if( sres <= 0.0 ) { sres = 1.0;
+}
         sres = res[dim] / sres;
-        if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
+        if( sres >= 0.0 && semult > 0.0 ) { sres /= semult;
+}
         csv.writeDouble( sres, 3 );
     }
-    if( output_csv_vecsum ) csv.writeNullField();
+    if( output_csv_vecsum ) { csv.writeNullField();
+}
     for( int dim = 0; dim < 3; dim++ )
     {
         if( veccvr[cvridx[dim]] > 0 && ! t->unused )
@@ -1716,7 +1811,8 @@ void write_observation_csv()
 
     /* Allocate space for the least squares results */
 
-    if( ! got_vector_data() ) output_csv_veccomp = false;
+    if( ! got_vector_data() ) { output_csv_veccomp = false;
+}
     if( ! output_csv_veccomp )
     {
         output_csv_vecinline = false;
@@ -1726,10 +1822,12 @@ void write_observation_csv()
     bindata b;
 
     const std::unique_ptr<output_csv> csv = open_snap_output_csv( "obs" );
-    if( ! csv ) return;
+    if( ! csv ) { return;
+}
 
     csv->writeHeader("obsid");
-    if( have_obs_ids ) csv->writeHeader("srcid");
+    if( have_obs_ids ) { csv->writeHeader("srcid");
+}
     csv->writeHeader("fromstn");
     csv->writeHeader("tostn");
     csv->writeHeader("date");
@@ -1742,11 +1840,13 @@ void write_observation_csv()
     csv->writeHeader("errfct");
     if( output_csv_vecinline )
     {
-        if( output_csv_vecsum ) csv->writeHeader("value");
+        if( output_csv_vecsum ) { csv->writeHeader("value");
+}
         csv->writeHeader("value1");
         csv->writeHeader("value2");
         csv->writeHeader("value3");
-        if( output_csv_vecsum ) csv->writeHeader("error");
+        if( output_csv_vecsum ) { csv->writeHeader("error");
+}
         csv->writeHeader("error1");
         csv->writeHeader("error2");
         csv->writeHeader("error3");
@@ -1756,11 +1856,13 @@ void write_observation_csv()
             csv->writeHeader("corr13");
             csv->writeHeader("corr23");
         }
-        if( output_csv_vecsum ) csv->writeHeader("residual");
+        if( output_csv_vecsum ) { csv->writeHeader("residual");
+}
         csv->writeHeader("residual1");
         csv->writeHeader("residual2");
         csv->writeHeader("residual3");
-        if( output_csv_vecsum ) csv->writeHeader("reserror");
+        if( output_csv_vecsum ) { csv->writeHeader("reserror");
+}
         csv->writeHeader("reserror1");
         csv->writeHeader("reserror2");
         csv->writeHeader("reserror3");
@@ -1770,11 +1872,13 @@ void write_observation_csv()
             csv->writeHeader("rescorr13");
             csv->writeHeader("rescorr23");
         }
-        if( output_csv_vecsum ) csv->writeHeader("stdres");
+        if( output_csv_vecsum ) { csv->writeHeader("stdres");
+}
         csv->writeHeader("stdres1");
         csv->writeHeader("stdres2");
         csv->writeHeader("stdres3");
-        if( output_csv_vecsum ) csv->writeHeader("redundancy");
+        if( output_csv_vecsum ) { csv->writeHeader("redundancy");
+}
         csv->writeHeader("redundancy1");
         csv->writeHeader("redundancy2");
         csv->writeHeader("redundancy3");
@@ -1797,7 +1901,8 @@ void write_observation_csv()
 
     csv->writeHeader("sourcefile");
     csv->writeHeader("sourcelineno");
-    if( output_csv_shape ) csv->writeHeader("shape");
+    if( output_csv_shape ) { csv->writeHeader("shape");
+}
     csv->endRecord();
 
     semult = apriori ? 1.0 : seu;
@@ -1811,7 +1916,8 @@ void write_observation_csv()
     init_get_bindata( 0L );
     while( true )
     {
-        if( get_bindata( SURVDATA, b ) != OK ) break;
+        if( get_bindata( SURVDATA, b ) != OK ) { break;
+}
 
         nbin++;
         update_progress_meter( nbin );
@@ -1826,8 +1932,9 @@ void write_observation_csv()
             case SD_OBSDATA: write_obsdata_csv( *csv, sd, &sd->obs.odata[iobs], semult ); break;
 
             case SD_VECDATA:
-                if( output_csv_vecinline ) write_vecdata_csv_inline( *csv, sd, iobs, semult );
-                else write_vecdata_csv_components( *csv, sd, iobs, semult );
+                if( output_csv_vecinline ) { write_vecdata_csv_inline( *csv, sd, iobs, semult );
+                } else { write_vecdata_csv_components( *csv, sd, iobs, semult );
+}
                 break;
 
             case SD_PNTDATA: write_pntdata_csv( *csv, sd, &sd->obs.pdata[iobs], semult ); break;

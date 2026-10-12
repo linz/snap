@@ -98,7 +98,8 @@ int reload_binary_data( )
 
 void load_observations_from_binary( void )
 {
-    if( ! bd ) bd.emplace();
+    if( ! bd ) { bd.emplace();
+}
     init_get_bindata( 0L );
 
     while( get_bindata( SURVDATA, *bd ) == OK )
@@ -119,7 +120,8 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
     long size;
     int type;
     int firstline, c;
-    if( loc < 0 ) return;
+    if( loc < 0 ) { return;
+}
     const int64_t curloc = ftell64( b->f );
     fseek64( b->f, loc, SEEK_SET );
 
@@ -131,7 +133,8 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
     {
         c = fgetc( b->f );
         size--;
-        if( firstline && c != '\n' ) break;
+        if( firstline && c != '\n' ) { break;
+}
         firstline = 0;
         size -= 2;  /* To account for the tail of the note */
         while ( size )
@@ -154,7 +157,8 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
 static int reload_observations( BINARY_FILE *bf )
 {
 
-    if( find_section( bf, "OBSERVATIONS" ) != OK ) return MISSING_DATA;
+    if( find_section( bf, "OBSERVATIONS" ) != OK ) { return MISSING_DATA;
+}
 
     print_log("     Reloading observations\n");
 
@@ -167,10 +171,13 @@ static int reload_observations( BINARY_FILE *bf )
 
 survdata *get_survdata_from_binary( int64_t loc )
 {
-    if( !bd ) bd.emplace();
+    if( !bd ) { bd.emplace();
+}
     init_get_bindata( loc );
-    if( get_bindata(ANYDATATYPE,*bd) != OK )  return nullptr;
-    if( bd->bintype != SURVDATA ) return nullptr;
+    if( get_bindata(ANYDATATYPE,*bd) != OK ) {  return nullptr;
+}
+    if( bd->bintype != SURVDATA ) { return nullptr;
+}
     return bd->survey_data();
 }
 
@@ -179,12 +186,15 @@ static int reload_relative_covariances( BINARY_FILE *b )
     int from, to;
     double cvr[6];
 
-    if( find_section( b, "STATION_RELATIVE_COVARIANCES" ) != OK ) return MISSING_DATA;
+    if( find_section( b, "STATION_RELATIVE_COVARIANCES" ) != OK ) { return MISSING_DATA;
+}
 
     for(;;)
     {
-        if( fread( &from, sizeof(from), 1, b->f ) != 1 ) break;
-        if( from < 0 ) break;
+        if( fread( &from, sizeof(from), 1, b->f ) != 1 ) { break;
+}
+        if( from < 0 ) { break;
+}
         fread( &to, sizeof(to), 1, b->f );
         fread( cvr, sizeof(cvr), 1, b->f );
         add_relative_covariance( from, to, cvr );
@@ -198,7 +208,8 @@ void open_data_source( void )
     if( ! b  && ! f )
     {
         f = snaptmpfile();
-        if( f ) fputs("SNAPPLOT TEMP FILE\r\n\x1A",f);
+        if( f ) { fputs("SNAPPLOT TEMP FILE\r\n\x1A",f);
+}
         init_bindata( f );
     }
 }

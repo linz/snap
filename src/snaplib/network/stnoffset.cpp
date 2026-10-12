@@ -31,9 +31,11 @@ static constexpr size_t WORDLEN = 32;
 
 void add_stn_offset_comp_to_station( station *st, stn_offset_comp comp, const int isdeformation )
 {
-    if( ! st->ts ) st->ts = new stn_offset;
+    if( ! st->ts ) { st->ts = new stn_offset;
+}
     stn_offset *sto = static_cast<stn_offset *>( st->ts );
-    if( isdeformation ) sto->isdeformation=1;
+    if( isdeformation ) { sto->isdeformation=1;
+}
     sto->components.push_back( std::move( comp ) );
 }
 
@@ -54,7 +56,8 @@ static std::optional<std::string_view> read_keyword(
     {
         for( const std::string_view keyword : keywords )
         {
-            if( compare_ignoring_case( *word, keyword ) == 0 ) return keyword;
+            if( compare_ignoring_case( *word, keyword ) == 0 ) { return keyword;
+}
         }
     }
     scanner = unread;
@@ -64,7 +67,8 @@ static std::optional<std::string_view> read_keyword(
 int read_network_station_offsets( network *nw, std::string_view filename )
 {
     const std::unique_ptr<DATAFILE> tsf = DATAFILE::open( filename, "station offset file" );
-    if( ! tsf ) return FILE_OPEN_ERROR;
+    if( ! tsf ) { return FILE_OPEN_ERROR;
+}
 
     int result=OK;
     std::vector<stn_tspoint> tsdata;
@@ -84,10 +88,12 @@ int read_network_station_offsets( network *nw, std::string_view filename )
         int ists=0;
 
         std::string stcode;
-        if( read_string_field( scanner, stcode, STNCODELEN ) != FieldResult::Ok ) continue;
+        if( read_string_field( scanner, stcode, STNCODELEN ) != FieldResult::Ok ) { continue;
+}
 
         const int stnid=find_station(nw,stcode);
-        if( stnid == 0 ) continue;
+        if( stnid == 0 ) { continue;
+}
 
         const auto coordtype = read_keyword( scanner, { "xyz", "height", "enu" } );
         if( coordtype == "xyz" )
@@ -136,23 +142,28 @@ int read_network_station_offsets( network *nw, std::string_view filename )
                 if( ok )
                 {
                     tsp->date=snap_datetime_parse(word);
-                    if( tsp->date==0) ok=false;
+                    if( tsp->date==0) { ok=false;
+}
                 }
             }
             tsp->denu[0]=tsp->denu[1]=tsp->denu[2]=0.0;
             for( int iord=ord0; iord<3; iord++ )
             {
-                if( ok ) ok = read_double_field( scanner, tsp->denu[iord] ) == FieldResult::Ok;
+                if( ok ) { ok = read_double_field( scanner, tsp->denu[iord] ) == FieldResult::Ok;
+}
             }
-            if( ! ok ) break;
+            if( ! ok ) { break;
+}
             ists++;
-            if( mode != STN_TS_SERIES ) break;
+            if( mode != STN_TS_SERIES ) { break;
+}
         }
 
-        if( ! ok ) sts=INVALID_DATA;
-        else if( ists < 0 ) sts=MISSING_DATA;
-        else if( ! scanner.atEnd() ) sts=TOO_MUCH_DATA;
-        else sts=OK;
+        if( ! ok ) { sts=INVALID_DATA;
+        } else if( ists < 0 ) { sts=MISSING_DATA;
+        } else if( ! scanner.atEnd() ) { sts=TOO_MUCH_DATA;
+        } else { sts=OK;
+}
 
         if( sts != OK )
         {
@@ -190,14 +201,16 @@ void calc_station_offset( station *st, double date, vector3 denu )
     stn_offset *sto=static_cast<stn_offset *>( st->ts );
 
     denu[0]=denu[1]=denu[2]=0;
-    if( ! sto ) return;
+    if( ! sto ) { return;
+}
     for( stn_offset_comp &comp : sto->components )
     {
         vector3 cenu={0.0,0.0,0.0};
         stn_tspoint *tsp=&(comp.basepoint);
         if( comp.mode==STN_TS_STEP )
         {
-            if( date < tsp->date ) continue;
+            if( date < tsp->date ) { continue;
+}
             veccopy( tsp->denu, cenu );
         }
         else if( comp.mode==STN_TS_VELOCITY )
@@ -247,7 +260,8 @@ void print_station_offset( FILE *lst, station *st )
 {
     stn_offset *sto=static_cast<stn_offset *>( st->ts );
 
-    if( ! sto ) return;
+    if( ! sto ) { return;
+}
     fprintf(lst,"%s %s\n",st->Code.c_str(), sto->isdeformation ? "deformation" : "offset");
     for( stn_offset_comp &comp : sto->components )
     {
@@ -256,7 +270,8 @@ void print_station_offset( FILE *lst, station *st )
         {
             int ndp=comp.mode==STN_TS_VELOCITY ? 6 : 4;
             char datestr[20]={0};
-            if( i >= 0 ) tsp=&comp.tspoints[i];
+            if( i >= 0 ) { tsp=&comp.tspoints[i];
+}
             if( i >= 0 || comp.mode != STN_TS_SERIES )
             {
                 int y,m,d;

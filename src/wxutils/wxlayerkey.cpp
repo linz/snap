@@ -143,11 +143,13 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
         if( bmp )
         {
             int left = (rect.GetWidth() - bmp->GetWidth())/2;
-            if( left < 0 ) left = 0;
+            if( left < 0 ) { left = 0;
+}
             left += rect.GetLeft();
 
             int top = (rect.GetHeight() - bmp->GetHeight())/2;
-            if( top < 0 ) top = 0;
+            if( top < 0 ) { top = 0;
+}
             top += rect.GetTop();
 
             dc.DrawBitmap( *bmp, left, top, false );
@@ -274,7 +276,8 @@ void wxLayerKey::RebuildRows()
     // TODO: Figure out how to handle this so that it doesn't screw up
     // rendering
 
-    if( GetNumberRows() > 0 ) DeleteRows( 0, GetNumberRows() );
+    if( GetNumberRows() > 0 ) { DeleteRows( 0, GetNumberRows() );
+}
 
     if( visibleRows.empty() ) {
         return;

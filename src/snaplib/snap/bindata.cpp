@@ -55,7 +55,8 @@ void end_bindata( void )
 
 void init_get_bindata(int64_t loc )
 {
-    if( loc == 0 ) loc = start_loc;
+    if( loc == 0 ) { loc = start_loc;
+}
     fseek64( bindata_file, loc, SEEK_SET );
 }
 
@@ -65,8 +66,10 @@ int64_t write_bindata_header( long size, int type )
     const int64_t loc = ftell64( bindata_file );
     write_raw_as<int64_t>( bindata_file, size );
     write_raw( bindata_file, type );
-    if( size > maxsize ) maxsize = size;
-    if( type == SURVDATA ) nbindata++;
+    if( size > maxsize ) { maxsize = size;
+}
+    if( type == SURVDATA ) { nbindata++;
+}
     return loc;
 }
 
@@ -141,7 +144,8 @@ static constexpr bool survdata_disk_fields_contiguous()
     {
         const size_t end = SURVDATA_DISK_FIELDS[i].offset + field_in_memory_size(SURVDATA_DISK_FIELDS[i].kind);
         const size_t expected_next = round_up(end, field_in_memory_alignment(SURVDATA_DISK_FIELDS[i+1].kind));
-        if (expected_next != SURVDATA_DISK_FIELDS[i+1].offset) return false;
+        if (expected_next != SURVDATA_DISK_FIELDS[i+1].offset) { return false;
+}
     }
     const DiskField &last = SURVDATA_DISK_FIELDS[SURVDATA_DISK_FIELD_COUNT-1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind);
@@ -161,8 +165,9 @@ static_assert(survdata_disk_fields_contiguous(),
 static size_t survdata_disk_fixed_width_size()
 {
     size_t total = 0;
-    for (const auto &field : SURVDATA_DISK_FIELDS)
+    for (const auto &field : SURVDATA_DISK_FIELDS) {
         total += field_in_memory_size(field.kind);
+}
     return total;
 }
 static const size_t SURVDATA_DISK_FIXED_WIDTH_SIZE = survdata_disk_fixed_width_size();
@@ -197,7 +202,8 @@ int get_bindata( int bintype, bindata &b )
     {
         loc = ftell64( bindata_file );
         sts = fread( &b.size, sizeof(b.size), 1, bindata_file );
-        if( sts ) sts = fread( &b.bintype, sizeof(b.bintype), 1, bindata_file );
+        if( sts ) { sts = fread( &b.bintype, sizeof(b.bintype), 1, bindata_file );
+}
         if( !sts || b.bintype == ENDDATA ) 
         {
             fseek64( bindata_file, loc, SEEK_SET );
@@ -211,7 +217,8 @@ int get_bindata( int bintype, bindata &b )
 
             return INVALID_DATA;
         }
-        if( b.bintype == bintype || bintype == ANYDATATYPE ) break;
+        if( b.bintype == bintype || bintype == ANYDATATYPE ) { break;
+}
         fseek64(bindata_file, b.size, SEEK_CUR);
     }
 
@@ -242,12 +249,14 @@ int get_bindata( int bintype, bindata &b )
         if( variable_size > 0 )
         {
             unsigned char *variable = b.buffer.data() + sizeof(survdata);
-            if( fread( variable, variable_size, 1, bindata_file ) != 1 ) return FILE_READ_ERROR;
+            if( fread( variable, variable_size, 1, bindata_file ) != 1 ) { return FILE_READ_ERROR;
+}
         }
     }
     else
     {
-        if( fread( b.buffer.data(), b.size, 1, bindata_file ) != 1 ) return FILE_READ_ERROR;
+        if( fread( b.buffer.data(), b.size, 1, bindata_file ) != 1 ) { return FILE_READ_ERROR;
+}
     }
     b.loc = loc;
 
@@ -407,20 +416,25 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
     {
         trgtdata *t;
         t = get_trgtdata( sd, i );
-        if( type >= 0 && t->type != type ) continue;
-        if( t->unused & IGNORE_OBS_BIT ) continue;
-        if( t->id != 0 ) have_obs_ids = 1;
+        if( type >= 0 && t->type != type ) { continue;
+}
+        if( t->unused & IGNORE_OBS_BIT ) { continue;
+}
+        if( t->id != 0 ) { have_obs_ids = 1;
+}
         nobs++;
         nclass += t->nclass;
         nsyserr += t->nsyserr;
     }
 
-    if( nobs < 0 ) return 0L;
+    if( nobs < 0 ) { return 0L;
+}
 
     /* Save the header */
 
     cvrperobs = sd->ncvr/sd->nobs;
-    if( !sd->cvr ) cvrperobs = 0;
+    if( !sd->cvr ) { cvrperobs = 0;
+}
 
     const int oldnobs = sd->nobs;
     const int oldnclass = sd->nclass;
@@ -458,8 +472,10 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
         {
             trgtdata *t;
             t = get_trgtdata( sd, i );
-            if( type >= 0 && t->type != type ) continue;
-            if( t->unused & IGNORE_OBS_BIT ) continue;
+            if( type >= 0 && t->type != type ) { continue;
+}
+            if( t->unused & IGNORE_OBS_BIT ) { continue;
+}
             oldiclass = t->iclass;
             oldisyserr = t->isyserr;
             t->iclass = iclass;
@@ -483,8 +499,10 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
         {
             trgtdata *t;
             t = get_trgtdata( sd, i );
-            if( type >= 0 && t->type != type ) continue;
-            if( t->unused & IGNORE_OBS_BIT ) continue;
+            if( type >= 0 && t->type != type ) { continue;
+}
+            if( t->unused & IGNORE_OBS_BIT ) { continue;
+}
 
             fwrite( sd->clsf+t->iclass, sizeof(classdata), t->nclass, bindata_file );
         }
@@ -497,8 +515,10 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
         {
             trgtdata *t;
             t = get_trgtdata( sd, i );
-            if( type >= 0 && t->type != type ) continue;
-            if( t->unused & IGNORE_OBS_BIT ) continue;
+            if( type >= 0 && t->type != type ) { continue;
+}
+            if( t->unused & IGNORE_OBS_BIT ) { continue;
+}
 
             fwrite( sd->syserr+t->isyserr, sizeof(syserrdata), t->nsyserr, bindata_file );
         }
@@ -507,7 +527,7 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
 
     /* And finally the covariances */
 
-    if( cvrperobs ) for( cvrtype = 0; cvrtype < 3; cvrtype++ )
+    if( cvrperobs ) { for( cvrtype = 0; cvrtype < 3; cvrtype++ )
         {
             int ir0, ir1, ir, njr, j, jr0;
             ltmat cvr = nullptr;
@@ -522,8 +542,10 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
             {
                 trgtdata *t;
                 t = get_trgtdata( sd, i );
-                if( type >= 0 && t->type != type ) continue;
-                if( t->unused & IGNORE_OBS_BIT ) continue;
+                if( type >= 0 && t->type != type ) { continue;
+}
+                if( t->unused & IGNORE_OBS_BIT ) { continue;
+}
                 ir0 = i*cvrperobs;
                 ir1 = ir0+cvrperobs;
                 for( ir = ir0; ir < ir1; ir++ )
@@ -536,8 +558,10 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
                         {
                             trgtdata *t;
                             t = get_trgtdata( sd, j );
-                            if( type >= 0 && t->type != type ) continue;
-                            if( t->unused & IGNORE_OBS_BIT ) continue;
+                            if( type >= 0 && t->type != type ) { continue;
+}
+                            if( t->unused & IGNORE_OBS_BIT ) { continue;
+}
                             jr0 = j * cvrperobs;
                             njr=cvrperobs;
                         }
@@ -551,6 +575,7 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
                 }
             }
         }
+}
     return loc;
 }
 
@@ -623,11 +648,12 @@ void print_json_observation_types( FILE *out )
 {
     int first=1;
     fprintf(out,"{\n");
-    for( int type=0; type<NOBSTYPE; type++ ) if( obstypecount[type] )
+    for( int type=0; type<NOBSTYPE; type++ ) { if( obstypecount[type] )
     {
         if( first ) { first=0; } else { fprintf(out,","); }
         fprintf(out,"\n  \"%s\": \"%s\"",datatype[type].code.data(),datatype[type].name.data());
     }
+}
     fprintf(out,"\n}\n");
 }
 
@@ -654,7 +680,8 @@ void print_json_observations( FILE *out )
             int nvalue=0;
             trgtdata *tgt=get_trgtdata(sd,iobs);
 
-            if( iobs ) fprintf(out,",");
+            if( iobs ) { fprintf(out,",");
+}
             fprintf( out, "\n      {\n");
             fprintf( out, "        \"obsid\":%d,\n",tgt->obsid);
             fprintf( out, "        \"srcid\":%d,\n",tgt->id);
@@ -722,7 +749,8 @@ void print_json_observations( FILE *out )
                 fprintf( out, "        \"value\": [");
                 for( ivalue=0; ivalue<nvalue; ivalue++ )
                 {
-                    if( ivalue ) fprintf(out,",");
+                    if( ivalue ) { fprintf(out,",");
+}
                     fprintf( out, "%.*lf", ndp,value[ivalue]*factor);
                 }
                 fprintf( out, "],\n");
@@ -748,7 +776,8 @@ void print_json_observations( FILE *out )
                 for( iclass=0; iclass < tgt->nclass; iclass++ )
                 {
                     classdata *clsf=sd->clsf+iclass+tgt->iclass;
-                    if( iclass ) fprintf(out,",");
+                    if( iclass ) { fprintf(out,",");
+}
                     fprintf( out, "\n          \"%s\":\"%s\"",
                             obs_classes.name(clsf->class_id).c_str(),
                             obs_classes.value_name(clsf->class_id,clsf->name_id).c_str());
@@ -762,7 +791,8 @@ void print_json_observations( FILE *out )
                 for( isyserr=0; isyserr < tgt->nsyserr; isyserr++ )
                 {
                     syserrdata *syserr=sd->syserr+isyserr+tgt->isyserr;
-                    if( isyserr ) fprintf(out,",");
+                    if( isyserr ) { fprintf(out,",");
+}
                     fprintf( out, "\n          \"%s\":%.8le",
                             param_type_name(PRM_SYSERR, syserr->prm_id).data(),
                             syserr->influence);

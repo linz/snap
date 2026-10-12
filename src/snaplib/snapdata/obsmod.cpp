@@ -161,7 +161,8 @@ struct obs_criteria
     obs_criteria( const int action, const double factor, const double factor2, const int option )
         : action( action ), factor( factor ), factor2( factor2 ), option( option )
     {
-        if( this->action & OBS_MOD_REWEIGHT_SET ) this->action &= ~ static_cast<int>( OBS_MOD_REWEIGHT );
+        if( this->action & OBS_MOD_REWEIGHT_SET ) { this->action &= ~ static_cast<int>( OBS_MOD_REWEIGHT );
+}
     }
 
     std::vector<obs_criterion> criteria;
@@ -295,10 +296,12 @@ static bool add_obs_datatype_criterion( CFG_FILE *cfg, const std::string &dataty
         {
             select[id]=true;
         }
-        if( ! tok ) break;
+        if( ! tok ) { break;
+}
     }
 
-    if( sts != OK ) return false;
+    if( sts != OK ) { return false;
+}
 
     criteria.emplace_back( obs_datatype_criterion( select ) );
     return true;
@@ -349,7 +352,8 @@ static bool obs_datafile_match_fileid( obs_modifications *obsmod, obs_datafile_c
     {
         return file_id == datafile.file_id;
     }
-    if( datafile.last_match && datafile.last_match->file_id == file_id ) return datafile.last_match->matched;
+    if( datafile.last_match && datafile.last_match->file_id == file_id ) { return datafile.last_match->matched;
+}
     const std::string filename = obsmod->get_filename( file_id );
     const bool matched = filename_wildcard_match( datafile.filenamepattern, filename );
     datafile.last_match = obs_datafile_match{ file_id, matched };
@@ -381,7 +385,8 @@ static bool add_obs_classification_criterion( classifications *classes,
         const std::string &classification, const std::string &values, const bool singlevalue,
         std::vector<obs_criterion> &criteria )
 {
-    if( ! classes ) return false;
+    if( ! classes ) { return false;
+}
     const int class_id=classes->id( classification, 1 );
     /* If values string contains / then this is a list of multiple classes */
     if( ! singlevalue && values.find('/') != std::string::npos )
@@ -441,7 +446,8 @@ static bool obs_mult_classification_match( const mult_obs_classification_criteri
 static bool obs_wildcard_classification_match( wildcard_obs_classification_criterion &wildcard, obsmod_context *oac )
 {
     classifications *csf = oac->obsmod->classes;
-    if( ! csf ) return false;
+    if( ! csf ) { return false;
+}
     const int class_count=csf->value_count(wildcard.class_id);
 
     // Test the values added to the classification since the last time
@@ -452,7 +458,8 @@ static bool obs_wildcard_classification_match( wildcard_obs_classification_crite
             wildcard.value_ids.push_back( iv );
         }
     }
-    if( class_count > wildcard.ntested ) wildcard.ntested = class_count;
+    if( class_count > wildcard.ntested ) { wildcard.ntested = class_count;
+}
 
     const int value_id=get_context_obs_classification( oac, wildcard.class_id );
     return std::find( wildcard.value_ids.begin(), wildcard.value_ids.end(), value_id ) != wildcard.value_ids.end();
@@ -662,15 +669,24 @@ static void describe_obs_stations_criterion( FILE *lst, const obs_stations_crite
 
 static bool obs_criterion_match( obs_criterion &oc, obsmod_context *oac )
 {
-    if( oc.groupmatch ) return true;
-    if( auto *datatype=std::get_if<obs_datatype_criterion>( &oc.type ) ) return obs_datatype_match( *datatype, oac );
-    if( auto *datafile=std::get_if<obs_datafile_criterion>( &oc.type ) ) return obs_datafile_match( *datafile, oac );
-    if( auto *classification=std::get_if<obs_classification_criterion>( &oc.type ) ) return obs_classification_match( *classification, oac );
-    if( auto *mult=std::get_if<mult_obs_classification_criterion>( &oc.type ) ) return obs_mult_classification_match( *mult, oac );
-    if( auto *wildcard=std::get_if<wildcard_obs_classification_criterion>( &oc.type ) ) return obs_wildcard_classification_match( *wildcard, oac );
-    if( auto *id=std::get_if<obs_id_criterion>( &oc.type ) ) return obs_id_match( *id, oac );
-    if( auto *date=std::get_if<obs_date_criterion>( &oc.type ) ) return obs_date_match( *date, oac );
-    if( auto *stations=std::get_if<obs_stations_criterion>( &oc.type ) ) return obs_stations_match( *stations, oac );
+    if( oc.groupmatch ) { return true;
+}
+    if( auto *datatype=std::get_if<obs_datatype_criterion>( &oc.type ) ) { return obs_datatype_match( *datatype, oac );
+}
+    if( auto *datafile=std::get_if<obs_datafile_criterion>( &oc.type ) ) { return obs_datafile_match( *datafile, oac );
+}
+    if( auto *classification=std::get_if<obs_classification_criterion>( &oc.type ) ) { return obs_classification_match( *classification, oac );
+}
+    if( auto *mult=std::get_if<mult_obs_classification_criterion>( &oc.type ) ) { return obs_mult_classification_match( *mult, oac );
+}
+    if( auto *wildcard=std::get_if<wildcard_obs_classification_criterion>( &oc.type ) ) { return obs_wildcard_classification_match( *wildcard, oac );
+}
+    if( auto *id=std::get_if<obs_id_criterion>( &oc.type ) ) { return obs_id_match( *id, oac );
+}
+    if( auto *date=std::get_if<obs_date_criterion>( &oc.type ) ) { return obs_date_match( *date, oac );
+}
+    if( auto *stations=std::get_if<obs_stations_criterion>( &oc.type ) ) { return obs_stations_match( *stations, oac );
+}
     return false;
 }
 
@@ -679,12 +695,14 @@ static bool obs_criterion_match( obs_criterion &oc, obsmod_context *oac )
 static void delete_obs_criterion( const obs_criterion &oc )
 {
     const obs_stations_criterion *stations=std::get_if<obs_stations_criterion>( &oc.type );
-    if( stations && stations->criteria ) delete_station_criteria( stations->criteria );
+    if( stations && stations->criteria ) { delete_station_criteria( stations->criteria );
+}
 }
 
 static void delete_obs_criteria( const obs_criteria &ocr )
 {
-    for( const obs_criterion &oc : ocr.criteria ) delete_obs_criterion( oc );
+    for( const obs_criterion &oc : ocr.criteria ) { delete_obs_criterion( oc );
+}
 }
 
 /* Cumulate action and reweight factor for list of criteria */
@@ -723,8 +741,8 @@ static void apply_obs_criteria_action( obs_criteria &ocr, obsmod_context *oac )
         else
         {
             action |= ocr.action;
-            if( ocr.action & OBS_MOD_REWEIGHT ) oac->factor *= ocr.factor;
-            else if( ocr.action & OBS_MOD_OFFSET_ERROR )
+            if( ocr.action & OBS_MOD_REWEIGHT ) { oac->factor *= ocr.factor;
+            } else if( ocr.action & OBS_MOD_OFFSET_ERROR )
             {
                 if( oac->matchto )
                 {
@@ -770,12 +788,14 @@ static void apply_obs_criteria_action( obs_criteria &ocr, obsmod_context *oac )
 
 static bool obs_criteria_ignore_datafile( obs_modifications *obsmod, obs_criteria &ocr, const int file_id )
 {
-    if( ! (ocr.action & OBS_MOD_IGNORE ) ) return false;
+    if( ! (ocr.action & OBS_MOD_IGNORE ) ) { return false;
+}
     bool matched=false;
     for( obs_criterion &oc : ocr.criteria )
     {
         obs_datafile_criterion *datafile=std::get_if<obs_datafile_criterion>( &oc.type );
-        if( ! datafile ) return false;
+        if( ! datafile ) { return false;
+}
         if( obs_datafile_match_fileid( obsmod, *datafile, file_id ))
         {
             matched=true;
@@ -786,14 +806,15 @@ static bool obs_criteria_ignore_datafile( obs_modifications *obsmod, obs_criteri
 
 static void describe_obs_criterion( FILE *lst, const obs_criterion &oc, const std::string &prefix, classifications *classes )
 {
-    if( const auto *datatype=std::get_if<obs_datatype_criterion>( &oc.type ) ) describe_obs_datatype_criterion( lst, *datatype, prefix );
-    else if( const auto *datafile=std::get_if<obs_datafile_criterion>( &oc.type ) ) describe_obs_datafile_criterion( lst, *datafile, prefix );
-    else if( const auto *classification=std::get_if<obs_classification_criterion>( &oc.type ) ) describe_obs_classification_criterion( lst, *classification, prefix, classes );
-    else if( const auto *mult=std::get_if<mult_obs_classification_criterion>( &oc.type ) ) describe_obs_mult_classification_criterion( lst, *mult, prefix, classes );
-    else if( const auto *wildcard=std::get_if<wildcard_obs_classification_criterion>( &oc.type ) ) describe_obs_wildcard_classification_criterion( lst, *wildcard, prefix, classes );
-    else if( const auto *id=std::get_if<obs_id_criterion>( &oc.type ) ) describe_obs_id_criterion( lst, *id, prefix );
-    else if( const auto *date=std::get_if<obs_date_criterion>( &oc.type ) ) describe_obs_date_criterion( lst, *date, prefix );
-    else if( const auto *stations=std::get_if<obs_stations_criterion>( &oc.type ) ) describe_obs_stations_criterion( lst, *stations, prefix );
+    if( const auto *datatype=std::get_if<obs_datatype_criterion>( &oc.type ) ) { describe_obs_datatype_criterion( lst, *datatype, prefix );
+    } else if( const auto *datafile=std::get_if<obs_datafile_criterion>( &oc.type ) ) { describe_obs_datafile_criterion( lst, *datafile, prefix );
+    } else if( const auto *classification=std::get_if<obs_classification_criterion>( &oc.type ) ) { describe_obs_classification_criterion( lst, *classification, prefix, classes );
+    } else if( const auto *mult=std::get_if<mult_obs_classification_criterion>( &oc.type ) ) { describe_obs_mult_classification_criterion( lst, *mult, prefix, classes );
+    } else if( const auto *wildcard=std::get_if<wildcard_obs_classification_criterion>( &oc.type ) ) { describe_obs_wildcard_classification_criterion( lst, *wildcard, prefix, classes );
+    } else if( const auto *id=std::get_if<obs_id_criterion>( &oc.type ) ) { describe_obs_id_criterion( lst, *id, prefix );
+    } else if( const auto *date=std::get_if<obs_date_criterion>( &oc.type ) ) { describe_obs_date_criterion( lst, *date, prefix );
+    } else if( const auto *stations=std::get_if<obs_stations_criterion>( &oc.type ) ) { describe_obs_stations_criterion( lst, *stations, prefix );
+}
 }
 
 static void summarize_obs_criteria( FILE *lst, const std::string &prefix, const obs_criteria &ocr, classifications *classes )
@@ -818,8 +839,10 @@ static void summarize_obs_criteria( FILE *lst, const std::string &prefix, const 
     for( const obs_criterion &oc : ocr.criteria )
     {
         ncrit++;
-        if( ncrit > 1 ) fprintf(lst,", and");
-        if( ! just1 ) fprintf(lst,"\n%s    - ",prefix.c_str());
+        if( ncrit > 1 ) { fprintf(lst,", and");
+}
+        if( ! just1 ) { fprintf(lst,"\n%s    - ",prefix.c_str());
+}
         describe_obs_criterion( lst, oc, prefix, classes );
     }
     fprintf(lst,"\n");
@@ -833,7 +856,8 @@ void *new_obs_modifications( network *nw, classifications *obs_classes )
 void delete_obs_modifications( void *pobsmod )
 {
     obs_modifications *obsmod=(obs_modifications *)pobsmod;
-    for( const obs_criteria &ocr : obsmod->criteria ) delete_obs_criteria( ocr );
+    for( const obs_criteria &ocr : obsmod->criteria ) { delete_obs_criteria( ocr );
+}
     delete obsmod;
 }
 
@@ -952,7 +976,8 @@ static bool parse_key_value_criterion(
         if( ! wildcard )
         {
             file_id=get_file_id( obsmod, cfg, value, missing_error );
-            if( file_id < 0 ) return false;
+            if( file_id < 0 ) { return false;
+}
         }
         add_obs_datafile_criterion(wildcard,file_id,value,criteria);
         return true;
@@ -1151,7 +1176,8 @@ int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid
 // if the observation is ignored.
 static void apply_obs_criteria_bucket( const obs_criteria_bucket &bucket, obsmod_context *oac )
 {
-    if( bucket.empty() ) return;
+    if( bucket.empty() ) { return;
+}
     for( obs_criteria *ocr : bucket )
     {
         apply_obs_criteria_action( *ocr, oac );
@@ -1171,18 +1197,22 @@ static void apply_obs_criteria_bucket( const obs_criteria_bucket &bucket, obsmod
 
 void obs_modifications::apply_criteria( obsmod_context &oac )
 {
-    if( oac.tgt->unused & IGNORE_OBS_BIT ) return;
-    if( ! _criteria_prepared ) _prepare_criteria();
+    if( oac.tgt->unused & IGNORE_OBS_BIT ) { return;
+}
+    if( ! _criteria_prepared ) { _prepare_criteria();
+}
 
     for( const int classification : _grouped_criteria_order )
     {
         const std::map<int,obs_criteria_bucket> &buckets=_grouped_criteria.at( classification );
         const int value = classification > 0 ? get_context_obs_classification( &oac, classification ) : oac.sd->file;
         const auto bucket=buckets.find( value );
-        if( bucket == buckets.end() ) continue;
+        if( bucket == buckets.end() ) { continue;
+}
         apply_obs_criteria_bucket( bucket->second, &oac );
         /* Return if observation is being ignored */
-        if( oac.action & OBS_MOD_IGNORE ) return;
+        if( oac.action & OBS_MOD_IGNORE ) { return;
+}
     }
     apply_obs_criteria_bucket( _ungrouped_criteria, &oac );
 }
@@ -1219,7 +1249,8 @@ void obs_modifications::_prepare_criteria()
         for( const obs_criterion &oc : ocr.criteria )
         {
             const auto key=obs_criterion_key( oc );
-            if( key ) class_count[key->first]++;
+            if( key ) { class_count[key->first]++;
+}
         }
     }
 
@@ -1240,7 +1271,8 @@ void obs_modifications::_prepare_criteria()
         {
             oc.groupmatch=false;
             const auto key=obs_criterion_key( oc );
-            if( ! key ) continue;
+            if( ! key ) { continue;
+}
             if( class_count[key->first] > maxcount )
             {
                 maxcount=class_count[key->first];
@@ -1262,13 +1294,15 @@ void obs_modifications::_prepare_criteria()
 
     // Apply the classifications with the most buckets first, and the highest
     // classification first if they have the same number
-    for( const auto &buckets : _grouped_criteria ) _grouped_criteria_order.push_back( buckets.first );
+    for( const auto &buckets : _grouped_criteria ) { _grouped_criteria_order.push_back( buckets.first );
+}
     std::sort( _grouped_criteria_order.begin(), _grouped_criteria_order.end(),
         [this]( const int classification1, const int classification2 )
         {
             const size_t nbuckets1=_grouped_criteria.at( classification1 ).size();
             const size_t nbuckets2=_grouped_criteria.at( classification2 ).size();
-            if( nbuckets1 != nbuckets2 ) return nbuckets1 > nbuckets2;
+            if( nbuckets1 != nbuckets2 ) { return nbuckets1 > nbuckets2;
+}
             return classification1 > classification2;
         } );
 }
@@ -1321,7 +1355,8 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
                 obsmod->apply_criteria( oac );
-                if( tgt->unused & IGNORE_OBS_BIT ) nignored++;
+                if( tgt->unused & IGNORE_OBS_BIT ) { nignored++;
+}
             }
             od->error  *= oac.factor;
             tgt->errfct  *= oac.factor;
@@ -1424,10 +1459,12 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
 bool obsmod_ignore_datafile( void *pobsmod, int file_id )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
-    if( ! obsmod ) return false;
+    if( ! obsmod ) { return false;
+}
     for( obs_criteria &ocr : obsmod->criteria )
     {
-        if( obs_criteria_ignore_datafile( obsmod, ocr, file_id ) ) return true;
+        if( obs_criteria_ignore_datafile( obsmod, ocr, file_id ) ) { return true;
+}
     }
     return false;
 }
@@ -1437,7 +1474,8 @@ int check_obsmod_station_criteria_codes( void *pobsmod, network *nw )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     int return_sts = OK;
-    if( ! obsmod ) return return_sts;
+    if( ! obsmod ) { return return_sts;
+}
     for( const obs_criteria &ocr : obsmod->criteria )
     {
         for( const obs_criterion &oc : ocr.criteria )
@@ -1448,7 +1486,8 @@ int check_obsmod_station_criteria_codes( void *pobsmod, network *nw )
                 set_error_location( stations->config_loc );
                 int sts=check_station_criteria_codes( stations->criteria, nw );
                 set_error_location( NO_MESSAGE );
-                if( sts != OK ) return_sts=sts;
+                if( sts != OK ) { return_sts=sts;
+}
             }
         }
     }
@@ -1458,7 +1497,8 @@ int check_obsmod_station_criteria_codes( void *pobsmod, network *nw )
 void summarize_obs_modifications( void *pobsmod, FILE *lst, const std::string &prefix )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
-    if( ! obsmod ) return;
+    if( ! obsmod ) { return;
+}
 
     for( int modtype=0; modtype < 7; modtype++ )
     {
@@ -1511,7 +1551,8 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const std::string &p
                 }
             }
 
-            if( match == criteria_end ) break;
+            if( match == criteria_end ) { break;
+}
             if( action == OBS_MOD_IGNORE )
             {
                 fprintf(lst,"\n%sThe following observations are ignored:\n",prefix.c_str());
@@ -1555,15 +1596,19 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const std::string &p
                 {
                     if( match->action & action )
                     {
-                        if( ! ordered ) break;
-                        if(  match->factor == errfct && match->factor2 == errfct2 ) break;
+                        if( ! ordered ) { break;
+}
+                        if(  match->factor == errfct && match->factor2 == errfct2 ) { break;
+}
                     }
                     ++match;
                 }
             }
-            if( ! ordered) break;
+            if( ! ordered) { break;
+}
             /* Break out just in case reweighting matching doesn't work */
-            if( ncriteria >= maxcriteria ) break;
+            if( ncriteria >= maxcriteria ) { break;
+}
             firsterr=false;
             minerrfct=errfct;
             minerrfct2=errfct2;

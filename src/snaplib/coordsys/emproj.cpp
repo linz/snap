@@ -49,8 +49,10 @@ void geod_em( EMProjection *em, double lon, double lat, double *ce, double *cn )
     q = isometric_from_geodetic( lat, em->e );
     dlam = lon - em->cm;
 
-    while( dlam > PI ) dlam -= TWOPI;
-    while( dlam < -PI ) dlam += TWOPI;
+    while( dlam > PI ) { dlam -= TWOPI;
+}
+    while( dlam < -PI ) { dlam += TWOPI;
+}
 
     *cn = em->c * q;
     *ce=em->c * dlam;
@@ -70,8 +72,10 @@ void em_geod( EMProjection *em, double ce, double cn, double *lon, double *lat )
 
     *lat = geodetic_from_isometric( q, em->e );
 
-    while( dlam > PI ) dlam -= TWOPI;
-    while( dlam < -PI ) dlam += TWOPI;
+    while( dlam > PI ) { dlam -= TWOPI;
+}
+    while( dlam < -PI ) { dlam += TWOPI;
+}
 
     *lon = dlam;
 

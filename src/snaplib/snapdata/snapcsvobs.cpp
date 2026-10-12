@@ -156,8 +156,9 @@ string SnapCsvObs::CsvObservation::missing()
     {
         missingparts += "error, ";
     }
-    if (missingparts.size() > 0)
+    if (missingparts.size() > 0) {
         missingparts.resize(missingparts.size() - 2);
+}
     return missingparts;
 }
 
@@ -184,8 +185,9 @@ void SnapCsvObs::CsvObservation::attach(CalcReader *reader)
 void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std::string &colName)
 {
     int len = colName.size() - 1;
-    if (len < 0)
+    if (len < 0) {
         return;
+}
     if (colName[len] != '*')
     {
         Column *c = reader->findColumn(colName);
@@ -219,10 +221,12 @@ void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std:
         if (len > 0)
         {
             string colprefix = name.substr(0, len);
-            if (!boost::iequals(prefix, colprefix))
+            if (!boost::iequals(prefix, colprefix)) {
                 continue;
-            if (offset)
+}
+            if (offset) {
                 name = name.substr(offset);
+}
         }
         _classCols.push_back(CsvClassColumn(name, c));
     }
@@ -336,27 +340,33 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     double fromhgt = 0.0;
     double tohgt = 0.0;
-    if (_fromhgt.hasValue())
+    if (_fromhgt.hasValue()) {
         _fromhgt >> fromhgt;
-    if (_tohgt.hasValue())
+}
+    if (_tohgt.hasValue()) {
         _tohgt >> tohgt;
+}
     double value[3];
     double error[9];
     double errorfactor = 1.0;
-    if (_errorfactor.hasValue())
+    if (_errorfactor.hasValue()) {
         _errorfactor >> errorfactor;
+}
     if (!type->isvector)
     {
         bool errseconds = _angleerrorunits == AE_SECONDS;
         bool ishorangle = type->id == HA || type->id == AZ || type->id == PB;
         if (type->isangle)
         {
-            if (_angleformat != AF_DEGREES) errseconds = _angleerrorunits != AE_DEGREES;
+            if (_angleformat != AF_DEGREES) { errseconds = _angleerrorunits != AE_DEGREES;
+}
             string sign;
-            if (type->id == LT)
+            if (type->id == LT) {
                 sign = "NS";
-            if (type->id == LN)
+}
+            if (type->id == LN) {
                 sign = "EW";
+}
             try
             {
                 value[0] = parseAngle(_angleformat, _value.value(), sign);
@@ -380,14 +390,15 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             for (int i = 0; i < 2; i++)
             {
                 istr >> errcomp >> component;
-                if (istr.fail())
+                if (istr.fail()) {
                     break;
+}
                 double factor;
-                if (boost::iequals(component, "mm"))
+                if (boost::iequals(component, "mm")) {
                     factor = 0.001;
-                else if (boost::iequals(component, "ppm"))
+                } else if (boost::iequals(component, "ppm")) {
                     factor = value[0] * 0.000001;
-                else
+                } else
                 {
                     dataError(string("Invalid distance error component ") + component);
                     // ok = false;
@@ -401,8 +412,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 // ok = false;
             }
 
-            if (error[0] > 0.0)
+            if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]);
+}
         }
         else if (_angleerrorcalced && ishorangle)
         {
@@ -418,8 +430,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             for (int i = 0; i < 2; i++)
             {
                 istr >> errcomp >> component;
-                if (istr.fail())
+                if (istr.fail()) {
                     break;
+}
                 if (boost::iequals(component, "mm"))
                 {
                     errcomp *= 0.001;
@@ -448,13 +461,15 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             {
                 double hdist = ldt_calc_value(CALC_HDIST, _stnidfrom, _stnidto);
                 hdist *= hdist;
-                if (hdist < mmerr / 4.0)
+                if (hdist < mmerr / 4.0) {
                     hdist = mmerr / 4.0;
+}
                 mmerr /= hdist;
             }
             error[0] = secerr + mmerr;
-            if (error[0] > 0.0)
+            if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]) * RTOD;
+}
         }
         else if (_hderrorcalced && type->id == LV)
         {
@@ -470,8 +485,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             for (int i = 0; i < 2; i++)
             {
                 istr >> errcomp >> component;
-                if (istr.fail())
+                if (istr.fail()) {
                     break;
+}
                 if (boost::iequals(component, "mm"))
                 {
                     errcomp *= 0.001;
@@ -507,8 +523,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 // ok = false;
             }
             error[0] = ppmerr + mmerr;
-            if (error[0] > 0.0)
+            if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]);
+}
         }
         else if (_zderrorcalced && type->id == ZD)
         {
@@ -525,8 +542,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             for (int i = 0; i < 3; i++)
             {
                 istr >> errcomp >> component;
-                if (istr.fail())
+                if (istr.fail()) {
                     break;
+}
                 if (boost::iequals(component, "mmh"))
                 {
                     errcomp *= 0.001;
@@ -561,20 +579,23 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 double distance = ldt_calc_value(CALC_DISTANCE, _stnidfrom, _stnidto);
                 double zendist = value[0] * DTOR;
                 distance *= distance;
-                if (mmherr < distance / 4)
+                if (mmherr < distance / 4) {
                     mmherr /= distance;
-                else
+                } else {
                     mmherr = 4.0;
-                if (mmverr < distance / 4)
+}
+                if (mmverr < distance / 4) {
                     mmverr /= distance;
-                else
+                } else {
                     mmverr = 4.0;
+}
                 mmherr *= cos(zendist) * cos(zendist);
                 mmverr *= sin(zendist) * sin(zendist);
             }
             error[0] = secerr + mmherr + mmverr;
-            if (error[0] > 0.0)
+            if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]) * RTOD;
+}
         }
         else
         {
@@ -583,7 +604,8 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         error[0] *= errorfactor;
         if (type->isangle)
         {
-            if (errseconds) error[0] /= 3600.0;
+            if (errseconds) { error[0] /= 3600.0;
+}
             value[0] *= DTOR;
             error[0] *= DTOR;
         }
@@ -594,10 +616,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
 
         istr.str(_value.value());
         istr >> value[0];
-        if (type->isvector)
+        if (type->isvector) {
             istr >> value[1] >> value[2];
-        if (istr.fail() || !istr.eof())
+}
+        if (istr.fail() || !istr.eof()) {
             dataError(string("Invalid observation value: ")+_value.value());
+}
 
         istr.str(_error.value());
         istr.seekg(0);
@@ -609,10 +633,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             {
                 istr >> error[i];
             }
-            if (istr.fail())
+            if (istr.fail()) {
                 dataError(string("Missing or invalid data in observation error: ")+_error.value());
-            if (!istr.eof())
+}
+            if (!istr.eof()) {
                 dataError(string("Extraneous data in observation error: ")+_error.value());
+}
             if (errorfactor != 1.0)
             {
                 switch (_vecerrorformat)
@@ -622,8 +648,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 case CVR_FULL:
                 {
                     double factor = errorfactor * errorfactor;
-                    for (int i = 0; i < 6; i++)
+                    for (int i = 0; i < 6; i++) {
                         error[i] *= factor;
+}
                 }
                 break;
                 case CVR_CORRELATION:
@@ -641,22 +668,24 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         }
         else
         {
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 9; i++) {
                 error[i] = 0;
+}
             double errcomp[3];
             string component;
             bool ok = true;
             for (int i = 0; i < 2; i++)
             {
                 istr >> errcomp[0] >> errcomp[1] >> errcomp[2] >> component;
-                if (istr.fail())
+                if (istr.fail()) {
                     break;
+}
                 int offset = 0;
-                if (boost::iequals(component, "mm"))
+                if (boost::iequals(component, "mm")) {
                     offset = 0;
-                else if (boost::iequals(component, "ppm"))
+                } else if (boost::iequals(component, "ppm")) {
                     offset = 3;
-                else
+                } else
                 {
                     dataError(string("Invalid error component ") + component);
                     ok = false;
@@ -666,23 +695,27 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 error[offset + 1] = errcomp[1] * errorfactor;
                 error[offset + 2] = errcomp[2] * errorfactor;
 
-                if (istr.eof())
+                if (istr.eof()) {
                     break;
+}
             }
-            if (ok && (istr.fail() || !istr.eof()))
+            if (ok && (istr.fail() || !istr.eof())) {
                 dataError(string("Invalid observation error ") + _error.value());
+}
         }
     }
 
     int obsid = 0;
     double snaptime = UNDEFINED_DATE;
-    if (_obsid.hasValue() && _obsid.value() != "")
+    if (_obsid.hasValue() && _obsid.value() != "") {
         _obsid >> obsid;
+}
     if (_time.value() != "")
     {
         snaptime = snap_datetime_parse(_time.value(), _dateformat);
-        if (snaptime == 0.0)
+        if (snaptime == 0.0) {
             dataError("Invalid date or date format");
+}
     }
     bool obsrejected = false;
     if (_rejected.hasValue())
@@ -707,18 +740,22 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         tohgt = fromhgt;
         fromhgt = 0;
     }
-    if (!continued)
+    if (!continued) {
         ldt_inststn(idfrom, fromhgt);
+}
     ldt_tgtstn(idto, tohgt);
     ldt_nextdata(type->id);
     ldt_obs_id(obsid);
-    if (obsrejected)
+    if (obsrejected) {
         ldt_unused();
+}
     ldt_value(value);
-    if (!type->isvector)
+    if (!type->isvector) {
         ldt_error(error);
-    if (_time.hasValue())
+}
+    if (_time.hasValue()) {
         ldt_date(snaptime);
+}
     for (auto c = _classifications.begin(); c < _classifications.end(); c++)
     {
         ldt_classification((*c)->classId(), (*c)->classValue());
@@ -743,8 +780,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             case CVR_DEFAULT:
                 break;
             case CVR_FULL:
-                for (int i3 = 0; i3 < 6; i3++)
+                for (int i3 = 0; i3 < 6; i3++) {
                     cvr[i3] = error[i3];
+}
                 break;
 
             case CVR_CORRELATION:
@@ -776,8 +814,9 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     {
         ldt_note(_note.value());
     }
-    if (!_owner->InSet())
+    if (!_owner->InSet()) {
         ldt_end_data();
+}
 
     return true;
 }
@@ -1254,8 +1293,9 @@ int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_pro
         {
             record_filename(deffile, "csv_obs_format");
         }
-        if (dfi.aborted())
+        if (dfi.aborted()) {
             return OPERATION_ABORTED;
+}
     }
     catch (RecordError &error)
     {

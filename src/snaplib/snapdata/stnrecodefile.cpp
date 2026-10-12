@@ -140,7 +140,8 @@ int read_station_recode_file( stn_recode_map *stt, std::string_view filename, st
         SnapCsvRecode csvstnrecode( stt, *formatfile );
         DatafileInput dfi( recodefilename,"station recode file" );
         csvstnrecode.load( dfi );
-        if( dfi.errorCount()) sts = INVALID_DATA;
+        if( dfi.errorCount()) { sts = INVALID_DATA;
+}
     }
     catch( RecordError &error )
     {

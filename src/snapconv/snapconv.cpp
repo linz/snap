@@ -73,22 +73,26 @@ int main( int argc, char *argv[] )
         case 'q': quiet = 1; break;
         case 'D':
         case 'd': 
-                  if( degopt != SET_DEGOPT_DEFAULT ) syntax_error=1;
+                  if( degopt != SET_DEGOPT_DEFAULT ) { syntax_error=1;
+}
                   degopt = SET_DEGOPT_DECIMAL;
                   break;
         case 'H':
         case 'h': 
-                  if( degopt != SET_DEGOPT_DEFAULT ) syntax_error=1;
+                  if( degopt != SET_DEGOPT_DEFAULT ) { syntax_error=1;
+}
                   degopt = SET_DEGOPT_DMS;
                   break;
         case 'E':
         case 'e': 
-                  if( hgttype != SET_HGTTYPE_DEFAULT ) syntax_error=1;
+                  if( hgttype != SET_HGTTYPE_DEFAULT ) { syntax_error=1;
+}
                   hgttype=SET_HGTTYPE_ELLIPSOIDAL;
                   break;
         case 'O':
         case 'o': 
-                  if( hgttype != SET_HGTTYPE_DEFAULT ) syntax_error=1;
+                  if( hgttype != SET_HGTTYPE_DEFAULT ) { syntax_error=1;
+}
                   hgttype=SET_HGTTYPE_ORTHOMETRIC;
                   break;
         case 'P':

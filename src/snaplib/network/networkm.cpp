@@ -61,7 +61,8 @@ int merge_network( network *base, network *data, int mergeopts,
     }
 
     ndata = number_of_stations( data );
-    if( ndata == 0 ) return OK;
+    if( ndata == 0 ) { return OK;
+}
 
     stnewlist = new station *[2*ndata];
     stdellist = stnewlist + ndata;
@@ -73,10 +74,13 @@ int merge_network( network *base, network *data, int mergeopts,
     for( idata = 1; idata <= ndata; idata ++ )
     {
         st = station_ptr( data, idata );
-        if( select && !(*select)(st)) continue;
+        if( select && !(*select)(st)) { continue;
+}
         istn = find_station( base, st->Code );
-        if( istn && ! updatestn ) continue;
-        if( ! istn && ! addnew ) continue;
+        if( istn && ! updatestn ) { continue;
+}
+        if( ! istn && ! addnew ) { continue;
+}
         stnewlist[nnew] = st;
         stdellist[nnew] = istn ? station_ptr(base,istn) : nullptr;
         nnew++;
@@ -96,7 +100,8 @@ int merge_network( network *base, network *data, int mergeopts,
         }
     }
     nclassnew=base->classification_count();
-    if( nclassnew == nbaseclass ) nclassnew=0;
+    if( nclassnew == nbaseclass ) { nclassnew=0;
+}
 
     preserve_ellipsoidal=0;
     if( mergeopts & NW_HGTFIXEDOPT_ELLIPSOIDAL )
@@ -138,7 +143,8 @@ int merge_network( network *base, network *data, int mergeopts,
             exu[CRD_LAT] = st->GXi;
             exu[CRD_LON] = st->GEta;
             exu[CRD_HGT] = st->GUnd;
-            if( convertcoords ) convert_coords( &cconv, llh, exu, llh, exu );
+            if( convertcoords ) { convert_coords( &cconv, llh, exu, llh, exu );
+}
             if( ! network_has_geoid_info(data) )
             {
                 exu[CRD_LAT]=0.0;
@@ -183,7 +189,8 @@ int merge_network( network *base, network *data, int mergeopts,
                         llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], el );
                 }
                 loadclass=updatecls;
-                if( nclassnew ) st0->set_class_count( nclassnew );
+                if( nclassnew ) { st0->set_class_count( nclassnew );
+}
             }
         }
 

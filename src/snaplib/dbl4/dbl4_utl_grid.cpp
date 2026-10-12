@@ -151,7 +151,8 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     Endian endian = Endian::Little;
     version = 0;
     len = strlen( GRID_FILE_HEADER_1 );
-    if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) return 0;
+    if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) { return 0;
+}
     buf[len] = 0;
     TRACE_GRID(("Grid signature: %s",buf));
 
@@ -182,9 +183,11 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     }
     utlBinSrcSetEndian( binsrc, endian );
 
-    if( utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, indexloc ) != STS_OK ) return 0;
+    if( utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, indexloc ) != STS_OK ) { return 0;
+}
     TRACE_GRID(("Index location: %ld",(long)(*indexloc)));
-    if( ! *indexloc ) version = 0;
+    if( ! *indexloc ) { version = 0;
+}
     return version;
 }
 
@@ -228,11 +231,16 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     def->binsrc = binsrc;
     sts = STS_OK;
 
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, indexloc, 1, (void *) (&(def->miny)) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->maxy)) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->minx)) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->maxx)) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->vres)) );
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, indexloc, 1, (void *) (&(def->miny)) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->maxy)) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->minx)) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->maxx)) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->vres)) );
+}
 
     if( sts == STS_OK )
     {
@@ -273,14 +281,18 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     if( sts == STS_OK && ( def->ngrdx < 2 || def->ngrdy < 2 )) SET_STATUS(sts,STS_INVALID_DATA);
 
 
-    if( sts == STS_OK )
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc1 );
-    if( sts == STS_OK )
+}
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc2 );
-    if( sts == STS_OK )
+}
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc3 );
-    if( sts == STS_OK )
+}
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->crdsys );
+}
 
     if( sts == STS_OK )
     {
@@ -308,8 +320,9 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
 
     for( i = 0; i < def->ngrdy; i++ )
     {
-        if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1,
+        if( sts == STS_OK ) { sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1,
                                       (void *) (&(def->rows[i].fileloc)) );
+}
         def->rows[i].cacheloc = nullptr;
 
         TRACE_GRID2(("            %03d %06ld",i,def->rows[i].fileloc));
@@ -370,7 +383,8 @@ static StatusType load_row1( grid_def_crs *def, long fileloc, INT4 *data )
         for( i = 0; i < def->rowsize; i++ )
         {
             INT4 v = sdata[i];
-            if( v == 0x7FFF ) v = def->undef;
+            if( v == 0x7FFF ) { v = def->undef;
+}
             data[i] = v;
             TRACE_GRID3((" Column %d: value %ld",(int) i, (long) v ));
         }
@@ -454,7 +468,8 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
            but not flagged as subset, so we use this as flag that all remaining
            values are undefined */
 
-        if( cont && ! subset ) break;
+        if( cont && ! subset ) { break;
+}
 
         /* Get the first and last value for this section */
 
@@ -482,7 +497,8 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
 
         if( imin > i0 )
         {
-            for( i = i0; i < imin; i++, data += ndim ) (*data) = undef;
+            for( i = i0; i < imin; i++, data += ndim ) { (*data) = undef;
+}
         }
 
         /* If first differences read first value, if second differences read
@@ -676,7 +692,8 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
                 cr->next->prev = cr;
             }
             def->cache_mru = cr;
-            if( !def->cache_lru ) def->cache_lru = cr;
+            if( !def->cache_lru ) { def->cache_lru = cr;
+}
         }
         else
         {
@@ -783,8 +800,10 @@ static StatusType calc_grid_cubic( grid_def_crs *def, double x, double y,
     x = (x-def->minx);
     if( def->latlon )
     {
-        while( x > 360.0 ) x -= 360.0;
-        while( x < 0.0 ) x += 360.0;
+        while( x > 360.0 ) { x -= 360.0;
+}
+        while( x < 0.0 ) { x += 360.0;
+}
     }
     x = x/def->xres;
     nx = (short) x;
@@ -792,28 +811,33 @@ static StatusType calc_grid_cubic( grid_def_crs *def, double x, double y,
     calc_cubic_factors( y-ny, yfactor );
     calc_cubic_factors( x-nx, xfactor );
     ny--;
-    if( nx ) nx--;
-    else nx = def->ngrdx-1;
+    if( nx ) { nx--;
+    } else { nx = def->ngrdx-1;
+}
     for( i = 0; i < 4; i++ )
     {
         xrow[i] = nx*def->ngrdval;
         nx++;
-        if( nx == def->ngrdx ) nx = 0;
+        if( nx == def->ngrdx ) { nx = 0;
+}
     }
     for( i = 0; i < 4; i++, ny++ )
     {
         INT4 *row;
         StatusType sts;
-        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) continue;
+        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) { continue;
+}
         sts = get_row( def, ny, &row );
-        if( sts != STS_OK ) return sts;
+        if( sts != STS_OK ) { return sts;
+}
         for( v = 0; v < def->ngrdval; v++ )
         {
             double sum = 0.0;
             for( j = 0; j < 4; j++ )
             {
                 long rv;
-                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) continue;
+                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) { continue;
+}
                 rv = row[xrow[j]+v];
                 if( rv == def->undef ) RETURN_STATUS(STS_MISSING_DATA);
                 sum += rv*xfactor[j];
@@ -886,19 +910,25 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
     if( y < def->miny || y > def->maxy ) RETURN_STATUS(STS_CRD_RANGE_ERR);
     y = (y-def->miny)/def->yres;
     ny = (short) y;
-    if( ny < 0 ) ny=0;
-    if( ny >= def->ngrdy-1 ) ny=def->ngrdy-2;
+    if( ny < 0 ) { ny=0;
+}
+    if( ny >= def->ngrdy-1 ) { ny=def->ngrdy-2;
+}
     x = (x-def->minx);
     if( def->latlon )
     {
-        while( x > 360.0 ) x -= 360.0;
-        while( x < 0.0 ) x += 360.0;
+        while( x > 360.0 ) { x -= 360.0;
+}
+        while( x < 0.0 ) { x += 360.0;
+}
     }
     if( ! def->global && x > (def->maxx-def->minx)) RETURN_STATUS(STS_CRD_RANGE_ERR);
     x = x/def->xres;
     nx = (short) x;
-    if( nx < 0 ) nx=0;
-    if( nx >= def->ngrdx-1 ) nx=def->ngrdx-2;
+    if( nx < 0 ) { nx=0;
+}
+    if( nx >= def->ngrdx-1 ) { nx=def->ngrdx-2;
+}
     calc_linear_factors( y-ny, yfactor );
     calc_linear_factors( x-nx, xfactor );
 
@@ -906,22 +936,26 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
     {
         xrow[i] = nx*def->ngrdval;
         nx++;
-        if( nx == def->ngrdx ) nx = 0;
+        if( nx == def->ngrdx ) { nx = 0;
+}
     }
     for( i = 0; i < 2; i++, ny++ )
     {
         INT4 *row;
         StatusType sts;
-        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) continue;
+        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) { continue;
+}
         sts = get_row( def, ny, &row );
-        if( sts != STS_OK ) return sts;
+        if( sts != STS_OK ) { return sts;
+}
         for( v = 0; v < def->ngrdval; v++ )
         {
             double sum = 0.0;
             for( j = 0; j < 2; j++ )
             {
                 long rv;
-                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) continue;
+                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) { continue;
+}
                 rv = row[xrow[j]+v];
                 if( rv == def->undef ) RETURN_STATUS(STS_MISSING_DATA);
                 sum += rv*xfactor[j];
@@ -954,9 +988,11 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
 static grid_def_crs * grid_def_from_handle( void *handle)
 {
     grid_def_crs *def;
-    if( ! handle ) return nullptr;
+    if( ! handle ) { return nullptr;
+}
     def = (grid_def_crs *) handle;
-    if( def->magic != MAGIC_NUMBER ) return nullptr;
+    if( def->magic != MAGIC_NUMBER ) { return nullptr;
+}
     return def;
 }
 
@@ -982,7 +1018,8 @@ StatusType utlCreateGrid( hBinSrc binsrc, hGrid *grid)
     StatusType sts;
     *grid = nullptr;
     sts = create_grid_def( &def, binsrc );
-    if( sts == STS_OK ) *grid =  (void *) def;
+    if( sts == STS_OK ) { *grid =  (void *) def;
+}
     return sts;
 }
 

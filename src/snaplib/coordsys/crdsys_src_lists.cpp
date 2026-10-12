@@ -60,7 +60,8 @@ static int delete_crdsys_lists( void * )
 
 static void register_lists( void )
 {
-    if( registered ) return;
+    if( registered ) { return;
+}
     crdsys_source_def csd;
     csd.delsource = delete_crdsys_lists;
     register_crdsys_source( csd );
@@ -81,7 +82,8 @@ static void add_crdsys_item( int type, long id, std::string_view code, std::stri
 
     for( const crdsys_list_item &item : *list )
     {
-        if( boost::iequals( item.code, code ) ) return;
+        if( boost::iequals( item.code, code ) ) { return;
+}
     }
 
     list->push_back( { id, boost::to_upper_copy( std::string( code ) ), std::string( desc ), cur_source } );
@@ -95,7 +97,8 @@ static void make_crdsys_lists( void )
        modified in such a way the source pointer is changed every time the
        list is changed */
 
-    if( crdsys_source_update() == update) return;
+    if( crdsys_source_update() == update) { return;
+}
 
     rflist.clear();
     ellist.clear();
@@ -104,7 +107,8 @@ static void make_crdsys_lists( void )
 
     for( const crdsys_source_def &source : crdsys_sources() )
     {
-        if( ! source.getcodes ) continue;
+        if( ! source.getcodes ) { continue;
+}
         cur_source = &source;
         (*source.getcodes)( source.data, add_crdsys_item );
     }
@@ -118,7 +122,8 @@ static void make_crdsys_lists( void )
 static const crdsys_list_item *crdsys_item_at( const crdsys_list &cl, int item )
 {
     make_crdsys_lists();
-    if( item < 0 || numeric_cast<size_t>( item ) >= cl.size() ) return nullptr;
+    if( item < 0 || numeric_cast<size_t>( item ) >= cl.size() ) { return nullptr;
+}
     return &cl[item];
 }
 

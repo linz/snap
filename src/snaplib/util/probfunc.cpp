@@ -29,8 +29,10 @@ double inv_normal_distn( double prob )
 
 double chi2_distn( double value, long dof )
 {
-    if( dof < 0 ) return 0.0;
-    if( value < 0.0 ) return 0.0;
+    if( dof < 0 ) { return 0.0;
+}
+    if( value < 0.0 ) { return 0.0;
+}
     chi_squared chi2(dof);
     return 1.0-cdf(chi2,value);
 }
@@ -61,17 +63,22 @@ double inv_students_t_distn( double prob, long dof )
 
 double f_distn( double value, long dofn, long dofd )
 {
-    if( dofn <= 0 || dofd < 0 ) return 0.0;
-    if( dofd == 0 )  return chi2_distn( value*dofn, dofn );
-    if( value<=0.0) return 0.0;
+    if( dofn <= 0 || dofd < 0 ) { return 0.0;
+}
+    if( dofd == 0 ) {  return chi2_distn( value*dofn, dofn );
+}
+    if( value<=0.0) { return 0.0;
+}
     fisher_f f(dofn,dofd); 
     return 1.0-cdf(f,value);
 }
 
 double inv_f_distn( double prob, long dofn, long dofd )
 {
-    if( dofn <= 0 || dofd < 0 ) return 0.0;
-    if( dofd == 0 )  return inv_chi2_distn( prob, dofn )/dofn;
+    if( dofn <= 0 || dofd < 0 ) { return 0.0;
+}
+    if( dofd == 0 ) {  return inv_chi2_distn( prob, dofn )/dofn;
+}
     fisher_f f(dofn,dofd); 
     return quantile(f,1.0-prob);
 }
@@ -85,10 +92,12 @@ double tau_distn( double value, long dof )
     negative = value < 0.0;
     value *= value;
 
-    if( dof < 1 || value >= dof ) return 0.0;
+    if( dof < 1 || value >= dof ) { return 0.0;
+}
     value = sqrt((dof-1)*value/(dof - value));
     prob = students_t_distn( value, dof-1 );
-    if( negative ) prob = 1.0 - prob;
+    if( negative ) { prob = 1.0 - prob;
+}
     return prob;
 }
 
@@ -96,7 +105,8 @@ double tau_distn( double value, long dof )
 double inv_tau_distn( double prob, long dof )
 {
     double value, tmp;
-    if( dof < 1 ) return 0.0;
+    if( dof < 1 ) { return 0.0;
+}
     value = inv_students_t_distn( prob, dof-1 );
     if( value != 0 )
     {

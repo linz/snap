@@ -54,7 +54,8 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
 {
     int istn, i;
     station *s1, *s2;
-    if( nstns < 2 ) return nstns;
+    if( nstns < 2 ) { return nstns;
+}
     s1 = station_ptr( net, stn[0] );
     istn = 1;
     for( i = 1; i < nstns; i++ )
@@ -62,12 +63,16 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
         double d;
         s2 = station_ptr( net, stn[i] );
         d = calc_distance( s1, 0.0, s2, 0.0, nullptr, nullptr );
-        if( d < minlen || d > maxlen ) continue;
+        if( d < minlen || d > maxlen ) { continue;
+}
         stn[istn++] = stn[i];
     }
-    if( istn+1 <= nmax ) return istn;
-    if( nmax < 1 ) return istn;
-    if( !dst ) return istn;
+    if( istn+1 <= nmax ) { return istn;
+}
+    if( nmax < 1 ) { return istn;
+}
+    if( !dst ) { return istn;
+}
 
     s2 = station_ptr( net, stn[1] );
     dst[1] = calc_distance( s1, 0.0, s2, 0.0, nullptr, nullptr );
@@ -77,7 +82,8 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
         int j;
         double d = calc_distance( s1, 0.0, station_ptr(net, si), 0.0, nullptr, nullptr );
         j = i-1;
-        if( j > nmax ) j = nmax;
+        if( j > nmax ) { j = nmax;
+}
 
         while( j >= 1 && d < dst[j] )
         {
@@ -193,16 +199,19 @@ int main( int argc, char *argv[] )
         {
             int i;
             nextstn++;
-            if( nextstn > nostns ) break;
+            if( nextstn > nostns ) { break;
+}
             nstns = 1;
             stn[0] = nextstn;
             i = 1;
             for( ; i <= nostns; i++ )
             {
-                if( i == nextstn ) continue;
+                if( i == nextstn ) { continue;
+}
                 stn[nstns++] = i;
             }
-            if( baselines ) nextstn = nostns+1;
+            if( baselines ) { nextstn = nostns+1;
+}
         }
         else
         {
@@ -210,7 +219,8 @@ int main( int argc, char *argv[] )
             char *code;
             nstns = 0;
 
-            if( !fgets(inrec,512,in) ) break;
+            if( !fgets(inrec,512,in) ) { break;
+}
             if( inrec[0] == '!' || inrec[0] == '#' ) { fputs(inrec,out); continue; }
             for( code = strtok(inrec," \t\r\n"); code; code = strtok(nullptr," \t\r\n") )
             {
@@ -222,8 +232,11 @@ int main( int argc, char *argv[] )
                     printf("Station %s is not defined in the coordinate file\n", code);
                     continue;
                 }
-                for( i = 0; i < nstns; i++ ) if( stn[i] == id ) break;
-                if( i < nstns ) continue;
+                for( i = 0; i < nstns; i++ ) { if( stn[i] == id ) { break;
+}
+}
+                if( i < nstns ) { continue;
+}
                 stn[nstns++] = id;
             }
             fprintf(out,"\n#classify gb SESSION SESSION_%d\n",block_id);
@@ -233,7 +246,8 @@ int main( int argc, char *argv[] )
         {
         }
 
-        if( nstns < 2 ) continue;
+        if( nstns < 2 ) { continue;
+}
         fprintf(out,"\n");
         if( baselines )
         {
@@ -246,7 +260,8 @@ int main( int argc, char *argv[] )
                 stn2[0] = stn[i];
                 for( j = need_all ? 0 : i+1; j < nstns; j++ )
                 {
-                    if( i == j ) continue;
+                    if( i == j ) { continue;
+}
                     stn2[nstns2++] = stn[j];
                 }
                 if( nstns2 > 1 )
@@ -258,12 +273,14 @@ int main( int argc, char *argv[] )
         }
         else
         {
-            if( autolist ) nstns = check_list( stn, nstns, maxlen, minlen, dst, nmax );
+            if( autolist ) { nstns = check_list( stn, nstns, maxlen, minlen, dst, nmax );
+}
             print_multistation_gps( out, stn, nstns );
         }
     }
 
-    if(in) fclose(in);
+    if(in) { fclose(in);
+}
     fclose(out);
     return 0;
 }

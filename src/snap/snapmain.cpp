@@ -220,7 +220,8 @@ try
     if( output_command_file )
     {
         print_command_file();
-        if( output_file_summary ) print_section_header( lst, "SUMMARY OF INPUT FILES" );
+        if( output_file_summary ) { print_section_header( lst, "SUMMARY OF INPUT FILES" );
+}
     }
 
     /* If the coordinate system has a deformation model, install it now */
@@ -283,7 +284,8 @@ try
         if( !(net->options & NW_GEOID_HEIGHTS) || overwrite_geoid )
         {
             sts = set_network_geoid( net, geoid_file,NW_HGTFIXEDOPT_DEFAULT, geoid_error_level );
-            if( sts == INFO_ERROR ) sts=OK;
+            if( sts == INFO_ERROR ) { sts=OK;
+}
             if( sts != OK ) 
             {
                 close_output_files(NO_MESSAGE,NO_MESSAGE);
@@ -305,8 +307,10 @@ try
     read_errors = read_data_files( output_file_summary ? lst : nullptr );
     sts = term_load_snap();
     end_bindata();
-    if( dump ) end_section( dump );
-    if( output_file_summary ) print_section_footer( lst );
+    if( dump ) { end_section( dump );
+}
+    if( output_file_summary ) { print_section_footer( lst );
+}
 
     /* Add elements requested for covariance output */
     add_requested_covariance_connections();
@@ -320,8 +324,10 @@ try
        rejected or ignored */
 
     summarize_obs_modifications( snap_obs_modifications(false), lst, "" );
-    if( output_input_data ) print_input_data( lst );
-    if( output_file_summary ) print_section_footer( lst );
+    if( output_input_data ) { print_input_data( lst );
+}
+    if( output_file_summary ) { print_section_footer( lst );
+}
 
     if( read_errors )
     {
@@ -341,9 +347,11 @@ try
 
     /* Echo the input data if required */
 
-    if( output_stn_recode ) print_station_recoding( lst );
+    if( output_stn_recode ) { print_station_recoding( lst );
+}
 
-    if( sort_obs ) sort_observation_list();
+    if( sort_obs ) { sort_observation_list();
+}
 
     /* Check for station co-location constraints */
     /* Assumes have a count of observations for each station */
@@ -389,7 +397,8 @@ try
         return DEFAULT_RETURN_STATUS;
     }
 
-    if( output_problem_definition ) print_problem_summary( lst );
+    if( output_problem_definition ) { print_problem_summary( lst );
+}
 
     /* Main adjustment loop */
 
@@ -427,7 +436,8 @@ try
         if( show_iterations )
         {
             xprintf("\nIteration %d\n",(int)iterations);
-            if( iterations > 1 ) print_iteration_footer();
+            if( iterations > 1 ) { print_iteration_footer();
+}
             print_iteration_header( iterations );
         }
 
@@ -465,7 +475,8 @@ try
 
         xprintf("   Solving the equations\n");
 
-        if( program_mode == PREANALYSIS ) lsq_zero_b_vector();
+        if( program_mode == PREANALYSIS ) { lsq_zero_b_vector();
+}
 
         if( program_mode == DATA_CONSISTENCY )
         {
@@ -553,7 +564,8 @@ try
 
     lsq_get_stats( &nobs, &nprm, &nschp, &dof, &ssr, &seu );
 
-    if( program_mode != PREANALYSIS ) xprint_ls_summary();
+    if( program_mode != PREANALYSIS ) { xprint_ls_summary();
+}
 
     /* Dump the Cholesky decomposition if required */
 
@@ -604,7 +616,8 @@ try
 
     xprintf("\n\nWriting the results...\n");
 
-    if( output_ls_summary ) print_solution_summary( lst );
+    if( output_ls_summary ) { print_solution_summary( lst );
+}
 
     if( output_station_coordinates )
     {
@@ -654,7 +667,8 @@ try
         test_specifications();
     }
 
-    if( output_worst_residuals ) print_worst_residuals( lst );
+    if( output_worst_residuals ) { print_worst_residuals( lst );
+}
 
     /* CSV outputs */
 
@@ -678,7 +692,8 @@ try
 
     /* Update the station file */
 
-    if( output_coordinate_file ) update_station_file( output_station_filespec );
+    if( output_coordinate_file ) { update_station_file( output_station_filespec );
+}
 
     if( dump )
     {
@@ -690,10 +705,14 @@ try
 
     if( ! lsq_using_zero_inverse() )
     {
-        if( output_covariance ) print_coord_covariance();
-        if( output_covariance_json ) print_coord_covariance_json();
-        if( output_solution_json ) print_solution_json_file();
-        if( output_sinex ) print_coord_sinex();
+        if( output_covariance ) { print_coord_covariance();
+}
+        if( output_covariance_json ) { print_coord_covariance_json();
+}
+        if( output_solution_json ) { print_solution_json_file();
+}
+        if( output_sinex ) { print_coord_sinex();
+}
     }
 
     close_output_files( NO_MESSAGE, NO_MESSAGE );
@@ -708,7 +727,8 @@ try
 
     /* Delete allocated objects */
 
-    if( deformation ) delete_deformation( deformation );
+    if( deformation ) { delete_deformation( deformation );
+}
 
     delete_recorded_filenames();
 
@@ -826,7 +846,8 @@ static int read_parameters( int argc, char *argv[] )
         sts = MISSING_DATA;
     }
 
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
     set_snap_command_file( *cmd_file );
 
@@ -860,27 +881,33 @@ static void print_command_file( void )
     FILE *cmd;
     char inrec[256];
     cmd = fopen( command_file->path.c_str(), "r" );
-    if( !cmd ) return;
+    if( !cmd ) { return;
+}
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
     fprintf(lst,"\nThe command file %s contains:\n", std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
     while( fgets(inrec,256,cmd)) 
     {
-        if (strlen(inrec) == 0) continue;
+        if (strlen(inrec) == 0) { continue;
+}
         char *p=inrec+strlen(inrec)-1;
-        while( p >= inrec && ISSPACE(*p) ) *p--=0;
+        while( p >= inrec && ISSPACE(*p) ) { *p--=0;
+}
         fprintf(lst,"     %s\n",inrec);
     }
     fprintf(lst,"\n");
     fclose( cmd );
 
-    if( !config_file )  return;
+    if( !config_file ) {  return;
+}
 
     cmd = fopen( config_file->c_str(), "r" );
-    if( !cmd ) return;
+    if( !cmd ) { return;
+}
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
     fprintf(lst,"\nAdditional configuration commands were read from %s\n",
             config_file->c_str());
-    while( fgets(inrec,256,cmd)) fprintf(lst,"     %s",inrec);
+    while( fgets(inrec,256,cmd)) { fprintf(lst,"     %s",inrec);
+}
     fprintf(lst,"\n");
     fclose( cmd );
 
@@ -889,7 +916,8 @@ static void print_command_file( void )
 static void write_filelist_csv()
 {
     const std::unique_ptr<output_csv> csv = open_snap_output_csv("filelist");
-    if( ! csv ) return;
+    if( ! csv ) { return;
+}
     csv->writeHeader("id");
     csv->writeHeader("filename");
     csv->writeHeader("filetype");
@@ -930,7 +958,8 @@ static void write_filelist_csv()
 static void write_metadata_csv()
 {
     const std::unique_ptr<output_csv> csv = open_snap_output_csv("metadata");
-    if( ! csv ) return;
+    if( ! csv ) { return;
+}
     csv->writeHeader("code");
     csv->writeHeader("value");
     csv->writeHeader("comment");
@@ -1019,9 +1048,11 @@ static void write_metadata_csv()
         std::string vecformat;
         const auto addVecFormat = [&vecformat]( const bool selected, const std::string_view name )
         {
-            if( ! selected ) return;
+            if( ! selected ) { return;
+}
             // Skips the first hyphen
-            if( ! vecformat.empty() ) vecformat += '-';
+            if( ! vecformat.empty() ) { vecformat += '-';
+}
             vecformat += name;
         };
         addVecFormat( output_csv_veccomp, "components" );
@@ -1045,7 +1076,8 @@ static void write_metadata_csv()
 
 static void update_station_file( const std::string &filename)
 {
-    if( filename.empty() ) return;
+    if( filename.empty() ) { return;
+}
     if( write_station_file( PROGRAM, filename, PROGRAM_VERSION, run_time,
                             coord_precision, output_rejected_coordinates ) == OK )
     {
@@ -1083,7 +1115,8 @@ void dump_covariance_matrix( BINARY_FILE *b )
     int i;
     int nprm;
     bltmatrix *blt = lsq_get_covariance_matrix();
-    if( ! blt ) return;
+    if( ! blt ) { return;
+}
     create_section( b, "FULL_COVARIANCE");
     nprm = blt->nrow;
     dump_bltmatrix_dense_header( blt, b->f );
@@ -1101,7 +1134,8 @@ void dump_covariance_matrix( BINARY_FILE *b )
 void dump_cholesky_decomposition( BINARY_FILE *b )
 {
     bltmatrix *blt = lsq_get_decomposition();
-    if( blt == nullptr ) return;
+    if( blt == nullptr ) { return;
+}
     create_section( b, "CHOLESKI_DECOMPOSITION" );
     dump_bltmatrix(blt,b->f);
     end_section(b);
@@ -1118,8 +1152,9 @@ void dump_binary_data( BINARY_FILE *b )
     if( program_mode != DATA_CHECK )
     {
         dump_station_covariances(b);
-        if( output_relative_covariances )
+        if( output_relative_covariances ) {
             dump_relative_covariances(b,output_all_covariances);
+}
     }
     dump_filenames( b );
     dump_obs_classes( b );

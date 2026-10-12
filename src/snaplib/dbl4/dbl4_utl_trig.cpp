@@ -141,10 +141,12 @@ static short find_nearest( hTrigDef trig, double ptx, double pty )
 
     i0 = 0;
     x0 = xy[0];
-    if( ptx <= x0 ) return i0;
+    if( ptx <= x0 ) { return i0;
+}
     i1 = npts-1;
     x1 = xy[i1*2];
-    if( ptx >= x1 ) return i1;
+    if( ptx >= x1 ) { return i1;
+}
 
     while( i0 < i1-1 )
     {
@@ -313,7 +315,7 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
         get_point(trig,ptid,pp3);
     }
 
-    else do
+    else { do
         {
             if( maxiterations-- <= 0 )
             {
@@ -359,7 +361,8 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
                     dp3 = x*y3 - y*x3;
                 }
 
-                if( pt2id == 0 || pt3id == 0 ) continue;
+                if( pt2id == 0 || pt3id == 0 ) { continue;
+}
 
                 /* If the angle between the two points includes the test point,
                    check whether it is inside the triangle, and exit the loop.
@@ -372,8 +375,8 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
                     y3 -= y2;
                     x -= x2;
                     y -= y2;
-                    if (x3*y-y3*x >= 0) finished = 1;
-                    else
+                    if (x3*y-y3*x >= 0) { finished = 1;
+                    } else
                     {
                         ptid = pp1->opposite[i == 0 ? nnode-1 : i-1];
                         /* Check for flip-flopping across an edge */
@@ -403,6 +406,7 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
             }
         }
         while ( ! finished );
+}
     return STS_OK;
 }
 
@@ -437,7 +441,8 @@ static StatusType calc_triangle_value( hTrigDef trig, double x, double y,
     double m[3];
     double a;
 
-    for( i = 0; i < ndim; i++ ) value[i] = 0.0;
+    for( i = 0; i < ndim; i++ ) { value[i] = 0.0;
+}
 
     sts = find_triangle( trig, x, y, tr );
     if( sts != STS_OK ) RETURN_STATUS( sts );
@@ -518,7 +523,8 @@ static int check_header( hBinSrc binsrc)
     Endian endian = Endian::Little;
     version = 0;
     len = strlen( TRGDAT_FILE_HEADER_1 );
-    if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) return 0;
+    if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) { return 0;
+}
 
     if(  memcmp( buf, TRGDAT_FILE_HEADER_1, len ) == 0 )
     {
@@ -578,14 +584,18 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
 
     /*> Load the triangulation descriptive information */
 
-    if( sts == STS_OK )
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->desc1 );
-    if( sts == STS_OK )
+}
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->desc2 );
-    if( sts == STS_OK )
+}
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->desc3 );
-    if( sts == STS_OK )
+}
+    if( sts == STS_OK ) {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, trig->crdsys );
+}
 
     TRACE_TRIG(("create_trig_def: desc1      %s",trig->desc1.c_str()));
     TRACE_TRIG(("create_trig_def: desc2      %s",trig->desc2.c_str()));
@@ -595,19 +605,26 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
     /*> Load the index data from the binary source with utlBinSrcLoad8,
         utlBinSrcLoad4, utlBinSrcLoad2, and utlBinSrcLoadString */
 
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->miny)) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->maxy)) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->minx)) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->maxx)) );
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->miny)) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->maxy)) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->minx)) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(trig->maxx)) );
+}
 
     TRACE_TRIG(("create_trig_def: range %lf %lf %lf %lf",trig->minx,trig->maxx,
                 trig->miny,trig->maxy));
 
-    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+    if( sts == STS_OK ) { sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+}
     trig->npts = ival;
-    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+    if( sts == STS_OK ) { sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+}
     trig->ndim = ival;
-    if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, &ival4 );
+    if( sts == STS_OK ) { sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, &ival4 );
+}
     trig->narray = ival4;
 
     TRACE_TRIG(("create_trig_def: npts       %hd",trig->npts));
@@ -642,10 +659,14 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
         trig->topodata.resize( boost::numeric_cast<size_t>( trig->narray ) );
     }
 
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 2*trig->npts, (void *) (trig->ptxy.data()) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, trig->ndim*trig->npts, (void *) (trig->ptdata.data()) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, trig->npts, (void *) (trig->pttopoidx.data()) );
-    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, trig->narray, (void *) (trig->topodata.data()) );
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 2*trig->npts, (void *) (trig->ptxy.data()) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, trig->ndim*trig->npts, (void *) (trig->ptdata.data()) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, trig->npts, (void *) (trig->pttopoidx.data()) );
+}
+    if( sts == STS_OK ) { sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, trig->narray, (void *) (trig->topodata.data()) );
+}
 
     if( sts != STS_OK )
     {
@@ -679,9 +700,11 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
 static hTrigDef trig_def_from_handle( void *handle)
 {
     hTrigDef def;
-    if( ! handle ) return nullptr;
+    if( ! handle ) { return nullptr;
+}
     def = (hTrigDef) handle;
-    if( def->magic != (INT4) MAGIC_NUMBER ) return nullptr;
+    if( def->magic != (INT4) MAGIC_NUMBER ) { return nullptr;
+}
     return def;
 }
 
@@ -710,7 +733,8 @@ StatusType utlCreateTrig( hBinSrc binsrc, hTrig *trig)
     def=nullptr;
     *trig = nullptr;
     sts = create_trig_def( &def, binsrc );
-    if( sts == STS_OK ) *trig =  (void *) def;
+    if( sts == STS_OK ) { *trig =  (void *) def;
+}
     TRACE_TRIG(("utlCreateTrig %llX",reinterpret_cast<unsigned long long>(*trig)));
     return sts;
 }

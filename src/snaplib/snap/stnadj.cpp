@@ -40,7 +40,8 @@ int geoid_error_level = WARNING_ERROR;
 
 static void delete_stn_adjustment( station *st )
 {
-    if( st ) delete static_cast<stn_adjustment *>( st->hook );
+    if( st ) { delete static_cast<stn_adjustment *>( st->hook );
+}
 }
 
 static void create_stn_adjustment( station *st )
@@ -78,11 +79,14 @@ void set_stnadj_init_network( void )
 
 static void clear_stnadj_globals( void )
 {
-    if( net ) delete_network( net );
+    if( net ) { delete_network( net );
+}
     void *const obsmod=snap_obs_modifications( false );
 
-    if( obsmod ) set_obs_modifications_network( obsmod, nullptr );
-    if( stnrecode ) delete_stn_recode_map( stnrecode );
+    if( obsmod ) { set_obs_modifications_network( obsmod, nullptr );
+}
+    if( stnrecode ) { delete_stn_recode_map( stnrecode );
+}
     net = nullptr;
     stnrecode = nullptr;
     station_file.reset();
@@ -99,10 +103,12 @@ int read_station_file( const std::string &fname, const std::string &base_dir, co
 {
     int sts;
 
-    if( ! net ) clear_stnadj_globals();
+    if( ! net ) { clear_stnadj_globals();
+}
 
     std::string stnfile = build_filespec( base_dir, fname, "" );
-    if( !path_exists(stnfile ) ) stnfile = fname;
+    if( !path_exists(stnfile ) ) { stnfile = fname;
+}
 
     network *const stndata = new_network();
     switch( format )
@@ -135,11 +141,13 @@ int read_station_file( const std::string &fname, const std::string &base_dir, co
                 output_station_filespec = std::filesystem::path( stnfile ).replace_extension( NEWSTNFILE_EXT ).string();
             }
             net=stndata;
-            if( obsmod ) set_obs_modifications_network( obsmod, net );
+            if( obsmod ) { set_obs_modifications_network( obsmod, net );
+}
         }
         else
         {
-            if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
+            if( ! mergeopts ) { mergeopts = NW_MERGEOPT_ADDNEW;
+}
             sts=merge_network( net, stndata, mergeopts, mergedate, nullptr );
             delete_network(stndata);
         }
@@ -160,8 +168,10 @@ static bool skip_rejected;
 
 static int check_rejected( station *st )
 {
-    if( !skip_rejected ) return 1;
-    if( stnadj(st)->flag.rejected ) return 0;
+    if( !skip_rejected ) { return 1;
+}
+    if( stnadj(st)->flag.rejected ) { return 0;
+}
     return 1;
 }
 
@@ -213,17 +223,28 @@ static void dump_stnadj_flags( stn_adjustment *st, FILE *f )
 {
     unsigned int flag;
     flag = 0;
-    if( st->flag.adj_h )      flag += 1;
-    if( st->flag.adj_v )      flag += 2;
-    if( st->flag.float_h )    flag += 4;
-    if( st->flag.float_v)     flag += 8;
-    if( st->flag.observed )   flag += 16;
-    if( st->flag.ignored )    flag += 32;
-    if( st->flag.rejected )   flag += 64;
-    if( st->flag.autoreject ) flag += 128;
-    if( st->flag.noreorder  ) flag += 256;
-    if( st->flag.auto_h  ) flag += 512;
-    if( st->flag.auto_v  ) flag += 1024;
+    if( st->flag.adj_h ) {      flag += 1;
+}
+    if( st->flag.adj_v ) {      flag += 2;
+}
+    if( st->flag.float_h ) {    flag += 4;
+}
+    if( st->flag.float_v) {     flag += 8;
+}
+    if( st->flag.observed ) {   flag += 16;
+}
+    if( st->flag.ignored ) {    flag += 32;
+}
+    if( st->flag.rejected ) {   flag += 64;
+}
+    if( st->flag.autoreject ) { flag += 128;
+}
+    if( st->flag.noreorder  ) { flag += 256;
+}
+    if( st->flag.auto_h  ) { flag += 512;
+}
+    if( st->flag.auto_v  ) { flag += 1024;
+}
     fwrite( &flag, sizeof(flag), 1, f );
 }
 
@@ -292,9 +313,11 @@ int reload_stations( BINARY_FILE *b )
     net = new_network();
     sts = reload_network_from_bin( net, b );
 
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
-    if(find_section(b,"STNADJ") != OK ) return MISSING_DATA;
+    if(find_section(b,"STNADJ") != OK ) { return MISSING_DATA;
+}
 
     /* Reload the station definitions */
 

@@ -159,7 +159,8 @@ static missing_stn *get_missing_station( std::string_view code, int create )
 void set_accept_missing_station( std::string_view code )
 {
     missing_stn *ms=get_missing_station(code,1);
-    if( ms ) ms->quiet=true;
+    if( ms ) { ms->quiet=true;
+}
 }
 
 static int missing_station_id( std::string_view code )
@@ -177,7 +178,8 @@ static std::optional<std::string_view> missing_station_name( int id )
 {
     for( const missing_stn &station : missing )
     {
-        if( station.id == id ) return station.code;
+        if( station.id == id ) { return station.code;
+}
     }
     return std::nullopt;
 }
@@ -191,11 +193,13 @@ static void delete_missing_station_list( void )
 static void list_missing_stations( void )
 {
     char buf[80];
-    if( ! report_missing_stations ) return;
+    if( ! report_missing_stations ) { return;
+}
     const bool reportall=report_missing_stations == REPORT_MISSING_ALL;
     for( const missing_stn &station : missing )
     {
-        if( ! reportall && station.quiet ) continue;
+        if( ! reportall && station.quiet ) { continue;
+}
         sprintf(buf,"Station %-10s is not in the coordinate file.  Used %d times",
                 station.code.c_str(),station.refcount );
         handle_error(WARNING_ERROR, buf, NO_MESSAGE );
@@ -213,13 +217,17 @@ static void record_connections( survdata *sd )
     for( i=0; i < sd->nobs; i++ )
     {
         t = get_trgtdata(sd,i);
-        if( !t->to ) continue;
-        if( from && t->to ) add_connection( from, t->to );
-        if( !datatype[t->type].joinsgroup ) continue;
+        if( !t->to ) { continue;
+}
+        if( from && t->to ) { add_connection( from, t->to );
+}
+        if( !datatype[t->type].joinsgroup ) { continue;
+}
         for( i2 = i+1; i2<sd->nobs; i2++ )
         {
             t2 = get_trgtdata(sd, i2 );
-            if( t2->type == t->type && t2->to ) add_connection( t->to, t2->to );
+            if( t2->type == t->type && t2->to ) { add_connection( t->to, t2->to );
+}
         }
     }
 }
@@ -242,8 +250,10 @@ static void record_parameter_usage( survdata *sd )
         dt = datatype + type;
 
         count_obs( type, sd->file, sd->date, unused );
-        if( sd->from ) count_stn_obs( type, sd->from, unused );
-        if( t->to ) count_stn_obs( type, t->to, unused );
+        if( sd->from ) { count_stn_obs( type, sd->from, unused );
+}
+        if( t->to ) { count_stn_obs( type, t->to, unused );
+}
 
         /* If the observations could be used (no guarantee - stations
            may still be rejected) then note parameters that may be used */
@@ -269,8 +279,10 @@ static void record_parameter_usage( survdata *sd )
             {
                 obsdata *od;
                 od = & sd->obs.odata[i];
-                if( od->prm_id ) flag_param_used( od->prm_id );
-                if( t->type == ZD ) flag_param_used( od->refcoef );
+                if( od->prm_id ) { flag_param_used( od->prm_id );
+}
+                if( t->type == ZD ) { flag_param_used( od->refcoef );
+}
             }
             break;
 
@@ -307,7 +319,8 @@ static int split_obsdata_for_schreiber( survdata *sd )
         type = od->tgt.type;
         if( type == DR || type == HA )
         {
-            if( schtype != type && schtype >= 0 ) return 1;
+            if( schtype != type && schtype >= 0 ) { return 1;
+}
             schtype = type;
         }
     }
@@ -323,12 +336,14 @@ static void save_split_survdata( survdata *sd )
     int iobs, sobs, to;
     trgtdata *t;
 
-    for( iobs = 0; iobs< NOBSTYPE; iobs++ ) typesaved[iobs] = 0;
+    for( iobs = 0; iobs< NOBSTYPE; iobs++ ) { typesaved[iobs] = 0;
+}
 
     for( iobs = 0; iobs < sd->nobs; iobs++ )
     {
         t = get_trgtdata( sd, iobs );
-        if( typesaved[t->type] ) continue;
+        if( typesaved[t->type] ) { continue;
+}
         if( datatype[t->type].joinsgroup )
         {
             sobs = -1;
@@ -340,8 +355,10 @@ static void save_split_survdata( survdata *sd )
         }
         const int64_t loc = save_survdata_subset( sd, sobs, t->type );
         to = t->to;
-        if( sobs < 0 ) to = 0;
-        if( t->type == GB && sd->nobs == 1 ) to = t->to;
+        if( sobs < 0 ) { to = 0;
+}
+        if( t->type == GB && sd->nobs == 1 ) { to = t->to;
+}
         save_observation( sd->from, to, t->type, loc );
     }
 }
@@ -353,7 +370,8 @@ static void save_whole_survdata( survdata *sd )
     const int64_t loc = save_survdata( sd );
     to = 0;
     t = get_trgtdata( sd, 0 );
-    if( sd->nobs == 1 ) to = t->to;
+    if( sd->nobs == 1 ) { to = t->to;
+}
     save_observation( sd->from, to, t->type, loc );
 }
 
@@ -433,7 +451,8 @@ static int64_t snap_id( int type, int group_id, std::string_view code )
         id = find_station( net, code );
         if( id )
         {
-            if( ignored_station(id) ) id=IGNORE_ID;
+            if( ignored_station(id) ) { id=IGNORE_ID;
+}
         }
         else
         { 
@@ -492,7 +511,8 @@ static double snap_calc_value( int type, long id1, long id2 )
         double dist;
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
-        if( ! st1 || ! st2 ) return 0.0;
+        if( ! st1 || ! st2 ) { return 0.0;
+}
         dist = calc_distance( st1, 0.0, st2, 0.0, nullptr, nullptr );
         return dist;
     }
@@ -501,7 +521,8 @@ static double snap_calc_value( int type, long id1, long id2 )
         double dist;
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
-        if( ! st1 || ! st2 ) return 0.0;
+        if( ! st1 || ! st2 ) { return 0.0;
+}
         dist = calc_horizontal_distance( st1, st2, nullptr, nullptr );
         return dist;
     }

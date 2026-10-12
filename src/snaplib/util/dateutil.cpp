@@ -64,18 +64,21 @@ static void julian_date(long jdn, int *day, int *month, int *year)
         lday = 5 * lday - 3 - 153 * lmonth;
         lday = (lday + 5) / 5;
         lyear = 100 * lyear + temp_var;
-        if (lmonth < 10)
+        if (lmonth < 10) {
             lmonth += 3;
-        else
+        } else
         {
             lmonth -= 9;
             lyear++;
         }
     }
 
-    if( year ) *year = (int) lyear;
-    if( month) *month = (int) lmonth;
-    if( day ) *day = (int) lday;
+    if( year ) { *year = (int) lyear;
+}
+    if( month) { *month = (int) lmonth;
+}
+    if( day ) { *day = (int) lday;
+}
 }
 
 double snap_date( int year, int month, int day )
@@ -121,8 +124,10 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
     if( ! format )
     {
         double result=snap_datetime_parse(definition, "YMDhms");
-        if( ! result ) result=snap_datetime_parse(definition, "DMYhms");
-        if( ! result ) result=snap_datetime_parse(definition, "Y");
+        if( ! result ) { result=snap_datetime_parse(definition, "DMYhms");
+}
+        if( ! result ) { result=snap_datetime_parse(definition, "Y");
+}
         return result;
     }
 
@@ -145,16 +150,20 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
     /* For each field in the format */
     for( const char formatchar : *format )
     {
-        if( ISSPACE(formatchar)) continue;
+        if( ISSPACE(formatchar)) { continue;
+}
         const std::size_t idx = formatchars.find( formatchar );
-        if( idx == std::string_view::npos ) return 0.0;
+        if( idx == std::string_view::npos ) { return 0.0;
+}
 
         /* Find the beginning of the field */
 
         while( ! remaining.empty() )
         {
-            if( is_digit(remaining.front())) break;
-            if( idx == 1 && ISALNUM(remaining.front())) break;
+            if( is_digit(remaining.front())) { break;
+}
+            if( idx == 1 && ISALNUM(remaining.front())) { break;
+}
             remaining.remove_prefix( 1 );
         }
         std::string buffer;
@@ -170,8 +179,10 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
 
         while( ! remaining.empty() && ISALNUM(remaining.front()) && buffer.size() < nbuf )
         {
-            if( ! is_digit(remaining.front()) && ! isname) break;
-            if( is_digit(remaining.front()) && isname) break;
+            if( ! is_digit(remaining.front()) && ! isname) { break;
+}
+            if( is_digit(remaining.front()) && isname) { break;
+}
             buffer.push_back( remaining.front() );
             remaining.remove_prefix( 1 );
         }
@@ -181,9 +192,11 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
         }
         else if( isname )
         {
-            if( buffer.size() < 4 ) return 0.0;
+            if( buffer.size() < 4 ) { return 0.0;
+}
             const std::size_t monthpos = months.find( buffer.substr( 0, 4 ) );
-            if( monthpos == std::string_view::npos ) return 0.0;
+            if( monthpos == std::string_view::npos ) { return 0.0;
+}
             ymdhmse[idx] = static_cast<int>( monthpos/4+1 );
         }
         else
@@ -193,13 +206,15 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
     }
     if( ymdhmse[6] > 0 )
     {
-        if( ymdhmse[6] > 366 ) return 0.0;
+        if( ymdhmse[6] > 366 ) { return 0.0;
+}
         ymdhmse[1] = ymdhmse[2] = 1;
         ymdhmse[6] -= 1;
     }
     for( int i = 0; i < 5; i++ )
     {
-        if( ymdhmse[i] < minval[i] || ymdhmse[i] > maxval[i] ) return 0.0;
+        if( ymdhmse[i] < minval[i] || ymdhmse[i] > maxval[i] ) { return 0.0;
+}
     }
     return snap_datetime(ymdhmse[0],ymdhmse[1],ymdhmse[2],ymdhmse[3],ymdhmse[4],ymdhmse[5])+ymdhmse[6];
 }
@@ -282,9 +297,12 @@ void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour
     m = (int) snapdate;
     snapdate = (snapdate - m)*60;
     s = (int) snapdate;
-    if( hour ) *hour = h;
-    if( min ) *min = m;
-    if( sec ) *sec = s;
+    if( hour ) { *hour = h;
+}
+    if( min ) { *min = m;
+}
+    if( sec ) { *sec = s;
+}
 }
 
 

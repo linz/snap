@@ -47,7 +47,8 @@ ObsOptionsDialog::ObsOptionsDialog( wxHelpController *help )
     AddSpacer();
     AddNumberBox("O&ffset between observations", obsOffset, true, 1 );
     AddButtonsAndSize();
-    if( help ) SetupHelp( help,  HELPBASE "dlg_obs_display_options.html" );
+    if( help ) { SetupHelp( help,  HELPBASE "dlg_obs_display_options.html" );
+}
 }
 
 void ObsOptionsDialog::ReadData()

@@ -38,14 +38,16 @@ double dms_deg( DMS *dms )
 {
     double d;
     d = dms->deg + dms->min/60.0 + dms->sec/3600.0;
-    if( dms->neg ) d = -d;
+    if( dms->neg ) { d = -d;
+}
     return d;
 }
 
 DMS *deg_dms( double d, DMS *dms )
 {
     dms->neg = d<0.0;
-    if (dms->neg) d = -d;
+    if (dms->neg) { d = -d;
+}
     d -= (dms->deg = floor(d));
     d *= 60.0;
     d -= (dms->min = floor(d));
@@ -67,8 +69,10 @@ constexpr std::size_t maximumDegreeDigits = 4;
 
 DmsFormat::Components DmsFormat::_componentsFor( const int flags )
 {
-    if( flags & DMSF_FMT_DEG ) return Components::Degrees;
-    if( flags & DMSF_FMT_DM ) return Components::DegreesMinutes;
+    if( flags & DMSF_FMT_DEG ) { return Components::Degrees;
+}
+    if( flags & DMSF_FMT_DM ) { return Components::DegreesMinutes;
+}
     return Components::DegreesMinutesSeconds;
 }
 
@@ -85,9 +89,11 @@ int DmsFormat::_decimalPlacesFor( const int decimalPlaces, const Components comp
 
 double DmsFormat::_roundingOffsetFor( const int decimalPlaces, const Components components )
 {
-    if( components == Components::Degrees ) return 0.0;
+    if( components == Components::Degrees ) { return 0.0;
+}
     double offset = 0.5;
-    for( int i = decimalPlaces; i--; ) offset /= 10;
+    for( int i = decimalPlaces; i--; ) { offset /= 10;
+}
     return offset / (components == Components::DegreesMinutes ? 60.0 : 3600.0);
 }
 
@@ -96,8 +102,10 @@ DmsFormat::SignPlacement DmsFormat::_signPlacementFor(
     const std::optional<std::string_view> &positiveSign,
     const std::optional<std::string_view> &negativeSign )
 {
-    if( ! (flags & DMSF_FMT_PREFIX_HEM) ) return SignPlacement::Suffix;
-    if( positiveSign.value_or( "" ).empty() && negativeSign.value_or( "" ) == "-" ) return SignPlacement::LeadingMinus;
+    if( ! (flags & DMSF_FMT_PREFIX_HEM) ) { return SignPlacement::Suffix;
+}
+    if( positiveSign.value_or( "" ).empty() && negativeSign.value_or( "" ) == "-" ) { return SignPlacement::LeadingMinus;
+}
     return SignPlacement::Prefix;
 }
 
@@ -133,7 +141,8 @@ std::string DmsFormat::format( const double angle ) const
     const bool leadingMinus = negative && _signPlacement == SignPlacement::LeadingMinus;
 
     std::string text;
-    if( _signPlacement == SignPlacement::Prefix ) text += sign;
+    if( _signPlacement == SignPlacement::Prefix ) { text += sign;
+}
 
     if( _components == Components::Degrees )
     {
@@ -152,7 +161,8 @@ std::string DmsFormat::format( const double angle ) const
         const double lastComponent = std::max( lastFraction * 60.0 - lastOffset, 0.0 );
 
         std::string degreesText = (leadingMinus ? "-" : "") + std::to_string( degrees );
-        if( degreesText.size() < _degreeDigits ) degreesText.insert( 0, _degreeDigits - degreesText.size(), ' ' );
+        if( degreesText.size() < _degreeDigits ) { degreesText.insert( 0, _degreeDigits - degreesText.size(), ' ' );
+}
         text += degreesText + _afterDegrees;
         if( showsMinutes )
         {
@@ -162,7 +172,8 @@ std::string DmsFormat::format( const double angle ) const
         text += format_fixed( lastComponent, _decimalPlaces, lastWidth, '0' ) + (showsMinutes ? _afterSeconds : _afterMinutes);
     }
 
-    if( _signPlacement == SignPlacement::Suffix ) text += sign;
+    if( _signPlacement == SignPlacement::Suffix ) { text += sign;
+}
     return text;
 }
 

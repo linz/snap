@@ -45,7 +45,8 @@ ObsHighlightDialog::ObsHighlightDialog( wxHelpController *help ) :
     AddSpacer();
     AddNumberBox( "T&hreshold value", threshold, true, 2 );
     AddButtonsAndSize();
-    if( help ) SetupHelp( help,  HELPBASE "dlg_highlight_observations.html"  );
+    if( help ) { SetupHelp( help,  HELPBASE "dlg_highlight_observations.html"  );
+}
 }
 
 void ObsHighlightDialog::ReadData()

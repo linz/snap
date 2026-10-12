@@ -30,7 +30,8 @@ bool LineReader::endsWithNewline() const
 
 void LineReader::_loadLine()
 {
-    if( ! _lineDone || _inputEnded ) return;
+    if( ! _lineDone || _inputEnded ) { return;
+}
     _line.clear();
     _rest = std::string_view();
     _recordStart = 0;
@@ -76,13 +77,16 @@ TokenResult LineReader::readToken( const char separator, bool usespace, bool &is
     token.clear();
     isspace = false;
     _loadLine();
-    if( _inputEnded ) return TokenResult::EndOfInput;
+    if( _inputEnded ) { return TokenResult::EndOfInput;
+}
 
     _skipBlanks();
     usespace = usespace || separator == 0;
     std::string terminators( "\r" );
-    if( separator ) terminators += separator;
-    if( usespace ) terminators += blanks;
+    if( separator ) { terminators += separator;
+}
+    if( usespace ) { terminators += blanks;
+}
 
     FieldScanner scanner( _rest );
     char terminator = 0;
@@ -99,7 +103,8 @@ TokenResult LineReader::readToken( const char separator, bool usespace, bool &is
 
     const size_t stored = std::min( field->size(), maxLength );
     token.assign( field->substr( 0, stored ) );
-    while( ! token.empty() && is_blank( token.back() ) ) token.pop_back();
+    while( ! token.empty() && is_blank( token.back() ) ) { token.pop_back();
+}
 
     // A field that ended at a blank, when there is a separator, can be followed
     // by blanks and then the separator, which belongs to the same field break.
@@ -119,7 +124,9 @@ TokenResult LineReader::readToken( const char separator, bool usespace, bool &is
     }
     isspace = isspace && separator != 0;
 
-    if( stored > 0 ) return TokenResult::Found;
-    if( terminator == 0 && ! endsWithNewline() ) return TokenResult::EndOfInput;
+    if( stored > 0 ) { return TokenResult::Found;
+}
+    if( terminator == 0 && ! endsWithNewline() ) { return TokenResult::EndOfInput;
+}
     return TokenResult::EmptyField;
 }

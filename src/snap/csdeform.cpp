@@ -33,14 +33,16 @@ struct CrdsysDefModel
 
 static void delete_csdefmodel( CrdsysDefModel *model )
 {
-    if( model == nullptr ) return;
+    if( model == nullptr ) { return;
+}
     delete [] model->stdefs;
     delete model;
 }
 
 static CrdsysDefModel *init_csdefmodel()
 {
-    if( ! has_deformation_model( net->crdsys ) ) return nullptr;
+    if( ! has_deformation_model( net->crdsys ) ) { return nullptr;
+}
     CrdsysDefModel *model = new CrdsysDefModel;
     model->stdefs = nullptr;
     return model;
@@ -57,7 +59,8 @@ static int init_csdef_deformation( void *deformation )
     char buf[128];
     CrdsysDefModel *model = (CrdsysDefModel *) deformation;
 
-    if( ! model ) return 0;
+    if( ! model ) { return 0;
+}
 
     /* Allocate space for a set of station initial values  */
 
@@ -114,7 +117,8 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
     CrdsysDefModel *model = (CrdsysDefModel *) deformation;
 
     denu[0] = denu[1] = denu[2] = 0.0;
-    if( ! model ) return OK;
+    if( ! model ) { return OK;
+}
 
     stnid = station_id( net, st );
     std = model->stdefs+stnid;
@@ -153,7 +157,8 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
 
 static int print_csdef( void *deformation, FILE *out, const std::string_view prefix )
 {
-    if( ! deformation ) return OK;
+    if( ! deformation ) { return OK;
+}
     fwrite( prefix.data(), 1, prefix.size(), out );
     fputs("Applying coordinate system deformation model\n",out);
     output_string_def os;
@@ -165,7 +170,8 @@ static int print_csdef( void *deformation, FILE *out, const std::string_view pre
 static int delete_csdef( void *deformation )
 {
     CrdsysDefModel *model = (CrdsysDefModel *) deformation;
-    if( model ) delete_csdefmodel( model );
+    if( model ) { delete_csdefmodel( model );
+}
     return OK;
 }
 

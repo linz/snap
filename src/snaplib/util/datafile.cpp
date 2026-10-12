@@ -46,7 +46,8 @@ static int default_reclen_capacity = 256;
 int DATAFILE::default_reclen( int newlen )
 {
     const int oldlen = default_reclen_capacity;
-    if( newlen > 80 ) default_reclen_capacity = newlen;
+    if( newlen > 80 ) { default_reclen_capacity = newlen;
+}
     return oldlen;
 }
 
@@ -109,7 +110,8 @@ std::unique_ptr<DATAFILE> DATAFILE::open( std::string_view fname, std::string_vi
 
 DATAFILE::~DATAFILE()
 {
-    if( _f ) fclose( _f );
+    if( _f ) { fclose( _f );
+}
 }
 
 void DATAFILE::start_scanner()
@@ -136,7 +138,8 @@ int DATAFILE::skip_to_blank_line()
         if( c == '\n' )
         {
             _lineno++;
-            if( blank ) return OK;
+            if( blank ) { return OK;
+}
             blank = true;
         }
         else if( ! ISSPACEZ(c) )
@@ -156,9 +159,11 @@ static bool append_line( FILE *f, std::string &text )
     while( fgets( chunk, sizeof( chunk ), f ) )
     {
         const size_t len = strlen( chunk );
-        if( ! len ) return true;
+        if( ! len ) { return true;
+}
         text.append( chunk, len );
-        if( chunk[len-1] == '\n' ) return true;
+        if( chunk[len-1] == '\n' ) { return true;
+}
     }
     return false;
 }
@@ -181,17 +186,21 @@ int DATAFILE::read_record()
         while ( continued && ! eof )
         {
             const size_t lineoffset = _inrec.size();
-            if( ! append_line( _f, _inrec ) ) eof = true;
+            if( ! append_line( _f, _inrec ) ) { eof = true;
+}
             _lineno++;
-            if( ! _reclineno ) _reclineno = _lineno;
+            if( ! _reclineno ) { _reclineno = _lineno;
+}
             // Remove everything after a comment character
             if( _comment_char )
             {
                 const size_t end = _inrec.find( _comment_char, lineoffset );
-                if( end != std::string::npos ) _inrec.erase( end );
+                if( end != std::string::npos ) { _inrec.erase( end );
+}
             }
             // Trim whitespace
-            while( _inrec.size() > lineoffset && ISSPACEZ( _inrec.back() ) ) _inrec.pop_back();
+            while( _inrec.size() > lineoffset && ISSPACEZ( _inrec.back() ) ) { _inrec.pop_back();
+}
             // Check for line continuation
             const size_t nch = _inrec.size() - lineoffset;
             if( nch >= 2 && _inrec.back() == _continuation_char && ISSPACEZ( _inrec[_inrec.size()-2] ) )
@@ -204,7 +213,8 @@ int DATAFILE::read_record()
             }
         }
         // Retrim in case continuation only adds blanks
-        while( _inrec.size() > 1 && ISSPACEZ( _inrec.back() ) ) _inrec.pop_back();
+        while( _inrec.size() > 1 && ISSPACEZ( _inrec.back() ) ) { _inrec.pop_back();
+}
     }
 
     start_scanner();
@@ -220,7 +230,8 @@ int DATAFILE::error( int sts, std::string_view errmsg )
     }
     location += "File: " + _fname.substr( 0, MAX_FILENAME_LEN );
     handle_error( sts, errmsg, location );
-    if( sts >= WARNING_ERROR ) _errcount++;
+    if( sts >= WARNING_ERROR ) { _errcount++;
+}
     return sts;
 }
 

@@ -335,18 +335,21 @@ static int setup_dxf_layers( void )
     int nused = 0;
     clear_dxf_layers();
     const int npen = pen_count();
-    if( npen <= 0 ) return nused;
+    if( npen <= 0 ) { return nused;
+}
     layer_name.assign( npen+1, std::string() );
     layer_name[0] = "ANNOTATION";
     nused = 1;
     for( int i=1; i<=npen; i++)
     {
         const std::string &name = pen_name(i-1);
-        if( name.empty() || ! pen_has_colour(i-1) ) continue;
+        if( name.empty() || ! pen_has_colour(i-1) ) { continue;
+}
         nused++;
         std::string &layer = layer_name[i];
         layer = boost::algorithm::to_upper_copy( name );
-        if( layer == "TEXT" ) text_layer=i;
+        if( layer == "TEXT" ) { text_layer=i;
+}
         boost::algorithm::replace_all( layer, " ", "_" );
         for( int j = 0; j < i; j++ )
         {
@@ -444,7 +447,8 @@ int open_dxf_file( const std::string &dxfname )
         {
             unsigned char red, green, blue;
             int colourid = 1;
-            if( layer_name[i].empty() ) continue;
+            if( layer_name[i].empty() ) { continue;
+}
             if( i > 0 )
             {
                 get_pen_colour( i-1, red, green, blue );
@@ -547,7 +551,8 @@ static long write_dxf_text( double x, double y, int pen, double size,
                             double angle, const std::string &text )
 {
     long id;
-    if( !dxf ) return 0;
+    if( !dxf ) { return 0;
+}
     end_line();
     set_layer( pen );
 
@@ -563,7 +568,8 @@ static long write_dxf_text( double x, double y, int pen, double size,
 static long write_dxf_circle( double x, double y, double rad, int pen )
 {
     long id;
-    if( !dxf ) return 0;
+    if( !dxf ) { return 0;
+}
     end_line();
     set_layer( pen );
     fprintf(dxf,"  0\nCIRCLE\n  8\n%s\n 62\n256\n",cur_layer.c_str());
@@ -577,7 +583,8 @@ static long write_dxf_circle( double x, double y, double rad, int pen )
 static long write_dxf_blockref( double x, double y, const std::string &blkname, double blocksize, int pen )
 {
     long id;
-    if( !dxf ) return 0;
+    if( !dxf ) { return 0;
+}
     end_line();
     set_layer( pen );
 
@@ -669,7 +676,8 @@ static void dxf_line( void *, double x, double y, int pen, int )
         write_dxf_point( x, y, pen == CONTINUE_LINE ? 0 : pen + 1 );
         return;
     }
-    if( pen != CONTINUE_LINE ) lastPen = pen + 1;
+    if( pen != CONTINUE_LINE ) { lastPen = pen + 1;
+}
     ntrpt = AddTrimmerPoint( &tr, x, y, pen == CONTINUE_LINE  ? 0 : 1 );
     while( ntrpt-- )
     {
@@ -712,9 +720,11 @@ static void dxf_ellipse( void *, double x, double y, double a, double b, double 
     {
         ai = sqrt( 8.0 * sep / rad );
     }
-    if( ai < MININC ) ai = MININC;
+    if( ai < MININC ) { ai = MININC;
+}
     ncd = ceil( 2.0*PI / ai );
-    if( ncd < 1 ) ncd = 1;
+    if( ncd < 1 ) { ncd = 1;
+}
     ai = 2.0*PI/ncd;
     ca = 1.0;
     sa = 0.0;
@@ -746,7 +756,8 @@ static void dxf_symbol( void *, double px, double py, int pen, int symbol )
 
 int close_dxf_file()
 {
-    if( !dxf ) return FILE_OPEN_ERROR;
+    if( !dxf ) { return FILE_OPEN_ERROR;
+}
     end_line();
     fprintf(dxf,"  0\nENDSEC\n  0\nEOF\n");
     fclose(dxf);
@@ -781,7 +792,8 @@ void write_dxf_title_block( map_plotter * )
     write_dxf_point( plot_emin, plot_nmin, 0 );
 
     size = stn_symbol_size;
-    if( size <= 0.0 ) size = 10.0;
+    if( size <= 0.0 ) { size = 10.0;
+}
     size *= 1.5;
     spacing = - size * 1.5;
 
@@ -876,7 +888,8 @@ int plot_dxf( void )
     plotter.symbol_size_func = nullptr;
 
     pconn_option = merge_common_obs;
-    if( show_oneway_obs ) pconn_option |= PCONN_SHOW_ONEWAY_OBS;
+    if( show_oneway_obs ) { pconn_option |= PCONN_SHOW_ONEWAY_OBS;
+}
     data_offset = calc_obs_offset();
 
     SetTrimmerExtents( &tr, plot_emin, plot_nmin, plot_emax, plot_nmax );

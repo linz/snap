@@ -41,7 +41,8 @@ snap_data_type *snap_data_type_from_id( int idtype )
     if( ! init )
     {
         init = true;
-        for( int i = 0; i < NOBSTYPE; i++ ) snaptypebyid[i] = nullptr;
+        for( int i = 0; i < NOBSTYPE; i++ ) { snaptypebyid[i] = nullptr;
+}
 
         for( snap_data_type *sd = snap_type; sd->type != -1; sd++ )
         {

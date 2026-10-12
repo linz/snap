@@ -50,14 +50,16 @@ struct rf_grid_def
 
 static rf_grid_def *rf_grid_create( const std::string &filename, int type )
 {
-    if( type != SNAP2D_GRID ) return nullptr;
+    if( type != SNAP2D_GRID ) { return nullptr;
+}
     return new rf_grid_def( filename, type );
 }
 
 static void rf_grid_open_file( rf_grid_def *gd )
 {
     grid_def *grid = nullptr;
-    if( gd->status != OK ) return;
+    if( gd->status != OK ) { return;
+}
     grd_open_grid_file(gd->filename,2,&grid);
     if( grid )
     {
@@ -72,8 +74,10 @@ static void rf_grid_open_file( rf_grid_def *gd )
 static void rf_grid_delete( void *pgd )
 {
     rf_grid_def *gd = (rf_grid_def *) pgd;
-    if( ! gd ) return;
-    if( gd->grid ) grd_delete_grid( gd->grid );
+    if( ! gd ) { return;
+}
+    if( gd->grid ) { grd_delete_grid( gd->grid );
+}
     delete gd;
 }
 
@@ -115,11 +119,15 @@ static int rf_grid_xyz_to_std( ref_frame *rf, double xyz[3], double date )
     double dllh[3];
     int sts;
     ref_frame_func *rff;
-    if( ! rf->func ) return INVALID_DATA;
+    if( ! rf->func ) { return INVALID_DATA;
+}
     gd = (rf_grid_def *) rf->func->data;
-    if( ! gd ) return INVALID_DATA;
-    if( gd->status == OK && ! gd->grid ) rf_grid_open_file( gd );
-    if( gd->status != OK ) return gd->status;
+    if( ! gd ) { return INVALID_DATA;
+}
+    if( gd->status == OK && ! gd->grid ) { rf_grid_open_file( gd );
+}
+    if( gd->status != OK ) { return gd->status;
+}
     xyz_to_llh( rf->el, xyz, llh );
     sts = grd_calc_linear( gd->grid, llh[CRD_LON]*RTOD, llh[CRD_LAT]*RTOD, dllh );
     if( sts == OK )
@@ -144,11 +152,15 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
     double lat, lon;
     int sts;
     ref_frame_func *rff;
-    if( ! rf->func ) return INVALID_DATA;
+    if( ! rf->func ) { return INVALID_DATA;
+}
     gd = (rf_grid_def *) rf->func->data;
-    if( ! gd ) return INVALID_DATA;
-    if( gd->status == OK && ! gd->grid ) rf_grid_open_file( gd );
-    if( gd->status != OK ) return gd->status;
+    if( ! gd ) { return INVALID_DATA;
+}
+    if( gd->status == OK && ! gd->grid ) { rf_grid_open_file( gd );
+}
+    if( gd->status != OK ) { return gd->status;
+}
     rff = rf->func;
     rf->func = nullptr;
     std_to_xyz( rf, xyz, date );
@@ -157,11 +169,13 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
     lon = llh[CRD_LON]*RTOD;
     lat = llh[CRD_LAT]*RTOD;
     sts = grd_calc_linear( gd->grid, lon, lat, dllh );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
     lon -= dllh[CRD_LON];
     lat -= dllh[CRD_LAT];
     sts = grd_calc_linear( gd->grid, lon, lat, dllh );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
     llh[CRD_LON] -= dllh[CRD_LON]*DTOR;
     llh[CRD_LAT] -= dllh[CRD_LAT]*DTOR;
     llh_to_xyz( rf->el, llh, xyz, nullptr, nullptr );
@@ -171,11 +185,14 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
 ref_frame_func *create_rf_grid_func( const std::string &type, const std::string &filename, const std::string &description )
 {
     int gridtype = NULL_GRID;
-    if( boost::algorithm::iequals(type,"SNAP2D") ) gridtype = SNAP2D_GRID;
+    if( boost::algorithm::iequals(type,"SNAP2D") ) { gridtype = SNAP2D_GRID;
+}
     void *pgd = rf_grid_create( filename, gridtype );
-    if( ! pgd ) return nullptr;
+    if( ! pgd ) { return nullptr;
+}
     std::optional<std::string> desc;
-    if( ! description.empty() ) desc = description;
+    if( ! description.empty() ) { desc = description;
+}
     return new ref_frame_func( "GRID", desc, pgd, rf_grid_delete, rf_grid_describe,
                                 rf_grid_copy, rf_grid_identical, rf_grid_xyz_to_std, rf_grid_std_to_xyz );
 }

@@ -46,7 +46,8 @@ static bool load_field( FILE *bin, T &value )
 
 grid_def::~grid_def()
 {
-    if( bin ) fclose( bin );
+    if( bin ) { fclose( bin );
+}
     delete[] rows;
     for( int i = 0; i++ < ncache;  )
     {
@@ -65,10 +66,13 @@ grid_def::~grid_def()
 static std::optional<std::string> load_string( FILE *bin )
 {
     short len;
-    if( !fread( &len, sizeof(len), 1, bin ) ) return std::nullopt;
-    if( !len ) return std::nullopt;
+    if( !fread( &len, sizeof(len), 1, bin ) ) { return std::nullopt;
+}
+    if( !len ) { return std::nullopt;
+}
     std::string s( len, '\0' );
-    if( !fread( s.data(), len, 1, bin ) ) return std::nullopt;
+    if( !fread( s.data(), len, 1, bin ) ) { return std::nullopt;
+}
     // The text is stored as a C string, so drop the terminator and anything after it
     s.resize( std::char_traits<char>::length( s.c_str() ) );
     return s;
@@ -122,8 +126,10 @@ static int check_header( FILE *bin, long *indexloc )
     int iloc;
     version = 0;
     len = strlen( GRID_FILE_HEADER_1 );
-    if( ! fread( buf, len, 1, bin ) ) return 0;
-    if( ! fread(&iloc, sizeof(iloc), 1, bin ) ) return 0;
+    if( ! fread( buf, len, 1, bin ) ) { return 0;
+}
+    if( ! fread(&iloc, sizeof(iloc), 1, bin ) ) { return 0;
+}
     *indexloc = iloc;
 
     if(  memcmp( buf, GRID_FILE_HEADER_1, len ) == 0 )
@@ -138,7 +144,8 @@ static int check_header( FILE *bin, long *indexloc )
     {
         version = 3;
     }
-    if( !indexloc ) version = 0;
+    if( !indexloc ) { version = 0;
+}
     return version;
 }
 
@@ -149,7 +156,8 @@ static int check_header( FILE *bin, long *indexloc )
 static int create_grid_def( grid_def **defr, const std::string &filename, short dimension )
 {
     FILE *bin = fopen( filename.c_str(), "rb" );
-    if( !bin ) return FILE_OPEN_ERROR;
+    if( !bin ) { return FILE_OPEN_ERROR;
+}
     long indexloc;
     int version = check_header( bin, &indexloc );
     if( ! version ) { fclose(bin); return INVALID_DATA; }
@@ -219,12 +227,14 @@ static int load_row1( grid_def *def, long *data )
 
     /* Format 1 rows - simply held as an array of shorts */
 
-    if ( fread( data, sizeof(short), def->rowsize, def->bin ) != (size_t) def->rowsize ) return INVALID_DATA;
+    if ( fread( data, sizeof(short), def->rowsize, def->bin ) != (size_t) def->rowsize ) { return INVALID_DATA;
+}
     sdata = (short *) data;
     for( i = def->rowsize; i-- > 0; )
     {
         long v = sdata[i];
-        if( v == 0x7FFF ) v = def->undef;
+        if( v == 0x7FFF ) { v = def->undef;
+}
         data[i] = v;
     }
 
@@ -266,7 +276,8 @@ static short load_row2_dim( grid_def *def, long *data )
 
     while(cont)
     {
-        if( ! load_field( def->bin, fmt ) ) return INVALID_DATA;
+        if( ! load_field( def->bin, fmt ) ) { return INVALID_DATA;
+}
 
         /* subset=1 means that imin and imax are specified, this isn't the
            whole row (or rest of the row) */
@@ -281,19 +292,22 @@ static short load_row2_dim( grid_def *def, long *data )
            differences, or second differences */
 
         dif = fmt>>2 & 3;
-        if( dif == 3 ) return INVALID_DATA;
+        if( dif == 3 ) { return INVALID_DATA;
+}
 
         /* Bytes is the number of bytes to represent the each value/difference
           in the row, 1, 2, or 4 */
 
         bytes = fmt >> 4;
-        if( bytes != 1 && bytes != 2 && bytes != 4 ) return INVALID_DATA;
+        if( bytes != 1 && bytes != 2 && bytes != 4 ) { return INVALID_DATA;
+}
 
         /* Doesn't make sense if this is continued (followed by another section),
            but not flagged as subset, so we use this as flag that all remaining
            values are undefined */
 
-        if( cont && ! subset ) break;
+        if( cont && ! subset ) { break;
+}
 
         /* Get the first and last value for this section */
 
@@ -303,10 +317,14 @@ static short load_row2_dim( grid_def *def, long *data )
 
         if ( subset == 1 )
         {
-            if( ! load_field( def->bin, imin ) ) return INVALID_DATA;
-            if( ! load_field( def->bin, imax ) ) return INVALID_DATA;
-            if( imin < i0  ) return INVALID_DATA;
-            if( imax < imin || imax >= def->ngrdx ) return INVALID_DATA;
+            if( ! load_field( def->bin, imin ) ) { return INVALID_DATA;
+}
+            if( ! load_field( def->bin, imax ) ) { return INVALID_DATA;
+}
+            if( imin < i0  ) { return INVALID_DATA;
+}
+            if( imax < imin || imax >= def->ngrdx ) { return INVALID_DATA;
+}
         }
 
         undef2 = (1L << (bytes*8-1))-1;
@@ -316,7 +334,8 @@ static short load_row2_dim( grid_def *def, long *data )
 
         if( imin > i0 )
         {
-            for( i = i0; i < imin; i++, data += ndim ) (*data) = undef;
+            for( i = i0; i < imin; i++, data += ndim ) { (*data) = undef;
+}
         }
 
         /* If first differences read first value, if second differences read
@@ -325,11 +344,13 @@ static short load_row2_dim( grid_def *def, long *data )
         d1 = d2 = 0;
         if( dif > 0 )
         {
-            if( ! load_field( def->bin, d1 ) ) return INVALID_DATA;
+            if( ! load_field( def->bin, d1 ) ) { return INVALID_DATA;
+}
         }
         if( dif > 1 )
         {
-            if( ! load_field( def->bin, d2 ) ) return INVALID_DATA;
+            if( ! load_field( def->bin, d2 ) ) { return INVALID_DATA;
+}
         }
 
         /* Allocate a buffer for reading if not already don.  Make this
@@ -350,7 +371,8 @@ static short load_row2_dim( grid_def *def, long *data )
         /* Read the values from the file */
 
         i = imax+1-imin;
-        if( fread(def->loadbuffer,bytes,i,def->bin) != (size_t) i) return INVALID_DATA;
+        if( fread(def->loadbuffer,bytes,i,def->bin) != (size_t) i) { return INVALID_DATA;
+}
         if( bytes == 1 )
         {
             pc = (signed char *) def->loadbuffer;
@@ -420,7 +442,8 @@ static short load_row2( grid_def *def, long *data )
     for( idim = 0; idim < ndim; idim++ )
     {
         sts = load_row2_dim( def, data+idim);
-        if( sts != OK ) return sts;
+        if( sts != OK ) { return sts;
+}
     }
     return OK;
 }
@@ -449,7 +472,8 @@ static long *get_row( grid_def *def, short lat )
                 cr->next->prev = cr;
             }
             def->cache_mru = cr;
-            if( !def->cache_lru ) def->cache_lru = cr;
+            if( !def->cache_lru ) { def->cache_lru = cr;
+}
         }
         else
         {
@@ -462,12 +486,14 @@ static long *get_row( grid_def *def, short lat )
         if( def->rowfmt == 1 )
         {
             sts = load_row1( def, cr->data );
-            if( sts != OK ) return nullptr;
+            if( sts != OK ) { return nullptr;
+}
         }
         else
         {
             sts = load_row2( def, cr->data );
-            if( sts != OK ) return nullptr;
+            if( sts != OK ) { return nullptr;
+}
         }
     }
     if( def->cache_mru != cr )
@@ -491,17 +517,21 @@ static long *get_row( grid_def *def, short lat )
 
 static int calc_grid_cell_xy( grid_def*def, double x, double y, double *cx, double *cy, short *nx, short *ny )
 {
-    if ( y < def->miny || y > def->maxy ) return INVALID_DATA;
+    if ( y < def->miny || y > def->maxy ) { return INVALID_DATA;
+}
     *cy = (y-def->miny)/def->yres;
     *ny = (short) *cy;
     x = (x-def->minx);
     if( def->latlon )
     {
         int maxfix=5;
-        while( x > 360.0 && maxfix-- > 0 ) x -= 360.0;
-        while( x < 0.0 && maxfix-- > 0 ) x += 360.0;
+        while( x > 360.0 && maxfix-- > 0 ) { x -= 360.0;
+}
+        while( x < 0.0 && maxfix-- > 0 ) { x += 360.0;
+}
     }
-    if( x < 0 || x > (def->maxx-def->minx)) return INVALID_DATA;
+    if( x < 0 || x > (def->maxx-def->minx)) { return INVALID_DATA;
+}
     *cx = x/def->xres;
     *nx = (short) *cx;
     return OK;
@@ -531,36 +561,45 @@ static int calc_grid_cubic( grid_def *def, double x, double y, double *value )
     for( v = 0; v < def->ngrdval; v++ ) { value[v] = 0; }
 
     sts=calc_grid_cell_xy( def, x, y, &x, &y, &nx, &ny );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
-    if( ny < 1 || ny+2 >= def->ngrdy ) return INVALID_DATA;
-    if( !def->global && (nx < 1 || nx+2 >= def->ngrdx )) return INVALID_DATA;
+    if( ny < 1 || ny+2 >= def->ngrdy ) { return INVALID_DATA;
+}
+    if( !def->global && (nx < 1 || nx+2 >= def->ngrdx )) { return INVALID_DATA;
+}
 
     calc_cubic_factors( y-ny, yfactor );
     calc_cubic_factors( x-nx, xfactor );
     ny--;
-    if( nx ) nx--; else nx = def->ngrdx-1;
+    if( nx ) { nx--; } else { nx = def->ngrdx-1;
+}
     for( i = 0; i < 4; i++ )
     {
         xrow[i] = nx*def->ngrdval;
         nx++;
-        if( nx == def->ngrdx ) nx = 0;
+        if( nx == def->ngrdx ) { nx = 0;
+}
     }
     for( i = 0; i < 4; i++, ny++ )
     {
         long *row;
-        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) continue;
+        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) { continue;
+}
         row = get_row( def, ny );
-        if( !row ) return INVALID_DATA;
+        if( !row ) { return INVALID_DATA;
+}
         for( v = 0; v < def->ngrdval; v++ )
         {
             double sum = 0.0;
             for( j = 0; j < 4; j++ )
             {
                 long rv;
-                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) continue;
+                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) { continue;
+}
                 rv = row[xrow[j]+v];
-                if( rv == def->undef ) return MISSING_DATA;
+                if( rv == def->undef ) { return MISSING_DATA;
+}
                 sum += rv*xfactor[j];
             }
             value[v] += sum * yfactor[i];
@@ -595,10 +634,13 @@ static int calc_grid_linear( grid_def *def, double x, double y, double *value )
 
     
     sts=calc_grid_cell_xy( def, x, y, &x, &y, &nx, &ny );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
-    if( ny < 0 || ny+1 >= def->ngrdy ) return INVALID_DATA;
-    if( !def->global && (nx < 0 || nx+1 >= def->ngrdx )) return INVALID_DATA;
+    if( ny < 0 || ny+1 >= def->ngrdy ) { return INVALID_DATA;
+}
+    if( !def->global && (nx < 0 || nx+1 >= def->ngrdx )) { return INVALID_DATA;
+}
 
     calc_linear_factors( y-ny, yfactor );
     calc_linear_factors( x-nx, xfactor );
@@ -607,23 +649,28 @@ static int calc_grid_linear( grid_def *def, double x, double y, double *value )
     {
         xrow[i] = nx*def->ngrdval;
         nx++;
-        if( nx == def->ngrdx ) nx = 0;
+        if( nx == def->ngrdx ) { nx = 0;
+}
     }
     for( i = 0; i < 2; i++, ny++ )
     {
         long *row;
-        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) continue;
+        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) { continue;
+}
         row = get_row( def, ny );
-        if( !row ) return INVALID_DATA;
+        if( !row ) { return INVALID_DATA;
+}
         for( v = 0; v < def->ngrdval; v++ )
         {
             double sum = 0.0;
             for( j = 0; j < 2; j++ )
             {
                 long rv;
-                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) continue;
+                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) { continue;
+}
                 rv = row[xrow[j]+v];
-                if( rv == def->undef ) return MISSING_DATA;
+                if( rv == def->undef ) { return MISSING_DATA;
+}
                 sum += rv*xfactor[j];
             }
             value[v] += sum * yfactor[i];
@@ -643,7 +690,8 @@ int grd_open_grid_file( const std::string &filename, int dimension, grid_def **g
     short status;
     *grid = nullptr;
     status = create_grid_def(&def,filename,dimension);
-    if( status != OK ) return status;
+    if( status != OK ) { return status;
+}
     *grid = def;
     return OK;
 }
@@ -665,7 +713,8 @@ int grd_calc_linear( grid_def *grd, double x, double y, double *value )
 
 const std::optional<std::string> &grid_def::title( int titleno ) const
 {
-    if( titleno > 3 ) titleno = 3;
+    if( titleno > 3 ) { titleno = 3;
+}
     return titleno == 3 ? desc3 : titleno == 2 ? desc2 : desc1;
 }
 
@@ -705,8 +754,9 @@ void grd_print_grid_data( grid_def *grd, FILE *out, char showGrid )
                 for( k = 0; k < grd->ngrdval; k++ )
                 {
                     long v = (*data);
-                    if( v == grd->undef ) fprintf(out,"     *   ");
-                    else fprintf( out,"  %8.4lf", (double)(v*grd->vres) );
+                    if( v == grd->undef ) { fprintf(out,"     *   ");
+                    } else { fprintf( out,"  %8.4lf", (double)(v*grd->vres) );
+}
                     data++;
                 }
                 fprintf(out,"\n");

@@ -75,15 +75,18 @@ constexpr size_t RFTRANS_DISK_FIELD_COUNT = sizeof(RFTRANS_DISK_FIELDS) / sizeof
 // reach exactly the end of the struct (there's nothing tracked after it).
 static constexpr bool rftrans_disk_fields_contiguous()
 {
-    if( RFTRANS_DISK_FIELDS[0].offset != 0 ) return false;
+    if( RFTRANS_DISK_FIELDS[0].offset != 0 ) { return false;
+}
     for( size_t i = 0; i + 1 < RFTRANS_DISK_FIELD_COUNT; ++i )
     {
         const DiskField &field = RFTRANS_DISK_FIELDS[i];
-        if( field.offset == offsetof(RfTransformationData, prmId) ) continue;
+        if( field.offset == offsetof(RfTransformationData, prmId) ) { continue;
+}
 
         const size_t end = field.offset + field_in_memory_size(field.kind) * field.count;
         const size_t expected_next = round_up(end, field_in_memory_alignment(RFTRANS_DISK_FIELDS[i+1].kind));
-        if( expected_next != RFTRANS_DISK_FIELDS[i+1].offset ) return false;
+        if( expected_next != RFTRANS_DISK_FIELDS[i+1].offset ) { return false;
+}
     }
     const DiskField &last = RFTRANS_DISK_FIELDS[RFTRANS_DISK_FIELD_COUNT-1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind) * last.count;
@@ -184,11 +187,13 @@ int reload_rftransformations( BINARY_FILE *b )
     int nrf;
     int irf;
 
-    if(find_section(b,"RFTRANSFORMATIONS") != OK ) return MISSING_DATA;
+    if(find_section(b,"RFTRANSFORMATIONS") != OK ) { return MISSING_DATA;
+}
 
     /* Dump the station definitions */
 
-    if( fread(&nrf, sizeof(nrf), 1, b->f ) != 1 || nrf < 0 ) return INVALID_DATA;
+    if( fread(&nrf, sizeof(nrf), 1, b->f ) != 1 || nrf < 0 ) { return INVALID_DATA;
+}
 
     clear_rftrans_list();
     for( irf = 0; irf++ < nrf;  )
@@ -203,8 +208,10 @@ int reload_rftransformations( BINARY_FILE *b )
         read_disk_field( b->f, FieldKind::Int32, id );
         read_rftrans_fixed_width( b->f, data );
         std::string name = reload_string( b->f );
-        if( name.empty() ) return INVALID_DATA;
-        if( ! add_rftrans( id, std::move( name ), data ) ) return INVALID_DATA;
+        if( name.empty() ) { return INVALID_DATA;
+}
+        if( ! add_rftrans( id, std::move( name ), data ) ) { return INVALID_DATA;
+}
     }
     return check_end_section( b );
 }

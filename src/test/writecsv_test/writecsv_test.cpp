@@ -25,14 +25,16 @@ int failures = 0;
 
 void check_equal( const std::string &actual, const std::string &expected, const std::string &description )
 {
-    if( actual == expected ) return;
+    if( actual == expected ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
 }
 
 void check( const bool condition, const std::string &description )
 {
-    if( condition ) return;
+    if( condition ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << "\n";
 }
@@ -59,7 +61,8 @@ std::string write_file( const bool tab_delimited, const std::function<void( outp
     content << in.rdbuf();
     std::string text = content.str();
     std::string::size_type cr;
-    while( (cr = text.find( '\r' )) != std::string::npos ) text.erase( cr, 1 );
+    while( (cr = text.find( '\r' )) != std::string::npos ) { text.erase( cr, 1 );
+}
     return text;
 }
 

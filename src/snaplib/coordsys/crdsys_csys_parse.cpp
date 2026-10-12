@@ -47,7 +47,8 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         {
             is.scanner = FieldScanner(savedBeforeRfCode);
             rf = parse_ref_frame_def( is, nullptr, nullptr, 1, 1 );
-            if( !rf ) return nullptr;
+            if( !rf ) { return nullptr;
+}
         }
         else
         {
@@ -125,7 +126,8 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
 
     if( sts == OK && !rf )
     {
-        if( getrf ) rf = (*getrf)(rfcode,1);
+        if( getrf ) { rf = (*getrf)(rfcode,1);
+}
         if( !rf )
         {
             const std::string errmess = "Cannot load reference frame " + rfcode;
@@ -148,7 +150,8 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
     }
 
     cs = new coordsys( cscode, csname, cstype, rf, prj, "file:" + is.sourcename );
-    if( got_range ) define_coordsys_range( cs, range[0], range[1], range[2], range[3] );
+    if( got_range ) { define_coordsys_range( cs, range[0], range[1], range[2], range[3] );
+}
 
     return cs;
 }

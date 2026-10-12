@@ -63,7 +63,8 @@ static int gn_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_gnomic_projection( void )
 {
-    if( gn_type ) return;
+    if( gn_type ) { return;
+}
 
     gn_type = register_projection_type( new projection_type(
         "GN", "Gnomic", sizeof(GnomicProjection), gnparams, COUNT_OF(gnparams),
@@ -77,8 +78,10 @@ projection *create_gnomic_projection(  double orglat, double orglon,
 
     projection *prj;
 
-    if( !gn_type ) register_gnomic_projection();
-    if( !gn_type ) return nullptr;
+    if( !gn_type ) { register_gnomic_projection();
+}
+    if( !gn_type ) { return nullptr;
+}
 
     prj = new projection( *gn_type );
 

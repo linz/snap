@@ -46,7 +46,8 @@ static int init_grid_deformation(  const std::string &pmodel, double pepoch )
     epoch = pepoch;
     model = pmodel;
     auto grdfile = find_coordsys_data_file( model, ".grd" );
-    if( !grdfile ) return INVALID_DATA;
+    if( !grdfile ) { return INVALID_DATA;
+}
     modelfile = *grdfile;
     if(  grd_open_grid_file( modelfile, 2, &velgrid ) == OK )
     {
@@ -75,7 +76,8 @@ static int init_griddef( void * )
     coord_conversion tovcs;
     char buf[128];
 
-    if( ! velgrid ) return INVALID_DATA;
+    if( ! velgrid ) { return INVALID_DATA;
+}
     const std::string vcsdef = velgrid->crdsys.value_or( "" );
     coordsys * const vcs = load_coordsys( vcsdef );
     if( !vcs )

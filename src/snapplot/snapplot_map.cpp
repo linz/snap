@@ -184,7 +184,8 @@ bool SnapplotMap::DrawSome( wxMapDrawer &drawer, void *WXUNUSED(state) )
         set_plot_range( extents.min.x, extents.min.y, extents.max.x, extents.max.y );
         data_offset = calc_obs_offset();
         pconn_option = merge_common_obs;
-        if( show_oneway_obs ) pconn_option |= PCONN_SHOW_ONEWAY_OBS;
+        if( show_oneway_obs ) { pconn_option |= PCONN_SHOW_ONEWAY_OBS;
+}
     }
 
     switch( section )

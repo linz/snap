@@ -22,12 +22,14 @@ ZoomStack::ZoomStack( int size )
 
 ZoomStack::~ZoomStack()
 {
-    if( zoomStack ) delete [] zoomStack;
+    if( zoomStack ) { delete [] zoomStack;
+}
 }
 
 void ZoomStack::SetStackSize( int nStack )
 {
-    if( zoomStack ) delete [] zoomStack;
+    if( zoomStack ) { delete [] zoomStack;
+}
     zoomStack = nullptr;
     if( nStack > 0 )
     {
@@ -48,9 +50,12 @@ void ZoomStack::PushZoomRect( const MapRect &rect )
     if( stackSize > 0 )
     {
         stackTop++;
-        if( stackTop > stackSize ) stackTop = 0;
-        if( stackTop == stackBottom ) stackBottom++;
-        if( stackBottom > stackSize ) stackBottom = 0;
+        if( stackTop > stackSize ) { stackTop = 0;
+}
+        if( stackTop == stackBottom ) { stackBottom++;
+}
+        if( stackBottom > stackSize ) { stackBottom = 0;
+}
 
         zoomStack[stackTop] = rect;
     }
@@ -63,7 +68,8 @@ bool ZoomStack::PopZoomRect( MapRect &rect )
     {
         rect = zoomStack[stackTop];
         stackTop--;
-        if( stackTop < 0 ) stackTop = stackSize;
+        if( stackTop < 0 ) { stackTop = stackSize;
+}
     }
     return canPop;
 }
@@ -125,7 +131,8 @@ void wxMapScale::SetMapExtents( const MapRect &extents )
 
 double wxMapScale::GetScale()
 {
-    if( ! scaleValid ) return 0;
+    if( ! scaleValid ) { return 0;
+}
     return 0.5*(1.0/fabs(wdxscale)+1.0/fabs(wdyscale));
 }
 
@@ -207,13 +214,15 @@ void wxMapScale::CalcScale()
         if( fabs(wdyscale) < fabs(wdxscale) )
         {
             wdxscale = fabs(wdyscale) / aspectRatio;
-            if( ddx < 0 ) wdxscale = -wdxscale;
+            if( ddx < 0 ) { wdxscale = -wdxscale;
+}
             wxorg -= (ddx/wdxscale-wdx)/2.0;
         }
         else
         {
             wdyscale = fabs(wdxscale);
-            if( ddy < 0 ) wdyscale = -wdyscale;
+            if( ddy < 0 ) { wdyscale = -wdyscale;
+}
             wdxscale /= aspectRatio;
             wyorg  -= (ddy/wdyscale-wdy)/2.0;
         }
@@ -226,14 +235,16 @@ void wxMapScale::CalcScale()
 
 void wxMapScale::WorldToPlot( const MapPoint &data, wxPoint &plot ) const
 {
-    if(!scaleValid ) return;
+    if(!scaleValid ) { return;
+}
     plot.x = (data.x - wxorg)*wdxscale + dxorg + 0.5;
     plot.y = (data.y - wyorg)*wdyscale + dyorg + 0.5;
 }
 
 void wxMapScale::PlotToWorld( const wxPoint &plot, MapPoint &data ) const
 {
-    if( !scaleValid ) return;
+    if( !scaleValid ) { return;
+}
     data.x = (plot.x - dxorg)/wdxscale + wxorg;
     data.y = (plot.y - dyorg)/wdyscale + wyorg;
 }
@@ -242,11 +253,13 @@ void wxMapScale::PlotToWorld( const wxPoint &plot, MapPoint &data ) const
 char wxMapScale::PointFlags( const MapPoint &pt )
 {
     char flags;
-    if( pt.x < mapWindow.min.x ) flags = LEFT;
-    else if( pt.x > mapWindow.max.x ) flags = RIGHT;
-    else flags = 0;
-    if( pt.y < mapWindow.min.y ) flags |= BOTTOM;
-    else if( pt.y > mapWindow.max.y ) flags |= TOP;
+    if( pt.x < mapWindow.min.x ) { flags = LEFT;
+    } else if( pt.x > mapWindow.max.x ) { flags = RIGHT;
+    } else { flags = 0;
+}
+    if( pt.y < mapWindow.min.y ) { flags |= BOTTOM;
+    } else if( pt.y > mapWindow.max.y ) { flags |= TOP;
+}
     return flags;
 }
 
@@ -261,17 +274,21 @@ char wxMapScale::ShiftIntoRange( MapPoint &p0, char flag0,
         xnew = (flag0 & LEFT) ? mapWindow.min.x : mapWindow.max.x;
         p0.y = ((p1.x - xnew) * (p0.y) + (xnew - p0.x) * p1.y ) / ( p1.x - p0.x );
         p0.x = xnew;
-        if( p0.y < mapWindow.min.y ) flag0 = BOTTOM;
-        else if( p0.y > mapWindow.max.y ) flag0 = TOP;
-        else flag0 = 0;
-        if( !flag0 ) return 1;
-        if( flag0 & flag1 ) return 0;
+        if( p0.y < mapWindow.min.y ) { flag0 = BOTTOM;
+        } else if( p0.y > mapWindow.max.y ) { flag0 = TOP;
+        } else { flag0 = 0;
+}
+        if( !flag0 ) { return 1;
+}
+        if( flag0 & flag1 ) { return 0;
+}
     }
 
     ynew = (flag0 & BOTTOM) ? mapWindow.min.y : mapWindow.max.y;
     p0.x = ((p1.y - ynew) * (p0.x) + (ynew - p0.y) * p1.x ) / ( p1.y - p0.y );
     p0.y = ynew;
-    if( p0.x < mapWindow.min.x || p0.x > mapWindow.max.x ) return 0;
+    if( p0.x < mapWindow.min.x || p0.x > mapWindow.max.x ) { return 0;
+}
     return 1;
 }
 
@@ -292,7 +309,8 @@ bool wxMapScale::AddPoint( const MapPoint &pt, bool start )
 {
     char flag;
 
-    if( ! scaleValid ) return false;
+    if( ! scaleValid ) { return false;
+}
 
     flag = PointFlags( pt );
 
@@ -369,7 +387,8 @@ bool wxMapScale::AddPoint( const MapPoint &pt, bool start )
 
 bool wxMapScale::NextPoint( wxPoint &pt, bool &start )
 {
-    if( ! scaleValid ) return false;
+    if( ! scaleValid ) { return false;
+}
     switch( npt )
     {
     case 1: WorldToPlot(pt0,pt); start = s0; break;

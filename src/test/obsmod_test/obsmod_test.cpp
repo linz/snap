@@ -36,7 +36,9 @@ int test_file_id( std::string_view name, file_context * )
 
 std::string test_file_name( int file_id )
 {
-    for( const auto &file : file_ids ) if( file.second == file_id ) return file.first;
+    for( const auto &file : file_ids ) { if( file.second == file_id ) { return file.first;
+}
+}
     return "";
 }
 
@@ -113,7 +115,8 @@ std::string describe_results()
     const std::vector<std::pair<std::string,std::string>> values{
         { "GPS1", "Ann" }, { "GPS1", "Bob" }, { "TS5", "Ann" }, { "TS5", "Bob" },
         { "GPS2", "Cat" }, { "GPS1", "Dan" }, { "TS5", "Cat" }, { "TS6", "Dan" } };
-    for( const auto &file : file_ids ) surveys.emplace_back( file.second, classes, values );
+    for( const auto &file : file_ids ) { surveys.emplace_back( file.second, classes, values );
+}
 
     std::ostringstream result;
     for( TestSurvey &survey : surveys )
@@ -135,7 +138,8 @@ std::string describe_results()
     summarize_obs_modifications( obsmod, summary, "> " );
     std::rewind( summary );
     char line[512];
-    while( std::fgets( line, sizeof( line ), summary ) ) result << line;
+    while( std::fgets( line, sizeof( line ), summary ) ) { result << line;
+}
     std::fclose( summary );
 
     delete_obs_modifications( obsmod );

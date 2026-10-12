@@ -83,13 +83,15 @@ int main( int argc, char *argv[] )
 
         case 'e':
         case 'E':
-            if( set_height_type != SET_HGTTYPE_DEFAULT ) syntax_error = 1;
+            if( set_height_type != SET_HGTTYPE_DEFAULT ) { syntax_error = 1;
+}
             set_height_type = SET_HGTTYPE_ELLIPSOIDAL;
             break;
 
         case 'o':
         case 'O':
-            if( set_height_type != SET_HGTTYPE_DEFAULT ) syntax_error = 1;
+            if( set_height_type != SET_HGTTYPE_DEFAULT ) { syntax_error = 1;
+}
             set_height_type = SET_HGTTYPE_ORTHOMETRIC;
             break;
 
@@ -105,26 +107,30 @@ int main( int argc, char *argv[] )
 
         case 'z':
         case 'Z':
-            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
+}
             calc_geoid_opt = CALC_REMOVE;
             break;
 
         case 'c':
         case 'C':
-            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
+}
             calc_geoid_opt = CALC_CRDSYS;
             break;
 
         case 'g':
         case 'G':
-            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
+}
             calc_geoid_opt = CALC_GEOID;
             argptr=&geoid;
             break;
 
         case 'h':
         case 'H':
-            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
+}
             calc_geoid_opt = CALC_HGTREF;
             argptr=&hrscode;
             break;
@@ -136,13 +142,15 @@ int main( int argc, char *argv[] )
 
         case 'a':
         case 'A':
-            if( remove_csyshrs ) syntax_error=1;
+            if( remove_csyshrs ) { syntax_error=1;
+}
             argptr=&csyshrs;
             break;
 
         case 'd':
         case 'D':
-            if( csyshrs ) syntax_error=1;
+            if( csyshrs ) { syntax_error=1;
+}
             remove_csyshrs=1;
             break;
 
@@ -259,7 +267,8 @@ int main( int argc, char *argv[] )
         orthometric_fixed = NW_HGTFIXEDOPT_ORTHOMETRIC;
     }
 
-    if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
+    if( errlevel == INFO_ERROR && quiet ) { errlevel=OK;
+}
 
     if( csyshrs )
     {
@@ -284,7 +293,8 @@ int main( int argc, char *argv[] )
     {
         int sts=calc_station_geoid_info_from_coordsys( &net, net.crdsys,
                 orthometric_fixed, errlevel );
-        if( sts != OK && sts != INFO_ERROR ) return 2;
+        if( sts != OK && sts != INFO_ERROR ) { return 2;
+}
         vdatum *hrs = coordsys_vdatum( net.crdsys );
         if( hrs )
         {
@@ -323,13 +333,15 @@ int main( int argc, char *argv[] )
         }
         sts=calc_station_geoid_info_from_coordsys( &net, cs,
                 orthometric_fixed, errlevel );
-        if( sts != OK && sts != INFO_ERROR ) return 2;
+        if( sts != OK && sts != INFO_ERROR ) { return 2;
+}
         sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name.c_str());
     }
 
     else if( calc_geoid_opt == CALC_GEOID )
     {
-        if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
+        if( errlevel == INFO_ERROR && quiet ) { errlevel=OK;
+}
         gd = create_geoid_grid( geoid );
         if( !gd )
         {
@@ -345,7 +357,8 @@ int main( int argc, char *argv[] )
 
         sprintf(geoid_msg,"Geoid undulations from %.80s",std::string( get_geoid_model( gd ) ).c_str());
         int sts = set_network_geoid_def( &net, gd, orthometric_fixed, errlevel );
-        if( sts != OK && sts != INFO_ERROR ) return 2;
+        if( sts != OK && sts != INFO_ERROR ) { return 2;
+}
     }
 
     if( calc_geoid_opt == CALC_REMOVE ) 

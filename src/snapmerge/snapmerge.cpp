@@ -25,10 +25,12 @@ char listonly = 0;
 
 int select_station( station *st )
 {
-    if( ! listonly ) return 1;
+    if( ! listonly ) { return 1;
+}
     for( const std::string &code : codes )
     {
-        if( compare_ignoring_case( st->Code, code ) == 0 ) return 1;
+        if( compare_ignoring_case( st->Code, code ) == 0 ) { return 1;
+}
     }
     return 0;
 }
@@ -155,7 +157,8 @@ int main( int argc, char *argv[] )
         argv++;
     }
 
-    if( argc != 3 && argc != 4 ) syntaxerror = 1;
+    if( argc != 3 && argc != 4 ) { syntaxerror = 1;
+}
 
     if( ! quiet )
     {
@@ -247,13 +250,19 @@ int main( int argc, char *argv[] )
         listonly = 1;
     }
 
-    if( ! addstn && ! (updatecrd | updatecls) ) overwrite=1;
+    if( ! addstn && ! (updatecrd | updatecls) ) { overwrite=1;
+}
     mergeopt = 0;
-    if( addstn) mergeopt |= NW_MERGEOPT_ADDNEW;
-    if( addclass ) mergeopt |= NW_MERGEOPT_ADDCLASSES;
-    if( overwrite ) mergeopt |= NW_MERGEOPT_OVERWRITE;
-    if( updatecrd ) mergeopt |= NW_MERGEOPT_COORDS;
-    if( updatecls ) mergeopt |= NW_MERGEOPT_CLASSES;
+    if( addstn) { mergeopt |= NW_MERGEOPT_ADDNEW;
+}
+    if( addclass ) { mergeopt |= NW_MERGEOPT_ADDCLASSES;
+}
+    if( overwrite ) { mergeopt |= NW_MERGEOPT_OVERWRITE;
+}
+    if( updatecrd ) { mergeopt |= NW_MERGEOPT_COORDS;
+}
+    if( updatecls ) { mergeopt |= NW_MERGEOPT_CLASSES;
+}
     sts=merge_network( base, data, mergeopt, mergedate, &select_station );
 
     if( sts != OK || write_network( base, newfile, std::string_view(), 0, nullptr ) != OK )

@@ -84,7 +84,8 @@ int read_radians( FieldScanner &scanner, void *address )
     double rad;
     int sts;
     sts = double_from_string( scanner, &rad );
-    if( sts == OK ) rad *= DTOR;
+    if( sts == OK ) { rad *= DTOR;
+}
     *(double *)address = rad;
     return sts;
 }
@@ -118,15 +119,18 @@ void print_param_list( output_string_def *os, param_def *prms, int nprm,
     size_t maxlen = 0;
     for( iprm = 0; iprm < nprm; iprm++ )
     {
-        if( !prms[iprm].print ) continue;
+        if( !prms[iprm].print ) { continue;
+}
         maxlen = std::max( maxlen, prms[iprm].name.size() );
     }
     maxlen = std::min( maxlen, static_cast<size_t>( 80 ) );
     for( iprm = 0; iprm < nprm; iprm++ )
     {
         param_def *pd = prms+iprm;
-        if( !pd->print ) continue;
-        if( !prefix.empty() ) write_output_string( os, prefix );
+        if( !pd->print ) { continue;
+}
+        if( !prefix.empty() ) { write_output_string( os, prefix );
+}
         const std::string_view name = pd->name.substr( 0, maxlen );
         write_output_string( os, name );
         write_output_string( os, std::string( maxlen - name.size(), ' ' ) );
