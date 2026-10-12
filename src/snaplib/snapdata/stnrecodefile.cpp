@@ -77,7 +77,7 @@ void SnapCsvRecode::loadRecord()
     double datefrom=UNDEFINED_DATE;
     double dateto=UNDEFINED_DATE;
 
-    if( !datefromstr.empty() && !datefromstr.empty() )
+    if( !datefromstr.empty() )
     {
         datefrom=snap_datetime_parse( datefromstr );
         if( datefrom == UNDEFINED_DATE ) 
@@ -87,7 +87,7 @@ void SnapCsvRecode::loadRecord()
         }
     }
 
-    if( !datetostr.empty() && !datetostr.empty() )
+    if( !datetostr.empty() )
     {
         dateto=snap_datetime_parse( datetostr );
         if( dateto == UNDEFINED_DATE ) 
