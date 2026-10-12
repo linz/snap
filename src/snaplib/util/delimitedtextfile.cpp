@@ -247,7 +247,7 @@ void Reader::setColumnNames( const std::string &columnNames )
     while( sstream.good())
     {
         sstream >> name;
-        if( name != "" )
+        if( !name.empty() )
         {
             columns.push_back(name);
         }
@@ -271,7 +271,7 @@ void Reader::readHeader()
     readRecord();
     for( std::vector<Column *>::iterator c = _columns.begin(); c < _columns.end(); c++ )
     {
-        if( (*c)->value() != "" )
+        if( !(*c)->value().empty() )
         {
             (*c)->setName( (*c)->value() );
         }

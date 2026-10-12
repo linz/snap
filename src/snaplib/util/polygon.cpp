@@ -43,7 +43,7 @@ bool wktRing::isValid()
 
 void wktRing::addPoint( double lon, double lat )
 {
-    if( points.size() == 0 ) { minLon=maxLon=lon; minLat=maxLat=lat; }
+    if( points.empty() ) { minLon=maxLon=lon; minLat=maxLat=lat; }
     if( lon < minLon ) { minLon=lon; } else if( lon > maxLon ) { maxLon=lon;
 }
     if( lat < minLat ) { minLat=lat; } else if( lat > maxLat ) { maxLat=lat;

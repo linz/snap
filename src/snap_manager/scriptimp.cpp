@@ -986,11 +986,11 @@ void ScriptImp::error( const char *format, ... )
     errorMessage = buf;
     delete [] buf;
 
-    if( sourceFile != "" ) { errorMessage = errorMessage + "\nFile: " + sourceFile;
+    if( !sourceFile.empty() ) { errorMessage = errorMessage + "\nFile: " + sourceFile;
 }
     for( StackFrame *f = frame; f; f=f->next )
     {
-        if( f->name != "" )
+        if( !f->name.empty() )
         {
             errorMessage = errorMessage + "\nIn function: " + f->name;
             break;

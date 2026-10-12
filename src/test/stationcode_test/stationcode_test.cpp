@@ -39,7 +39,8 @@ void test_default_is_empty()
 {
     const StationCode code;
     check( code.empty(), "default code is empty" );
-    check( code.size() == 0, "default code has size 0" );
+    const auto size = code.size();
+    check( size == 0, "default code has size 0" );
     check_equal( code, "", "default code as a string_view" );
     check_equal( code.c_str(), "", "default code as a C string" );
 }
@@ -77,7 +78,8 @@ void test_assign_replaces_the_whole_code()
 
     code.assign( std::string_view() );
     check( code.empty(), "assigning an empty code empties it" );
-    check( code.size() == 0, "assigning an empty code gives size 0" );
+    const auto size = code.size();
+    check( size == 0, "assigning an empty code gives size 0" );
 }
 
 void test_unterminated_code_is_bounded()

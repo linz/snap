@@ -123,7 +123,7 @@ const string *LookupMapImp::lookup( const string &key ) const
     if( ! _caseSensitive ){ boost::to_lower( keyval ); }
     map<const string, const string>::const_iterator match = find(keyval);
     if( match != end() ){ return &(match->second); }
-    if( _default.size()) { return &(_default);
+    if( !_default.empty()) { return &(_default);
 }
     return nullptr;
 }
@@ -288,7 +288,7 @@ void ConcatValue::calcValue( string &value )
         value += component;
     }
     boost::trim_right( value );
-    if( _default && value.size() == 0 )
+    if( _default && value.empty() )
     {
         _default->calcValue(value);
     }

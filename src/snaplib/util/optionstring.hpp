@@ -20,7 +20,6 @@ public:
     OptionString( const std::string &options );
     bool defines( const std::string &option );
     const std::string &valueOf( const std::string &key, const std::string &dflt="" ) const;
-    bool isValid(){ return _invalid.size() > 0; }
     const std::vector<std::string> errors(){ return _invalid; }
 private:
     void _load( const std::string &options );

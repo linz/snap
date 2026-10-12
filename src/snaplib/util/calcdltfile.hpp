@@ -154,7 +154,7 @@ public:
     ConcatValue &setDefault( const CalcValue &dfltValue ) { return setDefault( dfltValue.clone() ); }
     ConcatValue &setDefault( const std::string dfltValue ) { return setDefault( new StringValue(dfltValue)); }
 
-    bool hasValue() { return _components.size() > 0; }
+    bool hasValue() { return !_components.empty(); }
 
     void bind( const BindSource *binder ) override;
     void calcValue( string &value ) override;

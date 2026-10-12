@@ -2209,7 +2209,7 @@ static int read_station_config_file( const std::string &filename, stn_relacc_arr
 }
             if( istn > 0 && orderfield > 0 && field[orderfield] && ! field[orderfield]->empty() )
             {
-                if( *field[orderfield] != "-" && *field[orderfield] != "" )
+                if( *field[orderfield] != "-" && !(*field[orderfield]).empty() )
                 {
                     int order=SDC_IGNORE_MARK;
                     if( *field[orderfield] != "*" )
@@ -2238,7 +2238,7 @@ static int read_station_config_file( const std::string &filename, stn_relacc_arr
             }
             if( istn > 0 && priorityfield > 0 && field[priorityfield] && ! field[priorityfield]->empty() )
             {
-                if( *field[priorityfield] != "-" && *field[priorityfield] != "" )
+                if( *field[priorityfield] != "-" && !(*field[priorityfield]).empty() )
                 {
                     int priority;
                     char check;
