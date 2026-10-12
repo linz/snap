@@ -135,6 +135,8 @@ void SnapplotLoadLog::OnCloseButton( wxCommandEvent & WXUNUSED(event) )
 }
 }
 
+// Event table handler: wxWidgets casts it to a non-const member function type, so it cannot be const
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void SnapplotLoadLog::OnClose( wxCloseEvent &event )
 {
     if( logging && event.CanVeto() )
