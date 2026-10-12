@@ -244,7 +244,7 @@ int main( int argc, char *argv[] )
         skip_utf8_bom(list);
         while( fscanf( list,"%80s",code) == 1 )
         {
-            codes.push_back( code );
+            codes.emplace_back(code );
         }
         fclose(list);
         listonly = 1;

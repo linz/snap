@@ -3336,11 +3336,11 @@ int main( int argc, char *argv[] )
         }
         else if ( recalc )
         {
-            recalclist.push_back( arg );
+            recalclist.emplace_back(arg );
         }
         else
         {
-            filelist.push_back( arg );
+            filelist.emplace_back(arg );
         }
     }
 

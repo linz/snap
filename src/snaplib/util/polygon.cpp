@@ -48,7 +48,7 @@ void wktRing::addPoint( double lon, double lat )
 }
     if( lat < minLat ) { minLat=lat; } else if( lat > maxLat ) { maxLat=lat;
 }
-    points.push_back( wktRing::point( lon, lat ));
+    points.emplace_back( lon, lat );
 }
 
 /* Calc inside by number of crossings of hypothetical line from

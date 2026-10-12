@@ -114,7 +114,7 @@ void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName
         Column *c = reader->findColumn(colName);
         if (c)
         {
-            _classCols.push_back(CsvClassColumn(_net, colName, c));
+            _classCols.emplace_back(_net, colName, c);
         }
         else
         {
@@ -147,7 +147,7 @@ void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName
             if (offset) { name = name.substr(offset);
 }
         }
-        _classCols.push_back(CsvClassColumn(_net, name, c));
+        _classCols.emplace_back(_net, name, c);
     }
 }
 
