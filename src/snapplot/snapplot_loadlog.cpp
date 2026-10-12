@@ -142,9 +142,8 @@ void SnapplotLoadLog::OnClose( wxCloseEvent &event )
         event.Veto();
         return;
     }
-    else
-    {
-        // Pass back ..
+    
+            // Pass back ..
         event.Skip();
-    }
+   
 }

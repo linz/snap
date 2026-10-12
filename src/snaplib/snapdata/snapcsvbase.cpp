@@ -157,7 +157,7 @@ void SnapCsvBase::loadDefinition(RecordStream &rs)
         {
             continue;
         }
-        else if (command == "lookup")
+        if (command == "lookup")
         {
             string lookupName;
             rs.record() >> lookupName;

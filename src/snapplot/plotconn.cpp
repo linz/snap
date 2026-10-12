@@ -1014,9 +1014,8 @@ static void plot_connection( map_plotter *plotter, int from, int to, int pen, un
         LINE(plotter, x2, y2, CONTINUE_LINE );
         return;
     }
-    else
-    {
-        double xm = (x1+x2)/2;
+    
+            double xm = (x1+x2)/2;
         double ym = (y1+y2)/2;
         if( flags & CONN_REVERSE )
         {
@@ -1027,7 +1026,7 @@ static void plot_connection( map_plotter *plotter, int from, int to, int pen, un
         LINE(plotter, xm, ym, CONTINUE_LINE );
         DASHED_LINE(plotter, xm, ym, pen );
         LINE(plotter,x2,y2,CONTINUE_LINE);
-    }
+   
 
 }
 

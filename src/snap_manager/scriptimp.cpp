@@ -1135,10 +1135,9 @@ Token *ScriptImp::GetVariable(const wxString &name )
     {
         return new StringToken(this,sourceFile);
     }
-    else
-    {
-        return new VariableToken(this,name);
-    }
+    
+            return new VariableToken(this,name);
+   
 }
 
 

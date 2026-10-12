@@ -98,10 +98,9 @@ const std::string &OptionString::valueOf( const std::string &option, const std::
     {
         return match->second;
     }
-    else
-    {
-        return dflt;
-    }
+    
+            return dflt;
+   
 }
 
 }  // End of namespace LINZ

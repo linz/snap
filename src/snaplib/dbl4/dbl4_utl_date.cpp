@@ -116,7 +116,7 @@ void utlCopyDate( DateTimeType *tgt, DateTimeType *src)
 int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 )
 {
     if( dt1->dtYear > dt2->dtYear ) { return 1;
-    } else if( dt1->dtYear < dt2->dtYear ) { return -1;
+    } if( dt1->dtYear < dt2->dtYear ) { return -1;
 
     } else if( dt1->dtMon > dt2->dtMon ) { return 1;
     } else if( dt1->dtMon < dt2->dtMon ) { return -1;

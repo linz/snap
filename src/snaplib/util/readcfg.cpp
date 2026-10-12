@@ -416,7 +416,7 @@ int readcfg_boolean( CFG_FILE *, std::string_view str, void *value, int length, 
         *static_cast<unsigned char*>(value) |= flag;
         return OK;
     }
-    else if( boost::algorithm::iequals(str,"n") || boost::algorithm::iequals(str,"no") ||
+    if( boost::algorithm::iequals(str,"n") || boost::algorithm::iequals(str,"no") ||
              boost::algorithm::iequals(str,"f") || boost::algorithm::iequals(str,"false") ||
              boost::algorithm::iequals(str,"off") )
     {

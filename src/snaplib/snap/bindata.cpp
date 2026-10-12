@@ -82,10 +82,9 @@ int read_bindata_header( long *size, int *type )
         *size = static_cast<long>(disksize);
         return 1;
     }
-    else
-    {
-        return 0;
-    }
+    
+            return 0;
+   
 }
 
 

@@ -905,7 +905,7 @@ static void prompt_for_proj(coordsys *&proj,
             {
                 dms = AF_DEG; break;
             }
-            else if( instring[0] == 'm' || instring[0] == 'M' )
+            if( instring[0] == 'm' || instring[0] == 'M' )
             {
                 dms = AF_DM; break;
             }
@@ -1764,8 +1764,7 @@ static int read_coordinates( void )
         hemdef = sts==0;
         *in1 = dms_deg( dms );
         sts = read_dms( *crdin, dms, hemdef ? std::optional<std::string_view>( indms2 ) : std::nullopt );
-        if (sts>1) { return sts; } else { sts=0;
-}
+        if (sts>1) { return sts; } sts=0;
         *in2 = dms_deg( dms );
     }
     else

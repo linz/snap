@@ -270,7 +270,7 @@ bool LayerSymbology::Show() const
     {
         return show;
     }
-    else if( (type & hasColour) == hasColour )
+    if( (type & hasColour) == hasColour )
     {
         return true;
     }

@@ -765,7 +765,7 @@ static int64_t get_id( int type, int, std::string_view code )
     {
         return (int64_t) get_station_id( code );
     }
-    else if ( type == ID_PROJCTN )
+    if ( type == ID_PROJCTN )
     {
         return 1;
     }
@@ -781,10 +781,9 @@ static std::string get_name( int type, int, long id )
     {
         return dstation_code( numeric_cast<int>( id ) );
     }
-    else
-    {
-        return std::string();
-    }
+    
+            return std::string();
+   
 }
 
 static double get_value( int type, long, long )

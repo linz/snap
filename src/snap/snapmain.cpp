@@ -338,7 +338,7 @@ try
         close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
-    else if ( sts != OK )
+    if ( sts != OK )
     {
         xprintf("\nErrors encountered reading the data files\n");
         handle_error( INVALID_DATA, "Errors encountered reading the data files", NO_MESSAGE );

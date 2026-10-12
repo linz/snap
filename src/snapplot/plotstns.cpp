@@ -1111,12 +1111,11 @@ int get_station_offset( int istn, double *oe, double *on )
         *on = stns[istn].n_offset;
         return 1;
     }
-    else
-    {
-        *oe = 0.0;
+    
+            *oe = 0.0;
         *on = 0.0;
         return 0;
-    }
+   
 }
 
 int offset_station_count() { return noffset; }

@@ -778,10 +778,9 @@ static void process_station_list_file( CFG_FILE *cfg, const std::string &name,
                 set_station_mode( istn, mode );
                 continue;
             }
-            else
-            {
-                send_config_error( cfg, INVALID_DATA, "Invalid station " + stn_code + " in list " + name );
-            }
+            
+                            send_config_error( cfg, INVALID_DATA, "Invalid station " + stn_code + " in list " + name );
+           
         }
     }
 }

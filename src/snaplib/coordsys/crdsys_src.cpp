@@ -192,7 +192,7 @@ coordsys * load_coordsys( std::string_view code )
             handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
             return nullptr;
         }
-        else if( ! dtmcode->empty() )
+        if( ! dtmcode->empty() )
         {
             rf=load_ref_frame( *dtmcode );
             if( ! rf ) { return nullptr;
@@ -209,7 +209,7 @@ coordsys * load_coordsys( std::string_view code )
             handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
             return nullptr;
         }
-        else if( ! hrscode->empty() )
+        if( ! hrscode->empty() )
         {
             hrs=load_vdatum( *hrscode );
             if( ! hrs )

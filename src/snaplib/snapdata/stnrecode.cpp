@@ -107,10 +107,9 @@ static int cmp_stn_recode( const stn_recode &src0, const stn_recode &src1 )
         {
             return 0;
         }
-        else
-        {
-            return -1;
-        }
+        
+                    return -1;
+       
     }
     if( src0.datefrom == UNDEFINED_DATE && src0.dateto == UNDEFINED_DATE )
     {
@@ -122,10 +121,9 @@ static int cmp_stn_recode( const stn_recode &src0, const stn_recode &src1 )
         {
             return -1;
         }
-        else
-        {
-            return compare_three_way(src0.datefrom,src1.datefrom);
-        }
+        
+                    return compare_three_way(src0.datefrom,src1.datefrom);
+       
     }
     if( src0.dateto == UNDEFINED_DATE )
     {
@@ -137,10 +135,9 @@ static int cmp_stn_recode( const stn_recode &src0, const stn_recode &src1 )
         {
             return 1;
         }
-        else
-        {
-            return compare_three_way(src0.dateto,src1.dateto);
-        }
+        
+                    return compare_three_way(src0.dateto,src1.dateto);
+       
     }
     if( src0.dateto == UNDEFINED_DATE )
     {
@@ -405,9 +402,8 @@ static std::optional<UncertaintyResult> parse_uncertainty(
         {
             break;
         }
-        else
-        {
-            if( result.n_enu > 1 )
+        
+                    if( result.n_enu > 1 )
             {
                 msg="Missing m (metres) at end of hv_error in recode definition";
                 ok=false;
@@ -424,7 +420,7 @@ static std::optional<UncertaintyResult> parse_uncertainty(
             if( result.n_enu == 0 ) { result.herror=result.verror;
 }
             result.n_enu++;
-        }
+       
     }
     if( ok && result.n_enu == 0 )
     {
