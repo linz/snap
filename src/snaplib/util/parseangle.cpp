@@ -64,7 +64,7 @@ double ParseAngle::parseAngle(AngleFormat format, const string &value, const str
         double sec = atof((match[4].str() + "." + match[5].str()).c_str());
         angle = deg + min / 60.0 + sec / 3600.0;
         string hem = match[1].str() + match[6].str();
-        if (hem.length() > 0)
+        if (!hem.empty())
         {
             bool ok = false;
             if (sign.length() == 2 && hem.length() == 1)

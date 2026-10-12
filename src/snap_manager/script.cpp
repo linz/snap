@@ -40,7 +40,7 @@ void Value::SetValue( const wxString &value )
     stringValue = value;
     if( ! value.ToDouble( &doubleValue ) ) { doubleValue=0.0;
 }
-    boolValue = value != "";
+    boolValue = !value.empty();
 }
 
 void Value::SetValue( double value )

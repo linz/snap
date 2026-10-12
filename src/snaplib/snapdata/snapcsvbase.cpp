@@ -189,7 +189,7 @@ bool SnapCsvBase::checkColumns()
         return ok;
 }
     std::vector<std::string> *cols = &_requiredColumns;
-    if( cols->size() == 0) { cols = &_usedColumns;
+    if( cols->empty()) { cols = &_usedColumns;
 }
 
     std::vector<std::string> missingCols;
@@ -222,7 +222,7 @@ bool SnapCsvBase::checkColumns()
             missingCols.push_back(missing);
         }
     }
-    if( missingCols.size() > 0 )
+    if( !missingCols.empty() )
     {
         std::string collist=boost::algorithm::join(missingCols, ", ");
         _reader->runtimeError(std::string("Column ") + collist + " is not defined");
@@ -259,7 +259,7 @@ bool SnapCsvBase::load(RecordInputBase &input)
             return false;
         }
 
-        if (!_options.useHeader() && _columns.size() > 0)
+        if (!_options.useHeader() && !_columns.empty())
         {
             reader.setColumnNames(_columns);
         }
@@ -495,7 +495,7 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
         // default ...
         if (match[1].length() > 0)
         {
-            if (value.length() > 0) {
+            if (!value.empty()) {
                 break;
 }
         }
@@ -552,9 +552,9 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
             definitionError(std::string("String value ") + match[9].str() + " for " + name + " should be enclosed in \"\"", Warning);
             nextpart = match[9];
         }
-        if (nextpart.length() > 0)
+        if (!nextpart.empty())
         {
-            if (value.length() > 0) {
+            if (!value.empty()) {
                 value += " ";
 }
             value += nextpart;

@@ -65,7 +65,7 @@ void check_filter_whole_line_only_at_start()
 {
     std::string line = "! this whole line is a comment";
     filter_line( line, CommentRule{ '!', true } );
-    check( line == "", "filter_line: whole_line_only comment at position 0 empties the whole line" );
+    check( line.empty(), "filter_line: whole_line_only comment at position 0 empties the whole line" );
 }
 
 void check_filter_whole_line_only_not_at_start()

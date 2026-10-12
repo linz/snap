@@ -108,7 +108,7 @@ bool RecordStream::readRecord()
             _recordstr += extra;
         }
         // If string is not empty
-        if (_recordstr.size() > 0) {
+        if (!_recordstr.empty()) {
             break;
 }
     }

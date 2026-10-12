@@ -142,7 +142,7 @@ void check_next_until()
         char terminator=0;
         check( scanner.nextUntil( ",", terminator ) == "a" && terminator == ',', "nextUntil: field before a trailing terminator" );
         check( ! scanner.nextUntil( ",", terminator ), "nextUntil: no empty field after a trailing terminator" );
-        check( scanner.remainder() == "", "nextUntil: nothing left after a trailing terminator" );
+        check( scanner.remainder().empty(), "nextUntil: nothing left after a trailing terminator" );
     }
     // An input with no terminator is one field, and empty input is nullopt.
     {
@@ -199,7 +199,7 @@ void check_next_token()
     {
         FieldScanner delimiters( ",,," );
         check( ! delimiters.nextToken(','), "nextToken: nullopt when there are only delimiters" );
-        check( delimiters.remainder() == "", "nextToken: only delimiters are all consumed" );
+        check( delimiters.remainder().empty(), "nextToken: only delimiters are all consumed" );
         FieldScanner empty( "" );
         check( ! empty.nextToken(','), "nextToken: nullopt on empty input" );
     }

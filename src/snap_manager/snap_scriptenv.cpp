@@ -624,7 +624,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
             program = paths.FindAbsoluteValidPath(progname+".exe");
         }
         #endif
-        if( program != "" && ! wxFileName(program).IsFileExecutable() ) 
+        if( !program.empty() && ! wxFileName(program).IsFileExecutable() ) 
         {
             program="";
         }

@@ -38,7 +38,7 @@ void test_default_is_empty()
 {
     const StringLimited<4> text;
     check( text.empty(), "default string is empty" );
-    check( text.size() == 0, "default string has size 0" );
+    check( text.empty(), "default string has size 0" );
     check_equal( text, "", "default string as a string_view" );
     check_equal( text.c_str(), "", "default string as a C string" );
 }
@@ -83,7 +83,7 @@ void test_assign_replaces_the_whole_string()
 
     text.assign( std::string_view() );
     check( text.empty(), "assigning an empty string empties it" );
-    check( text.size() == 0, "assigning an empty string gives size 0" );
+    check( text.empty(), "assigning an empty string gives size 0" );
 }
 
 void test_str_copies_the_text()

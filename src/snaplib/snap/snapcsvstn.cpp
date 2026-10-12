@@ -269,7 +269,7 @@ void SnapCsvStn::loadDefinitionCommand(const string &command, RecordStream &rs)
     else if (command == "angle_format")
     {
         string format = getConfigValue(command, rs);
-        if (format.length() > 0)
+        if (!format.empty())
         {
             try
             {
@@ -312,12 +312,12 @@ void SnapCsvStn::loadRecord()
     const std::string &cscode = _crdsys.value();
 
 
-    if (cscode == "")
+    if (cscode.empty())
     {
         dataError("Coordinate system not specified");
         return;
     }
-    if (_cscode == "")
+    if (_cscode.empty())
     {
         _cscode = cscode;
         _cs = load_coordsys(cscode);
@@ -346,7 +346,7 @@ void SnapCsvStn::loadRecord()
 
     std::string heightType = _hgttype.value();
     boost::to_lower(heightType);
-    if (heightType == "") { heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
+    if (heightType.empty()) { heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
 }
 
     ords = _projection ? &prjords : _geocentric ? &xyzords : &llhords;
@@ -359,7 +359,7 @@ void SnapCsvStn::loadRecord()
         dataError(string("Invalid height type  ") + heightType);
         return;
     }
-    if (_heightType == "")
+    if (_heightType.empty())
     {
         _heightType = heightType;
         _ellipsoidalHeights = heightType == "ellipsoidal";
@@ -403,7 +403,7 @@ void SnapCsvStn::loadRecord()
         if (!(_crdlat >> crdlat)) { dataError(string((*ords)[1]) + " is missing or invalid");
 }
     }
-    if (!_geocentric && _crdhgt.value() != "" && !(_crdhgt >> crdhgt))
+    if (!_geocentric && !_crdhgt.value().empty() && !(_crdhgt >> crdhgt))
     {
         dataError("Invalid height coordinate");
     }
@@ -414,7 +414,7 @@ void SnapCsvStn::loadRecord()
 
     if (_haveGeoid)
     {
-        if (_crdund.value() != "")
+        if (!_crdund.value().empty())
         {
             _geoidDefined = true;
             if (!(_crdund >> crdund)) { dataError("Invalid geoid undulation");
@@ -422,13 +422,13 @@ void SnapCsvStn::loadRecord()
             if (_ellipsoidalHeights) { crdhgt -= crdund;
 }
         }
-        if (_crdxi.value() != "")
+        if (!_crdxi.value().empty())
         {
             _deflectionDefined = true;
             if (!(_crdxi >> crdxi)) { dataError("Invalid deflection east");
 }
         }
-        if (_crdeta.value() != "")
+        if (!_crdeta.value().empty())
         {
             _deflectionDefined = true;
             if (!(_crdeta >> crdeta)) { dataError("Invalid deflection north");
@@ -437,12 +437,12 @@ void SnapCsvStn::loadRecord()
     }
 
     const string &code = _code.value();
-    if (code == "")
+    if (code.empty())
     {
         dataError("Missing stations code");
     }
     string name = _name.value();
-    if (name == "") { name = code;
+    if (name.empty()) { name = code;
 }
 
     if (_dataError) { return;
@@ -480,7 +480,7 @@ void SnapCsvStn::loadRecord()
     for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
     {
         string value = cc->value();
-        if (value != "")
+        if (!value.empty())
         {
             int idclass = cc->classId();
             int idvalue = _net->class_value_id(idclass, value, 1);
@@ -544,7 +544,7 @@ int load_snap_csv_stations(network *net, const std::string &filename, const std:
         DatafileInput dfi(filename, "station coordinate file");
         csvstn.load(dfi);
         std::string deffile = csvstn.definitionFilename();
-        if (deffile != "")
+        if (!deffile.empty())
         {
             record_filename(deffile, "csv_station_format");
         }

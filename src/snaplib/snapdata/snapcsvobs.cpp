@@ -156,7 +156,7 @@ string SnapCsvObs::CsvObservation::missing()
     {
         missingparts += "error, ";
     }
-    if (missingparts.size() > 0) {
+    if (!missingparts.empty()) {
         missingparts.resize(missingparts.size() - 2);
 }
     return missingparts;
@@ -285,11 +285,11 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     const std::string &fromcode = _fromstn.value();
     bool continued = false;
     // CSV format cannot handle covariance matrix for vector sets...
-    if (setid == "" || type->isvector)
+    if (setid.empty() || type->isvector)
     {
         _owner->EndSet();
     }
-    if (_ignoremissingobs && _value.value() == "")
+    if (_ignoremissingobs && _value.value().empty())
     {
         return false;
     }
@@ -297,12 +297,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     {
         continued = _owner->ContinueSet(setid, fromcode);
     }
-    if (_ignoremissingobs && _value.value() == "")
+    if (_ignoremissingobs && _value.value().empty())
     {
         return false;
     }
     int idfrom = 0;
-    if (_fromstn.value() == "")
+    if (_fromstn.value().empty())
     {
         dataError("From station code is missing");
     }
@@ -321,7 +321,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     int idto = 0;
     if (!type->ispoint)
     {
-        if (_tostn.value() == "")
+        if (_tostn.value().empty())
         {
             dataError("To station code is missing");
         }
@@ -406,7 +406,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 }
                 error[0] += (errcomp * errcomp * factor * factor);
             }
-            if (component == "")
+            if (component.empty())
             {
                 dataError(string("Missing distance error") + component);
                 // ok = false;
@@ -451,7 +451,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 }
                 *pcomp += errcomp * errcomp;
             }
-            if (component == "")
+            if (component.empty())
             {
                 dataError(string("Missing angle error") + component);
                 // ok = false;
@@ -517,7 +517,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 }
                 *pcomp += errcomp * errcomp;
             }
-            if (component == "")
+            if (component.empty())
             {
                 dataError(string("Missing height difference error"));
                 // ok = false;
@@ -568,7 +568,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 }
                 *pcomp += errcomp * errcomp;
             }
-            if (component == "")
+            if (component.empty())
             {
                 dataError(string("Missing angle error") + component);
                 // ok = false;
@@ -707,10 +707,10 @@ bool SnapCsvObs::CsvObservation::loadObservation()
 
     int obsid = 0;
     double snaptime = UNDEFINED_DATE;
-    if (_obsid.hasValue() && _obsid.value() != "") {
+    if (_obsid.hasValue() && !_obsid.value().empty()) {
         _obsid >> obsid;
 }
-    if (_time.value() != "")
+    if (!_time.value().empty())
     {
         snaptime = snap_datetime_parse(_time.value(), _dateformat);
         if (snaptime == 0.0) {
@@ -763,7 +763,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
     {
         string value = cc->value();
-        if (value != "")
+        if (!value.empty())
         {
             int idclass = cc->classId();
             int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value);
@@ -805,12 +805,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             }
         }
     }
-    if (type->projctn && _projection.value() != "")
+    if (type->projctn && !_projection.value().empty())
     {
         int id = ldt_get_id(ID_PROJCTN, 0, _projection.value());
         ldt_projection(id);
     }
-    if (_note.value() != "")
+    if (!_note.value().empty())
     {
         ldt_note(_note.value());
     }
@@ -1109,7 +1109,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "vector_error_type")
         {
             string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            if (!format.empty())
             {
                 obs.setVectorErrorMethod(format);
             }
@@ -1121,7 +1121,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "distance_error_type")
         {
             string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            if (!format.empty())
             {
                 obs.setDistanceErrorMethod(format);
             }
@@ -1133,7 +1133,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "angle_format")
         {
             string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            if (!format.empty())
             {
                 obs.setAngleFormat(format);
             }
@@ -1145,7 +1145,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "angle_error_unit")
         {
             string units = getConfigValue(command, rs);
-            if (units.length() > 0)
+            if (!units.empty())
             {
                 obs.setAngleErrorUnits(units);
             }
@@ -1157,7 +1157,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "angle_error_type")
         {
             string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            if (!format.empty())
             {
                 obs.setAngleErrorMethod(unquoteString(format));
             }
@@ -1169,7 +1169,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "zenith_distance_error_type")
         {
             string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            if (!format.empty())
             {
                 obs.setZenDistErrorMethod(unquoteString(format));
             }
@@ -1181,7 +1181,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "height_difference_error_type")
         {
             string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            if (!format.empty())
             {
                 obs.setHgtDiffErrorMethod(unquoteString(format));
             }
@@ -1201,7 +1201,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         else if (command == "datetime_format")
         {
             string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            if (!format.empty())
             {
                 obs.setDateTimeFormat(unquoteString(format));
             }
@@ -1288,7 +1288,7 @@ int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_pro
         DatafileInput dfi(df, check_progress);
         csvobs.load(dfi);
         std::string deffile = csvobs.definitionFilename();
-        if (deffile != "")
+        if (!deffile.empty())
         {
             record_filename(deffile, "csv_obs_format");
         }

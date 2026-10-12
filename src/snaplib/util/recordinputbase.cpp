@@ -13,7 +13,7 @@ namespace LINZ
 
 void RecordError::_setLocation()
 {
-    if( _filename != "" )
+    if( !_filename.empty() )
     {
         std::ostringstream location;
         location << "File: " << _filename;

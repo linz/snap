@@ -64,7 +64,7 @@ SinexDataReader::SinexDataReader(const OptionString &config)
     use_point_code = code == "POINT";
     std::string datestr = config.valueOf("name", "");
     obsdate = UNDEFINED_DATE;
-    if (datestr != "")
+    if (!datestr.empty())
     {
         obsdate = snap_datetime_parse(datestr);
         if (obsdate == UNDEFINED_DATE)
