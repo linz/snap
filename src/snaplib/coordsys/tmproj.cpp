@@ -328,6 +328,4 @@ void geod_tm( tmprojection *tm,
 
     gcn = (eta*t)*((((trm4*wc2+trm3)*wc2+trm2)*wc2+trm1)*wc2);
     *cn = (gcn+m-om)*sf/utom+fn;
-
-    return;
 }

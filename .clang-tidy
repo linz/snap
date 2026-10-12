@@ -10,7 +10,8 @@ Checks: >
   readability-redundant-member-init,
   modernize-use-equals-default,
   modernize-use-equals-delete,
-  readability-redundant-void-arg
+  readability-redundant-void-arg,
+  readability-redundant-control-flow
 CheckOptions:
   # string_view("") is not the same as string_view(): data() of the second is a null pointer, which
   # printf-style code cannot take.  Only std::string is checked.

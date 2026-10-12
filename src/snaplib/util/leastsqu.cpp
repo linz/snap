@@ -433,7 +433,6 @@ static void form_iobs( obseqn *A, char sumall )
     if( schwgt > 0 ) { schwgt = 1.0/schwgt;
 }
     Asch->wgt[0] = schwgt;
-    return;
 }
 
 
@@ -722,7 +721,6 @@ bltmatrix *lsq_get_covariance_matrix()
 void lsq_invert_normal_equations( void )
 {
     set_lsq_status( LSQ_INVERTED, "invert_normal_equations" );
-    return;
 }
 
 

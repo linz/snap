@@ -1083,8 +1083,7 @@ static void calc_nveccvr( snapfile_def *sd )
     {
         sd->nveccvr = 0;
     }
-    return;
-}
+    }
 
 // #pragma warning(disable: 4100)
 

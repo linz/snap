@@ -21,8 +21,7 @@
 
 static void describe_offset_vdatum_func( vdatum_func *, output_string_def * )
 {
-    return;
-}
+    }
 
 static int identical_offset_vdatum_func( void *data1, void *data2 )
 {
@@ -165,8 +164,7 @@ static void describe_grid_vdatum_func( vdatum_func *hrf, output_string_def *os )
             }
         }
     }
-    return;
-}
+    }
 
 static int identical_grid_vdatum_func( void *data1, void *data2 )
 {

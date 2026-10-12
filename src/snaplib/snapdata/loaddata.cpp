@@ -330,7 +330,6 @@ static void report_error( const std::string_view location )
 {
     const std::string msg = "Internal programming error in call to " + std::string(location);
     handle_error( INTERNAL_ERROR, msg, "In module loaddata.c");
-    return;
 }
 
 void init_load_data( void (*usedata)( survdata *sd ),

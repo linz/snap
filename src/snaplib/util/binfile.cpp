@@ -233,8 +233,7 @@ void create_section_ex( BINARY_FILE *b, const std::string &section, long version
         b->section_version = version;
         fwrite( &(b->section_version), sizeof(b->section_version), 1, b->f );
     }
-    return;
-}
+    }
 
 
 int find_section( BINARY_FILE *b, const std::string &section )
