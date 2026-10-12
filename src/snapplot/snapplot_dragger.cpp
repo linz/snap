@@ -110,8 +110,8 @@ void SnapplotMapDragger::DrawDragger( wxDC &dc )
 
 void SnapplotMapDragger::DeleteConnections()
 {
-    if( connections != nullptr ) { delete [] connections;
-}
+    delete [] connections;
+
     connections = nullptr;
     nConnections = 0;
 }

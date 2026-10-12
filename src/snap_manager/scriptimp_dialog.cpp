@@ -478,12 +478,12 @@ wxString ScriptDialog::GetSelectedValue( wxString selectorDef, int selected )
 
 DialogToken::~DialogToken()
 {
-    if( label ) { delete label;
-}
-    if( variable ) { delete variable;
-}
-    if( controls ) { delete controls;
-}
+    delete label;
+
+    delete variable;
+
+    delete controls;
+
 }
 
 Value DialogToken::evaluate()
@@ -530,14 +530,14 @@ void DialogToken::print( const wxString &prefix, ostream &str )
 
 DialogControlToken::~DialogControlToken()
 {
-    if( variable ) { delete variable;
-}
-    if( label ) { delete label;
-}
-    if( selector ) { delete selector;
-}
-    if( info ) { delete info;
-}
+    delete variable;
+
+    delete label;
+
+    delete selector;
+
+    delete info;
+
 }
 
 Value DialogControlToken::evaluate() { return Value(true); }

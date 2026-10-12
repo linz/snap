@@ -39,10 +39,10 @@ void wxStationSelectorTable::Setup()
 
 void wxStationSelectorTable::CleanUp()
 {
-    if( id ) { delete [] id;
-}
-    if( selected ) { delete [] selected;
-}
+    delete [] id;
+
+    delete [] selected;
+
     id = nullptr;
     selected = nullptr;
     selectedAttr->DecRef();

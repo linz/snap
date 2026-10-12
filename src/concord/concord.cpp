@@ -838,8 +838,8 @@ static void prompt_for_proj(coordsys *&proj,
     while( true )
     {
         dms = AF_DEG;
-        if( nprj ) { delete nprj;
-}
+        delete nprj;
+
         nprj = nullptr;
         printf("    Enter %.*s coord sys code or ?: ",ioLength,iostring.data());
         instring = read_answer(20);

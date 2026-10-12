@@ -267,8 +267,8 @@ static void delete_polygon_criterion( const polygon_criterion &poly )
     if( poly.polygon ) { delete_polygon( poly.polygon );
 }
     delete poly.conv;
-    if( poly.cs ) { delete poly.cs;
-}
+    delete poly.cs;
+
 }
 
 /*-----------------------------------------------------------------------*/
@@ -707,8 +707,8 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",
                         pgnfile.c_str(),src.c_str());
                 delete conv;
-                if( cs ) { delete cs;
-}
+                delete cs;
+
                 break;
             }
             record_filename(*spec,"wkt_polygon_definition");

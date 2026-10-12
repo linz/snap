@@ -194,10 +194,10 @@ void FunctionToken::print( const wxString &prefix, ostream &str )
 
 ConditionalBranch::~ConditionalBranch()
 {
-    if( condition ) { delete condition;
-}
-    if( actions ) { delete actions;
-}
+    delete condition;
+
+    delete actions;
+
 }
 
 Value ConditionalBranch::evaluate()
@@ -266,14 +266,14 @@ void ConditionalStatement::print( const wxString &prefix, ostream &str )
 
 ForeachToken::~ForeachToken()
 {
-    if( variable ) { delete variable;
-}
-    if( string ) { delete string;
-}
-    if( delimiter ) { delete delimiter;
-}
-    if( actions ) { delete actions;
-}
+    delete variable;
+
+    delete string;
+
+    delete delimiter;
+
+    delete actions;
+
 }
 
 Value ForeachToken::evaluate()
@@ -411,8 +411,8 @@ void AssignmentToken::print( const wxString &prefix, ostream &str )
 
 ExitToken::~ExitToken()
 {
-    if( expression ) { delete( expression );
-}
+    delete( expression );
+
 }
 
 Value ExitToken::evaluate()
@@ -445,16 +445,16 @@ int MenuItem::nextId=1;
 
 MenuItem::Functions::~Functions()
 {
-    if( requirements ){ delete requirements; }
-    if( actions ){ delete actions; }
+    delete requirements; 
+    delete actions; 
 }
 
 MenuItem::~MenuItem()
 {
-    if( menu_name_expression ) { delete menu_name_expression;
-}
-    if( description_expression ) { delete description_expression;
-}
+    delete menu_name_expression;
+
+    delete description_expression;
+
     if( functions )
     {
         functions->refcount--;
@@ -525,10 +525,10 @@ void MenuItem::Execute()
 
 FunctionDef::~FunctionDef()
 {
-    if( parameters ) { delete parameters;
-}
-    if( actions ) { delete actions;
-}
+    delete parameters;
+
+    delete actions;
+
 }
 
 Value FunctionDef::evaluate()
@@ -557,8 +557,8 @@ void FunctionDef::print( const wxString &prefix, ostream &str )
 
 StatementBlockToken::~StatementBlockToken()
 {
-    if( statements ) { delete statements;
-}
+    delete statements;
+
 }
 
 Value StatementBlockToken::evaluate()
@@ -582,10 +582,10 @@ void StatementBlockToken::print( const wxString &prefix, ostream &str )
 
 Operator::~Operator()
 {
-    if( operand1 ) { delete operand1;
-}
-    if( operand2 ) { delete operand2;
-}
+    delete operand1;
+
+    delete operand2;
+
 }
 
 static int compValue( const Value &value1, const Value &value2 )
@@ -892,8 +892,8 @@ bool ScriptImp::ExecuteScript( const std::string &filename )
             Run(prog);
             PostRunActions();
         }
-        if( prog ) { delete prog;
-}
+        delete prog;
+
     }
     else
     {

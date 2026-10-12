@@ -191,8 +191,8 @@ Reader::Reader( std::istream &is, const Format &parser, const Options &options )
 
 Reader::~Reader()
 {
-    if( _parser ) { delete _parser;
-}
+    delete _parser;
+
     if( _ownInput && _input ) { delete _input;
 }
     for( std::vector<Column *>::iterator c = _columns.begin(); c < _columns.end(); c++ )
@@ -200,8 +200,8 @@ Reader::~Reader()
         delete (*c);
         (*c) = 0;
     }
-    if( _badColumn ) { delete _badColumn;
-}
+    delete _badColumn;
+
 }
 
 void Reader::setup( const Format &parser )

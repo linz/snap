@@ -126,8 +126,8 @@ void delete_geoid_grid( geoid_def *gd )
         if( gd->grd ) { grd_delete_grid( gd->grd );
 }
         gd->grd = nullptr;
-        if( gd->cs ) {delete gd->cs;
-}
+        delete gd->cs;
+
         gd->cs = nullptr;
     }
     delete gd;

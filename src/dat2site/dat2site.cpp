@@ -1642,8 +1642,8 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
         {
             itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
-        if( temp ) { delete temp;
-}
+        delete temp;
+
         toitrf = coord_conversion( netcs, itrf );
         tonet = coord_conversion( itrf, netcs );
         got_conversion = 1;
@@ -1764,8 +1764,8 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
         {
             itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
-        if( temp ) { delete temp;
-}
+        delete temp;
+
         tonet = coord_conversion( itrf, netcs );
         got_conversion = 1;
     }

@@ -129,8 +129,8 @@ void network::clear()
         process_stations( this, this, uninit_station );
     }
     if( stnlist ) { delete_station_list( stnlist ); }
-    if( crdsys ) { delete crdsys; }
-    if( geosys ) { delete geosys; }
+    delete crdsys; 
+    delete geosys; 
     _reset_fields();
 }
 
