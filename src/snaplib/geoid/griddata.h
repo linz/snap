@@ -45,7 +45,7 @@ struct grid_def
 
     // Returns title line 1-3 (titleno clamped to that range) - absent if
     // the grid file didn't include that title.
-    const std::optional<std::string> &title( int titleno ) const;
+    [[nodiscard]] const std::optional<std::string> &title( int titleno ) const;
 
     FILE * const bin;
     const long indexloc;

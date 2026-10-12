@@ -27,10 +27,10 @@ public:
     void SetShowObs( int idrom, int idto, int idobs );
 
     // accessors
-    const PutTextInfo &GetInfo() const { return info; }
+    [[nodiscard]] const PutTextInfo &GetInfo() const { return info; }
 
     // required for sending with wxPostEvent()
-    wxEvent* Clone() const override;
+    [[nodiscard]] wxEvent* Clone() const override;
 
 private:
     PutTextInfo info;

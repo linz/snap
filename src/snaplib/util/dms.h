@@ -59,7 +59,7 @@ public:
 
     /// Writes the angle, which is in degrees unless the format was created
     /// with DMSF_FMT_INPUT_RADIANS.
-    std::string format( double angle ) const;
+    [[nodiscard]] std::string format( double angle ) const;
 
 private:
     /// Which components are shown, from the DMSF_FMT_DM and DMSF_FMT_DEG flags

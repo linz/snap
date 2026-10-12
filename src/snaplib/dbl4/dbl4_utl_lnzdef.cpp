@@ -115,7 +115,7 @@ struct DefCmp
     explicit DefCmp( const hBinSrc source ) : refbinsrc( source ) {}  ///< The source of the deformation model
 
     /// The number of points in the time model
-    INT2 nTimeModel() const { return boost::numeric_cast<INT2>( timeModel.size() ); }
+    [[nodiscard]] INT2 nTimeModel() const { return boost::numeric_cast<INT2>( timeModel.size() ); }
 };
 using hDefCmp = DefCmp *;
 

@@ -116,7 +116,7 @@ struct SDCTest
     explicit SDCTest( const int orderCapacity );  ///< The most orders that can be defined
 
     /// The number of orders in the test
-    int norder() const;
+    [[nodiscard]] int norder() const;
 
     long (*pfStationId) ( /* Function to get the id of the station */
         void *env,

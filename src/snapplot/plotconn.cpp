@@ -1490,18 +1490,18 @@ struct SresDef
     /// Compares this record's sort key to another's, returning a
     /// strcmp-style result (negative/zero/positive). Both records must
     /// have been given a sort key for the same display field.
-    int compare( const SresDef &other ) const;
+    [[nodiscard]] int compare( const SresDef &other ) const;
 
     /// Compares two records by instrument station, using this record's
     /// sort key as a station code. Ties are broken by each record's
     /// target station, looked up via connlst using its own from/to_id.
-    int compare_from( const SresDef &other ) const;
+    [[nodiscard]] int compare_from( const SresDef &other ) const;
 
     /// Compares two records by the two stations they connect, treating a
     /// connection and its reverse as the same line. Each record's own two
     /// endpoints are its sort key (as a station code) and its target
     /// station, looked up via connlst using its own from/to_id.
-    int compare_line( const SresDef &other ) const;
+    [[nodiscard]] int compare_line( const SresDef &other ) const;
 
 private:
     std::variant<std::string, double, long> cmpval;

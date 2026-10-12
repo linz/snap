@@ -26,7 +26,7 @@ public:
         : obsid( obsid ), prmname_( std::move( prmname ) ) {}
 
     /// Returns the name of the parameter
-    const std::string &prmname() const { return prmname_; }
+    [[nodiscard]] const std::string &prmname() const { return prmname_; }
 
     const int obsid;      ///< Id of first obs of referencing observation set
     int rowno = 0;        ///< Row number in obs equations

@@ -69,11 +69,11 @@ class Column
 {
     friend class Reader;
 public:
-    const std::string &name() const { return _name; }
+    [[nodiscard]] const std::string &name() const { return _name; }
     void setName( const std::string name ){ _name=name; }
-    const std::string &value() const { return _value; }
+    [[nodiscard]] const std::string &value() const { return _value; }
     std::string &value() { return _value; }
-    int index() const { return _index; }
+    [[nodiscard]] int index() const { return _index; }
     template<typename T> bool operator>>( T &tvalue ) const;
     bool operator>>( std::string &strvalue ) const;
 private:
@@ -116,7 +116,7 @@ class Format
 public:
     Format() : _dlt(nullptr) {}
     virtual ~Format() = default;
-    virtual Format *clone() const = 0;
+    [[nodiscard]] virtual Format *clone() const = 0;
 protected:
     virtual bool parseRecord() = 0;
     bool getNextLine();
@@ -138,7 +138,7 @@ class WhitespaceFormat : public Format
 {
 public:
     WhitespaceFormat() = default;
-    WhitespaceFormat *clone() const override;
+    [[nodiscard]] WhitespaceFormat *clone() const override;
 protected:
     bool parseRecord() override;
 };
@@ -148,7 +148,7 @@ class CsvFormat : public Format
 public:
     CsvFormat( char delimiter=',', char escape='"', char quote='"') :
         _delimiter(delimiter), _escape(escape), _quote(quote) {}
-    CsvFormat *clone() const override;
+    [[nodiscard]] CsvFormat *clone() const override;
     void setDelimiter( char delimiter ) { _delimiter = delimiter; }
     void setQuote( char quote ) { _quote = quote; }
     void setEscape( char escape ) { _escape = escape; }
@@ -210,13 +210,13 @@ public:
 
     // Getting column information
 
-    int columnCount() const { return _columns.size(); }
-    const Column &column( int i ) const { if( i >= (int) _columns.size()) { columnIndexError(i); 
+    [[nodiscard]] int columnCount() const { return _columns.size(); }
+    [[nodiscard]] const Column &column( int i ) const { if( i >= (int) _columns.size()) { columnIndexError(i); 
 }return *(_columns[i]); }
-    const Column &column( const std::string &name ) const { return columnNamed( name ); }
+    [[nodiscard]] const Column &column( const std::string &name ) const { return columnNamed( name ); }
     const Column &operator[] ( int i ) const { return column(i); }
     const Column &operator[] ( const std::string &name ) const { return column(name); }
-    virtual Column *findColumn( const std::string &name ) const;
+    [[nodiscard]] virtual Column *findColumn( const std::string &name ) const;
 
     // Reading records
 
@@ -224,8 +224,8 @@ public:
 
     // Current information
 
-    int lineNo() const { return _lineno; }
-    int recordNo() const { return _recordno; }
+    [[nodiscard]] int lineNo() const { return _lineno; }
+    [[nodiscard]] int recordNo() const { return _recordno; }
     void runtimeError( const std::string &message ) const;
     void warning( const std::string &message ) const;
 
@@ -235,14 +235,14 @@ public:
 
 protected:
     Column *newColumn( const std::string &name );
-    bool namesMatch( const std::string &name1, const std::string &name2 ) const;
+    [[nodiscard]] bool namesMatch( const std::string &name1, const std::string &name2 ) const;
 
 private:
     void setup( const Format &parser );
     void readHeader();
     void columnIndexError( int string ) const;
     void handleError( const RecordError &error ) const;
-    Column &columnNamed( const std::string &name ) const;
+    [[nodiscard]] Column &columnNamed( const std::string &name ) const;
     // Field parser functions
     bool getNextLine( std::string &buffer );
     std::string &getNextValue();

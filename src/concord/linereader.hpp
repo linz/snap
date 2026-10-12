@@ -35,7 +35,7 @@ public:
 
     /// Whether the input is a file, so that a record can be read again from
     /// its start with rewindToRecord(), as opposed to a pipe or the keyboard.
-    bool seekable() const { return _seekable; }
+    [[nodiscard]] bool seekable() const { return _seekable; }
 
     /// Reads the next field of the current line. Spaces and tabs before the
     /// field are skipped, and those after it are removed. The field ends at the
@@ -70,12 +70,12 @@ public:
     /// with any carriage returns in it and without its newline. It is empty once
     /// readToken() has reported the end of the line, or if the input has ended,
     /// and is valid until the next line is loaded.
-    std::string_view remainder() const { return _rest; }
+    [[nodiscard]] std::string_view remainder() const { return _rest; }
 
     /// Whether the current line ended with a newline, rather than at the end
     /// of the input. False if the input has ended. An empty remainder() is the
     /// end of a line if this is true, and the end of the input if it is false.
-    bool endsWithNewline() const;
+    [[nodiscard]] bool endsWithNewline() const;
 
     /// Remembers the current position in the line as the start of a record.
     void markRecordStart();

@@ -20,7 +20,7 @@ class wxBitmapGridRenderer : public wxGridCellRenderer
 public:
     void Draw(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, const wxRect& rect, int row, int col, bool isSelected) override;
     wxSize GetBestSize(wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, int row, int col) override;
-    wxGridCellRenderer* Clone() const override;
+    [[nodiscard]] wxGridCellRenderer* Clone() const override;
     static int TickBitmapSize() { return tickBitmapSize; }
 private:
     static wxBitmap *GetTickBitmap( bool on );

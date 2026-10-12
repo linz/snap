@@ -91,8 +91,8 @@ struct SDC_KDTreeAdaptor
 {
     const SDCTestImp *sdci;
 
-    size_t kdtree_get_point_count() const;
-    double kdtree_get_pt( size_t idx, size_t dim ) const;
+    [[nodiscard]] size_t kdtree_get_point_count() const;
+    [[nodiscard]] double kdtree_get_pt( size_t idx, size_t dim ) const;
 
     template<class BBOX>
     bool kdtree_get_bbox( BBOX & ) const { return false; }
@@ -128,8 +128,8 @@ struct SDC_CtlKDTreeAdaptor
     const SDCTestImp *sdci;
     std::vector<int>  ctl_sdc_idx;   /* SDC station indices of control marks */
 
-    size_t kdtree_get_point_count() const;
-    double kdtree_get_pt( size_t k, size_t dim ) const;
+    [[nodiscard]] size_t kdtree_get_point_count() const;
+    [[nodiscard]] double kdtree_get_pt( size_t k, size_t dim ) const;
 
     template<class BBOX>
     bool kdtree_get_bbox( BBOX & ) const { return false; }

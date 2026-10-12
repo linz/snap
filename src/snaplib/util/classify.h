@@ -81,10 +81,10 @@ struct classifications
 {
     void clear() { class_index.clear(); }
 
-    int count() const;
+    [[nodiscard]] int count() const;
 
     int id( std::string_view name, int create );
-    std::string name( int id ) const;
+    [[nodiscard]] std::string name( int id ) const;
 
     /// Id of the classification named name (1 based), adding it first
     /// with the given value type if create is set and it isn't already
@@ -93,8 +93,8 @@ struct classifications
 
     void set_default_value( int class_id, const std::string &dflt );
     int value_id( int class_id, std::string_view value, int create );
-    std::string value_name( int class_id, int value_id ) const;
-    int value_count( int class_id ) const;
+    [[nodiscard]] std::string value_name( int class_id, int value_id ) const;
+    [[nodiscard]] int value_count( int class_id ) const;
 
     void set_value_flag( int class_id, int value_id, unsigned char flagbit );
     void set_value_error_factor( int class_id, int value_id, double error_factor );

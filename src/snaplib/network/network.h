@@ -68,18 +68,18 @@ public:
     }
 
     /// The number of characters before the terminating NUL
-    size_t size() const
+    [[nodiscard]] size_t size() const
     {
         const size_t end = std::string_view( _chars, _capacity ).find( '\0' );
         return end == std::string_view::npos ? _capacity : end;
     }
 
-    bool empty() const { return _chars[0] == '\0'; }
+    [[nodiscard]] bool empty() const { return _chars[0] == '\0'; }
 
     operator std::string_view() const { return std::string_view( _chars, size() ); }
 
     /// The NUL terminated code, for the printf family and other C interfaces
-    const char *c_str() const { return _chars; }
+    [[nodiscard]] const char *c_str() const { return _chars; }
 
 private:
     static constexpr size_t _capacity = STNCODELEN + 1;
@@ -146,7 +146,7 @@ struct station
 
     /// The value of a classification (class ids start at 1), or 0 if there is
     /// no such classification.
-    int get_class( int class_id ) const;
+    [[nodiscard]] int get_class( int class_id ) const;
 
 private:
     void _derive_geometry( ellipsoid &el );
@@ -235,7 +235,7 @@ struct network
     void clear();
 
     /// Number of classifications currently defined for this network's stations.
-    int classification_count() const;
+    [[nodiscard]] int classification_count() const;
 
     /// Id of the classification named classname. If create is set and no
     /// such classification yet exists, creates one with a default value
@@ -243,10 +243,10 @@ struct network
     int class_id( const std::string &classname, int create );
 
     /// Name of the classification identified by class_id.
-    std::string class_name( int class_id ) const;
+    [[nodiscard]] std::string class_name( int class_id ) const;
 
     /// Count of values defined for the classification identified by class_id.
-    int class_count( int class_id ) const;
+    [[nodiscard]] int class_count( int class_id ) const;
 
     /// Id of the value named value within the classification identified
     /// by class_id, creating it if create is set and no such value yet exists.
@@ -254,20 +254,20 @@ struct network
 
     /// Name of the value identified by value_id within the classification
     /// identified by class_id.
-    std::string class_value( int class_id, int value_id ) const;
+    [[nodiscard]] std::string class_value( int class_id, int value_id ) const;
 
     /// Defines the "Order" classification used to record each station's
     /// order, returning its classification id.
     int add_orders();
 
     /// Count of order values defined for this network.
-    int order_count() const;
+    [[nodiscard]] int order_count() const;
 
     /// Id of the named order value, creating it if addorder is set.
     int order_id( const std::string &order, int addorder );
 
     /// Name of the order value identified by orderid.
-    std::string order( int orderid ) const;
+    [[nodiscard]] std::string order( int orderid ) const;
 
     /// The order classification value id assigned to stn, or 0 if this
     /// network has no order classification defined.

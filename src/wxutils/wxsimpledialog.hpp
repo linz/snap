@@ -37,7 +37,7 @@ class wxRadioBoxOptionValidator : public wxOptionValidatorBase
 public:
     wxRadioBoxOptionValidator( const std::vector<ListControlOption> &options, int *value = nullptr ) : wxOptionValidatorBase(options,value) {};
     wxRadioBoxOptionValidator( const wxRadioBoxOptionValidator &validator )  = default;
-    wxValidator *Clone() const override { return new wxRadioBoxOptionValidator( *this ); }
+    [[nodiscard]] wxValidator *Clone() const override { return new wxRadioBoxOptionValidator( *this ); }
 protected:
     int GetSelectedIndex() override;
     void SetSelectedIndex( int i ) override;
@@ -50,7 +50,7 @@ public:
     wxSimpleListBoxValidator( char delimiter, wxString *value );
     wxSimpleListBoxValidator( const wxSimpleListBoxValidator &validator );
 
-    wxValidator *Clone() const override { return new wxSimpleListBoxValidator( *this ); }
+    [[nodiscard]] wxValidator *Clone() const override { return new wxSimpleListBoxValidator( *this ); }
     bool TransferToWindow() override;
     bool TransferFromWindow() override;
     bool Validate( wxWindow *parent ) override;
@@ -66,7 +66,7 @@ public:
     wxFilePickerValidator( wxString *filename, const wxString &message = wxEmptyString );
     wxFilePickerValidator( const wxFilePickerValidator &validator );
 
-    wxValidator *Clone() const override { return new wxFilePickerValidator( *this ); }
+    [[nodiscard]] wxValidator *Clone() const override { return new wxFilePickerValidator( *this ); }
     bool TransferToWindow() override;
     bool TransferFromWindow() override;
     bool Validate( wxWindow *parent ) override;

@@ -55,9 +55,9 @@ public:
     void SetWindowExtents( const wxRect &extents, double aspect = 1.0 );
     void SetWorldExtents( const MapRect &extents );
     void SetMapExtents( const MapRect &extents );
-    wxRect GetWindowExtents() const { return plotRect; }
-    MapRect GetWorldExtents() const { return mapWindow; }
-    MapRect GetMapExtents() const { return mapSize; }
+    [[nodiscard]] wxRect GetWindowExtents() const { return plotRect; }
+    [[nodiscard]] MapRect GetWorldExtents() const { return mapWindow; }
+    [[nodiscard]] MapRect GetMapExtents() const { return mapSize; }
 
     // GetScale returns the scale factor by which map coordinates (double) are multiplied to
     // get to plot coordinates (integer).  This is an average of the values used in the x and y

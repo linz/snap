@@ -30,7 +30,7 @@ public:
     using std::string::size;
 
     /// A copy of the text as a std::string
-    std::string str() const
+    [[nodiscard]] std::string str() const
     {
         return *this;
     }

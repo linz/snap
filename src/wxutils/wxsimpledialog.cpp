@@ -87,7 +87,7 @@ public:
     wxControlWithItemsValidator( wxControlWithItems *ctrl, const std::vector<ListControlOption> &options, int *value = nullptr ):
         wxOptionValidatorBase(options,value), ctrl(ctrl) {};
     wxControlWithItemsValidator( const wxControlWithItemsValidator &validator )  = default;
-    wxValidator *Clone() const override { return new wxControlWithItemsValidator( *this ); }
+    [[nodiscard]] wxValidator *Clone() const override { return new wxControlWithItemsValidator( *this ); }
 protected:
     int GetSelectedIndex() override;
     void SetSelectedIndex( int i ) override;

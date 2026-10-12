@@ -209,7 +209,7 @@ struct TableDefinition
     std::vector<int> classIds;             /* The classification of each class index */
 
     /// \return the value with the name, or nullptr if there isn't one
-    const ColumnSource *validColumn( std::string_view name ) const;
+    [[nodiscard]] const ColumnSource *validColumn( std::string_view name ) const;
 
     /// Adds a classification as a value that can be listed. \return nullopt if there are too many.
     std::optional<ColumnSource> classColumn( std::string_view className );
@@ -225,7 +225,7 @@ struct ListingConfig
 
     TableDefinition table;
 
-    DmsFormat angleFormat( int decimalPlaces ) const;
+    [[nodiscard]] DmsFormat angleFormat( int decimalPlaces ) const;
 };
 
 /// Writes a table as delimited text, once it has been defined. The header is written
@@ -235,12 +235,12 @@ class TableWriter
 public:
     explicit TableWriter( const TableDefinition &definition );
 
-    bool stationData() const { return _stationData; }
-    bool listsObservations() const;
-    bool listsStations() const;
+    [[nodiscard]] bool stationData() const { return _stationData; }
+    [[nodiscard]] bool listsObservations() const;
+    [[nodiscard]] bool listsStations() const;
 
-    std::size_t classCount() const { return _classId.size(); }
-    int classId( const std::size_t index ) const { return _classId[index]; }
+    [[nodiscard]] std::size_t classCount() const { return _classId.size(); }
+    [[nodiscard]] int classId( const std::size_t index ) const { return _classId[index]; }
     void setClassValue( const std::size_t index, std::string value ) { _classValue[index] = std::move( value ); }
 
     void printHeader( FILE *out );

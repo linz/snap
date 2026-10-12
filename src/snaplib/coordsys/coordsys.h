@@ -354,7 +354,7 @@ struct coord_conversion
 private:
     /// The conversion epoch, taken from the reference frames' deformation
     /// epochs if convepoch is undefined and they agree.
-    double _defaultEpoch( double convepoch ) const;
+    [[nodiscard]] double _defaultEpoch( double convepoch ) const;
 
     /// Finds the common base reference frame by following the reference
     /// frame chains from the source and target systems.  Returns false if

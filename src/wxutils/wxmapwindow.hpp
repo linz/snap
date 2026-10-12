@@ -22,7 +22,7 @@ public:
     const wxMouseEvent &GetMouseEvent() { return mouseEvent; }
 
     // required for sending with wxPostEvent()
-    wxEvent* Clone() const override { return new wxMapWindowEvent(*this); }
+    [[nodiscard]] wxEvent* Clone() const override { return new wxMapWindowEvent(*this); }
 
 
 private:
@@ -163,7 +163,7 @@ public:
     wxMapScale &GetScale() { return scale; }
     Symbology *GetSymbology() { return symbology; }
     wxMap *GetMap() { return map; }
-    const MapPoint &GetCursorPosition() const { return cursorPosition; }
+    [[nodiscard]] const MapPoint &GetCursorPosition() const { return cursorPosition; }
 
     void SetSendPositionEvent( bool sendPosition = true );
     void SetDragger( wxMapDragger *dragger );

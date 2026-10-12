@@ -57,7 +57,7 @@ struct sortobj
     /// Compares this value to another's, returning a strcmp-style
     /// result (negative/zero/positive). Both values must hold the same
     /// alternative.
-    int compare( const sortobj &other ) const;
+    [[nodiscard]] int compare( const sortobj &other ) const;
 
     std::variant<std::string, float, int> value;
 };
