@@ -45,8 +45,7 @@ double calculate_mde( double sobs, double sres )
     {
         return  mde_value_used * sobs*sobs / sres;
     }
-    else { return 0.0;
-}
+    return 0.0;
 }
 
 double residual_significance( double sres, int used, int rank )

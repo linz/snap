@@ -423,7 +423,5 @@ int readcfg_boolean( CFG_FILE *, std::string_view str, void *value, int length, 
         *static_cast<unsigned char*>(value) &= ~flag;
         return OK;
     }
-    else {
-        return INVALID_DATA;
-}
+            return INVALID_DATA;
 }

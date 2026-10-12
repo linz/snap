@@ -909,7 +909,7 @@ static void prompt_for_proj(coordsys *&proj,
             {
                 dms = AF_DM; break;
             }
-            else if( instring[0] == 'r' || instring[0] == 'R' )
+            if( instring[0] == 'r' || instring[0] == 'R' )
             {
                 dms = AF_RAD; break;
             }

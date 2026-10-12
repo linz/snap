@@ -769,10 +769,9 @@ static int64_t get_id( int type, int, std::string_view code )
     {
         return 1;
     }
-    else
-    {
-        return 0;
-    }
+    
+            return 0;
+   
 }
 
 static std::string get_name( int type, int, long id )
