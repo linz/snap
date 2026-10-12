@@ -314,7 +314,7 @@ public:
     void Execute();
     const wxString &MenuName() { return menu_name; }
     const wxString &Description() { return description; }
-    int Id(){ return id; }
+    int Id() const{ return id; }
     void SetId( int newid ){ id=newid; }
     Value evaluate() override;
     void print( const wxString &prefix, ostream &str ) override;
@@ -340,7 +340,7 @@ public:
     void print( const wxString &prefix, ostream &str ) override;
     Token *Parameters() { return parameters; }
     wxString &Name() { return name; }
-    bool InUse() { return inuse; }
+    bool InUse() const { return inuse; }
 private:
     wxString name;
     Token *parameters;

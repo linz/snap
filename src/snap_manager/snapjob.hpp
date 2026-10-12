@@ -65,7 +65,7 @@ public:
 
     bool IsOk();
     bool Save();
-    bool IsSaved();
+    bool IsSaved() const;
 
     bool Update() override;
 

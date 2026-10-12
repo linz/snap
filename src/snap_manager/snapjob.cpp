@@ -219,7 +219,7 @@ bool SnapJob::Save()
     return saved;
 }
 
-bool SnapJob::IsSaved()
+bool SnapJob::IsSaved() const
 {
     return saved;
 }

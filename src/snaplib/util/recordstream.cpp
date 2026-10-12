@@ -39,7 +39,7 @@ void RecordStream::setControlChars(char comment, char contchar)
     _contchar = contchar;
 }
 
-bool RecordStream::_iscomment(const std::string &str)
+bool RecordStream::_iscomment(const std::string &str) const
 {
     if (!_leadcomment) {
         return false;
@@ -49,7 +49,7 @@ bool RecordStream::_iscomment(const std::string &str)
     return first < str.end() && (*first) == _leadcomment;
 }
 
-void RecordStream::_trimcomment(std::string &str)
+void RecordStream::_trimcomment(std::string &str) const
 {
     if (!_comment) {
         return;
@@ -60,7 +60,7 @@ void RecordStream::_trimcomment(std::string &str)
 }
 }
 
-bool RecordStream::_trimcontinue(std::string &str)
+bool RecordStream::_trimcontinue(std::string &str) const
 {
     boost::trim_right(str);
     if (!_contchar) {
