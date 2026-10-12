@@ -120,7 +120,8 @@ const std::string &background_layer_name( int pen_id )
 static void load_background_file( const background_file &bf )
 {
     FILE *in;
-    coordsys *cs, *csp;
+    coordsys *cs;
+    coordsys *csp;
     coord_conversion cnv;
     char need_conversion;
     char got_conversion;

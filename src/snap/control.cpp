@@ -324,7 +324,8 @@ std::optional<std::string> find_configuration_file( const std::string &name )
 
 int process_default_configuration( void )
 {
-    int sts, sts1;
+    int sts;
+    int sts1;
     std::string spec;
     sts = OK;
     spec=build_config_filespec(system_config_dir(),false,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, "" );
@@ -804,7 +805,9 @@ static int read_station_ordering( CFG_FILE *cfg, std::string_view string, void *
 
 static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code )
 {
-    int sts, use, calculate;
+    int sts;
+    int use;
+    int calculate;
     double rc;
 
     sts = OK;
@@ -913,14 +916,17 @@ static int read_rfscale( CFG_FILE *, std::string_view string, void *, int, int )
 
 static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    std::optional<std::string_view> prmname, valuetype;
+    std::optional<std::string_view> prmname;
+    std::optional<std::string_view> valuetype;
     int rfid;
     rfTransformation *rf;
     double val[14];
     int calcval[14];
     int defined[14];
     double date;
-    int i, nval, ival;
+    int i;
+    int nval;
+    int ival;
     int sts;
     int calculate;
     int topocentric;
@@ -1293,7 +1299,8 @@ static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *,
 
         bool valid = true;
         int width = 0;
-        std::optional<std::string> ttl1, ttl2;
+        std::optional<std::string> ttl1;
+        std::optional<std::string> ttl2;
 
         const auto colonPos = column.find(':');
         const std::string_view columnName = colonPos==std::string_view::npos ? column : column.substr(0,colonPos);
@@ -1782,8 +1789,12 @@ static int read_specification_command(CFG_FILE *cfg, std::string_view string, vo
     int gothortol;
     int gotvertol;
     double conf = 0.0;
-    double herrabs, herrppm, herrmax;
-    double verrabs, verrppm, verrmax;
+    double herrabs;
+    double herrppm;
+    double herrmax;
+    double verrabs;
+    double verrppm;
+    double verrmax;
     int errdirflg;
 
     herrabs = herrppm = herrmax = 0.0;

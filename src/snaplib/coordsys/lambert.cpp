@@ -37,7 +37,8 @@ static double calc_m( double e, double lt )
 
 static double calc_t( double e, double lt )
 {
-    double s, es;
+    double s;
+    double es;
     s = sin(lt);
     es = e * s;
     return sqrt((1-s) * pow( (1+es)/(1-es) , e) / ( 1 + s ));
@@ -50,7 +51,10 @@ void defineLCCProjection( LCCProjection *lp,
                           double e0, double n0 )
 {
 
-    double m1, m2, t1, t2;
+    double m1;
+    double m2;
+    double t1;
+    double t2;
     double e;
     int rev;
 
@@ -96,7 +100,8 @@ void convertGeogToLCC( LCCProjection *lp,
                        double *sf, double *cnv )
 {
 
-    double r, th;
+    double r;
+    double th;
 
     lt = lt * lp->rev;
     r = lp->a*lp->F*pow(calc_t(lp->e, lt) , lp->n);
@@ -126,8 +131,10 @@ void convertLCCToGeog( LCCProjection *lp,
                        double ce, double cn, double *ln, double *lt )
 {
 
-    double r, t;
-    double lt0, lt1;
+    double r;
+    double t;
+    double lt0;
+    double lt1;
     int it;
     double es;
 

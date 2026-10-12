@@ -58,7 +58,8 @@ PenOptionsDialog::PenOptionsDialog( bool isStdRes, wxHelpController *help )
 
 void PenOptionsDialog::ReadData()
 {
-    int aposts, npens;
+    int aposts;
+    int npens;
 
     if( residuals )
     {

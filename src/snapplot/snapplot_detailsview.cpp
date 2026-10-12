@@ -37,7 +37,10 @@ PutTextInfoWriter::PutTextInfoWriter( const PutTextInfo &info ) :
 
 PutTextInfoWriter::PutTextInfoWriter( const wxString &string )
 {
-    int itype, ifrom, ito, iobs_id;
+    int itype;
+    int ifrom;
+    int ito;
+    int iobs_id;
     type = ptfNone;
     if( sscanf( string.mb_str(),"PTI:%d:%d:%d:%d",&itype,&ifrom,&ito,&iobs_id ) != EOF )
     {

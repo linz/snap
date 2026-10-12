@@ -329,7 +329,8 @@ void delete_requested_covariance_connections()
 int add_requested_covariance_connections()
 {
     relcvr_opt *rco;
-    station *stnf, *stnt;
+    station *stnf;
+    station *stnt;
     int nnode=number_of_stations(net);
     int sts=OK;
 
@@ -1027,7 +1028,8 @@ void print_solution_summary( FILE *lst )
 
 void print_bandwidth_reduction( FILE *lst )
 {
-    long nsave, nfull;
+    long nsave;
+    long nfull;
     /* Report effectiveness of bandwidth reduction */
     if( nprm )
     {

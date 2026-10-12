@@ -164,8 +164,15 @@ static int create_grid_def( grid_def **defr, const std::string &filename, short 
     fseek( bin, indexloc, SEEK_SET );
     int rowfmt = version == 3 ? 2 : 1;
 
-    double miny, maxy, minx, maxx, vres;
-    short ngrdy, ngrdx, ngrdval, latlon;
+    double miny;
+    double maxy;
+    double minx;
+    double maxx;
+    double vres;
+    short ngrdy;
+    short ngrdx;
+    short ngrdval;
+    short latlon;
 
     LOAD( miny );
     LOAD( maxy );
@@ -256,8 +263,12 @@ static short load_row2_dim( grid_def *def, long *data )
     short dif;
     short subset;
     short cont;
-    short i, i0, imin, imax;
-    int d1, d2;
+    short i;
+    short i0;
+    short imin;
+    short imax;
+    int d1;
+    int d2;
     int undef;
     int undef2;
     int v = 0;
@@ -539,7 +550,10 @@ static int calc_grid_cell_xy( grid_def*def, double x, double y, double *cx, doub
 
 static void calc_cubic_factors( double x, double f[] )
 {
-    double x0, x1, x2, x3;
+    double x0;
+    double x1;
+    double x2;
+    double x3;
     x = 2*x-1;
     x0 = x+3;
     x1 = x+1;
@@ -554,9 +568,14 @@ static void calc_cubic_factors( double x, double f[] )
 static int calc_grid_cubic( grid_def *def, double x, double y, double *value )
 {
     short ny;
-    short nx, xrow[4];
-    double yfactor[4], xfactor[4];
-    int i, j, v, sts;
+    short nx;
+    short xrow[4];
+    double yfactor[4];
+    double xfactor[4];
+    int i;
+    int j;
+    int v;
+    int sts;
 
     for( v = 0; v < def->ngrdval; v++ ) { value[v] = 0; }
 
@@ -615,7 +634,8 @@ static int calc_grid_cubic( grid_def *def, double x, double y, double *value )
 
 static void calc_linear_factors( double x, double f[] )
 {
-    double x0, x1;
+    double x0;
+    double x1;
     x = 2*x-1;
     x0 = x+1;
     x1 = x-1;
@@ -626,9 +646,14 @@ static void calc_linear_factors( double x, double f[] )
 static int calc_grid_linear( grid_def *def, double x, double y, double *value )
 {
     short ny;
-    short nx, xrow[2];
-    double yfactor[2], xfactor[2];
-    int i, j, v, sts;
+    short nx;
+    short xrow[2];
+    double yfactor[2];
+    double xfactor[2];
+    int i;
+    int j;
+    int v;
+    int sts;
 
     for( v = 0; v < def->ngrdval; v++ ) { value[v] = 0; }
 
@@ -741,8 +766,11 @@ void grd_print_grid_data( grid_def *grd, FILE *out, char showGrid )
     {
         double lonInc = (grd->maxx - grd->minx)/(grd->ngrdx-1);
         double latInc = (grd->maxy - grd->miny)/(grd->ngrdy-1);
-        double lat, lon;
-        short i, j, k;
+        double lat;
+        double lon;
+        short i;
+        short j;
+        short k;
         for( i = 0, lat = grd->miny; i < grd->ngrdy; i++, lat += latInc )
         {
             long *data = get_row( grd, i );

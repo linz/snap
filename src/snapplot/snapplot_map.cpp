@@ -77,7 +77,12 @@ SnapplotMap::~SnapplotMap()
 
 void SnapplotMap::GetMapExtents(MapRect &extents)
 {
-    double emin, emax, nmin, nmax, e, n;
+    double emin;
+    double emax;
+    double nmin;
+    double nmax;
+    double e;
+    double n;
 
     // Put a margin around the range of station coordinates to
     // keep map from touching edges of display area..

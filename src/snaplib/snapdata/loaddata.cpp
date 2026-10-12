@@ -647,7 +647,8 @@ static void *next_data( int type )
 
 static void clear_cvr( int ndim, ltmat cvr )
 {
-    int i, j;
+    int i;
+    int j;
     for( i = 0; i < ndim; i++ ) { for( j = 0; j <= i; j++ )
         {
             *cvr = 0.0;
@@ -1106,7 +1107,13 @@ static void remove_ignored_obs()
     if( data.format == SD_VECDATA && cvr )
     {
         int cvrperobs=3;
-        int ir0, ir1, ir, njr, j, jr0, jtgt;
+        int ir0;
+        int ir1;
+        int ir;
+        int njr;
+        int j;
+        int jr0;
+        int jtgt;
         int itgt=0;
         for( i = 0; i < data.nobs; i++ )
         {

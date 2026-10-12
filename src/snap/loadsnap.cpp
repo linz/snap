@@ -210,8 +210,11 @@ static void list_missing_stations( void )
 
 static void record_connections( survdata *sd )
 {
-    int i, i2, from;
-    trgtdata *t, *t2;
+    int i;
+    int i2;
+    int from;
+    trgtdata *t;
+    trgtdata *t2;
 
     from = sd->from;
     for( i=0; i < sd->nobs; i++ )
@@ -333,7 +336,9 @@ static int split_obsdata_for_schreiber( survdata *sd )
 static void save_split_survdata( survdata *sd )
 {
     unsigned char typesaved[NOBSTYPE];
-    int iobs, sobs, to;
+    int iobs;
+    int sobs;
+    int to;
     trgtdata *t;
 
     for( iobs = 0; iobs< NOBSTYPE; iobs++ ) { typesaved[iobs] = 0;

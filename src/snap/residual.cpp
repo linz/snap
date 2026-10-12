@@ -76,8 +76,11 @@ static int flag_values_set = 0;
 
 static void setup_flag_values( void )
 {
-    int rank, level;
-    double prob1, prob, value;
+    int rank;
+    int level;
+    double prob1;
+    double prob;
+    double value;
 
     for( level = 0; level < 2; level++ )
     {
@@ -147,7 +150,8 @@ std::string_view residual_flag( const int unused, int rank, double sres )
 void save_residual( int from, int to, int id, int type,
                     int file, int line, char unused, int rank, double sres, int64_t note )
 {
-    int i, level;
+    int i;
+    int level;
     int used;
     residual rs;
 
@@ -220,8 +224,16 @@ void print_worst_residuals( FILE *out )
     size_t index[2][MAXRANK];
     const residual *ws;
     double maxprob;
-    int i, j, maxi, maxj, nwslist, level;
-    int useall, iused, imin, imax;
+    int i;
+    int j;
+    int maxi;
+    int maxj;
+    int nwslist;
+    int level;
+    int useall;
+    int iused;
+    int imin;
+    int imax;
 
     if( totalcount <= 0 ) { return;
 }

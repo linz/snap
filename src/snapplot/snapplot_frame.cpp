@@ -265,7 +265,8 @@ void SnapplotFrame::CreateMainWindows()
     textDivider->SetSashGravity(0.8);
     textDivider->SplitHorizontally( keyDivider, dataView, -mapHeight );
 
-    int twidth, theight;
+    int twidth;
+    int theight;
     keyWindow->GetTextExtent("MMMMM",&twidth,&theight);
     keyDivider->SetMinimumPaneSize( 50 );
     keyDivider->SetSashGravity(1.0);

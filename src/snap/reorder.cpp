@@ -217,7 +217,12 @@ int get_connection( int stn, int nconn )
 
 static int make_rooted_level_structure( int stn, int *width, int maxwidth )
 {
-    int i, l, w, wl, *list, c;
+    int i;
+    int l;
+    int w;
+    int wl;
+    int *list;
+    int c;
 
     for( i = 0; i++ < nconnlst; ) { connlst[i].level = nconnlst+1;
 }
@@ -259,7 +264,10 @@ static int make_rooted_level_structure( int stn, int *width, int maxwidth )
 
 static int form_end_list( int *list, int level )
 {
-    int ncount, i, nc, dg;
+    int ncount;
+    int i;
+    int nc;
+    int dg;
 
     ncount = 0;
     for( i=0; i++<nconnlst; ) { if( connlst[i].level == level )
@@ -288,7 +296,15 @@ static int find_end_nodes( int *s, int *e )
     /* Ignore nodes for which order1[i] is not zero */
     /* If none found then we are finished.          */
 
-    int start, end, nend, deg, wmin, hmax, w, h, i;
+    int start;
+    int end;
+    int nend;
+    int deg;
+    int wmin;
+    int hmax;
+    int w;
+    int h;
+    int i;
     deg  = nconnlst+1;
     start = 0;
 
@@ -366,8 +382,17 @@ static int find_end_nodes( int *s, int *e )
 
 static int order_connected_nodes( int start, int end, int seqno )
 {
-    int npending, i, i1, i2, *list1, *list2, h, w, nmax;
-    int next, maxpriority;
+    int npending;
+    int i;
+    int i1;
+    int i2;
+    int *list1;
+    int *list2;
+    int h;
+    int w;
+    int nmax;
+    int next;
+    int maxpriority;
 
     /* If it is a degenerate list assign the element and return */
 
@@ -493,7 +518,9 @@ static int order_connected_nodes( int start, int end, int seqno )
 
 static void order_nodes( void )
 {
-    int seqno, start, end;
+    int seqno;
+    int start;
+    int end;
 
     /* Initialise the order array order1.  In the end each element will
        contain the sequence number of the corresponding station, starting
@@ -565,8 +592,13 @@ static void set_row_numbers( int nprm )
 {
     bltmatrix *N;
     stn_adjustment *sa;
-    int nrow, lowest, i, istn, irow;
-    int count, *list;
+    int nrow;
+    int lowest;
+    int i;
+    int istn;
+    int irow;
+    int count;
+    int *list;
 
     N = lsq_normal_matrix();
 
@@ -644,7 +676,14 @@ void exclude_stations( void )
 
 int setup_parameters( FILE *lst )
 {
-    int nrowst, nprm, nrow, istn, maxstn, nobsprm, nstnobs, endobsprm;
+    int nrowst;
+    int nprm;
+    int nrow;
+    int istn;
+    int maxstn;
+    int nobsprm;
+    int nstnobs;
+    int endobsprm;
 
     /* Count the coordinate parameters and set sa->hrowno and sa->vrowno
        to indicate which stations are being adjusted (and how many parameters

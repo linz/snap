@@ -93,7 +93,8 @@ static int init_linzdef_deformation( void *deformation )
     coordsys *vcs;
     coord_conversion tovcs;
     double factor;
-    int nstns, istn;
+    int nstns;
+    int istn;
     StatusType sts;
     StationDeformation *stdefs;
     char buf[128];

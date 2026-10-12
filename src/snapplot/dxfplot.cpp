@@ -445,7 +445,9 @@ int open_dxf_file( const std::string &dxfname )
         const int layer_count = boost::numeric_cast<int>( layer_name.size() );
         for( i = 0; i < layer_count; i++ )
         {
-            unsigned char red, green, blue;
+            unsigned char red;
+            unsigned char green;
+            unsigned char blue;
             int colourid = 1;
             if( layer_name[i].empty() ) { continue;
 }
@@ -698,8 +700,20 @@ static void dxf_text( void *, double x, double y, double size, int pen, const st
 static void dxf_ellipse( void *, double x, double y, double a, double b, double az, int pen )
 {
 
-    int i,ncd;
-    double sep,r,rad,ai,ca,sa,co,so,ci,si,xe,ye;
+    int i;
+    int ncd;
+    double sep;
+    double r;
+    double rad;
+    double ai;
+    double ca;
+    double sa;
+    double co;
+    double so;
+    double ci;
+    double si;
+    double xe;
+    double ye;
 
     if( a == b )
     {
@@ -776,8 +790,13 @@ int close_dxf_file()
 
 void write_dxf_title_block( map_plotter * )
 {
-    int nch, pen;
-    double spacing, size, xt, yt, xs;
+    int nch;
+    int pen;
+    double spacing;
+    double size;
+    double xt;
+    double yt;
+    double xs;
     char text[80];
     double oldsymsize = stn_symbol_size;
 

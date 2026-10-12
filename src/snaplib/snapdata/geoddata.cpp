@@ -229,7 +229,11 @@ int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
 
 static double gb_date( long ldate, int itime )
 {
-    int dy, mon, yr, hr, min;
+    int dy;
+    int mon;
+    int yr;
+    int hr;
+    int min;
     double dt;
 
     yr =  (int) (ldate / 10000);

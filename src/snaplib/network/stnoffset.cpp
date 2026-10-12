@@ -274,7 +274,9 @@ void print_station_offset( FILE *lst, station *st )
 }
             if( i >= 0 || comp.mode != STN_TS_SERIES )
             {
-                int y,m,d;
+                int y;
+                int m;
+                int d;
                 date_as_ymd(tsp->date,&y,&m,&d);
                 sprintf(datestr,"%02d-%02d-%04d",d,m,y);
             }

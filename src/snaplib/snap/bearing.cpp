@@ -133,8 +133,14 @@ int calc_prj_azimuth2( int bproj_id,
                        double *angle, vector3 dst1, vector3 dst2 )
 {
 
-    double e1, n1, e2, n2, de, dn;
-    double llh[3], enh[3];
+    double e1;
+    double n1;
+    double e2;
+    double n2;
+    double de;
+    double dn;
+    double llh[3];
+    double enh[3];
     brngProjection *bproj;
 
     bproj = bproj_from_id( bproj_id );

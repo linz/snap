@@ -46,7 +46,8 @@ bool SnapplotMapPrinter::OnPrintPage(int WXUNUSED(page) )
 
     // Lots of queries here trying to make scaling of fonts work ..
 
-    int w, h;
+    int w;
+    int h;
     wxRect printRect = GetLogicalPageRect();
 
     // Just setting a point size didn't work very well :-(

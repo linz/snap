@@ -482,7 +482,9 @@ int have_binary_data()
 void add_survdata_connections( survdata *sd, int64_t bloc )
 {
     trgtdata *t;
-    int i, j, iclass;
+    int i;
+    int j;
+    int iclass;
 
     if( connlst.empty() ) { init_connection_list();
 }
@@ -524,7 +526,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
             {
                 /* This one is tricky !!!! How can I put a single
                    number to the three components.... */
-                double oe, re;
+                double oe;
+                double re;
                 double cvr[6];
                 calc_vecdata_vector( sd, VD_REF_STN, i, VD_OBSVEC, nullptr, cvr );
                 oe = cvr[0] + cvr[2] + cvr[5];
@@ -611,7 +614,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                 {
                     /* This one is tricky !!!! How can I put a single
                        number to the three components.... */
-                    double oe, re;
+                    double oe;
+                    double re;
                     double cvr[6];
                     calc_vecdata_vector( sd, i, j, VD_OBSVEC, nullptr, cvr );
                     oe = cvr[0] + cvr[2] + cvr[5];
@@ -624,7 +628,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                 connection->sres = 0.0;
                 if( binary_data )
                 {
-                    double vec[3], cvr[6];
+                    double vec[3];
+                    double cvr[6];
                     int rank;
                     calc_vecdata_vector( sd, i, j, VD_RESVEC, vec, cvr );
                     connection->sres = vector_standardised_residual( vec, cvr, &rank );
@@ -926,7 +931,8 @@ int set_datapen_definition( const std::string_view def )
     }
     else if( boost::algorithm::iequals( *fld, "by_classification" ) )
     {
-        int i, found;
+        int i;
+        int found;
         fld = scanner.nextToken( delimiters );
         if( ! fld ) { return MISSING_DATA;
 }
@@ -970,14 +976,19 @@ std::string get_datapen_definition()
 static void plot_connection( map_plotter *plotter, int from, int to, int pen, unsigned char flags,
                              double offset_along, double offset_perp )
 {
-    double x1, y1, x2, y2;
+    double x1;
+    double y1;
+    double x2;
+    double y2;
 
     get_station_coordinates( from, &x1, &y1 );
     get_station_coordinates( to, &x2, &y2 );
 
     if( offset_along > 0.0 || offset_perp != 0.0 )
     {
-        double dx, dy, dh;
+        double dx;
+        double dy;
+        double dh;
         dx = x2 - x1;
         dy = y2 - y1;
         dh = _hypot( dx, dy );
@@ -1050,19 +1061,29 @@ static std::vector<pendef> pens;
 
 int plot_connections( map_plotter *plotter, int first, int offset_opt, double offset, int redraw )
 {
-    int hltpen, count, maxstn;
-    int pltused, pltrejected, pltunused;
-    int pltrelerr, pltrelhgt;
-    int ellpen = 0, hgtpen = 0;
-    int i, j;
+    int hltpen;
+    int count;
+    int maxstn;
+    int pltused;
+    int pltrejected;
+    int pltunused;
+    int pltrelerr;
+    int pltrelhgt;
+    int ellpen = 0;
+    int hgtpen = 0;
+    int i;
+    int j;
     int highlight;
-    char from_highlighted, highlight_line;
+    char from_highlighted;
+    char highlight_line;
     int hlttype;
     int show_oneway_obs;
     double offset_prp;
     double eemult = 0.0;
-    double mide, midn;
-    int npendef, nhlt;
+    double mide;
+    double midn;
+    int npendef;
+    int nhlt;
     int from;
     fconn_ptr *fp;
     tconn_ptr *tp;
@@ -1398,7 +1419,10 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
             get_relative_covariance( tp->conn, &cvr );
 
             {
-                double e1, n1, e2, n2;
+                double e1;
+                double n1;
+                double e2;
+                double n2;
                 get_station_coordinates( from, &e1, &n1 );
                 get_station_coordinates( tp->to, &e2, &n2 );
                 mide = (e1 + e2)/2.0;
@@ -1411,7 +1435,8 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
             if( pltrelerr && cvr.emax > 0.0 )
             {
-                double a, b;
+                double a;
+                double b;
                 a = cvr.emax * eemult;
                 b = cvr.emin * eemult;
 
@@ -1993,7 +2018,8 @@ void SresDef::set_sort_key( int order )
 
 static void reverse_index()
 {
-    long i0, i1;
+    long i0;
+    long i1;
     for( i0 = 0, i1=srIndexCount-1; i0 < i1; i0++, i1-- )
     {
         long tmp = srIndex[i0];
@@ -2202,7 +2228,9 @@ void set_eastmost_conn( int from )
     fconn_ptr *fp;
     tconn_ptr *t;
     int i;
-    double e, n, emost;
+    double e;
+    double n;
+    double emost;
     if( connlst.empty() ) { return;
 }
     fp = &connlst[from];
@@ -2228,7 +2256,9 @@ static double calc_nearest_point( double x1, double y1, double x2, double y2, do
     double dy = y2 - y1;
     double tx = x - x1;
     double ty = y - y1;
-    double ds2, ts2, dts;
+    double ds2;
+    double ts2;
+    double dts;
     ds2 = dx * dx + dy * dy;
     ts2 = tx * tx + ty * ty;
     if( ds2 <= 0 )
@@ -2275,11 +2305,14 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
     tol *= tol;
     for ( ; ixfrom < ixlast; ixfrom++ )
     {
-        int f, it;
+        int f;
+        int it;
         fconn_ptr *fp;
         tconn_ptr *tp;
-        double e1, n1;
-        double e2, n2;
+        double e1;
+        double n1;
+        double e2;
+        double n2;
         char from_visible;
         f = sorted_x_station_number( ixfrom );
         if( ! obs_station_showable(f) ) { continue;
@@ -2383,8 +2416,10 @@ void list_connections( void *dest, PutTextFunc f, int from )
 {
     fconn_ptr *fp;
     tconn_ptr *tp;
-    station *fs, *ts;
-    int ic, id;
+    station *fs;
+    station *ts;
+    int ic;
+    int id;
     int nconn;
     int first_conn;
     int pntdata_id;
@@ -2529,8 +2564,10 @@ void list_connections( void *dest, PutTextFunc f, int from )
 static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
 {
     PutTextInfo jmp;
-    station *sfrom, *sto;
-    double dist, edist;
+    station *sfrom;
+    station *sto;
+    double dist;
+    double edist;
     double az;
     double hd;
 
@@ -2564,8 +2601,10 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
                       + "   Az " + dms_string( az, angleFormat ) + "  Hgt diff " + format_fixed( hd, 3 ) );
     if( !geodetic_coordsys() )
     {
-        double x1, y1;
-        double x2, y2;
+        double x1;
+        double y1;
+        double x2;
+        double y2;
         get_projection_coordinates( from, &x1, &y1 );
         get_projection_coordinates( to, &x2, &y2 );
         if( x1 != x2 && y1 != y2 )
@@ -2625,7 +2664,10 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
         if( cvr.emax > 0.0 && dimension != 1 )
         {
-            double b1, b2, emax, emin;
+            double b1;
+            double b2;
+            double emax;
+            double emin;
             b1 = cvr.az * RTOD;
             while( b1 < 0.0 ) { b1 += 180.0;
 }
@@ -2714,8 +2756,10 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
 {
     PutTextInfo jmp;
     obsdata *o;
-    station *sfrom, *sto;
-    double semult, srmult;
+    station *sfrom;
+    station *sto;
+    double semult;
+    double srmult;
     int type;
 
 
@@ -2780,7 +2824,8 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     {
         if( datatype[type].isangle )
         {
-            double obslength, altres;
+            double obslength;
+            double altres;
             (*f)( dest, &jmp, "Calculated:      " + dms_string( degree_angle( o->calc ), signedAngleFormat )
                               + "  +/-  " + format_fixed( o->calcerr*semult*RTOS, 1, 6 ) );
             std::string residualText = "Residual:        " + format_fixed( o->residual*RTOS, 1, 12 )
@@ -2919,17 +2964,33 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     PutTextInfo jmp;
     vecdata *v;
     trgtdata *tgt;
-    int ofrom, oto, from, to;
-    station *sfrom, *sto;
-    double semult, srmult;
+    int ofrom;
+    int oto;
+    int from;
+    int to;
+    station *sfrom;
+    station *sto;
+    double semult;
+    double srmult;
     int type;
     char unused;
     int ndp;
     int ispoint;
-    double oxyz[3], eoxyz[3], cxyz[3], ecxyz[3], renu[3], erenu[6],
-           sres[3], rfac[3], small;
-    double obslen, calclen, reslen, vsres;
-    int axis, rank;
+    double oxyz[3];
+    double eoxyz[3];
+    double cxyz[3];
+    double ecxyz[3];
+    double renu[3];
+    double erenu[6];
+    double sres[3];
+    double rfac[3];
+    double small;
+    double obslen;
+    double calclen;
+    double reslen;
+    double vsres;
+    int axis;
+    int rank;
     small = 0.0;
 
     if( index >= sd->nobs )
@@ -3180,7 +3241,8 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     PutTextInfo jmp;
     pntdata *p;
     station *sfrom;
-    double semult, srmult;
+    double semult;
+    double srmult;
     int type;
 
     p = & sd->obs.pdata[index];

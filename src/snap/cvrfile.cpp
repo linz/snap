@@ -47,11 +47,15 @@ using tmatrix = double[3][3];   /* Vector transformation matrix */
 void print_coord_covariance( void )
 {
     FILE *f;
-    int maxstn, istn, ncrd;
+    int maxstn;
+    int istn;
+    int ncrd;
     station *st;
     stn_adjustment *sa;
     long ncvr;
-    int nline, ir, ic;
+    int nline;
+    int ir;
+    int ic;
     bltmatrix *invnorm;
     double value;
     char projection_coords;
@@ -90,7 +94,8 @@ void print_coord_covariance( void )
         fprintf(f,"%*s ",stn_name_width,st->Code.c_str() );
         if( projection_coords )
         {
-            double northing, easting;
+            double northing;
+            double easting;
             geog_to_proj( net->crdsys->prj, st->ELon, st->ELat, &easting, &northing);
             fprintf(f,"%13.*lf ",(int) coord_precision,easting);
             fprintf(f,"%13.*lf ",(int) coord_precision,northing);
@@ -137,12 +142,16 @@ void print_coord_covariance( void )
 void print_coord_covariance_json( void )
 {
     FILE *f;
-    int maxstn, istn, ncrd;
+    int maxstn;
+    int istn;
+    int ncrd;
     ellipsoid *elp;
     station *st;
     stn_adjustment *sa;
     long ncvr;
-    int nline, ir, ic;
+    int nline;
+    int ir;
+    int ic;
     bltmatrix *invnorm;
     double value;
     int projection_coords;
@@ -193,7 +202,8 @@ void print_coord_covariance_json( void )
 }
         if( projection_coords )
         {
-            double northing, easting;
+            double northing;
+            double easting;
             geog_to_proj( net->crdsys->prj, st->ELon, st->ELat, &easting, &northing);
             fprintf(f,"%.*lf,%.*lf,%.*lf]\n",
                     (int) coord_precision,easting,
@@ -202,7 +212,8 @@ void print_coord_covariance_json( void )
         }
         else if( geocentric_coords )
         {
-            double llh[3], xyz[3];
+            double llh[3];
+            double xyz[3];
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
@@ -267,7 +278,9 @@ void print_coord_covariance_json( void )
 
 static void print_sinex_date( FILE *f, double date )
 {
-    int year=0,dayno=0,secs=0;
+    int year=0;
+    int dayno=0;
+    int secs=0;
     if( date != UNDEFINED_DATE )
     {
         date_as_yds( date, &year, &dayno, &secs );
@@ -278,8 +291,10 @@ static void print_sinex_date( FILE *f, double date )
 
 static void station_cvr( bltmatrix* invnorm, station *st1, station *st2, tmatrix cvr )
 {
-    int irow1[3], irow2[3];
-    int i, j;
+    int irow1[3];
+    int irow2[3];
+    int i;
+    int j;
 
     irow1[0]=stnadj(st1)->hrowno;
     irow1[1]=irow1[0] ? irow1[0]+1 : 0;
@@ -320,14 +335,16 @@ static void station_cvr( bltmatrix* invnorm, station *st1, station *st2, tmatrix
 void print_coord_sinex( void )
 {
     FILE *f;
-    int maxstn, istn;
+    int maxstn;
+    int istn;
     ellipsoid *elp;
     station *st;
     stn_adjustment *sa;
     bltmatrix *invnorm;
     int nsnxprm=0;
     const char *dflt_mark="01";
-    double mindate,maxdate;
+    double mindate;
+    double maxdate;
     tmatrix cvr;
     int badcvr=0;
 
@@ -492,7 +509,8 @@ void print_coord_sinex( void )
         for( istn = 0 ; istn++ < maxstn;)
         {
             const char *mark;
-            double llh[3], xyz[3];
+            double llh[3];
+            double xyz[3];
             int stnconstraint;
 
             st = stnptr( istn );
@@ -531,7 +549,8 @@ void print_coord_sinex( void )
     fprintf(f,"-SOLUTION/APRIORI\n");
     */
     {
-        int nprmi,nprmj;
+        int nprmi;
+        int nprmj;
         fprintf(f,"+SOLUTION/MATRIX_ESTIMATE L COVA\n");
         fprintf(f,"*PARA1 PARA2 ____PARA2+0__________ ____PARA2+1__________ ____PARA2+2__________\n");
 
@@ -551,7 +570,8 @@ void print_coord_sinex( void )
 
             for( jstn = 1; jstn <= istn; jstn++ )
             {
-                int row, col;
+                int row;
+                int col;
                 station *stj =stnptr(jstn);
                 stn_adjustment *saj=stnadj(stj);
                 if( ! ( saj->hrowno ||  saj->vrowno ) ) { continue;

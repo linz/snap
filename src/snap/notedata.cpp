@@ -47,8 +47,10 @@ void list_note( FILE *out, int64_t loc )
 {
     char note[81];
     long size;
-    int block, type;
-    int firstline, c;
+    int block;
+    int type;
+    int firstline;
+    int c;
     if( loc < 0 || !output_notes ) { return;
 }
     const int64_t curloc = ftell64( bindata_file );

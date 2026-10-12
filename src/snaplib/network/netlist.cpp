@@ -165,7 +165,9 @@ static int stncmp( const void *st1, const void *st2 )
 
 static void index_stations( station_list *sl )
 {
-    int i, ic, count; 
+    int i;
+    int ic;
+    int count; 
 
     if( sl->maxsortid == sl->lastid ) { return;
 }

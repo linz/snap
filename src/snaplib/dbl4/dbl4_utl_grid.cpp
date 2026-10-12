@@ -415,8 +415,12 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
     INT2 dif;
     INT2 subset;
     INT2 cont;
-    INT2 i, i0, imin, imax;
-    INT4 d1, d2;
+    INT2 i;
+    INT2 i0;
+    INT2 imin;
+    INT2 imax;
+    INT4 d1;
+    INT4 d2;
     INT4 undef;
     INT4 undef2;
     INT4 v = 0;
@@ -753,7 +757,10 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
 
 static void calc_cubic_factors( double x, double f[] )
 {
-    double x0, x1, x2, x3;
+    double x0;
+    double x1;
+    double x2;
+    double x3;
     x = 2*x-1;
     x0 = x+3;
     x1 = x+1;
@@ -786,9 +793,13 @@ static StatusType calc_grid_cubic( grid_def_crs *def, double x, double y,
                                    double *value)
 {
     short ny;
-    short nx, xrow[4];
-    double yfactor[4], xfactor[4];
-    int i, j, v;
+    short nx;
+    short xrow[4];
+    double yfactor[4];
+    double xfactor[4];
+    int i;
+    int j;
+    int v;
 
     for( v = 0; v < def->ngrdval; v++ )
     {
@@ -869,7 +880,8 @@ static StatusType calc_grid_cubic( grid_def_crs *def, double x, double y,
 
 static void calc_linear_factors( double x, double f[] )
 {
-    double x0, x1;
+    double x0;
+    double x1;
     x = 2*x-1;
     x0 = x+1;
     x1 = x-1;
@@ -899,9 +911,13 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
                                     double *value)
 {
     short ny;
-    short nx, xrow[2];
-    double yfactor[2], xfactor[2];
-    int i, j, v;
+    short nx;
+    short xrow[2];
+    double yfactor[2];
+    double xfactor[2];
+    int i;
+    int j;
+    int v;
 
     for( v = 0; v < def->ngrdval; v++ )
     {

@@ -2609,7 +2609,10 @@ static void sdcWriteCompactLogHeader( SDCTestImp *sdci )
 static void sdcWriteCompactLog( SDCTestImp *sdci, long stn1, long stn2, 
         const char *test, const char *status, double v1, double v2, const char *comment )
 {
-    char cstn1[20],cstn2[20],cv1[40],cv2[40];
+    char cstn1[20];
+    char cstn2[20];
+    char cv1[40];
+    char cv2[40];
 
     /*> Check that writing  log level is appropriate */
 

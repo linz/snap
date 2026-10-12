@@ -151,7 +151,8 @@ int wktPolygon::readFile( const std::string &file )
         wktRing *ring = nullptr;
         while( f )
         {
-            double lon, lat;
+            double lon;
+            double lat;
             f >> lon >> lat;
             if (! f ) { if( ! f.eof() ) { f.clear();  
 }break; }

@@ -72,13 +72,15 @@ void SnapplotMapDragger::EndDrag()
     DeleteConnections();
     MapPoint newLoc;
     mapWindow->GetScale().PlotToWorld( dragEndPoint, newLoc );
-    double x, y;
+    double x;
+    double y;
     get_station_coordinates( istn, &x, &y );
     x = newLoc.x - x;
     y = newLoc.y - y;
     if( using_station_offsets() )
     {
-        double dx, dy;
+        double dx;
+        double dy;
         get_station_offset( istn, &dx, &dy );
         x += dx;
         y += dy;

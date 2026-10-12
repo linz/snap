@@ -233,7 +233,8 @@ static double component_scale( const component_func componentFunc, const bool us
 {
     if( !got_covariances() ) { return 0.0;
 }
-    double h, v;
+    double h;
+    double v;
     componentFunc( &h, &v );
     const double cvrmax = (useHorizontal ? h : v) * factor;
     const double safeCvrmax = cvrmax > 0 ? cvrmax : 1.0;

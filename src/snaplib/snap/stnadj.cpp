@@ -305,7 +305,9 @@ int reload_stations( BINARY_FILE *b )
 {
     station *st;
     stn_adjustment *sa;
-    int istn, nstns, sts;
+    int istn;
+    int nstns;
+    int sts;
 
     /* Restore the critical static information */
 

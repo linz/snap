@@ -66,7 +66,8 @@ static const DmsFormat &angle_format( const int type )
 void list_obsdata( FILE *out, survdata *o )
 {
     obsdata *t;
-    int iobs, to;
+    int iobs;
+    int to;
     double tohgt;
     int type;
 
@@ -169,10 +170,16 @@ void apply_obsdata_options( survdata *o )
 
 int obsdata_obseq( survdata *o, void *hA, int nextra )
 {
-    station *st1, *st2;
-    vector3 dst1, dst2;
-    double hgt1, hgt2, dhgt1, dhgt2;
-    double value, cvr;
+    station *st1;
+    station *st2;
+    vector3 dst1;
+    vector3 dst2;
+    double hgt1;
+    double hgt2;
+    double dhgt1;
+    double dhgt2;
+    double value;
+    double cvr;
     double refaz;
     int firstha;
     int iobs;
@@ -345,9 +352,22 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
 void list_obsdata_residuals( FILE *out, survdata *o, double semult )
 {
     obsdata *t;
-    int iobs, to, itype, maxtype, type, ndp;
-    double calc, seo, sec, ser, sres, redundancy;
-    char unused, rfunused, firstobs, firstoutput;
+    int iobs;
+    int to;
+    int itype;
+    int maxtype;
+    int type;
+    int ndp;
+    double calc;
+    double seo;
+    double sec;
+    double ser;
+    double sres;
+    double redundancy;
+    char unused;
+    char rfunused;
+    char firstobs;
+    char firstoutput;
     char ok;
     char distratios;
     double obslength;
@@ -569,7 +589,8 @@ void calc_obsdata_residuals( survdata *o, lsdata *l )
 {
     obsdata *t;
     int iobs;
-    ltmat ccvr, rcvr;
+    ltmat ccvr;
+    ltmat rcvr;
     double sres;
     char unused;
     char unused_flag;

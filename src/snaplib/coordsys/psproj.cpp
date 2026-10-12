@@ -42,8 +42,11 @@ void define_PSProjection( PSProjection *psp, double a, double rf,
 void psp_geod( PSProjection *psp, double ce, double cn, double *slam, double *sphi )
 {
 
-    double deast, dnorth;
-    double dlam, r, q;
+    double deast;
+    double dnorth;
+    double dlam;
+    double r;
+    double q;
 
     deast=ce-psp->fe;
     dnorth=cn-psp->fn;
@@ -69,7 +72,12 @@ void psp_geod( PSProjection *psp, double ce, double cn, double *slam, double *sp
 void geod_psp(PSProjection *psp, double slam, double sphi, double *cee, double *cnn)
 {
 
-    double diff, power, a1, a2, a3, r;
+    double diff;
+    double power;
+    double a1;
+    double a2;
+    double a3;
+    double r;
 
     /* Is this point very close to the pole - within 0.00015" */
 

@@ -137,7 +137,8 @@ static void delete_bltrow( bltrow *row, int nrow )
 
 static void zero_bltmatrix( bltmatrix *blt )
 {
-    int i, c;
+    int i;
+    int c;
     double *m;
 
     /* Clear out the matrix ready for summation or whatever */
@@ -207,7 +208,10 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
         alloc = 1;
         while( i0 < i )
         {
-            int rw, r0, r1, r2;
+            int rw;
+            int r0;
+            int r1;
+            int r2;
             double *a1;
             bltrow *r = &(blt->row[i0]);
             if( r->alloc && r->address )
@@ -425,9 +429,14 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
 
 int blt_chol_dec( bltmatrix *blt, int fill )
 {
-    double *r1, *r2;
+    double *r1;
+    double *r2;
     double sum;
-    int i,j,k,jmin,kmin;
+    int i;
+    int j;
+    int k;
+    int jmin;
+    int kmin;
     int nfill;
     long ndone;
 
@@ -489,7 +498,9 @@ void blt_chol_slv( bltmatrix *blt, double *b, double *r )
 {
     double *r1;
     double sum;
-    int i,k,ik;
+    int i;
+    int k;
+    int ik;
     for ( i=0; i<blt->nrow; i++ )
     {
         r1 = blt->row[i].address;
@@ -578,7 +589,11 @@ static void blt_load_col_cache( bltmatrix *blt, double *tmpcol, double *sumcol,
 
 void blt_chol_inv( bltmatrix *blt )
 {
-    int i0,i1,c,c1,j;
+    int i0;
+    int i1;
+    int c;
+    int c1;
+    int j;
     /* tmpcol and sumcol are flat row-major arrays [nrow][BLT_INV_CACHE_SIZE],
        held in separate allocations.  We benefit from their:
        - Row-major layout: see blt_load_col_cache().
@@ -720,7 +735,11 @@ void blt_chol_inv( bltmatrix *blt )
 
 void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent )
 {
-    int i, j, k, cols, wid;
+    int i;
+    int j;
+    int k;
+    int cols;
+    int wid;
     char *f;
 
     for( f=format; *f != 0 && (*f < '0' || *f > '9'); f++) {;
@@ -906,7 +925,11 @@ int reload_bltmatrix_dense( bltmatrix **pblt, FILE *b )
 
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format )
 {
-    int ir,ic,ir0,ic0,col0;
+    int ir;
+    int ic;
+    int ir0;
+    int ic0;
+    int col0;
     int nrows=blt->nrow;
     int matonly = options & BLT_JSON_MATRIX_ONLY;
     int rows = options & BLT_JSON_FULL;

@@ -72,12 +72,20 @@ void apply_vecdata_options( survdata *v )
 int vecdata_obseq( survdata  *v, void *hA, int nextra )
 {
     vector3 dif;
-    vector3 dst1[3], dst2[3];
-    station *st1, *st2;
-    double hgt1, hgt2;
+    vector3 dst1[3];
+    vector3 dst2[3];
+    station *st1;
+    station *st2;
+    double hgt1;
+    double hgt2;
     vecdata *t;
-    int irow, jrow, nrow, iobs, axis;
-    ltmat oecvr, veccvr;
+    int irow;
+    int jrow;
+    int nrow;
+    int iobs;
+    int axis;
+    ltmat oecvr;
+    ltmat veccvr;
     char unused;
     char isvecdif;
     char addtrans;
@@ -213,7 +221,8 @@ void list_vecdata( FILE *out, survdata  *v )
 {
     vecdata *t;
     int iobs;
-    int axis, j;
+    int axis;
+    int j;
     char isvecdif;
 
     fputs("\n", out);
@@ -326,11 +335,22 @@ void list_vecdata( FILE *out, survdata  *v )
 void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
 {
     vecdata *t;
-    int axis, iobs;
-    char unused, rfunused, firstobs, ndp;
-    double vec[3], vecse[3], calc[3], calcse[3], res[3], resse[3];
-    double sres[3], redundancy[3];
-    double obslength = 0.0, serlim;
+    int axis;
+    int iobs;
+    char unused;
+    char rfunused;
+    char firstobs;
+    char ndp;
+    double vec[3];
+    double vecse[3];
+    double calc[3];
+    double calcse[3];
+    double res[3];
+    double resse[3];
+    double sres[3];
+    double redundancy[3];
+    double obslength = 0.0;
+    double serlim;
     double mde[3];
     int resopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
     // char isvecdif;
@@ -514,9 +534,16 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
 void calc_vecdata_residuals( survdata  *v, lsdata *l )
 {
     vecdata *t;
-    int axis, iobs, iobs3;
-    ltmat ccvr, rcvr, sccvr, srcvr;
-    double *lres, res[3], rescvr[6];
+    int axis;
+    int iobs;
+    int iobs3;
+    ltmat ccvr;
+    ltmat rcvr;
+    ltmat sccvr;
+    ltmat srcvr;
+    double *lres;
+    double res[3];
+    double rescvr[6];
     int cvrsize;
     char unused;
     char unused_flag;

@@ -29,7 +29,8 @@ int write_network( network *nw, const std::string &fname, const std::string_view
 {
     FILE *stf;
     station *st;
-    double northing, easting;
+    double northing;
+    double easting;
     char projection_coords;
     char geocentric_coords;
     int cp;

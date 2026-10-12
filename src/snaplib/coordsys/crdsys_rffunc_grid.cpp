@@ -149,7 +149,8 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
     rf_grid_def *gd;
     double llh[3];
     double dllh[3];
-    double lat, lon;
+    double lat;
+    double lon;
     int sts;
     ref_frame_func *rff;
     if( ! rf->func ) { return INVALID_DATA;

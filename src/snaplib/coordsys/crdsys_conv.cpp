@@ -316,9 +316,12 @@ int convert_coords( coord_conversion *conv,
 {
 
     int i;
-    double xyz[3], gllh[3];
-    coordsys *from, *to;
-    int geoid, in_range;
+    double xyz[3];
+    double gllh[3];
+    coordsys *from;
+    coordsys *to;
+    int geoid;
+    int in_range;
     int sts;
     int isgeoc;
 

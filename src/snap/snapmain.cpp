@@ -298,7 +298,8 @@ try
     xprintf("\nReading the data files...\n");
     init_connections( number_of_stations( net ));
     {
-        double lt, ln;
+        double lt;
+        double ln;
         get_network_topocentre( net, &lt, &ln );
         setup_rftrans_list( lt, ln );
     }

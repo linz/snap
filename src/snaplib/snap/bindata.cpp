@@ -385,9 +385,14 @@ int64_t save_survdata( survdata *sd )
 
 int64_t save_survdata_subset( survdata *sd, int iobs, int type )
 {
-    int nobs, nclass, nsyserr;
-    int cvrperobs, cvrtype;
-    int i, i0, i1;
+    int nobs;
+    int nclass;
+    int nsyserr;
+    int cvrperobs;
+    int cvrtype;
+    int i;
+    int i0;
+    int i1;
 
     /* Determine the possible range of observations */
 
@@ -459,8 +464,10 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
 
     {
         unsigned char *data;
-        int iclass, isyserr;
-        int oldiclass, oldisyserr;
+        int iclass;
+        int isyserr;
+        int oldiclass;
+        int oldisyserr;
 
         data = (unsigned char *) (void *) sd->obs.odata;
         data += (i0*sd->obssize);
@@ -529,7 +536,12 @@ int64_t save_survdata_subset( survdata *sd, int iobs, int type )
 
     if( cvrperobs ) { for( cvrtype = 0; cvrtype < 3; cvrtype++ )
         {
-            int ir0, ir1, ir, njr, j, jr0;
+            int ir0;
+            int ir1;
+            int ir;
+            int njr;
+            int j;
+            int jr0;
             ltmat cvr = nullptr;
             switch( cvrtype )
             {

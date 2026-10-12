@@ -56,7 +56,9 @@ int gps_vertical_fixed( void )
 
 static void rmat_from_vertical( double rmat[3][3] )
 {
-    double *vece, *vecn, *vecu;
+    double *vece;
+    double *vecn;
+    double *vecu;
     double r;
 
     vece = rmat[0];
@@ -90,7 +92,8 @@ static void rmat_from_vertical( double rmat[3][3] )
 
 static void midpoint_rmat( int st1, int st2, double rmat[3][3] )
 {
-    double *vecu, tmp[3];
+    double *vecu;
+    double tmp[3];
     assert(vertfunc != NULL);
     vecu = rmat[2];
     vecu[0] = vecu[1] = vecu[2] = 0.0;
@@ -103,7 +106,8 @@ static void midpoint_rmat( int st1, int st2, double rmat[3][3] )
 
 static void set_midpoint_rmat( survdata *sd, double rmat[3][3] )
 {
-    double *vecu, tmp[3];
+    double *vecu;
+    double tmp[3];
     assert(vertfunc != NULL);
     vecu = rmat[2];
     vecu[0] = vecu[1] = vecu[2] = 0.0;
@@ -221,7 +225,8 @@ static void get_rf_enu_xform( int st1, int st2, int rf,
 static void calc_default_cvr( double length, ltmat cvr, double *mmerr2,
                               double *ppmerr2 )
 {
-    int i, j;
+    int i;
+    int j;
     double l2;
 
     l2 = length * length;
@@ -240,7 +245,9 @@ static void calc_default_cvr( double length, ltmat cvr, double *mmerr2,
 static void transform_cvr( double xform[3][3], ltmat cvr )
 {
     double fullcvr[3][3];
-    int i, j, k;
+    int i;
+    int j;
+    int k;
 
     /* Make a full copy of the covariance matrix */
 
@@ -278,11 +285,17 @@ static void transform_cvr( double xform[3][3], ltmat cvr )
 static void build_default_baseline_cvr( survdata *vd, double *mmerr )
 {
     double xform[3][3];
-    int i,iobs, jobs, iobs3, jobs3;
-    double tcvr[6], dif[3];
+    int i;
+    int iobs;
+    int jobs;
+    int iobs3;
+    int jobs3;
+    double tcvr[6];
+    double dif[3];
     vecdata *t;
     ltmat cvr;
-    double mmerr2[3], ppmerr2[3];
+    double mmerr2[3];
+    double ppmerr2[3];
 
     /* Convert the mm and ppm errors to more useful numbers */
 
@@ -400,11 +413,19 @@ static void build_default_point_cvr( survdata *vd, double *mmerr )
 {
     double xform[3][3];
     int havecvr;
-    int nobs, i,iobs, jobs, iobs3, jobs3;
-    double tcvr[6], dif[3];
+    int nobs;
+    int i;
+    int iobs;
+    int jobs;
+    int iobs3;
+    int jobs3;
+    double tcvr[6];
+    double dif[3];
     vecdata *t;
     ltmat cvr;
-    double abserr2[3], mmerr2[3], ppmerr2[3];
+    double abserr2[3];
+    double mmerr2[3];
+    double ppmerr2[3];
 
     nobs = vd->nobs;
     cvr = vd->cvr;
@@ -489,7 +510,9 @@ static void build_default_point_cvr( survdata *vd, double *mmerr )
 
 static void diagonal_cvr_to_covariance( survdata *vd )
 {
-    int i, j, n;
+    int i;
+    int j;
+    int n;
     ltmat cvr;
 
     /* Clear out off diagonal elements and convert standard errors
@@ -511,7 +534,10 @@ static void topocentric_cvr_to_xyz( survdata *vd, bool correlation )
 
     double xform[3][3];
     double tcvr[6];
-    int iobs, iobs1,iobs2,iobs3;
+    int iobs;
+    int iobs1;
+    int iobs2;
+    int iobs3;
     ltmat cvr;
     vecdata *t;
 
@@ -586,7 +612,8 @@ static void topocentric_cvr_to_xyz( survdata *vd, bool correlation )
 
 static void correlation_cvr_to_covariance( survdata *vd )
 {
-    int i, j;
+    int i;
+    int j;
     int n;
     ltmat cvr;
 
@@ -671,8 +698,11 @@ void transform_xyz_cvr_to_topocentric( survdata *vd, ltmat cvr )
 
     double xform[3][3];
     double tcvr[6];
-    int iobs, iobs3;
-    int jobs, jobs3, j;
+    int iobs;
+    int iobs3;
+    int jobs;
+    int jobs3;
+    int j;
     vecdata *t;
 
     t = vd->obs.vdata;
@@ -747,9 +777,15 @@ void transform_xyz_cvr_to_topocentric( survdata *vd, ltmat cvr )
 double vector_standardised_residual( double vec[3], ltmat cvr, int *rank )
 {
 
-    ltmat r1, r2, ri, rj;
-    double sum, prod;
-    int i,j,k;
+    ltmat r1;
+    ltmat r2;
+    ltmat ri;
+    ltmat rj;
+    double sum;
+    double prod;
+    int i;
+    int j;
+    int k;
     static double small = 1.0e-10;
 
     /* Cholesky decomposition */
@@ -810,10 +846,12 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
                          double *vec, double *cvr )
 {
     double lcvr[6];
-    double *pvec, *pcvr;
+    double *pvec;
+    double *pcvr;
     ltmat source;
     int vtype;
-    int sfrom, sto;
+    int sfrom;
+    int sto;
 
     if( datatype[vd->obs.vdata[0].tgt.type].ispoint ) { return calc_vecdata_point(vd,to,type,vec,cvr);
 }
@@ -894,7 +932,9 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
         }
         if( from != VD_REF_STN )
         {
-            int j3, ic, jc;
+            int j3;
+            int ic;
+            int jc;
             double *pc;
             j3 = from * 3;
             pcvr[0] += Lij(source,j3,  j3 );
@@ -941,7 +981,8 @@ int calc_vecdata_point( survdata *vd, int to, int type,
                         double *vec, double *cvr )
 {
     double lcvr[6];
-    double *pvec, *pcvr;
+    double *pvec;
+    double *pcvr;
     ltmat source;
     int vtype;
     int sto;

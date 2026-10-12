@@ -340,7 +340,8 @@ static void delete_def_seq( hDefSeq seq )
 
 static void delete_def_mod( hDefMod mod )
 {
-    hDefSeq seq, nextseq;
+    hDefSeq seq;
+    hDefSeq nextseq;
 
     /*> Delete each deformation sequence with delete_def_seq */
 
@@ -1036,7 +1037,8 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
             }
             else
             {
-                TimeModelPoint *tm0, *tm1;
+                TimeModelPoint *tm0;
+                TimeModelPoint *tm1;
                 for( i=1; i <= ntm; i++ )
                 {
                     if( date <= cmp->timeModel[i].year )
