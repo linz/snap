@@ -22,7 +22,8 @@ int failures=0;
 
 void check( bool condition, const std::string &description )
 {
-    if( condition ) return;
+    if( condition ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << "\n";
 }
@@ -82,8 +83,9 @@ void check_find_relative_file()
 
     auto found = find_relative_file( basefile, "target", ".dat" );
     check( found.has_value(), "find_relative_file: finds a file in the base's directory" );
-    if( found ) check( std::filesystem::equivalent(*found, tmp / "sub" / "target.dat"),
+    if( found ) { check( std::filesystem::equivalent(*found, tmp / "sub" / "target.dat"),
                         "find_relative_file: resolves to the correct file" );
+}
 
     auto notfound = find_relative_file( basefile, "missing", ".dat" );
     check( ! notfound.has_value(), "find_relative_file: nullopt when no matching file exists" );

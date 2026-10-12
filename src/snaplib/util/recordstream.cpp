@@ -42,8 +42,9 @@ void RecordStream::setControlChars(char comment, char contchar)
 
 bool RecordStream::_iscomment(const std::string &str)
 {
-    if (!_leadcomment)
+    if (!_leadcomment) {
         return false;
+}
     auto first = std::find_if(str.begin(), str.end(),
                               [](unsigned char c) { return !std::isspace(c); });
     return first < str.end() && (*first) == _leadcomment;
@@ -51,18 +52,21 @@ bool RecordStream::_iscomment(const std::string &str)
 
 void RecordStream::_trimcomment(std::string &str)
 {
-    if (!_comment)
+    if (!_comment) {
         return;
+}
     string::size_type pos = str.find_first_of(_comment);
-    if (pos == string::npos)
+    if (pos == string::npos) {
         str.erase(pos);
+}
 }
 
 bool RecordStream::_trimcontinue(std::string &str)
 {
     boost::trim_right(str);
-    if (!_contchar)
+    if (!_contchar) {
         return false;
+}
     string::size_type pos = str.size();
     if (pos > 1 && str[pos - 1] == _contchar && ::isspace(str[pos - 1]))
     {
@@ -74,34 +78,40 @@ bool RecordStream::_trimcontinue(std::string &str)
 
 bool RecordStream::readRecord()
 {
-    if (!_str)
+    if (!_str) {
         return false;
+}
     _recordstr.clear();
     _isloaded = false;
     while (true)
     {
-        if (!std::getline(_str, _recordstr))
+        if (!std::getline(_str, _recordstr)) {
             return false;
+}
         _lineNo++;
         _recordLineNo = _lineNo;
         // If respecting a comment character, then trim everything after it
-        if (_iscomment(_recordstr))
+        if (_iscomment(_recordstr)) {
             continue;
+}
         _trimcomment(_recordstr);
         while (_trimcontinue(_recordstr))
         {
             string extra;
-            if (!std::getline(_str, extra))
+            if (!std::getline(_str, extra)) {
                 break;
+}
             _lineNo++;
-            if (_iscomment(extra))
+            if (_iscomment(extra)) {
                 break;
+}
             _trimcomment(extra);
             _recordstr += extra;
         }
         // If string is not empty
-        if (_recordstr.size() > 0)
+        if (_recordstr.size() > 0) {
             break;
+}
     }
     return true;
 }

@@ -56,13 +56,15 @@ int default_error_handler(const int sts, const std::string_view mess1, const err
         }
     }
     fprintf(out, "%.*s\n", boost::numeric_cast<int>(mess1.size()), mess1.data());
-    if (mess2) fprintf(out, "%.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
+    if (mess2) { fprintf(out, "%.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
+}
     return sts;
 }
 
 int null_error_handler(const int sts, const std::string_view mess1, const error_message mess2)
 {
-    if (!FATAL_ERROR_CONDITION(sts)) return sts;
+    if (!FATAL_ERROR_CONDITION(sts)) { return sts;
+}
     return default_error_handler(sts, mess1, mess2);
 }
 
@@ -101,12 +103,15 @@ static std::string_view default_message(const int sts)
 
 int handle_error(const int sts, const error_message mess1, error_message mess2)
 {
-    if (!REPORTABLE_ERROR(sts)) return sts;
-    if (WARNING_ERROR_CONDITION(sts)) error_count++;
+    if (!REPORTABLE_ERROR(sts)) { return sts;
+}
+    if (WARNING_ERROR_CONDITION(sts)) { error_count++;
+}
     if (sts >= error_level || FATAL_ERROR_CONDITION(sts))
     {
         const std::string_view text = mess1 ? *mess1 : default_message(sts);
-        if (!mess2 && !location.empty()) mess2 = location;
+        if (!mess2 && !location.empty()) { mess2 = location;
+}
         if (user_error_handler)
         {
             (*user_error_handler)(sts, text, mess2);
@@ -116,7 +121,8 @@ int handle_error(const int sts, const error_message mess1, error_message mess2)
             default_error_handler(sts, text, mess2);
         }
     }
-    if (FATAL_ERROR_CONDITION(sts)) exit(sts);
+    if (FATAL_ERROR_CONDITION(sts)) { exit(sts);
+}
     return sts;
 }
 

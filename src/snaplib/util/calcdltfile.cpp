@@ -45,7 +45,8 @@ NamedValue::NamedValue( const NamedValue &ccol ) :
 NamedValue *NamedValue::clone() const
 {
     NamedValue *value = new NamedValue( *this );
-    if( _default ) value->setDefault( _default->clone() );
+    if( _default ) { value->setDefault( _default->clone() );
+}
     return value;
 }
 
@@ -59,7 +60,8 @@ NamedValue &NamedValue::setDefault(  CalcValue *dfltValue )
     if( dfltValue )
     {
         _default = dfltValue;
-        if( _binder ) _default->bind( _binder );
+        if( _binder ) { _default->bind( _binder );
+}
     }
     return *this;
 }
@@ -70,7 +72,8 @@ void NamedValue::bind( const BindSource *binder )
     {
         _colvalue = binder->value( _colname );
     }
-    if( _default ) _default->bind( binder );
+    if( _default ) { _default->bind( binder );
+}
     _binder = binder;
 }
 
@@ -120,7 +123,8 @@ const string *LookupMapImp::lookup( const string &key ) const
     if( ! _caseSensitive ){ boost::to_lower( keyval ); }
     map<const string, const string>::const_iterator match = find(keyval);
     if( match != end() ){ return &(match->second); }
-    if( _default.size()) return &(_default);
+    if( _default.size()) { return &(_default);
+}
     return nullptr;
 }
 
@@ -137,8 +141,9 @@ LookupValue::LookupValue( const LookupValue &lcol )
 {
     _binder = nullptr;
     _map = lcol._map;
-    if( lcol._source ) _source = lcol._source->clone();
-    else _source = nullptr;
+    if( lcol._source ) { _source = lcol._source->clone();
+    } else { _source = nullptr;
+}
 }
 
 LookupValue::~LookupValue()
@@ -161,7 +166,8 @@ LookupValue &LookupValue::setSource( CalcValue *source )
     if( source )
     {
         _source = source;
-        if( _binder ) _source->bind( _binder );
+        if( _binder ) { _source->bind( _binder );
+}
     }
     return *this;
 }
@@ -170,14 +176,16 @@ LookupValue &LookupValue::setSource( CalcValue *source )
 void LookupValue::bind( const BindSource *binder )
 {
     _binder = binder;
-    if( _source ) _source->bind(binder);
+    if( _source ) { _source->bind(binder);
+}
 }
 
 void LookupValue::calcValue( string &value )
 {
     value.clear();
     string svalue("");
-    if( _source ) _source->calcValue(svalue);
+    if( _source ) { _source->calcValue(svalue);
+}
 
     const string *match = _map.lookup( svalue );
     if( match )
@@ -210,7 +218,8 @@ ConcatValue::ConcatValue( const ConcatValue &ccol ) :
     {
         _components.push_back( (*c)->clone());
     }
-    if( ccol._default ) _default = ccol._default->clone();
+    if( ccol._default ) { _default = ccol._default->clone();
+}
 }
 
 ConcatValue::~ConcatValue()
@@ -244,14 +253,16 @@ ConcatValue &ConcatValue::setDefault( CalcValue *dfltValue )
     if( dfltValue )
     {
         _default = dfltValue;
-        if( _binder ) _default->bind( _binder );
+        if( _binder ) { _default->bind( _binder );
+}
     }
     return *this;
 }
 
 ConcatValue &ConcatValue::add( CalcValue *column )
 {
-    if( _binder ) column->bind( _binder );
+    if( _binder ) { column->bind( _binder );
+}
     _components.push_back(column);
     return *this;
 }
@@ -263,7 +274,8 @@ void ConcatValue::bind( const BindSource *binder )
     {
         (*c)->bind(binder);
     }
-    if( _default ) _default->bind(binder);
+    if( _default ) { _default->bind(binder);
+}
 }
 
 void ConcatValue::calcValue( string &value )
@@ -289,7 +301,8 @@ void ConcatValue::calcValue( string &value )
 std::string *CalcReader::BindSource::value( const std::string &name ) const
 {
     Column *c = _reader.findColumn(name);
-    if( c ) return &(c->value());
+    if( c ) { return &(c->value());
+}
     return nullptr;
 }
 
@@ -304,7 +317,8 @@ Column & CalcReader::addColumn( const std::string &name, const CalcValue &column
 
 bool CalcReader::readRecord()
 {
-    if( ! Reader::readRecord()) return false;
+    if( ! Reader::readRecord()) { return false;
+}
     for( auto c = _columns.begin(); c < _columns.end(); c++ )
     {
         try
@@ -325,7 +339,8 @@ Column *CalcReader::findColumn( const std::string &name ) const
 {
     for( auto c = _columns.begin(); c < _columns.end(); c++ )
     {
-        if( namesMatch(name,(*c)->name())) return (*c)->second;
+        if( namesMatch(name,(*c)->name())) { return (*c)->second;
+}
     }
     return Reader::findColumn( name );
 }

@@ -293,7 +293,8 @@ DmsFormat ListingConfig::angleFormat( const int decimalPlaces ) const
 static std::size_t header_row_count( const std::vector<TableColumn> &columns )
 {
     std::size_t rows = 0;
-    for( const TableColumn &column : columns ) rows = std::max( rows, column.header.size() );
+    for( const TableColumn &column : columns ) { rows = std::max( rows, column.header.size() );
+}
     return rows;
 }
 
@@ -362,17 +363,20 @@ bool TableWriter::listsStations() const
 
 const ColumnSource *TableDefinition::validColumn( const std::string_view name ) const
 {
-    if( ! validColumns ) return nullptr;
+    if( ! validColumns ) { return nullptr;
+}
     for( const ColumnSource &source : *validColumns )
     {
-        if( boost::algorithm::iequals( source.name, name ) ) return &source;
+        if( boost::algorithm::iequals( source.name, name ) ) { return &source;
+}
     }
     return nullptr;
 }
 
 std::optional<ColumnSource> TableDefinition::classColumn( const std::string_view className )
 {
-    if( classIds.size() >= maximumClasses ) return std::nullopt;
+    if( classIds.size() >= maximumClasses ) { return std::nullopt;
+}
     const std::string name( className );
     classIds.push_back( stationData ? net->class_id( name, 0 ) : obs_classes.id( name, 0 ) );
     return ColumnSource{ std::string_view(), 0, 0, JST_LEFT, TYPE_TEXT, classIds.size() - 1 };
@@ -383,7 +387,8 @@ void TableWriter::_printField( TableColumn &column, const std::string_view text,
     if( ! column.extralen )
     {
         int extralen = 0;
-        if( quoting == QT_QUOTE && _quote ) extralen += 2;
+        if( quoting == QT_QUOTE && _quote ) { extralen += 2;
+}
         extralen += numeric_cast<int>( column.prefix.size() + column.suffix.size() );
         column.extralen = extralen;
     }
@@ -391,13 +396,15 @@ void TableWriter::_printField( TableColumn &column, const std::string_view text,
     int left = 0;
     int right = 0;
 
-    if( spare > 0 ) switch( column.just )
+    if( spare > 0 ) { switch( column.just )
         {
         case JST_CENTRE:  right = spare/2; left = spare - right; break;
         case JST_RIGHT:   left = spare; break;
         default:          right = spare; break;
         }
-    while( left-- ) fputc( ' ', out );
+}
+    while( left-- ) { fputc( ' ', out );
+}
     write_text( out, column.prefix );
     if( quoting == QT_LITERAL )
     {
@@ -408,9 +415,10 @@ void TableWriter::_printField( TableColumn &column, const std::string_view text,
         fputc( *_quote, out );
         for( const char character : text )
         {
-            if( character == _quote ) write_text( out, _replacements.quotedQuote );
-            else if( character == _escape ) write_text( out, _replacements.quotedEscape );
-            else fputc( character, out );
+            if( character == _quote ) { write_text( out, _replacements.quotedQuote );
+            } else if( character == _escape ) { write_text( out, _replacements.quotedEscape );
+            } else { fputc( character, out );
+}
         }
         fputc( *_quote, out );
     }
@@ -418,15 +426,17 @@ void TableWriter::_printField( TableColumn &column, const std::string_view text,
     {
         for( const char character : text )
         {
-            if( character == _quote ) write_text( out, _replacements.unquotedQuote );
-            else if( character == _escape ) write_text( out, _replacements.unquotedEscape );
-            else if( character == _delimiter ) write_text( out, _replacements.unquotedDelimiter );
-            else if( character == '\n' ) write_text( out, _replacements.unquotedNewline );
-            else fputc( character, out );
+            if( character == _quote ) { write_text( out, _replacements.unquotedQuote );
+            } else if( character == _escape ) { write_text( out, _replacements.unquotedEscape );
+            } else if( character == _delimiter ) { write_text( out, _replacements.unquotedDelimiter );
+            } else if( character == '\n' ) { write_text( out, _replacements.unquotedNewline );
+            } else { fputc( character, out );
+}
         }
     }
     write_text( out, column.suffix );
-    while( right-- ) fputc( ' ', out );
+    while( right-- ) { fputc( ' ', out );
+}
 }
 
 void TableWriter::printHeader( FILE *out )
@@ -437,7 +447,8 @@ void TableWriter::printHeader( FILE *out )
         for( TableColumn &column : _columns )
         {
             const std::string_view text = row < column.header.size() ? std::string_view( column.header[row] ) : std::string_view();
-            if( first ) first = false; else fputc( _delimiter, out );
+            if( first ) { first = false; } else { fputc( _delimiter, out );
+}
             _printField( column, text, QT_QUOTE, out );
         }
         fputc( '\n', out );
@@ -446,7 +457,8 @@ void TableWriter::printHeader( FILE *out )
 
 void TableWriter::printRow( FILE *out )
 {
-    if( ! out ) return;
+    if( ! out ) { return;
+}
     bool first = true;
     for( TableColumn &column : _columns )
     {
@@ -470,13 +482,16 @@ void TableWriter::printRow( FILE *out )
             else if( column.type == TYPE_ANGLE && column.format )
             {
                 double angle = number * RTOD;
-                while( angle > 360 ) angle -= 360;
-                while( angle < 0 ) angle += 360;
+                while( angle > 360 ) { angle -= 360;
+}
+                while( angle < 0 ) { angle += 360;
+}
                 computed = dms_string( angle, *column.format );
             }
             text = computed;
         }
-        if( first ) first = false; else fputc( _delimiter, out );
+        if( first ) { first = false; } else { fputc( _delimiter, out );
+}
         _printField( column, text, column.quote, out );
     }
     fputc( '\n', out );
@@ -500,9 +515,11 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
            make any difference to projection bearing or sea level distance */
 
         t = &v->obs.vdata[iobs];
-        if( t->tgt.type != GB ) continue;
+        if( t->tgt.type != GB ) { continue;
+}
         for( axis = 0; axis < 3; axis++ ) { d1xyz[axis] = t->vector[axis]; }
-        if( v->reffrm ) rftrans_correct_vector( v->reffrm, d1xyz, v->date );
+        if( v->reffrm ) { rftrans_correct_vector( v->reffrm, d1xyz, v->date );
+}
 
         from = station_ptr( net, v->from );
         to = station_ptr( net, t->tgt.to );
@@ -544,13 +561,16 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
         */
 
         brngdiff = (calc_prj_brng - obs_prj_brng) * RTOD;
-        if( brngdiff > 180.0 ) brngdiff -= 360.0;
-        if( brngdiff < -180.0 ) brngdiff += 360.0;
+        if( brngdiff > 180.0 ) { brngdiff -= 360.0;
+}
+        if( brngdiff < -180.0 ) { brngdiff += 360.0;
+}
         brngdiff *= 3600.0;
         prj_brng_err = brngdiff;
 
         brngppm = fabs(brngdiff * STOR);
-        if( brngppm < 1.0e-6 ) brngrf = 999999.0; else brngrf = 1.0/brngppm;
+        if( brngppm < 1.0e-6 ) { brngrf = 999999.0; } else { brngrf = 1.0/brngppm;
+}
         brngppm *= 1.0e6;
         ppm_prj_brng_err = brngppm;
         rf_prj_brng_err = brngrf;
@@ -567,8 +587,10 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
         distdiff = calc_dist - obs_dist;
 
         distppm = 0.0;
-        if( obs_dist > 1.0e-6) distppm = fabs(distdiff / obs_dist);
-        if( distppm < 1.0e-6 ) distrf = 999999.0; else distrf = 1.0/distppm;
+        if( obs_dist > 1.0e-6) { distppm = fabs(distdiff / obs_dist);
+}
+        if( distppm < 1.0e-6 ) { distrf = 999999.0; } else { distrf = 1.0/distppm;
+}
         distppm *= 1.0e6;
         obs_ell_dist = obs_dist;
         calc_ell_dist = calc_dist;
@@ -579,8 +601,10 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
         vecdiff = 2.0 * calc_distance( &dummy1, -dummy1.OHgt, from, -from->OHgt,
                                        nullptr, nullptr);
         vecppm = 0.0;
-        if( obs_dist > 1.0e-6 ) vecppm = fabs(vecdiff/obs_dist);
-        if( vecppm < 1.0e-6 ) vecrf = 999999.0; else vecrf = 1.0/vecppm;
+        if( obs_dist > 1.0e-6 ) { vecppm = fabs(vecdiff/obs_dist);
+}
+        if( vecppm < 1.0e-6 ) { vecrf = 999999.0; } else { vecrf = 1.0/vecppm;
+}
         vecppm *= 1.0e6;
         hor_vec_err = vecdiff;
         ppm_hor_vec_err = vecppm;
@@ -593,7 +617,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
             if( idclass > 0 )
             {
                 auto name = get_obs_classification_name( v,  &(t->tgt), idclass );
-                if( name ) value = std::move(*name);
+                if( name ) { value = std::move(*name);
+}
             }
             table.setClassValue( i, std::move(value) );
         }
@@ -606,7 +631,8 @@ static int list_observations( FILE *out, BINARY_FILE *bf, TableWriter &table )
 {
     survdata *sd;
 
-    if( find_section( bf, "OBSERVATIONS" ) != OK ) return MISSING_DATA;
+    if( find_section( bf, "OBSERVATIONS" ) != OK ) { return MISSING_DATA;
+}
 
     init_bindata( bf->f );
 
@@ -616,7 +642,8 @@ static int list_observations( FILE *out, BINARY_FILE *bf, TableWriter &table )
     while( get_bindata( SURVDATA, b ) == OK )
     {
         sd = b.survey_data();
-        if( sd->format != SD_VECDATA ) continue;
+        if( sd->format != SD_VECDATA ) { continue;
+}
         list_vecdata_residuals( out, sd, table );
     }
 
@@ -647,7 +674,8 @@ static int list_stations( FILE *out, TableWriter &table )
         stn_code = st->Code;
         stn_name = st->Name;
         stn_order = net->order( net->station_order( st ) );
-        if( stn_order.empty() ) stn_order = "-";
+        if( stn_order.empty() ) { stn_order = "-";
+}
 
         if( projection_coords )
         {
@@ -754,7 +782,8 @@ namespace {
 /// present and are hex digits.
 std::optional<char> parseHexEscapeByte( std::string_view source, std::size_t xi )
 {
-    if( xi+2 >= source.size() || ! ISXDIGIT(source[xi+1]) || ! ISXDIGIT(source[xi+2]) ) return std::nullopt;
+    if( xi+2 >= source.size() || ! ISXDIGIT(source[xi+1]) || ! ISXDIGIT(source[xi+2]) ) { return std::nullopt;
+}
     unsigned char hx = is_digit(source[xi+1]) ? (source[xi+1] - '0') : (10 + TOUPPER(source[xi+1]) - 'A');
     hx = hx*16 + ( is_digit(source[xi+2]) ? (source[xi+2] - '0') : (10 + TOUPPER(source[xi+2]) - 'A') );
     return static_cast<char>(hx);
@@ -773,7 +802,8 @@ static std::size_t interpret_escaped_string( std::string_view source, std::size_
     const char c = source[i];
     if( c == '\\' )
     {
-        if( i+1 >= source.size() ) return 1;  // dangling backslash - no output
+        if( i+1 >= source.size() ) { return 1;  // dangling backslash - no output
+}
         const char next = source[i+1];
         switch( next )
         {
@@ -809,8 +839,10 @@ static std::string decode_escaped_string( const std::string_view source )
     {
         std::optional<char> ch;
         i += interpret_escaped_string( source, i, ch );
-        if( ! ch ) continue;
-        if( *ch == '\0' ) break;
+        if( ! ch ) { continue;
+}
+        if( *ch == '\0' ) { break;
+}
         decoded += *ch;
     }
     return decoded;
@@ -826,13 +858,15 @@ static int read_angle_format( CFG_FILE *, std::string_view string, void *value, 
     // one or more of it, so "###a##b##c" and "#a#b#c" are the same format.
     const auto firstNonSpace = std::find_if( string.begin(), string.end(),
         []( const char c ){ return ! ISSPACE(c); } );
-    if( firstNonSpace == string.end() ) return MISSING_DATA;
+    if( firstNonSpace == string.end() ) { return MISSING_DATA;
+}
     const char delim = *firstNonSpace;
     FieldScanner scanner( string.substr( std::distance( string.begin(), firstNonSpace ) ) );
 
     const auto degField = scanner.nextToken( delim );
     const auto minField = scanner.nextToken( delim );
-    if( ! minField ) return MISSING_DATA;
+    if( ! minField ) { return MISSING_DATA;
+}
     const auto secField = scanner.nextToken( delim );
 
     config.degreeSeparator = decode_escaped_string( *degField );
@@ -863,7 +897,8 @@ static int read_text( CFG_FILE *cfg, std::string_view, void *, int, int )
         }
         else
         {
-            if( out ) fprintf(out,"%s\n",line.content.c_str());
+            if( out ) { fprintf(out,"%s\n",line.content.c_str());
+}
         }
     }
     if( !finished )
@@ -914,7 +949,8 @@ static int read_data( CFG_FILE *cfg, std::string_view string, void *value, int, 
     {
         send_config_error( cfg, INVALID_DATA, "Program only handles GPS and station data currently" );
     }
-    if( ! table.validColumns ) table.validColumns = coltype;
+    if( ! table.validColumns ) { table.validColumns = coltype;
+}
     if( table.validColumns != coltype )
     {
         send_config_error( cfg, INVALID_DATA, "Inconsistent data types defined" );
@@ -929,7 +965,8 @@ static int read_delimiter( CFG_FILE *, std::string_view string, void *value, int
     TableDefinition &table = static_cast<ListingConfig *>( value )->table;
     FieldScanner scanner(string);
     auto s = scanner.next();
-    if( !s ) return MISSING_DATA;
+    if( !s ) { return MISSING_DATA;
+}
 
     std::optional<char> character;
     if( boost::algorithm::iequals(*s,"tab") )
@@ -948,7 +985,8 @@ static int read_delimiter( CFG_FILE *, std::string_view string, void *value, int
     {
         // Only the first character is used
         const std::string decoded = decode_escaped_string( *s );
-        if( ! decoded.empty() ) character = decoded.front();
+        if( ! decoded.empty() ) { character = decoded.front();
+}
     }
 
     switch( code )
@@ -966,13 +1004,15 @@ static int read_delimiter( CFG_FILE *, std::string_view string, void *value, int
 static std::vector<std::string> split_header( const std::string_view header )
 {
     std::vector<std::string> rows;
-    if( header.empty() ) return rows;
+    if( header.empty() ) { return rows;
+}
     std::string_view remaining = header;
     while( rows.size() < maximumHeaderRows )
     {
         const std::size_t newline = remaining.find( '\n' );
         rows.emplace_back( remaining.substr( 0, newline ) );
-        if( newline == std::string_view::npos ) break;
+        if( newline == std::string_view::npos ) { break;
+}
         remaining = remaining.substr( newline + 1 );
     }
     return rows;
@@ -993,7 +1033,8 @@ static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int
 
     FieldScanner scanner(string);
     auto data = scanner.next();
-    if( !data ) return MISSING_DATA;
+    if( !data ) { return MISSING_DATA;
+}
     std::optional<ColumnSource> source;
     if( boost::algorithm::istarts_with(*data,"class="))
     {
@@ -1071,9 +1112,12 @@ static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int
     }
 
     TableColumn column( *source );
-    if( width >= 0 ) column.width = width;
-    if( just > 0 ) column.just = just;
-    if( ndp >= 0 ) column.ndp = ndp;
+    if( width >= 0 ) { column.width = width;
+}
+    if( just > 0 ) { column.just = just;
+}
+    if( ndp >= 0 ) { column.ndp = ndp;
+}
     column.quote = quote;
     if( column.type == TYPE_ANGLE )
     {
@@ -1096,7 +1140,8 @@ void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azema
     v2 = (cvr[2]-cvr[0])/2.0;
     v3 = cvr[1];
     v4 = v2*v2+v3*v3;
-    if( v4 > 0.0 ) v4 = sqrt(v4);
+    if( v4 > 0.0 ) { v4 = sqrt(v4);
+}
     *azemax = v4 > 0.0 ? atan2( v3, v2 ) / 2.0 : 0.0 ;
     v2 = v1-v4;
     v1 = v1+v4;
@@ -1111,7 +1156,8 @@ int reload_covariances( BINARY_FILE *b )
     double cvr[6];
     int nstns;
 
-    if( find_section( b, "STATION_COVARIANCES" ) != OK ) return MISSING_DATA;
+    if( find_section( b, "STATION_COVARIANCES" ) != OK ) { return MISSING_DATA;
+}
 
     nstns = number_of_stations( net );
     covar.assign( nstns+1, covariance() );

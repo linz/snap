@@ -36,7 +36,8 @@ WhitespaceFormat *WhitespaceFormat::clone() const
 
 bool WhitespaceFormat::parseRecord()
 {
-    if( ! getNextLine()) return false;
+    if( ! getNextLine()) { return false;
+}
     std::istringstream sstream(buffer());
     while( sstream.good())
     {
@@ -55,7 +56,8 @@ CsvFormat *CsvFormat::clone() const
 bool CsvFormat::parseRecord()
 {
 
-    if( ! getNextLine()) return false;
+    if( ! getNextLine()) { return false;
+}
     std::string &record = buffer();
     std::string::iterator start = record.begin();
     std::string::iterator end = record.end();
@@ -65,7 +67,8 @@ bool CsvFormat::parseRecord()
         std::string &value = getNextValue();
 
         bool inQuote = start < end && *start == _quote;
-        if( inQuote ) start++;
+        if( inQuote ) { start++;
+}
 
         // The field in sections up to escape characters
         while( true )
@@ -75,8 +78,9 @@ bool CsvFormat::parseRecord()
                 endptr < end &&
                 *endptr != _quote &&
                 *endptr != _delimiter &&
-                *endptr != _escape )
+                *endptr != _escape ) {
                 endptr++;
+}
             value.insert(value.end(), start, endptr );
             start = endptr;
             bool escaped = inQuote;
@@ -114,7 +118,8 @@ bool CsvFormat::parseRecord()
                     escaped = true;
                 }
             }
-            if( ! escaped ) break;
+            if( ! escaped ) { break;
+}
             if( start < end )
             {
                 value.push_back( *start );
@@ -134,9 +139,11 @@ bool CsvFormat::parseRecord()
         }
         // Trim the end of records for whitespace to ensure CsvColumn >> xx
         // finds eof after reading field
-        if( ! inQuote ) boost::trim_right( value );
+        if( ! inQuote ) { boost::trim_right( value );
+}
 
-        if( start >= end ) break;
+        if( start >= end ) { break;
+}
     }
     return true;
 }
@@ -184,14 +191,17 @@ Reader::Reader( std::istream &is, const Format &parser, const Options &options )
 
 Reader::~Reader()
 {
-    if( _parser ) delete _parser;
-    if( _ownInput && _input ) delete _input;
+    if( _parser ) { delete _parser;
+}
+    if( _ownInput && _input ) { delete _input;
+}
     for( std::vector<Column *>::iterator c = _columns.begin(); c < _columns.end(); c++ )
     {
         delete (*c);
         (*c) = 0;
     }
-    if( _badColumn ) delete _badColumn;
+    if( _badColumn ) { delete _badColumn;
+}
 }
 
 void Reader::setup( const Format &parser )
@@ -252,10 +262,12 @@ void Reader::readHeader()
         std::string buffer;
         for( int i = 0; i < _options._nSkipLines; i++ )
         {
-            if( ! getNextLine(buffer)) return;
+            if( ! getNextLine(buffer)) { return;
+}
         }
     }
-    if( ! _options._useHeader ) return;
+    if( ! _options._useHeader ) { return;
+}
     readRecord();
     for( std::vector<Column *>::iterator c = _columns.begin(); c < _columns.end(); c++ )
     {
@@ -309,7 +321,8 @@ bool Reader::readRecord()
     {
         (*c)->clear();
     }
-    if( ! _parser->parseRecord()) return false;
+    if( ! _parser->parseRecord()) { return false;
+}
     _recordno++;
     _columnsSet = true;
     if( _colno < (int) _columns.size() && ! _options._fillMissingColumns)
@@ -321,21 +334,25 @@ bool Reader::readRecord()
 
 bool Reader::getNextLine( std::string &buffer )
 {
-    if( ! _input->getNextLine(buffer) ) return false;
+    if( ! _input->getNextLine(buffer) ) { return false;
+}
     _lineno++;
     return true;
 }
 
 bool Reader::namesMatch( const std::string &name1, const std::string &name2 ) const
 {
-    if( name1.size() != name2.size()) return false;
-    if( _namesCaseSensitive ) return name1 == name2;
+    if( name1.size() != name2.size()) { return false;
+}
+    if( _namesCaseSensitive ) { return name1 == name2;
+}
 
     std::string::const_iterator c1 = name1.begin();
     std::string::const_iterator c2 = name2.begin();
     for( ; c1 < name1.end(); c1++, c2++ )
     {
-        if( tolower(*c1) != tolower(*c2)) return false;
+        if( tolower(*c1) != tolower(*c2)) { return false;
+}
     }
     return true;
 }
@@ -344,7 +361,8 @@ Column *Reader::findColumn( const std::string &name ) const
 {
     for( int i = 0; i < (int) _columns.size(); i++ )
     {
-        if( namesMatch( name, _columns[i]->name() ) ) return _columns[i];
+        if( namesMatch( name, _columns[i]->name() ) ) { return _columns[i];
+}
     }
     return nullptr;
 }
@@ -352,7 +370,8 @@ Column *Reader::findColumn( const std::string &name ) const
 Column &Reader::columnNamed( const std::string &name ) const
 {
     Column *c = findColumn( name );
-    if( c ) return *c;
+    if( c ) { return *c;
+}
     std::ostringstream error;
     error << "Invalid column " << name << " requested";
     runtimeError(error.str());
@@ -378,8 +397,10 @@ void Reader::warning( const std::string &message ) const
 void Reader::handleError( const RecordError &error ) const
 {
     RecordErrorType type = error.type();
-    if( type != FatalError && _input && _input->handleError(error)) return;
-    if( type != Warning ) throw error;
+    if( type != FatalError && _input && _input->handleError(error)) { return;
+}
+    if( type != Warning ) { throw error;
+}
 }
 
 }  // End of DelimitedTextFile namespace

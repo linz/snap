@@ -29,7 +29,8 @@ int failures=0;
 
 void check( bool condition, const std::string &description )
 {
-    if( condition ) return;
+    if( condition ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << std::endl;
 }
@@ -74,8 +75,10 @@ struct TestNetwork
         {
             station *stn=new_network_station( nw, code, code, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
             const std::string c( code );
-            if( c == "AAA" || c == "AB1" ) stn->set_class( grp, x );
-            if( c == "AB2" ) stn->set_class( grp, y );
+            if( c == "AAA" || c == "AB1" ) { stn->set_class( grp, x );
+}
+            if( c == "AB2" ) { stn->set_class( grp, y );
+}
         }
     }
     ~TestNetwork() { delete_network( nw ); }
@@ -87,9 +90,11 @@ struct TestNetwork
 std::string matches( TestNetwork &tn, const std::string &select, bool useCache=false, bool *ok=nullptr )
 {
     void *psc=new_station_criteria();
-    if( useCache ) setup_station_criteria_cache( psc, number_of_stations( tn.nw ) );
+    if( useCache ) { setup_station_criteria_cache( psc, number_of_stations( tn.nw ) );
+}
     const int sts=compile_station_criteria( psc, tn.nw, select, "" );
-    if( ok ) *ok = sts == OK;
+    if( ok ) { *ok = sts == OK;
+}
     std::string result;
     if( sts == OK )
     {
@@ -102,7 +107,8 @@ std::string matches( TestNetwork &tn, const std::string &select, bool useCache=f
                 station *stn=station_ptr( tn.nw, id );
                 if( station_criteria_match( psc, stn ) )
                 {
-                    if( ! result.empty() ) result += " ";
+                    if( ! result.empty() ) { result += " ";
+}
                     result += stn->Code;
                 }
             }
@@ -187,7 +193,8 @@ void check_cache_ids_beyond_the_network()
     std::string result;
     for( int id=number_of_stations( tn.nw ); id >= 1; --id )
     {
-        if( station_criteria_match( psc, station_ptr( tn.nw, id ) ) ) result += station_ptr( tn.nw, id )->Code;
+        if( station_criteria_match( psc, station_ptr( tn.nw, id ) ) ) { result += station_ptr( tn.nw, id )->Code;
+}
     }
     check( result == "ZZ1AAA", "cache grown past its initial size, got [" + result + "]" );
     delete_station_criteria( psc );

@@ -27,8 +27,10 @@ void SetTrimmerExtents( Trimmer *t, double xmin, double ymin, double xmax, doubl
 static char PointFlags( Trimmer *t, double x, double y )
 {
     char flags;
-    if( x < t->xmin ) flags = LEFT; else if( x > t->xmax ) flags = RIGHT; else flags = 0;
-    if( y < t->ymin ) flags |= BOTTOM; else if( y > t->ymax ) flags |= TOP;
+    if( x < t->xmin ) { flags = LEFT; } else if( x > t->xmax ) { flags = RIGHT; } else { flags = 0;
+}
+    if( y < t->ymin ) { flags |= BOTTOM; } else if( y > t->ymax ) { flags |= TOP;
+}
     return flags;
 }
 
@@ -43,17 +45,21 @@ static char ShiftIntoRange( Trimmer *t, double *x0, double *y0, char flag0,
         xnew = (flag0 & LEFT) ? t->xmin : t->xmax;
         *y0 = ((x1 - xnew) * (*y0) + (xnew - *x0) * y1 ) / ( x1 - *x0 );
         *x0 = xnew;
-        if( *y0 < t->ymin ) flag0 = BOTTOM;
-        else if( *y0 > t->ymax ) flag0 = TOP;
-        else flag0 = 0;
-        if( !flag0 ) return 1;
-        if( flag0 & flag1 ) return 0;
+        if( *y0 < t->ymin ) { flag0 = BOTTOM;
+        } else if( *y0 > t->ymax ) { flag0 = TOP;
+        } else { flag0 = 0;
+}
+        if( !flag0 ) { return 1;
+}
+        if( flag0 & flag1 ) { return 0;
+}
     }
 
     ynew = (flag0 & BOTTOM) ? t->ymin : t->ymax;
     *x0 = ((y1 - ynew) * (*x0) + (ynew - *y0) * x1 ) / ( y1 - *y0 );
     *y0 = ynew;
-    if( *x0 < t->xmin || *x0 > t->xmax ) return 0;
+    if( *x0 < t->xmin || *x0 > t->xmax ) { return 0;
+}
     return 1;
 }
 

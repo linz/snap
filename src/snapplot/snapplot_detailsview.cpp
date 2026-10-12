@@ -83,7 +83,8 @@ void SnapplotDetailsView::ClearText()
 void SnapplotDetailsView::AddString( const std::string &text, const bool newLine )
 {
     newText.Append(text );
-    if( newLine ) AddNewLine();
+    if( newLine ) { AddNewLine();
+}
 }
 
 void SnapplotDetailsView::AddInfoText( PutTextInfo *jump, const std::string &text, const bool addNewLine )
@@ -105,7 +106,8 @@ void SnapplotDetailsView::AddInfoText( PutTextInfo *jump, const std::string &tex
     {
         newText.Append(s);
     }
-    if( addNewLine ) AddNewLine();
+    if( addNewLine ) { AddNewLine();
+}
 }
 
 void SnapplotDetailsView::AddNewLine()
@@ -185,8 +187,10 @@ void SnapplotDetailsView::AddToHistory( const PutTextInfo &jump )
 {
     history[historyNext] = jump;
     historyNext++;
-    if( historyNext >= HistorySize ) historyNext = 0;
-    if( historyCount < HistorySize ) historyCount++;
+    if( historyNext >= HistorySize ) { historyNext = 0;
+}
+    if( historyCount < HistorySize ) { historyCount++;
+}
     RefreshText();
 }
 
@@ -195,7 +199,8 @@ void SnapplotDetailsView::GetCurrentView( PutTextInfo &jump )
     if( historyCount > 0 )
     {
         int current = historyNext-1;
-        if( current < 0 ) current += HistorySize;
+        if( current < 0 ) { current += HistorySize;
+}
         jump = history[current];
     }
     else
@@ -206,10 +211,12 @@ void SnapplotDetailsView::GetCurrentView( PutTextInfo &jump )
 
 bool SnapplotDetailsView::RevertHistory(  )
 {
-    if( historyCount < 1 ) return false;
+    if( historyCount < 1 ) { return false;
+}
     historyNext -= 1;
     historyCount -= 1;
-    if( historyNext < 0 ) historyNext += HistorySize;
+    if( historyNext < 0 ) { historyNext += HistorySize;
+}
     RefreshText();
     return true;
 }
@@ -340,7 +347,8 @@ void SnapplotDetailsView::ShowStationInfo( int istn )
     mode = DefaultMode;
     */
 
-    if( ! istn ) return;
+    if( ! istn ) { return;
+}
     ClearText();
     list_station_details( this, AddInfoText, istn );
     list_connections( this, AddInfoText, istn );
@@ -364,7 +372,8 @@ void SnapplotDetailsView::ShowLineInfo( int from, int to )
     mode = DefaultMode;
     */
 
-    if( ! from || ! to ) return;
+    if( ! from || ! to ) { return;
+}
 
     ClearText();
 

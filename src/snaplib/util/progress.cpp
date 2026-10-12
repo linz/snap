@@ -77,9 +77,11 @@ static long elapsed_time ( long ref_time )
 static void draw_meter( int ntick )
 {
     int nch=0;
-    if( ! newline ) putchar('\r');
+    if( ! newline ) { putchar('\r');
+}
     fputs(HEADER_STRING,stdout);
-    for (nch=0; nch < METER_LEN; nch++ ) putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
+    for (nch=0; nch < METER_LEN; nch++ ) { putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
+}
     fputs(TAIL_STRING,stdout);
     if( newline )
     {
@@ -100,7 +102,8 @@ static void default_init_progress_meter( long total_size )
 {
     meter_max = total_size;
     lasttick = increment = total_size / METER_LEN;
-    if(increment <= 0) increment=1;
+    if(increment <= 0) { increment=1;
+}
     meter_drawn = 0;
 #ifdef USE_TIME
     reftime = elapsed_time( 0L );
@@ -121,17 +124,20 @@ static void default_update_progress_meter( long progress )
 #endif
     }
     while (progress > lasttick ) { redraw=1; lasttick+=increment; }
-    if( redraw ) draw_meter( (int) (lasttick/increment) - 1 );
+    if( redraw ) { draw_meter( (int) (lasttick/increment) - 1 );
+}
     fflush(stdout);
 }
 
 static void default_end_progress_meter( void )
 {
-    if( !meter_drawn ) return;
+    if( !meter_drawn ) { return;
+}
     if( ! newline )
     {
         putchar('\r');
-        for (npts=TOTAL_LEN; npts--;) putchar(' ');
+        for (npts=TOTAL_LEN; npts--;) { putchar(' ');
+}
         putchar('\r');
     }
     fflush(stdout);
@@ -149,13 +155,15 @@ void init_file_display( FILE *file )
 
 void update_file_display( void )
 {
-    if( !infile ) return;
+    if( !infile ) { return;
+}
     update_progress_meter( ftell( infile ) );
 }
 
 void end_file_display( void )
 {
-    if( !infile ) return;
+    if( !infile ) { return;
+}
     end_progress_meter();
     infile = nullptr;
 }
@@ -186,20 +194,25 @@ void init_progress_meter( long total_size )
     const char *progressopt=getenv("SNAP_PROGRESS_METER");
     if( progressopt )
     {
-        if( _stricmp(progressopt,"newline") == 0 ) newline=1;
-        if( _stricmp(progressopt,"none") ==0 ) showmeter=0;
+        if( _stricmp(progressopt,"newline") == 0 ) { newline=1;
+}
+        if( _stricmp(progressopt,"none") ==0 ) { showmeter=0;
+}
     }
-    if( showmeter && init_meter ) (*init_meter)( total_size );
+    if( showmeter && init_meter ) { (*init_meter)( total_size );
+}
 }
 
 void update_progress_meter( long progress )
 {
-    if( showmeter && update_meter ) (*update_meter)( progress );
+    if( showmeter && update_meter ) { (*update_meter)( progress );
+}
 }
 
 void end_progress_meter( void )
 {
-    if( showmeter && end_meter ) (*end_meter)();
+    if( showmeter && end_meter ) { (*end_meter)();
+}
 }
 
 

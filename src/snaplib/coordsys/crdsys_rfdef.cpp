@@ -71,7 +71,8 @@ int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
             return INVALID_DATA;
         }
 
-        if( ! *prdf ) sts = INVALID_DATA;
+        if( ! *prdf ) { sts = INVALID_DATA;
+}
     }
 
     return sts;
@@ -102,7 +103,8 @@ ref_deformation::~ref_deformation()
 
 ref_deformation * copy_ref_deformation( ref_deformation *rdf )
 {
-    if( ! rdf ) return nullptr;
+    if( ! rdf ) { return nullptr;
+}
     return new ref_deformation( rdf->type, rdf->copy_data( rdf->data ),
                                  rdf->delete_data, rdf->copy_data, rdf->identical,
                                  rdf->describe_func, rdf->calc_denu, rdf->apply_llh );
@@ -111,9 +113,13 @@ ref_deformation * copy_ref_deformation( ref_deformation *rdf )
 
 int identical_ref_deformation(  ref_deformation *def1,  ref_deformation *def2 )
 {
-    if( def1 && ! def2 ) return 0;
-    if( def2 && ! def1 ) return 0;
-    if( !def1 && ! def2 ) return 1;
-    if( def1->type != def2->type ) return 0;
+    if( def1 && ! def2 ) { return 0;
+}
+    if( def2 && ! def1 ) { return 0;
+}
+    if( !def1 && ! def2 ) { return 1;
+}
+    if( def1->type != def2->type ) { return 0;
+}
     return def1->identical( def1->data, def2->data );
 }

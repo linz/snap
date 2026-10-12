@@ -38,7 +38,8 @@ std::optional<std::string> get_default_crdsys_file()
     /* Try for an environment variable definition */
 
     const char *envfile = getenv(CRDSYSENV);
-    if( envfile ) return std::string(envfile);
+    if( envfile ) { return std::string(envfile);
+}
 
     /* Now try the user and system configuration directories  */
     return find_file(CRDSYSFILE,"",std::nullopt,FF_TRYALL,COORDSYS_CONFIG_SECTION);
@@ -47,7 +48,8 @@ std::optional<std::string> get_default_crdsys_file()
 int install_default_crdsys_file()
 {
     auto filename=get_default_crdsys_file();
-    if( ! filename )  return FILE_OPEN_ERROR;
+    if( ! filename ) {  return FILE_OPEN_ERROR;
+}
     install_default_projections();
     return install_crdsys_file( *filename );
 }
@@ -55,9 +57,11 @@ int install_default_crdsys_file()
 std::optional<std::string> find_coordsys_data_file( const std::string &filename, const std::string &extension )
 {
     auto found = find_file(filename,extension,std::nullopt,FF_TRYALL,"");
-    if( found ) return found;
+    if( found ) { return found;
+}
     found = get_crdsys_file(filename,extension);
-    if( found ) return found;
+    if( found ) { return found;
+}
     return find_file(filename,extension,std::nullopt,FF_TRYNONE,COORDSYS_CONFIG_SECTION);
 }
 

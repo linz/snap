@@ -131,7 +131,8 @@ int define_error_summary( const std::string &definition )
             }
             for( ilevel = 0; ilevel < nlevel; ilevel++ )
             {
-                if( sdf.level_id[ilevel] == sdf.level_id[nlevel] ) sts = INVALID_DATA;
+                if( sdf.level_id[ilevel] == sdf.level_id[nlevel] ) { sts = INVALID_DATA;
+}
             }
             nlevel++;
         }
@@ -191,7 +192,8 @@ static int init_summary( summary_def &sdf )
             obstype_index[i] = nobstype_used;
             is_vector= datatype[i].isvector ? 1 : 0;
             ncomp=1;
-            if( sdf.enu_components && is_vector ) ncomp=4;
+            if( sdf.enu_components && is_vector ) { ncomp=4;
+}
             for( icomp=0; icomp < ncomp; icomp++ )
             {
                 obstype_from_index[nobstype_used] = i;
@@ -204,7 +206,8 @@ static int init_summary( summary_def &sdf )
             obstype_index[i] = -1;
         }
     }
-    if( !nobstype_used ) return MISSING_DATA;
+    if( !nobstype_used ) { return MISSING_DATA;
+}
 
     /* Now find the number of classifications in each level of the
        summary */
@@ -219,7 +222,8 @@ static int init_summary( summary_def &sdf )
 
         case BY_DATA_TYPE:
             sdf.level_count[i] = nobstype_used;
-            if( sdf.enu_components ) enu_period = 1;
+            if( sdf.enu_components ) { enu_period = 1;
+}
             break;
 
         case BY_FILE:
@@ -230,7 +234,8 @@ static int init_summary( summary_def &sdf )
             sdf.level_count[i] = obs_classes.value_count( sdf.level_id[i] );
             break;
         }
-        if( sdf.level_count[i] <= 0 ) sdf.level_count[i] = 1;
+        if( sdf.level_count[i] <= 0 ) { sdf.level_count[i] = 1;
+}
 
         index_size *= sdf.level_count[i];
         enu_period *= sdf.level_count[i];
@@ -312,7 +317,8 @@ static void sum_observation( const summary_def &sdf, survdata *sd )
                 break;
             }
 
-            if( ilevel ) index *= sdf.level_count[ilevel];
+            if( ilevel ) { index *= sdf.level_count[ilevel];
+}
             index += class_val;
         }
 
@@ -456,7 +462,8 @@ static void print_summary_level( FILE *lst, const summary_def &sdf,
             if( sdf.level_id[ilevel] == BY_DATA_TYPE )
             {
                 iaxis=obsenu_from_index[ilvl];
-                if( axis && iaxis != axis ) continue;
+                if( axis && iaxis != axis ) { continue;
+}
             }
             else
             {
@@ -492,7 +499,8 @@ static void print_summary_level( FILE *lst, const summary_def &sdf,
             }
 
             /* Don't print data where there are no observations */
-            if( sum_total[2].used == 0 ) continue;
+            if( sum_total[2].used == 0 ) { continue;
+}
 
             {
                 int indent;
@@ -500,9 +508,11 @@ static void print_summary_level( FILE *lst, const summary_def &sdf,
                 std::string title;
                 char ttlbuf[32];
                 indent = ilevel * LEVEL_INDENT;
-                if( iaxis && lastlevel ) indent += AXIS_INDENT;
+                if( iaxis && lastlevel ) { indent += AXIS_INDENT;
+}
                 ttlwidth = TITLE_WIDTH - indent;
-                if( indent ) fprintf(lst,"%*s",indent,""); else fprintf(lst,"\n");
+                if( indent ) { fprintf(lst,"%*s",indent,""); } else { fprintf(lst,"\n");
+}
 
                 switch( sdf.level_id[ilevel] )
                     {
@@ -551,8 +561,9 @@ static void print_summary_level( FILE *lst, const summary_def &sdf,
                         break;
                     }
 
-                if( ttlwidth > 0 )
+                if( ttlwidth > 0 ) {
                     fprintf(lst,"%-*.*s",ttlwidth,ttlwidth,title.c_str());
+}
 
                 for( j=0; j<3; j++)
                 {
@@ -584,12 +595,14 @@ static void print_summary_level( FILE *lst, const summary_def &sdf,
 static void print_summary( FILE *lst, summary_def &sdf, double semult )
 {
     int ilvl;
-    if( init_summary( sdf ) != OK ) return;
+    if( init_summary( sdf ) != OK ) { return;
+}
     sum_summary( sdf );
     fprintf(lst,"\n\nSummary of residuals classified by ");
     for( ilvl = 0; ilvl < sdf.nlevel; ilvl++ )
     {
-        if( ilvl ) fprintf(lst,", ");
+        if( ilvl ) { fprintf(lst,", ");
+}
         switch( sdf.level_id[ilvl] )
         {
         case BY_DATA_TYPE: fprintf(lst,"data type"); break;
@@ -616,7 +629,8 @@ void print_error_summary( FILE *lst )
     if( summary_defs.empty() )
     {
         define_error_summary( DATA_TYPE_STR );
-        if( survey_data_file_count() > 1 ) define_error_summary( FILE_STR );
+        if( survey_data_file_count() > 1 ) { define_error_summary( FILE_STR );
+}
     }
     for( summary_def &sdf : summary_defs )
     {

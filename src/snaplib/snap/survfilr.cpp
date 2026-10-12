@@ -58,7 +58,8 @@ long read_data_files( FILE *lst )
     file_context *saved_context = current_file_context();
 
     nfile = survey_data_file_count();
-    if( nfile <= 0 ) return 0;
+    if( nfile <= 0 ) { return 0;
+}
 
     recodedata.global_map=stnrecode;
     recodedata.net=net;
@@ -67,7 +68,8 @@ long read_data_files( FILE *lst )
 
     for( i = 0; i < nfile; i++ )
     {
-        if( obsmod_ignore_datafile( obs_modifications, i )) continue;
+        if( obsmod_ignore_datafile( obs_modifications, i )) { continue;
+}
 
         sd = survey_data_file_ptr(i);
 
@@ -104,7 +106,8 @@ long read_data_files( FILE *lst )
             set_stn_recode_func( nullptr, nullptr );
         }
 
-        for( c = 0; c < NOBSTYPE; c++ ) sd->obscount[c] = 0;
+        for( c = 0; c < NOBSTYPE; c++ ) { sd->obscount[c] = 0;
+}
         sd->mindate=sd->maxdate=UNDEFINED_DATE;
         sd->nnodate=0;
 
@@ -156,9 +159,10 @@ long read_data_files( FILE *lst )
                 {
                     xprintf("        %4ld %s%s\n",sd->obscount[c],
                             datatype[c].name.data(),PLURAL(sd->obscount[c]) );
-                    if( lst )
+                    if( lst ) {
                         fprintf(lst,"    %4ld %s%s\n",sd->obscount[c],
                                 datatype[c].name.data(),PLURAL(sd->obscount[c]) );
+}
                 }
             }
             
@@ -171,16 +175,18 @@ long read_data_files( FILE *lst )
 
         file_errors = d->error_count();
         misc_errors=get_error_count()-misc_errors;
-        if( misc_errors < 0 ) misc_errors=0;
+        if( misc_errors < 0 ) { misc_errors=0;
+}
         total_errors += file_errors = misc_errors;
         if( file_errors )
         {
             xprintf("   *** %ld error%s reading the file\n",file_errors,
                     PLURAL(file_errors) );
 
-            if( lst )
+            if( lst ) {
                 fprintf(lst,"   *** %ld error%s reading the file\n",file_errors,
                         PLURAL(file_errors) );
+}
         }
 
         if( sd->recode ) 

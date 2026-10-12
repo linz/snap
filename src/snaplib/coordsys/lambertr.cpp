@@ -72,7 +72,8 @@ static int LCC_geog_to_proj( void *data, double ln, double lt, double *e, double
 
 void register_lcc_projection( void )
 {
-    if( LCC_type ) return;
+    if( LCC_type ) { return;
+}
 
     LCC_type = register_projection_type( new projection_type(
         "LCC", "Lambert Conformal Conic", sizeof(LCCProjection), LCCparams, COUNT_OF(LCCparams),
@@ -85,8 +86,10 @@ projection *create_lcc_projection(  double sp1, double sp2,
 {
     projection *prj;
 
-    if( !LCC_type ) register_lcc_projection();
-    if( !LCC_type ) return nullptr;
+    if( !LCC_type ) { register_lcc_projection();
+}
+    if( !LCC_type ) { return nullptr;
+}
 
     prj = new projection( *LCC_type );
 

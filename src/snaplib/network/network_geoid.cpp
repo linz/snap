@@ -13,8 +13,10 @@
 
 int calculate_network_coordsys_geoid( network *nw, int errlevel )
 {
-    if( ! coordsys_heights_orthometric(nw->crdsys) ) return OK;
-    if( nw->options & NW_EXPLICIT_GEOID ) return OK;
+    if( ! coordsys_heights_orthometric(nw->crdsys) ) { return OK;
+}
+    if( nw->options & NW_EXPLICIT_GEOID ) { return OK;
+}
     return calc_station_geoid_info_from_coordsys( nw, nw->crdsys, NW_HGTFIXEDOPT_DEFAULT, errlevel );
 }
 
@@ -41,13 +43,15 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     }
 
 
-    if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
+    if( errlevel != OK && errlevel != INFO_ERROR ) { errlevel=INCONSISTENT_DATA;
+}
 
     /* Check that the vertical datum conversion is possible */
     /* Mainly checking grid file can be opened */
 
     int sts = coordsys_geoid_exu( cs, llh, nullptr, nullptr );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
     /* Conversion to and from vertical datum coordsys */
 
@@ -74,7 +78,8 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
         double exu[3];
         double inputUndulation;
         station *st = station_ptr(nw,istn);
-        if( !st ) continue;
+        if( !st ) { continue;
+}
         llh[CRD_LON] = st->ELon;
         llh[CRD_LAT] = st->ELat;
         llh[CRD_HGT] = 0.0;
@@ -84,9 +89,12 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
 
         ninvalid++;
 
-        if( convert_coords( &to_geoid, llh, nullptr, llh, nullptr ) != OK ) continue;
-        if( coordsys_geoid_exu( cs, llh, nullptr, exu ) != OK ) continue;
-        if( convert_coords( &from_geoid, llh, exu, llh, exu ) != OK ) continue;
+        if( convert_coords( &to_geoid, llh, nullptr, llh, nullptr ) != OK ) { continue;
+}
+        if( coordsys_geoid_exu( cs, llh, nullptr, exu ) != OK ) { continue;
+}
+        if( convert_coords( &from_geoid, llh, exu, llh, exu ) != OK ) { continue;
+}
 
         inputUndulation = st->GUnd;
         st->GUnd = exu[CRD_HGT];
@@ -158,7 +166,8 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
         ellipsoidal_heights=0;
     }
 
-    if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
+    if( errlevel != OK && errlevel != INFO_ERROR ) { errlevel=INCONSISTENT_DATA;
+}
 
     /* Load the definition of the geoid */
 
@@ -193,7 +202,8 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
         double llh[3], exu[3];
         double inputUndulation;
         station *st = station_ptr(nw,istn);
-        if( !st ) continue;
+        if( !st ) { continue;
+}
         llh[CRD_LON] = st->ELon;
         llh[CRD_LAT] = st->ELat;
         llh[CRD_HGT] = 0.0;
@@ -203,9 +213,12 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
 
         ninvalid++;
 
-        if( convert_coords( &to_geoid, llh, nullptr, llh, nullptr ) != OK ) continue;
-        if( calculate_geoid_exu( gd, llh[1], llh[0], exu ) != OK ) continue;
-        if( convert_coords( &from_geoid, llh, exu, llh, exu ) != OK ) continue;
+        if( convert_coords( &to_geoid, llh, nullptr, llh, nullptr ) != OK ) { continue;
+}
+        if( calculate_geoid_exu( gd, llh[1], llh[0], exu ) != OK ) { continue;
+}
+        if( convert_coords( &from_geoid, llh, exu, llh, exu ) != OK ) { continue;
+}
         inputUndulation = st->GUnd;
         st->GUnd = exu[CRD_HGT];
         st->GXi = exu[CRD_LAT];

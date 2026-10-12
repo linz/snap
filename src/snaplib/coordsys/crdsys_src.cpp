@@ -52,7 +52,8 @@ void uninstall_crdsys_lists( void )
     update_id++;
     for( const crdsys_source_def &csd : sources )
     {
-        if( csd.delsource ) (*csd.delsource)( csd.data );
+        if( csd.delsource ) { (*csd.delsource)( csd.data );
+}
     }
     sources.clear();
 }
@@ -65,9 +66,11 @@ ref_frame * load_ref_frame( std::string_view code )
 
     for( const crdsys_source_def &csd : sources )
     {
-        if( ! csd.getrf ) continue;
+        if( ! csd.getrf ) { continue;
+}
         sts = (*csd.getrf)( csd.data, CS_ID_UNAVAILABLE, code, &rf );
-        if( sts != MISSING_DATA ) break;
+        if( sts != MISSING_DATA ) { break;
+}
     }
 
     if( sts == MISSING_DATA )
@@ -86,9 +89,11 @@ ellipsoid * load_ellipsoid( std::string_view code )
 
     for( const crdsys_source_def &csd : sources )
     {
-        if( ! csd.getel ) continue;
+        if( ! csd.getel ) { continue;
+}
         sts = (*csd.getel)( csd.data, CS_ID_UNAVAILABLE, code, &el );
-        if( sts != MISSING_DATA ) break;
+        if( sts != MISSING_DATA ) { break;
+}
     }
     if( sts == MISSING_DATA )
     {
@@ -102,7 +107,8 @@ ellipsoid * load_ellipsoid( std::string_view code )
 bool parse_crdsys_epoch( std::string_view epochstr, double &epoch )
 {
     epoch=snap_datetime_parse(epochstr);
-    if( ! epoch ) return false;
+    if( ! epoch ) { return false;
+}
     epoch = date_as_year(epoch);
     return true;
 }
@@ -189,7 +195,8 @@ coordsys * load_coordsys( std::string_view code )
         else if( ! dtmcode->empty() )
         {
             rf=load_ref_frame( *dtmcode );
-            if( ! rf ) return nullptr;
+            if( ! rf ) { return nullptr;
+}
         }
     }
 
@@ -215,9 +222,11 @@ coordsys * load_coordsys( std::string_view code )
 
     for( const crdsys_source_def &csd : sources )
     {
-        if( ! csd.getcs ) continue;
+        if( ! csd.getcs ) { continue;
+}
         sts = (*csd.getcs)( csd.data, CS_ID_UNAVAILABLE, cscode, &cs );
-        if( sts != MISSING_DATA ) break;
+        if( sts != MISSING_DATA ) { break;
+}
     }
 
     if( sts == MISSING_DATA )
@@ -283,9 +292,11 @@ vdatum * load_vdatum( std::string_view code )
 
     for( const crdsys_source_def &csd : sources )
     {
-        if( ! csd.gethrs ) continue;
+        if( ! csd.gethrs ) { continue;
+}
         sts = (*csd.gethrs)( csd.data, CS_ID_UNAVAILABLE, code, &hrs );
-        if( sts != MISSING_DATA ) break;
+        if( sts != MISSING_DATA ) { break;
+}
     }
 
     if( sts == MISSING_DATA )
@@ -308,14 +319,17 @@ int get_notes( int type, std::string_view code, output_string_def *os )
     {
         return INVALID_DATA;
     }
-    if( nch > CRDCNV_CODE_LEN ) return INVALID_DATA;
+    if( nch > CRDCNV_CODE_LEN ) { return INVALID_DATA;
+}
     const std::string_view cscode = code.substr( 0, nch );
 
     for( const crdsys_source_def &csd : sources )
     {
-        if( ! csd.getnotes ) continue;
+        if( ! csd.getnotes ) { continue;
+}
         sts = (*csd.getnotes)( csd.data, type, cscode, os->sink, os->write );
-        if( sts == OK ) break;
+        if( sts == OK ) { break;
+}
     }
     return sts;
 }
@@ -328,7 +342,8 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os  )
     sts = get_notes( CS_COORDSYS_NOTE, cs->code, os );
     if( cs->rf )
     {
-        if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code, os  ) == OK ) sts=OK;
+        if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code, os  ) == OK ) { sts=OK;
+}
     }
     return sts;
 }
@@ -337,16 +352,19 @@ std::optional<std::string> get_crdsys_file( const std::string &filename, const s
 {
     for( const crdsys_source_def &csd : sources )
     {
-        if( ! csd.getcsfile ) continue;
+        if( ! csd.getcsfile ) { continue;
+}
         auto found = (*csd.getcsfile)( csd.data, filename, extension );
-        if( found ) return found;
+        if( found ) { return found;
+}
     }
     return std::nullopt;
 }
 
 static int gcc_notes( int type, std::string_view code1, std::string_view code2, output_string_def *os )
 {
-    if( code1.size() > CRDSYS_CODE_LEN || code2.size() > CRDSYS_CODE_LEN ) return INVALID_DATA;
+    if( code1.size() > CRDSYS_CODE_LEN || code2.size() > CRDSYS_CODE_LEN ) { return INVALID_DATA;
+}
     std::string convcode( code1 );
     convcode += ':';
     convcode += code2;
@@ -355,7 +373,8 @@ static int gcc_notes( int type, std::string_view code1, std::string_view code2, 
 
 int get_conv_code_notes( int type, std::string_view code1, std::string_view code2, output_string_def *os )
 {
-    if( gcc_notes(type,code1,code2,os)==OK || gcc_notes(type,code2,code1,os)==OK ) return OK;
+    if( gcc_notes(type,code1,code2,os)==OK || gcc_notes(type,code2,code1,os)==OK ) { return OK;
+}
     return MISSING_DATA;
 }
 
@@ -372,8 +391,10 @@ int get_conv_notes( coord_conversion *conv, output_string_def *os )
     for( icrf=0; icrf < conv->ncrf; icrf++ )
     {
         coord_conversion_rf *crf = &(conv->crf[icrf]);
-        if( crf->def_only ) continue;
-        if( ! crf->rf ) continue;
+        if( crf->def_only ) { continue;
+}
+        if( ! crf->rf ) { continue;
+}
         code1=code2;
         code2=crf->rf->code;
         if( get_conv_code_notes( CS_REF_FRAME_NOTE,code1,code2, os ) == OK )

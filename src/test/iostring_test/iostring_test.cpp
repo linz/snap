@@ -19,7 +19,8 @@ int failures=0;
 
 void check( bool condition, const std::string &description )
 {
-    if( condition ) return;
+    if( condition ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << "\n";
 }

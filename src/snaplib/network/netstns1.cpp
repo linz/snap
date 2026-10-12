@@ -93,7 +93,8 @@ static constexpr bool station_disk_fields_contiguous()
         const DiskField &field = STATION_DISK_FIELDS[i];
         const size_t end = field.offset + field_in_memory_size(field.kind) * field.count;
         const size_t expected_next = round_up(end, field_in_memory_alignment(STATION_DISK_FIELDS[i+1].kind));
-        if( expected_next != STATION_DISK_FIELDS[i+1].offset ) return false;
+        if( expected_next != STATION_DISK_FIELDS[i+1].offset ) { return false;
+}
     }
     const DiskField &last = STATION_DISK_FIELDS[STATION_DISK_FIELD_COUNT-1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind) * last.count;
@@ -137,7 +138,8 @@ static void dump_station_offset( station *st, FILE *f )
     const stn_offset *sto=static_cast<const stn_offset *>( st->ts );
     const int ncomp = sto ? boost::numeric_cast<int>( sto->components.size() ) : 0;
     fwrite( &ncomp, sizeof(int), 1, f );
-    if( ! ncomp ) return;
+    if( ! ncomp ) { return;
+}
     fwrite( &(sto->isdeformation), sizeof(int), 1, f );
     for( const stn_offset_comp &comp : sto->components )
     {
@@ -161,7 +163,8 @@ static void reload_station_offset( station *st, FILE *f )
     int ncomp;
     int isdef;
     fread( &ncomp, sizeof(int), 1, f );
-    if( ncomp == 0 ) return;
+    if( ncomp == 0 ) { return;
+}
     fread( &isdef, sizeof(int), 1, f );
     while( ncomp-- )
     {
@@ -183,7 +186,8 @@ void dump_station( station *st, FILE *f )
 {
     write_station_fixed_width( *st, f );
     write_disk_field( f, FieldKind::Int32, numeric_cast<int>( st->classval.size() ) );
-    if( !st->classval.empty() ) fwrite( st->classval.data(), sizeof(int), st->classval.size(), f );
+    if( !st->classval.empty() ) { fwrite( st->classval.data(), sizeof(int), st->classval.size(), f );
+}
     dump_station_offset( st, f );  // handle ts
     dump_string( st->Name, f );
 }

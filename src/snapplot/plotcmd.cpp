@@ -147,13 +147,15 @@ static int read_command_file( const std::string &file_name, const int main_file 
     CFG_FILE *cfg;
     int sts;
 
-    if( ! path_exists( file_name ) ) return FILE_OPEN_ERROR;
+    if( ! path_exists( file_name ) ) { return FILE_OPEN_ERROR;
+}
 
     cfg = open_config_file( file_name, COMMENT_CHAR );
     if( cfg && snapplot_commands )
     {
         int options = CFG_IGNORE_BAD | CFG_SET_PATH;
-        if( main_file ) options |= CFG_CHECK_MISSING;
+        if( main_file ) { options |= CFG_CHECK_MISSING;
+}
         set_config_read_options( cfg, options );
 
         sts = read_config_file( cfg, snapplot_commands );
@@ -172,7 +174,8 @@ int read_plot_command_file( const std::string &fname, const int got_data )
 {
     int sts;
 
-    if( !got_data ) job_title.clear();
+    if( !got_data ) { job_title.clear();
+}
 
     snapplot_commands = got_data ? snapplot_binary_commands :
                         snapplot_general_commands;
@@ -217,7 +220,8 @@ int read_plot_configuration_file( const std::string &cfg_file )
 
 void abort_snapplot_config_file( void )
 {
-    if( current_cfg ) abort_config_file( current_cfg );
+    if( current_cfg ) { abort_config_file( current_cfg );
+}
 }
 
 /* Add a configuration file to a list of files to process */
@@ -230,19 +234,23 @@ void add_configuration_file( const std::string &fname )
 void add_default_configuration_files( void )
 {
     std::string spec = build_config_filespec( system_config_dir(),false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
-    if( path_exists( spec )) add_configuration_file( spec );
+    if( path_exists( spec )) { add_configuration_file( spec );
+}
 
     if( auto userdir = user_config_dir() )
     {
         spec=build_config_filespec( *userdir,false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
-        if( path_exists( spec )) add_configuration_file( spec );
+        if( path_exists( spec )) { add_configuration_file( spec );
+}
     }
 
     spec=build_config_filespec( command_file->path, true, "", SNAPPLOT_CONFIG_FILE, "" );
-    if( path_exists( spec )) add_configuration_file( spec );
+    if( path_exists( spec )) { add_configuration_file( spec );
+}
 
     spec = std::filesystem::path( native_path(command_file->path) ).replace_extension().string() + SNAPPLOT_CONFIG_EXT;
-    if( path_exists( spec )) add_configuration_file( spec );
+    if( path_exists( spec )) { add_configuration_file( spec );
+}
 }
 
 int process_configuration_file_list( void )
@@ -254,7 +262,8 @@ int process_configuration_file_list( void )
         // A copy, as reading a file can add to cfg_list and reallocate it
         const std::string fname = cfg_list[i];
         const int fsts = read_plot_configuration_file( fname );
-        if( fsts != OK ) sts = fsts;
+        if( fsts != OK ) { sts = fsts;
+}
     }
     cfg_list.clear();
     return sts;
@@ -307,11 +316,13 @@ static int load_plot_data( CFG_FILE *cfg, std::string_view string, void *value, 
     auto plot_command = scanner.next();
     const std::string_view plot_data = scanner.remainder();
 
-    if( !plot_command ) return MISSING_DATA;
+    if( !plot_command ) { return MISSING_DATA;
+}
 
     if( boost::algorithm::iequals( *plot_command, "configuration" ) )
     {
-        if( plot_data.empty() ) return MISSING_DATA;
+        if( plot_data.empty() ) { return MISSING_DATA;
+}
         auto cfgfile=find_file(std::string(plot_data),SNAPPLOT_CONFIG_EXT,std::optional<std::string>(cfg->name),FF_TRYNONE,SNAPPLOT_CONFIG_SECTION);
         if( cfgfile )
         {
@@ -363,7 +374,8 @@ static int load_plot_data( CFG_FILE *cfg, std::string_view string, void *value, 
 
     if( boost::algorithm::iequals( *plot_command, "projection" ) )
     {
-        if( plot_data.empty() ) return MISSING_DATA;
+        if( plot_data.empty() ) { return MISSING_DATA;
+}
 
         coordsys *cs = load_coordsys( plot_data );
         if( !cs )
@@ -399,21 +411,28 @@ static int read_station_size_command( CFG_FILE *, std::string_view string, void 
     auto fld = scanner.next();
     if( fld )
     {
-        if( boost::algorithm::iequals(*fld,"text") ) symbol = 0;
-        else if( boost::algorithm::iequals(*fld,"symbol") ) text = 0;
-        if( !text || !symbol ) fld = scanner.next();
+        if( boost::algorithm::iequals(*fld,"text") ) { symbol = 0;
+        } else if( boost::algorithm::iequals(*fld,"symbol") ) { text = 0;
+}
+        if( !text || !symbol ) { fld = scanner.next();
+}
     }
-    if( !fld ) return MISSING_DATA;
+    if( !fld ) { return MISSING_DATA;
+}
     auto size = parse_leading<double>(*fld);
-    if( !size ) return INVALID_DATA;
+    if( !size ) { return INVALID_DATA;
+}
     fld = scanner.next();
     if( fld )
     {
-        if( ! boost::algorithm::iequals(*fld,"times_default") ) return INVALID_DATA;
+        if( ! boost::algorithm::iequals(*fld,"times_default") ) { return INVALID_DATA;
+}
         autoscl = 1;
     }
-    if( text ) set_stn_name_size( *size, autoscl );
-    if( symbol ) set_stn_symbol_size( *size, autoscl );
+    if( text ) { set_stn_name_size( *size, autoscl );
+}
+    if( symbol ) { set_stn_symbol_size( *size, autoscl );
+}
     return OK;
 }
 
@@ -424,7 +443,8 @@ static int read_error_type_command( CFG_FILE *cfg, std::string_view string, void
 
     FieldScanner scanner(string);
     auto fld = scanner.next();
-    if( !fld ) return MISSING_DATA;
+    if( !fld ) { return MISSING_DATA;
+}
     if( boost::algorithm::iequals( *fld, "aposteriori" ) )
     {
         apriori = 0;
@@ -462,7 +482,8 @@ static int read_error_type_command( CFG_FILE *cfg, std::string_view string, void
                 return OK;
             }
             fld = scanner.next();
-            if( ! fld ) return MISSING_DATA;
+            if( ! fld ) { return MISSING_DATA;
+}
             if( boost::algorithm::iequals(*fld,"standard_error") )
             {
                 useconf = 0;
@@ -493,21 +514,28 @@ static int read_error_scale_command( CFG_FILE *, std::string_view string, void *
     auto fld = scanner.next();
     if( fld )
     {
-        if( boost::algorithm::iequals(*fld,"horizontal") ) vertical = 0;
-        else if( boost::algorithm::iequals(*fld,"vertical") ) horizontal = 0;
-        if( !horizontal || !vertical) fld = scanner.next();
+        if( boost::algorithm::iequals(*fld,"horizontal") ) { vertical = 0;
+        } else if( boost::algorithm::iequals(*fld,"vertical") ) { horizontal = 0;
+}
+        if( !horizontal || !vertical) { fld = scanner.next();
+}
     }
-    if( !fld ) return MISSING_DATA;
+    if( !fld ) { return MISSING_DATA;
+}
     auto size = parse_leading<double>(*fld);
-    if( !size ) return INVALID_DATA;
+    if( !size ) { return INVALID_DATA;
+}
     fld = scanner.next();
     if( fld )
     {
-        if( ! boost::algorithm::iequals(*fld,"times_default") ) return INVALID_DATA;
+        if( ! boost::algorithm::iequals(*fld,"times_default") ) { return INVALID_DATA;
+}
         autoscl = 1;
     }
-    if( horizontal ) set_errell_exaggeration( *size, autoscl );
-    if( vertical )   set_hgterr_exaggeration( *size, autoscl );
+    if( horizontal ) { set_errell_exaggeration( *size, autoscl );
+}
+    if( vertical ) {   set_hgterr_exaggeration( *size, autoscl );
+}
     return OK;
 }
 
@@ -519,7 +547,8 @@ static int read_observation_colour_command( CFG_FILE *, std::string_view string,
 static int read_station_colour_command( CFG_FILE *, std::string_view string, void *, int, int )
 {
     int class_id = 0;
-    if( ! boost::algorithm::iequals(string,"usage") ) class_id = net->class_id( std::string(string), 0 );
+    if( ! boost::algorithm::iequals(string,"usage") ) { class_id = net->class_id( std::string(string), 0 );
+}
     setup_station_pens(class_id);
     return OK;
 }
@@ -571,13 +600,16 @@ static int read_observation_spacing_command( CFG_FILE *, std::string_view string
 
     FieldScanner scanner(string);
     auto fld = scanner.next();
-    if( !fld ) return MISSING_DATA;
+    if( !fld ) { return MISSING_DATA;
+}
     auto size = parse_leading<double>(*fld);
-    if( !size ) return INVALID_DATA;
+    if( !size ) { return INVALID_DATA;
+}
     fld = scanner.next();
     if( fld )
     {
-        if( ! boost::algorithm::iequals(*fld,"times_default") ) return INVALID_DATA;
+        if( ! boost::algorithm::iequals(*fld,"times_default") ) { return INVALID_DATA;
+}
         autoscl = 1;
     }
     offset_spacing = *size;
@@ -605,7 +637,8 @@ static int read_obs_listing_order_command( CFG_FILE *, std::string_view string, 
 static int read_key_command( CFG_FILE *, std::string_view string, void *, int, int )
 {
     int sts = read_key_definition( string );
-    if( sts == INCONSISTENT_DATA ) sts = OK;  /* Ignore non-existent pen codes */
+    if( sts == INCONSISTENT_DATA ) { sts = OK;  /* Ignore non-existent pen codes */
+}
     return sts;
 }
 
@@ -620,7 +653,8 @@ static int read_highlight_command( CFG_FILE *, std::string_view string, void *, 
     FieldScanner scanner(string);
     auto s1 = scanner.next();
     auto s2 = scanner.next();
-    if( !s1 ) return MISSING_DATA;
+    if( !s1 ) { return MISSING_DATA;
+}
     if( boost::algorithm::iequals( *s1, "none" ) )
     {
         option = PCONN_HIGHLIGHT_NONE;
@@ -662,9 +696,11 @@ static int read_highlight_command( CFG_FILE *, std::string_view string, void *, 
     }
     if( need_value )
     {
-        if( !s2 ) return MISSING_DATA;
+        if( !s2 ) { return MISSING_DATA;
+}
         auto parsedThreshold = parse_double(*s2);
-        if( !parsedThreshold ) return INVALID_DATA;
+        if( !parsedThreshold ) { return INVALID_DATA;
+}
         threshold = *parsedThreshold;
     }
     set_obs_highlight_option( option, threshold );
@@ -731,7 +767,8 @@ static void process_station_list_file( CFG_FILE *cfg, const std::string &name,
         {
             int istn;
 
-            for( char &c : stn_code ) c = static_cast<char>( std::toupper( static_cast<unsigned char>(c) ) );
+            for( char &c : stn_code ) { c = static_cast<char>( std::toupper( static_cast<unsigned char>(c) ) );
+}
             istn = find_station( net, stn_code );
 
             /* Is the string matched as a station */
@@ -810,7 +847,8 @@ static int process_station_list( CFG_FILE *cfg, std::string_view string, void *,
             }
 
             std::string code(f);
-            for( char &c : code ) c = static_cast<char>( std::toupper( static_cast<unsigned char>(c) ) );
+            for( char &c : code ) { c = static_cast<char>( std::toupper( static_cast<unsigned char>(c) ) );
+}
 
             istn = find_station( net, code );
 
@@ -869,7 +907,8 @@ static int read_station_offset( CFG_FILE *cfg, std::string_view string, void *, 
     auto s2 = scanner.next();
     auto s3 = scanner.next();
 
-    if( !s1 ) return MISSING_DATA;
+    if( !s1 ) { return MISSING_DATA;
+}
 
     const int istn = find_station( net, *s1 );
     if( !istn )
@@ -878,7 +917,8 @@ static int read_station_offset( CFG_FILE *cfg, std::string_view string, void *, 
         return OK;
     }
     sts = readcfg_double( cfg, s2 ? *s2 : std::string_view(), &oe, len, code );
-    if( sts == OK ) sts = readcfg_double( cfg, s3 ? *s3 : std::string_view(), &on, len, code );
+    if( sts == OK ) { sts = readcfg_double( cfg, s3 ? *s3 : std::string_view(), &on, len, code );
+}
     if( sts != OK )
     {
         send_config_error( cfg, INVALID_DATA, "Invalid coordinates in station offset");
@@ -893,7 +933,8 @@ static int read_ignore_offsets( CFG_FILE *cfg, std::string_view string, void *, 
     char ignore = 0;
     int sts;
     sts = readcfg_boolean( cfg, string, &ignore, 0, 0 );
-    if( sts == OK ) use_station_offsets( ignore ? 0 : 1 );
+    if( sts == OK ) { use_station_offsets( ignore ? 0 : 1 );
+}
     return sts;
 }
 
@@ -903,7 +944,8 @@ static int read_config_menu_command( CFG_FILE *cfg, std::string_view string, voi
     FieldScanner scanner(string);
     auto s1 = scanner.next();
     const std::string_view s2 = scanner.remainder();
-    if( s2.empty() ) return MISSING_DATA;
+    if( s2.empty() ) { return MISSING_DATA;
+}
     // s2 non-empty implies s1 was successfully read (remainder can't be
     // non-empty if next() found nothing to consume it past).
     auto fspec = find_file( std::string(*s1), SNAPPLOT_CONFIG_EXT, std::optional<std::string>(cfg->name), FF_TRYALL, SNAPPLOT_CONFIG_SECTION  );
@@ -956,7 +998,8 @@ int write_config_file( FILE *out, int key_only )
         fprintf( out, "obs_listing_order %s\n",get_display_field_name(get_sres_sort_option()).value_or("").c_str());
         fputs( "observation_options ", out );
 
-        if( !show_oneway_obs ) fputs("no_", out);
+        if( !show_oneway_obs ) { fputs("no_", out);
+}
         fputs( "show_obs_directions ", out);
         switch( merge_common_obs )
         {
@@ -969,7 +1012,8 @@ int write_config_file( FILE *out, int key_only )
         default:
             fputs("no_merge_obs ",out); break;
         }
-        if( !show_hidden_stn_obs ) fputs("no_", out);
+        if( !show_hidden_stn_obs ) { fputs("no_", out);
+}
         fputs( "show_hidden_station_obs", out);
         fputs("\n",out);
         fprintf(out,"observation_spacing %.2lf%s\n",offset_spacing,
@@ -1047,7 +1091,8 @@ int write_config_file( FILE *out, int key_only )
                     nline++;
                 }
             }
-            if( first ) fprintf( out,"\n" );
+            if( first ) { fprintf( out,"\n" );
+}
 
         }
 
@@ -1075,7 +1120,8 @@ int write_config_file( FILE *out, int key_only )
                     nline++;
                 }
             }
-            if( first ) fprintf( out,"\n" );
+            if( first ) { fprintf( out,"\n" );
+}
 
         }
         fprintf( out, "\n! Key defined as follows:\n\n");
@@ -1111,7 +1157,8 @@ int config_menu_item_count()
 
 static const config_menu_item *get_config_menu( int i )
 {
-    if( i < 0 || static_cast<size_t>(i) >= config_menu.size() ) return nullptr;
+    if( i < 0 || static_cast<size_t>(i) >= config_menu.size() ) { return nullptr;
+}
     return &config_menu[i];
 }
 

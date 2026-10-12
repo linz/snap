@@ -118,7 +118,8 @@ wxSimpleListBoxValidator::wxSimpleListBoxValidator( const wxSimpleListBoxValidat
 
 bool wxSimpleListBoxValidator::TransferToWindow()
 {
-    if( ! value ) return true;
+    if( ! value ) { return true;
+}
     wxListBox *lb = static_cast<wxListBox *>( GetWindow() );
     wxStringTokenizer tok( *value, wxString(delimiter) );
     while( tok.HasMoreTokens() )
@@ -131,7 +132,8 @@ bool wxSimpleListBoxValidator::TransferToWindow()
 
 bool wxSimpleListBoxValidator::TransferFromWindow()
 {
-    if( ! value ) return true;
+    if( ! value ) { return true;
+}
     wxListBox *lb = static_cast<wxListBox *>( GetWindow() );
     wxString result;
 
@@ -142,7 +144,8 @@ bool wxSimpleListBoxValidator::TransferFromWindow()
     {
         int is = selections.Item(i);
         wxString selValue = lb->GetString( is );
-        if( result.Length() > 0 ) result.Append(delimiter);
+        if( result.Length() > 0 ) { result.Append(delimiter);
+}
         result.Append(selValue);
     }
 
@@ -171,14 +174,16 @@ wxFilePickerValidator::wxFilePickerValidator( const wxFilePickerValidator &valid
 bool wxFilePickerValidator::TransferToWindow()
 {
     wxFilePickerCtrl *fp = static_cast<wxFilePickerCtrl *>( GetWindow() );
-    if( filename ) fp->SetPath( *filename );
+    if( filename ) { fp->SetPath( *filename );
+}
     return true;
 }
 
 bool wxFilePickerValidator::TransferFromWindow()
 {
     wxFilePickerCtrl *fp = static_cast<wxFilePickerCtrl *>( GetWindow() );
-    if( filename ) *filename = fp->GetPath();
+    if( filename ) { *filename = fp->GetPath();
+}
     return true;
 }
 
@@ -232,7 +237,8 @@ wxSimpleDialog::~wxSimpleDialog()
 wxStaticText *wxSimpleDialog::Label( wxString text, wxWindow *window )
 {
     wxStaticText *stLabel = new wxStaticText( this, wxID_ANY, text );
-    if( window ) stLabel->MoveBeforeInTabOrder( window );
+    if( window ) { stLabel->MoveBeforeInTabOrder( window );
+}
     return stLabel;
 }
 
@@ -572,7 +578,8 @@ void wxSimpleDialog::AddControl(wxWindow *window, const wxSizerFlags &flags  )
 
 void wxSimpleDialog::AddControls( int nColumns, wxWindow *control, ... )
 {
-    if( ! control ) return;
+    if( ! control ) { return;
+}
 
     wxFlexGridSizer *sizer = new wxFlexGridSizer(nColumns,0,GetCharWidth());
 
@@ -604,7 +611,8 @@ wxWindow *wxSimpleDialog::ResetTabOrder( wxSizer *sizer, wxWindow *last )
         if( item->IsWindow() )
         {
             wxWindow *window = item->GetWindow();
-            if( last ) window->MoveAfterInTabOrder( last );
+            if( last ) { window->MoveAfterInTabOrder( last );
+}
             last = window;
         }
         else if( item->IsSizer() )
@@ -683,12 +691,14 @@ void wxSimpleDialog::SetupHelp( wxHelpController *controller, wxString topic )
 
 void wxSimpleDialog::ShowHelp( wxCommandEvent & WXUNUSED(event) )
 {
-    if( help ) help->DisplaySection( helpTopic );
+    if( help ) { help->DisplaySection( helpTopic );
+}
 }
 
 void wxSimpleDialog::ShowHelp( wxHelpEvent & WXUNUSED(event) )
 {
-    if( help ) help->DisplaySection( helpTopic );
+    if( help ) { help->DisplaySection( helpTopic );
+}
 }
 
 bool wxSimpleDialog::RunDialog()
@@ -700,7 +710,8 @@ bool wxSimpleDialog::RunDialog()
     ReadData();
     int result = ShowModal();
     bool apply = result == wxID_OK;
-    if( apply ) Apply();
+    if( apply ) { Apply();
+}
     return apply;
 }
 

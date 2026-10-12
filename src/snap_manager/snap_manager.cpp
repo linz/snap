@@ -143,7 +143,8 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
     scriptenv = new SnapMgrScriptEnv(this);
 
-    if( ! jobfile.IsEmpty() ) scriptenv->LoadJob( jobfile );
+    if( ! jobfile.IsEmpty() ) { scriptenv->LoadJob( jobfile );
+}
 }
 
 SnapMgrFrame::~SnapMgrFrame()
@@ -341,7 +342,8 @@ bool SnapMgrApp::OnInit()
     wxFileSystem::AddHandler(new wxZipFSHandler);
     wxLog::SetTimestamp("");
     wxString jobfile;
-    if( argc > 1 ) jobfile = argv[1];
+    if( argc > 1 ) { jobfile = argv[1];
+}
 
     SnapMgrFrame *topWindow = new SnapMgrFrame( jobfile );
 

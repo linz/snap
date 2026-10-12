@@ -11,7 +11,8 @@
 std::optional<std::string_view> FieldScanner::next()
 {
     _pos = std::find_if( _pos, _text.end(), []( const char c ){ return ! ISSPACE(c); } );
-    if( _pos == _text.end() ) return std::nullopt;
+    if( _pos == _text.end() ) { return std::nullopt;
+}
     auto start = _pos;
     _pos = std::find_if( _pos, _text.end(), []( const char c ){ return ISSPACE(c); } );
     return _span( start, _pos );
@@ -20,7 +21,8 @@ std::optional<std::string_view> FieldScanner::next()
 std::optional<std::string_view> FieldScanner::next( const char delimiter )
 {
     auto found = std::find( _pos, _text.end(), delimiter );
-    if( found == _text.end() ) return std::nullopt;
+    if( found == _text.end() ) { return std::nullopt;
+}
     auto field = _span( _pos, found );
     _pos = found + 1;
     return field;
@@ -29,7 +31,8 @@ std::optional<std::string_view> FieldScanner::next( const char delimiter )
 std::optional<std::string_view> FieldScanner::nextUntil( const std::string_view terminators, char &terminator )
 {
     terminator = 0;
-    if( _pos == _text.end() ) return std::nullopt;
+    if( _pos == _text.end() ) { return std::nullopt;
+}
     const auto found = std::find_if( _pos, _text.end(),
         [terminators]( const char c ){ return terminators.find( c ) != std::string_view::npos; } );
     const auto field = _span( _pos, found );
@@ -49,7 +52,8 @@ std::optional<std::string_view> FieldScanner::nextToken( const std::string_view 
 {
     const auto isDelimiter = [delimiters]( const char c ){ return delimiters.find( c ) != std::string_view::npos; };
     _pos = std::find_if_not( _pos, _text.end(), isDelimiter );
-    if( _pos == _text.end() ) return std::nullopt;
+    if( _pos == _text.end() ) { return std::nullopt;
+}
     const auto start = _pos;
     _pos = std::find_if( _pos, _text.end(), isDelimiter );
     return _span( start, _pos );
@@ -68,7 +72,8 @@ std::string_view FieldScanner::remainder() const
 bool FieldScanner::skipIfNext( const char c )
 {
     const auto next = std::find_if( _pos, _text.end(), []( const char ch ){ return ! ISSPACE(ch); } );
-    if( next == _text.end() || *next != c ) return false;
+    if( next == _text.end() || *next != c ) { return false;
+}
     _pos = next + 1;
     return true;
 }
@@ -128,8 +133,10 @@ std::string_view::const_iterator FieldScanner::isQuoted( const std::string_view 
 std::optional<std::string_view> FieldScanner::checkAndRecoverQuotedValue( const bool onlyDoubleQuote,
     const std::optional<std::vector<QuoteFollowOption>> &followOptions )
 {
-    while( _pos != _text.end() && ISSPACE(*_pos) ) ++_pos;
-    if( _pos == _text.end() ) return std::nullopt;
+    while( _pos != _text.end() && ISSPACE(*_pos) ) { ++_pos;
+}
+    if( _pos == _text.end() ) { return std::nullopt;
+}
 
     const std::string_view upcoming = remainder();
     auto quoteStart = isQuoted( upcoming, onlyDoubleQuote );
@@ -144,7 +151,8 @@ std::optional<double> FieldScanner::checkAndRecoverQuotedDoubleValue( const bool
     const std::optional<std::vector<QuoteFollowOption>> &followOptions )
 {
     auto field = checkAndRecoverQuotedValue( onlyDoubleQuote, followOptions );
-    if( ! field ) return std::nullopt;
+    if( ! field ) { return std::nullopt;
+}
     return parse_double( *field );
 }
 
@@ -153,10 +161,12 @@ std::optional<ParsedField<T>> parse_leading_field( std::string_view field )
 {
     // std::from_chars doesn't accept a leading '+' - matches the same
     // handling in readcfg.cpp's store_numeric_config_value.
-    if( ! field.empty() && field.front() == '+' ) field.remove_prefix(1);
+    if( ! field.empty() && field.front() == '+' ) { field.remove_prefix(1);
+}
     ParsedField<T> r{};
     r.result = std::from_chars( field.data(), field.data() + field.size(), r.value );
-    if( r.result.ec != std::errc() ) return std::nullopt;
+    if( r.result.ec != std::errc() ) { return std::nullopt;
+}
     return r;
 }
 template std::optional<ParsedField<int>> parse_leading_field<int>( std::string_view );
@@ -167,7 +177,8 @@ template <typename T>
 std::optional<T> parse_leading( std::string_view field )
 {
     const auto r = parse_leading_field<T>( field );
-    if( ! r ) return std::nullopt;
+    if( ! r ) { return std::nullopt;
+}
     return r->value;
 }
 template std::optional<int> parse_leading<int>( std::string_view );
@@ -177,28 +188,32 @@ template std::optional<double> parse_leading<double>( std::string_view );
 std::optional<double> parse_double( std::string_view field )
 {
     const auto r = parse_leading_field<double>( field );
-    if( ! r || r->result.ptr != field.data() + field.size() ) return std::nullopt;
+    if( ! r || r->result.ptr != field.data() + field.size() ) { return std::nullopt;
+}
     return r->value;
 }
 
 std::optional<int> parse_int( std::string_view field )
 {
     const auto r = parse_leading_field<int>( field );
-    if( ! r || r->result.ptr != field.data() + field.size() ) return std::nullopt;
+    if( ! r || r->result.ptr != field.data() + field.size() ) { return std::nullopt;
+}
     return r->value;
 }
 
 std::optional<double> parse_positive_double( std::string_view field )
 {
     auto value = parse_double( field );
-    if( value && *value <= 0.0 ) return std::nullopt;
+    if( value && *value <= 0.0 ) { return std::nullopt;
+}
     return value;
 }
 
 int compare_ignoring_case( std::string_view string1, std::string_view string2 )
 {
     const auto foldedLess = []( unsigned char a, unsigned char b ) { return std::tolower(a) < std::tolower(b); };
-    if( std::lexicographical_compare( string1.begin(), string1.end(), string2.begin(), string2.end(), foldedLess ) ) return -1;
+    if( std::lexicographical_compare( string1.begin(), string1.end(), string2.begin(), string2.end(), foldedLess ) ) { return -1;
+}
     return std::lexicographical_compare( string2.begin(), string2.end(), string1.begin(), string1.end(), foldedLess ) ? 1 : 0;
 }
 
@@ -213,7 +228,8 @@ int compare_ignoring_case( std::string_view string1, std::string_view string2, s
 static char normalise_name_char(
     unsigned char ch )  ///< the character to reduce
 {
-    if( ch <= ' ' || ch >= 127 ) return '_';
+    if( ch <= ' ' || ch >= 127 ) { return '_';
+}
     return static_cast<char>( std::tolower( ch ) );
 }
 
@@ -235,9 +251,11 @@ static FieldResult read_field(
     std::string_view &field )   ///< set to the field when the result is Ok
 {
     FieldScanner probe = scanner;
-    if( ! probe.next() ) return FieldResult::NoMoreData;
+    if( ! probe.next() ) { return FieldResult::NoMoreData;
+}
     const std::optional<std::string_view> result = scanner.checkAndRecoverQuotedValue( true, std::nullopt );
-    if( ! result ) return FieldResult::MalformedQuote;
+    if( ! result ) { return FieldResult::MalformedQuote;
+}
     field = *result;
     return FieldResult::Ok;
 }
@@ -246,7 +264,8 @@ FieldResult read_string_field( FieldScanner &scanner, std::string &value, size_t
 {
     std::string_view field;
     const FieldResult result = read_field( scanner, field );
-    if( result == FieldResult::Ok ) value.assign( field.substr( 0, maxlength ) );
+    if( result == FieldResult::Ok ) { value.assign( field.substr( 0, maxlength ) );
+}
     return result;
 }
 
@@ -254,24 +273,29 @@ FieldResult read_double_field( FieldScanner &scanner, double &value )
 {
     std::string_view field;
     const FieldResult result = read_field( scanner, field );
-    if( result != FieldResult::Ok ) return result;
+    if( result != FieldResult::Ok ) { return result;
+}
     const std::optional<double> parsed = parse_double( field );
-    if( ! parsed ) return FieldResult::InvalidValue;
+    if( ! parsed ) { return FieldResult::InvalidValue;
+}
     value = *parsed;
     return FieldResult::Ok;
 }
 
 FieldResult read_remaining_text( FieldScanner &scanner, std::string &value, size_t maxlength )
 {
-    if( scanner.atEnd() ) return FieldResult::NoMoreData;
+    if( scanner.atEnd() ) { return FieldResult::NoMoreData;
+}
     std::string_view text = scanner.remainder();
     while( scanner.next() ) {}
     text.remove_prefix( std::find_if( text.begin(), text.end(), []( char c ) { return ! ISSPACE(c); } ) - text.begin() );
     value.clear();
     for( const char c : text )
     {
-        if( value.size() >= maxlength ) break;
-        if( c != '\r' && c != '\x1a' ) value += c;
+        if( value.size() >= maxlength ) { break;
+}
+        if( c != '\r' && c != '\x1a' ) { value += c;
+}
     }
     return FieldResult::Ok;
 }
@@ -284,9 +308,11 @@ static FieldResult read_whole_number_field(
 {
     std::string_view field;
     const FieldResult result = read_field( scanner, field );
-    if( result != FieldResult::Ok ) return result;
+    if( result != FieldResult::Ok ) { return result;
+}
     const std::optional<ParsedField<T>> parsed = parse_leading_field<T>( field );
-    if( ! parsed || parsed->result.ptr != field.data() + field.size() ) return FieldResult::InvalidValue;
+    if( ! parsed || parsed->result.ptr != field.data() + field.size() ) { return FieldResult::InvalidValue;
+}
     value = parsed->value;
     return FieldResult::Ok;
 }
@@ -305,7 +331,8 @@ FieldResult read_degree_angle_field( FieldScanner &scanner, double &radians )
 {
     double degrees = 0.0;
     const FieldResult result = read_double_field( scanner, degrees );
-    if( result == FieldResult::Ok ) radians = degrees * (PI/180.0);
+    if( result == FieldResult::Ok ) { radians = degrees * (PI/180.0);
+}
     return result;
 }
 
@@ -315,9 +342,12 @@ FieldResult read_dms_angle_field( FieldScanner &scanner, double &radians )
     int minutes = 0;
     double seconds = 0.0;
     FieldResult result = read_int_field( scanner, degrees );
-    if( result == FieldResult::Ok ) result = read_int_field( scanner, minutes );
-    if( result == FieldResult::Ok ) result = read_double_field( scanner, seconds );
-    if( result == FieldResult::Ok ) radians = (degrees + minutes/60.0 + seconds/3600.0) * PI/180.0;
+    if( result == FieldResult::Ok ) { result = read_int_field( scanner, minutes );
+}
+    if( result == FieldResult::Ok ) { result = read_double_field( scanner, seconds );
+}
+    if( result == FieldResult::Ok ) { radians = (degrees + minutes/60.0 + seconds/3600.0) * PI/180.0;
+}
     return result;
 }
 
@@ -325,17 +355,22 @@ FieldResult read_hp_angle_field( FieldScanner &scanner, double &radians )
 {
     std::string_view field;
     const FieldResult result = read_field( scanner, field );
-    if( result != FieldResult::Ok ) return result;
+    if( result != FieldResult::Ok ) { return result;
+}
 
     const size_t point = field.find( '.' );
-    if( point == std::string_view::npos ) return FieldResult::InvalidValue;
+    if( point == std::string_view::npos ) { return FieldResult::InvalidValue;
+}
     const std::string_view whole = field.substr( 0, point );
     const std::string_view fraction = field.substr( point + 1 );
-    if( ! std::all_of( whole.begin(), whole.end(), is_digit ) ) return FieldResult::InvalidValue;
-    if( fraction.size() < 4 || ! std::all_of( fraction.begin(), fraction.end(), is_digit ) ) return FieldResult::InvalidValue;
+    if( ! std::all_of( whole.begin(), whole.end(), is_digit ) ) { return FieldResult::InvalidValue;
+}
+    if( fraction.size() < 4 || ! std::all_of( fraction.begin(), fraction.end(), is_digit ) ) { return FieldResult::InvalidValue;
+}
 
     int degrees = 0;
-    for( const char c : whole ) degrees = degrees*10 + (c - '0');
+    for( const char c : whole ) { degrees = degrees*10 + (c - '0');
+}
     const int minutes = (fraction[0] - '0')*10 + (fraction[1] - '0');
     double seconds = (fraction[2] - '0')*10 + (fraction[3] - '0');
     double place = 0.1;

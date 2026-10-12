@@ -30,7 +30,8 @@ void define_tmprojection( tmprojection *tm, double a, double rf,
     tm->falsee = fe;
     tm->falsen = fn;
     tm->utom = utom;
-    if( rf != 0.0 ) f = 1.0/rf; else f = 0.0;
+    if( rf != 0.0 ) { f = 1.0/rf; } else { f = 0.0;
+}
     tm->a = a;
     tm->rf = rf;
     tm->f = f;
@@ -277,8 +278,10 @@ void geod_tm( tmprojection *tm,
     double gcn;
 
     dlon  =  ln - cm;
-    while ( dlon > PI ) dlon -= TWOPI;
-    while ( dlon < -PI ) dlon += TWOPI;
+    while ( dlon > PI ) { dlon -= TWOPI;
+}
+    while ( dlon < -PI ) { dlon += TWOPI;
+}
 
     m = meridian_arc(tm,lt);
 

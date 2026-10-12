@@ -303,7 +303,8 @@ int utlBinSrcLoad1( hBinSrc binsrc, long offset, int nval, void *data)
     int size = nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) return sts;
+    if( sts != STS_OK ) { return sts;
+}
     binsrc->offset = offset + size;
     return sts;
 }
@@ -331,7 +332,8 @@ int utlBinSrcLoad2( hBinSrc binsrc, long offset, int nval, void *data)
     int size = 2*nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) return sts;
+    if( sts != STS_OK ) { return sts;
+}
     binsrc->offset = offset + size;
     if( binsrc->swap_bytes() )
     {
@@ -368,7 +370,8 @@ int utlBinSrcLoad4( hBinSrc binsrc, long offset, int nval, void *data)
     int size = 4*nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) return sts;
+    if( sts != STS_OK ) { return sts;
+}
     binsrc->offset = offset + size;
     if( binsrc->swap_bytes() )
     {
@@ -405,7 +408,8 @@ int utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data)
     int size = 8*nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) return sts;
+    if( sts != STS_OK ) { return sts;
+}
     binsrc->offset = offset + size;
     if( binsrc->swap_bytes() )
     {
@@ -445,7 +449,8 @@ StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, std::string &data )
     if( len < 0 ) RETURN_STATUS(STS_INVALID_DATA);
 
     std::string text( len, '\0' );
-    if( len > 0 ) sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, text.data() );
+    if( len > 0 ) { sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, text.data() );
+}
     if( sts != STS_OK ) RETURN_STATUS(sts);
     text.resize( std::min( text.find( '\0' ), text.size() ) );
     data = std::move( text );

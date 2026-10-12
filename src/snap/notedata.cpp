@@ -49,7 +49,8 @@ void list_note( FILE *out, int64_t loc )
     long size;
     int block, type;
     int firstline, c;
-    if( loc < 0 || !output_notes ) return;
+    if( loc < 0 || !output_notes ) { return;
+}
     const int64_t curloc = ftell64( bindata_file );
     fseek64( bindata_file, loc, SEEK_SET );
 
@@ -64,7 +65,8 @@ void list_note( FILE *out, int64_t loc )
         }
         else
         {
-            if( c != ' ' ) break;
+            if( c != ' ' ) { break;
+}
         }
         size--;
         note[80] = 0;

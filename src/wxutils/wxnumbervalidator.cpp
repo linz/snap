@@ -34,8 +34,10 @@ void wxNumberValidator::Setup()
     chars.Add("7");
     chars.Add("8");
     chars.Add("9");
-    if( ! isInteger ) chars.Add(".");
-    if( ! isPositive ) chars.Add("-");
+    if( ! isInteger ) { chars.Add(".");
+}
+    if( ! isPositive ) { chars.Add("-");
+}
     SetIncludes(chars);
 }
 
@@ -58,15 +60,19 @@ bool wxNumberValidator::TransferFromWindow()
     {
         long lvalue;
         result = strval.ToLong( &lvalue );
-        if( result && isPositive && lvalue < 0 ) result = false;
-        if( result ) * (int *) value = (int) lvalue;
+        if( result && isPositive && lvalue < 0 ) { result = false;
+}
+        if( result ) { * (int *) value = (int) lvalue;
+}
     }
     else
     {
         double dvalue;
         result = strval.ToDouble( &dvalue );
-        if( result && isPositive && dvalue < 0 ) result = false;
-        if( result ) * (double *) value = dvalue;
+        if( result && isPositive && dvalue < 0 ) { result = false;
+}
+        if( result ) { * (double *) value = dvalue;
+}
     }
     return result;
 }

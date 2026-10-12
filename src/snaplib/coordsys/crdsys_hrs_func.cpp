@@ -41,7 +41,8 @@ static void delete_offset_vdatum_func_data( void *data )
 
 static int calc_offset_vdatum_func( vdatum_func *hrf, double[3], double *height, double *exu )
 {
-    if( height) *height = -(*(double *)(hrf->data));
+    if( height) { *height = -(*(double *)(hrf->data));
+}
     if( exu )
     {
         exu[CRD_LON]=0.0;
@@ -95,9 +96,12 @@ struct grid_vdatum_func_data
 static void delete_grid_vdatum_func_data( void *data )
 {
     grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) data;
-    if( ! ghrfd ) return;
-    if( ghrfd->gd ) delete_geoid_grid( ghrfd->gd );
-    if( ghrfd->rfcs ) delete ghrfd->rfcs;
+    if( ! ghrfd ) { return;
+}
+    if( ghrfd->gd ) { delete_geoid_grid( ghrfd->gd );
+}
+    if( ghrfd->rfcs ) { delete ghrfd->rfcs;
+}
     delete[] ghrfd->rfconv;
     delete ghrfd;
 }
@@ -180,10 +184,12 @@ static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *heigh
 {
     grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) hrf->data;
     int sts=load_grid_vdatum_func( hrf, ghrfd );
-    if( ! height && ! exu ) return sts;
+    if( ! height && ! exu ) { return sts;
+}
     if( sts != OK )
     {
-        if( height ) *height=0.0;
+        if( height ) { *height=0.0;
+}
         if( exu ){ exu[0]=exu[1]=exu[2]=0.0; }
         return sts;
     }
@@ -193,7 +199,8 @@ static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *heigh
         if( exu )
         {
             sts=calculate_geoid_exu(gd,llh[CRD_LAT],llh[CRD_LON],exu);
-            if( height ) *height=exu[CRD_HGT];
+            if( height ) { *height=exu[CRD_HGT];
+}
         }
         else
         {
@@ -205,11 +212,14 @@ static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *heigh
         double llh1[3];
         double exu1[3];
         sts=convert_coords( ghrfd->rfconv, llh, llh1, nullptr, nullptr );
-        if( sts == OK ) sts=calculate_geoid_exu(gd,llh1[CRD_LAT],llh1[CRD_LON],exu1);
-        if( sts == OK ) sts=convert_coords( ghrfd->irfconv, llh1, llh1, exu1, exu1 );
+        if( sts == OK ) { sts=calculate_geoid_exu(gd,llh1[CRD_LAT],llh1[CRD_LON],exu1);
+}
+        if( sts == OK ) { sts=convert_coords( ghrfd->irfconv, llh1, llh1, exu1, exu1 );
+}
         if( sts == OK )
         {
-           if( height ) *height=exu1[CRD_HGT]; 
+           if( height ) { *height=exu1[CRD_HGT]; 
+}
            if( exu ){ exu[CRD_LON]=exu1[CRD_LON]; exu[CRD_LAT]=exu1[CRD_LAT]; exu[CRD_HGT]=exu1[CRD_HGT]; }
         }
     }
@@ -262,13 +272,16 @@ vdatum_func *copy_vdatum_func( vdatum_func *hrf )
 
 int identical_vdatum_func( vdatum_func *hrf1, vdatum_func *hrf2 )
 {
-    if( hrf1->type != hrf2->type ) return 0;
+    if( hrf1->type != hrf2->type ) { return 0;
+}
     return hrf1->identical( hrf1->data, hrf2->data );
 }
 
 int calc_vdatum_func( vdatum_func *hrf, double llh[3], double *height, double *exu )
 {
-    if( height ) *height=0;
-    if( ! hrf ) return INVALID_DATA;
+    if( height ) { *height=0;
+}
+    if( ! hrf ) { return INVALID_DATA;
+}
     return hrf->calc_height( hrf, llh, height, exu );
 }

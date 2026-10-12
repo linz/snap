@@ -57,7 +57,8 @@ std::string native_path( const std::string_view path )
     std::string result( path );
     for( char &c : result )
     {
-        if( c == PATH_SEPARATOR2 ) c = PATH_SEPARATOR;
+        if( c == PATH_SEPARATOR2 ) { c = PATH_SEPARATOR;
+}
     }
     return result;
 }
@@ -81,8 +82,9 @@ int is_dir(const std::string &path)
 time_t  file_modtime(const std::string &path)
 {
     struct _stat info;
-    if(_stat( path.c_str(), &info ) != 0)
+    if(_stat( path.c_str(), &info ) != 0) {
         return 0;
+}
     return info.st_mtime;
 }
 
@@ -111,7 +113,8 @@ static std::string normalize_path( const std::string &path )
     while( pos <= path.size() )
     {
         size_t next = pos;
-        while( next < path.size() && path[next] != PATH_SEPARATOR && path[next] != PATH_SEPARATOR2 ) next++;
+        while( next < path.size() && path[next] != PATH_SEPARATOR && path[next] != PATH_SEPARATOR2 ) { next++;
+}
         std::string segment = path.substr(pos,next-pos);
         if( segment == "." )
         {
@@ -125,15 +128,18 @@ static std::string normalize_path( const std::string &path )
         {
             segments.push_back(std::move(segment));
         }
-        if( next >= path.size() ) break;
+        if( next >= path.size() ) { break;
+}
         pos = next+1;
     }
 
     std::string result;
-    if( absolute ) result += PATH_SEPARATOR;
+    if( absolute ) { result += PATH_SEPARATOR;
+}
     for( size_t i=0; i<segments.size(); i++ )
     {
-        if( i>0 ) result += PATH_SEPARATOR;
+        if( i>0 ) { result += PATH_SEPARATOR;
+}
         result += segments[i];
     }
     return result;
@@ -143,13 +149,16 @@ std::string build_config_filespec( const std::string &dir, const bool pathonly, 
                                    const std::string &name, const std::string &dflt_ext )
 {
     std::string dirpart = pathonly ? std::filesystem::path( native_path(dir) ).parent_path().string() : dir;
-    if( ! dirpart.empty() && (dirpart.back()==PATH_SEPARATOR || dirpart.back()==PATH_SEPARATOR2) ) dirpart.pop_back();
+    if( ! dirpart.empty() && (dirpart.back()==PATH_SEPARATOR || dirpart.back()==PATH_SEPARATOR2) ) { dirpart.pop_back();
+}
 
     std::string spec;
     if( ! dirpart.empty() ) { spec += dirpart; spec += PATH_SEPARATOR; }
     if( ! config.empty() ) { spec += config; spec += PATH_SEPARATOR; }
-    if( ! name.empty() ) spec += name;
-    if( ! dflt_ext.empty() ) spec += dflt_ext;
+    if( ! name.empty() ) { spec += name;
+}
+    if( ! dflt_ext.empty() ) { spec += dflt_ext;
+}
 
     return normalize_path(spec);
 }
@@ -168,7 +177,8 @@ std::string build_filespec( const std::string &dir, const std::string &name, con
 
 std::optional<std::string> image_path()
 {
-    if( imgpath ) return imgpath;
+    if( imgpath ) { return imgpath;
+}
     std::string link = "/proc/" + std::to_string(getpid());
 #if defined(__linux) || defined(linux)
     link += "/exe";
@@ -191,9 +201,11 @@ std::optional<std::string> image_path()
 
 std::optional<std::string> user_config_dir()
 {
-    if( usercfg ) return usercfg;
+    if( usercfg ) { return usercfg;
+}
     const char *homedir = getenv("HOME");
-    if( ! homedir ) return std::nullopt;
+    if( ! homedir ) { return std::nullopt;
+}
     usercfg = std::string(homedir) + PATH_SEPARATOR + "." + USER_CONFIG_BASE;
     return usercfg;
 }
@@ -222,7 +234,8 @@ std::optional<std::string> user_config_dir()
 
 std::string image_name()
 {
-    if( imgname ) return *imgname;
+    if( imgname ) { return *imgname;
+}
     std::filesystem::path path( image_path().value_or("") );
     imgname = path.stem().string();
     return *imgname;
@@ -230,7 +243,8 @@ std::string image_name()
 
 std::string image_dir()
 {
-    if( imgdir ) return *imgdir;
+    if( imgdir ) { return *imgdir;
+}
     std::filesystem::path path( image_path().value_or("") );
     imgdir = path.parent_path().string();
     return *imgdir;
@@ -238,7 +252,8 @@ std::string image_dir()
 
 std::string system_config_dir()
 {
-    if( syscfg ) return *syscfg;
+    if( syscfg ) { return *syscfg;
+}
     syscfg = image_dir() + PATH_SEPARATOR + SYS_CONFIG_BASE;
     return *syscfg;
 }
@@ -248,7 +263,8 @@ std::string system_config_dir()
 /// built are kept. Built on the first call and kept until reset_config_dirs().
 static const std::forward_list<std::string> &config_dirs()
 {
-    if( config_dir_list ) return *config_dir_list;
+    if( config_dir_list ) { return *config_dir_list;
+}
     config_dir_list.emplace();
     auto last = config_dir_list->before_begin();
 
@@ -334,7 +350,8 @@ std::string portable_path( const std::string &path )
     std::string result = path;
     for( char &c : result )
     {
-        if( c == PATH_SEPARATOR ) c = '/';
+        if( c == PATH_SEPARATOR ) { c = '/';
+}
     }
     return result;
 }
@@ -395,8 +412,10 @@ file_context *recreate_context( const std::string_view context_def )
     {
         return nullptr;
     }
-    while( context->parent ) context=context->parent;
-    if( context_def.empty() ) return context;
+    while( context->parent ) { context=context->parent;
+}
+    if( context_def.empty() ) { return context;
+}
     set_file_context( context );
     size_t start = 0;
     while( start < context_def.size() )
@@ -406,7 +425,8 @@ file_context *recreate_context( const std::string_view context_def )
         const std::string absdir = absolute_filename(reldir,context->dir);
         push_file_context(absdir);
         context=current_context;
-        if( ! context->reldir ) context->reldir=reldir;
+        if( ! context->reldir ) { context->reldir=reldir;
+}
         start = end + 2;
     }
     set_file_context(saved_context);
@@ -477,11 +497,13 @@ std::optional<std::string> find_config_file( const std::string &config, const st
     for( const std::string &dir : config_dirs() )
     {
         std::string spec=build_config_filespec( dir, false, config, name, dflt_ext);
-        if( path_exists(spec) ) return spec;
+        if( path_exists(spec) ) { return spec;
+}
         if( ! dflt_ext.empty() )
         {
             spec=build_config_filespec( dir, false, config, name, "");
-            if( path_exists(spec) ) return spec;
+            if( path_exists(spec) ) { return spec;
+}
         }
     }
     return std::nullopt;
@@ -492,12 +514,14 @@ std::optional<std::string> find_relative_file( const std::string &base, const st
     bool pathonly = path_exists(base) && ! is_dir(base);
 
     std::string spec=build_config_filespec( base, pathonly, "", name, dflt_ext);
-    if( path_exists(spec) ) return spec;
+    if( path_exists(spec) ) { return spec;
+}
 
     if( ! dflt_ext.empty() )
     {
         spec=build_config_filespec( base, pathonly, "", name, "");
-        if( path_exists(spec) ) return spec;
+        if( path_exists(spec) ) { return spec;
+}
     }
 
     return std::nullopt;
@@ -515,15 +539,19 @@ std::optional<std::string> find_file( const std::string &name, const std::string
         for( file_context *context = current_context; context && ! spec; context=context->parent )
         {
             std::string trySpec = build_filespec(context->dir,name,dflt_ext);
-            if( ! dflt_ext.empty() && ! path_exists(trySpec)) trySpec = build_filespec(context->dir,name,"");
-            if( path_exists(trySpec)) spec = trySpec;
+            if( ! dflt_ext.empty() && ! path_exists(trySpec)) { trySpec = build_filespec(context->dir,name,"");
+}
+            if( path_exists(trySpec)) { spec = trySpec;
+}
         }
     }
     if( ! spec && (tryopt & FF_TRYLOCAL) )
     {
         std::string trySpec = build_filespec("",name,dflt_ext);
-        if( ! dflt_ext.empty() && ! path_exists(trySpec)) trySpec = build_filespec("",name,"");
-        if( path_exists(trySpec)) spec = trySpec;
+        if( ! dflt_ext.empty() && ! path_exists(trySpec)) { trySpec = build_filespec("",name,"");
+}
+        if( path_exists(trySpec)) { spec = trySpec;
+}
     }
     if( ! spec && ! config.empty() )
     {
@@ -550,7 +578,8 @@ int skip_utf8_bom( FILE *f )
 {
     unsigned char bom[3];
     int nchar;
-    if( ftell64(f) != 0 ) return 1;
+    if( ftell64(f) != 0 ) { return 1;
+}
     nchar=fread(bom,1,3,f);
     if( nchar >= 2 && ( (bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE') ) )
     {
@@ -565,7 +594,8 @@ int skip_utf8_bom( FILE *f )
 
 int skip_utf8_bom( std::istream &f )
 {
-    if( f.tellg() != std::streampos(0) ) return 1;
+    if( f.tellg() != std::streampos(0) ) { return 1;
+}
     unsigned char bom[3] = {0,0,0};
     f.read( reinterpret_cast<char *>(bom), 3 );
     std::streamsize nchar = f.gcount();

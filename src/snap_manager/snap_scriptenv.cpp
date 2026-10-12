@@ -106,7 +106,8 @@ wxString &SnapMgrScriptEnv::GetHeightRefList()
 
 bool SnapMgrScriptEnv::LoadJob( const wxString &jobFile )
 {
-    if( ! UnloadJob( true ) ) return false;
+    if( ! UnloadJob( true ) ) { return false;
+}
 
     {
         wxCommandEvent evt( wxEVT_SNAP_JOBUPDATED );
@@ -141,15 +142,18 @@ bool SnapMgrScriptEnv::LoadJob( const wxString &jobFile )
 
 bool SnapMgrScriptEnv::UnloadJob( bool canVeto )
 {
-    if( ! job ) return true;
+    if( ! job ) { return true;
+}
     if( canVeto && ! job->IsSaved() )
     {
         wxString message("Job ");
         message.Append( job->GetFilename() );
         message.Append( " has not been saved. Save now?");
         int result = wxMessageBox( message, "Save job?", wxYES_NO | wxCANCEL | wxICON_QUESTION );
-        if( result == wxCANCEL ) return false;
-        if( result == wxYES ) job->Save();
+        if( result == wxCANCEL ) { return false;
+}
+        if( result == wxYES ) { job->Save();
+}
     }
     delete job;
     job = nullptr;
@@ -163,7 +167,8 @@ bool SnapMgrScriptEnv::UnloadJob( bool canVeto )
 bool SnapMgrScriptEnv::UpdateJob()
 {
     bool updated = false;
-    if( job ) updated = job->Update();
+    if( job ) { updated = job->Update();
+}
     if( updated )
     {
         wxCommandEvent evt( wxEVT_SNAP_JOBUPDATED );
@@ -175,7 +180,8 @@ bool SnapMgrScriptEnv::UpdateJob()
 
 void SnapMgrScriptEnv::InsertPath( const wxString &path, const wxString &envvar )
 {
-        if( path.IsEmpty()) return;
+        if( path.IsEmpty()) { return;
+}
         // Ensure path is using correct delimiter
         wxString psep=PATH_SEPARATOR;
         wxString psep2=PATH_SEPARATOR2;
@@ -237,11 +243,14 @@ bool SnapMgrScriptEnv::RemoveDirectory(const wxString &dirpath)
         while ( cont )
         {
             file = dirpath + wxFileName::GetPathSeparator()+ file;
-            if(wxFileName::FileExists(file)) wxRemoveFile(file);
-            if( wxFileName::DirExists(file)) RemoveDirectory(file);
+            if(wxFileName::FileExists(file)) { wxRemoveFile(file);
+}
+            if( wxFileName::DirExists(file)) { RemoveDirectory(file);
+}
             cont = dir.GetNext(&file);
         }
-        if(!(dir.HasFiles() || dir.HasSubDirs())) dir_empty = true;
+        if(!(dir.HasFiles() || dir.HasSubDirs())) { dir_empty = true;
+}
     }
     if(dir_empty)
     {
@@ -260,8 +269,10 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItemByLabel( wxMenu *menu, const wxString &
     for( size_t i = 0; i < menu->GetMenuItemCount(); i++ )
     {
         wxMenuItem *mi=menu->FindItemByPosition(i);
-        if( wantSubMenu && ! mi->GetSubMenu()) continue;
-        if( ! wantSubMenu && mi->GetSubMenu()) continue;
+        if( wantSubMenu && ! mi->GetSubMenu()) { continue;
+}
+        if( ! wantSubMenu && mi->GetSubMenu()) { continue;
+}
         if( mi->GetItemLabel()==label )
         {
             return mi;
@@ -275,7 +286,8 @@ size_t SnapMgrScriptEnv::GetMenuInsertPosition( wxMenu *menu )
     size_t insertPos;
     for( insertPos=0; insertPos < menu->GetMenuItemCount(); insertPos++ )
     {
-        if( menu->FindItemByPosition(insertPos)->GetId() == wxID_SEPARATOR ) break;
+        if( menu->FindItemByPosition(insertPos)->GetId() == wxID_SEPARATOR ) { break;
+}
     }
     return insertPos;
 }
@@ -285,8 +297,10 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
     // Set up the file menu ..
 
     wxMenuBar *menuBar = frameWindow->GetMenuBar();
-    if( parent ) (*parent)=nullptr;
-    if( ! menuBar ) return nullptr;
+    if( parent ) { (*parent)=nullptr;
+}
+    if( ! menuBar ) { return nullptr;
+}
 
     wxString delimiter="|";
     bool wantMenu = name.EndsWith(delimiter);
@@ -297,7 +311,8 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
 
     wxStringTokenizer menuParts(menuName,"|");
 
-    if( menuParts.CountTokens() < 1 ) return nullptr;
+    if( menuParts.CountTokens() < 1 ) { return nullptr;
+}
     if( menuParts.CountTokens() > 1 )
     {
         menuName = menuParts.GetNextToken();
@@ -313,7 +328,8 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
     wxMenu *menu;
     if( menuId == wxNOT_FOUND )
     {
-        if( ! createParents ) return nullptr;
+        if( ! createParents ) { return nullptr;
+}
         menu = new wxMenu;
         menuBar->Insert( menuBar->GetMenuCount()-1, menu, menuName );
     }
@@ -335,7 +351,8 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
         }
         else
         {
-            if( ! createParents ) return nullptr;
+            if( ! createParents ) { return nullptr;
+}
             submenu = new wxMenu;
             wxMenuItem *item=new wxMenuItem(menu,0,menuName,"",wxITEM_NORMAL,submenu);
             menu->Insert(GetMenuInsertPosition(menu),item);
@@ -347,7 +364,8 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
     // Check the item doesn't already exist
 
     menuName = menuParts.GetNextToken();
-    if( parent ) (*parent)=menu;
+    if( parent ) { (*parent)=menu;
+}
     wxMenuItem *result=GetMenuItemByLabel( menu, menuName, wantMenu );
     return result;
 }
@@ -356,9 +374,11 @@ bool SnapMgrScriptEnv::AddMenuItem( const wxString &name, const wxString &descri
 {
     wxMenu *parent;
     wxString menuName=name.AfterLast('|');
-    if( menuName.IsEmpty()) return false;
+    if( menuName.IsEmpty()) { return false;
+}
     wxMenuItem *item = GetMenuItem( name, &parent, true );
-    if( ! parent ) return false;
+    if( ! parent ) { return false;
+}
 
     if( item )
     {
@@ -379,8 +399,10 @@ bool SnapMgrScriptEnv::RemoveMenuItem( const wxString &name )
 {
     wxMenu *parent=nullptr;
     wxMenuItem *item=GetMenuItem(name,&parent);
-    if( ! item ) return false;
-    if( item->GetSubMenu() && item->GetSubMenu()->GetMenuItemCount() > 0 ) return false;
+    if( ! item ) { return false;
+}
+    if( item->GetSubMenu() && item->GetSubMenu()->GetMenuItemCount() > 0 ) { return false;
+}
     parent->Remove( item );
     delete item;
     return true;
@@ -389,7 +411,8 @@ bool SnapMgrScriptEnv::RemoveMenuItem( const wxString &name )
 void SnapMgrScriptEnv::EnableMenuItem( const wxString &name, bool enabled )
 {
     wxMenuItem *item=GetMenuItem(name);
-    if( item ) item->Enable( enabled );
+    if( item ) { item->Enable( enabled );
+}
 }
 
 void SnapMgrScriptEnv::OnCmdConfigMenuItem( wxCommandEvent &event )
@@ -397,7 +420,8 @@ void SnapMgrScriptEnv::OnCmdConfigMenuItem( wxCommandEvent &event )
     int id = event.GetId() - CMD_CONFIG_BASE;
     if( id >= 0 )
     {
-        if( script ) script->RunMenuActions( id );
+        if( script ) { script->RunMenuActions( id );
+}
     }
 }
 
@@ -495,9 +519,11 @@ static wxString quoteCmdLine( const Value *params )
 {
     int nParams=params ? params->Count() : 0;
     wxString cmdline;
-    if( nParams <= 0 ) return cmdline;
+    if( nParams <= 0 ) { return cmdline;
+}
     cmdline=params->AsString(0);
-    if( nParams == 1 && cmdline.StartsWith("\"")) return cmdline;
+    if( nParams == 1 && cmdline.StartsWith("\"")) { return cmdline;
+}
     cmdline=quoteCmdArg(cmdline);
     for( int i=1; i<nParams; i++ )
     {
@@ -510,7 +536,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 {
     Value dummy;
     int nParams=params ? params->Count() : 0;
-    if( ! params ) params=&dummy;
+    if( ! params ) { params=&dummy;
+}
 
     // Message box function
 
@@ -522,7 +549,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
     DEFINE_FUNCTION("Ask",2)
     int result = ::wxMessageBox(STRPRM(0),STRPRM(1), wxYES_NO | wxCANCEL | wxICON_QUESTION );
-    if( result == wxCANCEL ) return fsTerminateScript;
+    if( result == wxCANCEL ) { return fsTerminateScript;
+}
     RETURN( result == wxYES )
 
     // Get a file name
@@ -530,7 +558,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION2("GetOpenFileName",2,3)
     bool multiple = nParams == 3 && BOOLPRM(2);
     long style = wxFD_OPEN | wxFD_FILE_MUST_EXIST;
-    if( multiple ) style |= wxFD_MULTIPLE;
+    if( multiple ) { style |= wxFD_MULTIPLE;
+}
 
     wxFileDialog dlg(
         frameWindow,
@@ -549,7 +578,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
             dlg.GetPaths( paths );
             for( size_t i = 0; i < paths.Count(); i++ )
             {
-                if( i > 0 ) result.Append("\n");
+                if( i > 0 ) { result.Append("\n");
+}
                 result.Append( paths[i] );
             }
         }
@@ -660,7 +690,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxString files;
     wxString filename;
     wxString filespec = wxEmptyString;
-    if( nParams == 2 ) filespec = STRPRM(1);
+    if( nParams == 2 ) { filespec = STRPRM(1);
+}
 
     wxLogNull noLog;
     wxString dirname=STRPRM(0);
@@ -682,14 +713,17 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Basic file system functions
 
     DEFINE_FUNCTION("DeleteFile",1)
-    if( ::wxFileExists(STRPRM(0)) )::wxRemoveFile( STRPRM(0));
+    if( ::wxFileExists(STRPRM(0)) ) {::wxRemoveFile( STRPRM(0));
+}
     bool result =  ! ::wxFileExists(STRPRM(0));
-    if( result && tmpFiles.Index( STRPRM(0) ) != wxNOT_FOUND ) tmpFiles.Remove( STRPRM(0));
+    if( result && tmpFiles.Index( STRPRM(0) ) != wxNOT_FOUND ) { tmpFiles.Remove( STRPRM(0));
+}
     RETURN( result );
 
     DEFINE_FUNCTION("RenameFile",2)
     bool result = ::wxRenameFile( STRPRM(0), STRPRM(1), true );
-    if( result && tmpFiles.Index( STRPRM(0) ) != wxNOT_FOUND ) tmpFiles.Remove( STRPRM(0));
+    if( result && tmpFiles.Index( STRPRM(0) ) != wxNOT_FOUND ) { tmpFiles.Remove( STRPRM(0));
+}
     RETURN(        result  );
 
     DEFINE_FUNCTION("CopyFile",2)
@@ -723,18 +757,21 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxRegEx re;
     long maxLines = 0;
     bool haveRegex = nParams > 1 && re.Compile(STRPRM(1),wxRE_ADVANCED);
-    if( nParams > 2 )  STRPRM(2).ToLong(&maxLines);
+    if( nParams > 2 ) {  STRPRM(2).ToLong(&maxLines);
+}
     wxString result;
     if( text.Open() )
     {
         long nLines = 0;
         for ( wxString str = text.GetFirstLine(); !text.Eof(); str = text.GetNextLine() )
         {
-            if( haveRegex && ! re.Matches(str)) continue;
+            if( haveRegex && ! re.Matches(str)) { continue;
+}
             result.Append( str );
             result.Append( "\n" );
             nLines++;
-            if( maxLines && nLines >= maxLines ) break;
+            if( maxLines && nLines >= maxLines ) { break;
+}
         }
     }
     RETURN( result )
@@ -774,7 +811,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
                 else
                 {
                         auto sf=find_config_file("snapscript",CSTRPRM(0),"");
-                        if( sf ) scriptFile=wxString(*sf); else result=false;
+                        if( sf ) { scriptFile=wxString(*sf); } else { result=false;
+}
                 }
     }
 
@@ -867,7 +905,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
         size_t len;
         int nGroup = 0;
         long nm = 0;
-        if( nParams == 3 && STRPRM(2).ToLong(&nm) ) nGroup = nm;
+        if( nParams == 3 && STRPRM(2).ToLong(&nm) ) { nGroup = nm;
+}
         re.GetMatch( &start, &len, nGroup );
         result = STRPRM(0).Mid(start,len);
 
@@ -881,7 +920,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     Value result;
     wxString text(STRPRM(0));
     bool global=false;
-    if( nParams == 3 && BOOLPRM(2)) global=true;
+    if( nParams == 3 && BOOLPRM(2)) { global=true;
+}
     wxRegEx re;
     if( re.Compile(STRPRM(1),wxRE_ADVANCED))
     {
@@ -891,14 +931,17 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
             size_t nMatch = re.GetMatchCount();
             for( size_t nm = 1; nm < nMatch; nm++ )
             {
-                if( nm == 1 ) result.SetValue(re.GetMatch(text,nm));
-                else result.SetNext(re.GetMatch(text,nm));
+                if( nm == 1 ) { result.SetValue(re.GetMatch(text,nm));
+                } else { result.SetNext(re.GetMatch(text,nm));
+}
             }
-            if( ! global ) break;
+            if( ! global ) { break;
+}
             size_t start;
             size_t len;
             re.GetMatch(&start,&len);
-            if( start + len <= 0 ) break;
+            if( start + len <= 0 ) { break;
+}
             index += start+len;
             //re.GetMatch( result, 0 );
         }
@@ -913,7 +956,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
         int nReplace = 0;
         long nr=0;
         if( nParams == 4  && STRPRM(3).ToLong(&nr) ) { nReplace = nr; }
-        if( nReplace <= 0 ) nReplace = maxReplace;
+        if( nReplace <= 0 ) { nReplace = maxReplace;
+}
         re.Replace( &result, STRPRM(2), nReplace );
     }
     RETURN( result )
@@ -978,8 +1022,10 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     size_t start=0;
     size_t length=wxString::npos;
     long nm;
-    if( STRPRM(1).ToLong(&nm) ) start = nm;
-    if( nParams == 3 && STRPRM(2).ToLong(&nm) ) length = nm;
+    if( STRPRM(1).ToLong(&nm) ) { start = nm;
+}
+    if( nParams == 3 && STRPRM(2).ToLong(&nm) ) { length = nm;
+}
     RETURN( value.Mid(start,length) )
 
     // Loading and unloading job is passed back to the frame window,

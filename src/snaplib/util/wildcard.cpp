@@ -29,20 +29,24 @@ static bool wildcard_match_imp(
         pattern.remove_prefix(1);
         s.remove_prefix(1);
     }
-    if( pattern.empty() && s.empty() ) return true;
+    if( pattern.empty() && s.empty() ) { return true;
+}
     if( ! pattern.empty() && pattern.front() == '*' )
     {
         std::optional<std::string_view> nw = notwild;
         while( true )
         {
             pattern.remove_prefix(1);
-            if( pattern.empty() || pattern.front() != '*' ) break;
+            if( pattern.empty() || pattern.front() != '*' ) { break;
+}
             nw = std::nullopt;
         }
         while( ! s.empty() )
         {
-            if( ! pattern.empty() && wildcard_match_imp(pattern,s,nw) ) return true;
-            if( nw && nw->find(s.front()) != std::string_view::npos ) return false;
+            if( ! pattern.empty() && wildcard_match_imp(pattern,s,nw) ) { return true;
+}
+            if( nw && nw->find(s.front()) != std::string_view::npos ) { return false;
+}
             s.remove_prefix(1);
         }
         return pattern.empty();
@@ -61,12 +65,14 @@ bool filename_wildcard_match( std::string_view pattern, std::string_view filenam
     std::string_view s = filename;
     while( ! s.empty() )
     {
-        if( wildcard_match_imp(pattern,s,pathdelim) ) return true;
+        if( wildcard_match_imp(pattern,s,pathdelim) ) { return true;
+}
         while( ! s.empty() )
         {
             const char ch = s.front();
             s.remove_prefix(1);
-            if( pathdelim.find(ch) != std::string_view::npos ) break;
+            if( pathdelim.find(ch) != std::string_view::npos ) { break;
+}
         }
     }
     return false;

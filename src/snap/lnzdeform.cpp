@@ -46,7 +46,8 @@ struct LinzDefModel
 
 static void delete_linzdefmodel( LinzDefModel *model )
 {
-    if( model == nullptr ) return;
+    if( model == nullptr ) { return;
+}
     if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = nullptr; }
     if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = nullptr; }
     if( model->blob ) { utlBlobClose(model->blob); model->blob = nullptr; }
@@ -62,7 +63,8 @@ static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch
     model = nullptr;
 
     auto deffile = find_coordsys_data_file( pmodel, ".ldm" );
-    if( !deffile ) return nullptr;
+    if( !deffile ) { return nullptr;
+}
 
     model = new LinzDefModel;
     model->blob = nullptr;
@@ -72,8 +74,10 @@ static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch
     model->stdefs = nullptr;
 
     sts = utlCreateReadonlyFileBlob( *deffile, &(model->blob) );
-    if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
-    if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
+    if( sts == STS_OK ) { sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
+}
+    if( sts == STS_OK ) { sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
+}
 
     if( sts != STS_OK ) { delete_linzdefmodel( model ); model = nullptr; }
 
@@ -96,10 +100,12 @@ static int init_linzdef_deformation( void *deformation )
 
     LinzDefModel *model = (LinzDefModel *) deformation;
 
-    if( ! model ) return OK;
+    if( ! model ) { return OK;
+}
 
     sts = utlLinzDefCoordSysDef(model->linzdef,vcsdef);
-    if( sts != STS_OK ) return INVALID_DATA;
+    if( sts != STS_OK ) { return INVALID_DATA;
+}
 
     vcs = load_coordsys( vcsdef );
     if( !vcs )
@@ -218,7 +224,8 @@ static int print_linzdef( void *deformation, FILE *out, const std::string_view p
     int i;
     int sts;
     LinzDefModel *model = (LinzDefModel *) deformation;
-    if( ! model ) return OK;
+    if( ! model ) { return OK;
+}
 
     for( i = 1; i <= 3; i++ )
     {
@@ -226,7 +233,8 @@ static int print_linzdef( void *deformation, FILE *out, const std::string_view p
         if( sts == STS_OK && title && ! title->empty() )
         {
             fwrite( prefix.data(), 1, prefix.size(), out );
-            if( i == 3 ) fputs("Version: ",out);
+            if( i == 3 ) { fputs("Version: ",out);
+}
             fputs(std::string(*title).c_str(),out);
             fputs("\n",out);
         }
@@ -237,7 +245,8 @@ static int print_linzdef( void *deformation, FILE *out, const std::string_view p
 static int delete_linzdef( void *deformation )
 {
     LinzDefModel *model = (LinzDefModel *) deformation;
-    if( model ) delete_linzdefmodel( model );
+    if( model ) { delete_linzdefmodel( model );
+}
     return OK;
 }
 

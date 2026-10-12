@@ -45,7 +45,8 @@ double zd_ref_correction( int p, station *st1, station *st2, void *hA, int irow 
 
     angle = vecdot( vrt1, vrt2 );
     angle = 1.0 - angle*angle;
-    if( angle > 0.0 ) angle = sqrt(angle);
+    if( angle > 0.0 ) { angle = sqrt(angle);
+}
 
     /* Effect on zenith distance is negative */
 
@@ -71,7 +72,8 @@ std::string_view distsf_name( int ds )
 
 double distsf_correction( int p, double dist, void *hA, int irow )
 {
-    if( !p ) return 0;
+    if( !p ) { return 0;
+}
     dist *= 1.0e-6;
     set_param_obseq( p, hA, irow, dist );
     return param_value( p ) * dist;
@@ -92,7 +94,8 @@ std::string_view brngref_name( int br )
 
 double brngref_correction( int br, void *hA, int irow )
 {
-    if( !br ) return 0;
+    if( !br ) { return 0;
+}
     set_param_obseq( br, hA, irow, STOR );
     return param_value( br ) * STOR;
 }
@@ -113,7 +116,8 @@ std::string_view syserr_name( int se )
 
 double syserr_correction( int se, double influence, void *hA, int irow )
 {
-    if( !se ) return 0;
+    if( !se ) { return 0;
+}
     set_param_obseq( se, hA, irow, influence );
     return param_value( se ) * influence;
 }

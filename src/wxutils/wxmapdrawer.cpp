@@ -41,7 +41,8 @@ wxMapDrawer::wxMapDrawer( wxDC &dc, wxMapScale &scale, Symbology &symbology ) :
 
 wxMapDrawer::~wxMapDrawer()
 {
-    if( points ) delete [] points;
+    if( points ) { delete [] points;
+}
     delete defaultTextStyle;
 }
 
@@ -93,7 +94,8 @@ void wxMapDrawer::AddScalePoints()
     bool start;
     while( scale.GetPoint( pt, start ) )
     {
-        if( start ) DrawLine();
+        if( start ) { DrawLine();
+}
         AddLinePoint( pt );
     }
 }
@@ -124,7 +126,8 @@ void wxMapDrawer::EndLine()
 
 void wxMapDrawer::PlotLine( const MapPoint ptFrom, const MapPoint ptTo )
 {
-    if( ! isVisible ) return;
+    if( ! isVisible ) { return;
+}
     MoveTo( ptFrom );
     LineTo( ptTo );
     EndLine();
@@ -132,7 +135,8 @@ void wxMapDrawer::PlotLine( const MapPoint ptFrom, const MapPoint ptTo )
 
 void wxMapDrawer::PlotEllipse(const MapPoint &pt, double majorAxis, double minorAxis, double orientation)
 {
-    if( ! isVisible) return;
+    if( ! isVisible) { return;
+}
 
     // Calculate the number of points required to display the ellipse
 

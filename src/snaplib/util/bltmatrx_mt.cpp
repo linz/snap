@@ -70,7 +70,8 @@ static void blt_load_col_cache_mt( bltmatrix *blt, double *tmpcol, double *sumco
         {
             for( c0 = dosum[i], r = row+isave+c0-col0; c0 < nsave; c0++, r++ )
             {
-                if( isave+c0 > i ) break;
+                if( isave+c0 > i ) { break;
+}
                 *r = sc_i[c0];
             }
         }
@@ -78,13 +79,15 @@ static void blt_load_col_cache_mt( bltmatrix *blt, double *tmpcol, double *sumco
         /* Count number of cols to get */
 
         dosum[i] = c0 = col0 < iget ? 0 : col0-iget;
-        if( c0 >= nget ) continue;
+        if( c0 >= nget ) { continue;
+}
 
         /* Retrieve the cols and initialise the summation */
 
         for( r = row + iget + c0 - col0; c0 < nget; c0++, r++ )
         {
-            if( iget + c0 > i ) break;
+            if( iget + c0 > i ) { break;
+}
             tc_i[c0] = *r;
             sc_i[c0] = 0.0;
         }
@@ -149,13 +152,15 @@ static int blt_chol_inv_mt_rowrange( bltmatrix *blt, const int *dosum,
                 }
                 else
                 {
-                    for( int c = c_start; c < ncols; c++ )
+                    for( int c = c_start; c < ncols; c++ ) {
                         sc_k[c] -= elem * tc_j[c];
+}
                 }
             }
             else  /* k < j_start: cross-thread, accumulate into spill */
             {
-                if( k < k_min ) k_min = k;
+                if( k < k_min ) { k_min = k;
+}
                 double *sp_k = spill + (k - spill_base) * stride;
                 for( int c = c_start; c < ncols; c++ )
                 {
@@ -198,8 +203,9 @@ void blt_chol_inv_mt( bltmatrix *blt )
        causes cut-points to land slightly early, never out of range. */
     std::vector<long> work_prefix(nrow + 1);
     work_prefix[0] = 0;
-    for( int j = 0; j < nrow; j++ )
+    for( int j = 0; j < nrow; j++ ) {
         work_prefix[j+1] = work_prefix[j] + j - blt->row[j].col;
+}
 
     /* Global work-balanced partition: j_splits[c] is the first row of thread c
        when spill_base==0.  Computed once here and clamped per-batch.  The spill
@@ -218,8 +224,9 @@ void blt_chol_inv_mt( bltmatrix *blt )
             while( lo < hi )
             {
                 const int mid = lo + (hi - lo) / 2;
-                if( work_prefix[mid] < target ) lo = mid + 1;
-                else hi = mid;
+                if( work_prefix[mid] < target ) { lo = mid + 1;
+                } else { hi = mid;
+}
             }
             j_splits[c] = lo;
         }
@@ -231,8 +238,9 @@ void blt_chol_inv_mt( bltmatrix *blt )
        ever written; the rest stay zero.  Thread 0 has no spill and its pointer
        is left null. */
     long spill_total = 0;
-    for( int c = 1; c < threadcount; c++ )
+    for( int c = 1; c < threadcount; c++ ) {
         spill_total += (long)j_splits[c] * stride;
+}
     std::vector<double> spill_buf(spill_total, 0.0);
     std::vector<double *> thread_spill(threadcount, nullptr);
     {
@@ -253,7 +261,8 @@ void blt_chol_inv_mt( bltmatrix *blt )
             i1 >= 0;
             i1 = i0-1, i0 -= BLT_INV_CACHE_SIZE )
     {
-        if( i0 < 0 ) i0 = 0;
+        if( i0 < 0 ) { i0 = 0;
+}
 
         /* Save the cached row data and update with the new values ... */
 
@@ -268,8 +277,9 @@ void blt_chol_inv_mt( bltmatrix *blt )
         std::vector<int> j_starts(threadcount + 1);
         j_starts[0] = spill_base;
         j_starts[threadcount] = nrow;
-        for( int c = 1; c < threadcount; c++ )
+        for( int c = 1; c < threadcount; c++ ) {
             j_starts[c] = j_splits[c] > spill_base ? j_splits[c] : spill_base;
+}
 
         std::vector<int> k_mins(threadcount);
         {
@@ -286,7 +296,8 @@ void blt_chol_inv_mt( bltmatrix *blt )
                         spill_base, nsave, stride, i1, j_start, j_end );
                 });
             }
-            for( auto &t : threads ) t.join();
+            for( auto &t : threads ) { t.join();
+}
         }
 
         /* Accumulate each thread's spill into sumcol and re-zero for the next
@@ -319,7 +330,8 @@ void blt_chol_inv_mt( bltmatrix *blt )
             for( int j = nrow-1; j > ic; j-- )
             {
                 /* Calculate the new element [ic,j] in sumcol */
-                if( c < dosum[j] ) continue;
+                if( c < dosum[j] ) { continue;
+}
                 double * const sc_j = sumcol_flat + j * stride;
                 double * const tc_j = tmpcol_flat + j * stride;
                 double sc = sc_j[c];
@@ -347,7 +359,8 @@ void blt_chol_inv_mt( bltmatrix *blt )
             {
                 double * const sc_j = sumcol_flat + j * stride;
                 double * const tc_j = tmpcol_flat + j * stride;
-                if( c >= dosum[j] ) sc -= sc_j[c] * tc_j[c];
+                if( c >= dosum[j] ) { sc -= sc_j[c] * tc_j[c];
+}
             }
             sc /= tc_ic[c];
             sc_ic[c] = sc;

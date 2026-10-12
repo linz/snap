@@ -63,8 +63,10 @@ static int missing_station_id( std::string_view code )
     for( auto station = missing.begin(); station != missing.end(); previous = station, ++station )
     {
         const int cmp = stncodecmp( station->code, code );
-        if( cmp == 0 ) return station->id;
-        if( cmp > 0 ) break;
+        if( cmp == 0 ) { return station->id;
+}
+        if( cmp > 0 ) { break;
+}
     }
     return missing.emplace_after( previous, code, --missing_id )->id;
 }
@@ -75,7 +77,8 @@ static std::optional<std::string_view> missing_station_name( int id )
 {
     for( const missing_stn &station : missing )
     {
-        if( station.id == id ) return station.code;
+        if( station.id == id ) { return station.code;
+}
     }
     return std::nullopt;
 }
@@ -90,7 +93,8 @@ static void delete_missing_station_list( void )
 static void list_missing_stations( void )
 {
     int nline = 0;
-    if( missing.empty() ) return;
+    if( missing.empty() ) { return;
+}
     print_log("\nThe following station codes are used in the data files\n");
     print_log("but are not listed in the coordinate file\n");
     for( const missing_stn &station : missing )
@@ -101,7 +105,8 @@ static void list_missing_stations( void )
     }
     /* TODO: Fix up this ...                       */
     /* print_log("\n\nPress enter to continue: "); */
-    for(;;) { int c = getchar(); if( c== '\n' || c == EOF ) break; }
+    for(;;) { int c = getchar(); if( c== '\n' || c == EOF ) { break; 
+}}
 }
 
 
@@ -112,7 +117,8 @@ static int64_t snap_id( int type, int group_id, std::string_view code )
     switch (type)
     {
     case ID_STATION:    id = find_station( net, code );
-        if( id == 0 ) id = missing_station_id( code );
+        if( id == 0 ) { id = missing_station_id( code );
+}
         break;
     case ID_CLASSTYPE:  id = obs_classes.id( code, 1 ); break;
     case ID_CLASSNAME:  id = obs_classes.value_id( group_id, code, 1 ); break;
@@ -150,7 +156,8 @@ static double snap_calc_value( int type, long id1, long id2 )
         double dist;
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
-        if( !st1 || ! st2 ) return 0.0;
+        if( !st1 || ! st2 ) { return 0.0;
+}
         dist = calc_distance( st1, 0.0, st2, 0.0, nullptr, nullptr );
         return dist;
     }
@@ -159,7 +166,8 @@ static double snap_calc_value( int type, long id1, long id2 )
         double dist;
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
-        if( !st1 || ! st2 ) return 0.0;
+        if( !st1 || ! st2 ) { return 0.0;
+}
         dist = calc_horizontal_distance( st1, st2, nullptr, nullptr );
         return dist;
     }

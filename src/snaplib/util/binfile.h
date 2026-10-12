@@ -140,8 +140,9 @@ template<class Disk, class T> inline void reload_bin_fixed( BINARY_FILE *b, T &x
 // not get a corrupt .bin file.
 inline void write_raw_long32( FILE *f, const long x )
 {
-    if (x < std::numeric_limits<int32_t>::min() || x > std::numeric_limits<int32_t>::max())
+    if (x < std::numeric_limits<int32_t>::min() || x > std::numeric_limits<int32_t>::max()) {
         throw std::overflow_error("value exceeds int32_t range while writing .bin file");
+}
     write_raw_as<int32_t>(f, x);
 }
 inline void read_raw_long32( FILE *f, long &x )

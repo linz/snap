@@ -72,7 +72,8 @@ void OptionString::_load( const std::string &options )
         {
             boost::to_lower( key );
             valid = _options.find(key) == _options.end();
-            if( valid ) _options.insert( std::pair<const std::string, const std::string>(key,value));
+            if( valid ) { _options.insert( std::pair<const std::string, const std::string>(key,value));
+}
         }
         if( ! valid )
         {

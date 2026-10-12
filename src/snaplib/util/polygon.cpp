@@ -34,16 +34,20 @@ class wktRing
 bool wktRing::isValid()
 {
     int npt=points.size();
-    if( npt < 3 ) return false;
-    if( points[0].lon != points[npt-1].lon || points[0].lat != points[npt-1].lat ) return false;
+    if( npt < 3 ) { return false;
+}
+    if( points[0].lon != points[npt-1].lon || points[0].lat != points[npt-1].lat ) { return false;
+}
     return true;
 }
 
 void wktRing::addPoint( double lon, double lat )
 {
     if( points.size() == 0 ) { minLon=maxLon=lon; minLat=maxLat=lat; }
-    if( lon < minLon ) minLon=lon; else if( lon > maxLon ) maxLon=lon;
-    if( lat < minLat ) minLat=lat; else if( lat > maxLat ) maxLat=lat;
+    if( lon < minLon ) { minLon=lon; } else if( lon > maxLon ) { maxLon=lon;
+}
+    if( lat < minLat ) { minLat=lat; } else if( lat > maxLat ) { maxLat=lat;
+}
     points.push_back( wktRing::point( lon, lat ));
 }
 
@@ -54,14 +58,19 @@ void wktRing::addPoint( double lon, double lat )
 bool wktRing::contains( double lon, double lat )
 {
     int npt=points.size();
-    if( npt < 3 ) return false;
+    if( npt < 3 ) { return false;
+}
     if( islatlon )
     {
-        while( lon < minLon ) lon +=360.0;
-        while( lon > maxLon ) lon -= 360.0;
+        while( lon < minLon ) { lon +=360.0;
+}
+        while( lon > maxLon ) { lon -= 360.0;
+}
     }
-    if( lon < minLon || lon > maxLon ) return false;
-    if( lat < minLat || lat > maxLat ) return false;
+    if( lon < minLon || lon > maxLon ) { return false;
+}
+    if( lat < minLat || lat > maxLat ) { return false;
+}
     bool inside=false;
     double lon1=points[0].lon-lon;
     double lat1=points[0].lat-lat;
@@ -71,10 +80,13 @@ bool wktRing::contains( double lon, double lat )
         double lat0=lat1;
         lon1=points[i].lon-lon;
         lat1=points[i].lat-lat;
-        if( lat0 >= 0.0 && lat1 >= 0.0 ) continue;
-        if( lat0 < 0.0 && lat1 < 0.0 ) continue;
+        if( lat0 >= 0.0 && lat1 >= 0.0 ) { continue;
+}
+        if( lat0 < 0.0 && lat1 < 0.0 ) { continue;
+}
         double lonc=(lat1*lon0-lat0*lon1)/(lat1-lat0);
-        if( lonc < 0.0 ) inside = ! inside;
+        if( lonc < 0.0 ) { inside = ! inside;
+}
     }
     return inside;
 }
@@ -111,7 +123,8 @@ bool wktPolygon::contains( double lon, double lat )
     int nrings=rings.size();
     for( int i=0; i<nrings; i++ )
     {
-        if( rings[i]->contains(lon,lat)) inside=!inside;
+        if( rings[i]->contains(lon,lat)) { inside=!inside;
+}
     }
     return inside;
 }
@@ -131,15 +144,19 @@ int wktPolygon::readFile( const std::string &file )
     while( f )
     {
         char c;
-        while(f.get(c)) { if( c == '(' ) break; }
-        if( ! f ) break;
+        while(f.get(c)) { if( c == '(' ) { break; 
+}}
+        if( ! f ) { break;
+}
         wktRing *ring = nullptr;
         while( f )
         {
             double lon, lat;
             f >> lon >> lat;
-            if (! f ) { if( ! f.eof() ) f.clear();  break; }
-            while( f.get(c)) { if( c == ')' || c == ',' ) break; }
+            if (! f ) { if( ! f.eof() ) { f.clear();  
+}break; }
+            while( f.get(c)) { if( c == ')' || c == ',' ) { break; 
+}}
             if( ! ring )
             {
                 ring = new wktRing( islatlon );
@@ -170,7 +187,8 @@ void *read_polygon_wkt( const std::string &filename, const int islonlat )
 void delete_polygon( void *pgn)
 {
     wktPolygon *ppgn = (wktPolygon *) pgn;
-    if( ppgn ) delete ppgn;
+    if( ppgn ) { delete ppgn;
+}
 }
 
 int polygon_contains_point( void *pgn, double lon, double lat )

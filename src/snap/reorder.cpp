@@ -83,8 +83,10 @@ int init_connections( int nnodes )
 {
     int i;
 
-    if( !save_connections ) return 0;
-    if( connlst ) return 1;
+    if( !save_connections ) { return 0;
+}
+    if( connlst ) { return 1;
+}
 
     connlst = new connections[nnodes+1];
     for( i = 0; i++ < nnodes; )
@@ -99,7 +101,8 @@ int init_connections( int nnodes )
 static void grow_connection_list( int nnodes )
 {
     int maxconn0=maxconnlst;
-    while( nnodes > maxconnlst ) maxconnlst += CONNLIST_INC;
+    while( nnodes > maxconnlst ) { maxconnlst += CONNLIST_INC;
+}
     if( maxconnlst > maxconn0 )
     {
         int i;
@@ -117,7 +120,8 @@ static void grow_connection_list( int nnodes )
 void term_connections( void )
 {
     int i;
-    if( !connlst ) return;
+    if( !connlst ) { return;
+}
     for( i = 0; i++ < nconnlst; )
     {
         delete [] connlst[i].list;
@@ -148,7 +152,8 @@ static void add_station_connection( int stn, connections *conn )
 
     for( i = conn->count, list = conn->list; i--; list++ )
     {
-        if( *list == stn ) return;
+        if( *list == stn ) { return;
+}
     }
 
     i = conn->count;
@@ -168,12 +173,14 @@ static void add_station_connection( int stn, connections *conn )
 
 void add_connection( int stn1, int stn2 )
 {
-    if( connlst == nullptr ) return;
+    if( connlst == nullptr ) { return;
+}
     if( stn1 > nconnlst || stn2 > nconnlst )
     {
         int maxstn=stn1 > stn2 ? stn1 : stn2;
         lastnode=nconnlst=maxstn;
-        if( maxstn > maxconnlst ) grow_connection_list( maxstn );
+        if( maxstn > maxconnlst ) { grow_connection_list( maxstn );
+}
     }
     add_station_connection( stn1, connlst+stn2 );
     add_station_connection( stn2, connlst+stn1 );
@@ -181,18 +188,23 @@ void add_connection( int stn1, int stn2 )
 
 int get_connection_count( int stn )
 {
-    if( connlst == nullptr ) return -1;
-    if( stn > nconnlst ) return 0;
+    if( connlst == nullptr ) { return -1;
+}
+    if( stn > nconnlst ) { return 0;
+}
     return connlst[stn].count;
 }
 
 int get_connection( int stn, int nconn )
 {
     connections *conn;
-    if( connlst == nullptr ) return -1;
-    if( stn > nconnlst ) return -1;
+    if( connlst == nullptr ) { return -1;
+}
+    if( stn > nconnlst ) { return -1;
+}
     conn = connlst+stn;
-    if( nconn < 0 || nconn >= conn->count ) return -1;
+    if( nconn < 0 || nconn >= conn->count ) { return -1;
+}
     return conn->list[nconn];
 }
 
@@ -207,7 +219,8 @@ static int make_rooted_level_structure( int stn, int *width, int maxwidth )
 {
     int i, l, w, wl, *list, c;
 
-    for( i = 0; i++ < nconnlst; ) connlst[i].level = nconnlst+1;
+    for( i = 0; i++ < nconnlst; ) { connlst[i].level = nconnlst+1;
+}
 
     connlst[stn].level = 1;
     l = w = 1;
@@ -216,7 +229,7 @@ static int make_rooted_level_structure( int stn, int *width, int maxwidth )
     while( wl )
     {
         wl = 0;
-        for( i = 0; i++ < nconnlst; ) if( connlst[i].level == l )
+        for( i = 0; i++ < nconnlst; ) { if( connlst[i].level == l )
             {
                 for( list = connlst[i].list, c=connlst[i].count; c--; list++ )
                 {
@@ -227,9 +240,13 @@ static int make_rooted_level_structure( int stn, int *width, int maxwidth )
                     }
                 }
             }
-        if( w >= maxwidth ) return 0;
-        if( wl > w ) w = wl;
-        if( wl ) l++;
+}
+        if( w >= maxwidth ) { return 0;
+}
+        if( wl > w ) { w = wl;
+}
+        if( wl ) { l++;
+}
     }
 
     *width = w;
@@ -245,17 +262,19 @@ static int form_end_list( int *list, int level )
     int ncount, i, nc, dg;
 
     ncount = 0;
-    for( i=0; i++<nconnlst; ) if( connlst[i].level == level )
+    for( i=0; i++<nconnlst; ) { if( connlst[i].level == level )
         {
             dg = connlst[i].count;
             for( nc = ncount; nc; nc-- )
             {
-                if( connlst[list[nc-1]].count <= dg ) break;
+                if( connlst[list[nc-1]].count <= dg ) { break;
+}
                 list[nc] = list[nc-1];
             }
             list[nc] = i;
             ncount++;
         }
+}
     return ncount;
 }
 
@@ -282,7 +301,8 @@ static int find_end_nodes( int *s, int *e )
         }
     }
 
-    if( !start ) return 0;
+    if( !start ) { return 0;
+}
 
     /* See if we can find a better start while looking for an end
        suitably distant from the start */
@@ -313,7 +333,8 @@ static int find_end_nodes( int *s, int *e )
         for( i=0; i<nend; i++ )
         {
             h = make_rooted_level_structure( order2[i], &w, wmin );
-            if( !h ) continue;
+            if( !h ) { continue;
+}
             if( h > hmax )
             {
                 start = order2[i];
@@ -330,7 +351,8 @@ static int find_end_nodes( int *s, int *e )
         /* If we found an end then quit, otherwise try again with the
         new start */
 
-        if( end ) break;
+        if( end ) { break;
+}
     }
 
     *s = start;
@@ -363,7 +385,8 @@ static int order_connected_nodes( int start, int end, int seqno )
     for( i=0; i++<nconnlst; )
     {
         if( connlst[i].level <= h &&
-                connlst[i].count > nmax ) nmax = connlst[i].count;
+                connlst[i].count > nmax ) { nmax = connlst[i].count;
+}
     }
 
     /* Assign initial priorities in the level member */
@@ -423,7 +446,8 @@ static int order_connected_nodes( int start, int end, int seqno )
             list1 = connlst[next].list;
             for( i=connlst[next].count; i--; list1++ )
             {
-                if( connlst[*list1].status == UNUSED ) continue;
+                if( connlst[*list1].status == UNUSED ) { continue;
+}
                 connlst[*list1].level += W1;
                 if( connlst[*list1].status == INACTIVE )
                 {
@@ -439,14 +463,16 @@ static int order_connected_nodes( int start, int end, int seqno )
 
         for( list1 = connlst[next].list, i1 = connlst[next].count; i1--; list1++)
         {
-            if( connlst[*list1].status != PREACTIVE ) continue;
+            if( connlst[*list1].status != PREACTIVE ) { continue;
+}
             connlst[*list1].level += W1;
             connlst[*list1].status = ACTIVE;
 
             for( list2 = connlst[*list1].list, i2 = connlst[*list1].count;
                     i2--; list2++ )
             {
-                if( connlst[*list2].status == UNUSED ) continue;
+                if( connlst[*list2].status == UNUSED ) { continue;
+}
                 connlst[*list2].level += W1;
                 if( connlst[*list2].status == INACTIVE )
                 {
@@ -500,7 +526,8 @@ static void dump_connection_list( FILE *lst )
         fprintf(lst,"   %3d =>",i1);
         for( c=0; c < connlst[i1].count; c++ )
         {
-            if( c && c % 15 == 0 ) fprintf(lst,"\n         ");
+            if( c && c % 15 == 0 ) { fprintf(lst,"\n         ");
+}
             fprintf(lst," %3d",(int)(connlst[i1].list[c]));
         }
         fprintf(lst,"\n");
@@ -564,7 +591,8 @@ static void set_row_numbers( int nprm )
         istn = order2[i];
         sa = stnadj(stnptr(istn));
 
-        if( sa->hrowno <= 0 && sa->vrowno <= 0 ) continue;   /* Not used */
+        if( sa->hrowno <= 0 && sa->vrowno <= 0 ) { continue;   /* Not used */
+}
 
         /* Set the row number */
 
@@ -580,7 +608,8 @@ static void set_row_numbers( int nprm )
         for( count = connlst[istn].count, list = connlst[istn].list;
                 count--; list++ )
         {
-            if( connlst[*list].level < lowest ) lowest = connlst[*list].level;
+            if( connlst[*list].level < lowest ) { lowest = connlst[*list].level;
+}
         }
 
         /* Register the bandwidth required with the banded matrix */
@@ -601,8 +630,9 @@ void exclude_stations( void )
     for( istn = 0; istn++ < nconnlst; )
     {
         sa = stnadj(stnptr(istn));
-        if( (sa->hrowno <= 0 && sa->vrowno <= 0) || sa->flag.noreorder )
+        if( (sa->hrowno <= 0 && sa->vrowno <= 0) || sa->flag.noreorder ) {
             exclude_node( istn );
+}
     }
 }
 

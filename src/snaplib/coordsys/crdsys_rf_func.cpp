@@ -32,7 +32,8 @@ int xyz_to_std( ref_frame *rf, double xyz[3], double date )
         return (*(rf->func->xyz_to_std_func))( rf, xyz, date );
     }
 
-    if( rf->use_rates && rf->calcdate != date ) init_ref_frame( rf, date );
+    if( rf->use_rates && rf->calcdate != date ) { init_ref_frame( rf, date );
+}
 
     for( i=0; i<3; i++ )
     {
@@ -64,7 +65,8 @@ int std_to_xyz( ref_frame *rf, double xyz[3], double date )
         return (*(rf->func->std_to_xyz_func))( rf, xyz, date );
     }
 
-    if( rf->use_rates && rf->calcdate != date ) init_ref_frame( rf, date );
+    if( rf->use_rates && rf->calcdate != date ) { init_ref_frame( rf, date );
+}
 
     for( i=0; i<3; i++ )
     {
@@ -96,7 +98,8 @@ int ref_deformation_at_epoch( ref_frame *rf, double llh[3],
 int apply_ref_deformation_llh( ref_frame *rf, double llh[3], double epochfrom, double epochto )
 {
     ref_deformation *def = rf->def;
-    if( ! def ) return OK;
+    if( ! def ) { return OK;
+}
 
     if( def->apply_llh )
     {
@@ -110,9 +113,12 @@ int apply_ref_deformation_llh( ref_frame *rf, double llh[3], double epochfrom, d
         double lat = llh[CRD_LAT];
         double lon = llh[CRD_LON];
         sts = OK;
-        if( epochfrom != 0 ) sts = (*(rf->def->calc_denu))(rf, lon, lat, epochfrom, denu1 );
-        if( sts == OK && epochto != 0) sts = (*(rf->def->calc_denu))( rf, lon, lat, epochto, denu );
-        if( sts != OK ) return sts;
+        if( epochfrom != 0 ) { sts = (*(rf->def->calc_denu))(rf, lon, lat, epochfrom, denu1 );
+}
+        if( sts == OK && epochto != 0) { sts = (*(rf->def->calc_denu))( rf, lon, lat, epochto, denu );
+}
+        if( sts != OK ) { return sts;
+}
         denu[0] -= denu1[0];
         denu[1] -= denu1[1];
         denu[2] -= denu1[2];
@@ -142,6 +148,7 @@ int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], double denu[3
             llh[CRD_LAT] += denu[CRD_NORTH]/dNdLt;
         }
     }
-    if( sts == OK ) llh[CRD_HGT] += denu[CRD_HGT];
+    if( sts == OK ) { llh[CRD_HGT] += denu[CRD_HGT];
+}
     return sts;
 }

@@ -75,8 +75,10 @@ void PenOptionsDialog::ReadData()
 
 void PenOptionsDialog::Apply()
 {
-    if( nGroups < 1 ) nGroups = 2;
-    if( nGroups > maxPens ) nGroups = maxPens;
+    if( nGroups < 1 ) { nGroups = 2;
+}
+    if( nGroups > maxPens ) { nGroups = maxPens;
+}
     if( residuals )
     {
         setup_sres_pens( maxSres, aPosteriori, nGroups);

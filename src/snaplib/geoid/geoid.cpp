@@ -56,7 +56,8 @@ static std::string get_geoid_filename( const std::optional<std::string> &geoidna
        or failing that, the "geoid.grd" */
     else
     {
-        if( getenv("GEOID") ) geoid = getenv("GEOID");
+        if( getenv("GEOID") ) { geoid = getenv("GEOID");
+}
         filename = find_coordsys_data_file( geoid, GEOID_GRID_EXTENSION );
     }
 
@@ -67,7 +68,8 @@ static std::string get_geoid_filename( const std::optional<std::string> &geoidna
 std::optional<std::string> create_geoid_filename( const std::optional<std::string> &geoidname )
 {
     std::string filename = get_geoid_filename( geoidname );
-    if( ! path_exists(filename) ) return std::nullopt;
+    if( ! path_exists(filename) ) { return std::nullopt;
+}
     return filename;
 }
 
@@ -120,9 +122,11 @@ void delete_geoid_grid( geoid_def *gd )
 {
     if( gd )
     {
-        if( gd->grd ) grd_delete_grid( gd->grd );
+        if( gd->grd ) { grd_delete_grid( gd->grd );
+}
         gd->grd = nullptr;
-        if( gd->cs )delete gd->cs;
+        if( gd->cs ) {delete gd->cs;
+}
         gd->cs = nullptr;
     }
     delete gd;
@@ -135,22 +139,26 @@ std::string_view get_geoid_model( geoid_def *gd )
 
 coordsys *get_geoid_coordsys(  geoid_def *gd )
 {
-    if( !gd ) return nullptr;
+    if( !gd ) { return nullptr;
+}
     return gd->cs;
 }
 
 void print_geoid_header( geoid_def *gd, FILE *out, int width, std::string_view prefix )
 {
-    if( !gd->grd ) return;
+    if( !gd->grd ) { return;
+}
     for( int i = 1; i <= 3; i++ )
     {
         const std::optional<std::string> &s = gd->grd->title( i );
-        if( !s ) continue;
+        if( !s ) { continue;
+}
         fwrite( prefix.data(), 1, prefix.size(), out );
         if( width > 0 )
         {
             const int nblank = width - boost::numeric_cast<int>( s->size() / 2 );
-            if( nblank > 0 ) fprintf( out, "%*s", nblank, "" );
+            if( nblank > 0 ) { fprintf( out, "%*s", nblank, "" );
+}
         }
         fprintf(out,"%s\n", s->c_str() );
     }
@@ -159,7 +167,8 @@ void print_geoid_header( geoid_def *gd, FILE *out, int width, std::string_view p
 
 std::string_view geoid_title( geoid_def *gd, int titleno )
 {
-    if( !gd || !gd->grd ) return std::string_view();
+    if( !gd || !gd->grd ) { return std::string_view();
+}
     const std::optional<std::string> &title = gd->grd->title( titleno );
     return title ? std::string_view( *title ) : std::string_view();
 }
@@ -178,7 +187,8 @@ void print_geoid_data( geoid_def *gd, FILE *out, char showGrid )
 
 int calculate_geoid_undulation( geoid_def *gd, double lat, double lon, double *undulation )
 {
-    if( !gd ) return INCONSISTENT_DATA;
+    if( !gd ) { return INCONSISTENT_DATA;
+}
     return grd_calc_linear( gd->grd, lon*RTOD, lat*RTOD, undulation );
 }
 
@@ -195,7 +205,8 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     double llh[3];
 
     sts = calculate_geoid_undulation( gd, lat, lon, &exu[CRD_HGT] );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
     cs = gd->cs;
     el = cs->rf->el;
@@ -213,7 +224,8 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
 
     llh[CRD_LAT] -= fabs( gd->gridsize/2.0 ) * DTOR;
     sts = calculate_geoid_undulation( gd, llh[CRD_LAT], llh[CRD_LON], &u1 );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
     llh_to_xyz( el, llh, xyzp, nullptr, nullptr );
     vecdif( xyzp, xyz, dxyz );
@@ -221,7 +233,8 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     xyz_to_llh( el, xyzp, llh );
 
     sts = calculate_geoid_undulation( gd, llh[CRD_LAT], llh[CRD_LON], &u2 );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
     exu[CRD_LAT] = (u1 - u2)/(veclen(dxyz)*2);
 
@@ -237,13 +250,15 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     xyz_to_llh( el, xyzp, llh );
 
     sts = calculate_geoid_undulation( gd, llh[CRD_LAT], llh[CRD_LON], &u1 );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
     vecdif( xyz, dxyz, xyzp );
     xyz_to_llh( el, xyzp, llh );
 
     sts = calculate_geoid_undulation( gd, llh[CRD_LAT], llh[CRD_LON], &u2 );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
 
     exu[CRD_LON] = (u1 - u2)/(veclen(dxyz)*2);
 

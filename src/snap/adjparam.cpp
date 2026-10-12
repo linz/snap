@@ -89,7 +89,8 @@ void list_calculated_parameters( FILE *out )
         for( np = 0; np++ < nparam;  )
         {
             p = param_from_id(sorted_param_id(np));
-            if( !(p->flags & PRM_ADJUST) ) continue;
+            if( !(p->flags & PRM_ADJUST) ) { continue;
+}
             if( first )
             {
                 fputs(header,out);
@@ -97,7 +98,8 @@ void list_calculated_parameters( FILE *out )
             }
 
             fputs( p->name.c_str(), out );
-            if( p->identical ) fprintf(out,"  (same as %s)", param_name(p->identical).data() );
+            if( p->identical ) { fprintf(out,"  (same as %s)", param_name(p->identical).data() );
+}
             fputs( "\n", out );
         }
     }
@@ -112,7 +114,8 @@ void list_calculated_parameters( FILE *out )
         }
         for( np = 0; np++ < nparam;  )
         {
-            if( ! get_obs_param_used(np) ) continue;
+            if( ! get_obs_param_used(np) ) { continue;
+}
             fputs( get_obs_param_name(np).c_str(), out );
             fputs( "\n", out );
         }
@@ -144,7 +147,8 @@ void print_adjusted_parameters( FILE *out )
             int pid;
             pid = sorted_param_id( np );
             p = param_from_id( pid );
-            if( p->flags & PRM_LISTED ) continue;
+            if( p->flags & PRM_LISTED ) { continue;
+}
 
             if( first )
             {
@@ -194,7 +198,8 @@ void print_adjusted_parameters( FILE *out )
         }
     }
 
-    if( ! first ) print_section_footer( out );
+    if( ! first ) { print_section_footer( out );
+}
 
 }
 

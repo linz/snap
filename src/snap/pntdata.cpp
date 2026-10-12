@@ -105,16 +105,19 @@ int pntdata_obseq(survdata *p, void *hA, int nextra)
     value = pd->value - value;
     if (type == LN)
     {
-        while (value > PI)
+        while (value > PI) {
             value -= TWOPI;
-        while (value < -PI)
+}
+        while (value < -PI) {
             value += TWOPI;
+}
     }
     oe_value(hA, 1, value);
     /* set station obseq also applies any station deformation to the
        the observed value */
     set_station_obseq(st, dst, hA, 1, p->date);
-    if (unused) oe_flag_unused(hA, 1);
+    if (unused) { oe_flag_unused(hA, 1);
+}
     oe_covar(hA, 1, 1, pd->error * pd->error);
 
     return OK;
@@ -136,7 +139,8 @@ void list_pntdata(FILE *out, survdata *p)
     t = &pd->tgt;
     type = t->type;
 
-    if ((type == LT || type == LN) && !latitudeObservationFormat) create_dms_formats();
+    if ((type == LT || type == LN) && !latitudeObservationFormat) { create_dms_formats();
+}
 
     fputs("\n", out);
 
@@ -204,7 +208,8 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
     pntdata *pd;
     double errmult;
 
-    if (!output_rejected_stations && rejected_station(p->from)) return;
+    if (!output_rejected_stations && rejected_station(p->from)) { return;
+}
 
     pd = p->obs.pdata;
     type = pd->tgt.type;
@@ -256,7 +261,8 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
     if (type == LT || type == LN)
     {
 
-        if (!latitudeObservationFormat) create_dms_formats();
+        if (!latitudeObservationFormat) { create_dms_formats();
+}
         errmult = RTOS;
         const DmsFormat &format = (type == LT) ? *latitudeObservationFormat : *longitudeObservationFormat;
         set_residual_field_dms(OF_OBS, format, pd->value * RTOD);
@@ -332,7 +338,8 @@ void calc_pntdata_residuals(survdata *p, lsdata *l)
     else
     {
         sres = pd->residual / pd->reserr;
-        if (sres < 0.0) sres = -sres;
+        if (sres < 0.0) { sres = -sres;
+}
     }
     pd->sres = sres;
 

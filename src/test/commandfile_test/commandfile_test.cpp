@@ -23,7 +23,8 @@ int failures = 0;
 
 void check_equal( const std::string &actual, const std::string &expected, const std::string &description )
 {
-    if( actual == expected ) return;
+    if( actual == expected ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
 }

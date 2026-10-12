@@ -21,14 +21,16 @@ int failures = 0;
 
 void check( const bool condition, const std::string &description )
 {
-    if( condition ) return;
+    if( condition ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << "\n";
 }
 
 void check_equal( const std::string_view actual, const std::string_view expected, const std::string &description )
 {
-    if( actual == expected ) return;
+    if( actual == expected ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
 }

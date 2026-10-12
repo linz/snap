@@ -59,7 +59,8 @@ void set_projection_ellipsoid( projection *prj, ellipsoid *el )
 
 int identical_projections( projection *prj1, projection *prj2 )
 {
-    if( prj1->type != prj2->type ) return 0;
+    if( prj1->type != prj2->type ) { return 0;
+}
     if( prj1->type->identical )
     {
         return (*prj1->type->identical)( prj1->data, prj2->data );

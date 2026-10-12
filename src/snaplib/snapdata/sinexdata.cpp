@@ -79,19 +79,24 @@ SinexDataReader::~SinexDataReader() {}
 void SinexDataReader::loadObservations(RecordInputBase &dfi)
 {
     std::string input;
-    if (!dfi.getNextLine(input))
+    if (!dfi.getNextLine(input)) {
         dfi.raiseError("SINEX header missing");
-    if (input.size() < 69 || input.substr(0, 5) != "%=SNX")
+}
+    if (input.size() < 69 || input.substr(0, 5) != "%=SNX") {
         dfi.raiseError("Invalid SINEX header");
+}
     double startdate = readSinexDate(input.substr(32, 12));
     double enddate = readSinexDate(input.substr(45, 12));
     double nprm = atoi(input.substr(60, 5).c_str());
-    if (startdate == UNDEFINED_DATE || enddate == UNDEFINED_DATE)
+    if (startdate == UNDEFINED_DATE || enddate == UNDEFINED_DATE) {
         dfi.raiseError("Invalid start/end date in SINEX header");
-    if (obsdate == UNDEFINED_DATE)
+}
+    if (obsdate == UNDEFINED_DATE) {
         obsdate = (startdate + enddate) / 2.0;
-    if (input.substr(68).find('S') == std::string::npos)
+}
+    if (input.substr(68).find('S') == std::string::npos) {
         dfi.raiseError("Invalid SINEX file - does not contain station data");
+}
 
     // Scan for SITE/ID section
 
@@ -102,13 +107,16 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     findSection(dfi, "SOLUTION/ESTIMATE");
     while (dfi.getNextLine(input))
     {
-        if (input[0] == '-')
+        if (input[0] == '-') {
             break;
-        if (input[0] != ' ')
+}
+        if (input[0] != ' ') {
             continue;
+}
 
-        if (input.size() < 70)
+        if (input.size() < 70) {
             dfi.raiseError("Invalid truncated SOLUTION/ESTIMATE line");
+}
 
         // Is this a STAX, STAY, or STAX record?
         std::string prmtype = input.substr(7, 4);
@@ -125,10 +133,12 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
             ord = 2;
             break;
         }
-        if (ord == -1)
+        if (ord == -1) {
             continue;
-        if (prmtype.substr(0, 3) != "STA")
+}
+        if (prmtype.substr(0, 3) != "STA") {
             continue;
+}
 
         // Find point code and solution strings
         std::string code = input.substr(14, 4);
@@ -137,10 +147,11 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
         boost::trim(code);
         boost::trim(point);
         boost::trim(soln);
-        if (use_point_code)
+        if (use_point_code) {
             code = code + "_" + point;
-        else
+        } else {
             soln = point + "_" + soln;
+}
 
         // Find an existing coordinate for the code or create a new one if none found
         auto mapped = codeMap.find(code);
@@ -161,8 +172,9 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
         }
 
         // Check that there are not duplicated solutions for the mark
-        if (points[id]->soln != soln)
+        if (points[id]->soln != soln) {
             dfi.raiseError(std::string("Cannot have more than one solution for ") + code);
+}
 
         // Store the ordinate
         double value = strtod(input.substr(47, 21).c_str(), nullptr);
@@ -170,8 +182,9 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
         int prmid = atoi(input.substr(1, 5).c_str());
 
         // Store the mapping from SINEX param number to cvr row number
-        if (prmid < 1 || prmid > nprm)
+        if (prmid < 1 || prmid > nprm) {
             dfi.raiseError(std::string("Invalid parameter number " + input.substr(1, 5)));
+}
         prmMap[prmid] = id * 3 + ord;
     }
 
@@ -188,8 +201,9 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
         for (auto pt = points.begin(); pt != points.end(); pt++)
         {
             int tgtid = ldt_get_id(ID_STATION, 0, (*pt)->code);
-            if (tgtid == 0)
+            if (tgtid == 0) {
                 dfi.raiseError(std::string("Undefined station ") + (*pt)->code);
+}
             ldt_lineno((*pt)->lineno);
             ldt_tgtstn(tgtid, 0.0);
             ldt_nextdata(GX);
@@ -213,26 +227,32 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
 
             while (dfi.getNextLine(input))
             {
-                if (input[0] == '-')
+                if (input[0] == '-') {
                     break;
-                if (input[0] != ' ')
+}
+                if (input[0] != ' ') {
                     continue;
+}
                 int prm1 = atoi(input.substr(1, 5).c_str());
-                if (prm1 < 1 || prm1 > nprm)
+                if (prm1 < 1 || prm1 > nprm) {
                     continue;
+}
                 int icvr = prmMap[prm1];
-                if (icvr < 0)
+                if (icvr < 0) {
                     continue;
+}
                 int prm2 = atoi(input.substr(7, 5).c_str());
-                if (prm2 < 1)
+                if (prm2 < 1) {
                     continue;
+}
                 int col = 13;
                 int prm2end = lcova ? prm1 : nprm;
                 for (; prm2 <= prm2end && col < 78; prm2++, col += 22)
                 {
                     int jcvr = prmMap[prm2];
-                    if (jcvr < 0)
+                    if (jcvr < 0) {
                         continue;
+}
                     double value = strtod(input.substr(col, 21).c_str(), nullptr);
                     int pcvr;
                     if (icvr > jcvr)
@@ -269,17 +289,20 @@ int SinexDataReader::findSection(RecordInputBase &dfi, const std::vector<std::st
     std::string input;
     while (dfi.getNextLine(input))
     {
-        if (input[0] != '+')
+        if (input[0] != '+') {
             continue;
+}
         for (int i = 0; i < (int)sections.size(); i++)
         {
             int len = sections[i].size();
-            if (sections[i] == input.substr(1, len))
+            if (sections[i] == input.substr(1, len)) {
                 return i;
+}
         }
     }
-    if (raiseError)
+    if (raiseError) {
         dfi.raiseError(std::string("Cannot find SINEX file ") + sections[0] + " block");
+}
     return -1;
 }
 
@@ -323,8 +346,9 @@ int load_sinex_obs(const std::string &options, DATAFILE &df, bool (*check_progre
         {
             dfi.handleError(error);
         }
-        if (dfi.aborted())
+        if (dfi.aborted()) {
             return OPERATION_ABORTED;
+}
     }
     catch (RecordError &error)
     {

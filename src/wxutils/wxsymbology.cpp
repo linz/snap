@@ -17,18 +17,21 @@ ColourPalette::Item::Item( ColourPalette *palette, const wxColour &colour ) :
 
 ColourPalette::Item::~Item()
 {
-    if( bitmap ) delete bitmap;
+    if( bitmap ) { delete bitmap;
+}
 }
 
 const wxBitmap &ColourPalette::Item::Bitmap()
 {
-    if( ! bitmap ) CreateBitmap();
+    if( ! bitmap ) { CreateBitmap();
+}
     return *bitmap;
 }
 
 void ColourPalette::Item::CreateBitmap()
 {
-    if( bitmap ) return;
+    if( bitmap ) { return;
+}
 
     int size = palette->PaletteBitmapSize();
     bitmap = new wxBitmap( size, size );
@@ -59,7 +62,8 @@ ColourPalette::ColourPalette()
     // Create an array of Item pointers
 
     maxsize = DefaultSize;
-    if( maxsize < 32 ) maxsize = 32;
+    if( maxsize < 32 ) { maxsize = 32;
+}
     palette = new ColourPalette::Item *[maxsize];
     size = 0;
 
@@ -87,7 +91,8 @@ int ColourPalette::FindColour( const wxColour &colour ) const
 {
     for( int nitem = 0; nitem < size; nitem++ )
     {
-        if( palette[nitem]->Colour() == colour ) return nitem;
+        if( palette[nitem]->Colour() == colour ) { return nitem;
+}
     }
     return -1;
 }
@@ -95,10 +100,12 @@ int ColourPalette::FindColour( const wxColour &colour ) const
 int ColourPalette::AddColour( const wxColour &colour )
 {
     int ncolour = FindColour( colour );
-    if( ncolour >= 0 ) return ncolour;
+    if( ncolour >= 0 ) { return ncolour;
+}
 
     ncolour = size;
-    if( ncolour >= maxsize ) Grow();
+    if( ncolour >= maxsize ) { Grow();
+}
     palette[ncolour] = new Item( this, colour );
     size++;
 
@@ -179,7 +186,8 @@ int SymbologyList::AddSymbology( SymbologyBase *symbology )
 {
     // if( GetLayer(symbology->Name()) return;
 
-    if( size >= maxSize ) Grow();
+    if( size >= maxSize ) { Grow();
+}
     symbologies[size] = symbology;
     size++;
     return size-1;
@@ -198,7 +206,8 @@ int SymbologyList::Size() const { return size; }
 
 SymbologyBase *SymbologyList::GetSymbology( int i ) const
 {
-    if( i >= 0 && i < size ) return symbologies[i];
+    if( i >= 0 && i < size ) { return symbologies[i];
+}
     return nullptr;
 }
 
@@ -211,7 +220,8 @@ int SymbologyList::GetSymbologyId( wxString name ) const
 {
     for( int i = 0; i < size; i++ )
     {
-        if( symbologies[i]->Name() == name ) return i;
+        if( symbologies[i]->Name() == name ) { return i;
+}
     }
     return -1;
 }
@@ -220,7 +230,8 @@ int SymbologyList::GetSymbologyByIdentifier( wxString uid ) const
 {
     for( int i = 0; i < size; i++ )
     {
-        if( symbologies[i]->Identifier() == uid ) return i;
+        if( symbologies[i]->Identifier() == uid ) { return i;
+}
     }
     return -1;
 }
@@ -410,19 +421,25 @@ PointSymbology::PointSymbology( wxString name, int nNodes, double size, double i
 
 PointSymbology::~PointSymbology()
 {
-    if( next ) delete next;
-    if( pointOffsets ) delete [] pointOffsets;
+    if( next ) { delete next;
+}
+    if( pointOffsets ) { delete [] pointOffsets;
+}
 }
 
 void PointSymbology::SetSymbol( int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill )
 {
-    if( next ) delete next;
+    if( next ) { delete next;
+}
     next = nullptr;
-    if( pointOffsets ) delete [] pointOffsets;
+    if( pointOffsets ) { delete [] pointOffsets;
+}
     pointOffsets = nullptr;
 
-    if( nNodes < -10 || nNodes > 10 ) nNodes = 0;
-    if( nNodes > -3 && nNodes < 3 ) nNodes = 0;
+    if( nNodes < -10 || nNodes > 10 ) { nNodes = 0;
+}
+    if( nNodes > -3 && nNodes < 3 ) { nNodes = 0;
+}
     penColour = clrBorder;
     fillColour = clrFill;
     refSize = 0;
@@ -439,7 +456,8 @@ void PointSymbology::SetSymbol( int nNodes, double size, double indent, const wx
         bool haveIndent = indent != 0.0;
 
         npt = nNodes > 0 ? nNodes : -nNodes;
-        if( haveIndent ) npt += npt;
+        if( haveIndent ) { npt += npt;
+}
 
         double angle = (atan(1.0)*8.0)/npt;
         cosAngle = cos(angle);
@@ -468,9 +486,11 @@ void PointSymbology::AddSymbol(int nNodes, double size, double indent, const wxC
 
 void PointSymbology::CalcOffsets( int refSize )
 {
-    if( refSize == this->refSize ) return;
+    if( refSize == this->refSize ) { return;
+}
     this->refSize = refSize;
-    if( npt == 0 ) return;
+    if( npt == 0 ) { return;
+}
 
     double oy = -cosStart;
     double ox = sinStart;
@@ -493,7 +513,8 @@ bool PointSymbology::GetPoint( int ipt, double *x, double *y )
         *y = 0.0;
         return false;
     }
-    if( ipt < 0 || ipt > npt ) return false;
+    if( ipt < 0 || ipt > npt ) { return false;
+}
     CalcOffsets(1000.0);
     *x = pointOffsets[ipt].x/1000.0;
     *y = pointOffsets[ipt].y/1000.0;
@@ -505,7 +526,8 @@ bool PointSymbology::GetPoint( int ipt, double *x, double *y )
 
 void PointSymbology::Render(wxDC &dc, const wxPoint &pt, int refSize, const wxColour &defaultColour)
 {
-    if( refSize <= 0 ) return;
+    if( refSize <= 0 ) { return;
+}
 
     if( penColour == wxNullColour )
     {
@@ -531,11 +553,13 @@ void PointSymbology::Render(wxDC &dc, const wxPoint &pt, int refSize, const wxCo
     }
     else
     {
-        if( refSize != this->refSize ) CalcOffsets( refSize );
+        if( refSize != this->refSize ) { CalcOffsets( refSize );
+}
         dc.DrawPolygon( npt, pointOffsets, pt.x, pt.y );
     }
 
-    if( next ) next->Render( dc, pt, refSize, defaultColour );
+    if( next ) { next->Render( dc, pt, refSize, defaultColour );
+}
 }
 
 // Symbology: A list of symbologies with an associated colour palette
@@ -561,7 +585,8 @@ void Symbology::InitialisePalette( const ColourPalette &basepalette )
 int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool display, const bool isControlCheckbox, const bool colourEditable )
 {
     int colourId = 0;
-    if( colour.IsOk() ) colourId= palette.AddColour( colour );
+    if( colour.IsOk() ) { colourId= palette.AddColour( colour );
+}
     LayerSymbology *s = new LayerSymbology( name, type, colourId, display, isControlCheckbox, colourEditable );
     return layers.AddSymbology( s );
 }

@@ -67,7 +67,8 @@ int print_log_args( const char *format, va_list args )
     {
         if( buffer ) { delete [] buffer; buffer = nullptr; }
         buflen = 1024;
-        while( buflen < len+1 ) buflen += 1024;
+        while( buflen < len+1 ) { buflen += 1024;
+}
         buffer = new char[buflen];
     }
 
@@ -117,7 +118,8 @@ static int error_handler( const int sts, const std::string_view msg1, const erro
 
 void ImplementErrorHandler()
 {
-    if( ! logger ) logger = new wxStringLog();
+    if( ! logger ) { logger = new wxStringLog();
+}
     wxLog::SetActiveTarget( logger );
     set_error_handler( error_handler );
 }

@@ -22,7 +22,8 @@ inline std::string format_fixed(
 {
     std::ostringstream text;
     text << std::fixed << std::setprecision( decimalPlaces ) << std::setfill( fill );
-    if( fill != ' ' ) text << std::internal;
+    if( fill != ' ' ) { text << std::internal;
+}
     text << std::setw( minimumWidth ) << value;
     return text.str();
 }
@@ -45,7 +46,8 @@ inline std::string pad_right(
     const std::string::size_type minimumWidth )  ///< the result is at least this many characters
 {
     std::string padded( text );
-    if( padded.size() < minimumWidth ) padded.resize( minimumWidth, ' ' );
+    if( padded.size() < minimumWidth ) { padded.resize( minimumWidth, ' ' );
+}
     return padded;
 }
 
@@ -55,7 +57,8 @@ inline std::string pad_left(
     const std::string &text,        ///< the text to pad
     const std::string::size_type minimumWidth )  ///< the result is at least this many characters
 {
-    if( text.size() >= minimumWidth ) return text;
+    if( text.size() >= minimumWidth ) { return text;
+}
     return std::string( minimumWidth - text.size(), ' ' ) + text;
 }
 

@@ -327,7 +327,8 @@ static int get_classification( snapfile_def *sd, std::string_view cclass )
 {
     for( size_t i = 0; i < sd->clsf.size(); i++ )
     {
-        if( boost::algorithm::iequals( cclass, sd->clsf[i].name ) ) return numeric_cast<int>( i );
+        if( boost::algorithm::iequals( cclass, sd->clsf[i].name ) ) { return numeric_cast<int>( i );
+}
     }
     return -1;
 }
@@ -335,7 +336,8 @@ static int get_classification( snapfile_def *sd, std::string_view cclass )
 static int create_classification( snapfile_def *sd, std::string_view cclass )
 {
     const int ic = get_classification( sd, cclass );
-    if( ic >= 0 ) return ic;
+    if( ic >= 0 ) { return ic;
+}
 
     data_class cd{};
     cd.name = cclass;
@@ -424,7 +426,8 @@ static void load_data_classifications( snapfile_def *sd )
 {
     for( const data_class &cd : sd->clsf )
     {
-        if( cd.data_id > 0 ) ldt_classification( cd.class_id, cd.data_id );
+        if( cd.data_id > 0 ) { ldt_classification( cd.class_id, cd.data_id );
+}
     }
 }
 
@@ -436,7 +439,8 @@ static int get_syserr( snapfile_def *sd, std::string_view sename )
 {
     for( size_t i = 0; i < sd->syserr.size(); i++ )
     {
-        if( boost::algorithm::iequals( sename, sd->syserr[i].name ) ) return numeric_cast<int>( i );
+        if( boost::algorithm::iequals( sename, sd->syserr[i].name ) ) { return numeric_cast<int>( i );
+}
     }
     return -1;
 }
@@ -490,7 +494,8 @@ static int read_data_syserr( snapfile_def *sd, data_field *fld )
     for( int i = ds.vector ? 3 : 1; i--; inf++)
     {
         ds.defined = ds.defined && read_double_field( sd->scanner(), *inf ) == FieldResult::Ok;
-        if( isangle ) *inf *= STOR;
+        if( isangle ) { *inf *= STOR;
+}
     }
 
     if( !ds.defined )
@@ -509,7 +514,8 @@ static void load_data_syserrs( snapfile_def *sd )
 {
     for( data_syserr &ds : sd->syserr )
     {
-        if( !ds.defined ) continue;
+        if( !ds.defined ) { continue;
+}
 
         /* If the systematic error is classification dependent, get the
         value for the class */
@@ -740,10 +746,11 @@ static int read_error_command( snapfile_def *sd, int errtype, std::string_view c
         return 0;
     }
 
-    for( ic = 0; ic < nerrcodes; ic++ ) for( iv = 0; iv<nerrvals; iv++ )
+    for( ic = 0; ic < nerrcodes; ic++ ) { for( iv = 0; iv<nerrvals; iv++ )
         {
             errcodes[ic].value[iv] = 0.0;
         }
+}
 
     goterr = 0;
 
@@ -752,15 +759,18 @@ static int read_error_command( snapfile_def *sd, int errtype, std::string_view c
         FieldScanner &scanner = sd->scanner();
         std::string name;
         status = OK;
-        if( scanner.atEnd() ) break;
+        if( scanner.atEnd() ) { break;
+}
         if( read_double_field( scanner, value[0] ) != FieldResult::Ok ) { status = INVALID_DATA; break; }
         for( iv = 1; iv < nerrvals; iv++ )
         {
             status = MISSING_DATA;
-            if( read_double_field( scanner, value[iv] ) != FieldResult::Ok ) break;
+            if( read_double_field( scanner, value[iv] ) != FieldResult::Ok ) { break;
+}
             status = OK;
         }
-        if( status != OK ) break;
+        if( status != OK ) { break;
+}
         if( read_string_field( scanner, name, MAX_WORD_LEN ) != FieldResult::Ok ) {status = MISSING_DATA; break; }
         status = INVALID_DATA;
         for( ic = 0; ic < nerrcodes; ic++ )
@@ -777,10 +787,12 @@ static int read_error_command( snapfile_def *sd, int errtype, std::string_view c
                 break;
             }
         }
-        if( status != OK ) break;
+        if( status != OK ) { break;
+}
     }
 
-    if( status == OK && !goterr ) status = MISSING_DATA;
+    if( status == OK && !goterr ) { status = MISSING_DATA;
+}
 
     if( status != OK )
     {
@@ -813,7 +825,8 @@ static void report_missing_default_error( snapfile_def *sd, snap_data_type *obst
     std::string errmsg = std::string( "Error of " ).append( datatype[obstype->type].name ).append( " not defined" );
     const auto errcmd = std::find_if( std::begin( commands ), std::end( commands ),
         [obstype]( const command &cmd ) { return cmd.action == read_error_command && cmd.id == obstype->errortype; } );
-    if( errcmd != std::end( commands ) ) errmsg += " - use " + command_text( errcmd->command );
+    if( errcmd != std::end( commands ) ) { errmsg += " - use " + command_text( errcmd->command );
+}
     sd->error( MISSING_DATA, errmsg );
 
     ldt_cancel_inst();
@@ -842,7 +855,8 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 
     case HA_ERR:
         error = sd->haerr;
-        if( error < 0.0 ) error = 0.0;
+        if( error < 0.0 ) { error = 0.0;
+}
         if( sd->hammerr > 0 )
         {
             double mmerr, dist;
@@ -850,7 +864,8 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
             dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
 
-            if( dist < mmerr/2.0 ) dist = mmerr/2.0;
+            if( dist < mmerr/2.0 ) { dist = mmerr/2.0;
+}
             error = hypot(error, mmerr/dist);
         }
         ldt_error( &error );
@@ -858,7 +873,8 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 
     case AZ_ERR:
         error = sd->azerr;
-        if( error < 0.0 ) error = 0.0;
+        if( error < 0.0 ) { error = 0.0;
+}
         if( sd->azmmerr > 0 )
         {
             double mmerr, dist;
@@ -866,7 +882,8 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
             dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
 
-            if( dist < mmerr/2.0 ) dist = mmerr/2.0;
+            if( dist < mmerr/2.0 ) { dist = mmerr/2.0;
+}
             error = hypot(error, mmerr/dist);
         }
         ldt_error( &error );
@@ -874,19 +891,24 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 
     case ZD_ERR:
         error = sd->zderr;
-        if( error < 0.0 ) error = 0.0;
+        if( error < 0.0 ) { error = 0.0;
+}
         if( sd->zdmmherr > 0 || sd->zdmmverr > 0)
         {
             double mmherr, mmverr, dist;
             mmherr = sd->zdmmherr;
             mmverr = sd->zdmmverr;
-            if( mmherr < 0 ) mmherr = 0.0;
-            if( mmverr < 0 ) mmverr = 0.0;
+            if( mmherr < 0 ) { mmherr = 0.0;
+}
+            if( mmverr < 0 ) { mmverr = 0.0;
+}
 
             dist = ldt_calc_value( CALC_DISTANCE, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
-            if( mmherr < dist/2.0 ) mmherr/=dist; else mmherr = 2;
-            if( mmverr < dist/2.0 ) mmverr/=dist; else mmverr = 2;
+            if( mmherr < dist/2.0 ) { mmherr/=dist; } else { mmherr = 2;
+}
+            if( mmverr < dist/2.0 ) { mmverr/=dist; } else { mmverr = 2;
+}
             mmherr *= cos(value);
             mmverr *= sin(value);
             error = sqrt(error*error+mmherr*mmherr+mmverr*mmverr);
@@ -968,11 +990,13 @@ static bool read_time( FieldScanner &scanner, double &obstime )
     int hr = 0;
     int min = 0;
 
-    if( read_string_field( scanner, time, MAX_WORD_LEN ) != FieldResult::Ok ) return false;
+    if( read_string_field( scanner, time, MAX_WORD_LEN ) != FieldResult::Ok ) { return false;
+}
 
     if( (sscanf(time.c_str(),"%d:%d", &hr, &min ) < 2 &&
             sscanf(time.c_str(),"%d.%d", &hr, &min ) < 2 ) ||
-            hr < 0 || hr > 24 || min < 0 || min > 59 ) return false;
+            hr < 0 || hr > 24 || min < 0 || min > 59 ) { return false;
+}
 
     obstime = (hr + min/60.0)/24.0;
     return true;
@@ -983,7 +1007,8 @@ static bool read_date( FieldScanner &scanner, double &obsdate )
 {
     std::string datestr;
 
-    if( read_string_field( scanner, datestr, MAX_DATE_FIELD_LEN ) != FieldResult::Ok ) return false;
+    if( read_string_field( scanner, datestr, MAX_DATE_FIELD_LEN ) != FieldResult::Ok ) { return false;
+}
 
     obsdate = snap_datetime_parse( datestr );
     return obsdate != 0;
@@ -997,7 +1022,8 @@ static int read_time_command( snapfile_def *sd, int, std::string_view cmd )
     double obstime = 0.0;
     if( read_time( sd->scanner(), obstime ) )
     {
-        if( sd->date != UNDEFINED_DATE ) sd->date = floor( sd->date) + obstime;
+        if( sd->date != UNDEFINED_DATE ) { sd->date = floor( sd->date) + obstime;
+}
         ldt_date( sd->date );
     }
     else
@@ -1044,8 +1070,9 @@ static void calc_nveccvr( snapfile_def *sd )
     sd->nveccvr = 3;
     if( !sd->grouped )
     {
-        if( sd->cvrtype == CVR_FULL || sd->cvrtype == CVR_CORRELATION || sd->cvrtype == CVR_ENU_CORRELATION )
+        if( sd->cvrtype == CVR_FULL || sd->cvrtype == CVR_CORRELATION || sd->cvrtype == CVR_ENU_CORRELATION ) {
             sd->nveccvr = 6;
+}
     }
     else if( sd->cvrtype == CVR_FULL )
     {
@@ -1065,17 +1092,19 @@ static int read_gps_errtype_command( snapfile_def *sd, int, std::string_view )
     if( read_string_field( scanner, option, MAX_NAME_LEN ) == FieldResult::Ok )
     {
         ok = true;
-        if( boost::algorithm::iequals( option, "diagonal" ) )  sd->dfltcvrtype = CVR_DIAGONAL;
-        else if( boost::algorithm::iequals( option, "full" ) ) sd->dfltcvrtype = CVR_FULL;
-        else if( boost::algorithm::iequals( option, "correlation" ) )
+        if( boost::algorithm::iequals( option, "diagonal" ) ) {  sd->dfltcvrtype = CVR_DIAGONAL;
+        } else if( boost::algorithm::iequals( option, "full" ) ) { sd->dfltcvrtype = CVR_FULL;
+        } else if( boost::algorithm::iequals( option, "correlation" ) ) {
             sd->dfltcvrtype = CVR_CORRELATION;
-        else if( boost::algorithm::iequals( option, "enu" ) )  sd->dfltcvrtype = CVR_TOPOCENTRIC;
-        else ok = false;
+        } else if( boost::algorithm::iequals( option, "enu" ) ) {  sd->dfltcvrtype = CVR_TOPOCENTRIC;
+        } else { ok = false;
+}
     }
     sd->cvrupper = 0;
     if( read_string_field( scanner, option, MAX_NAME_LEN ) == FieldResult::Ok )
     {
-        if( boost::algorithm::iequals( option, "upper" ) ) sd->cvrupper = 1; else ok = false;
+        if( boost::algorithm::iequals( option, "upper" ) ) { sd->cvrupper = 1; } else { ok = false;
+}
     }
 
     if( !ok )
@@ -1173,7 +1202,8 @@ static int read_classify_command( snapfile_def *sd, int, std::string_view cmd )
             {
                 set_obstype_classification( sd, obstype->type, class_id, value );
             }
-            if( ! end ) types.remove_prefix( slash + 1 );
+            if( ! end ) { types.remove_prefix( slash + 1 );
+}
         }
     }
 
@@ -1195,7 +1225,8 @@ static int read_endset_command( snapfile_def *, int, std::string_view )
 
 static int read_note_command( snapfile_def *sd, int, std::string_view )
 {
-    if( sd->definition_err ) return OK;
+    if( sd->definition_err ) { return OK;
+}
     std::string note;
     read_remaining_text( sd->scanner(), note, MAX_NOTE_LEN );
     ldt_prefix_note( note );
@@ -1278,8 +1309,10 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
         {
             snap_data_type *st = obstype;
             datatypedef *dt = datatype + st->type;
-            if( st->datatype->reffrm ) sd->usereffrm = 1;
-            if (st->datatype->projctn) sd->useprojctn = 1;
+            if( st->datatype->reffrm ) { sd->usereffrm = 1;
+}
+            if (st->datatype->projctn) { sd->useprojctn = 1;
+}
             if( nobs && st->obsclass != sd->obsclass )
             {
                 sd->error( INCONSISTENT_DATA,
@@ -1297,8 +1330,10 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
             next_data_field( sd, DFT_START, obstype->type,
                              FLG_DFLT_DATA | FLG_DFLT_ERROR );
             nobs++;
-            if( st->datatype->needsgroup ) sd->grouped = 1;
-            if( st->oneonly ) oneonly = obstype->type+1;
+            if( st->datatype->needsgroup ) { sd->grouped = 1;
+}
+            if( st->oneonly ) { oneonly = obstype->type+1;
+}
             continue;
         }
 
@@ -1399,7 +1434,8 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
 
     /* Grouped format is not possible with point data. */
 
-    if( sd->obsclass == SD_PNTDATA ) sd->grouped = 0;
+    if( sd->obsclass == SD_PNTDATA ) { sd->grouped = 0;
+}
     calc_nveccvr( sd );
 
     /* If using multistation vector data then may need explicit
@@ -1407,8 +1443,9 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
 
     if( sd->grouped && sd->obsclass == SD_VECDATA &&
             ( sd->dfltcvrtype == CVR_CORRELATION ||
-              sd->dfltcvrtype == CVR_FULL ) )
+              sd->dfltcvrtype == CVR_FULL ) ) {
         sd->endset = 1;
+}
 
     return OK;  /* As all errors are already handled */
 }
@@ -1468,7 +1505,8 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
 
     /* If we are using a default covariance, we don't need to do anything else */
 
-    if( cvrtype == CVR_DEFAULT ) return 1;
+    if( cvrtype == CVR_DEFAULT ) { return 1;
+}
 
     /* Copy the information we have already read into the covariance matrix */
 
@@ -1479,7 +1517,8 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
         {
             const double *vcvr;
             const vecerr_def *vecerr = &sd->vecerrlst[numeric_cast<size_t>( sd->nvecobs - i - 1 )];
-            if( !vecerr->nvecobs ) continue;
+            if( !vecerr->nvecobs ) { continue;
+}
             vcvr = vecerr->vecerr;
             i3 = (vecerr->nvecobs - 1)*3;
             if( cvrtype != CVR_FULL )
@@ -1496,7 +1535,8 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
             }
             else if( !grouped )
             {
-                for( i3 = 0; i3 < 6; i3++ ) cvr[i3] = vcvr[i3];
+                for( i3 = 0; i3 < 6; i3++ ) { cvr[i3] = vcvr[i3];
+}
             }
         }
     }
@@ -1523,7 +1563,8 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
             {
                 int ri = row[i3];
                 int j3min, j3max;
-                if( !cvrused ) ri = -1;
+                if( !cvrused ) { ri = -1;
+}
                 if( sd->cvrupper )
                 {
                     if( cvrtype == CVR_FULL ) { j3min = i3; j3max = nvecrow-1; }
@@ -1542,10 +1583,12 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
 
                     while( sd->scanner().atEnd() )
                     {
-                        if( sd->df.read_record() != OK ) break;
+                        if( sd->df.read_record() != OK ) { break;
+}
                     }
                     ok = read_double_field( sd->scanner(), val ) == FieldResult::Ok;
-                    if( ri >= 0 && rj >= 0 ) Lij(cvr,ri,rj) = val;
+                    if( ri >= 0 && rj >= 0 ) { Lij(cvr,ri,rj) = val;
+}
                     if( !ok )
                     {
                         sd->error( INVALID_DATA, "The " + matrix + " matrix is not correctly specified" );
@@ -1573,7 +1616,8 @@ static void start_vector_error( snapfile_def *sd )
     sd->nvecobs++;
 
     const size_t ivecerr = numeric_cast<size_t>( sd->nvecobs - 1 );
-    if( ivecerr >= sd->vecerrlst.size() ) sd->vecerrlst.emplace_back();
+    if( ivecerr >= sd->vecerrlst.size() ) { sd->vecerrlst.emplace_back();
+}
 
     sd->currvecerr = &sd->vecerrlst[ivecerr];
     sd->currvecerr->nvecobs = 0;  /* Only set if observation successfully read */
@@ -1608,7 +1652,8 @@ static int read_vector_error( snapfile_def *sd )
 
 static void validate_vector_error( snapfile_def *sd )
 {
-    if( sd->currvecerr ) sd->currvecerr->nvecobs = ++sd->nvecgood;
+    if( sd->currvecerr ) { sd->currvecerr->nvecobs = ++sd->nvecgood;
+}
 }
 
 
@@ -1648,9 +1693,11 @@ static bool read_sign( FieldScanner &scanner, std::string_view sign, double &val
 {
     std::string field;
 
-    if( read_string_field( scanner, field, 1 ) != FieldResult::Ok ) return false;
+    if( read_string_field( scanner, field, 1 ) != FieldResult::Ok ) { return false;
+}
     boost::algorithm::to_upper( field );
-    if( field[0] == sign[0] ) return true;
+    if( field[0] == sign[0] ) { return true;
+}
     if( field[0] == sign[1] ) { value = -value; return true; }
     return false;
 }
@@ -1678,8 +1725,10 @@ static int read_data_data( snapfile_def *sd, data_field *fld )
         }
         if( sd->dmsformat != AF_DEG )
         {
-            if( sts && st->type == LT ) sts = read_sign( scanner, "NS", value[0] );
-            if( sts && st->type == LN ) sts = read_sign( scanner, "EW", value[0] );
+            if( sts && st->type == LT ) { sts = read_sign( scanner, "NS", value[0] );
+}
+            if( sts && st->type == LN ) { sts = read_sign( scanner, "EW", value[0] );
+}
         }
     }
     else if ( st->datatype->isvector )
@@ -1704,7 +1753,8 @@ static int read_data_data( snapfile_def *sd, data_field *fld )
         ldt_value( value );
     }
 
-    if( unused ) ldt_unused();
+    if( unused ) { ldt_unused();
+}
 
     sd->value = value[0];  /* Only of interest for scalar data */
 
@@ -1793,7 +1843,8 @@ static int start_obs( snapfile_def *sd, data_field *fld )
     if( sd->obsclass == SD_VECDATA )
     {
         if( !sd->goterr ) { sd->cvrtype = CVR_DEFAULT; sd->nveccvr = 0; }
-        if( sd->grouped ) sd->goterr = 1;
+        if( sd->grouped ) { sd->goterr = 1;
+}
         start_vector_error( sd );
     }
 
@@ -1814,7 +1865,8 @@ static void end_obs( snapfile_def *sd )
     {
         load_default_error( sd, sd->obstype, sd->value );
     }
-    if( sd->obsclass == SD_VECDATA ) validate_vector_error( sd );
+    if( sd->obsclass == SD_VECDATA ) { validate_vector_error( sd );
+}
     sd->inobs = 0;
 }
 
@@ -1849,7 +1901,8 @@ static int read_station( snapfile_def *sd, int &stn_id, double &hgt )
         if( read_double_field( sd->scanner(), hgt ) != FieldResult::Ok )
         {
             sd->error( INVALID_DATA, "Invalid or missing " + station_role + " height" );
-            if( !sd->ingroup ) sd->group_err = 1;
+            if( !sd->ingroup ) { sd->group_err = 1;
+}
             return INVALID_DATA;
         }
     }
@@ -1884,7 +1937,8 @@ static int read_data_line( snapfile_def *sd, bool rej )
 
     if( startgrp )
     {
-        if( sd->ingroup ) end_group(sd, 0);
+        if( sd->ingroup ) { end_group(sd, 0);
+}
         start_group( sd );
 
         sd->stn_id_inst = -1;
@@ -1906,7 +1960,8 @@ static int read_data_line( snapfile_def *sd, bool rej )
         {
             sd->group_err = 1;
             ldt_cancel_inst();
-            if( sts != WARNING_ERROR ) return sts;
+            if( sts != WARNING_ERROR ) { return sts;
+}
         }
     }
 
@@ -1917,7 +1972,8 @@ static int read_data_line( snapfile_def *sd, bool rej )
 
     if( !sd->grouped && sd->obsclass != SD_PNTDATA )
     {
-        if( ! sd->noinststn) sts = read_station( sd, stn_id, ihgt );
+        if( ! sd->noinststn) { sts = read_station( sd, stn_id, ihgt );
+}
         ldt_tgtstn( stn_id, ihgt );
         sd->stn_id_trgt = stn_id;
     }
@@ -1931,7 +1987,8 @@ static int read_data_line( snapfile_def *sd, bool rej )
     {
         sd->group_err = 1;
         ldt_cancel_trgt();
-        if( sts != WARNING_ERROR ) return sts;
+        if( sts != WARNING_ERROR ) { return sts;
+}
     }
 
     /* If either within group (ie not just starting), or not in grouped
@@ -1946,10 +2003,12 @@ static int read_data_line( snapfile_def *sd, bool rej )
     {
         for( data_field &fld : sd->fields )
         {
-            if( sd->skipobs && fld.type != DFT_START ) continue;
+            if( sd->skipobs && fld.type != DFT_START ) { continue;
+}
             switch( fld.type )
             {
-            case DFT_START:  if( sd->inobs ) end_obs( sd );
+            case DFT_START:  if( sd->inobs ) { end_obs( sd );
+}
                 start_obs( sd, &fld );
                 break;
             case DFT_DATA:   read_data_data( sd, &fld ); break;
@@ -1964,7 +2023,8 @@ static int read_data_line( snapfile_def *sd, bool rej )
         }
     }
 
-    if( sd->inobs ) end_obs( sd );
+    if( sd->inobs ) { end_obs( sd );
+}
 
     /* Check that there is no spurious data on the line */
 
@@ -2002,7 +2062,8 @@ static void process_command( snapfile_def *sd )
         end_group( sd, cmd->flags & CMD_ENDSET ? 1 : 0 );
     }
 
-    if( cmd->action ) (*cmd->action)(sd, cmd->id, cmd->command );
+    if( cmd->action ) { (*cmd->action)(sd, cmd->id, cmd->command );
+}
 
 }
 
@@ -2022,7 +2083,8 @@ int read_snap_data( DATAFILE &df, bool (*check_progress)( DATAFILE &df ) )
             break;
         }
         FieldScanner &scanner = df.input_string().scanner;
-        if( scanner.atEnd() ) continue;
+        if( scanner.atEnd() ) { continue;
+}
         if( scanner.skipIfNext( COMMAND_PREFIX ) )
         {
             process_command( &sd );
@@ -2033,6 +2095,7 @@ int read_snap_data( DATAFILE &df, bool (*check_progress)( DATAFILE &df ) )
             read_data_line( &sd, rej );
         }
     }
-    if( sd.ingroup ) end_group( &sd, 0 );
+    if( sd.ingroup ) { end_group( &sd, 0 );
+}
     return sts;
 }

@@ -54,7 +54,8 @@ struct LinzDefModel
 static void rf_linzdef_delete( void *data )
 {
     LinzDefModel *model = (LinzDefModel *) data;
-    if( model == nullptr ) return;
+    if( model == nullptr ) { return;
+}
     if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = nullptr; }
     if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = nullptr; }
     if( model->blob ) { utlBlobClose(model->blob); model->blob = nullptr; }
@@ -72,8 +73,10 @@ static int rf_linzdef_load( LinzDefModel *model )
     {
         int sts;
         sts = utlCreateReadonlyFileBlob( model->ldeffile, &(model->blob) );
-        if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
-        if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
+        if( sts == STS_OK ) { sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
+}
+        if( sts == STS_OK ) { sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
+}
         if( sts == STS_OK && ! model->version.empty() )
         {
             sts=utlSetLinzDefVersion(model->linzdef,model->version);
@@ -86,7 +89,8 @@ static int rf_linzdef_load( LinzDefModel *model )
 
 static void *rf_linzdef_copy( void *src )
 {
-    if( ! src ) return nullptr;
+    if( ! src ) { return nullptr;
+}
     LinzDefModel *model=(LinzDefModel *) src;
     return rf_linzdef_create( model->ldeffile, model->version );
 }
@@ -108,7 +112,8 @@ static int rf_linzdef_calc( ref_frame *rf, double lon, double lat, double epoch,
     ref_deformation *def = rf->def;
     LinzDefModel *model = (LinzDefModel *) (def->data);
     denu[0] = denu[1] = denu[2] = 0.0;
-    if( epoch == 0 ) return OK;
+    if( epoch == 0 ) { return OK;
+}
 
     sts = rf_linzdef_load( model );
     if( sts == OK )
@@ -127,7 +132,8 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
     int sts;
     ref_deformation *def = rf->def;
     LinzDefModel *model = (LinzDefModel *) (def->data);
-    if( ! model ) return OK;
+    if( ! model ) { return OK;
+}
 
     write_output_string(os,"LINZ deformation model\n");
     sts = rf_linzdef_load( model );

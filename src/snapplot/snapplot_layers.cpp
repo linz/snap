@@ -281,7 +281,8 @@ static wxFont stationFont()
     {
         wxFont stfont;
         stfont.SetNativeFontInfoUserDesc( stationFontDesc );
-        if( stfont.IsOk() ) return stfont;
+        if( stfont.IsOk() ) { return stfont;
+}
         stationFontDesc.Clear();
     }
     return wxFont( 10, wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
@@ -307,7 +308,8 @@ Symbology *CreateSymbology()
 
 Symbology *GetSnapplotSymbology()
 {
-    if( ! symbology ) symbology.reset( CreateSymbology() );
+    if( ! symbology ) { symbology.reset( CreateSymbology() );
+}
     return symbology.get();
 }
 
@@ -319,7 +321,8 @@ static void copy_layer( Symbology *sym, int id, Symbology *oldsym, int oldid )
 
     // Just in case we've got things misaligned ... (could put in a debug assert here!)
     wxASSERT_MSG( l.Name() == ol.Name(), "Layer mismatch in copy_layer" );
-    if( l.Name() != ol.Name() ) return;
+    if( l.Name() != ol.Name() ) { return;
+}
 
     if( l.HasColour() && ol.HasColour() )
     {
@@ -397,7 +400,8 @@ static void setup_station_class_layers( int class_id )
 
 static void setup_data_type_layers()
 {
-    if( ! data_type_layers.empty() ) return;
+    if( ! data_type_layers.empty() ) { return;
+}
     // NOBSTYPE data rows + 1 header/control-checkbox row (index 0)
     data_type_layers.reserve( NOBSTYPE + 1 );
     data_type_layers.emplace_back( "Data type", dflt_data_colour, true );
@@ -406,7 +410,8 @@ static void setup_data_type_layers()
         // itype+1 into data_type_layers to skip the header row; datatype[]/obstypecount[]
         // have no header row of their own, so they stay indexed by the plain itype
         layer_s &l = data_type_layers.emplace_back( datatype[itype].name, dflt_data_colour, false );
-        if( obstypecount[itype] == 0 ) l.pen_id = UNUSED_LAYER_PEN_ID;
+        if( obstypecount[itype] == 0 ) { l.pen_id = UNUSED_LAYER_PEN_ID;
+}
     }
 }
 
@@ -684,9 +689,11 @@ void reset_data_type_layer_colours()
 
 static void setup_background_layers()
 {
-    if( ! background_layers.empty() )  return;
+    if( ! background_layers.empty() ) {  return;
+}
     int nlayer = background_layer_count();
-    if( nlayer <= 0 ) return;
+    if( nlayer <= 0 ) { return;
+}
     background_layers.reserve( nlayer );
     for( int i = 0; i < nlayer; i++ )
     {
@@ -716,21 +723,27 @@ static void add_layer_to_symbology( Symbology *symbology, layer_s &l, Symbology 
     int oldid = l.lyr_id;
     l.lyr_id = -1;
 
-    if( l.pen_id == UNUSED_LAYER_PEN_ID ) return;
+    if( l.pen_id == UNUSED_LAYER_PEN_ID ) { return;
+}
 
     int type = 0;
-    if( l.pen_id != UNUSED_PEN_ID ) type |= LayerSymbology::hasColour;
-    if( l.opt_id != UNUSED_OPT_ID ) type |= LayerSymbology::hasStatus;
+    if( l.pen_id != UNUSED_PEN_ID ) { type |= LayerSymbology::hasColour;
+}
+    if( l.opt_id != UNUSED_OPT_ID ) { type |= LayerSymbology::hasStatus;
+}
 
     // dfltColour views a literal, so data() is null terminated (or null if there is no colour)
     wxColour colour = wxColour( l.dfltColour.data() );
     bool display = true;
 
     l.lyr_id = symbology->AddLayer( l.name, type, colour, display, l.is_control_checkbox, colourEditable );
-    if( oldSymbology && oldid >= 0 ) copy_layer( symbology, l.lyr_id, oldSymbology, oldid );
+    if( oldSymbology && oldid >= 0 ) { copy_layer( symbology, l.lyr_id, oldSymbology, oldid );
+}
 
-    if( l.pen_id >= 0 ) basepenid[l.pen_id] = l.lyr_id;
-    if( l.opt_id >= 0 ) baseoptid[l.opt_id] = l.lyr_id;
+    if( l.pen_id >= 0 ) { basepenid[l.pen_id] = l.lyr_id;
+}
+    if( l.opt_id >= 0 ) { baseoptid[l.opt_id] = l.lyr_id;
+}
 }
 
 static void add_layers_to_symbology( Symbology *symbology, layer_list &layers, Symbology *oldSymbology, const bool colourEditable = true )
@@ -750,7 +763,8 @@ static void add_sorted_layers_to_symbology( Symbology *symbology, layer_list &la
     sorted.reserve( layers.size() );
     for( layer_s &l : layers )
     {
-        if( l.pen_id == UNUSED_LAYER_PEN_ID ) continue;
+        if( l.pen_id == UNUSED_LAYER_PEN_ID ) { continue;
+}
         // A control checkbox row should remain at the top of the list,
         // rather than sorting alongside the children it controls.
         if( l.is_control_checkbox )
@@ -789,7 +803,8 @@ static void setup_snapplot_symbology()
 
     const std::unique_ptr<Symbology> oldSymbology = std::move( symbology );
     symbology.reset( CreateSymbology() );
-    if( oldSymbology ) symbology->InitialisePalette( *(oldSymbology->GetPalette()) );
+    if( oldSymbology ) { symbology->InitialisePalette( *(oldSymbology->GetPalette()) );
+}
 
     setup_data_type_layers();
     setup_data_file_layers();
@@ -815,13 +830,17 @@ static void setup_snapplot_symbology()
         // Ditto for relative errors
         int pen;
         pen = baseoptid[NAME_OPT];
-        if( pen >= 0 ) symbology->GetLayer(pen).SetStatus(false);
+        if( pen >= 0 ) { symbology->GetLayer(pen).SetStatus(false);
+}
         pen = baseoptid[CODE_OPT];
-        if( pen >= 0 ) symbology->GetLayer(pen).SetStatus(false);
+        if( pen >= 0 ) { symbology->GetLayer(pen).SetStatus(false);
+}
         pen = baseoptid[REL_ELL_OPT];
-        if( pen >= 0 ) symbology->GetLayer(pen).SetStatus(false);
+        if( pen >= 0 ) { symbology->GetLayer(pen).SetStatus(false);
+}
         pen = baseoptid[REL_HGT_OPT];
-        if( pen >= 0 ) symbology->GetLayer(pen).SetStatus(false);
+        if( pen >= 0 ) { symbology->GetLayer(pen).SetStatus(false);
+}
     }
 
     symbology->AddSpacer();
@@ -925,7 +944,8 @@ static void build_station_symbols()
             // The views are of literals, so data() is null terminated
             borderColour = wxColour(sym.borderColour.data());
         }
-        if( ! sym.fillColour.empty() ) fillColour = wxColour(sym.fillColour.data());
+        if( ! sym.fillColour.empty() ) { fillColour = wxColour(sym.fillColour.data());
+}
         PointSymbology *ptsym = new PointSymbology( sym.name.data(), sym.nNodes, sym.size, 0.0, borderColour, fillColour );
         int idSym = symbology->AddPointSymbol( ptsym );
         symbol_lookup[sym.id] = idSym;
@@ -943,7 +963,8 @@ void rebuild_station_symbols()
 
 int station_class_pen( int cvalue )
 {
-    if( station_user_layers ) return (*station_user_layers)[cvalue+1].lyr_id;
+    if( station_user_layers ) { return (*station_user_layers)[cvalue+1].lyr_id;
+}
     return 0;
 }
 
@@ -970,9 +991,11 @@ int get_symbol( int id )
 int get_symbol_points( int symbol_id, symbolpoint *ptlist, int maxpts )
 {
     PointSymbology *symbol = symbology->GetPointSymbol(symbol_id);
-    if( ! symbol ) return -1;
+    if( ! symbol ) { return -1;
+}
     int npts = symbol->NPoints();
-    if( maxpts < symbol->NPoints() || maxpts < 1 ) return -1;
+    if( maxpts < symbol->NPoints() || maxpts < 1 ) { return -1;
+}
     if( npts == 0 )
     {
         symbol->GetPoint(0,&ptlist[0].x, &ptlist[0].y);
@@ -990,7 +1013,8 @@ int get_symbol_points( int symbol_id, symbolpoint *ptlist, int maxpts )
 void set_pen_colour_range( )
 {
     size_t colourIdx = 0;
-    if( ! data_user_layers ) return;
+    if( ! data_user_layers ) { return;
+}
     for( const layer_s &l : *data_user_layers )
     {
         LayerSymbology &ls = symbology->GetLayer( l.lyr_id );
@@ -1054,7 +1078,8 @@ int data_pen( int dpen )
 int pen_selected( int pen )
 {
     int selected = 0;
-    if( pen >= 0 && symbology->GetLayer(pen).Show() ) selected = 1;
+    if( pen >= 0 && symbology->GetLayer(pen).Show() ) { selected = 1;
+}
     return selected;
 }
 
@@ -1104,12 +1129,14 @@ int read_key_definition( std::string_view def )
     int pen = -1;
 
     const size_t start = def.find_first_not_of( " \t" );
-    if( start == std::string_view::npos ) return INVALID_DATA;
+    if( start == std::string_view::npos ) { return INVALID_DATA;
+}
     def.remove_prefix( start );
     const char delim = def.front();
     def.remove_prefix( 1 );
     const size_t itemEnd = def.find( delim );
-    if( itemEnd == std::string_view::npos ) return INVALID_DATA;
+    if( itemEnd == std::string_view::npos ) { return INVALID_DATA;
+}
     const std::string item( def.substr( 0, itemEnd ) );
     def.remove_prefix( itemEnd + 1 );
     FieldScanner scanner( def );
@@ -1133,9 +1160,11 @@ int read_key_definition( std::string_view def )
             // TODO: Need some handling here of invalid colour
         }
     }
-    if( on < 0 && pen < 0 ) return MISSING_DATA;
+    if( on < 0 && pen < 0 ) { return MISSING_DATA;
+}
     nk = symbology->GetLayerByIdentifier( wxString( item ) );
-    if( nk < 0 ) return INCONSISTENT_DATA;
+    if( nk < 0 ) { return INCONSISTENT_DATA;
+}
     LayerSymbology &ls = symbology->GetLayer(nk);
     if( on >= 0 ) { ls.SetStatus( on ? true : false ); }
     if( pen >= 0 ) { ls.SetColourId( pen ); }
@@ -1160,7 +1189,8 @@ void print_key( FILE *out, const std::string_view prefix )
             {
                 wxColour colour = symbology->GetPalette()->Colour( ls.ColourId());
                 wxString colname = wxTheColourDatabase->FindName( colour );
-                if( colname.IsEmpty() ) colname = colour.GetAsString(wxC2S_CSS_SYNTAX);
+                if( colname.IsEmpty() ) { colname = colour.GetAsString(wxC2S_CSS_SYNTAX);
+}
                 colname.Replace(" ","_");
                 fprintf(out," %s",(const char *)(colname.mb_str()));
             }

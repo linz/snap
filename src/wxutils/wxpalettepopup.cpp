@@ -37,12 +37,15 @@ void wxPalettePopup::SetPalette(ColourPalette *newPalette)
 void wxPalettePopup::LayoutPalette( int rows )
 {
     int nPalette = palette ? palette->Size() : 0;
-    if( nPalette <= 0 ) return;
+    if( nPalette <= 0 ) { return;
+}
 
     if( rows == 0 )
     {
-        while( rows*rows < nPalette ) rows++;
-        if( rows > 1 ) rows--;
+        while( rows*rows < nPalette ) { rows++;
+}
+        if( rows > 1 ) { rows--;
+}
     }
     nrow = rows;
     ncol = ((nPalette-1)/nrow)+1;
@@ -70,12 +73,16 @@ int wxPalettePopup::ColourIdFromPosition( const wxPoint &position )
     int col = colpx / gridsize;
     int row = rowpx / gridsize;
 
-    if( col < 0 || col >= ncol || row < 0 || row >= nrow ) return -1;
-    if( colpx - col*gridsize >= bitmapsize ) return -1;
-    if( rowpx - row*gridsize >= bitmapsize ) return -1;
+    if( col < 0 || col >= ncol || row < 0 || row >= nrow ) { return -1;
+}
+    if( colpx - col*gridsize >= bitmapsize ) { return -1;
+}
+    if( rowpx - row*gridsize >= bitmapsize ) { return -1;
+}
 
     int colourId = row * ncol + col;
-    if( colourId >= palette->Size() ) return -1;
+    if( colourId >= palette->Size() ) { return -1;
+}
     return colourId;
 }
 
@@ -131,8 +138,10 @@ void wxPalettePopup::PositionWindow()
     {
         y = topWindowRect.GetBottom() - size.GetHeight();
     }
-    if( x < topWindowRect.GetLeft() ) x = topWindowRect.GetLeft();
-    if( y < topWindowRect.GetTop() ) y = topWindowRect.GetTop();
+    if( x < topWindowRect.GetLeft() ) { x = topWindowRect.GetLeft();
+}
+    if( y < topWindowRect.GetTop() ) { y = topWindowRect.GetTop();
+}
 
     Move( x, y );
 }
@@ -185,7 +194,8 @@ void wxPalettePopup::OnMouseEvent( wxMouseEvent &event )
 
     if( event.ButtonDown() || event.ButtonUp() )
     {
-        if( IgnoreAsOpeningClick() ) return;
+        if( IgnoreAsOpeningClick() ) { return;
+}
         DismissAndNotify();
     }
 }
@@ -200,8 +210,10 @@ void wxPalettePopup::OnKeyDownEvent( wxKeyEvent &event )
 
 void wxPalettePopup::OnCaptureLost( wxMouseCaptureLostEvent & WXUNUSED(event) )
 {
-    if( IgnoreAsOpeningClick() ) return;
-    if( wxEventLoopBase::GetActive() ) wxEventLoopBase::GetActive()->Exit();
+    if( IgnoreAsOpeningClick() ) { return;
+}
+    if( wxEventLoopBase::GetActive() ) { wxEventLoopBase::GetActive()->Exit();
+}
 }
 
 // True for exactly one event: either the button-up that ends the click that opened the popup
@@ -217,7 +229,8 @@ bool wxPalettePopup::IgnoreAsOpeningClick()
 
 void wxPalettePopup::OnDismiss()
 {
-    if( wxEventLoopBase::GetActive() ) wxEventLoopBase::GetActive()->Exit();
+    if( wxEventLoopBase::GetActive() ) { wxEventLoopBase::GetActive()->Exit();
+}
 }
 
 // wxPopupTransientWindow isn't modal, so this blocks by running its own nested event loop
@@ -252,10 +265,12 @@ bool wxPalettePopup::SelectColour( int &colourId )
     wxEventLoop loop;
     loop.Run();
 
-    if( HasCapture() ) ReleaseMouse();
+    if( HasCapture() ) { ReleaseMouse();
+}
     Hide();
 
-    if( selectedColour < 0 ) selectedColour = colourId;
+    if( selectedColour < 0 ) { selectedColour = colourId;
+}
     bool colourChanged = selectedColour != colourId;
     colourId = selectedColour;
     return colourChanged;

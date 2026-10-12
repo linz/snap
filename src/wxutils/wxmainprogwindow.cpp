@@ -121,7 +121,8 @@ wxMainProgWindow::~wxMainProgWindow()
 
 void wxMainProgWindow::OnCloseButton( wxCommandEvent & WXUNUSED(event) )
 {
-    if( ! running ) Close();
+    if( ! running ) { Close();
+}
 }
 
 void wxMainProgWindow::OnClose( wxCloseEvent &event )
@@ -169,7 +170,8 @@ void wxMainProgWindow::AppendString( const wxString &text )
     {
         wxString line = tokens.GetNextToken();
         line.Trim();
-        if( ! line.IsEmpty() ) lastLine = line;
+        if( ! line.IsEmpty() ) { lastLine = line;
+}
     }
 }
 
@@ -202,13 +204,15 @@ int wxMainProgWindow::DoErrorHandler( const int sts, const std::string_view msg1
 
 int wxMainProgWindow::PrintArgs( const char *format, va_list args )
 {
-    if( instance ) return instance->DoPrintArgs( format, args );
+    if( instance ) { return instance->DoPrintArgs( format, args );
+}
     return 0;
 }
 
 int wxMainProgWindow::ErrorHandler( const int sts, const std::string_view msg1, const error_message msg2 )
 {
-    if( instance ) return instance->DoErrorHandler( sts, msg1, msg2 );
+    if( instance ) { return instance->DoErrorHandler( sts, msg1, msg2 );
+}
     return 0;
 }
 
@@ -257,17 +261,20 @@ void wxMainProgWindow::DoEndMeter()
 
 void wxMainProgWindow::InitMeter( long total_size )
 {
-    if( instance ) instance->DoInitMeter( total_size );
+    if( instance ) { instance->DoInitMeter( total_size );
+}
 }
 
 void wxMainProgWindow::UpdateMeter( long progress )
 {
-    if( instance ) instance->DoUpdateMeter( progress );
+    if( instance ) { instance->DoUpdateMeter( progress );
+}
 }
 
 void wxMainProgWindow::EndMeter()
 {
-    if( instance ) instance->DoEndMeter();
+    if( instance ) { instance->DoEndMeter();
+}
 }
 
 wxMainProgWindow *wxMainProgWindow::instance = nullptr;

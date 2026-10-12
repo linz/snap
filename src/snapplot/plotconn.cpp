@@ -251,7 +251,8 @@ static conn_ptr *allocate_conn_ptr( void )
 static void add_tconn_to_fconn( const int from, const int to, conn_ptr *cp )
 {
     fconn_ptr &fp = connlst[from];
-    if( fp.to.empty() ) fp.to.reserve( TCONN_ARRAY_INIT );
+    if( fp.to.empty() ) { fp.to.reserve( TCONN_ARRAY_INIT );
+}
     fp.to.emplace_back( cp, to );
     max_conn = std::max( max_conn, boost::numeric_cast<int>( fp.to.size() ) );
 }
@@ -263,11 +264,13 @@ static conn_ptr *get_connection( int from, int to )
 
     for( const tconn_ptr &tp : connlst[from].to )
     {
-        if( tp.to == to ) return tp.conn;
+        if( tp.to == to ) { return tp.conn;
+}
     }
     cp = allocate_conn_ptr();
     add_tconn_to_fconn( from, to, cp );
-    if( to ) add_tconn_to_fconn( to, from, cp );
+    if( to ) { add_tconn_to_fconn( to, from, cp );
+}
     return cp;
 }
 
@@ -310,7 +313,8 @@ static void add_fconn_data( int from, int to, conn_data *data )
 {
     conn_ptr *ptr;
 
-    if( connlst.empty() ) init_connection_list();
+    if( connlst.empty() ) { init_connection_list();
+}
 
 
     if( from == 0 ) { from = to; to = 0; }
@@ -336,12 +340,14 @@ static void add_fconn_data( int from, int to, conn_data *data )
     }
 
     ptr = get_connection( from, to );
-    if( ptr->nconn >= ptr->nalloc ) ptr->expand();
+    if( ptr->nconn >= ptr->nalloc ) { ptr->expand();
+}
 
     ptr->write_record( ptr->nconn, data );
 
     ptr->nconn++;
-    if( ptr->nconn > max_obs ) max_obs = ptr->nconn;
+    if( ptr->nconn > max_obs ) { max_obs = ptr->nconn;
+}
     ndata++;
 }
 
@@ -354,11 +360,14 @@ void add_relative_covariance( int from, int to, double cvr[] )
 
     calc_error_ellipse( cvr, &covar.emax, &covar.emin,
                         &covar.az );
-    if( covar.emax > relcvrmaxh ) relcvrmaxh = covar.emax;
+    if( covar.emax > relcvrmaxh ) { relcvrmaxh = covar.emax;
+}
     covar.sehgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
-    if( covar.sehgt > relcvrmaxv ) relcvrmaxv = covar.sehgt;
+    if( covar.sehgt > relcvrmaxv ) { relcvrmaxv = covar.sehgt;
+}
 
-    if( connlst.empty() ) init_connection_list();
+    if( connlst.empty() ) { init_connection_list();
+}
 
     ptr = get_connection( from, to );
     ptr->write_cvr( covar );
@@ -366,8 +375,10 @@ void add_relative_covariance( int from, int to, double cvr[] )
 
 void maximum_relative_covariance( double *h, double *v )
 {
-    if( h ) *h = relcvrmaxh;
-    if( v ) *v = relcvrmaxv;
+    if( h ) { *h = relcvrmaxh;
+}
+    if( v ) { *v = relcvrmaxv;
+}
 }
 
 
@@ -379,7 +390,8 @@ static int get_connection_data( int from, tconn_ptr *tp, conn_data *cd, int firs
     static int nread = 0;
     static char reverse;
     conn_ptr *p = tp->conn;
-    if( p->nconn == 0 ) return 0;
+    if( p->nconn == 0 ) { return 0;
+}
     if( first )
     {
         nread = 0;
@@ -387,14 +399,16 @@ static int get_connection_data( int from, tconn_ptr *tp, conn_data *cd, int firs
         reverse = from < tp->to ? 1 : 0;
     }
 
-    if( nleft <= 0 ) return 0;
+    if( nleft <= 0 ) { return 0;
+}
     nleft--;
     p->read_record( nread++, cd );
     if( reverse )
     {
         cd->flags ^= CONN_OBS_REVERSE;
-        if( datatype[cd->type].isdirectional )
+        if( datatype[cd->type].isdirectional ) {
             cd->flags ^= CONN_FORWARD | CONN_REVERSE;
+}
     }
     return 1;
 }
@@ -406,8 +420,9 @@ static void get_connection_data_by_id( int from, int to_id, int obs_id, conn_dat
     if( from < tp.to )
     {
         cd->flags ^= CONN_OBS_REVERSE;
-        if( datatype[cd->type].isdirectional )
+        if( datatype[cd->type].isdirectional ) {
             cd->flags ^= CONN_FORWARD | CONN_REVERSE;
+}
     }
 }
 
@@ -419,7 +434,8 @@ static int get_connection_to_id( int from, int to )
     const int nto = boost::numeric_cast<int>( tos.size() );
     for( int to_id = 0; to_id < nto; to_id++ )
     {
-        if( tos[to_id].to == to ) return to_id;
+        if( tos[to_id].to == to ) { return to_id;
+}
     }
     return -1;
 }
@@ -439,7 +455,8 @@ static int get_connection_obs_id( int from, int to_id, int64_t bloc, int index )
     {
 
         if( connection->bloc == bloc &&
-                connection->idata == index ) return obs_id;
+                connection->idata == index ) { return obs_id;
+}
     }
     return 0;
 }
@@ -467,7 +484,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
     trgtdata *t;
     int i, j, iclass;
 
-    if( connlst.empty() ) init_connection_list();
+    if( connlst.empty() ) { init_connection_list();
+}
 
     connection->bloc = bloc;
 
@@ -477,7 +495,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
         obstypecount[t->type]++;
         connection->idata = i;
         connection->flags = t->unused ? CONN_UNUSED : 0;
-        if( t->unused & REJECT_OBS_BIT ) connection->flags |= CONN_REJECTED;
+        if( t->unused & REJECT_OBS_BIT ) { connection->flags |= CONN_REJECTED;
+}
         connection->type = t->type;
         connection->file = sd->file;
         connection->line = t->lineno;
@@ -496,7 +515,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                         !rejected_station(t->to) && o->error > 0.0 )
                 {
                     connection->rfac = o->reserr/o->error;
-                    if( connection->rfac < 0.0 ) connection->rfac = 0.0;
+                    if( connection->rfac < 0.0 ) { connection->rfac = 0.0;
+}
                 }
                 break;
             }
@@ -513,7 +533,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                 if( ! t->unused && ! rejected_station(sd->from) && ! rejected_station(t->to) )
                 {
                     connection->rfac = 0.0;
-                    if( re > 0.0 && oe > 0.0 )connection->rfac = sqrt( re/oe);
+                    if( re > 0.0 && oe > 0.0 ) {connection->rfac = sqrt( re/oe);
+}
                 }
                 break;
             }
@@ -525,7 +546,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                         && p->error > 0.0 )
                 {
                     connection->rfac = p->reserr/p->error;
-                    if( connection->rfac < 0.0 ) connection->rfac = 0.0;
+                    if( connection->rfac < 0.0 ) { connection->rfac = 0.0;
+}
                 }
 
                 break;
@@ -555,8 +577,9 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                 classdata *cd;
                 for( cd = sd->clsf + t->iclass; iclass--; cd++ )
                 {
-                    if( cd->class_id <= nclass )
+                    if( cd->class_id <= nclass ) {
                         connection->cclass[cd->class_id - 1] = cd->name_id;
+}
                 }
             }
         }
@@ -568,7 +591,7 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
 
     if( sd->format == SD_VECDATA && sd->nobs > 1 && sd->from )
     {
-        for( i = 0; i < sd->nobs; i++ ) for ( j = i+1; j < sd->nobs; j++ )
+        for( i = 0; i < sd->nobs; i++ ) { for ( j = i+1; j < sd->nobs; j++ )
             {
                 trgtdata *t2;
                 char unused;
@@ -578,7 +601,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                 connection->idata = i + j * sd->nobs;
                 unused = t->unused | t2->unused;
                 connection->flags = unused ? CONN_UNUSED : 0;
-                if( unused & REJECT_OBS_BIT ) connection->flags |= CONN_REJECTED;
+                if( unused & REJECT_OBS_BIT ) { connection->flags |= CONN_REJECTED;
+}
                 connection->type = t->type;
                 connection->file = sd->file;
                 connection->line = t->lineno;
@@ -593,7 +617,8 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                     oe = cvr[0] + cvr[2] + cvr[5];
                     calc_vecdata_vector( sd, i, j, VD_RESVEC, nullptr, cvr );
                     re = cvr[0] + cvr[2] + cvr[5];
-                    if( oe > 0.0 ) connection->rfac = sqrt( re/oe);
+                    if( oe > 0.0 ) { connection->rfac = sqrt( re/oe);
+}
                 }
 
                 connection->sres = 0.0;
@@ -616,13 +641,15 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
                         classdata *cd;
                         for( cd = sd->clsf + t->iclass; iclass--; cd++ )
                         {
-                            if( cd->class_id <= nclass )
+                            if( cd->class_id <= nclass ) {
                                 connection->cclass[cd->class_id - 1] = cd->name_id;
+}
                         }
                     }
                 }
                 add_fconn_data( t->to, t2->to, connection );
             }
+}
     }
 }
 
@@ -668,9 +695,12 @@ static void free_range_pens()
 
 static void setup_ranges( double maxval, int ninterval, const bool reverse, const std::string &name, const std::string_view prefix )
 {
-    if( maxval < 0.0 ) maxval = 1.0;
-    if( maxval > 100.0 ) maxval = 100.0;
-    if( ninterval < 2 || ninterval > 20 ) ninterval = 5;
+    if( maxval < 0.0 ) { maxval = 1.0;
+}
+    if( maxval > 100.0 ) { maxval = 100.0;
+}
+    if( ninterval < 2 || ninterval > 20 ) { ninterval = 5;
+}
     ninterval++;
     free_range_pens();
     reverse_range = reverse;
@@ -710,9 +740,11 @@ static int get_range_pen( double value )
     int i;
     for( i=0; i<nranges-1; i++ )
     {
-        if( range_values[i] > value ) break;
+        if( range_values[i] > value ) { break;
+}
     }
-    if( reverse_range ) i = nranges - i - 1;
+    if( reverse_range ) { i = nranges - i - 1;
+}
     return i;
 }
 
@@ -784,7 +816,8 @@ void setup_data_pens( int type )
         data_pen_type = DPEN_BY_SRES;
         setup_ranges( maxsres, nsres, true, aposteriori_sres ? nmApostStdRes : nmStdRes, cdStdRes );
         sresmult = 1.0;
-        if( aposteriori_sres ) sresmult = 1.0/seu;
+        if( aposteriori_sres ) { sresmult = 1.0/seu;
+}
     }
 
     else if( type == DPEN_BY_RFAC )
@@ -820,7 +853,8 @@ int get_data_pen_type()
 static std::optional<int> parse_whole_int( const std::string_view field )
 {
     const auto parsed = parse_leading_field<int>( field );
-    if( !parsed || parsed->result.ptr != field.data() + field.size() ) return std::nullopt;
+    if( !parsed || parsed->result.ptr != field.data() + field.size() ) { return std::nullopt;
+}
     return parsed->value;
 }
 
@@ -829,7 +863,8 @@ int set_datapen_definition( const std::string_view def )
     constexpr std::string_view delimiters = " \t\n\r";
     FieldScanner scanner( def );
     auto fld = scanner.nextToken( delimiters );
-    if( !fld ) return MISSING_DATA;
+    if( !fld ) { return MISSING_DATA;
+}
     int pen_data_type;
     if( boost::algorithm::iequals( *fld, "by_type" ) )
     {
@@ -846,7 +881,8 @@ int set_datapen_definition( const std::string_view def )
         if( fld )
         {
             const auto parsedGroups = parse_whole_int( *fld );
-            if( !parsedGroups ) return INVALID_DATA;
+            if( !parsedGroups ) { return INVALID_DATA;
+}
             ngrp = *parsedGroups;
         }
         pen_data_type = DPEN_BY_RFAC;
@@ -870,13 +906,15 @@ int set_datapen_definition( const std::string_view def )
         if( fld )
         {
             const auto parsedMaxsr = parse_double( *fld );
-            if( !parsedMaxsr ) return INVALID_DATA;
+            if( !parsedMaxsr ) { return INVALID_DATA;
+}
             maxsr = *parsedMaxsr;
             fld = scanner.nextToken( delimiters );
             if( fld )
             {
                 const auto parsedGroups = parse_whole_int( *fld );
-                if( !parsedGroups ) return INVALID_DATA;
+                if( !parsedGroups ) { return INVALID_DATA;
+}
                 ngrp = *parsedGroups;
             }
         }
@@ -890,7 +928,8 @@ int set_datapen_definition( const std::string_view def )
     {
         int i, found;
         fld = scanner.nextToken( delimiters );
-        if( ! fld ) return MISSING_DATA;
+        if( ! fld ) { return MISSING_DATA;
+}
         found = 0;
         for( i = 0; i++ < obs_classes.count(); )
         {
@@ -900,7 +939,8 @@ int set_datapen_definition( const std::string_view def )
                 break;
             }
         }
-        if( !found ) return INVALID_DATA;
+        if( !found ) { return INVALID_DATA;
+}
         pen_data_type = i;
     }
     else
@@ -941,14 +981,16 @@ static void plot_connection( map_plotter *plotter, int from, int to, int pen, un
         dx = x2 - x1;
         dy = y2 - y1;
         dh = _hypot( dx, dy );
-        if( dh <= 0 || dh < offset_along*2.0 ) return;
+        if( dh <= 0 || dh < offset_along*2.0 ) { return;
+}
         dx /= dh;
         dy /= dh;
         x1 += offset_along * dx;
         x2 -= offset_along * dx;
         y1 += offset_along * dy;
         y2 -= offset_along * dy;
-        if( dx < 0 ) offset_perp = -offset_perp;
+        if( dx < 0 ) { offset_perp = -offset_perp;
+}
         x1 -= offset_perp * dy;
         x2 -= offset_perp * dy;
         y1 += offset_perp * dx;
@@ -1028,7 +1070,8 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
     int first_conn;
     conn_cvr cvr;
 
-    if( connlst.empty() ) return ALL_DONE;
+    if( connlst.empty() ) { return ALL_DONE;
+}
 
     highlight = redraw == PCONN_REDRAW_HIGHLIGHT ? 1 : 0;
 
@@ -1040,7 +1083,8 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
     if( pltrelerr )
     {
         ellpen = get_pen( REL_ELL_PEN );
-        if( !pen_visible(ellpen) ) pltrelerr = 0;
+        if( !pen_visible(ellpen) ) { pltrelerr = 0;
+}
         eemult = errell_factor * rel_errell_scale;
     }
 
@@ -1048,33 +1092,43 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
     if( pltrelhgt )
     {
         hgtpen = get_pen( REL_HGT_PEN );
-        if( !pen_visible(hgtpen) ) pltrelhgt = 0;
+        if( !pen_visible(hgtpen) ) { pltrelhgt = 0;
+}
     }
 
     maxstn = station_count();
 
     hltpen = get_pen( HIGHLIGHT_PEN );
     hlttype = highlight_type;
-    if( !pen_visible(hltpen) ) hlttype = PCONN_HIGHLIGHT_NONE;
+    if( !pen_visible(hltpen) ) { hlttype = PCONN_HIGHLIGHT_NONE;
+}
 
     if( highlight )
     {
-        if( hlttype == PCONN_HIGHLIGHT_NONE ) return ALL_DONE;
+        if( hlttype == PCONN_HIGHLIGHT_NONE ) { return ALL_DONE;
+}
         if( ( hlttype == PCONN_HIGHLIGHT_IF_BOTH ||
                 hlttype == PCONN_HIGHLIGHT_IF_EITHER ) &&
-                !highlighted_stations() ) return ALL_DONE;
-        if( hlttype == PCONN_HIGHLIGHT_REJECTED && !pltrejected ) return ALL_DONE;
-        if( hlttype == PCONN_HIGHLIGHT_UNUSED && !pltunused ) return ALL_DONE;
+                !highlighted_stations() ) { return ALL_DONE;
+}
+        if( hlttype == PCONN_HIGHLIGHT_REJECTED && !pltrejected ) { return ALL_DONE;
+}
+        if( hlttype == PCONN_HIGHLIGHT_UNUSED && !pltunused ) { return ALL_DONE;
+}
     }
 
-    if( !pltused && !pltrejected && !pltunused ) return ALL_DONE;
+    if( !pltused && !pltrejected && !pltunused ) { return ALL_DONE;
+}
 
-    if( pens.empty() ) pens.resize( boost::numeric_cast<size_t>( max_obs ) );
+    if( pens.empty() ) { pens.resize( boost::numeric_cast<size_t>( max_obs ) );
+}
 
     if( first < 0 ) { first = 0; count = maxstn; }
-    else count = 1;
+    else { count = 1;
+}
 
-    if( first == 0 && !redraw) max_pens = 0;
+    if( first == 0 && !redraw) { max_pens = 0;
+}
 
     show_oneway_obs = offset_opt & PCONN_SHOW_ONEWAY_OBS;
     offset_opt &= PCONN_MERGE_FLAGS;
@@ -1084,17 +1138,21 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
     for( from = first; from++ < maxstn; )
     {
 
-        if( !count-- ) return from-1;
+        if( !count-- ) { return from-1;
+}
 
-        if( ! obs_station_showable( from ) ) continue;
+        if( ! obs_station_showable( from ) ) { continue;
+}
 
-        if( ! station_in_view( from ) ) continue;
+        if( ! station_in_view( from ) ) { continue;
+}
 
         from_highlighted = station_highlighted( from );
 
         if( highlight &&
                 hlttype == PCONN_HIGHLIGHT_IF_BOTH &&
-                ! from_highlighted ) continue;
+                ! from_highlighted ) { continue;
+}
 
         /* Plot the connections observations */
 
@@ -1105,21 +1163,25 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
             /* Skip over point data */
 
-            if( !tp->to ) continue;
+            if( !tp->to ) { continue;
+}
 
             /* Don't plot connections to lower numbered visible stations -
                avoids plotting lines twice */
 
-            if( tp->to < from && station_in_view(tp->to) ) continue;
+            if( tp->to < from && station_in_view(tp->to) ) { continue;
+}
 
             /* If not selected then skip it */
 
-            if( ! obs_station_showable(tp->to) ) continue;
+            if( ! obs_station_showable(tp->to) ) { continue;
+}
 
             /* Flag the line as not visible - will reset flag if subsequently
                plot it */
 
-            if( !redraw) tp->conn->visible = 0;
+            if( !redraw) { tp->conn->visible = 0;
+}
 
             /* If highlighting, then check whether both ends must be
                highlighted or only one, and skip if it fails on these
@@ -1142,7 +1204,8 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                     highlight_line = 0;
                 }
             }
-            if( highlight && !highlight_line ) continue;
+            if( highlight && !highlight_line ) { continue;
+}
 
             /* Read the connections and form a sorted list of pens */
 
@@ -1158,18 +1221,23 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                 /* Skip if it is not to be used */
                 if( connection->flags & CONN_REJECTED )
                 {
-                    if( !pltrejected ) continue;
+                    if( !pltrejected ) { continue;
+}
                 }
                 else if( connection->flags & CONN_UNUSED )
                 {
-                    if( !pltunused ) continue;
+                    if( !pltunused ) { continue;
+}
                 }
                 else
                 {
-                    if( !pltused ) continue;
+                    if( !pltused ) { continue;
+}
                 }
-                if( !datatype_selected( connection->type ) ) continue;
-                if( !filetype_selected( connection->file ) ) continue;
+                if( !datatype_selected( connection->type ) ) { continue;
+}
+                if( !filetype_selected( connection->file ) ) { continue;
+}
 
                 // Also filter by every classification currently enabled as
                 // a Display-by filter, other than whichever one (if any) is
@@ -1203,8 +1271,10 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                 default:           cpen = connection->cclass[data_pen_type-1]; break;
                 }
                 cpen = data_pen(cpen);
-                if( !pen_selected(cpen)) continue;
-                if( !pen_visible( cpen ) ) continue;
+                if( !pen_selected(cpen)) { continue;
+}
+                if( !pen_visible( cpen ) ) { continue;
+}
 
                 /* Merge this into the list of pens */
 
@@ -1219,9 +1289,11 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
                 for( j = npendef; j--; )
                 {
-                    if( pens[j].pen < cpen ) break;
+                    if( pens[j].pen < cpen ) { break;
+}
                     if( pens[j].pen == cpen &&
-                            pens[j].flags < cflags ) break;
+                            pens[j].flags < cflags ) { break;
+}
                     pens[j+1] = pens[j];
                 }
                 j++;
@@ -1235,33 +1307,41 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                     pens[j].highlight = highlight_line;
                     break;
                 case PCONN_HIGHLIGHT_SRES:
-                    if( fabs(connection->sres) > highlight_threshhold )
+                    if( fabs(connection->sres) > highlight_threshhold ) {
                         pens[j].highlight = 1;
+}
                     break;
                 case PCONN_HIGHLIGHT_APOST_SRES:
-                    if( fabs(connection->sres) > highlight_threshhold*seu )
+                    if( fabs(connection->sres) > highlight_threshhold*seu ) {
                         pens[j].highlight = 1;
+}
                     break;
                 case PCONN_HIGHLIGHT_RFAC:
-                    if( fabs(connection->rfac) < highlight_threshhold )
+                    if( fabs(connection->rfac) < highlight_threshhold ) {
                         pens[j].highlight = 1;
+}
                     break;
                 case PCONN_HIGHLIGHT_REJECTED:
-                    if( connection->flags & CONN_REJECTED )
+                    if( connection->flags & CONN_REJECTED ) {
                         pens[j].highlight = 1;
+}
                     break;
                 case PCONN_HIGHLIGHT_UNUSED:
                     if(  (connection->flags & CONN_UNUSED) &&
-                            !(connection->flags & CONN_REJECTED ) )
+                            !(connection->flags & CONN_REJECTED ) ) {
                         pens[j].highlight = 1;
+}
                     break;
                 }
-                if( pens[j].highlight ) nhlt++;
+                if( pens[j].highlight ) { nhlt++;
+}
                 npendef++;
             }
 
-            if( !npendef ) continue;
-            if( highlight && !nhlt ) continue;
+            if( !npendef ) { continue;
+}
+            if( highlight && !nhlt ) { continue;
+}
 
             /* Merge common observations */
             if( offset_opt != PCONN_ALL_CONNECTIONS )
@@ -1273,7 +1353,8 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                     {
                         pens[j].flags |= pens[i].flags;
                         pens[j].highlight |= pens[i].highlight;
-                        if( redraw && pens[i].pen == redraw ) pens[j].pen = redraw;
+                        if( redraw && pens[i].pen == redraw ) { pens[j].pen = redraw;
+}
                     }
                     else
                     {
@@ -1286,11 +1367,14 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
             /* Now actually plot the line(s) */
 
-            if( npendef > max_pens ) max_pens = npendef;
+            if( npendef > max_pens ) { max_pens = npendef;
+}
             offset_prp = -(offset * (npendef-1))/2;
 
-            if( station_in_view(from) ) flag_station_visible( from );
-            if( station_in_view(tp->to) ) flag_station_visible( tp->to );
+            if( station_in_view(from) ) { flag_station_visible( from );
+}
+            if( station_in_view(tp->to) ) { flag_station_visible( tp->to );
+}
 
             while( npendef-- )
             {
@@ -1309,7 +1393,8 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
 
             /* Plot relative ellipses here */
 
-            if( redraw || (!pltrelerr && !pltrelhgt) ) continue;
+            if( redraw || (!pltrelerr && !pltrelhgt) ) { continue;
+}
             get_relative_covariance( tp->conn, &cvr );
 
             {
@@ -1319,8 +1404,10 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                 mide = (e1 + e2)/2.0;
                 midn = (n1 + n2)/2.0;
             }
-            if( mide < plot_emin || mide > plot_emax ) continue;
-            if( midn < plot_nmin || midn > plot_nmax ) continue;
+            if( mide < plot_emin || mide > plot_emax ) { continue;
+}
+            if( midn < plot_nmin || midn > plot_nmax ) { continue;
+}
 
             if( pltrelerr && cvr.emax > 0.0 )
             {
@@ -1483,7 +1570,8 @@ int read_display_fields_definition( const std::string_view def )
     while( nDisplayFields < MAX_DISPLAY_FIELDS )
     {
         const auto fld = scanner.nextToken( delimiters );
-        if( !fld ) break;
+        if( !fld ) { break;
+}
         const int fieldCode = get_display_field_code( *fld );
         if( fieldCode != 0 )
         {
@@ -1502,7 +1590,8 @@ std::string write_display_fields_definition()
         const auto fieldName = get_display_field_name( displayFields[i] );
         if( fieldName )
         {
-            if( !def.empty() ) def += ' ';
+            if( !def.empty() ) { def += ' ';
+}
             def += *fieldName;
         }
     }
@@ -1529,7 +1618,8 @@ static void set_display_field_widths( void )
                 std::string filnam = survey_data_file_name(j);
                 int dfw;
                 dfw = filnam.size();
-                if( dfw > width ) width = dfw;
+                if( dfw > width ) { width = dfw;
+}
             }
             width  += 5;  /* Leave a bit of space */
         }
@@ -1542,7 +1632,8 @@ static void set_display_field_widths( void )
             {
                 std::string valnam = obs_classes.value_name( fldCode, j );
                 int dfw = numeric_cast<int>(valnam.size());
-                if( dfw > width ) width = dfw;
+                if( dfw > width ) { width = dfw;
+}
             }
             width += 5; /* Leave a bit of space! */
         }
@@ -1622,11 +1713,14 @@ int SresDef::compare( const SresDef &other ) const
 int SresDef::compare_from( const SresDef &other ) const
 {
     int cmp = compare( other );
-    if( cmp != 0 ) return cmp;
+    if( cmp != 0 ) { return cmp;
+}
     int to1 = connlst[from].to[to_id].to;
     int to2 = connlst[other.from].to[other.to_id].to;
-    if( to1 == to2 ) return 0;
-    if( to1 == 0 || to2 == 0 ) return to1 - to2;
+    if( to1 == to2 ) { return 0;
+}
+    if( to1 == 0 || to2 == 0 ) { return to1 - to2;
+}
     return stncodecmp( stnptr(to1)->Code, stnptr(to2)->Code );
 }
 
@@ -1639,11 +1733,14 @@ int SresDef::compare_line( const SresDef &other ) const
     std::string_view t1 = to1 ? std::string_view( stnptr(to1)->Code ) : std::string_view();
     std::string_view t2 = to2 ? std::string_view( stnptr(to2)->Code ) : std::string_view();
 
-    if( stncodecmp(f1,t1) > 0 ) std::swap( t1, f1 );
-    if( stncodecmp(f2,t2) > 0 ) std::swap( t2, f2 );
+    if( stncodecmp(f1,t1) > 0 ) { std::swap( t1, f1 );
+}
+    if( stncodecmp(f2,t2) > 0 ) { std::swap( t2, f2 );
+}
 
     int cmp = stncodecmp( f1, f2 );
-    if( cmp == 0 ) cmp = stncodecmp(t1,t2);
+    if( cmp == 0 ) { cmp = stncodecmp(t1,t2);
+}
     return cmp;
 }
 
@@ -1652,7 +1749,8 @@ static int cmp_srdef_generic( const void *p1, const void *p2 )
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
     int cmp = srList[i1].compare(srList[i2]);
-    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
+    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
+}
     return cmp;
 }
 
@@ -1661,7 +1759,8 @@ static int cmp_srdef_reversefloat( const void *p1, const void *p2 )
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
     int cmp = -srList[i1].compare(srList[i2]);
-    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
+    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
+}
     return cmp;
 }
 
@@ -1674,7 +1773,8 @@ static int cmp_srdef_from( const void *p1, const void *p2 )
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
     int cmp = srList[i1].compare_from(srList[i2]);
-    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
+    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
+}
     return cmp;
 }
 
@@ -1685,7 +1785,8 @@ static int cmp_srdef_line( const void *p1, const void *p2 )
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
     int cmp = srList[i1].compare_line(srList[i2]);
-    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
+    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
+}
     return cmp;
 }
 
@@ -1710,9 +1811,12 @@ static int cmp_srdef_fileloc( const void *p1, const void *p2 )
 static void create_sres_index( void )
 {
     int from;
-    if( ! srList.empty() ) return;
-    if( !ndata ) return;
-    if( connlst.empty() ) return;
+    if( ! srList.empty() ) { return;
+}
+    if( !ndata ) { return;
+}
+    if( connlst.empty() ) { return;
+}
     srList.resize( ndata );
     srIndex.assign( boost::numeric_cast<size_t>( ndata ), 0 );
     srIndex2.assign( boost::numeric_cast<size_t>( ndata ), 0 );
@@ -1735,8 +1839,10 @@ static void create_sres_index( void )
             {
                 SresDef *sr;
                 // assert( srListCount < ndata );
-                if( srListCount >= ndata ) break;
-                if( connection->flags & CONN_OBS_REVERSE ) continue;
+                if( srListCount >= ndata ) { break;
+}
+                if( connection->flags & CONN_OBS_REVERSE ) { continue;
+}
                 sr = &srList[srListCount];
                 srListCount++;
                 sr->from = from;
@@ -1754,9 +1860,12 @@ static void SetupSresIndex( void )
     int oldIndexCount = srIndexCount;
     int (*cmp_func)( const void *p1, const void *p2 );
 
-    if( indexValid ) return;
-    if( srList.empty() ) create_sres_index();
-    if( srList.empty() ) return;
+    if( indexValid ) { return;
+}
+    if( srList.empty() ) { create_sres_index();
+}
+    if( srList.empty() ) { return;
+}
     srIndexCount = 0;
 
     /* Save the old index order to make the sort preserve order */
@@ -1778,9 +1887,12 @@ static void SetupSresIndex( void )
         int valid = 1;
         switch( srListMode )
         {
-        case SRL_REJECTED: if( !(sr->unused & CONN_REJECTED)) valid = 0; break;
-        case SRL_UNUSED:   if( !sr->unused ) valid = 0; break;
-        case SRL_USED:     if( sr->unused ) valid = 0; break;
+        case SRL_REJECTED: if( !(sr->unused & CONN_REJECTED)) { valid = 0; 
+}break;
+        case SRL_UNUSED:   if( !sr->unused ) { valid = 0; 
+}break;
+        case SRL_USED:     if( sr->unused ) { valid = 0; 
+}break;
         }
         if( valid )
         {
@@ -1923,13 +2035,15 @@ int get_sres_display_option()
 
 void set_sres_display_option( int mode )
 {
-    if( mode != srListMode ) indexValid = 0;
+    if( mode != srListMode ) { indexValid = 0;
+}
     srListMode = mode;
 }
 
 long sres_index_count( void )
 {
-    if( !indexValid ) SetupSresIndex();
+    if( !indexValid ) { SetupSresIndex();
+}
     return srIndexCount;
 }
 
@@ -1964,8 +2078,10 @@ std::string sres_list_header()
             break;
         }
         const int datalen = std::max( numeric_cast<int>( data.size() ), displayFieldWidths[i] );
-        if( i ) header += '\t';
-        if( number ) header += ' ';
+        if( i ) { header += '\t';
+}
+        if( number ) { header += ' ';
+}
         header += data;
         header.append( numeric_cast<size_t>( datalen ) - data.size(), ' ' );
     }
@@ -1986,9 +2102,12 @@ std::string sres_item_description( long id )
     tconn_ptr *tp;
     double value;
     float sres;
-    if( !indexValid ) SetupSresIndex();
-    if( !indexValid ) return std::string();
-    if( id < 0 || id >= srIndexCount ) return std::string();
+    if( !indexValid ) { SetupSresIndex();
+}
+    if( !indexValid ) { return std::string();
+}
+    if( id < 0 || id >= srIndexCount ) { return std::string();
+}
     id = srIndex[id];
     sr = &srList[id];
     sfrom = stnptr( sr->from );
@@ -1996,7 +2115,8 @@ std::string sres_item_description( long id )
     sto = tp->to ? stnptr( tp->to ) : nullptr;
     get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
     sres = connection->sres;
-    if( aposteriori_errors && seu > 0.0 ) sres /= seu;
+    if( aposteriori_errors && seu > 0.0 ) { sres /= seu;
+}
     std::string description;
     for( int i = 0; i < nDisplayFields; i++ )
     {
@@ -2047,7 +2167,8 @@ std::string sres_item_description( long id )
             }
             break;
         }
-        if( i > 0 ) description += '\t';
+        if( i > 0 ) { description += '\t';
+}
         description += data;
     }
     return description;
@@ -2058,9 +2179,12 @@ void sres_item_info( long id, PutTextInfo *jmp )
     SresDef *sr;
     tconn_ptr *tp;
     jmp->type = ptfNone;
-    if( !indexValid ) SetupSresIndex();
-    if( !indexValid ) return;
-    if( id < 0 || id >= srIndexCount ) return;
+    if( !indexValid ) { SetupSresIndex();
+}
+    if( !indexValid ) { return;
+}
+    if( id < 0 || id >= srIndexCount ) { return;
+}
     id = srIndex[id];
     sr = &srList[id];
     tp = &connlst[sr->from].to[sr->to_id];
@@ -2079,7 +2203,8 @@ void set_eastmost_conn( int from )
     tconn_ptr *t;
     int i;
     double e, n, emost;
-    if( connlst.empty() ) return;
+    if( connlst.empty() ) { return;
+}
     fp = &connlst[from];
     get_station_coordinates( from, &emost, &n );
     fp->eastmost_conn = from;
@@ -2111,7 +2236,8 @@ static double calc_nearest_point( double x1, double y1, double x2, double y2, do
         return ts2;
     }
     dts = tx * dx + ty * dy;
-    if( dts < 0.0 ) return ts2;
+    if( dts < 0.0 ) { return ts2;
+}
     if( dts < ds2 )
     {
         ts2 -= dts*dts/ds2;
@@ -2133,7 +2259,8 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
     int i;
     long current_xyindex;
     *from = *to = 0;
-    if( connlst.empty() ) return 0;
+    if( connlst.empty() ) { return 0;
+}
     current_xyindex = get_xyindex_version();
     if( current_xyindex != xyindex_used )
     {
@@ -2155,22 +2282,30 @@ int nearest_connection( double e, double n, double tol, int *from, int *to )
         double e2, n2;
         char from_visible;
         f = sorted_x_station_number( ixfrom );
-        if( ! obs_station_showable(f) ) continue;
+        if( ! obs_station_showable(f) ) { continue;
+}
         from_visible = station_in_view( f );
         fp = &connlst[f];
         get_station_coordinates( f, &e1, &n1 );
-        if( fp->eastmost_conn < 0 ) set_eastmost_conn( f );
+        if( fp->eastmost_conn < 0 ) { set_eastmost_conn( f );
+}
         get_station_coordinates( fp->eastmost_conn, &e2, &n2 );
-        if( e2 > end_e ) continue;  /* Can't get close enough */
+        if( e2 > end_e ) { continue;  /* Can't get close enough */
+}
         for( it = boost::numeric_cast<int>( fp->to.size() ), tp = fp->to.data(); it--; tp++ )
         {
             double nearest;
-            if( !tp->to ) continue;
-            if( ! obs_station_showable( tp->to ) ) continue;
-            if( ! from_visible && ! station_in_view( tp->to ) ) continue;
-            if( ! tp->conn->visible ) continue;
+            if( !tp->to ) { continue;
+}
+            if( ! obs_station_showable( tp->to ) ) { continue;
+}
+            if( ! from_visible && ! station_in_view( tp->to ) ) { continue;
+}
+            if( ! tp->conn->visible ) { continue;
+}
             get_station_coordinates(  tp->to, &e2, &n2 );
-            if( e2 > e1 ) continue; /* We'll get it in the reverse direction */
+            if( e2 > e1 ) { continue; /* We'll get it in the reverse direction */
+}
             nearest = calc_nearest_point( e1, n1, e2, n2, e, n );
             if( nearest < tol )
             {
@@ -2196,9 +2331,11 @@ int connection_observation_count( int from, int index )
     tconn_ptr *tp;
     fconn_ptr *fp;
     conn_ptr *p;
-    if( connlst.empty() ) return 0;
+    if( connlst.empty() ) { return 0;
+}
     fp = &connlst[from];
-    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) return 0;
+    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) { return 0;
+}
     tp = &fp->to[index];
     p = tp->conn;
     return p ? p->nconn : 0;
@@ -2210,9 +2347,11 @@ int get_connected_station( int from, int index, char *visible )
     fconn_ptr *fp;
     int to;
 
-    if( connlst.empty() ) return -1;
+    if( connlst.empty() ) { return -1;
+}
     fp = &connlst[from];
-    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) return -1;
+    if( index < 0 || index >= boost::numeric_cast<int>( fp->to.size() ) ) { return -1;
+}
     tp = &fp->to[index];
     to = tp->to;
     if( visible )
@@ -2220,7 +2359,8 @@ int get_connected_station( int from, int index, char *visible )
         *visible = 0;
         if( to && obs_station_showable(from) && obs_station_showable(to) &&
                 (station_in_view(from) || station_in_view(to)) &&
-                tp->conn->visible ) *visible = 1;
+                tp->conn->visible ) { *visible = 1;
+}
     }
     return to;
 }
@@ -2249,7 +2389,8 @@ void list_connections( void *dest, PutTextFunc f, int from )
     int first_conn;
     int pntdata_id;
     PutTextInfo jump;
-    if( connlst.empty() || max_conn < 1 ) return;
+    if( connlst.empty() || max_conn < 1 ) { return;
+}
 
     jump.type = ptfNone;
 
@@ -2264,19 +2405,23 @@ void list_connections( void *dest, PutTextFunc f, int from )
     for( id = 0; id < boost::numeric_cast<int>( fp->to.size() ); id++ )
     {
         tp = &fp->to[id];
-        if( !tp->to ) pntdata_id = id;
+        if( !tp->to ) { pntdata_id = id;
+}
         if( tp->to )
         {
             double az;
             ts = stnptr(tp->to);
             az = calc_azimuth( fs, 0.0, ts, 0.0, 0, nullptr, nullptr );
             az *= RTOD;
-            while( az > 360.0 ) az -= 360.0;
-            while( az < 0.0 ) az += 360.0;
+            while( az > 360.0 ) { az -= 360.0;
+}
+            while( az < 0.0 ) { az += 360.0;
+}
             connAz[id] = az;
             for( ic = nconn; ic-- > 0;  )
             {
-                if( az > connAz[connId[ic]] ) break;
+                if( az > connAz[connId[ic]] ) { break;
+}
                 connId[ic+1] = connId[ic];
             }
             connId[ic+1] = id;
@@ -2299,7 +2444,8 @@ void list_connections( void *dest, PutTextFunc f, int from )
         jump.to = to;
         d = calc_distance( fs, 0.0, ts, 0.0, nullptr, nullptr );
         std::string line = pad_right( ts->Code, 10 ) + " " + format_fixed( d, 1, 7 ) + "m N" + format_fixed( connAz[id], 1, 5, '0' ) + "E  ";
-        for( i = 0; i < NOBSTYPE; i++ ) count[i][0] = count[i][1] = 0;
+        for( i = 0; i < NOBSTYPE; i++ ) { count[i][0] = count[i][1] = 0;
+}
         for( first_conn = 1;
                 get_connection_data( from, tp, connection, first_conn);
                 first_conn = 0 )
@@ -2308,7 +2454,8 @@ void list_connections( void *dest, PutTextFunc f, int from )
             int reverse = connection->flags & CONN_OBS_REVERSE ? 1 : 0;
             count[obstype][reverse]++;
         }
-        if( first_conn ) continue;  /* No connections - covariance only */
+        if( first_conn ) { continue;  /* No connections - covariance only */
+}
         for( i = 0; i < NOBSTYPE; i++ )
         {
             if( datatype[i].isdirectional )
@@ -2356,7 +2503,8 @@ void list_connections( void *dest, PutTextFunc f, int from )
             {
                 float sres;
                 sres = connection->sres;
-                if( aposteriori_errors ) sres /= seu;
+                if( aposteriori_errors ) { sres /= seu;
+}
                 line += "  S.R. " + format_fixed( sres, 3, 7 );
                 if( connection->flags & CONN_REJECTED )
                 {
@@ -2404,8 +2552,10 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
 
     dist = calc_distance( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
     az = calc_azimuth( sfrom, 0.0, sto, 0.0, 0, nullptr, nullptr )*RTOD;
-    while( az > 360.0 ) az -= 360.0;
-    while( az < 0.0 ) az += 360.0;
+    while( az > 360.0 ) { az -= 360.0;
+}
+    while( az < 0.0 ) { az += 360.0;
+}
     hd = calc_hgt_diff( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
     edist = calc_ellipsoidal_distance( sfrom, sto, nullptr, nullptr );
 
@@ -2422,8 +2572,10 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
         {
             dist = _hypot( x2 - x1, y2 - y1 );
             az = atan2( x2-x1, y2-y1 ) * RTOD;
-            while( az > 360.0 ) az -= 360.0;
-            while( az < 0.0 ) az += 360.0;
+            while( az > 360.0 ) { az -= 360.0;
+}
+            while( az < 0.0 ) { az += 360.0;
+}
             (*f)( dest, &jmp, "Projection distance " + format_fixed( dist, 3 ) + "  azimuth " + dms_string( az, angleFormat ) );
         }
     }
@@ -2442,14 +2594,16 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
     list_line_statistics( dest, f, from, to );
 
-    if( connlst.empty() ) return;
+    if( connlst.empty() ) { return;
+}
     fp = &connlst[from];
     tp = nullptr;
     for( i = 0; i < boost::numeric_cast<int>( fp->to.size() ); i++ )
     {
         if( fp->to[i].to  == to ) { tp = &fp->to[i]; break;}
     }
-    if( !tp ) return;
+    if( !tp ) { return;
+}
 
     /* Print relative covariance information */
 
@@ -2473,10 +2627,13 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
         {
             double b1, b2, emax, emin;
             b1 = cvr.az * RTOD;
-            while( b1 < 0.0 ) b1 += 180.0;
-            while( b1 > 180.0 ) b1 -= 180.0;
+            while( b1 < 0.0 ) { b1 += 180.0;
+}
+            while( b1 > 180.0 ) { b1 -= 180.0;
+}
             b2 = b1 + 90.0;
-            if( b2 > 180.0 ) b2 -= 180.0;
+            if( b2 > 180.0 ) { b2 -= 180.0;
+}
 
             emax = cvr.emax * errell_factor * 1000.0;
             emin = cvr.emin * errell_factor * 1000.0;
@@ -2519,7 +2676,8 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
         {
             float sres;
             sres = connection->sres;
-            if( aposteriori_errors ) sres /= seu;
+            if( aposteriori_errors ) { sres /= seu;
+}
             line += "  S.R. " + format_fixed( sres, 3, 7 );
             if( connection->flags & CONN_REJECTED )
             {
@@ -2545,8 +2703,10 @@ static double degree_angle( double rad )
 {
     double angle;
     angle = rad * RTOD;
-    while( angle > 360.0 ) angle -= 360.0;
-    while( angle < 0.0 ) angle += 360.0;
+    while( angle > 360.0 ) { angle -= 360.0;
+}
+    while( angle < 0.0 ) { angle += 360.0;
+}
     return angle;
 }
 
@@ -2585,7 +2745,8 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
         (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
     (*f)( dest, &jmp, "Source: Line " + std::to_string( o->tgt.lineno ) + ",  " + survey_data_file_name( sd->file ) );
-    if( o->tgt.noteloc ) display_note_text( dest, f, o->tgt.noteloc );
+    if( o->tgt.noteloc ) { display_note_text( dest, f, o->tgt.noteloc );
+}
 
     if( o->tgt.nclass )
     {
@@ -2600,8 +2761,9 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
 
     type = o->tgt.type;
     std::string typeText = "Observation type: " + std::string( datatype[type].name );
-    if(  o->tgt.unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
-    else if(  o->tgt.unused ) typeText += "  (not used)";
+    if(  o->tgt.unused & REJECT_OBS_BIT ) { typeText += "  (rejected)";
+    } else if(  o->tgt.unused ) { typeText += "  (not used)";
+}
     (*f)( dest, &jmp, typeText );
     (*f)( dest, &jmp, "H.I.  " + format_fixed( sd->fromhgt, 3 ) + "m       H.T.  " + format_fixed( o->tgt.tohgt, 3 ) + "m" );
     if( datatype[type].isangle )
@@ -2630,14 +2792,16 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
             case ZD:
                 obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,nullptr,nullptr);
                 altres = o->residual*obslength;
-                if( type == ZD ) altres *= sin( o->value );
+                if( type == ZD ) { altres *= sin( o->value );
+}
                 residualText += "     (" + format_fixed( altres, 3 ) + "m offset)";
                 break;
             case HA:
             case PB:
                 obslength = calc_ellipsoidal_distance( stnptr(sd->from), stnptr(o->tgt.to),nullptr,nullptr);
                 altres = o->residual*obslength;
-                if( type == ZD ) altres *= sin( o->value );
+                if( type == ZD ) { altres *= sin( o->value );
+}
                 residualText += "     (" + format_fixed( altres, 3 ) + "m offset)";
                 break;
             }
@@ -2688,7 +2852,8 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     {
         parameterText = "   " + std::string( param_name( o->prm_id ) ) + "  (" + format_fixed( param_value( o->prm_id ), 1 ) + "sec)";
     }
-    if( !parameterText.empty() ) (*f)( dest, &jmp, parameterText );
+    if( !parameterText.empty() ) { (*f)( dest, &jmp, parameterText );
+}
 
     if( datatype[type].joinsgroup )
     {
@@ -2699,7 +2864,8 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
         (*f)(dest, &jmp, std::string( "     Target         Observed" ) + ( binary_data ? "   Residual    S.R." : "" ) );
         for( iobs=0, o=sd->obs.odata; iobs < sd->nobs; iobs++, o++ )
         {
-            if( o->tgt.type != type ) continue;
+            if( o->tgt.type != type ) { continue;
+}
             if( iobs == index )
             {
                 jmp.type = ptfNone;
@@ -2711,8 +2877,9 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
                 jmp.from = sd->from;
                 jmp.to = o->tgt.to;
                 obs_id = get_connection_to_id( jmp.from, jmp.to );
-                if( obs_id >= 0 )
+                if( obs_id >= 0 ) {
                     obs_id = get_connection_obs_id( jmp.from, obs_id, binloc, iobs );
+}
                 if( obs_id >= 0 )
                 {
                     jmp.obs_id = obs_id;
@@ -2830,15 +2997,19 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
         (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
     (*f)( dest, &jmp, "Source: Line " + std::to_string( tgt->lineno ) + ",  " + survey_data_file_name( sd->file ) );
-    if( tgt->noteloc ) display_note_text( dest, f, tgt->noteloc );
+    if( tgt->noteloc ) { display_note_text( dest, f, tgt->noteloc );
+}
     (*f)( dest, &jmp, "" );
     type = tgt->type;
     std::string typeText = "Observation type: " + std::string( datatype[type].name );
-    if( index >= sd->nobs ) typeText += "  (calculated)";
-    if( unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
-    else if( unused ) typeText += "  (not used)";
+    if( index >= sd->nobs ) { typeText += "  (calculated)";
+}
+    if( unused & REJECT_OBS_BIT ) { typeText += "  (rejected)";
+    } else if( unused ) { typeText += "  (not used)";
+}
     (*f)( dest, &jmp, typeText );
-    if( sd->reffrm ) (*f)( dest, &jmp, "Reference frame: " + rftrans_from_id(sd->reffrm)->name );
+    if( sd->reffrm ) { (*f)( dest, &jmp, "Reference frame: " + rftrans_from_id(sd->reffrm)->name );
+}
     std::string heightText;
     if( datatype[type].ispoint )
     {
@@ -2918,7 +3089,8 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
         }
     }
 
-    if( ispoint ) from = 0;
+    if( ispoint ) { from = 0;
+}
     if( sd->nobs > 1 )
     {
         int iobs;
@@ -2933,7 +3105,8 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             int to;
             int obs_id;
             otgt = iobs < 0 ? VD_REF_STN : iobs;
-            if( otgt == ofrom || (ispoint && otgt == oto) ) continue;
+            if( otgt == ofrom || (ispoint && otgt == oto) ) { continue;
+}
             if( ispoint )
             {
                 index = otgt;
@@ -2957,12 +3130,14 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             }
             to = (otgt == VD_REF_STN) ? sd->from : v[otgt].tgt.to;
             obs_id = get_connection_to_id( from, to );
-            if( obs_id >= 0 ) obs_id = get_connection_obs_id( from ? from : to, obs_id, bloc, index );
+            if( obs_id >= 0 ) { obs_id = get_connection_obs_id( from ? from : to, obs_id, bloc, index );
+}
             jmp.type = ptfObs;
             jmp.from = to;
             jmp.to = from;
             jmp.obs_id = obs_id;
-            if( obs_id < 0 ) jmp.type = ptfNone;
+            if( obs_id < 0 ) { jmp.type = ptfNone;
+}
             if( ispoint )
             {
                 calc_vecdata_point( sd, otgt, VD_OBSVEC, oxyz, nullptr );
@@ -3029,12 +3204,14 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
         (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
     (*f)( dest, &jmp, "Source: Line " + std::to_string( p->tgt.lineno ) + ",  " + survey_data_file_name( sd->file ) );
-    if( p->tgt.noteloc ) display_note_text( dest, f, p->tgt.noteloc );
+    if( p->tgt.noteloc ) { display_note_text( dest, f, p->tgt.noteloc );
+}
     (*f)( dest, &jmp, "" );
     type = p->tgt.type;
     std::string typeText = "Observation type: " + std::string( datatype[type].name );
-    if(  p->tgt.unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
-    else if(  p->tgt.unused ) typeText += "  (not used)";
+    if(  p->tgt.unused & REJECT_OBS_BIT ) { typeText += "  (rejected)";
+    } else if(  p->tgt.unused ) { typeText += "  (not used)";
+}
     (*f)( dest, &jmp, typeText );
     /* Only used for angle observations, which includes latitude and longitude */
     const DmsFormat &format = type == LT ? latitudeObservationFormat
@@ -3086,19 +3263,22 @@ void list_single_observation( void *dest, PutTextFunc f, int from, int to, int o
     int to_id;
     survdata *sd;
 
-    if( connlst.empty() ) return;
+    if( connlst.empty() ) { return;
+}
     fp = &connlst[from];
     tp = nullptr;
     for( to_id = 0; to_id < boost::numeric_cast<int>( fp->to.size() ); to_id++ )
     {
         if( fp->to[to_id].to  == to ) { tp = &fp->to[to_id]; break;}
     }
-    if( !tp ) return;
+    if( !tp ) { return;
+}
 
     get_connection_data_by_id( from, to_id, obs_id, connection );
 
     sd = get_survdata_from_binary( connection->bloc );
-    if( !sd ) return;
+    if( !sd ) { return;
+}
 
     switch ( sd->format )
     {

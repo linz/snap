@@ -173,8 +173,10 @@ void ScriptDialog::AddControls()
                     }
                 }
                 wxStringTokenizer tok( info, delim, wxTOKEN_RET_EMPTY );
-                if( tok.GetNextToken().ToLong( &number ) && number > 0 ) nch = number;
-                if( tok.GetNextToken().ToLong( &number ) && number > 0 ) nline = number;
+                if( tok.GetNextToken().ToLong( &number ) && number > 0 ) { nch = number;
+}
+                if( tok.GetNextToken().ToLong( &number ) && number > 0 ) { nline = number;
+}
                 info = tok.GetString();
             }
             wxctrl = TextBox( control.stringVal, nch, nline, info );
@@ -189,8 +191,9 @@ void ScriptDialog::AddControls()
             int type = wxLB_SINGLE;
             long width = -1;
             long height = -1;
-            if( extended.Matches(info) ) type = wxLB_EXTENDED;
-            else if( multiple.Matches(info) ) type = wxLB_MULTIPLE;
+            if( extended.Matches(info) ) { type = wxLB_EXTENDED;
+            } else if( multiple.Matches(info) ) { type = wxLB_MULTIPLE;
+}
             if( size.Matches(info) )
             {
                 size.GetMatch(info,1).ToLong(&width);
@@ -298,7 +301,8 @@ bool ScriptDialog::Validate()
 bool ScriptDialog::RunDialogProgram( Token *program, bool isValidation )
 {
     RunPermission rp( program->Owner(), elExit );
-    if( ! rp.CanRun() ) return true; // Must return true otherwise may never exit validator
+    if( ! rp.CanRun() ) { return true; // Must return true otherwise may never exit validator
+}
 
     TransferDataFromWindow();
     Apply();
@@ -309,7 +313,8 @@ bool ScriptDialog::RunDialogProgram( Token *program, bool isValidation )
     if( ! isValidation )
     {
         ExitLevel el = program->Owner()->GetExitLevel();
-        if( el == elExit || el == elReturn ) EndModal( result ? wxID_OK : wxID_CANCEL );
+        if( el == elExit || el == elReturn ) { EndModal( result ? wxID_OK : wxID_CANCEL );
+}
     }
     ReadData();
     TransferDataToWindow();
@@ -473,9 +478,12 @@ wxString ScriptDialog::GetSelectedValue( wxString selectorDef, int selected )
 
 DialogToken::~DialogToken()
 {
-    if( label ) delete label;
-    if( variable ) delete variable;
-    if( controls ) delete controls;
+    if( label ) { delete label;
+}
+    if( variable ) { delete variable;
+}
+    if( controls ) { delete controls;
+}
 }
 
 Value DialogToken::evaluate()
@@ -485,9 +493,12 @@ Value DialogToken::evaluate()
     if( options )
     {
         strOptions = options->GetValue().AsString();
-        if( strOptions.IsSameAs("ok",false)) buttons=wxOK;
-        if( strOptions.IsSameAs("cancel",false)) buttons=wxCANCEL;
-        if( strOptions.IsSameAs("none",false)) buttons=0;
+        if( strOptions.IsSameAs("ok",false)) { buttons=wxOK;
+}
+        if( strOptions.IsSameAs("cancel",false)) { buttons=wxCANCEL;
+}
+        if( strOptions.IsSameAs("none",false)) { buttons=0;
+}
     }
 
     ScriptDialog dialog( label->GetValue().AsString(), controls, buttons );
@@ -495,7 +506,8 @@ Value DialogToken::evaluate()
 
     // Initial values may have been altered when running dialog programs
 
-    if( ! ok ) dialog.ResetInitialValues();
+    if( ! ok ) { dialog.ResetInitialValues();
+}
     if( variable )
     {
         variable->SetOwnerValue(Value(ok));
@@ -518,10 +530,14 @@ void DialogToken::print( const wxString &prefix, ostream &str )
 
 DialogControlToken::~DialogControlToken()
 {
-    if( variable ) delete variable;
-    if( label ) delete label;
-    if( selector ) delete selector;
-    if( info ) delete info;
+    if( variable ) { delete variable;
+}
+    if( label ) { delete label;
+}
+    if( selector ) { delete selector;
+}
+    if( info ) { delete info;
+}
 }
 
 Value DialogControlToken::evaluate() { return Value(true); }

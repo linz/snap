@@ -54,7 +54,8 @@ static int add_data_file_nocopy( const std::string &name, int format, const std:
     sd->mindate=UNDEFINED_DATE;
     sd->maxdate=UNDEFINED_DATE;
     sd->nnodate=0;
-    for( i=0; i < NOBSTYPE; i++ ) sd->obscount[i]=0;
+    for( i=0; i < NOBSTYPE; i++ ) { sd->obscount[i]=0;
+}
     sd->usage = 0;
     sd->recode=nullptr;
     return nsdindx-1;
@@ -70,7 +71,8 @@ int add_data_file( const std::string &name, int format, const std::optional<std:
     if( context )
     {
         std::string filename = build_filespec(context->dir,name,"");
-        if( path_exists(filename) ) resolved_name = filename;
+        if( path_exists(filename) ) { resolved_name = filename;
+}
     }
 
     return add_data_file_nocopy( resolved_name, format, subtype, recode, context );
@@ -82,7 +84,8 @@ void delete_survey_data_file_recodes()
     for( i=0; i<nsdindx; i++ )
     {
         survey_data_file *sd=sdindx[i];
-        if( sd->recode ) delete_stn_recode_map( sd->recode );
+        if( sd->recode ) { delete_stn_recode_map( sd->recode );
+}
         sd->recode=nullptr;
     }
 }
@@ -93,7 +96,8 @@ void delete_survey_file_list()
     for( i=0; i<nsdindx; i++ )
     {
         survey_data_file *sd=sdindx[i];
-        if( sd->recode ) delete_stn_recode_map( sd->recode );
+        if( sd->recode ) { delete_stn_recode_map( sd->recode );
+}
         delete sd;
         sdindx[i] = nullptr;
     }
@@ -124,7 +128,8 @@ int survey_data_file_id( std::string_view name, file_context *context )
     if( context )
     {
         std::string filename = build_filespec(context->dir,std::string(name),"");
-        if( path_exists(filename) ) matchName=filename;
+        if( path_exists(filename) ) { matchName=filename;
+}
     }
 
     /* Case sensitive match - not checking for ambiguity */
@@ -155,8 +160,8 @@ int survey_data_file_id( std::string_view name, file_context *context )
                 if( boost::algorithm::iequals( dfname.substr(offset), matchName ) &&
                     (dfname[offset-1]=='/' || dfname[offset-1]=='\\'))
                 {
-                    if( matchid < 0 ) matchid=i;
-                    else
+                    if( matchid < 0 ) { matchid=i;
+                    } else
                     {
                         /* Ambiguous filename match */
                         matchid=-1;
@@ -187,14 +192,19 @@ void survey_data_file_dates( double *mindate, double *maxdate, int *nnodate )
         survey_data_file *sd=sdindx[i];
         if( sd->mindate != UNDEFINED_DATE )
         {
-            if( sd->mindate < mindat || mindat == UNDEFINED_DATE ) mindat=sd->mindate;
-            if( sd->maxdate > maxdat || maxdat == UNDEFINED_DATE ) maxdat=sd->maxdate;
+            if( sd->mindate < mindat || mindat == UNDEFINED_DATE ) { mindat=sd->mindate;
+}
+            if( sd->maxdate > maxdat || maxdat == UNDEFINED_DATE ) { maxdat=sd->maxdate;
+}
             nnd += sd->nnodate;
         }
     }
-    if( mindate ) *mindate=mindat;
-    if( maxdate ) *maxdate=maxdat;
-    if( nnodate ) *nnodate=nnd;
+    if( mindate ) { *mindate=mindat;
+}
+    if( maxdate ) { *maxdate=maxdat;
+}
+    if( nnodate ) { *nnodate=nnd;
+}
 }
 
 void dump_filenames( BINARY_FILE *b )
@@ -221,7 +231,8 @@ int reload_filenames( BINARY_FILE *b )
     std::optional<std::string> subtype;
     std::optional<std::string> recodefile;
 
-    if( find_section(b,"DATA_FILES") != OK ) return MISSING_DATA;
+    if( find_section(b,"DATA_FILES") != OK ) { return MISSING_DATA;
+}
     fread( &i, sizeof(i), 1, b->f );
     while( i-- > 0 )
     {

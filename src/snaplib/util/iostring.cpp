@@ -32,10 +32,12 @@ static int read_next_field_status( FieldScanner &scanner, std::string_view &fiel
 {
     {
         FieldScanner probe = scanner;
-        if( ! probe.next() ) return NO_MORE_DATA;
+        if( ! probe.next() ) { return NO_MORE_DATA;
+}
     }
     auto f = scanner.checkAndRecoverQuotedValue( true, std::nullopt );
-    if( ! f ) return MISSING_DATA;
+    if( ! f ) { return MISSING_DATA;
+}
     field = *f;
     return OK;
 }
@@ -44,7 +46,8 @@ int next_string_field( FieldScanner &scanner, std::string &field, const size_t m
 {
     std::string_view text;
     const int sts = read_next_field_status( scanner, text );
-    if( sts == OK ) field.assign( text.substr( 0, maxlength ) );
+    if( sts == OK ) { field.assign( text.substr( 0, maxlength ) );
+}
     return sts;
 }
 
@@ -52,8 +55,10 @@ int test_next_string_field( FieldScanner &scanner, std::string_view test )
 {
     auto saved = scanner.remainder();
     std::string_view field;
-    if( read_next_field_status( scanner, field ) != OK ) return 0;   // read failed - position already correctly left advanced (or unchanged), don't restore
-    if( boost::algorithm::iequals(field,test) ) return 1;
+    if( read_next_field_status( scanner, field ) != OK ) { return 0;   // read failed - position already correctly left advanced (or unchanged), don't restore
+}
+    if( boost::algorithm::iequals(field,test) ) { return 1;
+}
     scanner = FieldScanner(saved);   // read fine but didn't match - restore
     return 0;
 }
@@ -62,9 +67,11 @@ int double_from_string( FieldScanner &scanner, void *value )
 {
     std::string_view field;
     int sts = read_next_field_status( scanner, field );
-    if( sts != OK ) return sts;
+    if( sts != OK ) { return sts;
+}
     auto parsed = parse_double( field );
-    if( ! parsed ) return INVALID_DATA;
+    if( ! parsed ) { return INVALID_DATA;
+}
     *(double *)value = *parsed;
     return OK;
 }
@@ -86,13 +93,15 @@ void report_string_error( input_string_def &def, int status, std::string_view me
 
 int write_output_string( output_string_def *os, std::string_view s )
 {
-    if( os->write ) return (*os->write)( s, os->sink );
+    if( os->write ) { return (*os->write)( s, os->sink );
+}
     return FILE_WRITE_ERROR;
 }
 
 int write_output_string2( output_string_def *os, std::string_view s, int options, std::string_view prefix )
 {
-    if( ! os->write ) return FILE_WRITE_ERROR;
+    if( ! os->write ) { return FILE_WRITE_ERROR;
+}
     const bool triml = options & OSW_TRIML;
     const bool trimr = options & OSW_TRIMR;
     const bool skipblank = options & OSW_SKIPBLANK;
@@ -101,8 +110,11 @@ int write_output_string2( output_string_def *os, std::string_view s, int options
     {
         size_t start = pos;
         size_t nch = 0;
-        if( triml ) while( start < s.size() && s[start] != '\n' && ISSPACE(s[start]) ) start++;
-        if( start >= s.size() ) break;
+        if( triml ) { while( start < s.size() && s[start] != '\n' && ISSPACE(s[start]) ) { start++;
+}
+}
+        if( start >= s.size() ) { break;
+}
         if( s[start] == '\n' )
         {
             pos = start;
@@ -112,10 +124,12 @@ int write_output_string2( output_string_def *os, std::string_view s, int options
             size_t end = start;
             while( end < s.size() && s[end] != '\n' )
             {
-                if( ! ISSPACE(s[end]) ) nch = end - start + 1;
+                if( ! ISSPACE(s[end]) ) { nch = end - start + 1;
+}
                 end++;
             }
-            if( ! trimr ) nch = end - start;
+            if( ! trimr ) { nch = end - start;
+}
             pos = end;
         }
         if( nch > 0 || ! skipblank )
@@ -127,7 +141,8 @@ int write_output_string2( output_string_def *os, std::string_view s, int options
             }
             write_output_string( os, "\n" );
         }
-        if( pos < s.size() ) pos++;
+        if( pos < s.size() ) { pos++;
+}
     }
     return 0;
 }

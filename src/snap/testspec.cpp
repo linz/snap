@@ -97,14 +97,17 @@ int get_spec_testid( std::string_view name, int *testid )
 
     for( spec = spechead; spec; spec = spec->next )
     {
-        if( boost::algorithm::iequals(name,spec->name) ) break;
+        if( boost::algorithm::iequals(name,spec->name) ) { break;
+}
     }
 
-    if( ! spec ) return INVALID_DATA;
+    if( ! spec ) { return INVALID_DATA;
+}
 
     if( ! spec->testid )
     {
-        if( ntestid >= (int) sizeof(int) ) return TOO_MUCH_DATA;
+        if( ntestid >= (int) sizeof(int) ) { return TOO_MUCH_DATA;
+}
         spec->testid = 1 << ntestid;
         ntestid++;
     }
@@ -123,7 +126,8 @@ int set_station_spec_testid( int stnid, int testid, int add )
     {
         stn_testids.assign( nstns+1, 0 );
     }
-    if( stnid < 1 || stnid > nstns ) return INVALID_DATA;
+    if( stnid < 1 || stnid > nstns ) { return INVALID_DATA;
+}
     if( add )
     {
         stn_testids[stnid] |= testid;
@@ -180,8 +184,10 @@ void test_specifications( void )
     int nrej;
     int istn;
 
-    if( ! ntestid ) return;
-    if( stn_testids.empty() ) return;
+    if( ! ntestid ) { return;
+}
+    if( stn_testids.empty() ) { return;
+}
 
     print_section_header( lst, "ACCURACY SPECIFICATION TESTS" );
 
@@ -211,9 +217,11 @@ void test_specifications( void )
         SpecDef *spec;
         for( spec = spechead; spec; spec = spec->next )
         {
-            if( spec->testid == testid ) break;
+            if( spec->testid == testid ) { break;
+}
         }
-        if( ! spec ) continue;
+        if( ! spec ) { continue;
+}
 
         prob = 1-spec->confidence/100.0;
 
@@ -233,8 +241,9 @@ void test_specifications( void )
 
         /* Head up output log for this specification */
 
-        if( i ) fprintf( lst, "\n\n========================================"
+        if( i ) { fprintf( lst, "\n\n========================================"
                              "========================================\n");
+}
 
         print_spec( lst, spec );
 
@@ -289,7 +298,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
 
     gothtol = spec->gothtol && (spec->htolmax > 0.0);
     gotvtol = spec->gotvtol && (spec->vtolmax > 0.0);
-    if( ! gothtol && ! gotvtol ) return;
+    if( ! gothtol && ! gotvtol ) { return;
+}
 
     fprintf(lst, "\n------------------------\nAbsolute (network) accuracy tests\n");
 
@@ -311,7 +321,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
     testid = spec->testid;
     for( istn = 1; istn <= nstns; istn++ )
     {
-        if( stn_testids[istn] & testid ) nstntest++;
+        if( stn_testids[istn] & testid ) { nstntest++;
+}
     }
 
     init_progress_meter( nstntest );
@@ -319,7 +330,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
     for( istn = 1; istn <= nstns; istn++ )
     {
         int failed = 0;
-        if( ! (stn_testids[istn] & testid) ) continue;
+        if( ! (stn_testids[istn] & testid) ) { continue;
+}
         ntest++;
         update_progress_meter( ntest );
         get_station_covariance( stnptr(istn), covar );
@@ -328,7 +340,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
         {
             calc_error_ellipse( covar, &emax, &emin, &azemax );
             emax *= spec->htolfactor;
-            if( ! apriori ) emax *= seu;
+            if( ! apriori ) { emax *= seu;
+}
             htol = spec->htolmax;
             if( htol > 0.0 )
             {
@@ -350,7 +363,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
         {
             verr = sqrt( fabs( covar[5] ));
             verr *= spec->vtolfactor;
-            if( ! apriori ) verr *= seu;
+            if( ! apriori ) { verr *= seu;
+}
             vtol = spec->vtolmax;
             if( vtol > 0.0 )
             {
@@ -374,23 +388,31 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
                 int width;
                 int w;
                 width = stn_name_width+2+2;
-                if( gothtol ) width += 12;
-                if( gotvtol ) width += 12;
+                if( gothtol ) { width += 12;
+}
+                if( gotvtol ) { width += 12;
+}
                 fprintf(lst,"\nRatio of calculated error to tolerance\n\n     ");
-                for( w = 0; w < width; w++ ) fprintf(lst,"=");
+                for( w = 0; w < width; w++ ) { fprintf(lst,"=");
+}
                 fprintf(lst,"\n     %-*s    ",stn_name_width,"Station");
-                if( gothtol ) fprintf(lst,"  Horizontal");
-                if( gotvtol ) fprintf(lst,"   Vertical ");
+                if( gothtol ) { fprintf(lst,"  Horizontal");
+}
+                if( gotvtol ) { fprintf(lst,"   Vertical ");
+}
                 fprintf(lst,"\n     ");
-                for( w = 0; w < width; w++ ) fprintf(lst,"=");
+                for( w = 0; w < width; w++ ) { fprintf(lst,"=");
+}
                 fprintf(lst,"\n\n");
                 headed = 1;
             }
 
             fprintf(lst,"     %-*s  ",
                     stn_name_width, stnptr(istn)->Code.c_str() );
-            if( gothtol ) fprintf(lst,"    %8.2lf",hratio);
-            if( gotvtol ) fprintf(lst,"    %8.2lf",vratio);
+            if( gothtol ) { fprintf(lst,"    %8.2lf",hratio);
+}
+            if( gotvtol ) { fprintf(lst,"    %8.2lf",vratio);
+}
             fprintf(lst,"\n");
         }
     }
@@ -404,9 +426,10 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
         fprintf(lst, "\nHorizontal tolerance:\n");
         fprintf(lst, "    Stations tested:              %10ld\n",nstntest);
         fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailh);
-        if( istnmaxh )
+        if( istnmaxh ) {
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
                     maxhratio, stnptr(istnmaxh)->Code.c_str() );
+}
     }
 
     if( gotvtol )
@@ -414,9 +437,10 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
         fprintf(lst, "\nVertical tolerance:\n");
         fprintf(lst, "    Stations tested:              %10ld\n",nstntest);
         fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailv);
-        if( istnmaxv )
+        if( istnmaxv ) {
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
                     maxvratio, stnptr(istnmaxv)->Code.c_str() );
+}
     }
 
 }

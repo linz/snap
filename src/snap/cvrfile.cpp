@@ -68,7 +68,8 @@ void print_coord_covariance( void )
         xprintf("\nCreating the coordinate covariance file %s\n",bfn.c_str());
         record_filename(bfn,"coord_covariance");
     }
-    if( !f ) return;
+    if( !f ) { return;
+}
 
     maxstn = number_of_stations( net );
     ncrd = maxstn * 3;
@@ -112,7 +113,7 @@ void print_coord_covariance( void )
     nline = 0;
     ncvr = 0;
     invnorm = lsq_normal_matrix();
-    for( ir = 0; ir < ncrd; ir++ ) for( ic = 0; ic <= ir; ic++ )
+    for( ir = 0; ir < ncrd; ir++ ) { for( ic = 0; ic <= ir; ic++ )
         {
             ncvr++;
             if( nline++ >= 5 )
@@ -128,6 +129,7 @@ void print_coord_covariance( void )
             }
             fprintf(f," %15.9lE",value);
         }
+}
     end_progress_meter();
     fclose(f);
 }
@@ -159,7 +161,8 @@ void print_coord_covariance_json( void )
         xprintf("\nCreating the JSON coordinate covariance file %s\n",bfn.c_str());
         record_filename(bfn,"coord_covariance_json");
     }
-    if( !f ) return;
+    if( !f ) { return;
+}
 
     maxstn = number_of_stations( net );
     ncrd = maxstn * 3;
@@ -168,7 +171,8 @@ void print_coord_covariance_json( void )
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
     ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
-    if( geocentric_coords ) ellipsoidal=1;
+    if( geocentric_coords ) { ellipsoidal=1;
+}
 
     elp = net->crdsys->rf->el;
 
@@ -180,11 +184,13 @@ void print_coord_covariance_json( void )
         double height;
         st = stnptr( istn );
         sa = stnadj( st );
-        if( istn > 1 ) fprintf(f,",");
+        if( istn > 1 ) { fprintf(f,",");
+}
         fprintf(f,"\n    {\n      \"code\": \"%s\",\n",st->Code.c_str());
         fprintf(f,"      \"coord\": [");
         height=st->OHgt;
-        if( ellipsoidal ) height=st->OHgt+st->GUnd;
+        if( ellipsoidal ) { height=st->OHgt+st->GUnd;
+}
         if( projection_coords )
         {
             double northing, easting;
@@ -229,13 +235,15 @@ void print_coord_covariance_json( void )
     invnorm = lsq_normal_matrix();
     for( ir = 0; ir < ncrd; ir++ ) 
     {
-        if( ir ) fprintf(f,",");
+        if( ir ) { fprintf(f,",");
+}
         fprintf(f,"\n    [");
         nline=0;
         for( ic = 0; ic < ncrd; ic++ )
         {
             ncvr++;
-            if( ic ) fprintf(f,",");
+            if( ic ) { fprintf(f,",");
+}
             if( nline++ >= 6 )
             {
                 fprintf(f,"\n    ");
@@ -335,7 +343,8 @@ void print_coord_sinex( void )
         xprintf("\nCreating the SINEX file %s\n",bfn.c_str());
         record_filename(bfn,"solution_sinex");
     }
-    if( !f ) return;
+    if( !f ) { return;
+}
 
     elp = net->crdsys->rf->el;
     maxstn = number_of_stations( net );
@@ -354,9 +363,11 @@ void print_coord_sinex( void )
         {
             st = stnptr( istn );
             sa = stnadj( st );
-            if( ! sa->obscount ) continue;
+            if( ! sa->obscount ) { continue;
+}
             const int codelen = numeric_cast<int>( st->Code.size() );
-            if( codelen > maxcodlen ) maxcodlen = codelen;
+            if( codelen > maxcodlen ) { maxcodlen = codelen;
+}
             if( sa->hrowno ||  sa->vrowno ) 
             {
                 nsnxprm += 3;
@@ -365,8 +376,9 @@ void print_coord_sinex( void )
                     badcvr=1;
                 }
             }
-            if( ! sa->flag.adj_h || ! sa->flag.adj_v ) constraint=0;
-            else if( constraint==2 && (sa->flag.float_h || sa->flag.float_v)) constraint=1;
+            if( ! sa->flag.adj_h || ! sa->flag.adj_v ) { constraint=0;
+            } else if( constraint==2 && (sa->flag.float_h || sa->flag.float_v)) { constraint=1;
+}
         }
 
         /* SNP = agency creating file */
@@ -433,10 +445,12 @@ void print_coord_sinex( void )
 
             st = stnptr( istn );
             sa = stnadj( st );
-            if( ! sa->obscount ) continue;
+            if( ! sa->obscount ) { continue;
+}
             mark= st->Code.size() <= 4 ? dflt_mark : st->Code.c_str()+4;
             lon=st->ELon*RTOD;
-            if( lon < 0 ) lon += 360.0;
+            if( lon < 0 ) { lon += 360.0;
+}
             lat=st->ELat*RTOD;
             const std::string latitudeText = dms_string(lat,latitudeFormat);
             const std::string longitudeText = dms_string(lon,longitudeFormat);
@@ -483,8 +497,10 @@ void print_coord_sinex( void )
 
             st = stnptr( istn );
             sa = stnadj( st );
-            if( ! sa->obscount ) continue;
-            if( ! ( sa->hrowno ||  sa->vrowno ) ) continue;
+            if( ! sa->obscount ) { continue;
+}
+            if( ! ( sa->hrowno ||  sa->vrowno ) ) { continue;
+}
 
             mark= st->Code.size() <= 4 ? dflt_mark : st->Code.c_str()+4;
 
@@ -495,7 +511,8 @@ void print_coord_sinex( void )
 
             station_cvr(invnorm,st,st,cvr);
             stnconstraint=2;
-            if( sa->flag.float_h || sa->flag.float_v) stnconstraint=1;
+            if( sa->flag.float_h || sa->flag.float_v) { stnconstraint=1;
+}
 
             for ( int i=0; i<3; i++ )
             {
@@ -525,8 +542,10 @@ void print_coord_sinex( void )
 
             st = stnptr( istn );
             sa = stnadj( st );
-            if( ! sa->obscount ) continue;
-            if( ! ( sa->hrowno ||  sa->vrowno ) ) continue;
+            if( ! sa->obscount ) { continue;
+}
+            if( ! ( sa->hrowno ||  sa->vrowno ) ) { continue;
+}
 
             nprmj=1;
 
@@ -535,7 +554,8 @@ void print_coord_sinex( void )
                 int row, col;
                 station *stj =stnptr(jstn);
                 stn_adjustment *saj=stnadj(stj);
-                if( ! ( saj->hrowno ||  saj->vrowno ) ) continue;
+                if( ! ( saj->hrowno ||  saj->vrowno ) ) { continue;
+}
                 station_cvr(invnorm,st,stj,cvr);
 
                 for( row=0; row < 3; row++ )

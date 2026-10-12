@@ -113,7 +113,8 @@ SnapplotLoadLog::~SnapplotLoadLog()
 
 void SnapplotLoadLog::StartLogging()
 {
-    if( logging ) return;
+    if( logging ) { return;
+}
     logging = true;
     closeButton->Enable( false );
     oldLog = wxLog::SetActiveTarget( textLog );
@@ -121,7 +122,8 @@ void SnapplotLoadLog::StartLogging()
 
 void SnapplotLoadLog::EndLogging()
 {
-    if( ! logging ) return;
+    if( ! logging ) { return;
+}
     logging = false;
     closeButton->Enable( true );
     wxLog::SetActiveTarget( oldLog );
@@ -129,7 +131,8 @@ void SnapplotLoadLog::EndLogging()
 
 void SnapplotLoadLog::OnCloseButton( wxCommandEvent & WXUNUSED(event) )
 {
-    if( ! logging ) Close();
+    if( ! logging ) { Close();
+}
 }
 
 void SnapplotLoadLog::OnClose( wxCloseEvent &event )

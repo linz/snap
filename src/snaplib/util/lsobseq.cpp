@@ -70,8 +70,10 @@ void init_oe( void *hA, int nrow, int ncol, char options )
 
     obs = A->obs;
     addcol = A->maxrow;
-    if( ncol <= 0 ) ncol = 1;
-    if( nrow <= 0 ) nrow = 1;
+    if( ncol <= 0 ) { ncol = 1;
+}
+    if( nrow <= 0 ) { nrow = 1;
+}
 
     if(ncol>A->maxcol)
     {
@@ -131,7 +133,8 @@ void init_oe( void *hA, int nrow, int ncol, char options )
         A->maxelt = nelt;
     }
     A->wgt = A->cvr + nelt;
-    for( ; nelt--; ) A->cvr[nelt] = 0.0;
+    for( ; nelt--; ) { A->cvr[nelt] = 0.0;
+}
 }
 
 
@@ -145,7 +148,8 @@ void oe_add_param( obseqn *A, int irow, int c, double v )
     obsr = A->obs[irow-1];
     cl = obsr->col;
     c = c-1;
-    for( i=0; i<obsr->ncol; i++, cl++) if (*cl==c) { obsr->val[i]+=v; return;}
+    for( i=0; i<obsr->ncol; i++, cl++) { if (*cl==c) { obsr->val[i]+=v; return;}
+}
     *cl=c; obsr->val[i]=v; obsr->ncol = ++i;
 }
 
@@ -160,7 +164,8 @@ void oe_covar( void *hA, int irow, int icol, double v )
     icol--;
     if( A->flag & OE_DIAGONAL_CVR )
     {
-        if( irow == icol ) A->cvr[irow] = v;
+        if( irow == icol ) { A->cvr[irow] = v;
+}
     }
     else
     {
@@ -190,7 +195,8 @@ void print_obseqn( FILE *out, void *hA )
     for( i = 0; i++<A->nrow; )
     {
         obs = A->obs[i-1];
-        if( obs->flag & OE_UNUSED ) fputs("*",out); else fputs(" ",out);
+        if( obs->flag & OE_UNUSED ) { fputs("*",out); } else { fputs(" ",out);
+}
         fprintf(out,"%-2d ",(int) i);
         fprintf(out,"%12.5le ",obs->obsv);
         if( A->flag & OE_SCHREIBER )
@@ -203,7 +209,8 @@ void print_obseqn( FILE *out, void *hA )
         }
         fprintf(out,"\n    ");
         w = *wgt;
-        if( w > 0.0 ) w = sqrt(w);
+        if( w > 0.0 ) { w = sqrt(w);
+}
         fprintf(out,"%12.5le ",w);
         wgt += A->flag & OE_DIAGONAL_CVR ? 1 : i;
         if( A->flag & OE_SCHREIBER )
@@ -278,7 +285,8 @@ void print_obseqn_json( FILE *out, void *hA, const std::optional<std::string_vie
                 if( ir )
                 {
                     fprintf(out,",");
-                    if( ir % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
+                    if( ir % 10 == 0 ) { fprintf(out,"\n%*s  ",nprefix,"");
+}
                 }
             }
             fprintf( out, "%15.8le", cvr[ir] );

@@ -54,7 +54,8 @@ static bool obsdef_precedes( const obsdef &o1, const obsdef &o2 )
 {
     const int diftype = o1.type - o2.type;
     int difline = o1.from - o2.from;
-    if( !difline ) difline = o1.to - o2.to;
+    if( !difline ) { difline = o1.to - o2.to;
+}
 
     if( sort_obs & SORT_BY_TYPE )
     {
@@ -70,7 +71,8 @@ static bool obsdef_precedes( const obsdef &o1, const obsdef &o2 )
 
 void sort_observation_list( void )
 {
-    if( obsdeflst.empty() ) return;
+    if( obsdeflst.empty() ) { return;
+}
 
     /* Sort the observation definitions, keeping the saved order of equal ones */
 
@@ -98,7 +100,9 @@ void init_get_sorted_obs_loc( void )
 
 int64_t get_sorted_obs_loc( void )
 {
-    if( sorted_locs.empty() ) sort_observation_list();
-    if( nextobs >= sorted_locs.size() ) return -1;
+    if( sorted_locs.empty() ) { sort_observation_list();
+}
+    if( nextobs >= sorted_locs.size() ) { return -1;
+}
     return sorted_locs[nextobs++];
 }

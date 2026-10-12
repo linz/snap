@@ -47,7 +47,8 @@ double ParseAngle::parseAngle(AngleFormat format, const string &value, const str
     }
     if (format == AF_HPFORMAT)
     {
-        if (tvalue.find('.') == string::npos) tvalue += '.';
+        if (tvalue.find('.') == string::npos) { tvalue += '.';
+}
         tvalue += "0000";
     }
     const RGX::regex &formatre = (format == AF_HPFORMAT) ? hp_regex : dms_regex;

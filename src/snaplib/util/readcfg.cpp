@@ -121,7 +121,8 @@ int set_config_ignore_flag( CFG_FILE *cfg, const int flag )
 
 bool CFG_FILE::get_config_line( ConfigLine &line, const std::size_t max_len )
 {
-    if( ! std::getline( f, line.content ) ) return false;
+    if( ! std::getline( f, line.content ) ) { return false;
+}
 
     const CommentRule comment{
         (read_options & CFG_IGNORE_COMMENT) ? std::nullopt : std::optional<char>(comment_char),
@@ -152,7 +153,8 @@ int send_config_error( CFG_FILE *cfg, const int stat, const std::string &mess1 )
 {
     const std::string mess2 = get_config_location(cfg);
     handle_error(stat,mess1,mess2);
-    if( WARNING_ERROR_CONDITION(stat)) cfg->errcount++;
+    if( WARNING_ERROR_CONDITION(stat)) { cfg->errcount++;
+}
     return stat;
 }
 
@@ -160,7 +162,8 @@ int send_config_error( CFG_FILE *cfg, const int stat, const std::string &mess1 )
 void initialise_config_items( config_item item[] )
 {
     config_item *it;
-    for( it=item; it->option; it++ ) it->flags &= ~CFG_PRESENT;
+    for( it=item; it->option; it++ ) { it->flags &= ~CFG_PRESENT;
+}
 }
 
 int report_missing_config_items( CFG_FILE *cfg, config_item item[] )
@@ -217,7 +220,8 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         const std::string_view content( line.content );
         const size_t opt_start = content.find_first_not_of( FIELD_DELIMS );
-        if( opt_start == std::string_view::npos ) continue;
+        if( opt_start == std::string_view::npos ) { continue;
+}
         const size_t opt_end = content.find_first_of( FIELD_DELIMS, opt_start );
         std::string opt( content.substr( opt_start, opt_end == std::string_view::npos ? opt_end : opt_end - opt_start ) );
 
@@ -236,12 +240,14 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         /* Is it a valid option record - if not print warning and
             continue */
 
-        for( char &c : opt ) c = static_cast<char>( TOLOWER( c ) );
+        for( char &c : opt ) { c = static_cast<char>( TOLOWER( c ) );
+}
         for ( it = item; it->option; it++ )
         {
             if( ( !cfg->command_flag ) | (cfg->command_flag & it->flags) )
             {
-                if( opt == it->option ) break;
+                if( opt == it->option ) { break;
+}
             }
         }
 
@@ -261,7 +267,8 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         /* Is this option to be ignored */
 
-        if( it->flags & cfg->ignore_flag ) continue;
+        if( it->flags & cfg->ignore_flag ) { continue;
+}
 
         /* Is this option illegally duplicated */
 
@@ -275,7 +282,8 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         /* Does this item mark the end of a configuration section */
 
-        if( it->flags & CFG_END ) break;
+        if( it->flags & CFG_END ) { break;
+}
 
         /* Is there a value defined ... */
 
@@ -316,7 +324,8 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         else
         {
             errstat = (*it->store)( cfg, val, (void *) address, it->vallen, it->code );
-            if( errstat == ABORT_CONFIG_FILE ) break;
+            if( errstat == ABORT_CONFIG_FILE ) { break;
+}
             if( errstat != OK )
             {
                 send_config_error(cfg,errstat,"Invalid value " + val.substr(0,32) + " defined for " + opt.substr(0,32) + " in configuration file");
@@ -342,7 +351,8 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
 void abort_config_file( CFG_FILE *cfg )
 {
-    if( cfg ) cfg->abort = 1;
+    if( cfg ) { cfg->abort = 1;
+}
 }
 
 namespace {
@@ -356,13 +366,16 @@ template <typename T>
 int store_numeric_config_value( std::string_view str, T &value )
 {
     const auto begin = str.find_first_not_of( " \t" );
-    if( begin == std::string_view::npos ) return INVALID_DATA;
+    if( begin == std::string_view::npos ) { return INVALID_DATA;
+}
     const auto end = str.find_last_not_of( " \t" );
     str = str.substr( begin, end - begin + 1 );
-    if( str.front() == '+' ) str.remove_prefix(1);
+    if( str.front() == '+' ) { str.remove_prefix(1);
+}
 
     const auto [ptr,ec] = std::from_chars( str.data(), str.data()+str.size(), value );
-    if( ec != std::errc() || ptr != str.data()+str.size() ) return INVALID_DATA;
+    if( ec != std::errc() || ptr != str.data()+str.size() ) { return INVALID_DATA;
+}
     return OK;
 }
 
@@ -410,6 +423,7 @@ int readcfg_boolean( CFG_FILE *, std::string_view str, void *value, int length, 
         *static_cast<unsigned char*>(value) &= ~flag;
         return OK;
     }
-    else
+    else {
         return INVALID_DATA;
+}
 }

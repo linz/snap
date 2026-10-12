@@ -25,7 +25,8 @@
 int  describe_ellipsoid( output_string_def *os, ellipsoid *el )
 {
     char out[80];
-    if( !el ) return OK;
+    if( !el ) { return OK;
+}
     write_output_string( os, "Ellipsoid: ");
     write_output_string( os, el->name );
     sprintf(out,"\n  a = %.3lf  1/f = %.6lf\n",el->a,el->rf);
@@ -126,15 +127,18 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
             }
         }
     }
-    if( rf->func && rf->func->describe_func ) (*(rf->func->describe_func))(rf, os);
-    if( rf->def && rf->def->describe_func ) (*(rf->def->describe_func))(rf, os);
+    if( rf->func && rf->func->describe_func ) { (*(rf->func->describe_func))(rf, os);
+}
+    if( rf->def && rf->def->describe_func ) { (*(rf->def->describe_func))(rf, os);
+}
     describe_ellipsoid( os, rf->el );
     return OK;
 }
 
 int describe_projection( output_string_def *os, projection *prj )
 {
-    if( !prj ) return OK;
+    if( !prj ) { return OK;
+}
     if( ! prj->type->name.empty() )
     {
         write_output_string( os, "Projection: " );
@@ -152,7 +156,8 @@ int describe_projection( output_string_def *os, projection *prj )
 
 int describe_vdatum( output_string_def *os, vdatum *hrs )
 {
-    if( !hrs ) return OK;
+    if( !hrs ) { return OK;
+}
     write_output_string( os, "Heights: " );
     write_output_string( os, hrs->name );
     write_output_string( os, "\n" );

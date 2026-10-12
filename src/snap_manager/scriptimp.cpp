@@ -146,10 +146,12 @@ void VariableToken::SetOwnerValue( const Value &value )
     while( pvar->Next() )
     {
         Value v;
-        if( pval ) v=Value(*pval,true);
+        if( pval ) { v=Value(*pval,true);
+}
         Owner()->SetValue( pvar->name, v );
         pvar=static_cast<VariableToken *> (pvar->Next());
-        if( pval ) pval=pval->Next();
+        if( pval ) { pval=pval->Next();
+}
     }
     Owner()->SetValue( pvar->Name(), pval ? *pval : Value() );
 }
@@ -173,7 +175,8 @@ Value FunctionToken::evaluate()
 {
     Value v(true);
     Value pv;
-    if( params ) pv = params->GetValueList();
+    if( params ) { pv = params->GetValueList();
+}
 
     Owner()->EvaluateFunction( name, params ? &pv : nullptr, v );
 
@@ -191,8 +194,10 @@ void FunctionToken::print( const wxString &prefix, ostream &str )
 
 ConditionalBranch::~ConditionalBranch()
 {
-    if( condition ) delete condition;
-    if( actions ) delete actions;
+    if( condition ) { delete condition;
+}
+    if( actions ) { delete actions;
+}
 }
 
 Value ConditionalBranch::evaluate()
@@ -261,10 +266,14 @@ void ConditionalStatement::print( const wxString &prefix, ostream &str )
 
 ForeachToken::~ForeachToken()
 {
-    if( variable ) delete variable;
-    if( string ) delete string;
-    if( delimiter ) delete delimiter;
-    if( actions ) delete actions;
+    if( variable ) { delete variable;
+}
+    if( string ) { delete string;
+}
+    if( delimiter ) { delete delimiter;
+}
+    if( actions ) { delete actions;
+}
 }
 
 Value ForeachToken::evaluate()
@@ -279,7 +288,8 @@ Value ForeachToken::evaluate()
     // one variable..
     
     bool usere = delimiter || ! (string->Next());
-    if( delimiter ) del = delimiter->GetValue().AsString();
+    if( delimiter ) { del = delimiter->GetValue().AsString();
+}
     if( usere && ! re.Compile(del,wxRE_ADVANCED) )
     {
         Owner()->error("Invalid regular expression %s specified",(const char *)(del.mb_str()) );
@@ -338,7 +348,8 @@ Value ForeachToken::evaluate()
                     }
                 }
             }
-            if( mstart + mlen == 0 ) break;
+            if( mstart + mlen == 0 ) { break;
+}
             start += mstart + mlen;
         }
 
@@ -367,7 +378,8 @@ void ForeachToken::print( const wxString &prefix, ostream &str )
     str << prefix << "... string" << endl;
     PrintSubtoken( string, prefix, str );
     str << prefix << "... delimiter" << endl;
-    if( delimiter ) PrintSubtoken( delimiter, prefix, str );
+    if( delimiter ) { PrintSubtoken( delimiter, prefix, str );
+}
     str << prefix << "... actions" << endl;
     PrintSubtoken( actions, prefix, str );
 }
@@ -399,7 +411,8 @@ void AssignmentToken::print( const wxString &prefix, ostream &str )
 
 ExitToken::~ExitToken()
 {
-    if( expression ) delete( expression );
+    if( expression ) { delete( expression );
+}
 }
 
 Value ExitToken::evaluate()
@@ -438,12 +451,15 @@ MenuItem::Functions::~Functions()
 
 MenuItem::~MenuItem()
 {
-    if( menu_name_expression ) delete menu_name_expression;
-    if( description_expression ) delete description_expression;
+    if( menu_name_expression ) { delete menu_name_expression;
+}
+    if( description_expression ) { delete description_expression;
+}
     if( functions )
     {
         functions->refcount--;
-        if( functions->refcount <= 0 ) delete functions;
+        if( functions->refcount <= 0 ) { delete functions;
+}
     }
 }
 
@@ -494,7 +510,8 @@ void MenuItem::print( const wxString &prefix, ostream &str )
 bool MenuItem::IsValid()
 {
     Value v(true);
-    if( functions->requirements ) v = Owner()->Run(functions->requirements);
+    if( functions->requirements ) { v = Owner()->Run(functions->requirements);
+}
     return v.AsBool();
 }
 
@@ -508,8 +525,10 @@ void MenuItem::Execute()
 
 FunctionDef::~FunctionDef()
 {
-    if( parameters ) delete parameters;
-    if( actions ) delete actions;
+    if( parameters ) { delete parameters;
+}
+    if( actions ) { delete actions;
+}
 }
 
 Value FunctionDef::evaluate()
@@ -538,7 +557,8 @@ void FunctionDef::print( const wxString &prefix, ostream &str )
 
 StatementBlockToken::~StatementBlockToken()
 {
-    if( statements ) delete statements;
+    if( statements ) { delete statements;
+}
 }
 
 Value StatementBlockToken::evaluate()
@@ -562,8 +582,10 @@ void StatementBlockToken::print( const wxString &prefix, ostream &str )
 
 Operator::~Operator()
 {
-    if( operand1 ) delete operand1;
-    if( operand2 ) delete operand2;
+    if( operand1 ) { delete operand1;
+}
+    if( operand2 ) { delete operand2;
+}
 }
 
 static int compValue( const Value &value1, const Value &value2 )
@@ -576,17 +598,21 @@ static int compValue( const Value &value1, const Value &value2 )
     if( reNumber.Matches(s1) )
     {
         double v;
-        if( reNumber.GetMatch(s1,1).ToDouble(&v) ) v1=v;
+        if( reNumber.GetMatch(s1,1).ToDouble(&v) ) { v1=v;
+}
         s1=reNumber.GetMatch(s1,2);
     }
     if( reNumber.Matches(s2) )
     {
         double v;
-        if( reNumber.GetMatch(s2,1).ToDouble(&v) ) v2=v;
+        if( reNumber.GetMatch(s2,1).ToDouble(&v) ) { v2=v;
+}
         s2=reNumber.GetMatch(s2,2);
     }
-    if( v1 < v2 ) return -1;
-    if( v1 > v2 ) return 1;
+    if( v1 < v2 ) { return -1;
+}
+    if( v1 > v2 ) { return 1;
+}
     return s1.Cmp(s2);
 }
 
@@ -626,11 +652,13 @@ Value Operator::evaluate()
         break;
 
     case opAnd:
-        if( result.AsBool() ) result = operand2->GetValue();
+        if( result.AsBool() ) { result = operand2->GetValue();
+}
         break;
 
     case opOr:
-        if( ! result.AsBool() ) result = operand2->GetValue();
+        if( ! result.AsBool() ) { result = operand2->GetValue();
+}
         break;
 
     case opConcat:
@@ -771,7 +799,8 @@ void Operator::print( const wxString &prefix, ostream &str )
 
 RunPermission::RunPermission( ScriptImp *owner, ExitLevel level ) : owner(owner), level(level) {}
 
-RunPermission::~RunPermission() { if( owner->exitLevel <= level ) owner->exitLevel = elOk; }
+RunPermission::~RunPermission() { if( owner->exitLevel <= level ) { owner->exitLevel = elOk; 
+}}
 
 bool RunPermission::CanRun() { return owner->exitLevel == elOk; }
 
@@ -791,7 +820,8 @@ ScriptImp::ScriptImp( EnvBase &environment ) :
 
 ScriptImp::~ScriptImp()
 {
-    while( frame ) PopStack();
+    while( frame ) { PopStack();
+}
 
     for( vector<MenuItem *>::iterator it = menuItems.begin();
             it != menuItems.end();
@@ -862,7 +892,8 @@ bool ScriptImp::ExecuteScript( const std::string &filename )
             Run(prog);
             PostRunActions();
         }
-        if( prog ) delete prog;
+        if( prog ) { delete prog;
+}
     }
     else
     {
@@ -913,7 +944,8 @@ void ScriptImp::PostRunActions()
     it++ )
     {
 
-			if(*it) delete (*it);
+			if(*it) { delete (*it);
+}
 			(*it) = 0;
     }
     deleteMenuItems.clear();
@@ -939,7 +971,8 @@ char ScriptImp::getchar()
     // Check what the termination condition is.. assuming char 0 at the moment.
 
     char ch = 0;
-    if( source && source->good() ) source->get(ch);
+    if( source && source->good() ) { source->get(ch);
+}
     return ch;
 }
 
@@ -953,7 +986,8 @@ void ScriptImp::error( const char *format, ... )
     errorMessage = buf;
     delete [] buf;
 
-    if( sourceFile != "" ) errorMessage = errorMessage + "\nFile: " + sourceFile;
+    if( sourceFile != "" ) { errorMessage = errorMessage + "\nFile: " + sourceFile;
+}
     for( StackFrame *f = frame; f; f=f->next )
     {
         if( f->name != "" )
@@ -1173,7 +1207,8 @@ Token *ScriptImp::InterpolateString(const wxString &dtext )
                     value.append('$');
                 }
                 invariable = false;
-				if( c == '$' ) continue;
+				if( c == '$' ) { continue;
+}
             }
 
             if( escape && c )
@@ -1241,8 +1276,10 @@ bool ScriptImp::GetValue( const wxString &name, Value &value )
 {
     value.SetValue( false );
     bool result = environment.GetValue(name, value );
-    if( ! result ) result = variables->Get(name, value );
-    if( ! result ) result = global.Get(name,value);
+    if( ! result ) { result = variables->Get(name, value );
+}
+    if( ! result ) { result = global.Get(name,value);
+}
     return result;
 }
 
@@ -1299,7 +1336,8 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
     }
     // Is the function defined by the environment ...
 
-    if( status == fsBadFunction ) status = environment.EvaluateFunction( name, params, result );
+    if( status == fsBadFunction ) { status = environment.EvaluateFunction( name, params, result );
+}
 
     // Is this function defined by the script ...
 
@@ -1315,7 +1353,8 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
             {
                 // Setup the parameters ..
 
-                if( f->Parameters()) f->Parameters()->SetOwnerValue( params ? *params : Value() );
+                if( f->Parameters()) { f->Parameters()->SetOwnerValue( params ? *params : Value() );
+}
                 RunPermission rp( this, elReturn );
                 result = f->evaluate();
                 PopStack();

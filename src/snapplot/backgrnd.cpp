@@ -69,8 +69,10 @@ void add_background_file( std::string_view fname, std::optional<std::string_view
 {
     background_file bf;
     bf.filename = std::string( fname );
-    if( crdsysdef ) bf.crdsysdef = std::string( *crdsysdef );
-    if( layer ) bf.layer_name = std::string( *layer );
+    if( crdsysdef ) { bf.crdsysdef = std::string( *crdsysdef );
+}
+    if( layer ) { bf.layer_name = std::string( *layer );
+}
     bkg_list.push_back( std::move( bf ) );
 }
 
@@ -85,7 +87,8 @@ static int pen_id_from_id( int id )
 {
     for( const background_layer &bl : bkg_layers )
     {
-        if( bl.input_id == id ) return bl.pen_id;
+        if( bl.input_id == id ) { return bl.pen_id;
+}
     }
     return add_layer( "Background " + std::to_string( id ), id );
 }
@@ -95,7 +98,8 @@ static int pen_id_from_name( std::string_view name )
 {
     for( const background_layer &bl : bkg_layers )
     {
-        if( boost::algorithm::iequals( bl.layer_name, name ) ) return bl.pen_id;
+        if( boost::algorithm::iequals( bl.layer_name, name ) ) { return bl.pen_id;
+}
     }
     return add_layer( name, 0 );
 }
@@ -108,7 +112,8 @@ int background_layer_count( void )
 const std::string &background_layer_name( int pen_id )
 {
     static const std::string no_name;
-    if( pen_id > background_layer_count() || pen_id <= 0 ) return no_name;
+    if( pen_id > background_layer_count() || pen_id <= 0 ) { return no_name;
+}
     return bkg_layers[pen_id - 1].layer_name;
 }
 
@@ -130,7 +135,8 @@ static void load_background_file( const background_file &bf )
     char input_latlon;
 
     in = fopen( bf.filename.c_str(), "r" );
-    if( !in ) return;
+    if( !in ) { return;
+}
     skip_utf8_bom(in);
 
     csp = plot_projection();
@@ -183,7 +189,8 @@ static void load_background_file( const background_file &bf )
             FieldScanner scanner( std::string_view( inrec ).substr( 6 ) );
             const std::optional<std::string_view> layer = scanner.next();
             file_pen_id = 0;
-            if( layer ) file_pen_id = pen_id_from_name( *layer );
+            if( layer ) { file_pen_id = pen_id_from_name( *layer );
+}
             continue;
         }
         if( compare_ignoring_case( inrec, "#coordsys", 9 ) == 0 )
@@ -205,8 +212,10 @@ static void load_background_file( const background_file &bf )
             }
             continue;
         }
-        if( bad_coordsys ) continue;
-        if( sscanf(inrec,"%d%lf%lf",&pen,xyz+0,xyz+1) != 3 ) continue;
+        if( bad_coordsys ) { continue;
+}
+        if( sscanf(inrec,"%d%lf%lf",&pen,xyz+0,xyz+1) != 3 ) { continue;
+}
         if( input_latlon ) { xyz[0] *= DTOR; xyz[1] *= DTOR; }
         xyz[2] = 0.0;
         if( need_conversion )
@@ -224,9 +233,11 @@ static void load_background_file( const background_file &bf )
                 }
                 got_conversion = 1;
             }
-            if( convert_coords(&cnv,xyz,nullptr,xyz,nullptr) != OK ) continue;
+            if( convert_coords(&cnv,xyz,nullptr,xyz,nullptr) != OK ) { continue;
+}
         }
-        if( oldfirstpt && pen == 0 ) pen = 1;
+        if( oldfirstpt && pen == 0 ) { pen = 1;
+}
         firstpt = 0;
         if( pen )
         {
@@ -245,19 +256,24 @@ static void load_background_file( const background_file &bf )
         fwrite( &pt, sizeof(pt), 1, bkg_file );
         npts++;
         fpts++;
-        if( pen ) flines++;
+        if( pen ) { flines++;
+}
     }
     end_file_display();
     print_log("%ld lines loaded\n",flines);
     fclose(in);
-    if( cs ) delete cs;
+    if( cs ) { delete cs;
+}
 }
 
 void load_background_files( void )
 {
-    if( bkg_list.empty() ) return;
-    if( !bkg_file ) bkg_file = snaptmpfile();
-    if( !bkg_file ) return;
+    if( bkg_list.empty() ) { return;
+}
+    if( !bkg_file ) { bkg_file = snaptmpfile();
+}
+    if( !bkg_file ) { return;
+}
     npts = 0;
     for( const background_file &bf : bkg_list )
     {
@@ -275,30 +291,37 @@ int plot_background( map_plotter *plotter, int start )
     count = 250;
     if( start <= 0 )
     {
-        if( !bkg_file ) return ALL_DONE;
+        if( !bkg_file ) { return ALL_DONE;
+}
 
         visiblelayercount = 0;
         for( i = 1; i <= background_layer_count(); i++ )
         {
-            if( background_option(i) ) visiblelayercount++;
+            if( background_option(i) ) { visiblelayercount++;
+}
         }
-        if( ! visiblelayercount ) return ALL_DONE;
+        if( ! visiblelayercount ) { return ALL_DONE;
+}
 
         fseek( bkg_file, 0L, SEEK_SET );
-        if( start < 0 ) count = npts+2;
+        if( start < 0 ) { count = npts+2;
+}
         current_colour = 0;
     }
 
     while( count-- )
     {
         bkg_point pt;
-        if( fread( &pt,sizeof(pt),1,bkg_file) != 1 ) return ALL_DONE;
+        if( fread( &pt,sizeof(pt),1,bkg_file) != 1 ) { return ALL_DONE;
+}
         if( pt.pen )
         {
             current_colour = background_pen( pt.pen );
-            if( ! background_option( pt.pen ) ) current_colour = 0;
+            if( ! background_option( pt.pen ) ) { current_colour = 0;
+}
         }
-        if( !current_colour ) continue;
+        if( !current_colour ) { continue;
+}
         LINE( plotter, pt.x, pt.y, pt.pen ? current_colour : CONTINUE_LINE );
     }
 

@@ -203,7 +203,8 @@ static void init_coef_class_id()
 
 static int get_coef_id( int coeftype, int idname )
 {
-    if( idname==coef_class_id[coeftype].idname) return coef_class_id[coeftype].idcoef;
+    if( idname==coef_class_id[coeftype].idname) { return coef_class_id[coeftype].idcoef;
+}
     const std::string name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
     int idcoef = ldt_get_id( ID_COEF, coeftype, name );
     coef_class_id[coeftype].idcoef = idcoef;
@@ -239,20 +240,26 @@ static int save_code( std::string_view code )
 /// Returns the saved code with the given id, or an empty view if there isn't one.
 static std::string_view saved_code( int codeid )
 {
-    if( codeid >= next_code_id ) return {};
+    if( codeid >= next_code_id ) { return {};
+}
     codeid -= code_offset;
-    if( codeid < 0 ) return {};
+    if( codeid < 0 ) { return {};
+}
     return std::string_view( saved_codes.c_str()+codeid );
 }
 
 static int get_recoded_id( int id, bool *reject )
 {
-    if( reject ) *reject=false;
+    if( reject ) { *reject=false;
+}
     recoded_id *rid;
-    if( id == 0 ) return 0;
-    if( id > next_saved_id ) return 0;
+    if( id == 0 ) { return 0;
+}
+    if( id > next_saved_id ) { return 0;
+}
     id -= saved_id_offset;
-    if( id < 0 ) return 0;
+    if( id < 0 ) { return 0;
+}
 
     rid=&saved_ids[id];
     if( ! rid->recoded )
@@ -274,7 +281,8 @@ static int get_recoded_id( int id, bool *reject )
         }
         rid->recoded=1;
     }
-    if( reject ) *reject=rid->reject;
+    if( reject ) { *reject=rid->reject;
+}
     return rid->id;
 }
 
@@ -291,7 +299,8 @@ static void reset_saved_codes( int lastid )
 {
     int ndrop=(lastid-saved_id_offset)+1;
     int nkeep=next_saved_id-lastid;
-    if( ndrop <= 0 ) return;
+    if( ndrop <= 0 ) { return;
+}
     if( nkeep <= 0 )
     {
          reset_saved_code_ids();
@@ -423,7 +432,8 @@ static void check_data( void )
         handle_error( INVALID_DATA, "Observation value or error not defined",NO_MESSAGE);
     }
 
-    if( rejfrom || rejto ) ldt_unused();
+    if( rejfrom || rejto ) { ldt_unused();
+}
 
     switch( data.format )
     {
@@ -472,7 +482,8 @@ static void check_data( void )
                 od->refcoef = default_refcoef;
             }
         }
-        if( od->refcoef == ID_UNDEFINED ) od->refcoef = 0;
+        if( od->refcoef == ID_UNDEFINED ) { od->refcoef = 0;
+}
         break;
 
     case SD_VECDATA:
@@ -535,7 +546,8 @@ static void *next_data( int type )
 
     DEBUG_PRINT(("LDT: next_data"));
 
-    if( data.nobs ) check_data();
+    if( data.nobs ) { check_data();
+}
     obsdatatype = datatypedef_from_id( type );
 
     if( obsdatatype->isvector )
@@ -636,11 +648,12 @@ static void *next_data( int type )
 static void clear_cvr( int ndim, ltmat cvr )
 {
     int i, j;
-    for( i = 0; i < ndim; i++ ) for( j = 0; j <= i; j++ )
+    for( i = 0; i < ndim; i++ ) { for( j = 0; j <= i; j++ )
         {
             *cvr = 0.0;
             cvr++;
         }
+}
 }
 
 static ltmat alloc_cvr( void )
@@ -694,7 +707,8 @@ int64_t ldt_get_id( int type, int group_id, std::string_view code )
 {
     if( type == ID_STATION && recoding )
     {
-        if( group_id != GET_REAL_STATION_ID ) return save_code( code );
+        if( group_id != GET_REAL_STATION_ID ) { return save_code( code );
+}
         group_id=0;
     }
     if( type == ID_COEFCLASS )
@@ -708,7 +722,8 @@ std::string ldt_get_code( int type, int group_id, long id )
 {
     if( type == ID_STATION && recoding )
     {
-        if( group_id != GET_REAL_STATION_ID ) return std::string( saved_code( id ) );
+        if( group_id != GET_REAL_STATION_ID ) { return std::string( saved_code( id ) );
+}
         group_id=0;
     }
     return (*code_func)( type, group_id, id );
@@ -756,7 +771,8 @@ void ldt_date( double obsdate )
 void ldt_time( double time )
 {
     DEBUG_PRINT(("LDT: ldt_time %.5lf",time));
-    if( data.date != UNDEFINED_DATE ) data.date = floor(data.date)+time;
+    if( data.date != UNDEFINED_DATE ) { data.date = floor(data.date)+time;
+}
 }
 
 void ldt_projection( int proj_id )
@@ -772,7 +788,8 @@ void ldt_inststn( int stn_id, double ihgt )
 
     /* Save existing data if any */
 
-    if( data.nobs ) ldt_end_data();
+    if( data.nobs ) { ldt_end_data();
+}
 
     /* Initialise data structure.
 
@@ -829,7 +846,8 @@ void ldt_nextdata( int type )
     }
 
     next_data(type);
-    if( trgt_cancelled ) ldt_cancel_data();
+    if( trgt_cancelled ) { ldt_cancel_data();
+}
 }
 
 
@@ -848,7 +866,8 @@ void ldt_value( double *value )
     }
 #endif
 
-    for( i = 0; i<nval; i++ ) aval[i] = value[i];
+    for( i = 0; i<nval; i++ ) { aval[i] = value[i];
+}
     gotval = 1;
 }
 
@@ -862,10 +881,12 @@ void ldt_error( double *error )
         report_error("ldt_error");
     }
 
-    for( i = 0; i<nerr; i++ ) aerr[i] = error[i];
+    for( i = 0; i<nerr; i++ ) { aerr[i] = error[i];
+}
     if( iscovar )
     {
-        for( i = 0; i<nerr; i++ ) aerr[i] *= aerr[i];
+        for( i = 0; i<nerr; i++ ) { aerr[i] *= aerr[i];
+}
     }
     goterr = 1;
 }
@@ -935,7 +956,8 @@ void ldt_classification( int class_id, int name_id )
 
     DEBUG_PRINT(("LDT: ldt_classification %d %d", (int) class_id, (int) name_id ));
 
-    if( ! class_id ) return;
+    if( ! class_id ) { return;
+}
 
     if( !tgt )
     {
@@ -947,7 +969,8 @@ void ldt_classification( int class_id, int name_id )
     cd->class_id = class_id;
     cd->name_id = name_id;
 
-    if( !tgt->nclass ) tgt->iclass = data.nclass;
+    if( !tgt->nclass ) { tgt->iclass = data.nclass;
+}
     tgt->nclass++;
     data.nclass++;
 
@@ -989,7 +1012,8 @@ void ldt_syserr( int syserr_id, double influence )
     sd->prm_id = syserr_id;
     sd->influence = influence;
 
-    if( !tgt->nsyserr ) tgt->isyserr = data.nsyserr;
+    if( !tgt->nsyserr ) { tgt->isyserr = data.nsyserr;
+}
     tgt->nsyserr++;
     data.nsyserr++;
 }
@@ -1015,7 +1039,8 @@ void ldt_prefix_note( std::string_view note )
 {
     DEBUG_PRINT(("LDT: ldt_prefix_note %.*s",numeric_cast<int>(note.size()),note.data()));
     const int64_t newnote = ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
-    if( !noteloc ) noteloc = newnote;
+    if( !noteloc ) { noteloc = newnote;
+}
 }
 
 void ldt_note( std::string_view note )
@@ -1028,7 +1053,8 @@ void ldt_note( std::string_view note )
         return;
     }
     const int64_t newnote = ldt_get_id( ID_NOTE, tgt->noteloc ? 1 : 0, note );
-    if( !tgt->noteloc ) tgt->noteloc = newnote;
+    if( !tgt->noteloc ) { tgt->noteloc = newnote;
+}
 }
 
 void ldt_cancel_data( void )
@@ -1072,7 +1098,8 @@ static void remove_ignored_obs()
 {
     int i;
     survdata *sd = &data;
-    if( ndata_cancelled <= 0 ) return;
+    if( ndata_cancelled <= 0 ) { return;
+}
 
     /* Remove the extraneous rows form the covariance matrix ... */
 
@@ -1087,7 +1114,8 @@ static void remove_ignored_obs()
             t = get_trgtdata( sd, i );
             ir0 = i*cvrperobs;
             ir1 = ir0+cvrperobs;
-            if( t->unused & IGNORE_OBS_BIT ) continue;
+            if( t->unused & IGNORE_OBS_BIT ) { continue;
+}
             if( ir0 == itgt )
             {
                 itgt=ir1;
@@ -1103,7 +1131,8 @@ static void remove_ignored_obs()
                     {
                         trgtdata *tj;
                         tj = get_trgtdata( sd, j );
-                        if( tj->unused & IGNORE_OBS_BIT ) continue;
+                        if( tj->unused & IGNORE_OBS_BIT ) { continue;
+}
                         jr0 = j * cvrperobs;
                         njr = cvrperobs;
                     }
@@ -1135,7 +1164,8 @@ static void remove_ignored_obs()
     for( i=0; i<data.nobs; i++ )
     {
         trgtdata *tgt=get_trgtdata(&data,i);
-        if( tgt->unused & IGNORE_OBS_BIT ) continue;
+        if( tgt->unused & IGNORE_OBS_BIT ) { continue;
+}
         if( i == nused) { nused++; continue; }
         if( tgt->nclass > 0 )
         {
@@ -1164,18 +1194,22 @@ static void recode_stations()
 {
     int i;
     int lastid=0;
-    if( ! recoding ) return;
+    if( ! recoding ) { return;
+}
     if( data.from )
     {
         lastid=data.from;
         data.from=get_recoded_id( data.from, nullptr );
-        if( data.from <= 0 ) inst_cancelled=1;
+        if( data.from <= 0 ) { inst_cancelled=1;
+}
     }
     for( i=0; i < data.nobs; i++ )
     {
         trgtdata *tgt=get_trgtdata(&data,i);
-        if( tgt->to > lastid ) lastid=tgt->to;
-        if( ! tgt->to ) continue;
+        if( tgt->to > lastid ) { lastid=tgt->to;
+}
+        if( ! tgt->to ) { continue;
+}
         tgt->to=get_recoded_id( tgt->to, nullptr );
         if( tgt->to <= 0 && ! (tgt->unused & IGNORE_OBS_BIT) ) 
         {
@@ -1183,7 +1217,8 @@ static void recode_stations()
             tgt->unused |= IGNORE_OBS_BIT;
         }
     }
-    if( lastid > 0 && ! preserve_saved_codes ) reset_saved_codes( lastid );
+    if( lastid > 0 && ! preserve_saved_codes ) { reset_saved_codes( lastid );
+}
 }
 
 void ldt_end_data( void )
@@ -1223,8 +1258,10 @@ void ldt_end_data( void )
 
         if( data.nobs > ndata_cancelled )
         {
-            if( ndata_cancelled ) remove_ignored_obs();
-            if( usedata_func ) (*usedata_func)( &data );
+            if( ndata_cancelled ) { remove_ignored_obs();
+}
+            if( usedata_func ) { (*usedata_func)( &data );
+}
         }
     }
 

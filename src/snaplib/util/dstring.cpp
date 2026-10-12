@@ -32,14 +32,16 @@ void dump_string( const std::string &string, FILE *b )
     }
     int len = static_cast<int>( string.size() );
     fwrite(&len,sizeof(len),1,b);
-    if( len > 0 ) fwrite(string.data(),len,1,b);
+    if( len > 0 ) { fwrite(string.data(),len,1,b);
+}
 }
 
 std::string reload_string( FILE *b )
 {
     int len;
     fread(&len,sizeof(len),1,b);
-    if( len <= 0 ) return std::string();
+    if( len <= 0 ) { return std::string();
+}
     std::string s( len, '\0' );
     fread( &s[0], len, 1, b );
     return s;
@@ -60,8 +62,10 @@ std::optional<std::string> reload_optional_string( FILE *b )
 {
     int len;
     fread(&len,sizeof(len),1,b);
-    if( len < 0 ) return std::nullopt;
-    if( len == 0 ) return std::string();
+    if( len < 0 ) { return std::nullopt;
+}
+    if( len == 0 ) { return std::string();
+}
     std::string s( len, '\0' );
     fread( &s[0], len, 1, b );
     return s;

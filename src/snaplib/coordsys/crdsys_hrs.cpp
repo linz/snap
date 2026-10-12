@@ -49,7 +49,8 @@ vdatum::~vdatum()
 vdatum *geoid_vdatum( const std::string &geoidfile, ref_frame *rf )
 {
     std::string hrs_name = std::filesystem::path( native_path(geoidfile) ).filename().string().substr(0,120);
-    if( const size_t dot = hrs_name.find('.'); dot != std::string::npos ) hrs_name.resize(dot);
+    if( const size_t dot = hrs_name.find('.'); dot != std::string::npos ) { hrs_name.resize(dot);
+}
     hrs_name += " geoid";
 
     vdatum_func *hrf=create_grid_vdatum_func( geoidfile, 1 );
@@ -58,7 +59,8 @@ vdatum *geoid_vdatum( const std::string &geoidfile, ref_frame *rf )
 
 vdatum *copy_vdatum( vdatum *hrs )
 {
-    if( ! hrs ) return nullptr;
+    if( ! hrs ) { return nullptr;
+}
     vdatum_func *hrf = hrs->func ? copy_vdatum_func( hrs->func ) : nullptr;
     if( hrs->rf )
     {
@@ -71,33 +73,46 @@ vdatum *copy_vdatum( vdatum *hrs )
 
 int identical_vdatum( vdatum *hrs1, vdatum *hrs2 )
 {
-    if( ! identical_vdatum_func( hrs1->func, hrs2->func )) return 0;
-    if( hrs1->rf && ! hrs2->rf ) return 0;
-    if( ! hrs1->rf && hrs2->rf ) return 0;
-    if( hrs1->basehrs && ! hrs2->basehrs ) return 0;
-    if( ! hrs1->basehrs && hrs2->basehrs ) return 0;
-    if( hrs1->rf && ! identical_datum( hrs1->rf, hrs2->rf )) return 0;
-    if( hrs1->basehrs && ! identical_vdatum( hrs1->basehrs, hrs2->basehrs )) return 0;
+    if( ! identical_vdatum_func( hrs1->func, hrs2->func )) { return 0;
+}
+    if( hrs1->rf && ! hrs2->rf ) { return 0;
+}
+    if( ! hrs1->rf && hrs2->rf ) { return 0;
+}
+    if( hrs1->basehrs && ! hrs2->basehrs ) { return 0;
+}
+    if( ! hrs1->basehrs && hrs2->basehrs ) { return 0;
+}
+    if( hrs1->rf && ! identical_datum( hrs1->rf, hrs2->rf )) { return 0;
+}
+    if( hrs1->basehrs && ! identical_vdatum( hrs1->basehrs, hrs2->basehrs )) { return 0;
+}
     return 1;
 }
 
 int calc_vdatum_offset( vdatum *hrs, double llh[3], double *height, double *exu )
 {
     int sts;
-    if( height ) *height=0.0;
+    if( height ) { *height=0.0;
+}
     if( exu ){ exu[0]=exu[1]=exu[2]=0.0; }
-    if( ! hrs || ! hrs->func ) return INVALID_DATA;
+    if( ! hrs || ! hrs->func ) { return INVALID_DATA;
+}
     sts=calc_vdatum_func( hrs->func, llh, height, exu );
-    if( sts != OK || ! hrs->basehrs ) return sts;
+    if( sts != OK || ! hrs->basehrs ) { return sts;
+}
     while( (hrs=hrs->basehrs) )
     {
         double dh;
         double dexu[3];
         double *pexu=exu ? &(dexu[0]) : nullptr;
-        if( ! hrs->func ) return INVALID_DATA;
+        if( ! hrs->func ) { return INVALID_DATA;
+}
         sts=calc_vdatum_func( hrs->func, llh, &dh, pexu );
-        if( sts != OK ) return sts;
-        if( height ) *height += dh;
+        if( sts != OK ) { return sts;
+}
+        if( height ) { *height += dh;
+}
         if( exu ){ exu[0] += dexu[0]; exu[1] += dexu[1]; exu[2] += dexu[2]; }
     }
     return INVALID_DATA;
@@ -112,7 +127,8 @@ ref_frame *vdatum_ref_frame( vdatum *hrs )
 {
     while( hrs )
     {
-        if( hrs->rf ) return hrs->rf;
+        if( hrs->rf ) { return hrs->rf;
+}
         hrs=hrs->basehrs;
     }
     return nullptr;

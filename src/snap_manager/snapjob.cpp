@@ -112,8 +112,10 @@ wxString SnapJob::SnapUser()
 {
     wxString result;
     wxGetEnv("SNAPUSER",&result);
-    if( result.IsEmpty() ) wxGetEnv("USERNAME",&result);
-    if( result.IsEmpty() ) wxGetEnv("USER",&result);
+    if( result.IsEmpty() ) { wxGetEnv("USERNAME",&result);
+}
+    if( result.IsEmpty() ) { wxGetEnv("USER",&result);
+}
     return result;
 }
 
@@ -191,8 +193,10 @@ wxString SnapJob::DataFiles()
     wxString datafiles;
     for( SnapJobFile *f = jobFiles; f; f=f->Next() )
     {
-        if( f->Type() != JFDataFile ) continue;
-        if( datafiles.Len() > 0 ) datafiles.Append("\n");
+        if( f->Type() != JFDataFile ) { continue;
+}
+        if( datafiles.Len() > 0 ) { datafiles.Append("\n");
+}
         datafiles.Append( RelativeFilename( f->GetFullFilename()));
     }
     return datafiles;
@@ -203,7 +207,8 @@ wxString SnapJob::LoadErrors()
     wxString errorString;
     for( size_t i = 0; i < errors.Count(); i++ )
     {
-        if( i > 0 ) errorString.Append("\n");
+        if( i > 0 ) { errorString.Append("\n");
+}
         errorString.Append( errors.Item(i) );
     }
     return errorString;

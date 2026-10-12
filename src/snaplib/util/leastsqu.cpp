@@ -134,7 +134,8 @@ static void sequence_error( const std::string_view routine )
 
 static void alloc_tmp( long nval )
 {
-    if( nval <= ntmp ) return;
+    if( nval <= ntmp ) { return;
+}
     delete [] tmp;
     tmp = new double[nval];
     ntmp = nval;
@@ -142,7 +143,8 @@ static void alloc_tmp( long nval )
 
 static void alloc_cols( int ncol )
 {
-    if( ncol <= ncols ) return;
+    if( ncol <= ncols ) { return;
+}
     delete [] cols;
     cols = new int[ncol];
     ncols = ncol;
@@ -174,12 +176,14 @@ void lsq_init( void )
 {
     int i;
 
-    if( lsq_status == LSQ_UNINIT ) sequence_error( "lsq_init" );
+    if( lsq_status == LSQ_UNINIT ) { sequence_error( "lsq_init" );
+}
 
     if( nprm )
     {
         init_bltmatrix( N );
-        for( i=0; i<nprm; i++ ) b[i] = 0.0;
+        for( i=0; i<nprm; i++ ) { b[i] = 0.0;
+}
     }
     ssr = 0.0;
     nobs=0;
@@ -233,8 +237,10 @@ static void sum_cobs( obsrow *o1, obsrow *o2, double wo1o2 )
     double *o1v, *o2v;
     double  o1vw, o1o2w;
 
-    if( o1->flag & OE_UNUSED ) return;
-    if( o1->flag & OE_UNUSED ) return;
+    if( o1->flag & OE_UNUSED ) { return;
+}
+    if( o1->flag & OE_UNUSED ) { return;
+}
     o1c = o1->col;
     o1v = o1->val;
     for ( i1=0; i1++<o1->ncol; o1c++, o1v++)
@@ -247,7 +253,8 @@ static void sum_cobs( obsrow *o1, obsrow *o2, double wo1o2 )
         for ( i2=0; i2++<o2->ncol; o2c++, o2v++ )
         {
             o1o2w = *o2v * o1vw;
-            if( *o1c == *o2c) o1o2w += o1o2w;
+            if( *o1c == *o2c) { o1o2w += o1o2w;
+}
             BLT(N,*o1c,*o2c) += o1o2w;
         }
     }
@@ -270,7 +277,8 @@ static void sum_sobs( obsrow *o1, double wo1 )
     double *o1v, *o2v;
     double  o1vw;
 
-    if( o1->flag & OE_UNUSED ) return;
+    if( o1->flag & OE_UNUSED ) { return;
+}
 
     o1c = o1->col;
     o1v = o1->val;
@@ -303,10 +311,14 @@ static int sum_eobs( obseqn *A )
 
     for (i1=0, ob1=A->obs; i1<A->nrow; i1++, ob1++ )
     {
-        if (fullcvr) for(i2=0, ob2=A->obs; i2++<i1; ob2++, wgt++)
-                if(*wgt != 0.0) sum_cobs( *ob1, *ob2, *wgt );
+        if (fullcvr) { for(i2=0, ob2=A->obs; i2++<i1; ob2++, wgt++) {
+                if(*wgt != 0.0) { sum_cobs( *ob1, *ob2, *wgt );
+}
+}
+}
         sum_sobs( *ob1, *wgt++ );
-        if( (*ob1)->flag & OE_UNUSED ) nobs--;
+        if( (*ob1)->flag & OE_UNUSED ) { nobs--;
+}
     }
     return nobs;
 }
@@ -348,7 +360,8 @@ static int list_cols( obseqn *A )
             colno = obs->col[icol];
             for( i=0; i<ncol; i++ )
             {
-                if( cols[i] == colno ) break;
+                if( cols[i] == colno ) { break;
+}
             }
             if( i >= ncol )
             {
@@ -372,7 +385,8 @@ static void form_iobs( obseqn *A, char sumall )
 
     /* Allocate work area for schreibers equations */
 
-    if( Asch == nullptr ) Asch = (obseqn *) create_oe( nprm );
+    if( Asch == nullptr ) { Asch = (obseqn *) create_oe( nprm );
+}
 
     ncol = count_col( A );
 
@@ -384,7 +398,8 @@ static void form_iobs( obseqn *A, char sumall )
     for( irow = 0; irow < A->nrow; irow++ )
     {
         obs = A->obs[irow];
-        if( !sumall && obs->flag & OE_UNUSED ) continue;
+        if( !sumall && obs->flag & OE_UNUSED ) { continue;
+}
 
         wgt = A->wgt[irow];   /* Assume that weight matrix is diagonal */
         wgt *= obs->schv;
@@ -399,7 +414,8 @@ static void form_iobs( obseqn *A, char sumall )
     }
 
     Asch->cvr[0] = schwgt;
-    if( schwgt > 0 ) schwgt = 1.0/schwgt;
+    if( schwgt > 0 ) { schwgt = 1.0/schwgt;
+}
     Asch->wgt[0] = schwgt;
     return;
 }
@@ -421,7 +437,8 @@ static void copy_used_cvr_to_wgt( obseqn *A )
     cvr = A->cvr;
 
     nelt = ((long)A->nrow * (A->nrow+1))/2;
-    while(nelt--) *wgt++ = *cvr++;
+    while(nelt--) { *wgt++ = *cvr++;
+}
 
     /* Eliminate unused rows and columns (convert to the identity matrix) */
 
@@ -431,9 +448,11 @@ static void copy_used_cvr_to_wgt( obseqn *A )
         unused = A->obs[i]->flag & OE_UNUSED;
         for( j=0; j<i; j++, wgt++ )
         {
-            if( unused || A->obs[j]->flag & OE_UNUSED ) *wgt = 0.0;
+            if( unused || A->obs[j]->flag & OE_UNUSED ) { *wgt = 0.0;
+}
         }
-        if( unused ) *wgt = 1.0;
+        if( unused ) { *wgt = 1.0;
+}
     }
 }
 
@@ -479,7 +498,8 @@ static int calc_weight_matrix( obseqn *A )
 
         inverse_error = chol_dec( A->wgt, A->nrow );
         alloc_tmp( (long) A->nrow );
-        if( !inverse_error ) chol_inv( A->wgt, tmp, A->nrow );
+        if( !inverse_error ) { chol_inv( A->wgt, tmp, A->nrow );
+}
     }
 
     return inverse_error;
@@ -493,7 +513,8 @@ int lsq_sum_obseqn( void * hA)
     int nused;
     int sts;
 
-    if( lsq_status != LSQ_SUMMING ) sequence_error( "lsq_sum_obseqn" );
+    if( lsq_status != LSQ_SUMMING ) { sequence_error( "lsq_sum_obseqn" );
+}
 
     A = (obseqn *) hA;
 
@@ -519,7 +540,8 @@ int lsq_sum_obseqn( void * hA)
        or all the obs are flagged as unused, stop at this point. */
 
     nobs += nused = sum_eobs( A );
-    if( !nused || ! (A->flag & OE_SCHREIBER) ) return 0;
+    if( !nused || ! (A->flag & OE_SCHREIBER) ) { return 0;
+}
 
     /* Correct the normal equations for the schreiber equations */
     /* and decrement the count of observations                  */
@@ -536,7 +558,8 @@ int lsq_sum_obseqn( void * hA)
 void lsq_zero_b_vector( void )
 {
     int i;
-    for( i = 0; i<nprm; i++ ) b[i] = 0.0;
+    for( i = 0; i<nprm; i++ ) { b[i] = 0.0;
+}
     ssr = 0.0;
 }
 
@@ -546,7 +569,8 @@ int lsq_solve_equations( int force_solution )
     int i;
     int sts;
 
-    if( lsq_status != LSQ_SUMMING ) sequence_error( "lsq_solve_equations" );
+    if( lsq_status != LSQ_SUMMING ) { sequence_error( "lsq_solve_equations" );
+}
 
     sts = 0;
 
@@ -562,7 +586,8 @@ int lsq_solve_equations( int force_solution )
 
         /* Save the matrix */
 
-        for( i = 0; i<nprm; i++ ) tmp[i] = b[i];
+        for( i = 0; i<nprm; i++ ) { tmp[i] = b[i];
+}
 
         /* Solve the equations */
 
@@ -570,7 +595,8 @@ int lsq_solve_equations( int force_solution )
 
         /* Correct the ssr for the adjustments */
 
-        for( i = 0; i<nprm; i++ ) ssr -= tmp[i]*b[i];
+        for( i = 0; i<nprm; i++ ) { ssr -= tmp[i]*b[i];
+}
 
     }
 
@@ -578,8 +604,10 @@ int lsq_solve_equations( int force_solution )
 
     ndof = nobs - nprm;
     seu = 1.0;
-    if( ndof > 0 ) seu = ssr/ndof;
-    if( seu > 0.0 ) seu = sqrt(seu);
+    if( ndof > 0 ) { seu = ssr/ndof;
+}
+    if( seu > 0.0 ) { seu = sqrt(seu);
+}
 
 
     lsq_status = LSQ_SOLVED;
@@ -592,14 +620,21 @@ void lsq_get_stats( long *lsnobs, int *lsnprm, long *lsnschp,
                     long *lsdof, double *lsssr, double *lsseu )
 {
 
-    if( lsq_status == LSQ_UNINIT ) sequence_error( "lsq_solve_equations" );
+    if( lsq_status == LSQ_UNINIT ) { sequence_error( "lsq_solve_equations" );
+}
 
-    if( lsnobs ) *lsnobs = nobs;
-    if( lsnprm ) *lsnprm = nprm;
-    if( lsnschp) *lsnschp= nschp;
-    if( lsdof )  *lsdof  = ndof;
-    if( lsssr )  *lsssr  = ssr;
-    if( lsseu )  *lsseu  = seu;
+    if( lsnobs ) { *lsnobs = nobs;
+}
+    if( lsnprm ) { *lsnprm = nprm;
+}
+    if( lsnschp) { *lsnschp= nschp;
+}
+    if( lsdof ) {  *lsdof  = ndof;
+}
+    if( lsssr ) {  *lsssr  = ssr;
+}
+    if( lsseu ) {  *lsseu  = seu;
+}
 }
 
 
@@ -608,8 +643,10 @@ void lsq_get_stats( long *lsnobs, int *lsnprm, long *lsnschp,
 
 static void set_lsq_status( const int required_status, const std::string_view routine )
 {
-    if( lsq_status == LSQ_INVERTED ) return;
-    if( lsq_status == LSQ_SUMMING ) lsq_solve_equations( 0 );
+    if( lsq_status == LSQ_INVERTED ) { return;
+}
+    if( lsq_status == LSQ_SUMMING ) { lsq_solve_equations( 0 );
+}
     if( lsq_status == LSQ_UNINIT ) { sequence_error( routine ); return; }
     if( required_status == LSQ_INVERTED )
     {
@@ -635,8 +672,10 @@ double *lsq_get_covariance_row( int row )
     int i;
     set_lsq_status( LSQ_SOLVED, "get_covariance_row" );
     if( lsq_status != LSQ_SOLVED ) {sequence_error("get_covariance_row"); return nullptr;}
-    if( !nprm ) return nullptr;
-    for( i = 0; i < nprm; i++ ) tmp[i] = 0.0;
+    if( !nprm ) { return nullptr;
+}
+    for( i = 0; i < nprm; i++ ) { tmp[i] = 0.0;
+}
     tmp[row] = 1.0;
     blt_chol_slv( N, tmp, tmp );
     return tmp;
@@ -685,10 +724,11 @@ void lsq_get_params( int row[], int nrows, double *value, ltmat covar )
     }
     if( covar )
     {
-        for( c = 0; c<nrows; c++ ) for( r = 0; r<=c; r++ )
+        for( c = 0; c<nrows; c++ ) { for( r = 0; r<=c; r++ )
             {
                 *covar++ = BLT(N,row[c],row[r]);
             }
+}
     }
 }
 
@@ -866,7 +906,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
     if( schreiber )
     {
-        if(schprm) *schprm = schv;
+        if(schprm) { *schprm = schv;
+}
         if(schvar || calccvr )
         {
 
@@ -881,7 +922,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
                          calc_vtNv( Asch->obs[0], N, Asch->obs[0] );
             }
 
-            if( schvar ) *schvar = cvrff;
+            if( schvar ) { *schvar = cvrff;
+}
         }
     }
 
@@ -893,7 +935,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
        */
 
-    if( !calccvr ) return;
+    if( !calccvr ) { return;
+}
 
     /* If we have schreiber equations then calculate the covariance of the
        p, the parameters, and f, the implicitly LSQ_SOLVED parameter.  This
@@ -908,7 +951,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
         obs = Asch->obs[0];
         if( none_used )
         {
-            for( i=0; i<obs->ncol; i++ ) tmp[obs->col[i]] = 0.0;
+            for( i=0; i<obs->ncol; i++ ) { tmp[obs->col[i]] = 0.0;
+}
         }
         else
         {
@@ -941,7 +985,7 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
     cvr = calccvr;
 
-    for( irow = 0; irow < A->nrow; irow++ )
+    for( irow = 0; irow < A->nrow; irow++ ) {
         for( jrow = diagonal ? irow : 0; jrow <= irow; jrow++, cvr++ )
         {
             *cvr = calc_vtNv( A->obs[irow], N, A->obs[jrow] );
@@ -950,14 +994,17 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
                 sum = A->obs[irow]->schv *
                       vecprd_ov( A->obs[jrow], tmp );
                 *cvr += sum;
-                if( irow == jrow ) *cvr += sum;
-                else *cvr += A->obs[jrow]->schv *
+                if( irow == jrow ) { *cvr += sum;
+                } else { *cvr += A->obs[jrow]->schv *
                                  vecprd_ov( A->obs[irow], tmp );
+}
                 *cvr += A->obs[irow]->schv * A->obs[jrow]->schv * cvrff;
             }
         }
+}
 
-    if( !rescvr ) return;
+    if( !rescvr ) { return;
+}
 
     /* Now all that's left is the covariances of the residuals.  The only
        real problem is that the observations may not be used - otherwise
@@ -1014,7 +1061,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
         }
         else
         {
-            if( !wgtdiag ) ocvr += irow;
+            if( !wgtdiag ) { ocvr += irow;
+}
         }
         *rcvr = *ocvr++;
         if( irowunused )
@@ -1027,7 +1075,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
         }
     }
 
-    if( simple ) return;
+    if( simple ) { return;
+}
 
     /* The worst is now left - sorting out correlation of the unused
        observations with the parameters.. */
@@ -1071,7 +1120,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
         if( obs->flag & OE_UNUSED )
         {
-            for( irow = 0; irow < nrow; irow ++ ) ATNA(irow,icol) = 0.0;
+            for( irow = 0; irow < nrow; irow ++ ) { ATNA(irow,icol) = 0.0;
+}
         }
 
         /* Otherwise form the product A'N"A~ */
@@ -1154,7 +1204,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 void lsq_print_normal_equations_json( FILE *out, int nprefix )
 {
     int ir;
-    if( lsq_status != LSQ_SUMMING ) sequence_error( "lsq_print_normal_equations_json" );
+    if( lsq_status != LSQ_SUMMING ) { sequence_error( "lsq_print_normal_equations_json" );
+}
 
     fprintf(out,"{\n%*s\"nparam\": %d",nprefix,"",nprm);
     if( nprm )
@@ -1165,7 +1216,8 @@ void lsq_print_normal_equations_json( FILE *out, int nprefix )
             if( ir ) 
             {
                 fprintf(out,",");
-                if( ir % 20 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
+                if( ir % 20 == 0 ) { fprintf(out,"\n%*s  ",nprefix,"");
+}
             }
             fprintf(out,"%15.8le",b[ir]);
         }
@@ -1193,7 +1245,8 @@ void lsq_print_solution_vector_json( FILE *out, int print_cvr, int nprefix )
             if( ir ) 
             {
                 fprintf(out,",");
-                if( ir % 20 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
+                if( ir % 20 == 0 ) { fprintf(out,"\n%*s  ",nprefix,"");
+}
             }
             fprintf(out,"%15.8le",b[ir]);
         }

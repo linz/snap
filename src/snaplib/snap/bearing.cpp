@@ -55,7 +55,8 @@ static int find_bproj( std::string_view name )
 {
     for( size_t nbp = 0; nbp < bplist.size(); nbp++ )
     {
-        if( compare_ignoring_case( bplist[nbp]->name, name ) == 0 ) return numeric_cast<int>( nbp+1 );
+        if( compare_ignoring_case( bplist[nbp]->name, name ) == 0 ) { return numeric_cast<int>( nbp+1 );
+}
     }
     return 0;
 }
@@ -71,10 +72,12 @@ static int create_bproj( std::string_view name )
     /* See if coordinate system is valid and can be converted to the
        network coordinate system */
 
-    if( ! net ) return 0;
+    if( ! net ) { return 0;
+}
 
     coordsys *prjsys = load_coordsys( name );
-    if( ! prjsys ) return 0;
+    if( ! prjsys ) { return 0;
+}
 
     if( ! is_projection( prjsys ) ||
             (use_datum_trans &&
@@ -103,7 +106,8 @@ int get_bproj( std::string_view name )
     int bp;
 
     bp = find_bproj( name );
-    if( !bp ) bp = create_bproj( name );
+    if( !bp ) { bp = create_bproj( name );
+}
     return bp;
 }
 
@@ -143,7 +147,8 @@ int calc_prj_azimuth2( int bproj_id,
         (*angle) = calc_azimuth(st1, hgt1, st2, hgt2, 0, dst1, dst2 );
     }
 
-    if( ! bproj ) return INVALID_DATA;
+    if( ! bproj ) { return INVALID_DATA;
+}
 
     llh[CRD_LAT] = st1->ELat;
     llh[CRD_LON] = st1->ELon;
@@ -151,24 +156,28 @@ int calc_prj_azimuth2( int bproj_id,
 
     if( bproj->dtmtrans )
     {
-        if( convert_coords( &(bproj->prjconv), llh, nullptr, enh, nullptr ) != OK )
+        if( convert_coords( &(bproj->prjconv), llh, nullptr, enh, nullptr ) != OK ) {
             return INVALID_DATA;
+}
         e1 = enh[CRD_EAST];
         n1 = enh[CRD_NORTH];
 
         llh[CRD_LAT] = st2->ELat;
         llh[CRD_LON] = st2->ELon;
 
-        if( convert_coords( &(bproj->prjconv), llh, nullptr, enh, nullptr ) != OK )
+        if( convert_coords( &(bproj->prjconv), llh, nullptr, enh, nullptr ) != OK ) {
             return INVALID_DATA;
+}
         e2 = enh[CRD_EAST];
         n2 = enh[CRD_NORTH];
     }
     else
     {
         projection *prj = bproj->prjsys->prj;
-        if( geog_to_proj(prj,st1->ELon,st1->ELat,&e1,&n1) != OK ) return INVALID_DATA;
-        if( geog_to_proj(prj,st2->ELon,st2->ELat,&e2,&n2) != OK ) return INVALID_DATA;
+        if( geog_to_proj(prj,st1->ELon,st1->ELat,&e1,&n1) != OK ) { return INVALID_DATA;
+}
+        if( geog_to_proj(prj,st2->ELon,st2->ELat,&e2,&n2) != OK ) { return INVALID_DATA;
+}
     }
 
 

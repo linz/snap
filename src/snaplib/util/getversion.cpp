@@ -32,7 +32,8 @@ std::string getProgramName()
 const std::string &getProgramVersion( const std::string_view version )
 {
     static std::string programVersion;
-    if( ! programVersion.empty() ) return programVersion;
+    if( ! programVersion.empty() ) { return programVersion;
+}
 
     programVersion=read_first_word(build_filespec(image_dir(),"VERSION",""),MAX_VERSION_LENGTH);
     if( programVersion.empty() )

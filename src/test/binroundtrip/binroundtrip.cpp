@@ -279,8 +279,9 @@ static void dump_disk_fields_text( std::ostream &out, const T &base, const DiskF
 {
     for_each_disk_field( base, table, table_size,
         [&out]( FieldKind kind, auto value ) {
-            if( kind == FieldKind::Float64 ) dump_bare_value( out, static_cast<double>(value) );
-            else dump_bare_value( out, static_cast<long long>(value) );
+            if( kind == FieldKind::Float64 ) { dump_bare_value( out, static_cast<double>(value) );
+            } else { dump_bare_value( out, static_cast<long long>(value) );
+}
         } );
 }
 
@@ -292,7 +293,8 @@ static void dump_station_text( std::ostream &out, const std::string &section, co
     out << "=== " << section << " ===\n";
     dump_disk_fields_text( out, *st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT );
     out << numeric_cast<long>( st->classval.size() ) << "\n";
-    for( const int value : st->classval ) out << value << "\n";
+    for( const int value : st->classval ) { out << value << "\n";
+}
     out << st->Name << "\n";
 }
 
@@ -483,9 +485,12 @@ static void dump_obsdata_text( std::ostream &out, const obsdata &od )
 static void dump_vecdata_text( std::ostream &out, const vecdata &vd )
 {
     dump_trgtdata_text( out, vd.tgt );
-    for( int i = 0; i < 3; i++ ) dump_bare_value( out, vd.vector[i] );
-    for( int i = 0; i < 3; i++ ) dump_bare_value( out, vd.calc[i] );
-    for( int i = 0; i < 3; i++ ) dump_bare_value( out, vd.residual[i] );
+    for( int i = 0; i < 3; i++ ) { dump_bare_value( out, vd.vector[i] );
+}
+    for( int i = 0; i < 3; i++ ) { dump_bare_value( out, vd.calc[i] );
+}
+    for( int i = 0; i < 3; i++ ) { dump_bare_value( out, vd.residual[i] );
+}
     // Labeled, unlike every other field here: vsres divides a residual by
     // a Cholesky-decomposed covariance pivot (vector_standardised_residual,
     // gpscvr.cpp) - a near-singular pivot amplifies ordinary cross-compiler
@@ -571,13 +576,18 @@ static void dump_observations_text( std::ostream &out, BINARY_FILE *in )
             case SD_PNTDATA: dump_pntdata_text( out, sd->obs.pdata[i] ); break;
             }
         }
-        for( int i = 0; i < sd->nclass; i++ ) dump_classdata_text( out, sd->clsf[i] );
-        for( int i = 0; i < sd->nsyserr; i++ ) dump_syserrdata_text( out, sd->syserr[i] );
+        for( int i = 0; i < sd->nclass; i++ ) { dump_classdata_text( out, sd->clsf[i] );
+}
+        for( int i = 0; i < sd->nsyserr; i++ ) { dump_syserrdata_text( out, sd->syserr[i] );
+}
         if( sd->ncvr > 0 ) {
             const int n = sd->ncvr * (sd->ncvr + 1) / 2;
-            for( int i = 0; i < n; i++ ) dump_bare_value( out, sd->cvr[i] );
-            for( int i = 0; i < n; i++ ) dump_bare_value( out, sd->calccvr[i] );
-            for( int i = 0; i < n; i++ ) dump_bare_value( out, sd->rescvr[i] );
+            for( int i = 0; i < n; i++ ) { dump_bare_value( out, sd->cvr[i] );
+}
+            for( int i = 0; i < n; i++ ) { dump_bare_value( out, sd->calccvr[i] );
+}
+            for( int i = 0; i < n; i++ ) { dump_bare_value( out, sd->rescvr[i] );
+}
         }
     }
 }

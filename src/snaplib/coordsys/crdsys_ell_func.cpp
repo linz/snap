@@ -39,8 +39,10 @@ double * llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
     xyz[1] = p*sln;
     xyz[2] = el->b2*slt/bsac + llh[CRD_HGT]*slt;
 
-    if( dEdLn ) *dEdLn = p;
-    if( dNdLt ) *dNdLt = (el->a2 * el->b2)/(bsac*bsac*bsac) + hgt;
+    if( dEdLn ) { *dEdLn = p;
+}
+    if( dNdLt ) { *dNdLt = (el->a2 * el->b2)/(bsac*bsac*bsac) + hgt;
+}
 
     return &xyz[0];
 }
@@ -61,7 +63,8 @@ double * xyz_to_llh( ellipsoid *el, double xyz[3], double llh[3] )
         clt    = cos(lt);
         bsac   = _hypot( el->b*slt, el->a*clt );
         lt     = atan2( xyz[2]+slt*el->a2b2/bsac, p );
-        if ( fabs(lt-lt0) < 1.0e-10 ) break;
+        if ( fabs(lt-lt0) < 1.0e-10 ) { break;
+}
     }
     while( it++ < 10);
 

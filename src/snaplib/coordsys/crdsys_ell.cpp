@@ -25,6 +25,7 @@ ellipsoid::ellipsoid( const std::string &code_, const std::string &name_, const 
 
 int identical_ellipsoids( ellipsoid *el1, ellipsoid *el2 )
 {
-    if( el1->a == el2->a && el1->rf == el2->rf ) return 1;
+    if( el1->a == el2->a && el1->rf == el2->rf ) { return 1;
+}
     return 0;
 }

@@ -45,7 +45,8 @@ double calculate_mde( double sobs, double sres )
     {
         return  mde_value_used * sobs*sobs / sres;
     }
-    else return 0.0;
+    else { return 0.0;
+}
 }
 
 double residual_significance( double sres, int used, int rank )
@@ -85,8 +86,9 @@ double residual_significance( double sres, int used, int rank )
 
 double prob_of_maximum( double prob, int rank )
 {
-    if( prob < 1.0 && nobs > 0 ) prob = 1.0 - exp( (log(1.0 - prob)*rank) / nobs );
-    else prob = 0.0;
+    if( prob < 1.0 && nobs > 0 ) { prob = 1.0 - exp( (log(1.0 - prob)*rank) / nobs );
+    } else { prob = 0.0;
+}
     return prob;
 }
 

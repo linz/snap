@@ -85,8 +85,10 @@ void gnomic_geod( GnomicProjection *gp, double ce, double cn, double *lon, doubl
 
     dlam = asin(u/cos(*lat));
     dlam += gp->orglon;
-    while( dlam > PI ) dlam -= TWOPI;
-    while( dlam < -PI ) dlam += TWOPI;
+    while( dlam > PI ) { dlam -= TWOPI;
+}
+    while( dlam < -PI ) { dlam += TWOPI;
+}
 
     *lon = dlam;
 }

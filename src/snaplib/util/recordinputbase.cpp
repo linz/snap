@@ -17,8 +17,10 @@ void RecordError::_setLocation()
     {
         std::ostringstream location;
         location << "File: " << _filename;
-        if( _lineno >= 0 ) location << "  line: " << _lineno;
-        if( _recordno >= 0 ) location << "  record: " << _recordno;
+        if( _lineno >= 0 ) { location << "  line: " << _lineno;
+}
+        if( _recordno >= 0 ) { location << "  record: " << _recordno;
+}
         _location = location.str();
     }
 }
@@ -52,13 +54,16 @@ IstreamRecordInput::IstreamRecordInput( const std::string &filename ) :
     _ownInput = true;
     _lineno = 0;
 }
-IstreamRecordInput::~IstreamRecordInput() { if( _ownInput ) delete _is; }
+IstreamRecordInput::~IstreamRecordInput() { if( _ownInput ) { delete _is; 
+}}
 
 bool IstreamRecordInput::getNextLine( std::string &line )
 {
-    if( _is->eof()) return false;
+    if( _is->eof()) { return false;
+}
     std::getline( *_is, line );
-    if( _is->fail()) return false; 
+    if( _is->fail()) { return false; 
+}
     _lineno++;
     return true;
 }

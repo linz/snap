@@ -107,10 +107,12 @@ void set_network_name( network *nw, const std::string &n )
 {
     nw->name = std::nullopt;
     size_t start = n.find_first_not_of(" \n");
-    if( start == std::string::npos ) return;
+    if( start == std::string::npos ) { return;
+}
     std::string name = n.substr(start);
     size_t nl = name.find('\n');
-    if( nl != std::string::npos ) name.resize(nl);
+    if( nl != std::string::npos ) { name.resize(nl);
+}
     nw->name = std::move(name);
 }
 
@@ -171,7 +173,8 @@ int network::class_id( const std::string &classname, int create )
     {
         id = stnclasses.id( classname, 1 );
         stnclasses.set_default_value( id, "-" );
-        if( boost::algorithm::iequals(classname,STATION_ORDER_CLASS_NAME) ) orderclsid = id;
+        if( boost::algorithm::iequals(classname,STATION_ORDER_CLASS_NAME) ) { orderclsid = id;
+}
     }
     return id;
 }
@@ -235,7 +238,8 @@ int network_has_geoid_info( network *nw )
 
 void set_network_explicit_geoid_info( network *nw, char geoid_opts )
 {
-    if( ! geoid_opts ) geoid_opts = NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
+    if( ! geoid_opts ) { geoid_opts = NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
+}
     nw->options |= geoid_opts | NW_EXPLICIT_GEOID;
 }
 

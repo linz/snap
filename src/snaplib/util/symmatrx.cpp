@@ -51,21 +51,25 @@ int chol_dec( ltmat N, int np )
         r1 = ROW(N,i);
         for ( j=0; j<i; j++ )
         {
-            if( *r1++ != 0.0 ) break;
+            if( *r1++ != 0.0 ) { break;
+}
         }
         kmin = j;
         for ( ; j<= i; j++ )
         {
             r1=ROW(N,i)+kmin; r2=ROW(N,j)+kmin; sum=0.0;
-            for( k=kmin; k<j; k++ ) sum -= *r1++ * *r2++;
+            for( k=kmin; k<j; k++ ) { sum -= *r1++ * *r2++;
+}
             sum += *r1;
             if ( i==j )
             {
-                if( sum < *r1 * small || sum < abssmall ) return ++i;
+                if( sum < *r1 * small || sum < abssmall ) { return ++i;
+}
                 *r1 = sqrt( sum );
             }
-            else
+            else {
                 *r1 = sum/ *r2;
+}
         }
     }
     return 0;
@@ -78,7 +82,8 @@ void chol_slv( ltmat N, ltmat b, ltmat r, int np )
     int i,k;
     for ( i=0, r1=N; i<np; i++ )
     {
-        for (k = 0, sum=0.0; k<i; k++ ) sum -= *r1++ * r[k];
+        for (k = 0, sum=0.0; k<i; k++ ) { sum -= *r1++ * r[k];
+}
         r[i] = (b[i]+sum) / *r1++;
     }
     for ( i=np; i--; )
@@ -105,7 +110,8 @@ void chol_inv( ltmat N, ltmat tmp, int np )
         for (j=np; j-- > i; )
         {
             sum = (i==j) ? 1.0/tmp[i] : 0.0;
-            for (k=i; ++k < np; ) sum -= tmp[k] * Lij(N,k,j);
+            for (k=i; ++k < np; ) { sum -= tmp[k] * Lij(N,k,j);
+}
             Lij(N,i,j) = sum/tmp[i];
         }
     }
@@ -119,7 +125,8 @@ void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent )
     int i, j, k, cols, wid;
     const char *f;
 
-    for( f=format; *f != 0 && (*f < '0' || *f > '9'); f++);
+    for( f=format; *f != 0 && (*f < '0' || *f > '9'); f++) {;
+}
     if( *f )
     {
         int iwid;
@@ -132,13 +139,15 @@ void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent )
     }
 
     cols = (80-indent)/(wid+1);
-    if( cols < 4 ) cols = 4;
+    if( cols < 4 ) { cols = 4;
+}
 
 
     for (k=0; k<nrow; k+=cols)
     {
         fprintf(out,"\n%.*s       ",indent,"");
-        for( j=k; j<nrow && j<k+cols; j++) fprintf(out,"%*d ",wid,j+1);
+        for( j=k; j<nrow && j<k+cols; j++) { fprintf(out,"%*d ",wid,j+1);
+}
         fprintf(out,"\n");
         for (i=k; i<nrow; i++ )
         {
@@ -165,7 +174,8 @@ void print_ltmat_json( FILE *out, ltmat N, int nrow, const char *format, int ind
             if( ic )
             {
                 fprintf(out,",");
-                if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",indent,"");
+                if( ic % 10 == 0 ) { fprintf(out,"\n%*s  ",indent,"");
+}
             }
             fprintf( out, format, Lij(N,ir,ic));
         }
@@ -199,14 +209,17 @@ int pvt_chol_dec( ltmat N, int *col, int nprm )
     rmin = -1.0;
     for( i=1, nptr = N; i++ <= nprm; nptr += i )
     {
-        if( *nptr > rmin ) rmin = *nptr;
+        if( *nptr > rmin ) { rmin = *nptr;
+}
     }
     rmin /= 1.0e10;
-    if( rmin < 1.0e-20 ) rmin = 1.0e-20;
+    if( rmin < 1.0e-20 ) { rmin = 1.0e-20;
+}
 
     /* Initialise the pointers */
 
-    for( i = 0; i<nprm*2; i++) col[i] = -1;
+    for( i = 0; i<nprm*2; i++) { col[i] = -1;
+}
     prm = col + nprm;
 
     /* Main decomposition loop */
@@ -256,7 +269,7 @@ int pvt_chol_dec( ltmat N, int *col, int nprm )
         /* Calculate the other elements of the row and apply their
         influence to the corresponding diagonal element. */
 
-        for( icol = 0; icol < nprm; icol++ ) if( prm[icol] < 0 )
+        for( icol = 0; icol < nprm; icol++ ) { if( prm[icol] < 0 )
             {
                 sum = Lij(N,icol,imax);
                 for( i = 0; i<irow; i++ )
@@ -267,6 +280,7 @@ int pvt_chol_dec( ltmat N, int *col, int nprm )
                 Lij(N,icol,imax) = sum;
                 Lij(N,icol,icol) -= sum*sum;
             }
+}
     }
 
     return nfix;
@@ -314,7 +328,8 @@ void pvt_chol_inv( ltmat N, ltmat tmp, int *col, int np )
         {
             jrow = col[j];
             sum = (i==j) ? 1.0/tmp[i] : 0.0;
-            for (k=i; ++k < np; ) sum -= tmp[k] * Lij(N,col[k],jrow);
+            for (k=i; ++k < np; ) { sum -= tmp[k] * Lij(N,col[k],jrow);
+}
             Lij(N,irow,jrow) = sum/tmp[i];
         }
     }

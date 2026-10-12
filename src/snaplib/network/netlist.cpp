@@ -58,7 +58,8 @@ void delete_station_list( station_list *sl )
 {
     for( int i=1; i <= sl->lastid; i++ )
     {
-        if( sl->index[i] ) delete_station(sl->index[i] );
+        if( sl->index[i] ) { delete_station(sl->index[i] );
+}
     }
     delete [] sl->index;
     delete [] sl->codeindex;
@@ -79,7 +80,8 @@ void sl_add_station( station_list *sl, station *st )
         sl->indexsize *= 2;
     }
     sl->index[sl->lastid]=st;
-    if( st ) st->id=sl->lastid;
+    if( st ) { st->id=sl->lastid;
+}
 }
 
 /* Function used by reload_station_list to ensure station ids are preserved */
@@ -88,8 +90,10 @@ void sl_add_station( station_list *sl, station *st )
 void sl_add_station_at_id( station_list *sl, station *st )
 {
     int id=st->id;
-    if( id <= sl->lastid ) return;
-    while( sl->lastid < id-1 ) sl_add_station(sl,nullptr);
+    if( id <= sl->lastid ) { return;
+}
+    while( sl->lastid < id-1 ) { sl_add_station(sl,nullptr);
+}
     sl_add_station(sl,st);
 }
 
@@ -101,7 +105,8 @@ void sl_remove_station( station_list *sl, station *st )
         sl->index[id]=nullptr;
         st->id=0;
         sl->count--;
-        if( id <= sl->maxsortid ) sl->maxsortid=0;
+        if( id <= sl->maxsortid ) { sl->maxsortid=0;
+}
     }
 }
 
@@ -139,9 +144,11 @@ int stncodecmp(
         };
         const std::string_view number1 = significantDigits( s1.substr(digits1) );
         const std::string_view number2 = significantDigits( s2.substr(digits2) );
-        if( number1.size() != number2.size() ) return number1.size() < number2.size() ? -1 : 1;
+        if( number1.size() != number2.size() ) { return number1.size() < number2.size() ? -1 : 1;
+}
         const int cmp = number1.compare( number2 );
-        if( cmp != 0 ) return cmp < 0 ? -1 : 1;
+        if( cmp != 0 ) { return cmp < 0 ? -1 : 1;
+}
     }
     return compare_ignoring_case( s1, s2 );
 }
@@ -160,7 +167,8 @@ static void index_stations( station_list *sl )
 {
     int i, ic, count; 
 
-    if( sl->maxsortid == sl->lastid ) return;
+    if( sl->maxsortid == sl->lastid ) { return;
+}
 
     count=sl->count;
     delete [] sl->codeindex;
@@ -173,7 +181,8 @@ static void index_stations( station_list *sl )
         if( sl->index[i] )
         {
             ic++;
-            if( ic <= count ) sl->codeindex[ic]=sl->index[i];
+            if( ic <= count ) { sl->codeindex[ic]=sl->index[i];
+}
         }
     }
     assert( ic == count );
@@ -187,12 +196,14 @@ static void index_stations( station_list *sl )
 /// given code, or 0 if there is none.
 static int sl_lookup_codeindex( station_list *sl, std::string_view code )
 {
-    if( sl->nsorted < 1 ) return 0;
+    if( sl->nsorted < 1 ) { return 0;
+}
     station **first = sl->codeindex+1;
     station **last = first+sl->nsorted;
     station **match = std::lower_bound( first, last, code,
         []( const station *st, std::string_view target ) { return stncodecmp( st->Code, target ) < 0; } );
-    if( match == last || stncodecmp( (*match)->Code, code ) != 0 ) return 0;
+    if( match == last || stncodecmp( (*match)->Code, code ) != 0 ) { return 0;
+}
     return numeric_cast<int>( match - sl->codeindex );
 }
 
@@ -242,7 +253,8 @@ int sl_remove_duplicate_stations( station_list *sl, int reindex, void *data, stn
         {
             sl_remove_station(sl, st);
             nremove++;
-            if( function ) (*function)(st,data);
+            if( function ) { (*function)(st,data);
+}
         }
     }
     if( nremove && reindex )
@@ -255,7 +267,8 @@ int sl_remove_duplicate_stations( station_list *sl, int reindex, void *data, stn
 int sl_find_station( station_list *sl, std::string_view code )
 {
     int i;
-    if( sl->count < 0 ) return 0;
+    if( sl->count < 0 ) { return 0;
+}
     if( sl->lastid > sl->maxsortid )
     {
         if( sl->lastid - sl->maxsortid > STNLIST_MAX_LINEAR_SEARCH )
@@ -267,7 +280,8 @@ int sl_find_station( station_list *sl, std::string_view code )
             for( i = sl->maxsortid+1; i <= sl->lastid; i++ )
             {
                 station *st=sl->index[i];
-                if( st && stncodecmp(st->Code,code)==0 ) return i;
+                if( st && stncodecmp(st->Code,code)==0 ) { return i;
+}
             }
         }
     }
@@ -288,13 +302,15 @@ int sl_station_id( station_list *, station *st )
 
 station *sl_station_ptr( station_list *sl, int istn )
 {
-    if( istn < 1 || istn > sl->lastid ) return nullptr;
+    if( istn < 1 || istn > sl->lastid ) { return nullptr;
+}
     return sl->index[istn];
 }
 
 station *sl_station_sorted_ptr( station_list *sl, int istn )
 {
-    if( istn < 1 || istn > sl->nsorted ) return nullptr;
+    if( istn < 1 || istn > sl->nsorted ) { return nullptr;
+}
     return sl->codeindex[istn];
 }
 
@@ -305,13 +321,15 @@ void sl_process_stations( station_list *sl, void *data, void (*function)( statio
     index_stations( sl );
     for( i=0; i++ < sl->nsorted; )
     {
-        if(sl->index[i]) (*function)( sl->index[i], data );
+        if(sl->index[i]) { (*function)( sl->index[i], data );
+}
     }
 }
 
 void sl_reset_station_list( station_list *sl, int sorted )
 {
-    if( sorted ) index_stations( sl );
+    if( sorted ) { index_stations( sl );
+}
     sl->usesorted = sorted;
     sl->nextstn = 1;
 }

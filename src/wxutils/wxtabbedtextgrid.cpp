@@ -71,23 +71,28 @@ bool wxTabbedTextTable::GetColRightJustify( int col )
 
 wxString wxTabbedTextTable::GetColLabelValue( int col )
 {
-    if( colName == nullptr ) return "";
+    if( colName == nullptr ) { return "";
+}
     return colName[ col ];
 }
 
 wxString wxTabbedTextTable::GetValue( int row, int col )
 {
-    if( ttsource == nullptr ) return "";
-    if( row != currow ) GetRow( row );
+    if( ttsource == nullptr ) { return "";
+}
+    if( row != currow ) { GetRow( row );
+}
     wxString value( rowData[col] );
-    if( rightJustify[col] ) value.Append("  ");
+    if( rightJustify[col] ) { value.Append("  ");
+}
     return value;
 }
 
 wxString wxTabbedTextTable::GetText()
 {
     wxString text;
-    if( ttsource ) text = ttsource->GetText();
+    if( ttsource ) { text = ttsource->GetText();
+}
     return text;
 }
 
@@ -122,7 +127,8 @@ std::vector<std::string_view> wxTabbedTextTable::_splitColumns( const std::strin
 std::string_view wxTabbedTextTable::_trimBlanks( std::string_view column )
 {
     const size_t first = column.find_first_not_of( ' ' );
-    if( first == std::string_view::npos ) return std::string_view();
+    if( first == std::string_view::npos ) { return std::string_view();
+}
     column.remove_prefix( first );
     column.remove_suffix( column.size() - 1 - column.find_last_not_of( ' ' ) );
     return column;
@@ -165,7 +171,8 @@ void wxTabbedTextTable::SetSource( wxTabbedTextSource *source )
 
             // If first character is blank, then right justify
             rightJustify[i] = ! column.empty() && column.front() == ' ';
-            if( rightJustify[i] ) column.remove_prefix( 1 );
+            if( rightJustify[i] ) { column.remove_prefix( 1 );
+}
 
             // The width includes any leading blanks, the name does not
             colWidth[i] = boost::numeric_cast<int>( column.size() );
@@ -176,8 +183,10 @@ void wxTabbedTextTable::SetSource( wxTabbedTextSource *source )
 
 void wxTabbedTextTable::GetRow( int nrow )
 {
-    if( ! ttsource ) return;
-    if( currow == nrow ) return;
+    if( ! ttsource ) { return;
+}
+    if( currow == nrow ) { return;
+}
 
     const std::string row = ttsource->GetRow(nrow);
     const std::vector<std::string_view> columns = _splitColumns( row );
@@ -273,7 +282,8 @@ void wxTabbedTextGrid::SetTabbedTextSource( wxTabbedTextSource *source )
 wxString wxTabbedTextGrid::GetText()
 {
     wxString text;
-    if( table ) text = table->GetText();
+    if( table ) { text = table->GetText();
+}
     return text;
 }
 
@@ -286,7 +296,8 @@ void wxTabbedTextGrid::OnCellSelect( wxGridEvent &event )
 
 void wxTabbedTextGrid::OnRangeSelect( wxGridRangeSelectEvent &event )
 {
-    if( ! event.Selecting() ) return;
+    if( ! event.Selecting() ) { return;
+}
     int row = event.GetBottomRow();
     if( row != event.GetTopRow() )
     {
@@ -294,9 +305,12 @@ void wxTabbedTextGrid::OnRangeSelect( wxGridRangeSelectEvent &event )
         return;
     }
     long keystate = 0;
-    if( event.ShiftDown() ) keystate |= WX_TTGRID_SHIFTDOWN;
-    if( event.ControlDown() ) keystate |= WX_TTGRID_CTRLDOWN;
-    if( event.AltDown() ) keystate |= WX_TTGRID_ALTDOWN;
+    if( event.ShiftDown() ) { keystate |= WX_TTGRID_SHIFTDOWN;
+}
+    if( event.ControlDown() ) { keystate |= WX_TTGRID_CTRLDOWN;
+}
+    if( event.AltDown() ) { keystate |= WX_TTGRID_ALTDOWN;
+}
     SendRowSelectedEvent(row, keystate );
 }
 

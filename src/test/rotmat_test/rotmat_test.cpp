@@ -24,7 +24,8 @@ int failures = 0;
 
 void check_close( const double actual, const double expected, const double tolerance, const std::string &description )
 {
-    if( std::fabs( actual - expected ) <= tolerance ) return;
+    if( std::fabs( actual - expected ) <= tolerance ) { return;
+}
     ++failures;
     std::cout << "FAIL: " << description << ": expected " << expected << " got " << actual << "\n";
 }

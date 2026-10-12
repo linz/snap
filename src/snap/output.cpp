@@ -225,7 +225,8 @@ int read_output_options( CFG_FILE *cfg, std::string_view string, void *, int, in
 
         if( boost::algorithm::iequals( st, "everything") )
         {
-            for( output_option &option : output_set ) *(option.status) = true;
+            for( output_option &option : output_set ) { *(option.status) = true;
+}
             o = nullptr;
             continue;
         }
@@ -251,7 +252,8 @@ int read_output_options( CFG_FILE *cfg, std::string_view string, void *, int, in
         {
             send_config_error( cfg, INVALID_DATA, "Invalid output option " + std::string(name.substr(0,30)) );
         }
-        if( ! set ) o=nullptr;
+        if( ! set ) { o=nullptr;
+}
     }
     return OK;
 }
@@ -310,7 +312,8 @@ static int read_cvr_connections( CFG_FILE *cfg, std::string_view string, void *,
 static void set_usenode( station *st, void *data )
 {
     char *usenode=(char *) data;
-    if( st->id >= 0 ) usenode[st->id]=1;
+    if( st->id >= 0 ) { usenode[st->id]=1;
+}
 }
 
 void delete_requested_covariance_connections()
@@ -330,7 +333,8 @@ int add_requested_covariance_connections()
     int nnode=number_of_stations(net);
     int sts=OK;
 
-    if( ! relcvr_opts ) return sts;
+    if( ! relcvr_opts ) { return sts;
+}
 
     // Initialise list of ids
     std::vector<char> usenode(nnode+1, 0);
@@ -353,21 +357,25 @@ int add_requested_covariance_connections()
         {
             for( reset_station_list(net,1); (stnf=next_station(net)); )
             {
-                if( stnf->id >= 0 ) usenode[stnf->id]=1;
+                if( stnf->id >= 0 ) { usenode[stnf->id]=1;
+}
             }
         }
         for( int idf=0; idf<nnode; idf++ )
         {
-            if( ! usenode[idf] ) continue;
+            if( ! usenode[idf] ) { continue;
+}
             stnf=station_ptr( net, idf);
             for( int idt=idf+1; idt<=nnode; idt++ )
             {
-                if( ! usenode[idt] ) continue;
+                if( ! usenode[idt] ) { continue;
+}
                 if( rco->maxlen > 0 )
                 {
                     stnt=station_ptr( net, idt );
                     double distance=calc_distance(stnf,0.0,stnt,0.0,nullptr,nullptr);
-                    if( distance > rco->maxlen ) continue;
+                    if( distance > rco->maxlen ) { continue;
+}
                 }
                 add_connection( idf, idt );
             }
@@ -391,7 +399,8 @@ int open_output_files( )
     }
     record_filename( lst_name, "listing" );
 
-    if( ! output_noruntime ) print_report_header( lst );
+    if( ! output_noruntime ) { print_report_header( lst );
+}
 
     err_name = command_file->root + ERRORFILE_EXT;
     err = fopen( err_name.c_str(), "w" );
@@ -403,7 +412,8 @@ int open_output_files( )
     }
 
     record_filename( lst_name, "error_listing" );
-    if( ! output_noruntime ) print_report_header( err );
+    if( ! output_noruntime ) { print_report_header( err );
+}
     print_section_header( err, "ERROR SUMMARY" );
     errcount = 0;
     set_error_handler( print_err );
@@ -413,15 +423,18 @@ int open_output_files( )
 
 static void close_listing_file( void )
 {
-    if( ! lst ) return;
+    if( ! lst ) { return;
+}
     if( errcount > 0 )
     {
         print_section_header( lst, "ERRORS" );
         fprintf(lst,"\nNote: %d errors reported in %s\n",errcount,std::filesystem::path(err_name).filename().string().c_str());
         print_section_footer( lst );
     }
-    if( ! output_noruntime ) print_report_footer(lst);
-    if( lst ) fclose( lst );
+    if( ! output_noruntime ) { print_report_footer(lst);
+}
+    if( lst ) { fclose( lst );
+}
     lst = nullptr;
     xprintf("\n\n****************************************************\n\n");
     xprintf("The results are in file %s\n\n",lst_name.c_str());
@@ -435,7 +448,8 @@ static void close_error_file( const error_message mess1, const error_message mes
     if( err ) 
     {
         print_section_footer(err);
-        if( ! output_noruntime ) print_report_footer( err );
+        if( ! output_noruntime ) { print_report_footer( err );
+}
         fclose( err );
     }
     err = nullptr;
@@ -450,8 +464,10 @@ static void close_error_file( const error_message mess1, const error_message mes
         if( mess1 || mess2 )
         {
             fprintf(stderr,"\nThe program stopped with the following error:\n");
-            if(mess1) fprintf(stderr,"%.*s\n",boost::numeric_cast<int>(mess1->size()),mess1->data());
-            if(mess2) fprintf(stderr,"%.*s\n",boost::numeric_cast<int>(mess2->size()),mess2->data());
+            if(mess1) { fprintf(stderr,"%.*s\n",boost::numeric_cast<int>(mess1->size()),mess1->data());
+}
+            if(mess2) { fprintf(stderr,"%.*s\n",boost::numeric_cast<int>(mess2->size()),mess2->data());
+}
         }
         fprintf(stderr,"\n****************************************************\n\n");
     }
@@ -461,7 +477,8 @@ static void close_error_file( const error_message mess1, const error_message mes
 static int print_err( const int sts, const std::string_view mess1, const error_message mess2 )
 {
     fprintf(err,"\n%s: %.*s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error", boost::numeric_cast<int>(mess1.size()), mess1.data() );
-    if( mess2 ) fprintf(err,"       %.*s\n",boost::numeric_cast<int>(mess2->size()),mess2->data());
+    if( mess2 ) { fprintf(err,"       %.*s\n",boost::numeric_cast<int>(mess2->size()),mess2->data());
+}
     fflush(err);
     errcount++;
     if( FATAL_ERROR_CONDITION(sts) )
@@ -484,8 +501,10 @@ void close_output_files( const error_message mess1, const error_message mess2 )
 
 void init_output_options( void )
 {
-    for( const output_option &option : output ) *(option.status) = option.defaultValue;
-    for( const output_option &option : csvopt ) *(option.status) = option.defaultValue;
+    for( const output_option &option : output ) { *(option.status) = option.defaultValue;
+}
+    for( const output_option &option : csvopt ) { *(option.status) = option.defaultValue;
+}
 }
 
 
@@ -509,7 +528,8 @@ void eliminate_inconsistent_outputs( void )
     for( i=0; i++<number_of_stations( net ); )
     {
         nc = numeric_cast<int>( station_code(i).size() );
-        if( nc > stn_name_width ) stn_name_width = nc;
+        if( nc > stn_name_width ) { stn_name_width = nc;
+}
     }
 
 }
@@ -628,11 +648,14 @@ void print_section_footer( FILE * out )
 static std::string describe_parameter_row( const int row, int &stno )
 {
     stno = 0;
-    if( const auto name = find_param_row( row ) ) return *name;
-    if( const auto name = find_obsparam_row( row ) ) return *name;
+    if( const auto name = find_param_row( row ) ) { return *name;
+}
+    if( const auto name = find_obsparam_row( row ) ) { return *name;
+}
     std::string_view coordinate;
     stno = find_station_row( row, coordinate );
-    if( stno ) return std::string( coordinate );
+    if( stno ) { return std::string( coordinate );
+}
     return "Parameter " + std::to_string( row );
 }
 
@@ -666,7 +689,8 @@ void print_zero_inverse_warning( FILE *out )
 
 void print_convergence_warning( FILE *out )
 {
-    if( converged ) return;
+    if( converged ) { return;
+}
     fprintf( out, "\nNOTE: Adjustment has not converged - results may be misleading\n" );
     fprintf( out, "Final iteration maximum adjustment is %.4lf.\n",last_iteration_max_adjustment );
 }
@@ -737,7 +761,8 @@ void print_problem_summary( FILE *lst )
         if( sa->flag.float_h || sa->flag.float_v ) 
         { 
             havefloat = 1; 
-            if( sa->idcol ) floatrel=1;
+            if( sa->idcol ) { floatrel=1;
+}
         }
         if( sa->flag.rejected ) { reject = 1; }
         if( sa->flag.auto_h && sa->flag.auto_v ) { haveauto |= 4; }
@@ -787,13 +812,15 @@ void print_problem_summary( FILE *lst )
     }
     fputs("  Row",lst);
     fputs("  Name\n",lst);
-    if(havefloat && dimension == 3) fputs("                Hor     Ver\n",lst);
+    if(havefloat && dimension == 3) { fputs("                Hor     Ver\n",lst);
+}
     fputs("\n",lst);
 
     for( reset_station_list(net, (int) output_sorted_stations);
             nullptr != (st = next_station(net)); )
     {
-        if( stnadj(st)->flag.rejected ) continue;
+        if( stnadj(st)->flag.rejected ) { continue;
+}
 
         if( stnadj(st)->flag.adj_h || stnadj(st)->flag.adj_v )
         {
@@ -804,8 +831,10 @@ void print_problem_summary( FILE *lst )
             else
             {
                 adj = '3';
-                if( !stnadj(st)->flag.adj_h ) adj = 'V';
-                if( !stnadj(st)->flag.adj_v ) adj = 'H';
+                if( !stnadj(st)->flag.adj_h ) { adj = 'V';
+}
+                if( !stnadj(st)->flag.adj_v ) { adj = 'H';
+}
             }
         }
         else
@@ -852,8 +881,9 @@ void print_problem_summary( FILE *lst )
             }
         }
         row = -1;
-        if( stnadj(st)->flag.adj_h ) row = stnadj(st)->hrowno;
-        else if( stnadj(st)->flag.adj_v ) row = stnadj(st)->vrowno;
+        if( stnadj(st)->flag.adj_h ) { row = stnadj(st)->hrowno;
+        } else if( stnadj(st)->flag.adj_v ) { row = stnadj(st)->vrowno;
+}
         if( row < 0 ) { fprintf(lst,"    -");}
         else { fprintf(lst," %4d",row); }
         fprintf(lst,"  %s\n",st->Name.c_str());
@@ -870,7 +900,8 @@ void print_problem_summary( FILE *lst )
     for( reset_station_list(net,(int)output_sorted_stations);
             nullptr != (st = next_station(net)); )
     {
-        if( !stnadj(st)->flag.rejected ) continue;
+        if( !stnadj(st)->flag.rejected ) { continue;
+}
         fprintf(lst,"%c%-*s   %s\n",stnadj(st)->flag.autoreject ? '*' : ' ',
                 stn_name_width,st->Code.c_str(), st->Name.c_str() );
     }
@@ -880,7 +911,8 @@ void print_problem_summary( FILE *lst )
     {
         int auto_h=1;
         int auto_v=1;
-        if( ! (haveauto & i) ) continue;
+        if( ! (haveauto & i) ) { continue;
+}
         switch( i )
         {
             case 4:
@@ -900,7 +932,8 @@ void print_problem_summary( FILE *lst )
         for( reset_station_list(net,(int)output_sorted_stations);
                 nullptr != (st = next_station(net)); )
         {
-            if( stnadj(st)->flag.rejected ) continue;
+            if( stnadj(st)->flag.rejected ) { continue;
+}
             stn_adjustment *sa=stnadj(st);
             if( sa->flag.auto_h==auto_h && sa->flag.auto_v==auto_v )
             {
@@ -953,12 +986,15 @@ void print_solution_summary( FILE *lst )
     fprintf(lst,"\n\nNumber of observations:           %5ld",(long)(nobs + nschp));
 
     fprintf(lst,"\nNumber of parameters:             %5d\n",(int)nprm);
-    if(nschp) fprintf(lst,"Number of implicit parameters:    %5ld\n",(long)nschp);
-    if(ncon) fprintf(lst,"Number of arbitrary constraints:  %5ld\n",(long)ncon);
+    if(nschp) { fprintf(lst,"Number of implicit parameters:    %5ld\n",(long)nschp);
+}
+    if(ncon) { fprintf(lst,"Number of arbitrary constraints:  %5ld\n",(long)ncon);
+}
 
     print_ls_summary( lst );
 
-    if( program_mode == PREANALYSIS || dof <= 0 ) return;
+    if( program_mode == PREANALYSIS || dof <= 0 ) { return;
+}
 
     c2sig = chi2_distn( ssr, dof );
 
@@ -967,7 +1003,8 @@ void print_solution_summary( FILE *lst )
         c2sig = 100.0 * (1.0 - c2sig);
         fprintf(lst,"\nThe probability of an SSR this low is %.3lf%% (from Chi squared (%ld))\n",
                 c2sig,(long) dof);
-        if( c2sig < 2.5 ) fprintf(lst,"\nYou may have over-estimated the errors of the data.\n");
+        if( c2sig < 2.5 ) { fprintf(lst,"\nYou may have over-estimated the errors of the data.\n");
+}
     }
     else
     {
@@ -978,8 +1015,9 @@ void print_solution_summary( FILE *lst )
         {
             fprintf(lst,"\nYou may have under-estimated the errors of the data,\n");
             fprintf(lst,"or there may be gross errors in the data\n");
-            if( program_mode != DATA_CONSISTENCY )
+            if( program_mode != DATA_CONSISTENCY ) {
                 fprintf(lst,"or the fixed stations may be incorrectly positioned\n");
+}
         }
     }
     print_bandwidth_reduction( lst );
@@ -1050,7 +1088,8 @@ void print_solution_json_file()
         record_filename(bfn,"solution_json");
         xprintf("\nCreating the JSON solution file %s\n",bfn.c_str());
     }
-    if( !f ) return;
+    if( !f ) { return;
+}
 
     fprintf(f,"{\n");
     fprintf(f,"  \"nparam\": %d,\n",(int)nprm);

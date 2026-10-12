@@ -51,7 +51,8 @@ static int nextseqid=0;
 static stn_recode create_stn_recode( std::string_view codeto, double datefrom, double dateto, double herror, double verror )
 {
     const bool reject=! codeto.empty() && codeto[0] == RECODE_IGNORE_CHAR;
-    if( reject ) codeto.remove_prefix(1);
+    if( reject ) { codeto.remove_prefix(1);
+}
     return stn_recode( std::string(codeto), reject, datefrom, dateto, herror, verror, ++nextseqid );
 }
 
@@ -68,7 +69,8 @@ static std::string describe_stn_recode( const stn_recode &src, const int stnwidt
         std::string codeto=(src.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src.codeto;
         codeto.resize(std::min(codeto.size(),static_cast<std::size_t>(STNCODELEN+1)));
         const std::size_t width=stnwidth > 0 ? static_cast<std::size_t>(stnwidth) : 0;
-        if( codeto.size() < width ) codeto.append(width-codeto.size(),' ');
+        if( codeto.size() < width ) { codeto.append(width-codeto.size(),' ');
+}
         description=codeto;
     }
     const DateStringFormat format=DateStringFormat::timeIfNotMidnight;
@@ -161,7 +163,8 @@ static void update_stn_recode( const std::string &codefrom, stn_recode &src, con
         const std::string errmsg="Overriding recode of "+codefrom.substr(0,STNCODELEN)+" to "+
                 codeto.substr(0,STNCODELEN+1)+" with recode to "+describe_stn_recode(src,0);
         handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
-        if( diffmark ) return;
+        if( diffmark ) { return;
+}
     }
     if( src_update.herror <= 0.0 )
     {
@@ -191,7 +194,8 @@ static void add_stn_recode_to_list( stn_recode_list &list, const std::string &co
     while( current != list.end() )
     {
         cmp=cmp_stn_recode(*current,recode);
-        if( cmp >= 0 ) break;
+        if( cmp >= 0 ) { break;
+}
         previous=current;
         ++current;
     }
@@ -204,21 +208,28 @@ static void add_stn_recode_to_list( stn_recode_list &list, const std::string &co
     /* Check for incompatible recoding */
     for( auto other=list.begin(); other != list.end(); ++other )
     {
-        if( other == added ) continue;
+        if( other == added ) { continue;
+}
         const stn_recode &src=*other;
         const stn_recode &trans=*added;
-        if( src.dateto == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE ) continue;
-        if( trans.dateto == UNDEFINED_DATE && trans.datefrom == UNDEFINED_DATE ) continue;
-        if( trans.dateto == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE ) continue;
-        if( trans.datefrom == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE ) continue;
+        if( src.dateto == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE ) { continue;
+}
+        if( trans.dateto == UNDEFINED_DATE && trans.datefrom == UNDEFINED_DATE ) { continue;
+}
+        if( trans.dateto == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE ) { continue;
+}
+        if( trans.datefrom == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE ) { continue;
+}
         if( src.dateto != UNDEFINED_DATE
                 && trans.datefrom != UNDEFINED_DATE
                 && src.dateto < trans.datefrom
-                ) continue;
+                ) { continue;
+}
         if( trans.dateto != UNDEFINED_DATE
                 && src.datefrom != UNDEFINED_DATE
                 && trans.dateto < src.datefrom
-                ) continue;
+                ) { continue;
+}
         const std::string errmsg="Recode of "+codefrom.substr(0,STNCODELEN)+" to "+describe_stn_recode(trans,0)+
                 " conflicts with "+describe_stn_recode(src,0);
         handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
@@ -242,7 +253,8 @@ void delete_stn_recode_map( stn_recode_map *stt ) {
 
 static stn_recode_list *lookup_station_recode( stn_recode_map *stt, std::string_view code )
 {
-    if ( ! stt ) return nullptr;
+    if ( ! stt ) { return nullptr;
+}
     const auto match=stt->lists.find( code );
     return match != stt->lists.end() ? &match->second : nullptr;
 }
@@ -251,7 +263,8 @@ static void add_stn_recode_to_map_err( stn_recode_map *stt, std::string_view cod
 {
     const bool global=boost::algorithm::iequals(codefrom,RECODE_IGNORE_CODE);
     /* Global recoding only applies for ignoring codes */
-    if( global && ! boost::algorithm::iequals(codeto,RECODE_IGNORE_CODE) ) return;
+    if( global && ! boost::algorithm::iequals(codeto,RECODE_IGNORE_CODE) ) { return;
+}
     if( global )
     {
         add_stn_recode_to_list( stt->global, std::string(codefrom), create_stn_recode( codeto, datefrom, dateto, herror, verror ) );
@@ -286,8 +299,10 @@ static void apply_recode_suffix( station *st, void *psrd )
     const std::string_view codefrom=st->Code;
 
     /* Check if reprocessing a code for which a suffix is already applied */
-    if( codefrom.size() > suffix.size() && compare_ignoring_case(suffix,codefrom.substr(codefrom.size()-suffix.size()))==0 ) return;
-    if( suffix.size() > STNCODELEN ) return;
+    if( codefrom.size() > suffix.size() && compare_ignoring_case(suffix,codefrom.substr(codefrom.size()-suffix.size()))==0 ) { return;
+}
+    if( suffix.size() > STNCODELEN ) { return;
+}
 
     std::string codeto( codefrom.substr(0,STNCODELEN-suffix.size()) );
     codeto += suffix;
@@ -328,7 +343,8 @@ static std::optional<RecodeTarget> parse_recode_codes(
 
     target.codefrom.assign(firstField);
     auto field=scanner.next();
-    if( field && boost::algorithm::iequals(*field,"to") ) field=scanner.next();
+    if( field && boost::algorithm::iequals(*field,"to") ) { field=scanner.next();
+}
     bool ok=true;
     if( ! field )
     {
@@ -383,7 +399,8 @@ static std::optional<UncertaintyResult> parse_uncertainty(
     while( ok )
     {
         auto errorField=scanner.next();
-        if( ! errorField ) break;
+        if( ! errorField ) { break;
+}
         if( boost::algorithm::iequals(*errorField,"m") || boost::algorithm::iequals(*errorField,"metres") )
         {
             break;
@@ -404,7 +421,8 @@ static std::optional<UncertaintyResult> parse_uncertainty(
                 break;
             }
             result.verror = *verror;
-            if( result.n_enu == 0 ) result.herror=result.verror;
+            if( result.n_enu == 0 ) { result.herror=result.verror;
+}
             result.n_enu++;
         }
     }
@@ -690,7 +708,8 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
 
 void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int stn_name_width, std::string_view prefix )
 {
-    if( ! stt ) return;
+    if( ! stt ) { return;
+}
     const int prefix_length=numeric_cast<int>(prefix.size());
     for( const auto &[codefrom,recodes] : stt->lists )
     {
@@ -700,7 +719,8 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int s
         {
             for( const stn_recode &src : recodes )
             {
-                if( ! src.used ) continue;
+                if( ! src.used ) { continue;
+}
                 if( src.herror > 0.0 || src.verror > 0.0 )
                 {
                     show_reloc=true;
@@ -712,9 +732,12 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int s
         {
             if( onlyused && ! src.used )
             {
-                if( ! show_reloc ) continue;
-                if( src.datefrom == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE ) continue;
-                if( src.datefrom != UNDEFINED_DATE && src.dateto != UNDEFINED_DATE ) continue;
+                if( ! show_reloc ) { continue;
+}
+                if( src.datefrom == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE ) { continue;
+}
+                if( src.datefrom != UNDEFINED_DATE && src.dateto != UNDEFINED_DATE ) { continue;
+}
             }
             if( first )
             {
@@ -731,7 +754,8 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int s
     bool first=true;
     for( const stn_recode &src : stt->global )
     {
-        if( onlyused && ! src.used ) continue;
+        if( onlyused && ! src.used ) { continue;
+}
         if( first )
         {
             first=false;
@@ -755,10 +779,14 @@ static stn_recode_list::iterator find_stn_recode( stn_recode_list &list, double 
 {
     for( auto src=list.begin(); src != list.end(); ++src )
     {
-        if( src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE ) return src;
-        if( date == UNDEFINED_DATE ) continue;
-        if( src->datefrom == UNDEFINED_DATE && date < src->dateto ) return src;
-        if( date <= src->dateto && date >= src->datefrom ) return src;
+        if( src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE ) { return src;
+}
+        if( date == UNDEFINED_DATE ) { continue;
+}
+        if( src->datefrom == UNDEFINED_DATE && date < src->dateto ) { return src;
+}
+        if( date <= src->dateto && date >= src->datefrom ) { return src;
+}
         if( src->dateto == UNDEFINED_DATE && date >= src->datefrom )
         {
             /* Use the last of the "after" recodes that has started by date */
@@ -779,9 +807,11 @@ std::optional<recode_result> get_stn_recode( stn_recode_map *stt, std::string_vi
 {
     for( stn_recode_list *list : { lookup_station_recode( stt, code ), &stt->global } )
     {
-        if( ! list ) continue;
+        if( ! list ) { continue;
+}
         const auto src=find_stn_recode( *list, date );
-        if( src == list->end() ) continue;
+        if( src == list->end() ) { continue;
+}
         src->used=true;
         stt->used=true;
         return recode_result{ src->codeto, src->reject };
@@ -792,12 +822,16 @@ std::optional<recode_result> get_stn_recode( stn_recode_map *stt, std::string_vi
 std::optional<recode_result> recoded_network_station( void *recode_data, std::string_view code, double date )
 {
     stn_recode_data *srd=(stn_recode_data *)recode_data;
-    if( ! srd ) return std::nullopt;
+    if( ! srd ) { return std::nullopt;
+}
     std::optional<recode_result> file_recode;
     std::optional<recode_result> global_recode;
-    if( srd->file_map ) file_recode=get_stn_recode(srd->file_map,code,date);
-    if( srd->global_map ) global_recode=get_stn_recode(srd->global_map,file_recode ? file_recode->code : code,date);
-    if( ! global_recode && ! file_recode ) return std::nullopt;
+    if( srd->file_map ) { file_recode=get_stn_recode(srd->file_map,code,date);
+}
+    if( srd->global_map ) { global_recode=get_stn_recode(srd->global_map,file_recode ? file_recode->code : code,date);
+}
+    if( ! global_recode && ! file_recode ) { return std::nullopt;
+}
     const recode_result &recoded=global_recode ? *global_recode : *file_recode;
     const bool reject=( file_recode && file_recode->reject ) || ( global_recode && global_recode->reject );
 
@@ -808,8 +842,10 @@ std::optional<recode_result> recoded_network_station( void *recode_data, std::st
         int id = find_station( srd->net, recoded_code );
         if( ! id )
         {
-            if( global_recode && file_recode ) id = find_station( srd->net, file_recode->code );
-            if( ! id ) id = find_station( srd->net, code );
+            if( global_recode && file_recode ) { id = find_station( srd->net, file_recode->code );
+}
+            if( ! id ) { id = find_station( srd->net, code );
+}
             if( id )
             {
                 station *st=station_ptr(srd->net,id);
