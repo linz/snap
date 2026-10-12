@@ -695,7 +695,7 @@ static std::optional<std::string_view> get_column_heading( std::optional<std::st
         if( heading == *text ) { return heading;
 }
     }
-    headings.push_front( std::string(*text) );
+    headings.emplace_front(*text );
     return headings.front();
 }
 

@@ -193,7 +193,7 @@ void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std:
         Column *c = reader->findColumn(colName);
         if (c)
         {
-            _classCols.push_back(CsvClassColumn(colName, c));
+            _classCols.emplace_back(colName, c);
         }
         else
         {
@@ -228,7 +228,7 @@ void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std:
                 name = name.substr(offset);
 }
         }
-        _classCols.push_back(CsvClassColumn(name, c));
+        _classCols.emplace_back(name, c);
     }
 }
 

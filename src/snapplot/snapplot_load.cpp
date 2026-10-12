@@ -85,7 +85,7 @@ int snapplot_load( int argc, char *argv[] )
                 }
                 else if( ++narg < argc )
                 {
-                    cfgfile.push_back( argv[narg] );
+                    cfgfile.emplace_back(argv[narg] );
                 }
                 else
                 {

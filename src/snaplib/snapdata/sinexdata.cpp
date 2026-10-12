@@ -216,8 +216,8 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
         if (cvr)
         {
             std::vector<std::string> cova_sections;
-            cova_sections.push_back("SOLUTION/MATRIX_ESTIMATE L COVA");
-            cova_sections.push_back("SOLUTION/MATRIX_ESTIMATE U COVA");
+            cova_sections.emplace_back("SOLUTION/MATRIX_ESTIMATE L COVA");
+            cova_sections.emplace_back("SOLUTION/MATRIX_ESTIMATE U COVA");
             int section = findSection(dfi, cova_sections, false);
             if (section < 0)
             {
