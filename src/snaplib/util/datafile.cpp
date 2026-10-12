@@ -41,7 +41,10 @@
 
 static int default_reclen_capacity = 256;
 
-#define ISSPACEZ(x) (ISSPACE(x) || (x)=='\x1A')
+static bool isWhitespaceOrCtrlZ( int c )
+{
+    return ISSPACE( c ) || c == '\x1A';
+}
 
 int DATAFILE::default_reclen( int newlen )
 {
@@ -142,7 +145,7 @@ int DATAFILE::skip_to_blank_line()
 }
             blank = true;
         }
-        else if( ! ISSPACEZ(c) )
+        else if( ! isWhitespaceOrCtrlZ(c) )
         {
             blank = false;
         }
@@ -199,11 +202,11 @@ int DATAFILE::read_record()
 }
             }
             // Trim whitespace
-            while( _inrec.size() > lineoffset && ISSPACEZ( _inrec.back() ) ) { _inrec.pop_back();
+            while( _inrec.size() > lineoffset && isWhitespaceOrCtrlZ( _inrec.back() ) ) { _inrec.pop_back();
 }
             // Check for line continuation
             const size_t nch = _inrec.size() - lineoffset;
-            if( nch >= 2 && _inrec.back() == _continuation_char && ISSPACEZ( _inrec[_inrec.size()-2] ) )
+            if( nch >= 2 && _inrec.back() == _continuation_char && isWhitespaceOrCtrlZ( _inrec[_inrec.size()-2] ) )
             {
                 _inrec.pop_back();
             }
@@ -213,7 +216,7 @@ int DATAFILE::read_record()
             }
         }
         // Retrim in case continuation only adds blanks
-        while( _inrec.size() > 1 && ISSPACEZ( _inrec.back() ) ) { _inrec.pop_back();
+        while( _inrec.size() > 1 && isWhitespaceOrCtrlZ( _inrec.back() ) ) { _inrec.pop_back();
 }
     }
 

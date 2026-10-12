@@ -2169,7 +2169,7 @@ static int read_station_config_file( const std::string &filename, stn_relacc_arr
                 if( pos>=line.size() ) { break;
 }
                 size_t start=pos;
-                while( pos<line.size() && !(line[pos]==' '||line[pos]=='\n'||line[pos]=='\t') ) { pos++;
+                while( pos<line.size() && line[pos]!=' '&&line[pos]!='\n'&&line[pos]!='\t' ) { pos++;
 }
                 parts[nfield++] = line.substr(start,pos-start);
             }
