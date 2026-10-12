@@ -184,8 +184,7 @@ BEGIN_EVENT_TABLE(wxLayerKey, wxGrid)
 END_EVENT_TABLE()
 
 wxLayerKey::wxLayerKey()
-{
-}
+= default;
 
 wxLayerKey::wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size ) :
     wxGrid( parent, id, pos, size )
@@ -214,8 +213,7 @@ wxLayerKey::wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos, cons
 }
 
 wxLayerKey::~wxLayerKey()
-{
-}
+= default;
 
 
 void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )

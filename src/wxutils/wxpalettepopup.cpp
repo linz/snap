@@ -17,8 +17,7 @@ wxPalettePopup::wxPalettePopup( ColourPalette *thisPalette, wxWindow *parent, wx
 }
 
 wxPalettePopup::~wxPalettePopup()
-{
-}
+= default;
 
 BEGIN_EVENT_TABLE( wxPalettePopup, wxPopupTransientWindow )
     EVT_PAINT( wxPalettePopup::OnPaint )

@@ -6,7 +6,7 @@
 class SnapplotApp: public wxApp
 {
 public:
-    SnapplotApp() { }
+    SnapplotApp() = default;
 
     bool OnInit() override;
     int OnExit() override;

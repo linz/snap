@@ -23,8 +23,7 @@ SnapJobFile::SnapJobFile( const wxString &fileName, JobFileType type, SnapJobFil
 }
 
 SnapJobFile::~SnapJobFile()
-{
-}
+= default;
 
 void SnapJobFile::SetNext( SnapJobFile *next )
 {

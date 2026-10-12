@@ -16,8 +16,8 @@
 class wxTabbedTextSource
 {
 public:
-    wxTabbedTextSource() {}
-    virtual ~wxTabbedTextSource() {};
+    wxTabbedTextSource() = default;
+    virtual ~wxTabbedTextSource() = default;
 
     // Get row headers as tab delimited string.  Labels prefixed with blank for right
     // justification.  Labels preceded or followed by blanks to fill to desired display

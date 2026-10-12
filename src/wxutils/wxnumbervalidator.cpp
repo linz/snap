@@ -42,14 +42,8 @@ void wxNumberValidator::Setup()
 }
 
 
-wxNumberValidator::wxNumberValidator( const wxNumberValidator &validator ) :
-    wxTextValidator( validator ),
-    value( validator.value ),
-    isInteger( validator.isInteger ),
-    isPositive( validator.isPositive ),
-    nDecPlaces( validator.nDecPlaces )
-{
-}
+wxNumberValidator::wxNumberValidator( const wxNumberValidator &validator ) 
+= default;
 
 bool wxNumberValidator::TransferFromWindow()
 {

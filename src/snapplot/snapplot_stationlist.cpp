@@ -8,12 +8,10 @@
 //}
 
 SnapplotStationSource::SnapplotStationSource()
-{
-}
+= default;
 
 SnapplotStationSource::~SnapplotStationSource()
-{
-}
+= default;
 
 std::string SnapplotStationSource::GetHeader()
 {
@@ -46,8 +44,7 @@ SnapplotStationList::SnapplotStationList( wxWindow* parent, wxWindowID id )
 }
 
 SnapplotStationList::~SnapplotStationList()
-{
-}
+= default;
 
 void SnapplotStationList::Reload()
 {

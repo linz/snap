@@ -27,7 +27,7 @@ void RecordError::_setLocation()
 //////////////////////////////////////////////////////////////////////
 // RecordInputBase code
 
-RecordInputBase::~RecordInputBase() {}
+RecordInputBase::~RecordInputBase() = default;
 bool RecordInputBase::handleError( const RecordError & ) { return false; }
 int  RecordInputBase::lineNumber(){ return -1; }
 int  RecordInputBase::recordNumber(){ return -1; }

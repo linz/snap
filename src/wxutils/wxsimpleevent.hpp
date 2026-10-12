@@ -9,7 +9,7 @@ public:
     wxSimpleEvent( wxEventType commandType, bool propogate = false ) :
         wxEvent( wxID_ANY, commandType )
     { m_propagationLevel =  propogate ? wxEVENT_PROPAGATE_MAX : wxEVENT_PROPAGATE_NONE; }
-    wxSimpleEvent( const wxSimpleEvent &event ) : wxEvent( event ) {}
+    wxSimpleEvent( const wxSimpleEvent &event )  = default;
     wxEvent* Clone() const override { return new wxSimpleEvent( *this );}
 };
 

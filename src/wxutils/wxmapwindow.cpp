@@ -20,12 +20,8 @@ wxMapWindowEvent::wxMapWindowEvent( wxEventType eventType, int id, const wxMouse
     SetId(id);
 }
 
-wxMapWindowEvent::wxMapWindowEvent( const wxMapWindowEvent &event ) :
-    wxEvent( event ),
-    mouseEvent( event.mouseEvent ),
-    pt(event.pt)
-{
-}
+wxMapWindowEvent::wxMapWindowEvent( const wxMapWindowEvent &event ) 
+= default;
 
 // wxMapDragger definition
 

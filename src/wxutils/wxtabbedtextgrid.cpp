@@ -211,8 +211,7 @@ BEGIN_EVENT_TABLE(wxTabbedTextGrid, wxGrid)
 END_EVENT_TABLE()
 
 wxTabbedTextGrid::wxTabbedTextGrid()
-{
-}
+= default;
 
 wxTabbedTextGrid::wxTabbedTextGrid(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size ) :
     wxGrid( parent, id, pos, size )

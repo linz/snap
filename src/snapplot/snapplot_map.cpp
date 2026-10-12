@@ -72,8 +72,7 @@ SnapplotMap::SnapplotMap()
 }
 
 SnapplotMap::~SnapplotMap()
-{
-}
+= default;
 
 void SnapplotMap::GetMapExtents(MapRect &extents)
 {

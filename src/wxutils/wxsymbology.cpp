@@ -157,8 +157,7 @@ SymbologyBase::SymbologyBase(wxString np)
 }
 
 SymbologyBase::~SymbologyBase()
-{
-}
+= default;
 
 // SymbologyList ... an expandable array of symbologies.
 
@@ -376,8 +375,7 @@ TextStyle::TextStyle(wxString name, const wxFont &font, const wxColour &colour )
 }
 
 TextStyle::~TextStyle()
-{
-}
+= default;
 
 void TextStyle::SetFont( const wxFont &font, const wxColour &colour )
 {
@@ -565,12 +563,10 @@ void PointSymbology::Render(wxDC &dc, const wxPoint &pt, int refSize, const wxCo
 // Symbology: A list of symbologies with an associated colour palette
 
 Symbology::Symbology ()
-{
-}
+= default;
 
 Symbology::~Symbology()
-{
-}
+= default;
 
 void Symbology::InitialisePalette( const ColourPalette &basepalette )
 {

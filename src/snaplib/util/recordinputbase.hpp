@@ -30,7 +30,7 @@ public:
         _recordno(recordno),
         _type( type )
     { _setLocation(); }
-    ~RecordError() throw () override {};
+    ~RecordError() throw () override = default;
     const std::string &message() const { return _message; }
     const std::string &location() const { return _location; }
     const std::string &filename() const { return _filename; }

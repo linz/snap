@@ -74,7 +74,7 @@ SinexDataReader::SinexDataReader(const OptionString &config)
     }
 }
 
-SinexDataReader::~SinexDataReader() {}
+SinexDataReader::~SinexDataReader() = default;
 
 void SinexDataReader::loadObservations(RecordInputBase &dfi)
 {

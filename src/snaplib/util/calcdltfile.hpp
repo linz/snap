@@ -35,14 +35,14 @@ public:
 class BindSource
 {
 public:
-    virtual ~BindSource() {}
+    virtual ~BindSource() = default;
     virtual string *value( const std::string &name ) const = 0;
 };
 
 class CalcValue
 {
 public:
-    virtual ~CalcValue() {}
+    virtual ~CalcValue() = default;
     virtual CalcValue *clone() const = 0;
 
     virtual void bind( const BindSource *binder );

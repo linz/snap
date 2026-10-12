@@ -115,7 +115,7 @@ class Format
     friend class Reader;
 public:
     Format() : _dlt(nullptr) {}
-    virtual ~Format() {};
+    virtual ~Format() = default;
     virtual Format *clone() const = 0;
 protected:
     virtual bool parseRecord() = 0;
@@ -137,7 +137,7 @@ public:
 class WhitespaceFormat : public Format
 {
 public:
-    WhitespaceFormat() {}
+    WhitespaceFormat() = default;
     WhitespaceFormat *clone() const override;
 protected:
     bool parseRecord() override;
