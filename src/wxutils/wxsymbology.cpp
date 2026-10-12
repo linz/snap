@@ -572,7 +572,7 @@ void Symbology::InitialisePalette( const ColourPalette &basepalette )
     }
 }
 
-int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool display, const bool isControlCheckbox, const bool colourEditable )
+int Symbology::AddLayer(const wxString& name, int type, const wxColour &colour, bool display, const bool isControlCheckbox, const bool colourEditable )
 {
     int colourId = 0;
     if( colour.IsOk() ) { colourId= palette.AddColour( colour );

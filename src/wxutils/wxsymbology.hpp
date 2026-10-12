@@ -226,7 +226,7 @@ public:
     ColourPalette *GetPalette() { return &palette ; }
     void InitialisePalette( const ColourPalette &basepalette );
 
-    int AddLayer( wxString name, int type, const wxColour &colour, bool display = true, bool isControlCheckbox = false, bool colourEditable = true );
+    int AddLayer( const wxString& name, int type, const wxColour &colour, bool display = true, bool isControlCheckbox = false, bool colourEditable = true );
     void AddTitle(wxString name);
     void AddSpacer();
     [[nodiscard]] int LayerCount() const;
