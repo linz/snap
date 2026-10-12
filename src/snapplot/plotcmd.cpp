@@ -260,6 +260,7 @@ int process_configuration_file_list( void )
     for( size_t i = 0; i < cfg_list.size(); i++ )
     {
         // A copy, as reading a file can add to cfg_list and reallocate it
+        // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         const std::string fname = cfg_list[i];
         const int fsts = read_plot_configuration_file( fname );
         if( fsts != OK ) { sts = fsts;

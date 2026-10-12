@@ -1030,7 +1030,7 @@ MenuItem *ScriptImp::AddMenuItem( MenuItem *item )
 
 void ScriptImp::RemoveMenuItem( const wxString &name )
 {
-    wxString itemname=name;
+    const wxString& itemname=name;
     wxString match=name;
     wxString delimiter("|");
     wxArrayString eraseMenus;
