@@ -581,7 +581,7 @@ int Symbology::AddLayer(const wxString& name, int type, const wxColour &colour, 
     return layers.AddSymbology( s );
 }
 
-void Symbology::AddTitle( wxString name )
+void Symbology::AddTitle( const wxString& name )
 {
     AddLayer( std::move(name), LayerSymbology::label, wxColour(0,0,0), true );
 }
