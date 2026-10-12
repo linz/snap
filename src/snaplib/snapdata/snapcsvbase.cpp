@@ -23,8 +23,7 @@ using namespace SNAP;
 // CsvValue
 
 SnapCsvBase::CsvValue::~CsvValue()
-{
-}
+= default;
 
 void SnapCsvBase::CsvValue::setName(const std::string name)
 {
@@ -51,8 +50,7 @@ SnapCsvBase::SnapCsvBase(const std::string &name, const OptionString &config) : 
 }
 
 SnapCsvBase::~SnapCsvBase()
-{
-}
+= default;
 
 void SnapCsvBase::initialiseLoadDefinition()
 {

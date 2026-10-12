@@ -86,7 +86,7 @@ class wxControlWithItemsValidator : public wxOptionValidatorBase
 public:
     wxControlWithItemsValidator( wxControlWithItems *ctrl, const std::vector<ListControlOption> &options, int *value = nullptr ):
         wxOptionValidatorBase(options,value), ctrl(ctrl) {};
-    wxControlWithItemsValidator( const wxControlWithItemsValidator &validator ) : wxOptionValidatorBase(validator), ctrl(validator.ctrl) {};
+    wxControlWithItemsValidator( const wxControlWithItemsValidator &validator )  = default;
     wxValidator *Clone() const override { return new wxControlWithItemsValidator( *this ); }
 protected:
     int GetSelectedIndex() override;
@@ -233,8 +233,7 @@ wxSimpleDialog::wxSimpleDialog( wxString title, long buttonFlags )
 
 
 wxSimpleDialog::~wxSimpleDialog()
-{
-}
+= default;
 
 wxStaticText *wxSimpleDialog::Label( wxString text, wxWindow *window )
 {

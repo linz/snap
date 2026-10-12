@@ -44,8 +44,7 @@ SnapCsvRecode::SnapCsvRecode( stn_recode_map *stt, const std::string &name ) :
 }
 
 SnapCsvRecode::~SnapCsvRecode()
-{
-}
+= default;
 
 void SnapCsvRecode::readerAttached()
 {

@@ -20,7 +20,7 @@ public:
     MapRect( double emin, double nmin, double emax, double nmax ) :
         min( emin, nmin ), max( emax, nmax ) {}
     MapRect( const MapPoint &min, const MapPoint &max ) : min(min), max(max) {}
-    MapRect() {}
+    MapRect() = default;
     MapRect ExpandBy( double factor ) const
     {
         double dx = (max.x-min.x)*(factor-1);

@@ -16,7 +16,7 @@ class wxStringLog : public wxLog
 {
 public:
     wxStringLog();
-    ~wxStringLog() override {}
+    ~wxStringLog() override = default;
     const wxString &GetMessages() { return logString; }
     void ClearMessages() { logString.Empty(); }
 

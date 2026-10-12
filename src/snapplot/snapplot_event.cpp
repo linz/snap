@@ -13,11 +13,8 @@ wxSnapplotEvent::wxSnapplotEvent( wxEventType commandType, int id )
     SetShowTitle();
 }
 
-wxSnapplotEvent::wxSnapplotEvent( const wxSnapplotEvent &event ) :
-    wxEvent( event ),
-    info( event.info )
-{
-}
+wxSnapplotEvent::wxSnapplotEvent( const wxSnapplotEvent &event ) 
+= default;
 
 void wxSnapplotEvent::SetInfo( const PutTextInfo &info )
 {

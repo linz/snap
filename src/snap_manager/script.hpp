@@ -68,8 +68,8 @@ enum FunctionStatus
 class EnvBase
 {
 public:
-    EnvBase() {}
-    virtual ~EnvBase() {}
+    EnvBase() = default;
+    virtual ~EnvBase() = default;
     virtual bool GetValue( const wxString &name, Value &value ) = 0;
     virtual bool AddMenuItem( const wxString &name, const wxString &description, int id ) = 0;
     virtual bool RemoveMenuItem( const wxString &name ) = 0;

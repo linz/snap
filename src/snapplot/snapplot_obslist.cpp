@@ -7,12 +7,10 @@
 //}
 
 SnapplotObsSource::SnapplotObsSource()
-{
-}
+= default;
 
 SnapplotObsSource::~SnapplotObsSource()
-{
-}
+= default;
 
 std::string SnapplotObsSource::GetHeader()
 {
@@ -46,8 +44,7 @@ SnapplotObsList::SnapplotObsList( wxWindow* parent, wxWindowID id )
 }
 
 SnapplotObsList::~SnapplotObsList()
-{
-}
+= default;
 
 
 void SnapplotObsList::Reload()

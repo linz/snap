@@ -7,7 +7,8 @@ Checks: >
   readability-braces-around-statements,
   readability-isolate-declaration,
   readability-redundant-string-init,
-  readability-redundant-member-init
+  readability-redundant-member-init,
+  modernize-use-equals-default
 CheckOptions:
   # string_view("") is not the same as string_view(): data() of the second is a null pointer, which
   # printf-style code cannot take.  Only std::string is checked.

@@ -140,12 +140,10 @@ int Value::Count() const
 
 
 VariableList::VariableList()
-{
-}
+= default;
 
 VariableList::~VariableList()
-{
-}
+= default;
 
 void VariableList::Add( wxString name, Value var )
 {

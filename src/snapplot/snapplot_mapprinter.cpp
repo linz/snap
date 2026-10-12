@@ -13,8 +13,7 @@ SnapplotMapPrinter::SnapplotMapPrinter( const wxString &title, wxMap *map, wxMap
 }
 
 SnapplotMapPrinter::~SnapplotMapPrinter()
-{
-}
+= default;
 
 void SnapplotMapPrinter::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo)
 {

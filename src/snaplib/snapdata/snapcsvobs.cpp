@@ -976,8 +976,7 @@ SnapCsvObs::SnapCsvObs(const std::string &name, const OptionString &config) : Sn
 }
 
 SnapCsvObs::~SnapCsvObs()
-{
-}
+= default;
 
 void SnapCsvObs::loadDefinitionCommand(const std::string &command, RecordStream &rs)
 {

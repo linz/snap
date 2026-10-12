@@ -25,8 +25,7 @@ RecordStream::RecordStream(const string &fname) : _str(fname),
 }
 
 RecordStream::~RecordStream()
-{
-}
+= default;
 
 void RecordStream::restart()
 {

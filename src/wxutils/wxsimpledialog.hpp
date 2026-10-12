@@ -36,7 +36,7 @@ class wxRadioBoxOptionValidator : public wxOptionValidatorBase
 {
 public:
     wxRadioBoxOptionValidator( const std::vector<ListControlOption> &options, int *value = nullptr ) : wxOptionValidatorBase(options,value) {};
-    wxRadioBoxOptionValidator( const wxRadioBoxOptionValidator &validator ) : wxOptionValidatorBase(validator) {};
+    wxRadioBoxOptionValidator( const wxRadioBoxOptionValidator &validator )  = default;
     wxValidator *Clone() const override { return new wxRadioBoxOptionValidator( *this ); }
 protected:
     int GetSelectedIndex() override;

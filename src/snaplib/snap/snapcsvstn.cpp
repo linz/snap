@@ -82,8 +82,7 @@ SnapCsvStn::SnapCsvStn(network *net, const std::string &name, const OptionString
 }
 
 SnapCsvStn::~SnapCsvStn()
-{
-}
+= default;
 
 void SnapCsvStn::readerAttached()
 {
