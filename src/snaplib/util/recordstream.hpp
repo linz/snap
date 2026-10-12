@@ -47,7 +47,7 @@ namespace LINZ
         bool good() { return _str.good(); }
         bool readRecord();
         void restart();
-        int lineNo() const { return _lineNo; }
+        [[nodiscard]] int lineNo() const { return _lineNo; }
 
         // Returns the current record as a string
         const std::string &recordString() { return _recordstr; }
