@@ -146,8 +146,9 @@ void test_invalid_class_id_is_reported_on_set_only()
     check_values( stn, 2, "5,6", "values unchanged by invalid class ids" );
 
     errorCount = 0;
-    stn.get_class( 0 );
-    stn.get_class( 3 );
+    // Only the error count matters here, so the values are deliberately discarded
+    static_cast<void>( stn.get_class( 0 ) );
+    static_cast<void>( stn.get_class( 3 ) );
     check_equal( errorCount, 0, "errors reported when getting an invalid class id" );
 
     set_error_handler( oldHandler );
