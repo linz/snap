@@ -17,8 +17,8 @@ ColourPalette::Item::Item( ColourPalette *palette, const wxColour &colour ) :
 
 ColourPalette::Item::~Item()
 {
-    if( bitmap ) { delete bitmap;
-}
+    delete bitmap;
+
 }
 
 const wxBitmap &ColourPalette::Item::Bitmap()
@@ -419,19 +419,19 @@ PointSymbology::PointSymbology( wxString name, int nNodes, double size, double i
 
 PointSymbology::~PointSymbology()
 {
-    if( next ) { delete next;
-}
-    if( pointOffsets ) { delete [] pointOffsets;
-}
+    delete next;
+
+    delete [] pointOffsets;
+
 }
 
 void PointSymbology::SetSymbol( int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill )
 {
-    if( next ) { delete next;
-}
+    delete next;
+
     next = nullptr;
-    if( pointOffsets ) { delete [] pointOffsets;
-}
+    delete [] pointOffsets;
+
     pointOffsets = nullptr;
 
     if( nNodes < -10 || nNodes > 10 ) { nNodes = 0;

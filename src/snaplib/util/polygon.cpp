@@ -188,8 +188,8 @@ void *read_polygon_wkt( const std::string &filename, const int islonlat )
 void delete_polygon( void *pgn)
 {
     wktPolygon *ppgn = (wktPolygon *) pgn;
-    if( ppgn ) { delete ppgn;
-}
+    delete ppgn;
+
 }
 
 int polygon_contains_point( void *pgn, double lon, double lat )

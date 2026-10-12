@@ -263,8 +263,8 @@ static void load_background_file( const background_file &bf )
     end_file_display();
     print_log("%ld lines loaded\n",flines);
     fclose(in);
-    if( cs ) { delete cs;
-}
+    delete cs;
+
 }
 
 void load_background_files( void )

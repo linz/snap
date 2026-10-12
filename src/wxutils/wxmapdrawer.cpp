@@ -41,8 +41,8 @@ wxMapDrawer::wxMapDrawer( wxDC &dc, wxMapScale &scale, Symbology &symbology ) :
 
 wxMapDrawer::~wxMapDrawer()
 {
-    if( points ) { delete [] points;
-}
+    delete [] points;
+
     delete defaultTextStyle;
 }
 

@@ -22,14 +22,14 @@ ZoomStack::ZoomStack( int size )
 
 ZoomStack::~ZoomStack()
 {
-    if( zoomStack ) { delete [] zoomStack;
-}
+    delete [] zoomStack;
+
 }
 
 void ZoomStack::SetStackSize( int nStack )
 {
-    if( zoomStack ) { delete [] zoomStack;
-}
+    delete [] zoomStack;
+
     zoomStack = nullptr;
     if( nStack > 0 )
     {

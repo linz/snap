@@ -99,8 +99,8 @@ static void delete_grid_vdatum_func_data( void *data )
 }
     if( ghrfd->gd ) { delete_geoid_grid( ghrfd->gd );
 }
-    if( ghrfd->rfcs ) { delete ghrfd->rfcs;
-}
+    delete ghrfd->rfcs;
+
     delete[] ghrfd->rfconv;
     delete ghrfd;
 }

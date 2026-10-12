@@ -187,14 +187,14 @@ SnapplotFrame::SnapplotFrame()
 
 SnapplotFrame::~SnapplotFrame()
 {
-    if( map ) { delete map;
-}
-    if( help ) { delete help;
-}
-    if( printData ) { delete printData;
-}
-    if( pageData ) { delete pageData;
-}
+    delete map;
+
+    delete help;
+
+    delete printData;
+
+    delete pageData;
+
 }
 
 
