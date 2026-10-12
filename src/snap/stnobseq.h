@@ -44,7 +44,7 @@ void sum_floating_stations( int iteration );
 void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax );
 void get_station_covariance( station *st, double cvr[] );
 void dump_station_covariances( BINARY_FILE *b );
-void print_adjusted_coordinates( FILE *out );
+
 void print_floated_stations( FILE *out );
 void print_station_offsets( FILE *out );
 
