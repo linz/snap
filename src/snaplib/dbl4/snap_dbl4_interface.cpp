@@ -70,8 +70,7 @@ void start_trace( const char *c, long l )
     {
         printf("Trace %s %ld: ",c,l);
     }
-    return;
-}
+    }
 
 void add_trace( const char *fmt, ... )
 {
@@ -91,8 +90,7 @@ void end_trace( void )
     {
         printf("\n");
     }
-    return;
-}
+    }
 
 
 StatusType utlReadBlobDB( void * blob, long lngOffset, long lngBufSize,

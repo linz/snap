@@ -1381,8 +1381,7 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
 
     }
 
-    return;
-}
+    }
 
 void ScriptImp::Print( ostream &str )
 {
