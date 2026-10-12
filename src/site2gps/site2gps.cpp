@@ -186,7 +186,7 @@ int main( int argc, char *argv[] )
     nextstn = 0;
     block_id = 0;
 
-    while( 1 )
+    while( true )
     {
 
         if( autolist )

@@ -1477,7 +1477,7 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const std::string &p
         size_t ncriteria=0;
         const size_t maxcriteria=obsmod->criteria.size();
 
-        while( 1 )
+        while( true )
         {
             auto match=criteria_end;
             double errfct=0.0;
