@@ -109,7 +109,7 @@ void hide_station( int istn );
 void unhide_station( int istn );
 int station_hidden( int istn );           /* Returns 1 if the station is not to be plotted */
 
-int station_in_view( int istn );
+
 void get_station_coordinates( int istn, double *e, double *n );
 void get_projection_coordinates( int istn, double *e, double *n );
 void get_station_adjustment( int istn, double dxyz[3] );
