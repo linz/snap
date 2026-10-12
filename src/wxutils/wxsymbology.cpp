@@ -4,6 +4,7 @@
 #include "wxsymbology.hpp"
 #include <cstring>
 #include <cstdlib>
+#include <utility>
 
 // ColourPalette::Item: A class holding a colour definition and a corresponding
 // bitmap for a ColourPalette.
@@ -139,7 +140,7 @@ int ColourPalette::PaletteBitmapSize() const
 
 // SymbologyBase ... nothing really in it!
 
-SymbologyBase::SymbologyBase(wxString np)
+SymbologyBase::SymbologyBase(const wxString& np)
 {
     int i = np.Find('|');
     if( i == wxNOT_FOUND )
@@ -212,10 +213,10 @@ SymbologyBase *SymbologyList::GetSymbology( int i ) const
 
 SymbologyBase *SymbologyList::GetSymbology( wxString name ) const
 {
-    return GetSymbology( GetSymbologyId( name ));
+    return GetSymbology( GetSymbologyId( std::move(name) ));
 }
 
-int SymbologyList::GetSymbologyId( wxString name ) const
+int SymbologyList::GetSymbologyId( const wxString& name ) const
 {
     for( int i = 0; i < size; i++ )
     {
@@ -225,7 +226,7 @@ int SymbologyList::GetSymbologyId( wxString name ) const
     return -1;
 }
 
-int SymbologyList::GetSymbologyByIdentifier( wxString uid ) const
+int SymbologyList::GetSymbologyByIdentifier( const wxString& uid ) const
 {
     for( int i = 0; i < size; i++ )
     {
@@ -239,7 +240,7 @@ int SymbologyList::GetSymbologyByIdentifier( wxString uid ) const
 // LayerSymbology. Simple class defining a symbology.
 
 LayerSymbology::LayerSymbology(wxString name, int type, int colourId, bool show, const bool isControlCheckbox, const bool colourEditable) :
-    SymbologyBase(name),
+    SymbologyBase(std::move(name)),
     type(type),
     colourId(colourId),
     show(show),
@@ -346,7 +347,7 @@ void TextAlign::SetAlignment( float alignX, float alignY )
     textY = (textY - 1)/2;
 }
 
-void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, wxString string ) const
+void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, const wxString& string ) const
 {
     int twidth;
     int theight;
@@ -362,7 +363,7 @@ void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, wxString strin
 // TextStyle : Used to plot text
 
 TextStyle::TextStyle(wxString name, const wxFont &font, const wxColour &colour ) :
-    SymbologyBase(name)
+    SymbologyBase(std::move(name))
 {
     SetFont( font, colour );
 }
@@ -395,7 +396,7 @@ void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &
     {
         dc.SetTextForeground( colour );
     }
-    alignment.DrawText( dc, refSize,pt, string );
+    alignment.DrawText( dc, refSize,pt, std::move(string) );
 }
 
 // PointSymbology: Used to plot points
@@ -403,7 +404,7 @@ void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &
 // TODO: Use symmetry to avoid rounding errors making unsymmetric symbols
 
 PointSymbology::PointSymbology( wxString name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
-    SymbologyBase( name )
+    SymbologyBase( std::move(name) )
 {
     pointOffsets = nullptr;
     next = nullptr;
@@ -576,13 +577,13 @@ int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool di
     int colourId = 0;
     if( colour.IsOk() ) { colourId= palette.AddColour( colour );
 }
-    LayerSymbology *s = new LayerSymbology( name, type, colourId, display, isControlCheckbox, colourEditable );
+    LayerSymbology *s = new LayerSymbology( std::move(name), type, colourId, display, isControlCheckbox, colourEditable );
     return layers.AddSymbology( s );
 }
 
 void Symbology::AddTitle( wxString name )
 {
-    AddLayer( name, LayerSymbology::label, wxColour(0,0,0), true );
+    AddLayer( std::move(name), LayerSymbology::label, wxColour(0,0,0), true );
 }
 
 void Symbology::AddSpacer()
@@ -597,12 +598,12 @@ int Symbology::LayerCount() const
 
 int Symbology::GetLayerByName( wxString name ) const
 {
-    return layers.GetSymbologyId( name );
+    return layers.GetSymbologyId( std::move(name) );
 }
 
 int Symbology::GetLayerByIdentifier( wxString uid ) const
 {
-    return layers.GetSymbologyByIdentifier( uid );
+    return layers.GetSymbologyByIdentifier( std::move(uid) );
 }
 
 LayerSymbology &Symbology::GetLayer( int i ) const
@@ -639,7 +640,7 @@ int Symbology::AddPointSymbol( PointSymbology *ptsym )
 
 int Symbology::GetPointSymbolId( wxString name ) const
 {
-    return pointSymbols.GetSymbologyId( name );
+    return pointSymbols.GetSymbologyId( std::move(name) );
 }
 
 PointSymbology *Symbology::GetPointSymbol( int i ) const
@@ -654,7 +655,7 @@ int Symbology::AddTextStyle( TextStyle *txtsym )
 
 int Symbology::GetTextStyleId( wxString name ) const
 {
-    return textStyles.GetSymbologyId( name );
+    return textStyles.GetSymbologyId( std::move(name) );
 }
 
 

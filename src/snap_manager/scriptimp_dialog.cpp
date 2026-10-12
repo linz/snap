@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "wxsimpledialog.hpp"
@@ -42,9 +44,9 @@ protected:
 
 private:
     void AddControls();
-    wxString GetSelectorString( wxString selectorDefe );
-    int GetSelectedIndex( wxString selectorDef, wxString selected );
-    wxString GetSelectedValue( wxString selectorDef, int selected );
+    wxString GetSelectorString( const wxString& selectorDefe );
+    int GetSelectedIndex( const wxString& selectorDef, const wxString& selected );
+    wxString GetSelectedValue( const wxString& selectorDef, int selected );
     void HandleButton( wxEvent &event );
     bool RunDialogProgram( Token *program, bool isValidation );
     int nControls;
@@ -54,7 +56,7 @@ private:
 };
 
 ScriptDialog::ScriptDialog( wxString label, Token *controllist, long buttons )
-    : wxSimpleDialog( label, buttons )
+    : wxSimpleDialog( std::move(label), buttons )
 {
     controls = nullptr;
     nControls = controllist->Count();
@@ -420,7 +422,7 @@ void ScriptDialog::Apply()
 //   ~value~description~value~description
 // where ~ may be any delimiter character
 
-wxString ScriptDialog::GetSelectorString( wxString selectorDef )
+wxString ScriptDialog::GetSelectorString( const wxString& selectorDef )
 {
     wxString delim = selectorDef.Mid(0,1);
     wxStringTokenizer tok( selectorDef, delim, wxTOKEN_RET_EMPTY_ALL );
@@ -439,7 +441,7 @@ wxString ScriptDialog::GetSelectorString( wxString selectorDef )
     return selectorString;
 }
 
-int ScriptDialog::GetSelectedIndex( wxString selectorDef, wxString selected )
+int ScriptDialog::GetSelectedIndex( const wxString& selectorDef, const wxString& selected )
 {
     wxString delim = selectorDef.Mid(0,1);
     int index;
@@ -456,7 +458,7 @@ int ScriptDialog::GetSelectedIndex( wxString selectorDef, wxString selected )
     return result;
 }
 
-wxString ScriptDialog::GetSelectedValue( wxString selectorDef, int selected )
+wxString ScriptDialog::GetSelectedValue( const wxString& selectorDef, int selected )
 {
     wxString delim = selectorDef.Mid(0,1);
     wxString value;

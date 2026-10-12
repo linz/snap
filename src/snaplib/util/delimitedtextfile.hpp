@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <stdexcept>
 
@@ -70,7 +71,7 @@ class Column
     friend class Reader;
 public:
     [[nodiscard]] const std::string &name() const { return _name; }
-    void setName( const std::string name ){ _name=name; }
+    void setName( const std::string& name ){ _name=name; }
     [[nodiscard]] const std::string &value() const { return _value; }
     std::string &value() { return _value; }
     [[nodiscard]] int index() const { return _index; }
@@ -78,7 +79,7 @@ public:
     bool operator>>( std::string &strvalue ) const;
 private:
     Column( const Reader &dlt, std::string name, int index ) :
-        _dlt(dlt), _name(name), _index(index) {}
+        _dlt(dlt), _name(std::move(name)), _index(index) {}
     void clear() { _value.clear(); }
     void handleReadError() const;
     const Reader &_dlt;
@@ -121,7 +122,7 @@ protected:
     virtual bool parseRecord() = 0;
     bool getNextLine();
     std::string &getNextValue();
-    void runtimeError( const std::string message ) const;
+    void runtimeError( const std::string& message ) const;
     std::string &buffer() { return _buffer; }
 private:
     void setSource( Reader *dlt ) { _dlt = dlt; }
@@ -196,7 +197,7 @@ class Reader
     friend class Column;
 public:
     Reader( RecordInputBase &input, const Format &parser=Format::Csv, const Options &options = Options() );
-    Reader( const std::string filename, const Format &parser = Format::Csv, const Options &options = Options() );
+    Reader( const std::string& filename, const Format &parser = Format::Csv, const Options &options = Options() );
     Reader( std::istream &is, const Format &parser = Format::Csv, const Options &options = Options() );
     virtual ~Reader();
 

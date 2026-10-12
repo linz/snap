@@ -13,7 +13,7 @@ class Value
 {
 public:
     Value();
-    Value( wxString value );
+    Value( const wxString& value );
     // Deleted so that a string literal is an error, not a silent conversion to bool
     Value( const char *value ) = delete;
     Value( bool value);
@@ -48,8 +48,8 @@ class VariableList : public map<wxString,Value>
 public:
     VariableList();
     ~VariableList();
-    void Add( wxString name, Value var );
-    bool Get( wxString name, Value &var );
+    void Add( const wxString& name, const Value& var );
+    bool Get( const wxString& name, Value &var );
 private:
 };
 

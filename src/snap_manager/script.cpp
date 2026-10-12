@@ -12,7 +12,7 @@ Value::Value() : next(nullptr)
     SetValue(false);
 }
 
-Value::Value( wxString value ) : next(nullptr)
+Value::Value( const wxString& value ) : next(nullptr)
 {
     SetValue( value );
 }
@@ -145,7 +145,7 @@ VariableList::VariableList()
 VariableList::~VariableList()
 = default;
 
-void VariableList::Add( wxString name, Value var )
+void VariableList::Add( const wxString& name, const Value& var )
 {
     wxString lname = name.Lower();
     iterator it = find(lname);
@@ -159,7 +159,7 @@ void VariableList::Add( wxString name, Value var )
     }
 }
 
-bool VariableList::Get( wxString name, Value &var )
+bool VariableList::Get( const wxString& name, Value &var )
 {
     bool result = false;
     iterator it = find(name.Lower());

@@ -88,7 +88,7 @@ wxString SnapJobFile::GetPath()
 ////////////////////////////////////////////////////////////////////////
 // SnapJob class
 
-SnapJob::SnapJob( wxString fileName ) :
+SnapJob::SnapJob( const wxString& fileName ) :
     SnapJobFile( fileName, JFCommandFile )
 {
     // For testing...
@@ -165,7 +165,7 @@ wxString SnapJob::CoordinateFilename()
     return crdfilestr;
 }
 
-wxString SnapJob::FileWithExtension( wxString ext )
+wxString SnapJob::FileWithExtension( const wxString& ext )
 {
     wxFileName file( FileName() );
     file.SetExt( ext );

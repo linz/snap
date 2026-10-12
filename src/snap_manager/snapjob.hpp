@@ -47,7 +47,7 @@ class SnapJob : public SnapJobFile
 {
 public:
     static wxString SnapUser();
-    SnapJob( wxString fileName );
+    SnapJob( const wxString& fileName );
     ~SnapJob() override;
 
     wxString Title();
@@ -76,7 +76,7 @@ private:
     bool LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors );
     bool Load();
 
-    wxString FileWithExtension( wxString ext );
+    wxString FileWithExtension( const wxString& ext );
 
     wxString title;
     wxArrayString errors;

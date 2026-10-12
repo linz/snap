@@ -61,7 +61,7 @@ private:
 class SymbologyBase
 {
 public:
-    SymbologyBase( wxString name );
+    SymbologyBase( const wxString& name );
     virtual ~SymbologyBase();
     wxString Name() { return name; }
     [[nodiscard]] const std::string &NameString() const { return cname; }
@@ -81,8 +81,8 @@ public:
     [[nodiscard]] int Size() const;
     [[nodiscard]] SymbologyBase *GetSymbology( int i ) const;
     [[nodiscard]] SymbologyBase *GetSymbology( wxString name ) const;
-    [[nodiscard]] int GetSymbologyId( wxString name ) const;
-    [[nodiscard]] int GetSymbologyByIdentifier( wxString uid ) const;
+    [[nodiscard]] int GetSymbologyId( const wxString& name ) const;
+    [[nodiscard]] int GetSymbologyByIdentifier( const wxString& uid ) const;
 private:
     void Grow();
     int maxSize;
@@ -189,7 +189,7 @@ public:
     TextAlign( float alignX, float alignY ) { SetAlignment( alignX, alignY ); }
     // dc should be set with the appropriate font,
     void SetAlignment( float alignX, float alignY );
-    void DrawText( wxDC &dc, int refSize, wxPoint refPoint, wxString string ) const;
+    void DrawText( wxDC &dc, int refSize, wxPoint refPoint, const wxString& string ) const;
 private:
     float textX;
     float textY;

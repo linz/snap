@@ -31,7 +31,7 @@ RecordInputBase::~RecordInputBase() = default;
 bool RecordInputBase::handleError( const RecordError & ) { return false; }
 int  RecordInputBase::lineNumber(){ return -1; }
 int  RecordInputBase::recordNumber(){ return -1; }
-void RecordInputBase::raiseError( const std::string message )
+void RecordInputBase::raiseError( const std::string& message )
 {
     throw RecordError( message, name(), lineNumber(), recordNumber() );
 }

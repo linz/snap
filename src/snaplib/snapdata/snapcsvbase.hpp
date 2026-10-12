@@ -36,7 +36,7 @@ public:
         const std::string &name() {
             return _name;
         }
-        void setName(const std::string name);
+        void setName(const std::string& name);
         [[nodiscard]] const std::string &value() const {
             return _column->value();
         }
