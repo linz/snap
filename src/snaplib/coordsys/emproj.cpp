@@ -8,7 +8,7 @@
 
 */
 
-#include <math.h>
+#include <cmath>
 
 #include "coordsys/emproj.h"
 #include "coordsys/isometrc.h"

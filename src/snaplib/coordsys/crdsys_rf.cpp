@@ -12,7 +12,7 @@
 
 */
 
-#include <math.h>
+#include <cmath>
 #include "coordsys/coordsys.h"
 #include "util/pi.h"
 #include <boost/algorithm/string/case_conv.hpp>

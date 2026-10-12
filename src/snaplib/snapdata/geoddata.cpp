@@ -8,7 +8,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <string_view>
 #include <boost/algorithm/string/case_conv.hpp>

@@ -8,7 +8,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include "util/errdef.h"
 #include "coordsys/crdsys_prj.h"
 #include "coordsys/nzmg.h"

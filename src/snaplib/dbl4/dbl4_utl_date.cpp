@@ -16,7 +16,7 @@
 
 #include "dbl4_common.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "dbl4_utl_date.h"
 #include "dbl4_utl_error.h"

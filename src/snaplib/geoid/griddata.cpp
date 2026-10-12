@@ -15,13 +15,13 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <new>
 #include <optional>
 #include <string>
 #include "util/fileutil.h"
-#include "string.h"
+#include <cstring>
 #include "util/errdef.h"
 #include "geoid/griddata.h"
 #include "util/pi.h"

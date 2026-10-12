@@ -9,7 +9,7 @@
 
 */
 
-#include <math.h>
+#include <cmath>
 #include "util/geodetic.h"
 
 /*----------------------------------------------------------------*/

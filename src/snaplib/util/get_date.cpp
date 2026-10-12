@@ -10,8 +10,8 @@
 
 */
 
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 #include <array>
 #include <iomanip>
 #include <sstream>

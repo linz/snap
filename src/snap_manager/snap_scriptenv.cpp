@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include "snapconfig.h"
 #include "util/fileutil.h"
 #include "coordsys/coordsys.h"

@@ -18,7 +18,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rffunc_grid.h"
 #include "util/errdef.h"

@@ -5,7 +5,7 @@
  * constrained only be horizontal or verical data.
  */
 
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 
 #include "autofix.h"

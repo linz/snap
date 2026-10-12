@@ -42,11 +42,11 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <string>
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 #include <exception>
 #include <filesystem>
 #include <iomanip>

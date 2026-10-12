@@ -22,8 +22,8 @@
 
 #include "dbl4_common.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <algorithm>
 
 #include "dbl4_utl_binsrc.h"

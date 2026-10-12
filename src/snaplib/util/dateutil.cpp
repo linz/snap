@@ -17,10 +17,10 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <time.h>
+#include <cstdio>
+#include <cmath>
+#include <cstring>
+#include <ctime>
 #include <charconv>
 #include <iomanip>
 #include <sstream>

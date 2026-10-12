@@ -8,7 +8,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/nzmgr.h"

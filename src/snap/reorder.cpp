@@ -17,7 +17,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <algorithm>
 
 #ifndef TEST

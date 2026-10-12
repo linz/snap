@@ -1,6 +1,6 @@
 #include "snapconfig.h"
-#include <stdio.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cstdarg>
 #include <fstream>
 #include "util/snapctype.h"
 #include "scriptimp.hpp"

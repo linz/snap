@@ -41,10 +41,10 @@
 
 #include "dbl4_common.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <string>
 #include <vector>
 

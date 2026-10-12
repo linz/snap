@@ -6,12 +6,12 @@
    Initial revision
 
 */
-#include <stdio.h>
+#include <cstdio>
 #include <string_view>
 #include "snapdata/datatype.h"
 #include "util/errdef.h"
 #include "util/fieldscanner.hpp"
-#include "string.h"
+#include <cstring>
 
 /* Definition of survey datatypes. */
 

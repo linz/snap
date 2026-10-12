@@ -9,8 +9,8 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <boost/algorithm/string/predicate.hpp>
 #include <charconv>
 #include <string_view>

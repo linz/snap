@@ -6,7 +6,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include "coordsys/crdsys_prj.h"
 #include "util/errdef.h"
 

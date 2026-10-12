@@ -1,9 +1,9 @@
 #include "snapconfig.h"
 /* crdsyshrs.c:  Routines to manage vertical datums */
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 #include <filesystem>
 #include <string>
 #include <string_view>

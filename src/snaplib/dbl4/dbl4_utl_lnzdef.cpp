@@ -38,8 +38,8 @@
 
 #include "dbl4_common.h"
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <optional>
 #include <string>
 #include <string_view>

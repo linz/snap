@@ -11,9 +11,9 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 #include <boost/algorithm/string.hpp>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"

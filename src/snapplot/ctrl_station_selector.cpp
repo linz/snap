@@ -2,7 +2,7 @@
 #include "wx_includes.hpp"
 #include "ctrl_station_selector.hpp"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <search.h>
 
 //extern "C" {

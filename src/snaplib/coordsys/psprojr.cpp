@@ -8,10 +8,10 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "coordsys/crdsys_prj.h"

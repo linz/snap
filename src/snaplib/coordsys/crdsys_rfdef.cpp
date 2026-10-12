@@ -18,7 +18,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_grid.h"
 #include "coordsys/crdsys_rfdef_linzdef.h"

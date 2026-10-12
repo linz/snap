@@ -30,11 +30,11 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <cstdarg>
+#include <cmath>
 #include <deque>
 #include <filesystem>
 #include <optional>

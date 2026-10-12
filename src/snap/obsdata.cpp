@@ -22,11 +22,11 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <string>
 #include <string_view>
-#include <math.h>
+#include <cmath>
 
 #include "snap/snapglob.h"
 #include "output.h"

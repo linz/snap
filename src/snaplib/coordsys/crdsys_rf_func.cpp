@@ -13,7 +13,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include "coordsys/coordsys.h"
 #include "util/errdef.h"
 #include "util/pi.h"

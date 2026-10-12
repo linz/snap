@@ -27,7 +27,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <charconv>
 #include "util/snapctype.h"
 

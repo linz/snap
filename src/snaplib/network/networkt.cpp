@@ -8,8 +8,8 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #include "network/network.h"
 

@@ -2,7 +2,7 @@
 // wxmapdc: Code related to the drawing a map, scaling etc.
 
 #include "wxmapdc.hpp"
-#include <math.h>
+#include <cmath>
 
 
 //---------------------------------------------------------------------------

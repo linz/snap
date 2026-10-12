@@ -1,7 +1,7 @@
 #include "wxregexvalidator.hpp"
 #include <wx/tokenzr.h>
 
-#include <stdarg.h>
+#include <cstdarg>
 
 BEGIN_EVENT_TABLE(wxRegexpStringValidator,wxTextValidator)
     EVT_CHAR(wxRegexpStringValidator::OnChar)

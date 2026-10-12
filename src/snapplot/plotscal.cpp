@@ -9,8 +9,8 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 
 #define _PLOTSCAL_C
 #include "plotpens.h"

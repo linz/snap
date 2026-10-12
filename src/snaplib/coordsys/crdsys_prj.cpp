@@ -8,8 +8,8 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <new>
 #include "coordsys/crdsys_prj.h"
 

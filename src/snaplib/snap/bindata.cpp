@@ -8,10 +8,10 @@
 
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 #include <boost/numeric/conversion/cast.hpp>
 
 #define BINDATA_C

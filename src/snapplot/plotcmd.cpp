@@ -15,7 +15,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -39,12 +39,12 @@
 
 #include <cctype>
 #include <optional>
-#include <stdio.h>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <limits>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include <string_view>
 #include <vector>
 
