@@ -300,7 +300,7 @@ void SnapCsvBase::terminateLoadData()
 
 void SnapCsvBase::definitionError(const std::string &message, RecordErrorType errortype)
 {
-    std::string filename = "";
+    std::string filename;
     std::string fullmessage = message;
     int lineno = -1;
     if (_defstream)
@@ -474,7 +474,7 @@ const string SnapCsvBase::getConfigValue(const std::string &name, RecordStream &
 
 const string SnapCsvBase::getConfigValue(const std::string &name, const string &valuestr)
 {
-    string value("");
+    string value;
     RGX::regex re(
         "\\s*(?:"
         "(default)|"                       // Start of default (1)
@@ -493,7 +493,7 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
     for (; imatch != end; imatch++)
     {
         auto match = *imatch;
-        string nextpart("");
+        string nextpart;
         // default ...
         if (match[1].length() > 0)
         {

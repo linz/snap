@@ -18,7 +18,6 @@ public:
         runtime_error( message ),
         _message(message),
         _filename(filename),
-        _location(""),
         _lineno(lineno),
         _recordno(recordno),
         _type( RuntimeError )
@@ -27,7 +26,6 @@ public:
         runtime_error( message ),
         _message(message),
         _filename(filename),
-        _location(""),
         _lineno(lineno),
         _recordno(recordno),
         _type( type )

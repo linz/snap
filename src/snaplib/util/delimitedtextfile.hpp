@@ -78,7 +78,7 @@ public:
     bool operator>>( std::string &strvalue ) const;
 private:
     Column( const Reader &dlt, std::string name, int index ) :
-        _dlt(dlt), _name(name), _value(""), _index(index) {}
+        _dlt(dlt), _name(name), _index(index) {}
     void clear() { _value.clear(); }
     void handleReadError() const;
     const Reader &_dlt;

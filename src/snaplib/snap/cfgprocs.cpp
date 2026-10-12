@@ -92,7 +92,7 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, std::string_view string, v
         if( adding && mergeopts & (NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU | NW_MERGEOPT_CLASSES ))
         {
             const std::string comma=", ";
-            std::string sep="";
+            std::string sep;
             xprintf("Updating ");
             if( mergeopts & NW_MERGEOPT_COORDS )
             {
