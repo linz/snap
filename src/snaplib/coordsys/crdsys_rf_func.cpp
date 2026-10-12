@@ -25,7 +25,10 @@ int xyz_to_std( ref_frame *rf, double xyz[3], double date )
 {
     int axis[] = { 1, 2, 0, 1 };
     int i;
-    double x, y, cs, sn;
+    double x;
+    double y;
+    double cs;
+    double sn;
 
     if( rf->func && rf->func->xyz_to_std_func )
     {
@@ -58,7 +61,10 @@ int std_to_xyz( ref_frame *rf, double xyz[3], double date )
 {
     int axis[] = { 1, 2, 0, 1 };
     int i;
-    double x, y, cs, sn;
+    double x;
+    double y;
+    double cs;
+    double sn;
 
     if( rf->func && rf->func->std_to_xyz_func )
     {
@@ -132,7 +138,9 @@ int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], double denu[3
     int sts = OK;
     if( denu[0] != 0 || denu[1] != 0 )
     {
-        double xyz[3], dEdLn, dNdLt;
+        double xyz[3];
+        double dEdLn;
+        double dNdLt;
         xyz[CRD_LAT] = llh[CRD_LAT];
         xyz[CRD_LON] = llh[CRD_LON];
         xyz[CRD_HGT] = 0.0;

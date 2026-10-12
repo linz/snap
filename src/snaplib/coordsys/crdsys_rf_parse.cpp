@@ -36,8 +36,12 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     std::string elcode;
     std::string stdcode;
     std::optional<std::string> stdfrm;
-    double sf, txyz[3], rxyz[3];
-    double dsf, dtxyz[3], drxyz[3];
+    double sf;
+    double txyz[3];
+    double rxyz[3];
+    double dsf;
+    double dtxyz[3];
+    double drxyz[3];
     double refdate=0.0;
     int iersunits=0;
     ellipsoid *el = nullptr;

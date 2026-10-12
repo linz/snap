@@ -789,7 +789,9 @@ static void process_station_list_file( CFG_FILE *cfg, const std::string &name,
 
 static int process_station_list( CFG_FILE *cfg, std::string_view string, void *, int, int mode )
 {
-    int istn, ist1, ist2;
+    int istn;
+    int ist1;
+    int ist2;
     bool setall = false;
 
     FieldScanner scanner(string);
@@ -899,7 +901,8 @@ static int read_station_font( CFG_FILE *, std::string_view string, void *, int, 
 
 static int read_station_offset( CFG_FILE *cfg, std::string_view string, void *, int len, int code )
 {
-    double oe = 0.0, on = 0.0;
+    double oe = 0.0;
+    double on = 0.0;
     int sts;
 
     FieldScanner scanner(string);
@@ -1058,7 +1061,8 @@ int write_config_file( FILE *out, int key_only )
             int istn;
             for( istn = 0; istn++ < station_count(); )
             {
-                double oe, on;
+                double oe;
+                double on;
                 if( get_station_offset( istn, &oe, &on ) )
                 {
                     fprintf( out, "offset_station %s  %.2lf %.2lf\n",

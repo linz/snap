@@ -151,7 +151,10 @@ cfg_stack *cfgs = nullptr;
 
 static double calc_error_ellipse_semimajor2( double cvr[] )
 {
-    double v1, v2, v3, v4;
+    double v1;
+    double v2;
+    double v3;
+    double v4;
 
     v1 = (cvr[2]+cvr[0])/2.0;
     v2 = (cvr[2]-cvr[0])/2.0;
@@ -423,7 +426,10 @@ static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jst
     stn_adjustment *isa;
     stn_adjustment *jsa;
     double cvr[3];
-    int irx, iry, jrx, jry;
+    int irx;
+    int iry;
+    int jrx;
+    int jry;
     int i;
 
     blt = ra->blt;
@@ -551,7 +557,8 @@ static double relacc_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn
     bltmatrix *blt;
     stn_adjustment *isa;
     stn_adjustment *jsa;
-    int irow, jrow;
+    int irow;
+    int jrow;
 
     blt = ra->blt;
     isa = stnadj(stnptr(istn));
@@ -800,7 +807,8 @@ static int reload_covariances( BINARY_FILE *b, stn_relacc_array *ra )
 
 static int reload_relative_covariances( BINARY_FILE *b, stn_relacc_array *ra )
 {
-    int from, to;
+    int from;
+    int to;
     double cvr[6];
     double emax2;
 
@@ -945,7 +953,8 @@ static int f_station_priority ( void *env, int stn )
 static double f_distance2( void *env, int stn1, int stn2 )
 {
     double dist2 = -1.0;
-    int istn1, istn2;
+    int istn1;
+    int istn2;
     if( stn1 == stn2 ) { return 0.0;
 }
     istn1 = f_station_id( env, stn1 );
@@ -972,7 +981,8 @@ static double f_distance2( void *env, int stn1, int stn2 )
 
 static double f_error2( void *env, int stn1, int stn2 )
 {
-    int istn1, istn2;
+    int istn1;
+    int istn2;
     stn_relacc_array *ra = (stn_relacc_array *) env;
     double emax2 = 0.0;
 
@@ -986,7 +996,8 @@ static double f_error2( void *env, int stn1, int stn2 )
 
 static double f_vrterror2( void *env, int stn1, int stn2 )
 {
-    int istn1, istn2;
+    int istn1;
+    int istn2;
     stn_relacc_array *ra = (stn_relacc_array *) env;
     double verr = 0.0;
 
@@ -1000,7 +1011,8 @@ static double f_vrterror2( void *env, int stn1, int stn2 )
 
 static void f_request_covar( void *env, int stn1, int stn2 )
 {
-    int istn1, istn2;
+    int istn1;
+    int istn2;
     stn_relacc_array *ra = (stn_relacc_array *) env;
     istn1 = f_station_id( env, stn1 );
     istn2 = f_station_id( env, stn2 );
@@ -1226,7 +1238,8 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
 
         if( geocentric_coords )
         {
-            double llh[3], xyz[3];
+            double llh[3];
+            double xyz[3];
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
@@ -1239,7 +1252,8 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
         {
             if( projection_coords )
             {
-                double easting, northing;
+                double easting;
+                double northing;
                 geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
                 csv->writeDouble( easting, coord_precision );
                 csv->writeDouble( northing, coord_precision );
@@ -1260,7 +1274,9 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
 
         if( adjusted )
         {
-            double de, dn, dh;
+            double de;
+            double dn;
+            double dh;
             std::string mode = "--";
             if( sa->flag.float_h ) { mode[0] = 'h';
             } else if( sa->flag.adj_h ) { mode[0] = 'H';
@@ -1421,7 +1437,8 @@ static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_ar
     int nbadorder;
     int orderid;
     int max_order = -1;
-    int i,j;
+    int i;
+    int j;
     int istn;
     int sorted;
 
@@ -2662,7 +2679,8 @@ int main( int argc, char *argv[] )
 {
     CFG_FILE *cfg = nullptr;
     std::optional<std::string> cfn;
-    const char *basecfn, *ofn;
+    const char *basecfn;
+    const char *ofn;
     int nerr;
     std::unique_ptr<SDCTest> hsdc;
     BINARY_FILE *b;

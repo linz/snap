@@ -119,7 +119,8 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
     PutTextInfo jmp;
     long size;
     int type;
-    int firstline, c;
+    int firstline;
+    int c;
     if( loc < 0 ) { return;
 }
     const int64_t curloc = ftell64( b->f );
@@ -183,7 +184,8 @@ survdata *get_survdata_from_binary( int64_t loc )
 
 static int reload_relative_covariances( BINARY_FILE *b )
 {
-    int from, to;
+    int from;
+    int to;
     double cvr[6];
 
     if( find_section( b, "STATION_RELATIVE_COVARIANCES" ) != OK ) { return MISSING_DATA;

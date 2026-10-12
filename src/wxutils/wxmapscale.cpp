@@ -178,7 +178,10 @@ void wxMapScale::SetZoomStackSize( int nStack )
 
 void wxMapScale::CalcScale()
 {
-    double ddx, ddy, wdx, wdy;
+    double ddx;
+    double ddy;
+    double wdx;
+    double wdy;
     dxorg = plotRect.GetLeft();   dyorg = plotRect.GetBottom();
     ddx = plotRect.GetRight() - dxorg;
     ddy = plotRect.GetTop() - dyorg;
@@ -268,7 +271,8 @@ char wxMapScale::PointFlags( const MapPoint &pt )
 char wxMapScale::ShiftIntoRange( MapPoint &p0, char flag0,
                                  const MapPoint p1, char flag1 )
 {
-    double xnew, ynew;
+    double xnew;
+    double ynew;
     if( flag0 & (LEFT | RIGHT) )
     {
         xnew = (flag0 & LEFT) ? mapWindow.min.x : mapWindow.max.x;

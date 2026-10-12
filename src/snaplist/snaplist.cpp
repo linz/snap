@@ -500,11 +500,21 @@ void TableWriter::printRow( FILE *out )
 void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
 {
     vecdata *t;
-    station *from, *to;
-    int axis, iobs;
-    double brngdiff, brngppm, brngrf;
-    double obs_dist, calc_dist, distdiff, distppm, distrf;
-    double vecdiff, vecppm, vecrf;
+    station *from;
+    station *to;
+    int axis;
+    int iobs;
+    double brngdiff;
+    double brngppm;
+    double brngrf;
+    double obs_dist;
+    double calc_dist;
+    double distdiff;
+    double distppm;
+    double distrf;
+    double vecdiff;
+    double vecppm;
+    double vecrf;
 
     for(iobs = 0; iobs < v->nobs; iobs++ )
     {
@@ -1134,7 +1144,10 @@ static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int
 
 void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax )
 {
-    double v1, v2, v3, v4;
+    double v1;
+    double v2;
+    double v3;
+    double v4;
 
     v1 = (cvr[2]+cvr[0])/2.0;
     v2 = (cvr[2]-cvr[0])/2.0;
@@ -1184,10 +1197,12 @@ static const char *default_cfg_name = "snaplist";
 int main( int argc, char *argv[] )
 {
     coordsys *xyzcs;
-    double lat, lon;
+    double lat;
+    double lon;
     CFG_FILE *cfg = nullptr;
     std::optional<std::string> cfn;
-    const char *basecfn, *ofn;
+    const char *basecfn;
+    const char *ofn;
 
     CONFIGURE_RUNTIME();
 

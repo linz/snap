@@ -49,7 +49,10 @@ static long julian_day (int day, int month,int year)
 
 static void julian_date(long jdn, int *day, int *month, int *year)
 {
-    long lyear=0, lmonth=0, lday=0, temp_var;
+    long lyear=0;
+    long lmonth=0;
+    long lday=0;
+    long temp_var;
 
     if( jdn > 0 )
     {
@@ -255,7 +258,9 @@ double date_as_year( double snapdate )
     year = (snapdate-refdate)/yearlen;
     if( year < 0 || year > 1 )
     {
-        int d, m, y;
+        int d;
+        int m;
+        int y;
         julian_date( (long) snapdate, &d, &m, &y );
         refdate = julian_day( 1, 1, y);
         yearlen = julian_day( 1, 1, y+1 ) - refdate;
@@ -268,7 +273,8 @@ double date_as_year( double snapdate )
 
 double year_as_snapdate( double years )
 {
-    double d0, d1;
+    double d0;
+    double d1;
     int y0;
     y0=(int)years;
     d0=snap_date(y0,1,1);
@@ -288,7 +294,9 @@ void date_as_ymd( double snapdate, int *year, int *month, int *day )
 
 void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour, int *min, int *sec )
 {
-    int h,m,s;
+    int h;
+    int m;
+    int s;
     date_as_ymd(snapdate,year,month,day);
     snapdate -= floor(snapdate);
     snapdate *= 24;
@@ -308,7 +316,11 @@ void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour
 
 void date_as_yds( double snapdate, int *year, int *dayno, int *secs )
 {
-    int m,d,hr,mn,sc;
+    int m;
+    int d;
+    int hr;
+    int mn;
+    int sc;
     double y0;
     date_as_ymdhms( snapdate,year,&m,&d,&hr,&mn,&sc);
     y0=snap_datetime(*year,1,1,hr,mn,sc);

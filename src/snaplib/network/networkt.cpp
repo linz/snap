@@ -17,8 +17,11 @@ static void calc_topocentre( network *nw )
 {
     int i;
     station *st;
-    double topolat, topolon;
-    double vecu[3], tmp[3], r;
+    double topolat;
+    double topolon;
+    double vecu[3];
+    double tmp[3];
+    double r;
 
     for( i=0; i<3; i++ ) { vecu[i] = 0.0;
 }

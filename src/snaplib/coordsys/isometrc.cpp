@@ -37,8 +37,12 @@ double geodetic_from_isometric( double q, double e )
 
     static double tol=4.848132e-11;
     double lat;
-    double zz, diff;
-    double ww, top, bot, phi1;
+    double zz;
+    double diff;
+    double ww;
+    double top;
+    double bot;
+    double phi1;
     double slt2;
     int it = 0;
 

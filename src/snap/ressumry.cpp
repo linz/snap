@@ -89,7 +89,8 @@ static int obsenu_from_index[NOBSTYPE*4];
 
 int define_error_summary( const std::string &definition )
 {
-    int nlevel, ilevel;
+    int nlevel;
+    int ilevel;
     int sts;
 
     nlevel = numeric_cast<int>( std::count( definition.begin(), definition.end(), ERROR_SUMMARY_DELIMITER ) ) + 1;
@@ -285,7 +286,8 @@ static int get_obs_class_val( survdata *sd, trgtdata *t, int class_id )
 static void sum_observation( const summary_def &sdf, survdata *sd )
 {
     trgtdata  *t;
-    int iobs, ilevel;
+    int iobs;
+    int ilevel;
     int index;
     char is_vector;
 
@@ -300,7 +302,8 @@ static void sum_observation( const summary_def &sdf, survdata *sd )
         index = 0;
         for( ilevel = 0; ilevel < sdf.nlevel; ilevel++ )
         {
-            int class_id, class_val;
+            int class_id;
+            int class_val;
 
             class_id = sdf.level_id[ilevel];
             switch( class_id )
@@ -368,7 +371,8 @@ static void sum_observation( const summary_def &sdf, survdata *sd )
             if( is_vector && enu_period > 0 )
             {
                 int iaxis;
-                double sres[3], serr[3];
+                double sres[3];
+                double serr[3];
                 calc_vecdata_vector( sd, VD_REF_STN, iobs,
                                      VD_RESVEC | VD_STDERR | vdopt,
                                      sres, serr );
@@ -436,7 +440,8 @@ static void sum_summary( const summary_def &sdf )
 static void print_summary_level( FILE *lst, const summary_def &sdf,
                                  int ilevel, int index, int axis, double semult )
 {
-    int ilvl, sublevel_count;
+    int ilvl;
+    int sublevel_count;
     int lastlevel= ilevel >= sdf.nlevel-1 && sdf.level_id[ilevel] == BY_DATA_TYPE;
 
     /* To avoid using unecessary space in the recursive call, enclose
@@ -457,7 +462,8 @@ static void print_summary_level( FILE *lst, const summary_def &sdf,
 
         {
             error_total sum_total[3];
-            int i, j;
+            int i;
+            int j;
             
             if( sdf.level_id[ilevel] == BY_DATA_TYPE )
             {

@@ -37,9 +37,13 @@
 
 int chol_dec( ltmat N, int np )
 {
-    ltmat r1, r2;
+    ltmat r1;
+    ltmat r2;
     double sum;
-    int i,j,k,kmin;
+    int i;
+    int j;
+    int k;
+    int kmin;
     static double small = 1.0e-10;
     static double abssmall = 1.0e-30;
     for (i = 0; i<np; i++ )
@@ -79,7 +83,8 @@ void chol_slv( ltmat N, ltmat b, ltmat r, int np )
 {
     ltmat r1;
     double sum;
-    int i,k;
+    int i;
+    int k;
     for ( i=0, r1=N; i<np; i++ )
     {
         for (k = 0, sum=0.0; k<i; k++ ) { sum -= *r1++ * r[k];
@@ -102,7 +107,9 @@ void chol_inv( ltmat N, ltmat tmp, int np )
 {
     ltmat r0;
     double sum;
-    int i,j,k;
+    int i;
+    int j;
+    int k;
     for (i=np; i--; )
     {
         r0 = &Lij( N, i, np-1 );
@@ -122,7 +129,11 @@ void chol_inv( ltmat N, ltmat tmp, int np )
 
 void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent )
 {
-    int i, j, k, cols, wid;
+    int i;
+    int j;
+    int k;
+    int cols;
+    int wid;
     const char *f;
 
     for( f=format; *f != 0 && (*f < '0' || *f > '9'); f++) {;
@@ -164,7 +175,8 @@ void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent )
 
 void print_ltmat_json( FILE *out, ltmat N, int nrow, const char *format, int indent )
 {
-    int ir, ic;
+    int ir;
+    int ic;
     fprintf(out,"[");
     for( ir=0; ir < nrow; ir++ )
     {
@@ -197,8 +209,13 @@ void print_ltmat_json( FILE *out, ltmat N, int nrow, const char *format, int ind
 int pvt_chol_dec( ltmat N, int *col, int nprm )
 {
     int *prm;
-    int i, irow, imax, icol;
-    double rmax, rmin, sum;
+    int i;
+    int irow;
+    int imax;
+    int icol;
+    double rmax;
+    double rmin;
+    double sum;
     ltmat nptr;
     int nfix;
 
@@ -290,7 +307,10 @@ int pvt_chol_dec( ltmat N, int *col, int nprm )
 void pvt_chol_slv( ltmat N, ltmat b, ltmat r, int *col, int np )
 {
     double sum;
-    int i,k,irow,icol;
+    int i;
+    int k;
+    int irow;
+    int icol;
     for ( i=0; i<np; i++ )
     {
         irow = col[i];
@@ -319,7 +339,11 @@ void pvt_chol_slv( ltmat N, ltmat b, ltmat r, int *col, int np )
 void pvt_chol_inv( ltmat N, ltmat tmp, int *col, int np )
 {
     double sum;
-    int i,j,k,irow,jrow;
+    int i;
+    int j;
+    int k;
+    int irow;
+    int jrow;
     for (i=np; i--; )
     {
         irow = col[i];

@@ -107,7 +107,8 @@ geoid_def *create_geoid_grid( const std::optional<std::string> &source )
 
     if( status == OK )
     {
-        double dlon, dlat;
+        double dlon;
+        double dlat;
         gd = new geoid_def;
         gd->cs = cs;
         gd->grd = grd;
@@ -200,7 +201,8 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     double xyz[3];
     double xyzp[3];
     double dxyz[3];
-    double u1, u2;
+    double u1;
+    double u2;
 
     double llh[3];
 

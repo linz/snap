@@ -1094,7 +1094,8 @@ static void show_example_input( void  )
         "41 22 03.26 S",
         "-0.72004099"
         };
-    std::string_view c1, c2;
+    std::string_view c1;
+    std::string_view c2;
     int ncd;
 
     clear_screen();

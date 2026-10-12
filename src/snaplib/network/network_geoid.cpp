@@ -199,7 +199,8 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
     int ncalc = 0;
     for( int istn = 0; istn++ < maxstn; )
     {
-        double llh[3], exu[3];
+        double llh[3];
+        double exu[3];
         double inputUndulation;
         station *st = station_ptr(nw,istn);
         if( !st ) { continue;

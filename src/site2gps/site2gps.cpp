@@ -35,7 +35,8 @@ void print_gps_baselines( FILE *out, int *stn, int nstns )
 
 void print_multistation_gps( FILE *out, int *stn, int nstns )
 {
-    station *s1, *s2;
+    station *s1;
+    station *s2;
     int i;
     vector3 dxyz;
     s1 = station_ptr( net, stn[0] );
@@ -52,8 +53,10 @@ void print_multistation_gps( FILE *out, int *stn, int nstns )
 
 int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, int nmax )
 {
-    int istn, i;
-    station *s1, *s2;
+    int istn;
+    int i;
+    station *s1;
+    station *s2;
     if( nstns < 2 ) { return nstns;
 }
     s1 = station_ptr( net, stn[0] );
@@ -101,7 +104,8 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
 
 int main( int argc, char *argv[] )
 {
-    FILE *in=nullptr, *out;
+    FILE *in=nullptr;
+    FILE *out;
     int *stn;
     int *stn2;
     double *dst;

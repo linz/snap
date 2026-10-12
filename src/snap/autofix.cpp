@@ -115,7 +115,11 @@ static void add_survdata_fixdata( survdata *sd )
 {
     trgtdata *t;
     datatypedef *dtd;
-    int from, to, type, flags, ispoint;
+    int from;
+    int to;
+    int type;
+    int flags;
+    int ispoint;
 
     from=sd->from;
     for( int i = 0; i < sd->nobs; i++ )

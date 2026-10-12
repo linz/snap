@@ -138,7 +138,8 @@ std::string format_plot_coords( const double e, const double n )
     }
     if( arbitrary_projection && latitudeFormat && longitudeFormat )
     {
-        double lat, lon;
+        double lat;
+        double lon;
         proj_to_geog( plot_crdsys->prj, e, n, &lon, &lat );
         text += dms_string( lat*RTOD, *latitudeFormat ) + "\r\n" + dms_string( lon*RTOD, *longitudeFormat );
     }
@@ -163,7 +164,10 @@ const std::string &plot_crdsys_name()
 
 void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax )
 {
-    double v1, v2, v3, v4;
+    double v1;
+    double v2;
+    double v3;
+    double v4;
 
     v1 = (cvr[2]+cvr[0])/2.0;
     v2 = (cvr[2]-cvr[0])/2.0;
@@ -283,7 +287,11 @@ static void build_sort_index( void )
     int classid;
     int valueid;
     station *stn;
-    double emax, emin, b1, dxyz[3], hgterr;
+    double emax;
+    double emin;
+    double b1;
+    double dxyz[3];
+    double hgterr;
 
     if( ! no_good_stations || ! sortIndex || sortValues.empty() ) { return;
 }
@@ -485,7 +493,9 @@ static void replace_tabs( std::string &text )
 
 std::string station_list_item( const int istnsrt )
 {
-    double emax, emin, b1;
+    double emax;
+    double emin;
+    double b1;
     double hgterr;
     double dxyz[3];
     char gotadj = 0;
@@ -698,7 +708,10 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
 
         if( sa->flag.adj_h && dimension != 1 )
         {
-            double b1, b2, emax, emin;
+            double b1;
+            double b2;
+            double emax;
+            double emin;
             get_error_ellipse( istn, &emax, &emin, &b1 );
             b1 *= RTOD;
             while( b1 < 0.0 ) { b1 += 180.0;
@@ -761,7 +774,11 @@ void sort_station_list( int opt )
 
 void init_plotstns( int adjusted )
 {
-    double cm, rlat, n, e, ds;
+    double cm;
+    double rlat;
+    double n;
+    double e;
+    double ds;
     int istn;
     int symbol;
     station *st;
@@ -1033,8 +1050,13 @@ void get_height_error( int istn, double *hgterr )
 
 static int find_spanning( double px )
 {
-    int i1,i2,i3;
-    double x1, x2, x3, y;
+    int i1;
+    int i2;
+    int i3;
+    double x1;
+    double x2;
+    double x3;
+    double y;
     if( no_good_stations <= 1 ) { return 0;
 }
     validate_xyindex();
@@ -1145,9 +1167,14 @@ void get_projection_coordinates( int istn, double *e, double *n )
 int nearest_station( double px, double py, double tol )
 {
     int valid;
-    int i1,i2,in;
-    double de,dst,idst;
-    double x, y;
+    int i1;
+    int i2;
+    int in;
+    double de;
+    double dst;
+    double idst;
+    double x;
+    double y;
 
     if( no_good_stations < 1 ) { return 0;
 }
@@ -1200,7 +1227,8 @@ int station_count( void )
 
 int station_in_view( int istn )
 {
-    double x, y;
+    double x;
+    double y;
     get_station_coordinates( istn, &x, &y );
     return  x >= plot_emin &&
             x <= plot_emax &&
@@ -1335,7 +1363,11 @@ void plot_station_symbol( map_plotter *plotter, double px, double py, int symbol
 
 int plot_stations( map_plotter *plotter, int first, int highlightonly )
 {
-    int istn, count, plot_them, pen, symbol;
+    int istn;
+    int count;
+    int plot_them;
+    int pen;
+    int symbol;
 
     plot_them = option_selected( SYMBOL_OPT );
 
@@ -1347,7 +1379,8 @@ int plot_stations( map_plotter *plotter, int first, int highlightonly )
 
     for( istn = first; istn++ < nstns; )
     {
-        double x, y;
+        double x;
+        double y;
         int highlighted;
 
         if( !count-- ) { return istn-1; }
@@ -1393,8 +1426,12 @@ int plot_stations( map_plotter *plotter, int first, int highlightonly )
 
 int plot_covariances( map_plotter *plotter, int first )
 {
-    int istn, pen;
-    double x, y, a, b;
+    int istn;
+    int pen;
+    double x;
+    double y;
+    double a;
+    double b;
     int count;
     double eemult;
 
@@ -1438,8 +1475,13 @@ int plot_covariances( map_plotter *plotter, int first )
 
 int plot_height_errors( map_plotter *plotter, int first )
 {
-    int istn, count, pen;
-    double x, y, he, s1;
+    int istn;
+    int count;
+    int pen;
+    double x;
+    double y;
+    double he;
+    double s1;
 
     if( dimension == 2 ) { return ALL_DONE;
 }
@@ -1510,7 +1552,8 @@ int plot_station_names( map_plotter *plotter, int first )
         if( ! station_plotable( istn ) ) { continue;
 }
 
-        double x, y;
+        double x;
+        double y;
         get_station_coordinates( istn, &x, &y );
 
         std::string name;
@@ -1540,9 +1583,17 @@ int plot_station_names( map_plotter *plotter, int first )
 
 int plot_adjustments( map_plotter *plotter, int first )
 {
-    int istn, count;
-    double x, y, dx, dy, dh;
-    int plthor, pltvrt, penhor, penvrt;
+    int istn;
+    int count;
+    double x;
+    double y;
+    double dx;
+    double dy;
+    double dh;
+    int plthor;
+    int pltvrt;
+    int penhor;
+    int penvrt;
 
     if( !stations_adjusted ) { return ALL_DONE;
 }

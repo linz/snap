@@ -130,8 +130,11 @@ using hTriangleDef = TriangleDef *;
 static short find_nearest( hTrigDef trig, double ptx, double pty )
 {
     double offset;
-    double x0,x1;
-    short i0,i1,im;
+    double x0;
+    double x1;
+    short i0;
+    short i1;
+    short im;
 
     const double *xy = trig->ptxy.data();
     int npts = trig->npts;
@@ -272,12 +275,28 @@ static hPointDef get_point( hTrigDef trig, int npt, hPointDef pt )
 
 static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef triangle )
 {
-    double x, y, xp, yp, x2, y2, x3, y3, dp2, dp3;
-    short ptid,pt1id,pt2id,pt3id,plast;
+    double x;
+    double y;
+    double xp;
+    double yp;
+    double x2;
+    double y2;
+    double x3;
+    double y3;
+    double dp2;
+    double dp3;
+    short ptid;
+    short pt1id;
+    short pt2id;
+    short pt3id;
+    short plast;
     int finished;
-    int nnode,i;
+    int nnode;
+    int i;
     int maxiterations;
-    hPointDef pp1, pp2, pp3;
+    hPointDef pp1;
+    hPointDef pp2;
+    hPointDef pp3;
 
     if( xt < trig->minx || xt > trig->maxx ||
             yt < trig->miny || yt > trig->maxy )
@@ -436,8 +455,11 @@ static StatusType calc_triangle_value( hTrigDef trig, double x, double y,
     hTriangleDef tr = &trd;
     StatusType sts;
     short ndim = trig->ndim;
-    short p, i;
-    double *xy1, *xy2, *xy3;
+    short p;
+    short i;
+    double *xy1;
+    double *xy2;
+    double *xy3;
     double m[3];
     double a;
 

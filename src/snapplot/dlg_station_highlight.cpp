@@ -389,7 +389,9 @@ void StationHighlightDialog::SelectStations( bool select )
         }
         else
         {
-            double emax, emin, b1;
+            double emax;
+            double emin;
+            double b1;
             double dxyz[3];
 
             if( ! sa ) { continue;

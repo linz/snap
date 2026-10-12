@@ -35,7 +35,8 @@ std::string_view refcoef_name( int rc )
 
 double zd_ref_correction( int p, station *st1, station *st2, void *hA, int irow )
 {
-    vector3 vrt1, vrt2;
+    vector3 vrt1;
+    vector3 vrt2;
     double angle;
 
     /* Calculate the angle subtended by the verticals at the two stations */

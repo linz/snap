@@ -27,7 +27,13 @@
 double * llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
                      double *dEdLn, double *dNdLt )
 {
-    double bsac,p,clt,slt,cln,sln,hgt;
+    double bsac;
+    double p;
+    double clt;
+    double slt;
+    double cln;
+    double sln;
+    double hgt;
     clt  = cos(llh[CRD_LAT]);
     slt  = sin(llh[CRD_LAT]);
     cln  = cos(llh[CRD_LON]);
@@ -50,7 +56,14 @@ double * llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
 
 double * xyz_to_llh( ellipsoid *el, double xyz[3], double llh[3] )
 {
-    double bsac,p,slt,clt,lt0,ln,lt,hgt;
+    double bsac;
+    double p;
+    double slt;
+    double clt;
+    double lt0;
+    double ln;
+    double lt;
+    double hgt;
     int it;
     ln = atan2( xyz[1], xyz[0] );
     p      = _hypot( xyz[0], xyz[1] );

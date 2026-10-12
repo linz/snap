@@ -71,7 +71,8 @@ void SnapplotMapView::OnClickEvent( wxMapWindowEvent &event )
             int istn = FindStation( event.GetMapPoint() );
             if( istn )
             {
-                double dx, dy;
+                double dx;
+                double dy;
                 get_station_offset( istn, &dx, &dy );
                 if( dx != 0.0 || dy != 0.0 )
                 {
@@ -102,7 +103,12 @@ void SnapplotMapView::ZoomToStation( int istn )
 
 void SnapplotMapView::ZoomToLine( int from, int to )
 {
-    double x1, y1, x2, y2, xm, ym;
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+    double xm;
+    double ym;
     if( !from ) { return;
 }
     get_station_coordinates( from, &x1, &y1 );
@@ -132,7 +138,8 @@ void SnapplotMapView::ZoomToLine( int from, int to )
 }
         if( ! connection_observation_count( from, nconnect ) ) { continue;
 }
-        double x, y;
+        double x;
+        double y;
         get_station_coordinates( cto, &x, &y );
         if( x < x1 ) { x1 = x; } else if( x > x2 ) { x2 = x;
 }
@@ -161,7 +168,10 @@ void SnapplotMapView::ZoomToLine( int from, int to )
     // in the job ...
     else
     {
-        double emin, nmin, emax, nmax;
+        double emin;
+        double nmin;
+        double emax;
+        double nmax;
         get_station_range( &emin, &nmin, &emax, &nmax );
         int nstns = used_station_count();
         double stnarea = (emax-emin)*(nmax-nmin);
@@ -224,7 +234,8 @@ void SnapplotMapView::ShowInfo( const MapPoint &pt, bool zoom )
     }
     else if( weakLock || ! locatorLocked )
     {
-        int from ,to;
+        int from ;
+        int to;
         double tolerance = pickTolerance * mscale.GetScale();
         if( nearest_connection( pt.x, pt.y, tolerance, &from, &to ) )
         {
@@ -364,7 +375,8 @@ void SnapplotMapView::DrawLocator( wxDC &dc )
         {
             dc.SetPen( wxPen( locatorCol, locatorPenWidth ));
             dc.SetBrush( wxBrush( backCol, wxBRUSHSTYLE_TRANSPARENT  ));
-            double e, n;
+            double e;
+            double n;
             get_station_coordinates( locatorFrom, &e, &n );
             wxPoint ptFrom;
             GetScale().WorldToPlot( MapPoint(e,n),ptFrom );
@@ -381,7 +393,8 @@ void SnapplotMapView::DrawLocator( wxDC &dc )
         {
 
             wxMapScale scale = GetScale();
-            double e, n;
+            double e;
+            double n;
             wxPoint ptStart;
             wxPoint ptEnd;
             bool start;

@@ -24,10 +24,12 @@ int merge_network( network *base, network *data, int mergeopts,
 {
 
     coord_conversion cconv;
-    double llh[3], exu[3];
+    double llh[3];
+    double exu[3];
     int istn;
     int convertcoords;
-    station *st, *stnew;
+    station *st;
+    station *stnew;
     station **stnewlist = nullptr;
     station **stdellist = nullptr;
     ellipsoid &el=*base->crdsys->rf->el;

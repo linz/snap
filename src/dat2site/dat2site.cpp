@@ -429,7 +429,8 @@ static conn * get_connection( stn *from, stn *to )
 
 static void fixup_connection_angles( stn *from, int ro_id, double change, int new_id )
 {
-    conn *cn, *rcn;
+    conn *cn;
+    conn *rcn;
     FOR_ALL_CONNECTIONS(from,cn)
     {
         if( (cn->flag & CN_AZ) && (cn->az.ro_id == ro_id ) )
@@ -451,7 +452,8 @@ static void add_vecdata( stn * from, stn * to, double value[3], int type )
 {
     if( type == GB )
     {
-        conn *cn, *rcn;
+        conn *cn;
+        conn *rcn;
         if( ! from ) { return;
 }
         cn = get_connection( from, to );
@@ -520,7 +522,8 @@ static void add_vecdata( stn * from, stn * to, double value[3], int type )
 
 static void add_dsdata ( stn *from, stn *to, double dist, char type )
 {
-    conn *cn, *rcn;
+    conn *cn;
+    conn *rcn;
     cn = get_connection( from, to );
     rcn = get_connection( to, from );
     if( cn->flag & CN_DS )
@@ -585,7 +588,8 @@ static void add_zddata( stn *from, stn *to, double zd )
 
 static void add_lvdata( stn *from, stn *to, double hd )
 {
-    conn *cn, *rcn;
+    conn *cn;
+    conn *rcn;
     cn = get_connection( from, to );
     rcn = get_connection( to, from );
     if( cn->flag & CN_LV )
@@ -616,7 +620,8 @@ static void add_lvdata( stn *from, stn *to, double hd )
 
 static void add_azdata( stn *from, stn *to, double az, int *ro_id, double *ro_corr )
 {
-    conn *cn, *rcn;
+    conn *cn;
+    conn *rcn;
     cn = get_connection( from, to );
     if( cn->flag & CN_AZ )
     {
@@ -796,8 +801,11 @@ static double get_value( int type, long, long )
 
 static void convert_zd_to_lv( stn *from, stn *to, double arcdist )
 {
-    conn *cn, *rcn;
-    double corr, zd, hd;
+    conn *cn;
+    conn *rcn;
+    double corr;
+    double zd;
+    double hd;
     cn = get_connection( from, to );
     if( cn->flag & CN_LV ) { return;
 }
@@ -805,7 +813,9 @@ static void convert_zd_to_lv( stn *from, stn *to, double arcdist )
     corr = -0.425*arcdist/RADIUS_OF_EARTH;
     if( cn->flag & CN_ZD && rcn->flag & CN_ZD )
     {
-        double a1, a2, diff;
+        double a1;
+        double a2;
+        double diff;
         a1 = cn->zd.zd + corr;
         a2 = rcn->zd.zd + corr;
         diff = fabs(a1 + a2 - PI);
@@ -836,7 +846,8 @@ static void convert_zd_to_lv( stn *from, stn *to, double arcdist )
 
 static void fixup_all_zdds( void )
 {
-    conn *cn, *rcn;
+    conn *cn;
+    conn *rcn;
     double dist;
     for( stn &st : stnlist )
     {
@@ -946,8 +957,10 @@ static int is_fixed_azimuth( AZ_obs *o )
 
 static void add_ro_link( int ro1, int ro2, double corr )
 {
-    int lro1, lro2;
-    double lcorr1, lcorr2;
+    int lro1;
+    int lro2;
+    double lcorr1;
+    double lcorr2;
     lro1 = get_link_ro( ro1, &lcorr1 );
     lro2 = get_link_ro( ro2, &lcorr2 );
     if( lro1 == lro2 )
@@ -1012,7 +1025,8 @@ static void use_horizontal_fix( stn *from )
     int azroid[5];
     double azcor[5];
     double azdst[5];
-    int nro, iro;
+    int nro;
+    int iro;
     static int maxro = 5;
     nro = 0;
     FOR_ALL_CONNECTIONS(from,cn)
@@ -1059,7 +1073,8 @@ static void use_horizontal_fix( stn *from )
 
 static void use_vertical_fix( stn *from )
 {
-    conn *cn, *rcn;
+    conn *cn;
+    conn *rcn;
     FOR_ALL_CONNECTIONS(from,cn)
     {
         if( !(cn->to->fixed & ST_FIXV) ) { continue;
@@ -1100,7 +1115,9 @@ static void setup_fix_order( void )
 static void update_fix_order( stn *st )
 {
     double bestfix = 0.0;
-    int fo, i, besttype = -1;
+    int fo;
+    int i;
+    int besttype = -1;
     char needed = 0;
     if( !(st->fixed & ST_FIXH) ) { needed |= ST_FIXH;
 }
@@ -1218,7 +1235,8 @@ static void check_fixed_azimuths( stn *from )
 
 static void update_fix_info( stn *from, stn *newfix )
 {
-    conn *newcn, *cn;
+    conn *newcn;
+    conn *cn;
     int once;
 
     /* Ensure that azimuths for which the ro has been fixed are
@@ -1330,7 +1348,8 @@ static void update_fix_info( stn *from, stn *newfix )
                 {
                     FOR_ALL_CONNECTIONS(from,cn)
                     {
-                        double dst, quality;
+                        double dst;
+                        double quality;
                         if( cn->to == newfix
                                 || !(cn->to->fixed & ST_FIXH)
                                 || !(cn->flag & CN_AZ)
@@ -1500,7 +1519,8 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
 
 static void fix_known_stations( const std::vector<std::string> &recalclist )
 {
-    int i, maxstn;
+    int i;
+    int maxstn;
     maxstn = number_of_stations( net );
     for( const std::string &code : recalclist )
     {
@@ -1588,8 +1608,12 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
 
     double xyz[3];
     conn *cn;
-    int nhor, nvrt, nvec;
-    int i, j1, j2;
+    int nhor;
+    int nvrt;
+    int nvec;
+    int i;
+    int j1;
+    int j2;
 
     {
         char msg[80];
@@ -1826,7 +1850,8 @@ static void calc_projection_coords( stn *st )
 static int setup_plane_projection_at( stn *st )
 {
     conn *cn;
-    int nstn, i;
+    int nstn;
+    int i;
     double xyz[3];
     xyz[0] = xyz[1] = xyz[2] = 0.0;
     nstn = 0;
@@ -1935,7 +1960,10 @@ static double bearing( double xy1[2], double xy2[2] )
 
 static int fix_with_azaz( stn *st, double *lt, double *ln, double *hgt )
 {
-    double N[3], b[2], det, xy[2];
+    double N[3];
+    double b[2];
+    double det;
+    double xy[2];
     int n;
     conn *cn;
 
@@ -1959,7 +1987,9 @@ static int fix_with_azaz( stn *st, double *lt, double *ln, double *hgt )
                 (cn->flag & CN_REVAZ) &&
                 is_fixed_azimuth(&cn->revaz) )
         {
-            double c, s, v;
+            double c;
+            double s;
+            double v;
             n++;
             c = cos(cn->revaz.az);
             s = sin(cn->revaz.az);
@@ -1986,8 +2016,18 @@ static int fix_with_azaz( stn *st, double *lt, double *ln, double *hgt )
 
 static int fix_with_dsds( stn *st, double *lt, double *ln, double *hgt )
 {
-    conn *cn, *cn1, *cnd1, *cnd2;
-    double qmax, d1, d2, d12, az, daz, xy1[2], xy2[2];
+    conn *cn;
+    conn *cn1;
+    conn *cnd1;
+    conn *cnd2;
+    double qmax;
+    double d1;
+    double d2;
+    double d12;
+    double az;
+    double daz;
+    double xy1[2];
+    double xy2[2];
 
 
     {
@@ -2017,7 +2057,8 @@ static int fix_with_dsds( stn *st, double *lt, double *ln, double *hgt )
         cn->flag |= CN_INUSE;
         FOR_ALL_CONNECTIONS(st,cn1)
         {
-            double d, s2;
+            double d;
+            double s2;
             if( cn1 == cn ) { break;
 }
             if( !(cn1->flag & CN_INUSE)) { continue;
@@ -2106,8 +2147,18 @@ static int fix_with_dsds( stn *st, double *lt, double *ln, double *hgt )
 
 static int fix_with_dshaha( stn *st, double *lt, double *ln, double *hgt )
 {
-    conn *cn, *cn1, *cnd1, *cnd2;
-    double d1, d2, d12, qmax, a12, cs, sn, xy[2];
+    conn *cn;
+    conn *cn1;
+    conn *cnd1;
+    conn *cnd2;
+    double d1;
+    double d2;
+    double d12;
+    double qmax;
+    double a12;
+    double cs;
+    double sn;
+    double xy[2];
     int ro;
 
     {
@@ -2192,15 +2243,29 @@ struct rsc_def
 static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
 {
     rsc_def *centre;
-    int ro, nro, maxro, maxnro;
+    int ro;
+    int nro;
+    int maxro;
+    int maxnro;
     double qmax;
-    conn *cn, *cn1;
+    conn *cn;
+    conn *cn1;
     int ninuse;
-    double cs, sn;
-    double dx, dy, d1, d2, d12;
-    int i1 = 0, i2 = 0, c1, c2;
-    double az, daz;
-    double xy1[2], xy2[2];
+    double cs;
+    double sn;
+    double dx;
+    double dy;
+    double d1;
+    double d2;
+    double d12;
+    int i1 = 0;
+    int i2 = 0;
+    int c1;
+    int c2;
+    double az;
+    double daz;
+    double xy1[2];
+    double xy2[2];
 
     {
         char msg[80];
@@ -2300,7 +2365,10 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
     d12 = 0.0;
     for( i1 = 1; i1 < nro; i1++ ) { for( i2 = 0; i2 < i1; i2++ )
         {
-            double d1, d2, d, s2;
+            double d1;
+            double d2;
+            double d;
+            double s2;
             d1 = centre[i1].r;
             d2 = centre[i2].r;
             d = distance( centre[i1].xy, centre[i2].xy );
@@ -2390,11 +2458,16 @@ static int fix_by_traverse( void )
     double ro_wgt[5];
     double azcorr;
     double xyz[3];
-    double ca[2], ct[2], ss, sc, rr;
+    double ca[2];
+    double ct[2];
+    double ss;
+    double sc;
+    double rr;
     double maxerr;
     int nfixed;
     int i;
-    double lt, ln;
+    double lt;
+    double ln;
 
     /* First find all the stations that can be connected by distances
        and angles */
@@ -2517,7 +2590,9 @@ static int fix_by_traverse( void )
                         (cn->flag & CN_AZ) &&
                         (cn->flag & CN_DS) )
                 {
-                    double az, ds, wgt;
+                    double az;
+                    double ds;
+                    double wgt;
                     for( iro = 0; iro < nro; iro++ )
                     {
                         if( cn->az.ro_id == ro_id[iro] ) { break;
@@ -2603,7 +2678,10 @@ static int fix_by_traverse( void )
     sc = ss = rr = 0.0;
     for( stn &st : stnlist )
     {
-        double dxa, dya, dxt, dyt;
+        double dxa;
+        double dya;
+        double dxt;
+        double dyt;
         if( st.traverse != -1 ) { continue;
 }
         dxa = st.xy[0] - ca[0];
@@ -2624,7 +2702,8 @@ static int fix_by_traverse( void )
     PRINTLOG(LOGFIX,("\nLocating stations by traverse\n"));
     for( stn &st : stnlist )
     {
-        double dxt, dyt;
+        double dxt;
+        double dyt;
         if( ! st.traverse ) { continue;
 }
         dxt = st.travxy[0] - ct[0];
@@ -2671,8 +2750,11 @@ static int fix_by_traverse( void )
 static int fix_unknown_stations( void )
 {
     stn *st;
-    int fixed, fixtype;
-    double lat, lon, hgt;
+    int fixed;
+    int fixtype;
+    double lat;
+    double lon;
+    double hgt;
 
     while( confirm_status != CONFIRM_QUIT )
     {
@@ -2814,7 +2896,8 @@ static void set_logname( const std::string &name )
 
 static void list_coordsys_codes()
 {
-    int i, nlines;
+    int i;
+    int nlines;
     printf("\nValid coordinate system codes are:\n");
     nlines = 0;
     for( i = 0; i < coordsys_list_count(); i++ )
@@ -2921,7 +3004,8 @@ static int add_stations( void )
         {
             for(;;)
             {
-                int deg, min;
+                int deg;
+                int min;
                 double sec;
                 char hem[2];
                 printf("     Enter station latitude (ddd mm ss.ss N|S):  ");
@@ -2944,7 +3028,8 @@ static int add_stations( void )
 
             for(;;)
             {
-                int deg, min;
+                int deg;
+                int min;
                 double sec;
                 char hem[2];
                 printf("     Enter station longitude (ddd mm ss.ss E|W): ");
@@ -3069,7 +3154,8 @@ static void load_interactively( void )
 
 void set_recalc_list()
 {
-    int istn, maxstns;
+    int istn;
+    int maxstns;
     maxstns = number_of_stations( net );
     for( istn = 1; istn <= maxstns; istn++ )
     {

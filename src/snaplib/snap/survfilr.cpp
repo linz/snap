@@ -52,8 +52,13 @@ long read_data_files( FILE *lst )
 {
     std::unique_ptr<DATAFILE> d;
     survey_data_file *sd;
-    int i, c, nfile, sts;
-    long file_errors, total_errors, misc_errors;
+    int i;
+    int c;
+    int nfile;
+    int sts;
+    long file_errors;
+    long total_errors;
+    long misc_errors;
     stn_recode_data recodedata;
     file_context *saved_context = current_file_context();
 

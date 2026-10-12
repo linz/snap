@@ -22,7 +22,11 @@
 char *decrypted_license( unsigned char *license_text )
 {
     int i;
-    unsigned char ch1,ch2,mlt,prm,add;
+    unsigned char ch1;
+    unsigned char ch2;
+    unsigned char mlt;
+    unsigned char prm;
+    unsigned char add;
     unsigned char *license = license_text + LICENSE_HEADER_LEN;
     if( license_text[0] )
     {

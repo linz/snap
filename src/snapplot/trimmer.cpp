@@ -39,7 +39,8 @@ static char PointFlags( Trimmer *t, double x, double y )
 static char ShiftIntoRange( Trimmer *t, double *x0, double *y0, char flag0,
                             double x1, double y1, char flag1 )
 {
-    double xnew, ynew;
+    double xnew;
+    double ynew;
     if( flag0 & (LEFT | RIGHT) )
     {
         xnew = (flag0 & LEFT) ? t->xmin : t->xmax;

@@ -47,7 +47,8 @@
 static void calc_relative_obseq( station *st1, station *st2, void *hA )
 {
     vector3 dif;
-    vector3 dst1[3], dst2[3];
+    vector3 dst1[3];
+    vector3 dst2[3];
     int axis;
     calc_vec_dif( st1, 0.0, st2, 0.0, dif, dst1, dst2 );
     init_oe( hA, 3, 2*dimension, OE_DIAGONAL_CVR );
@@ -103,7 +104,8 @@ static void calc_covar( int istn1, int istn2, double *relcvr )
 void dump_relative_covariances( BINARY_FILE *b, int dumpall )
 {
     double relcvr[6];
-    int istn, maxstn;
+    int istn;
+    int maxstn;
 
     init_calc_covar();
     create_section( b, "STATION_RELATIVE_COVARIANCES" );

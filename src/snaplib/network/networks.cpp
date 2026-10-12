@@ -30,7 +30,8 @@
 static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt, 
         int testonly )
 {
-    double llh[3], exu[3];
+    double llh[3];
+    double exu[3];
     int sts;
 
     /* Convert the coordinates from the input system to the output
@@ -72,7 +73,8 @@ static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt
 
 int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgtfixopt, std::string &errmsg )
 {
-    coordsys *geosys, *csold;
+    coordsys *geosys;
+    coordsys *csold;
     coord_conversion cconv;
     station *st;
 

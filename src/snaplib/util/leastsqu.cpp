@@ -232,10 +232,14 @@ bltmatrix *lsq_normal_matrix( void )
 
 static void sum_cobs( obsrow *o1, obsrow *o2, double wo1o2 )
 {
-    int     i1,   i2;
-    int    *o1c, *o2c;
-    double *o1v, *o2v;
-    double  o1vw, o1o2w;
+    int     i1;
+    int     i2;
+    int    *o1c;
+    int    *o2c;
+    double *o1v;
+    double *o2v;
+    double  o1vw;
+    double  o1o2w;
 
     if( o1->flag & OE_UNUSED ) { return;
 }
@@ -272,9 +276,12 @@ static void sum_cobs( obsrow *o1, obsrow *o2, double wo1o2 )
 
 static void sum_sobs( obsrow *o1, double wo1 )
 {
-    int     i1,   i2;
-    int    *o1c, *o2c;
-    double *o1v, *o2v;
+    int     i1;
+    int     i2;
+    int    *o1c;
+    int    *o2c;
+    double *o1v;
+    double *o2v;
     double  o1vw;
 
     if( o1->flag & OE_UNUSED ) { return;
@@ -299,9 +306,11 @@ static void sum_sobs( obsrow *o1, double wo1 )
 
 static int sum_eobs( obseqn *A )
 {
-    obsrow **ob1, **ob2;
+    obsrow **ob1;
+    obsrow **ob2;
     ltmat wgt;
-    int   i1,i2;
+    int   i1;
+    int   i2;
     int   nobs;
     char  fullcvr;
 
@@ -326,7 +335,8 @@ static int sum_eobs( obseqn *A )
 
 static int count_col( obseqn *A )
 {
-    int irow, ncol;
+    int irow;
+    int ncol;
 
     ncol = 0;      /* The dependent variable */
 
@@ -343,7 +353,11 @@ static int count_col( obseqn *A )
 
 static int list_cols( obseqn *A )
 {
-    int irow, icol, ncol, colno, i;
+    int irow;
+    int icol;
+    int ncol;
+    int colno;
+    int i;
     obsrow *obs;
 
     ncol = count_col( A );
@@ -378,7 +392,9 @@ static int list_cols( obseqn *A )
 
 static void form_iobs( obseqn *A, char sumall )
 {
-    int irow, icol, ncol;
+    int irow;
+    int icol;
+    int ncol;
     obsrow *obs;
     double  schwgt;
     double  wgt;
@@ -428,9 +444,11 @@ static void form_iobs( obseqn *A, char sumall )
 
 static void copy_used_cvr_to_wgt( obseqn *A )
 {
-    ltmat wgt, cvr;
+    ltmat wgt;
+    ltmat cvr;
     long nelt;
-    int i, j;
+    int i;
+    int j;
     char unused;
 
     wgt = A->wgt;
@@ -713,7 +731,8 @@ void lsq_invert_normal_equations( void )
 
 void lsq_get_params( int row[], int nrows, double *value, ltmat covar )
 {
-    int c, r;
+    int c;
+    int r;
     set_lsq_status( covar ? LSQ_INVERTED : LSQ_SOLVED, "lsq_get_params" );
     if( value )
     {
@@ -735,9 +754,13 @@ void lsq_get_params( int row[], int nrows, double *value, ltmat covar )
 
 static double calc_vtNv( obsrow *o1, bltmatrix *N, obsrow *o2 )
 {
-    int *c1, *c2;
-    double *v1, *v2, sum;
-    int i1, i2;
+    int *c1;
+    int *c2;
+    double *v1;
+    double *v2;
+    double sum;
+    int i1;
+    int i2;
 
     c1 = o1->col; v1=o1->val;
     sum = 0.0;
@@ -784,7 +807,8 @@ static double vecprd_ov( obsrow *obs, ltmat vec )
 
 static double vecprd_ol( obsrow *obs, bltmatrix *N, int irow )
 {
-    int icol, jcol;
+    int icol;
+    int jcol;
     double *val;
     int *col;
     double sum;
@@ -830,15 +854,28 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
     obseqn *A;
     obsrow *obs;
-    int irow, jrow, nrow, icol, jcol, ncol, i;
+    int irow;
+    int jrow;
+    int nrow;
+    int icol;
+    int jcol;
+    int ncol;
+    int i;
     int *col;
-    double sum, *val;
-    ltmat cvr, rcvr, ocvr, atna, ratna;
+    double sum;
+    double *val;
+    ltmat cvr;
+    ltmat rcvr;
+    ltmat ocvr;
+    ltmat atna;
+    ltmat ratna;
     char schreiber;
     char none_used;
     char wgtdiag;
-    char irowunused, jrowunused;
-    char simple, used;
+    char irowunused;
+    char jrowunused;
+    char simple;
+    char used;
     double schv;
     double cvrff = 0.0;
 

@@ -254,14 +254,16 @@ int max_syserr_params( survdata *sd )
 
 static void syserr_obseq( survdata *sd, void *hA )
 {
-    int iobs, nvec;
+    int iobs;
+    int nvec;
     int irow;
 
     for( iobs = 0, irow = 1; iobs < sd->nobs; iobs++, irow += nvec )
     {
         trgtdata *t;
         syserrdata *se;
-        int isys, iaxis;
+        int isys;
+        int iaxis;
 
         t = get_trgtdata( sd, iobs );
         nvec = datatype[t->type].isvector ? 3 : 1;
@@ -500,7 +502,8 @@ static void print_title( FILE *out )
     listing_column *column;
     int ncolumn;
     int need_space;
-    int ipass, justify;
+    int ipass;
+    int justify;
     fputc('\n',out);
     for( ipass = 0; ipass < 2; ipass++ )
     {
@@ -550,7 +553,8 @@ static void print_title( FILE *out )
             }
             else
             {
-                int len1, len2;
+                int len1;
+                int len2;
                 len1 = width - source.size();
                 if( justify != RIGHT_JUST ) { len1 /= 2;
 }
@@ -787,8 +791,11 @@ static void merge_residual_titles( void )
 {
     /* First pass - find all formats with identical title1, title2, and
        number of fields */
-    int itype, jtype, icol;
-    listing_def *idef, *jdef;
+    int itype;
+    int jtype;
+    int icol;
+    listing_def *idef;
+    listing_def *jdef;
     for( itype = 0; itype < NOBSTYPE; itype++ )
     {
         idef = &data_format[itype];
@@ -912,7 +919,8 @@ void clear_residual_field( const int field_id )
 
 static void set_calculated_fields( survdata *sd, trgtdata *t )
 {
-    station *stf, *stt;
+    station *stf;
+    station *stt;
     if( ! sd->from || ! t->to ) { return;
 }
     stf = stnptr( sd->from );
@@ -977,7 +985,9 @@ static void set_date_field( survdata *sd )
     /* An undefined date leaves the field blank */
     if( WANT(OF_DATE) && sd->date != UNDEFINED_DATE )
     {
-        int dy,mn,yr;
+        int dy;
+        int mn;
+        int yr;
         date_as_ymd(sd->date,&yr,&mn,&dy);
         std::ostringstream text;
         text << std::setw(2) << dy << std::setfill('0') << '/' << std::setw(2) << mn << '/' << std::setw(4) << yr;
@@ -1055,7 +1065,9 @@ void set_residual_field_dms( const int id, const DmsFormat &format, const double
 static void setup_data_field_widths( int itype )
 {
     int icol;
-    int obswid, errwid, reswid;
+    int obswid;
+    int errwid;
+    int reswid;
     listing_def *format;
     int change;
 
@@ -1113,7 +1125,11 @@ static void setup_format_columns( listing_def *format )
 }
         if( col->column & CLASSIFICATION_FIELD )
         {
-            int class_id, class_count, ic, len, width;
+            int class_id;
+            int class_count;
+            int ic;
+            int len;
+            int width;
             if( col->width ) { continue;
 }
             class_id = col->column & ~CLASSIFICATION_FIELD;
@@ -1156,7 +1172,8 @@ static void setup_default_format( int type )
     }
     for(;;)
     {
-        int fld, width;
+        int fld;
+        int width;
         fld = *cols++;
         if( fld < 0 ) { break;
 }
@@ -1320,7 +1337,8 @@ void print_residuals( FILE *out )
     {
         if( gps_vertical_fixed() )
         {
-            double topolat, topolon;
+            double topolat;
+            double topolon;
             const DmsFormat latitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
             const DmsFormat longitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
             get_network_topocentre( net, &topolat, &topolon );
@@ -1504,7 +1522,10 @@ static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trg
 
     if( output_csv_shape )
     {
-        double ef, nf, et=0, nt=0;
+        double ef;
+        double nf;
+        double et=0;
+        double nt=0;
         projection *prj = is_projection(net->crdsys) ? net->crdsys->prj : nullptr;
         int ndp = prj ? 4 : 9;
         if( prj )
@@ -1552,7 +1573,8 @@ void write_obsdata_csv( output_csv &csv, survdata *sd, obsdata *o, double semult
     int ndp = obs_precision[t->type];
     double mult = 1.0;
     double sres;
-    int nskip1=0, nskip2=0;
+    int nskip1=0;
+    int nskip2=0;
 
     if( output_csv_vecinline )
     {
@@ -1595,7 +1617,8 @@ void write_pntdata_csv( output_csv &csv, survdata *sd, pntdata *p, double semult
     int ndp = obs_precision[t->type];
     double mult = 1.0;
     double sres;
-    int nskip1=0, nskip2=0;
+    int nskip1=0;
+    int nskip2=0;
 
     if( output_csv_vecinline )
     {
@@ -1645,7 +1668,10 @@ static void convert_cvr_to_secorr( double cvr[6] )
 void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, double semult )
 {
     double sres;
-    double vec[3],veccvr[6],res[3],rescvr[6];
+    double vec[3];
+    double veccvr[6];
+    double res[3];
+    double rescvr[6];
     vecdata *vd = &(sd->obs.vdata[iobs]);
     trgtdata *t = &(vd->tgt);
     int ndp = obs_precision[t->type];
@@ -1714,7 +1740,10 @@ void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, doub
 void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double semult )
 {
     double sres;
-    double vec[3],veccvr[6],res[3],rescvr[6];
+    double vec[3];
+    double veccvr[6];
+    double res[3];
+    double rescvr[6];
     vecdata *vd = &(sd->obs.vdata[iobs]);
     trgtdata *t = &(vd->tgt);
     int ndp = obs_precision[t->type];

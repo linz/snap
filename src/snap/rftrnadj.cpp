@@ -215,13 +215,15 @@ static void init_rftrans_prms( rfTransformation *rf )
 
 static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
 {
-    int i, j;
+    int i;
+    int j;
     double cvr[105];
     double dummy[14];
     int rowidx[14];
     int rowno[14];
     int nprm;
-    double *s, *d;
+    double *s;
+    double *d;
 
     nprm = 0;
     for( i = 0; i < 14; i++ )
@@ -295,7 +297,10 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
     double fullxfm[14][14];
     double temp[14][14];
     double vtemp[14];
-    int i, j, k, ij;
+    int i;
+    int j;
+    int k;
+    int ij;
 
     /* Make a full covariance and rotation matrix */
 
@@ -355,7 +360,12 @@ static void print_rftrans_def( const std::array<std::string_view,14> &rownames, 
                                double *val, double *cvr, double *vmult, double semult, int *display, 
                                FILE *out )
 {
-    int i, j, ii, ij, j0, j1;
+    int i;
+    int j;
+    int ii;
+    int ij;
+    int j0;
+    int j1;
     double se[14];
     int nval;
     int gotcvr=0;
@@ -431,12 +441,33 @@ static void print_rftrans_def( const std::array<std::string_view,14> &rownames, 
 
 static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int output_types )
 {
-    double *tval, *tcvr, *gval, *gcvr;
-    int trow[14], tidentical[14], grow[14], gidentical[14], display[14];
-    double sval[14], scvr[105], dval[14], dcvr[105], oshift[3], oshiftrate[3];
-    int *srow, *sidentical, *drow, *didentical;
-    double c1, c2, c3, cmin, cmax, azmax;
-    int i, k;
+    double *tval;
+    double *tcvr;
+    double *gval;
+    double *gcvr;
+    int trow[14];
+    int tidentical[14];
+    int grow[14];
+    int gidentical[14];
+    int display[14];
+    double sval[14];
+    double scvr[105];
+    double dval[14];
+    double dcvr[105];
+    double oshift[3];
+    double oshiftrate[3];
+    int *srow;
+    int *sidentical;
+    int *drow;
+    int *didentical;
+    double c1;
+    double c2;
+    double c3;
+    double cmin;
+    double cmax;
+    double azmax;
+    int i;
+    int k;
     int userates=rf->userates;
     int calced;
     tmatrix *trot;
@@ -556,7 +587,9 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
     if( rf->userates )
     {
         double epoch_date;
-        int y,m,d;
+        int y;
+        int m;
+        int d;
         epoch_date=year_as_snapdate(rf->refepoch);
         date_as_ymd( epoch_date, &y, &m, &d );
         fprintf(out,"   Reference epoch of frame %02d-%02d-%04d\n",d,m,y);
@@ -622,7 +655,8 @@ void print_rftrans_list( FILE *out )
 {
     int nrf;
     double semult;
-    double topolat, topolon;
+    double topolat;
+    double topolon;
     int output_types;
     int topo_header;
 
@@ -698,7 +732,8 @@ void vd_rftrans_corr_vector( int nrf, double vd[3], double date,
     rfTransformation *rf;
     double dvdprm[3];
     double dmult;
-    int i, axis;
+    int i;
+    int axis;
     
     rf = rftrans_from_id( nrf );
 
@@ -807,7 +842,8 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
     rfTransformation *rf;
     double dvdprm[3];
     double dmult;
-    int i, axis;
+    int i;
+    int axis;
 
     rf = rftrans_from_id( nrf );
 

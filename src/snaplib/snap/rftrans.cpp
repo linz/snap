@@ -344,7 +344,9 @@ void rfTransformation::_setupFlags()
 
 static void calcrotmat( int axis, double cs, double sn, tmatrix rot )
 {
-    int c0, c1, c2;
+    int c0;
+    int c1;
+    int c2;
     c0 = axis;
     c1 = c0+1; if( c1 > 2 ) { c1 -= 3;
 }
@@ -363,7 +365,9 @@ static void calcrotmat( int axis, double cs, double sn, tmatrix rot )
 
 static void calcdrotdang( int axis, double cs, double sn, tmatrix drot )
 {
-    int c0, c1, c2;
+    int c0;
+    int c1;
+    int c2;
     c0 = axis;
     c1 = c0+1; if( c1 > 2 ) { c1 -= 3;
 }
@@ -389,12 +393,14 @@ static void calcdrotdang( int axis, double cs, double sn, tmatrix drot )
 /// at another epoch). The scale is applied to both.
 void rfTransformation::_calcTmat( const double *parameters, tmatrix tmat, tmatrix invtmat ) const
 {
-    double cs, sn;
+    double cs;
+    double sn;
     tmatrix mult;
     int axis;
     double angle;
     double scl;
-    int i, j;
+    int i;
+    int j;
 
     if( !istopo )
     {
@@ -449,8 +455,14 @@ void rfTransformation::_calcTmat( const double *parameters, tmatrix tmat, tmatri
 void rfTransformation::setup()
 {
     tmatrix mult;
-    double angle, cs, sn, scl;
-    int i, j, k, axis;
+    double angle;
+    double cs;
+    double sn;
+    double scl;
+    int i;
+    int j;
+    int k;
+    int axis;
 
     _setupFlags();
 
@@ -563,7 +575,10 @@ void rfTransformation::setup()
 
 static void setup_topo_rotations( double lt, double ln )
 {
-    double clt, slt, cln, sln;
+    double clt;
+    double slt;
+    double cln;
+    double sln;
 
     clt = cos(lt); slt = sin(lt);
     cln = cos(ln); sln = sin(ln);

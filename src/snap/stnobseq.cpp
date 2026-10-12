@@ -452,7 +452,8 @@ void sum_floating_stations( int iteration )
     /*  ... need to update to include co-location constraint
      */
     const std::string header = "float_stations_" + std::to_string(iteration);
-    int istn, maxstn;
+    int istn;
+    int maxstn;
     station *st;
     void *hA;
     int nfloat=0;
@@ -498,11 +499,14 @@ void sum_floating_stations( int iteration )
 
 void update_station_coords( void )
 {
-    int istn, maxstn;
+    int istn;
+    int maxstn;
     station *st;
     stn_adjustment *sa;
     double change[2];
-    double lat, lon, hgt;
+    double lat;
+    double lon;
+    double hgt;
 
     maxstn = number_of_stations(net);
     for( istn = 0; istn++ < maxstn; )
@@ -628,11 +632,21 @@ void print_adjusted_coordinates( FILE *lst )
     station *st;
     stn_adjustment *sa;
     projection *prj;
-    double cvr[6], emax, emin, brng, OHgt, northing, easting, hgt;
-    double dn, de, dh;
+    double cvr[6];
+    double emax;
+    double emin;
+    double brng;
+    double OHgt;
+    double northing;
+    double easting;
+    double hgt;
+    double dn;
+    double de;
+    double dh;
     char adjusted;
     char ellipsoidal;
-    double errmult, hgtmult;
+    double errmult;
+    double hgtmult;
     unsigned char projection_coords;
     output_string_def os;
     coordsys *cs;
@@ -857,8 +871,17 @@ void write_station_csv()
     stn_adjustment *sa;
     projection *prj;
     ellipsoid *elp;
-    double cvr[6], emax, emin, brng, OHgt, northing, easting, height;
-    double dn, de, dh;
+    double cvr[6];
+    double emax;
+    double emin;
+    double brng;
+    double OHgt;
+    double northing;
+    double easting;
+    double height;
+    double dn;
+    double de;
+    double dh;
     unsigned char projection_coords;
     unsigned char geocentric_coords;
     int defl;
@@ -1017,7 +1040,8 @@ void write_station_csv()
 
         if( geocentric_coords )
         {
-            double llh[3], xyz[3];
+            double llh[3];
+            double xyz[3];
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
@@ -1364,9 +1388,12 @@ void print_station_offsets( FILE * )
 void max_station_adjustment( double tol, int *pmaxadjstn,
                              double *pmaxadj, int *pnstnadj )
 {
-    int istn, maxstn;
+    int istn;
+    int maxstn;
     stn_adjustment *sa;
-    double change[2], adj, maxadj;
+    double change[2];
+    double adj;
+    double maxadj;
     int maxadjstn;
     int nstnadj;
     double tol2;
@@ -1450,7 +1477,10 @@ double rf_scale_error( double dist, void *hA, int irow )
 
 void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax )
 {
-    double v1, v2, v3, v4;
+    double v1;
+    double v2;
+    double v3;
+    double v4;
 
     v1 = (cvr[2]+cvr[0])/2.0;
     v2 = (cvr[2]-cvr[0])/2.0;
@@ -1469,7 +1499,8 @@ void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azema
 
 void get_station_covariance( station *st, double cvr[] )
 {
-    int i, np;
+    int i;
+    int np;
     double *c;
     double val[3];
     int  col[3];
@@ -1501,7 +1532,8 @@ void get_station_covariance( station *st, double cvr[] )
 void dump_station_covariances( BINARY_FILE *b )
 {
     double covar[6];
-    int istn, maxstn;
+    int istn;
+    int maxstn;
 
     create_section( b, "STATION_COVARIANCES" );
 

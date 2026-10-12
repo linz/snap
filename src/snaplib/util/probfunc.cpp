@@ -104,7 +104,8 @@ double tau_distn( double value, long dof )
 
 double inv_tau_distn( double prob, long dof )
 {
-    double value, tmp;
+    double value;
+    double tmp;
     if( dof < 1 ) { return 0.0;
 }
     value = inv_students_t_distn( prob, dof-1 );

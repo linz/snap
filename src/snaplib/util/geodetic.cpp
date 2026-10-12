@@ -138,8 +138,13 @@ void scalevec( vector3 vec, double mult )
 
 void premult3( double *m1, double *m2, double *mr, int ndim )
 {
-    double col[3], sum;
-    int i, j, k, ij, jk;
+    double col[3];
+    double sum;
+    int i;
+    int j;
+    int k;
+    int ij;
+    int jk;
 
     for( i = 0; i < ndim; i++ )
     {

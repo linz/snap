@@ -652,7 +652,8 @@ static int read_error_command( snapfile_def *sd, int errtype, std::string_view c
     } errcodes[3];
     int nerrcodes;
 
-    int ic, iv;
+    int ic;
+    int iv;
 
     nerrvals = 1;
     nerrcodes = 1;
@@ -859,7 +860,8 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 }
         if( sd->hammerr > 0 )
         {
-            double mmerr, dist;
+            double mmerr;
+            double dist;
             mmerr = sd->hammerr;
             dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
@@ -877,7 +879,8 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 }
         if( sd->azmmerr > 0 )
         {
-            double mmerr, dist;
+            double mmerr;
+            double dist;
             mmerr = sd->azmmerr;
             dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
@@ -895,7 +898,9 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 }
         if( sd->zdmmherr > 0 || sd->zdmmverr > 0)
         {
-            double mmherr, mmverr, dist;
+            double mmherr;
+            double mmverr;
+            double dist;
             mmherr = sd->zdmmherr;
             mmverr = sd->zdmmverr;
             if( mmherr < 0 ) { mmherr = 0.0;
@@ -1454,7 +1459,8 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
 static void setup_cvr_rows( snapfile_def *sd )
 {
     const int nc = sd->nvecobs*3;
-    int i, i3;
+    int i;
+    int i3;
     if( nc > numeric_cast<int>( sd->cvrrow.size() ) )
     {
         sd->cvrrow.resize( nc+30 );
@@ -1480,7 +1486,11 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
 {
     ltmat cvr;
     double val = 0.0;
-    int i, i3, j3, ok, cvrtype;
+    int i;
+    int i3;
+    int j3;
+    int ok;
+    int cvrtype;
     int grouped;
     int cvrused;
     int errtype;
@@ -1562,7 +1572,8 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
             for( i3 = 0; i3 < nvecrow; i3++ )
             {
                 int ri = row[i3];
-                int j3min, j3max;
+                int j3min;
+                int j3max;
                 if( !cvrused ) { ri = -1;
 }
                 if( sd->cvrupper )

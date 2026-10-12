@@ -220,7 +220,8 @@ void blt_chol_inv_mt( bltmatrix *blt )
         for( int c = 1; c < threadcount; c++ )
         {
             const long target = (long)c * total_work / threadcount;
-            int lo = j_splits[c-1], hi = nrow;
+            int lo = j_splits[c-1];
+            int hi = nrow;
             while( lo < hi )
             {
                 const int mid = lo + (hi - lo) / 2;

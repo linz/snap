@@ -226,7 +226,8 @@ void dump_filenames( BINARY_FILE *b )
 
 int reload_filenames( BINARY_FILE *b )
 {
-    int i, fmt;
+    int i;
+    int fmt;
     std::string name;
     std::optional<std::string> subtype;
     std::optional<std::string> recodefile;

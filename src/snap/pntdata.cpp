@@ -201,8 +201,15 @@ void list_pntdata(FILE *out, survdata *p)
 
 void list_pntdata_residuals(FILE *out, survdata *p, double semult)
 {
-    double calc, se, ser, sec, seo, sres, redundancy;
-    char unused, rfunused;
+    double calc;
+    double se;
+    double ser;
+    double sec;
+    double seo;
+    double sres;
+    double redundancy;
+    char unused;
+    char rfunused;
     int ndp;
     int type;
     pntdata *pd;

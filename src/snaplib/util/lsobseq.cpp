@@ -184,7 +184,8 @@ void oe_covar( void *hA, int irow, int icol, double v )
 void print_obseqn( FILE *out, void *hA )
 {
     obseqn *A;
-    int i, j;
+    int i;
+    int j;
     obsrow *obs;
     ltmat wgt;
     double w;
@@ -234,7 +235,8 @@ void print_obseqn( FILE *out, void *hA )
 void print_obseqn_json( FILE *out, void *hA, const std::optional<std::string_view> source, const int nprefix )
 {
     obseqn *A;
-    int i, j;
+    int i;
+    int j;
     obsrow *obs;
     ltmat cvr;
 

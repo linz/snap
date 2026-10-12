@@ -134,7 +134,8 @@ static void calc_inst_xyz( station *st, double hgt, vector3 xyz )
 static void calc_inst_dif( station *st1, double hgt1, station *st2, double hgt2,
                            vector3 dif )
 {
-    vector3 inst1, inst2;
+    vector3 inst1;
+    vector3 inst2;
 
     calc_inst_xyz( st1, hgt1, inst1 );
     calc_inst_xyz( st2, hgt2, inst2 );
@@ -175,7 +176,9 @@ double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
 
 double calc_horizontal_distance( station *st1, station *st2, vector3 dst1, vector3 dst2 )
 {
-    double dist, h1, h2;
+    double dist;
+    double h1;
+    double h2;
     vector3 dif;
 
     h1 = st1->OHgt+st1->GUnd;
@@ -241,7 +244,9 @@ double calc_azimuth( station *st1, double hgt1, station *st2, double hgt2,
                      int usegrav, vector3 dst1, vector3 dst2 )
 {
     vector3 dif;
-    double angle, dist2, tmp;
+    double angle;
+    double dist2;
+    double tmp;
 
     calc_inst_dif( st1, hgt1, st2, hgt2, dif );
 
@@ -308,7 +313,13 @@ double calc_azimuth( station *st1, double hgt1, station *st2, double hgt2,
 double calc_prj_azimuth( network *net, station *st1, double hgt1, station *st2, double hgt2,
                          vector3 dst1, vector3 dst2 )
 {
-    double angle, e1, n1, e2, n2, de, dn;
+    double angle;
+    double e1;
+    double n1;
+    double e2;
+    double n2;
+    double de;
+    double dn;
 
     if( !is_projection(net->crdsys) || dst1 || dst2 )
     {
@@ -341,7 +352,9 @@ double calc_zenith_dist( station *st1, double hgt1, station *st2, double hgt2,
 {
 
     vector3 dif;
-    double angle, dist, tmp;
+    double angle;
+    double dist;
+    double tmp;
 
     calc_inst_dif( st1, hgt1, st2, hgt2, dif );
 
@@ -457,7 +470,8 @@ void calc_xyz( station *st1, double hgt1, vector3 xyz, vector3 dst1[3] )
 
 double ellipsoidal_distance_correction( station *st1, station *st2 )
 {
-    vector3 v1, v2;
+    vector3 v1;
+    vector3 v2;
     double corr;
 
     st1->rTopo.rot_vertical( v1 );

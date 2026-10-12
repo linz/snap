@@ -34,9 +34,11 @@ static void station_vertical( int id, double vrt[3] )
 static void topocentre_vertical( double vrt[3] )
 {
     static char got_topocentre = 0;
-    static double tlat, tlon;
+    static double tlat;
+    static double tlon;
     static rotmat toporot;
-    double lt, ln;
+    double lt;
+    double ln;
     get_network_topocentre( net, &lt, &ln );
     if( !got_topocentre || lt != tlat || ln != tlon )
     {

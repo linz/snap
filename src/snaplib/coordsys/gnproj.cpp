@@ -34,7 +34,16 @@ void define_gnomic_projection( GnomicProjection *gp, double a, double,
 void gnomic_geod( GnomicProjection *gp, double ce, double cn, double *lon, double *lat)
 {
 
-    double psi, u, a1, a2, a3, a4, root, dlam, csth, snth;
+    double psi;
+    double u;
+    double a1;
+    double a2;
+    double a3;
+    double a4;
+    double root;
+    double dlam;
+    double csth;
+    double snth;
 
     ce -= gp->fe;
     cn -= gp->fn;
@@ -97,7 +106,13 @@ void gnomic_geod( GnomicProjection *gp, double ce, double cn, double *lon, doubl
 void geod_gnomic( GnomicProjection *gp, double lon, double lat, double *ce, double *cn )
 {
 
-    double snp, snpo, csp, cspo, snl, csl, bot;
+    double snp;
+    double snpo;
+    double csp;
+    double cspo;
+    double snl;
+    double csl;
+    double bot;
 
     snp = sin(lat);
     snpo= gp->snolt;

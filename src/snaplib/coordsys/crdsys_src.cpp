@@ -382,7 +382,8 @@ int get_conv_notes( coord_conversion *conv, output_string_def *os )
 {
     int sts = MISSING_DATA;
     int icrf;
-    std::string_view code1, code2;
+    std::string_view code1;
+    std::string_view code2;
     if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code, conv->to->code, os ) == OK )
     {
         sts = OK;

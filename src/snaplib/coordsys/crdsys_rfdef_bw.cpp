@@ -78,7 +78,8 @@ static int rf_xyz_describe(  ref_frame *rf, output_string_def *os )
 
 static void calc_dxyz( ref_deformation_xyz *dxyz, double xyz[3], double years, double xyzdif[3] )
 {
-    int i, j;
+    int i;
+    int j;
     for( i = 0; i < 3; i++ )
     {
         double dv = dxyz->shift[i];
@@ -90,7 +91,10 @@ static void calc_dxyz( ref_deformation_xyz *dxyz, double xyz[3], double years, d
 
 static int rf_xyz_calc( ref_frame *rf, double lon, double lat, double epoch, double denu[3])
 {
-    double xyz[3], xyzdif[3], dedln, dndlt;
+    double xyz[3];
+    double xyzdif[3];
+    double dedln;
+    double dndlt;
     int i;
     ref_deformation *def = rf->def;
     ref_deformation_xyz *dxyz = (ref_deformation_xyz *)(def->data);
@@ -111,7 +115,8 @@ static int rf_xyz_calc( ref_frame *rf, double lon, double lat, double epoch, dou
 
 static int rf_xyz_apply( ref_frame *rf,  double llh[3], double epochfrom, double epochto )
 {
-    double xyz[3], xyzdif[3];
+    double xyz[3];
+    double xyzdif[3];
     int i;
     ref_deformation *def = rf->def;
     ref_deformation_xyz *dxyz = (ref_deformation_xyz *)(def->data);
@@ -137,8 +142,12 @@ static ref_deformation_xyz *rf_xyz_create( const std::string &description, doubl
 ref_deformation *rfdef_parse_bw14def( input_string_def &is )
 {
     double refepoch=0;
-    double tx=0, ty=0, tz=0;
-    double rx=0, ry=0, rz=0;
+    double tx=0;
+    double ty=0;
+    double tz=0;
+    double rx=0;
+    double ry=0;
+    double rz=0;
     double sf=0;
     int sts = OK;
     std::string_view bad;
@@ -206,10 +215,15 @@ ref_deformation *rfdef_parse_eulerdef( input_string_def &is )
 {
 
     double refepoch=0;
-    double lon=0,lat=0,rate=0;
+    double lon=0;
+    double lat=0;
+    double rate=0;
     int sts = OK;
     std::string_view bad;
-    double clt, slt, cln, sln;
+    double clt;
+    double slt;
+    double cln;
+    double sln;
     char description[256];
     ref_deformation_xyz *dxyz;
 

@@ -168,7 +168,9 @@ static void reload_station_offset( station *st, FILE *f )
     fread( &isdef, sizeof(int), 1, f );
     while( ncomp-- )
     {
-        int mode, isxyz, ntspoints;
+        int mode;
+        int isxyz;
+        int ntspoints;
         fread(&mode,sizeof(int),1,f);
         fread(&isxyz,sizeof(int),1,f);
         fread(&ntspoints,sizeof(int),1,f);

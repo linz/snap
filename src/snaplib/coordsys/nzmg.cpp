@@ -112,9 +112,16 @@ static complex *cscale(complex *cr, complex *c1, double sc)
 
 void nzmg_geod( double e, double n, double *ln, double *lt )
 {
-    complex z0, z1, zn, zd, tmp1, tmp2;
-    double sum,tmp;
-    int i, it;
+    complex z0;
+    complex z1;
+    complex zn;
+    complex zd;
+    complex tmp1;
+    complex tmp2;
+    double sum;
+    double tmp;
+    int i;
+    int it;
 
     z0.real = (n-n0)/a;     z0.imag = (e-e0)/a;
     z1.real = cfb2[5].real; z1.imag = cfb2[5].imag;
@@ -151,7 +158,8 @@ void geod_nzmg( double ln, double lt, double *e, double *n )
 {
     double sum;
     int i;
-    complex z0,z1;
+    complex z0;
+    complex z1;
 
     lt = (lt*rad2deg - lt0) * 3600.0e-5;
     sum = cfi[9];;
