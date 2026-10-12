@@ -25,7 +25,7 @@ public:
     bool handleError( const RecordError &error ) override;
     int lineNumber() override;
     int errorCount();
-    bool aborted() const { return _aborted; }
+    [[nodiscard]] bool aborted() const { return _aborted; }
 private:
     std::unique_ptr<DATAFILE> _df_own;                      ///< the data file, if this class opened it
     std::optional<std::reference_wrapper<DATAFILE>> _df;    ///< the data file being read, set once it is known to be open

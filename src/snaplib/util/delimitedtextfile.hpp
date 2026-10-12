@@ -171,11 +171,11 @@ public:
         _ignoreExtraColumns(true),
         _nSkipLines(0)
     {}
-    bool useHeader() const { return _useHeader; }
-    bool fillMissingColumns() const { return _fillMissingColumns; }
-    bool addExtraColumns() const { return _addExtraColumns; }
-    bool ignoreExtraColumns() const { return _ignoreExtraColumns; }
-    int nSkipLines() const { return _nSkipLines; }
+    [[nodiscard]] bool useHeader() const { return _useHeader; }
+    [[nodiscard]] bool fillMissingColumns() const { return _fillMissingColumns; }
+    [[nodiscard]] bool addExtraColumns() const { return _addExtraColumns; }
+    [[nodiscard]] bool ignoreExtraColumns() const { return _ignoreExtraColumns; }
+    [[nodiscard]] int nSkipLines() const { return _nSkipLines; }
     Options &setUseHeader( bool useHeader = true ) { _useHeader = useHeader; return *this; }
     Options &setFillMissingColumns( bool fillMissingColumns = true ) { _fillMissingColumns = fillMissingColumns; return *this; }
     Options &setAddExtraColumns( bool addExtraColumns = true ) { _addExtraColumns = addExtraColumns; return *this; }

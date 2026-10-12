@@ -209,7 +209,7 @@ struct ListFiles
         std::filesystem::create_directories( dir );
     }
     ~ListFiles() { std::filesystem::remove_all( dir ); }
-    std::string write( const std::string &name, const std::string &text ) const
+    [[nodiscard]] std::string write( const std::string &name, const std::string &text ) const
     {
         const std::filesystem::path path=dir / name;
         std::ofstream( path ) << text;

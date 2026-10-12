@@ -20,7 +20,7 @@ public:
     void LocateLine( int from, int to );
     wxBitmap CreateImage();
     void SetWeakLock( bool newWeakLock ) { weakLock = newWeakLock; }
-    bool WeakLock() const { return weakLock; }
+    [[nodiscard]] bool WeakLock() const { return weakLock; }
 
 private:
     void OnIdleEvent( wxIdleEvent &event );
