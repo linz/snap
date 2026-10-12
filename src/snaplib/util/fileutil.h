@@ -13,7 +13,7 @@
 
 /* fileutil.h: routines to assist file management */
 
-#include <time.h>
+#include <ctime>
 #include <istream>
 #include <optional>
 #include <string>

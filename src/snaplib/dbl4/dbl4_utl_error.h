@@ -13,7 +13,7 @@
 **************************************************************************
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <string_view>
 
 /* Require data types */

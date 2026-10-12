@@ -66,7 +66,7 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <memory.h>
+#include <cstring>
 #include <cmath>
 
 #include "util/bltmatrx.h"

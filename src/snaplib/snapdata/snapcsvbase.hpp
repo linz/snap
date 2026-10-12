@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <map>
-#include <memory.h>
+#include <cstring>
 #include <sstream>
 #include <string>
 #include <vector>

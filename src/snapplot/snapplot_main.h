@@ -8,7 +8,7 @@
 
 */
 
-#include <stdio.h>    /* For definition of FILE */
+#include <cstdio>    /* For definition of FILE */
 #include "snapdata/datatype.h"  /* For definition of NOBSTYPE */
 
 #ifdef MAIN

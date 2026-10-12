@@ -22,7 +22,7 @@
 /* Note: set_find_file_directories should be called before create_geoid_filename */
 
 
-#include <stdio.h>
+#include <cstdio>
 #include <optional>
 #include <string>
 #include <string_view>

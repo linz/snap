@@ -8,7 +8,7 @@
 
 */
 
-#include <stdint.h>
+#include <cstdint>
 #include <string_view>
 
 std::string_view residual_flag( int unused, int rank, double sres );

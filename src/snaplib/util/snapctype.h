@@ -1,7 +1,7 @@
 #ifndef SNAPCTYPE_H
 #define SNAPCTYPE_H
 
-#include <ctype.h>
+#include <cctype>
 
 // ISALNUM can be replaced by std::isalnum(static_cast<unsigned char>(c)) from
 // <cctype> if/when the repo migrates to that. The cast to unsigned char is

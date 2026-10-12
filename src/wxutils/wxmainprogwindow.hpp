@@ -5,7 +5,7 @@
 
 #include "util/errdef.h"
 
-#include <time.h>
+#include <ctime>
 #include <vector>
 
 class wxMainProgWindow : public wxDialog

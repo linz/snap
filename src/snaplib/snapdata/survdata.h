@@ -8,7 +8,7 @@
 
 */
 
-#include <stdint.h>
+#include <cstdint>
 
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"

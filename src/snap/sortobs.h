@@ -10,7 +10,7 @@
 #ifndef _SORTOBS_H
 #define _SORTOBS_H
 
-#include <stdint.h>
+#include <cstdint>
 
 void save_observation( int from, int to, int type, int64_t loc );
 void sort_observation_list( void );
