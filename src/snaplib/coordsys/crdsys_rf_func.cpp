@@ -111,9 +111,8 @@ int apply_ref_deformation_llh( ref_frame *rf, double llh[3], double epochfrom, d
     {
         return def->apply_llh(rf, llh, epochfrom, epochto );
     }
-    else
-    {
-        int sts;
+    
+            int sts;
         double denu[3] = {0,0,0};
         double denu1[3] = {0,0,0};
         double lat = llh[CRD_LAT];
@@ -129,7 +128,7 @@ int apply_ref_deformation_llh( ref_frame *rf, double llh[3], double epochfrom, d
         denu[1] -= denu1[1];
         denu[2] -= denu1[2];
         return rf_apply_enu_deformation_to_llh( rf, llh, denu );
-    }
+   
 }
 
 

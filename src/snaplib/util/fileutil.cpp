@@ -585,7 +585,7 @@ int skip_utf8_bom( FILE *f )
     {
         return 0;
     }
-    else if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
+    if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
     {
         fseek(f,0L,SEEK_SET);
     }
@@ -604,7 +604,7 @@ int skip_utf8_bom( std::istream &f )
     {
         return 0;
     }
-    else if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
+    if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
     {
         f.seekg(0);
     }

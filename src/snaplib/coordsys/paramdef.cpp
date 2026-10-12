@@ -103,7 +103,7 @@ int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base
             report_string_error( is, sts, std::string( prms->name ) + " is missing" );
             break;
         }
-        else if ( sts != OK )
+        if ( sts != OK )
         {
             report_string_error( is, sts, "Invalid definition of " + std::string( prms->name ) );
             break;

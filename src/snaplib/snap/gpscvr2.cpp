@@ -72,10 +72,9 @@ static double *get_transformation( int rfid, int inverse )
     {
         return &rf->invtmat[0][0];
     }
-    else
-    {
-        return &rf->tmat[0][0];
-    }
+    
+            return &rf->tmat[0][0];
+   
 }
 
 

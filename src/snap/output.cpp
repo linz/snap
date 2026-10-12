@@ -216,10 +216,9 @@ int read_output_options( CFG_FILE *cfg, std::string_view string, void *, int, in
                     send_config_error( cfg, INVALID_DATA, "Incomplete output option " + std::string(o->name.substr(0,30)) );
                     return OK;
                 }
-                else
-                {
-                    return (sc->store)(cfg,rest,nullptr,0,sc->code);
-                }
+                
+                                    return (sc->store)(cfg,rest,nullptr,0,sc->code);
+               
             }
         }
 

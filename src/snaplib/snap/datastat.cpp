@@ -41,12 +41,11 @@ double calculate_mde( double sobs, double sres )
     {
         return  mde_value_unused * sres;
     }
-    else if( sres > 1.0e-10 )
+    if( sres > 1.0e-10 )
     {
         return  mde_value_used * sobs*sobs / sres;
     }
-    else { return 0.0;
-}
+    return 0.0;
 }
 
 double residual_significance( double sres, int used, int rank )

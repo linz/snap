@@ -786,12 +786,11 @@ static int read_station_ordering( CFG_FILE *cfg, std::string_view string, void *
                                    "Cannot specify which stations not to reorder before station_file command");
                 break;
             }
-            else
-            {
-                process_station_list( cfg, scanner.remainder(), value, len, NOREORDER_STATIONS );
+            
+                            process_station_list( cfg, scanner.remainder(), value, len, NOREORDER_STATIONS );
                 reorder_stations = FORCE_REORDERING;
                 break;
-            }
+           
         }
         else
         {
@@ -1528,11 +1527,10 @@ static int read_flag_levels( CFG_FILE *cfg, std::string_view string, void *, int
             nf = 0;
             break;
         }
-        else
-        {
-            flag_level[nf] = *fl;
+        
+                    flag_level[nf] = *fl;
             nf++;
-        }
+       
     }
 
     if( !nf )
@@ -1694,7 +1692,7 @@ static int read_deformation_model(CFG_FILE *cfg, std::string_view string, void *
             ignore_deformation = 1;
             return OK;
         }
-        else if( first && boost::algorithm::iequals(item,"datum") )
+        if( first && boost::algorithm::iequals(item,"datum") )
         {
             return OK;
         }

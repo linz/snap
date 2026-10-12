@@ -115,24 +115,59 @@ void utlCopyDate( DateTimeType *tgt, DateTimeType *src)
 
 int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 )
 {
-    if( dt1->dtYear > dt2->dtYear ) { return 1;
-    } else if( dt1->dtYear < dt2->dtYear ) { return -1;
+    if( dt1->dtYear > dt2->dtYear )
+    {
+        return 1;
+    }
+    if( dt1->dtYear < dt2->dtYear )
+    {
+        return -1;
+    }
 
-    } else if( dt1->dtMon > dt2->dtMon ) { return 1;
-    } else if( dt1->dtMon < dt2->dtMon ) { return -1;
+    if( dt1->dtMon > dt2->dtMon )
+    {
+        return 1;
+    }
+    if( dt1->dtMon < dt2->dtMon )
+    {
+        return -1;
+    }
 
-    } else if( dt1->dtDay > dt2->dtDay ) { return 1;
-    } else if( dt1->dtDay < dt2->dtDay ) { return -1;
+    if( dt1->dtDay > dt2->dtDay )
+    {
+        return 1;
+    }
+    if( dt1->dtDay < dt2->dtDay )
+    {
+        return -1;
+    }
 
-    } else if( dt1->dtHour > dt2->dtHour ) { return 1;
-    } else if( dt1->dtHour < dt2->dtHour ) { return -1;
+    if( dt1->dtHour > dt2->dtHour )
+    {
+        return 1;
+    }
+    if( dt1->dtHour < dt2->dtHour )
+    {
+        return -1;
+    }
 
-    } else if( dt1->dtMin > dt2->dtMin ) { return 1;
-    } else if( dt1->dtMin < dt2->dtMin ) { return -1;
+    if( dt1->dtMin > dt2->dtMin )
+    {
+        return 1;
+    }
+    if( dt1->dtMin < dt2->dtMin )
+    {
+        return -1;
+    }
 
-    } else if( dt1->dtSec > dt2->dtSec ) { return 1;
-    } else if( dt1->dtSec < dt2->dtSec ) { return -1;
-}
+    if( dt1->dtSec > dt2->dtSec )
+    {
+        return 1;
+    }
+    if( dt1->dtSec < dt2->dtSec )
+    {
+        return -1;
+    }
 
     return 0;
 }

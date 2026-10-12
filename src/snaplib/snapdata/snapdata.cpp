@@ -1309,7 +1309,7 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
             break;
         }
 
-        else if ( obstype )
+        if ( obstype )
         {
             snap_data_type *st = obstype;
             datatypedef *dt = datatype + st->type;

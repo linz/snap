@@ -283,15 +283,14 @@ static void add_relacc( stn_relacc_array *ra, int istn, int jstn, double emax2, 
         ra->vrtvar[istn-1] = verr2;
         return;
     }
-    else
-    {
-        stn_relacc *r = get_relacc( ra, istn, jstn );
+    
+            stn_relacc *r = get_relacc( ra, istn, jstn );
         if( r )
         {
             r->emax2 = emax2;
             r->verr2 = verr2;
         }
-    }
+   
 }
 
 static int relacc_create_blt_req( stn_relacc_array *ra )
@@ -487,9 +486,8 @@ static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn )
     {
         return ra->horvar[istn-1];
     }
-    else
-    {
-        stn_relacc *rac = get_relacc( ra, istn, jstn );
+    
+            stn_relacc *rac = get_relacc( ra, istn, jstn );
         double emax2;
 
         if( rac )
@@ -527,7 +525,7 @@ static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn )
             }
         }
         return emax2;
-    }
+   
 }
 
 static void relacc_record_missing_verr( stn_relacc_array *ra, int istn, int jstn )
@@ -603,9 +601,8 @@ static double relacc_get_verr( stn_relacc_array *ra, int istn, int jstn )
     {
         return ra->vrtvar[istn-1];
     }
-    else
-    {
-        double verr;
+    
+            double verr;
 
         stn_relacc *rac = get_relacc( ra, istn, jstn );
         if( rac )
@@ -644,7 +641,7 @@ static double relacc_get_verr( stn_relacc_array *ra, int istn, int jstn )
             }
         }
         return verr;
-    }
+   
 }
 
 static int check_relacc_complete( stn_relacc_array *ra )

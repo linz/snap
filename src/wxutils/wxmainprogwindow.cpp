@@ -132,10 +132,9 @@ void wxMainProgWindow::OnClose( wxCloseEvent &event )
         event.Veto();
         return;
     }
-    else
-    {
-        Destroy();
-    }
+    
+            Destroy();
+   
 }
 
 void wxMainProgWindow::RunMainProg( int (*mainfunc)( int argc, char *argv[] ))

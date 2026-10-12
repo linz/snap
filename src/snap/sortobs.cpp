@@ -61,10 +61,9 @@ static bool obsdef_precedes( const obsdef &o1, const obsdef &o2 )
     {
         return (diftype ? diftype : difline) < 0;
     }
-    else
-    {
-        return (difline ? difline : diftype) < 0;
-    }
+    
+            return (difline ? difline : diftype) < 0;
+   
 }
 
 

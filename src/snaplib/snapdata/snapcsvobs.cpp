@@ -1022,7 +1022,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             // finished = true;
             break;
         }
-        else if (command == "type")
+        if (command == "type")
         {
             loadValueDefinition(rs, obs.type());
         }

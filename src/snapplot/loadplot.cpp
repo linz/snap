@@ -161,7 +161,7 @@ static double snap_calc_value( int type, long id1, long id2 )
         dist = calc_distance( st1, 0.0, st2, 0.0, nullptr, nullptr );
         return dist;
     }
-    else if ( type == CALC_HDIST )
+    if ( type == CALC_HDIST )
     {
         double dist;
         station *st1 = stnptr(id1);

@@ -357,11 +357,10 @@ static int find_end_nodes( int *s, int *e )
                 end = 0;
                 break;
             }
-            else
-            {
-                wmin = w;
+            
+                            wmin = w;
                 end = order2[i];
-            }
+           
         }
 
         /* If we found an end then quit, otherwise try again with the
