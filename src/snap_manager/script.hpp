@@ -28,13 +28,13 @@ public:
     void SetValue( const wxString &value );
     void SetValue( double );
     void SetValue( bool value );
-    wxString AsString(int index=0) const;
-    double AsDouble(int index=0) const;
-    bool AsBool(int index=0) const;
-    int Count() const;
+    [[nodiscard]] wxString AsString(int index=0) const;
+    [[nodiscard]] double AsDouble(int index=0) const;
+    [[nodiscard]] bool AsBool(int index=0) const;
+    [[nodiscard]] int Count() const;
     void SetNext( const Value &value );
     void SetNext( Value *pvalue );
-    Value *Next() const;
+    [[nodiscard]] Value *Next() const;
 
 private:
     bool boolValue;

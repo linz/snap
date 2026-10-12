@@ -32,20 +32,20 @@ public:
     // True if the layer at layerIndex is a control checkbox whose range has
     // exactly one child - the checkbox is then redundant, since it can only
     // ever match that one child's own status.
-    bool IsSingleChildMasterRow( int layerIndex ) const;
+    [[nodiscard]] bool IsSingleChildMasterRow( int layerIndex ) const;
 
     // Maps a grid row to the underlying layer index it currently displays, or
     // -1 if row is out of range. Every layer has its own row today, so this is
     // the identity mapping - it will diverge once a collapsed range hides some
     // layers from the grid.
-    int RowToLayerIndex( int row ) const;
+    [[nodiscard]] int RowToLayerIndex( int row ) const;
     // Maps a layer index to the grid row currently displaying it, or -1 if
     // that layer is hidden (e.g. inside a collapsed range).
-    int LayerIndexToRow( int layerIndex ) const;
+    [[nodiscard]] int LayerIndexToRow( int layerIndex ) const;
 
     // True if the master row at layerIndex owns a currently-collapsed range.
     // False if layerIndex isn't a master row.
-    bool IsRangeCollapsed( int layerIndex ) const;
+    [[nodiscard]] bool IsRangeCollapsed( int layerIndex ) const;
 
 private:
     Symbology *symbologyKey;
@@ -96,7 +96,7 @@ private:
         int rangeIndex;
         bool isMaster;
     };
-    MasterLookup FindMasterRange( int layerIndex ) const;
+    [[nodiscard]] MasterLookup FindMasterRange( int layerIndex ) const;
 
     DECLARE_DYNAMIC_CLASS( wxLayerKey );
     DECLARE_EVENT_TABLE();

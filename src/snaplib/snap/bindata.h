@@ -29,7 +29,7 @@ struct bindata
 
     /// The buffer as a survdata, which is only valid when bintype is SURVDATA
     survdata *survey_data() { return reinterpret_cast<survdata *>( buffer.data() ); }
-    const survdata *survey_data() const { return reinterpret_cast<const survdata *>( buffer.data() ); }
+    [[nodiscard]] const survdata *survey_data() const { return reinterpret_cast<const survdata *>( buffer.data() ); }
 };
 
 

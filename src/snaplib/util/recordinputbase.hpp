@@ -31,12 +31,12 @@ public:
         _type( type )
     { _setLocation(); }
     ~RecordError() throw () override = default;
-    const std::string &message() const { return _message; }
-    const std::string &location() const { return _location; }
-    const std::string &filename() const { return _filename; }
-    const int lineno() const { return _lineno; }
-    const int recordno() const { return _recordno; }
-    RecordErrorType type() const { return _type; }
+    [[nodiscard]] const std::string &message() const { return _message; }
+    [[nodiscard]] const std::string &location() const { return _location; }
+    [[nodiscard]] const std::string &filename() const { return _filename; }
+    [[nodiscard]] const int lineno() const { return _lineno; }
+    [[nodiscard]] const int recordno() const { return _recordno; }
+    [[nodiscard]] RecordErrorType type() const { return _type; }
 private:
     void _setLocation();
     std::string _message;

@@ -42,7 +42,7 @@ struct BinSrc
             long embeddedOffset );   ///< The offset in parent from which to read
 
     /// True if the byte order of the values read has to be reversed
-    bool swap_bytes() const { return src_endian != arch_endian; }
+    [[nodiscard]] bool swap_bytes() const { return src_endian != arch_endian; }
 };
 using hBinSrc = BinSrc *;
 

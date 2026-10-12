@@ -37,7 +37,7 @@ public:
             return _name;
         }
         void setName(const std::string name);
-        const std::string &value() const {
+        [[nodiscard]] const std::string &value() const {
             return _column->value();
         }
         ConcatValue &cvalue() {
@@ -63,10 +63,10 @@ public:
     virtual ~SnapCsvBase();
     bool load(const std::string &filename);
     bool load(RecordInputBase &input);
-    const std::string &loadedFilename() const {
+    [[nodiscard]] const std::string &loadedFilename() const {
         return _loadedFilename;
     }
-    const std::string &definitionFilename() const {
+    [[nodiscard]] const std::string &definitionFilename() const {
         return _definitionFilename;
     }
 

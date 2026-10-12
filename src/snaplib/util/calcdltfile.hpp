@@ -36,14 +36,14 @@ class BindSource
 {
 public:
     virtual ~BindSource() = default;
-    virtual string *value( const std::string &name ) const = 0;
+    [[nodiscard]] virtual string *value( const std::string &name ) const = 0;
 };
 
 class CalcValue
 {
 public:
     virtual ~CalcValue() = default;
-    virtual CalcValue *clone() const = 0;
+    [[nodiscard]] virtual CalcValue *clone() const = 0;
 
     virtual void bind( const BindSource *binder );
     void bind( const BindSource &binder ) { bind( &binder ); }
@@ -57,7 +57,7 @@ public:
     StringValue( const string &value ) : _value(value) {}
     StringValue( const StringValue &fcol );
 
-    StringValue *clone() const override;
+    [[nodiscard]] StringValue *clone() const override;
     void calcValue( string &value ) override;
 private:
     const string _value;
@@ -71,7 +71,7 @@ public:
     NamedValue( const string &colname, const std::string &dfltValue ) :
         _colname(colname), _colvalue(nullptr), _default( new StringValue(dfltValue) ) {}
     NamedValue( const NamedValue &ccol );
-    NamedValue *clone() const override;
+    [[nodiscard]] NamedValue *clone() const override;
 
     NamedValue &setDefault( CalcValue *dfltValue );
     NamedValue &setDefault( const CalcValue &dfltValue ) { return setDefault( dfltValue.clone() ); }
@@ -96,7 +96,7 @@ private:
     {}
     void add( const string &key, const string &value );
     void setDefault( const string &dfltstr );
-    const string *lookup( const string &key ) const;
+    [[nodiscard]] const string *lookup( const string &key ) const;
     string _default;
     bool _caseSensitive;
 };
@@ -109,7 +109,7 @@ public:
         shared_ptr<LookupMapImp>( new LookupMapImp(caseSensitive) ) {}
     void add( const string &key, const string &value ) { (*this)->add(key,value); }
     void setDefault( const string &dfltstr ) { (*this)->setDefault( dfltstr ); }
-    const string *lookup( const string &key ) const { return (*this)->lookup(key); }
+    [[nodiscard]] const string *lookup( const string &key ) const { return (*this)->lookup(key); }
 };
 
 class LookupValue : public CalcValue
@@ -118,7 +118,7 @@ public:
     LookupValue();
     LookupValue( const LookupValue &lookup );
     ~LookupValue() override;
-    LookupValue *clone() const override;
+    [[nodiscard]] LookupValue *clone() const override;
     LookupMap map() { return _map; }
     LookupValue &setMap( LookupMap map ) { _map = map; return *this; }
     // Assigning pointer transfers ownership
@@ -140,7 +140,7 @@ public:
     ConcatValue();
     ConcatValue( const ConcatValue &ccol );
     ~ConcatValue() override;
-    ConcatValue *clone() const override;
+    [[nodiscard]] ConcatValue *clone() const override;
     void clear();
     // Adding a pointer transfers ownership
     ConcatValue &add( CalcValue *column );
@@ -172,8 +172,8 @@ class CalcReader : public Reader
     public:
         CalcReaderColumn(CalcValue *ccol, Column *col) : pair<CalcValue *, Column *>( ccol, col ) {}
         ~CalcReaderColumn() { delete first; delete second; }
-        const string &name() const { return second->name(); }
-        string &value() const { return second->value(); }
+        [[nodiscard]] const string &name() const { return second->name(); }
+        [[nodiscard]] string &value() const { return second->value(); }
         template<typename T> void operator>>( T &value ) { (*second) >> value; }
     };
 
@@ -181,7 +181,7 @@ class CalcReader : public Reader
     {
     public:
         BindSource( const Reader &reader ) : _reader(reader) {}
-        string *value( const std::string &name ) const override;
+        [[nodiscard]] string *value( const std::string &name ) const override;
     private:
         const Reader &_reader;
     };
@@ -196,7 +196,7 @@ public:
 
     Column &addColumn( const std::string &name, const CalcValue &column );
     bool readRecord() override;
-    Column *findColumn( const std::string &name ) const override;
+    [[nodiscard]] Column *findColumn( const std::string &name ) const override;
 private:
     vector<shared_ptr<CalcReaderColumn> > _columns;
 };

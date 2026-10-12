@@ -56,8 +56,8 @@ public:
     DATAFILE &operator=( const DATAFILE & ) = delete;
     ~DATAFILE();
 
-    const std::string &file_name() const { return _fname; }
-    FILE *file() const { return _f; }
+    [[nodiscard]] const std::string &file_name() const { return _fname; }
+    [[nodiscard]] FILE *file() const { return _f; }
     void set_comment( char comment ) { _comment_char = comment; }
     void set_continuation( char continuation ) { _continuation_char = continuation; }
 
@@ -73,7 +73,7 @@ public:
     /// read so far are not read again.
     input_string_def &input_string() { return *_instr; }
 
-    long line_number() const { return _reclineno; }
+    [[nodiscard]] long line_number() const { return _reclineno; }
 
     /// Reports an error in the current record, giving the line number if a
     /// record has been read and always the file name. Errors at warning level
@@ -82,7 +82,7 @@ public:
     int error(
         int sts,                   ///< the error status
         std::string_view errmsg ); ///< what is wrong with the record
-    int error_count() const { return _errcount; }
+    [[nodiscard]] int error_count() const { return _errcount; }
     void save_loc( datafile_loc &dl ) const;
     void reset_loc( const datafile_loc &dl );
 

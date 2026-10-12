@@ -19,7 +19,7 @@ class OptionString
 public:
     OptionString( const std::string &options );
     bool defines( const std::string &option );
-    const std::string &valueOf( const std::string &key, const std::string &dflt="" ) const;
+    [[nodiscard]] const std::string &valueOf( const std::string &key, const std::string &dflt="" ) const;
     const std::vector<std::string> errors(){ return _invalid; }
 private:
     void _load( const std::string &options );

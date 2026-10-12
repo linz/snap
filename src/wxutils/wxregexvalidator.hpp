@@ -18,7 +18,7 @@ public:
     wxRegexpStringValidator( wxString *value, const wxString &rules = wxEmptyString  );
     wxRegexpStringValidator( const wxRegexpStringValidator &validator );
 
-    wxValidator *Clone() const override { return new wxRegexpStringValidator( *this ); }
+    [[nodiscard]] wxValidator *Clone() const override { return new wxRegexpStringValidator( *this ); }
     bool Validate( wxWindow *parent ) override;
 
 private:

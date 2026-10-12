@@ -92,7 +92,7 @@ public:
     /// checkpoint a caller can capture and compare against a later
     /// remainder() (via .data()/.size() arithmetic) to recover an exact
     /// verbatim span without needing raw iterator access.
-    std::string_view remainder() const;
+    [[nodiscard]] std::string_view remainder() const;
 
     /// Consumes c if it is the next character after any whitespace. Nothing is
     /// consumed if it is not.
@@ -101,7 +101,7 @@ public:
 
     /// Tests whether nothing but whitespace is left to read, without consuming anything.
     /// \return true if next() would return nullopt.
-    bool atEnd() const;
+    [[nodiscard]] bool atEnd() const;
 
     /// Scans a quoted value, given the position right after its opening
     /// quote and the quote character itself (both found by the caller

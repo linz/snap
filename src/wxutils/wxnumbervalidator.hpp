@@ -10,7 +10,7 @@ public:
     wxNumberValidator( double *value, int nDecPlaces = 0, bool positive = true );
     wxNumberValidator( const wxNumberValidator &validator );
 
-    wxValidator *Clone() const override { return new wxNumberValidator(*this); }
+    [[nodiscard]] wxValidator *Clone() const override { return new wxNumberValidator(*this); }
 
     bool TransferFromWindow() override;
     bool TransferToWindow() override;

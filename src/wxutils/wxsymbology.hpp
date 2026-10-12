@@ -35,13 +35,13 @@ public:
     ColourPalette();
     ~ColourPalette();
 
-    int Size() const;
+    [[nodiscard]] int Size() const;
     int AddColour( const wxColour &colour );
-    int FindColour( const wxColour &colour ) const;
-    const wxColour &Colour( int i ) const;
-    const wxBitmap &Bitmap( int i ) const;
+    [[nodiscard]] int FindColour( const wxColour &colour ) const;
+    [[nodiscard]] const wxColour &Colour( int i ) const;
+    [[nodiscard]] const wxBitmap &Bitmap( int i ) const;
 
-    int PaletteBitmapSize() const;
+    [[nodiscard]] int PaletteBitmapSize() const;
 
 private:
     void Grow();
@@ -64,7 +64,7 @@ public:
     SymbologyBase( wxString name );
     virtual ~SymbologyBase();
     wxString Name() { return name; }
-    const std::string &NameString() const { return cname; }
+    [[nodiscard]] const std::string &NameString() const { return cname; }
     wxString Identifier() { return id; }
 private:
     wxString name;
@@ -78,11 +78,11 @@ public:
     SymbologyList();
     ~SymbologyList();
     int AddSymbology( SymbologyBase *symbology );
-    int Size() const;
-    SymbologyBase *GetSymbology( int i ) const;
-    SymbologyBase *GetSymbology( wxString name ) const;
-    int GetSymbologyId( wxString name ) const;
-    int GetSymbologyByIdentifier( wxString uid ) const;
+    [[nodiscard]] int Size() const;
+    [[nodiscard]] SymbologyBase *GetSymbology( int i ) const;
+    [[nodiscard]] SymbologyBase *GetSymbology( wxString name ) const;
+    [[nodiscard]] int GetSymbologyId( wxString name ) const;
+    [[nodiscard]] int GetSymbologyByIdentifier( wxString uid ) const;
 private:
     void Grow();
     int maxSize;
@@ -106,22 +106,22 @@ public:
     enum Type { label = 0, hasColour = 1, hasStatus = 2, hasColourAndStatus = 3 };
 
     LayerSymbology( wxString name, int type, int colourId, bool show, bool isControlCheckbox = false, bool colourEditable = true );
-    int Type() const;
-    int ColourId() const;
+    [[nodiscard]] int Type() const;
+    [[nodiscard]] int ColourId() const;
     void SetColourId( int newColourId );
-    bool Show() const;
-    bool Status() const;
+    [[nodiscard]] bool Show() const;
+    [[nodiscard]] bool Status() const;
     void SetStatus( bool newStatus );
-    bool HasColour() const;
-    bool HasStatus() const;
-    bool IsControlCheckbox() const;
-    bool IsMixedRowStatus() const;
+    [[nodiscard]] bool HasColour() const;
+    [[nodiscard]] bool HasStatus() const;
+    [[nodiscard]] bool IsControlCheckbox() const;
+    [[nodiscard]] bool IsMixedRowStatus() const;
     void SetMixedRowStatus( bool newMixedRowStatus );
     // Whether the swatch should currently be drawn/clickable. Independent of
     // HasColour(): a row can have a colour value that persists across
     // rebuilds while its swatch is temporarily hidden because it isn't the
     // list currently selected for Colour by.
-    bool ColourEditable() const;
+    [[nodiscard]] bool ColourEditable() const;
 private:
     int type;
     int colourId;
@@ -229,23 +229,23 @@ public:
     int AddLayer( wxString name, int type, const wxColour &colour, bool display = true, bool isControlCheckbox = false, bool colourEditable = true );
     void AddTitle(wxString name);
     void AddSpacer();
-    int LayerCount() const;
-    int GetLayerByName( wxString name ) const;
-    int GetLayerByIdentifier( wxString uid ) const;
-    LayerSymbology &GetLayer( int i ) const;
-    const wxColour &LayerColour( int i ) const;
-    const wxBitmap &LayerBitmap( int i ) const;
+    [[nodiscard]] int LayerCount() const;
+    [[nodiscard]] int GetLayerByName( wxString name ) const;
+    [[nodiscard]] int GetLayerByIdentifier( wxString uid ) const;
+    [[nodiscard]] LayerSymbology &GetLayer( int i ) const;
+    [[nodiscard]] const wxColour &LayerColour( int i ) const;
+    [[nodiscard]] const wxBitmap &LayerBitmap( int i ) const;
     // Note: Symbology takes over ownership of PointSymbology
     int AddPointSymbol( PointSymbology *ptsym );
-    int GetPointSymbolId( wxString name ) const;
-    PointSymbology *GetPointSymbol( int i ) const;
+    [[nodiscard]] int GetPointSymbolId( wxString name ) const;
+    [[nodiscard]] PointSymbology *GetPointSymbol( int i ) const;
     // TextStyle ... basically just a wrapper around wxFont...
     int AddTextStyle( TextStyle *txtsym );
-    int GetTextStyleId( wxString name ) const;
-    TextStyle *GetTextStyle( int i ) const;
+    [[nodiscard]] int GetTextStyleId( wxString name ) const;
+    [[nodiscard]] TextStyle *GetTextStyle( int i ) const;
 
-    bool ShowLayer( int i ) const;
-    int PaletteBitmapSize() const;
+    [[nodiscard]] bool ShowLayer( int i ) const;
+    [[nodiscard]] int PaletteBitmapSize() const;
 
 private:
     ColourPalette palette;
