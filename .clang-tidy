@@ -24,7 +24,8 @@ Checks: >
   modernize-use-emplace,
   readability-else-after-return,
   modernize-use-nodiscard,
-  performance-unnecessary-copy-initialization
+  performance-unnecessary-copy-initialization,
+  readability-make-member-function-const
 CheckOptions:
   # string_view("") is not the same as string_view(): data() of the second is a null pointer, which
   # printf-style code cannot take.  Only std::string is checked.
