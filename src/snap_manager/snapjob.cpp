@@ -226,7 +226,7 @@ bool SnapJob::IsSaved()
 
 bool SnapJob::IsOk()
 {
-    return errors.Count() == 0 ? true : false;
+    return errors.Count() == 0;
 }
 
 bool SnapJob::Load()

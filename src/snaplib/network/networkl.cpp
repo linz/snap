@@ -255,7 +255,7 @@ static bool polygon_criterion_match( const criterion &c, station *stn )
         lat *= RTOD;
         lon *= RTOD;
     }
-    isinside=polygon_contains_point( poly.polygon, lon, lat ) ? true : false;
+    isinside=polygon_contains_point( poly.polygon, lon, lat ) != 0;
     bool ok=isinside == poly.inside;
     return ok;
 }

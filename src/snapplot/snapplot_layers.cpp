@@ -1166,7 +1166,7 @@ int read_key_definition( std::string_view def )
     if( nk < 0 ) { return INCONSISTENT_DATA;
 }
     LayerSymbology &ls = symbology->GetLayer(nk);
-    if( on >= 0 ) { ls.SetStatus( on ? true : false ); }
+    if( on >= 0 ) { ls.SetStatus( on != 0 ); }
     if( pen >= 0 ) { ls.SetColourId( pen ); }
     return OK;
 }

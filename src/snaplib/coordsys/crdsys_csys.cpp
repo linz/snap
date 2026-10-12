@@ -157,7 +157,7 @@ void set_coordsys_geoid( coordsys *cs, const std::string &geoidfile )
 
 bool coordsys_heights_orthometric( coordsys *cs )
 {
-    return cs->hrs ? true : false;
+    return cs->hrs != nullptr;
 }
 
 void define_deformation_model_epoch( coordsys *cs, double epoch )

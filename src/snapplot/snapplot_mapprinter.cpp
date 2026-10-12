@@ -30,11 +30,7 @@ bool SnapplotMapPrinter::HasPage(int page)
 
 bool SnapplotMapPrinter::OnBeginDocument(int startPage, int endPage)
 {
-    if (!wxPrintout::OnBeginDocument(startPage, endPage)) {
-        return false;
-}
-
-    return true;
+    return wxPrintout::OnBeginDocument(startPage, endPage);
 }
 
 bool SnapplotMapPrinter::OnPrintPage(int WXUNUSED(page) )

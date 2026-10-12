@@ -265,9 +265,9 @@ int station_autofix_reject( int istn )
         int flags = afx->flags;
         /* Horizontal fixes */
         if( sa->flag.adj_h && ! sa->flag.float_h && 
-             !(((flags & (HAS_LAT | HAS_LON)) == (HAS_LAT | HAS_LON))  ||
-              ((flags & (HAS_DIST | HAS_BEAR)) == (HAS_DIST | HAS_BEAR)) ||
-              ((flags & (HAS_DIST | HAS_BEAR)) && afx->horstn2 != NO_STN )) )
+             ((flags & (HAS_LAT | HAS_LON)) != (HAS_LAT | HAS_LON))  &&
+              ((flags & (HAS_DIST | HAS_BEAR)) != (HAS_DIST | HAS_BEAR)) &&
+              (!(flags & (HAS_DIST | HAS_BEAR)) || afx->horstn2 == NO_STN ) )
         {
             reject=1;
         }
