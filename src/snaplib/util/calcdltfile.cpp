@@ -183,7 +183,7 @@ void LookupValue::bind( const BindSource *binder )
 void LookupValue::calcValue( string &value )
 {
     value.clear();
-    string svalue("");
+    string svalue;
     if( _source ) { _source->calcValue(svalue);
 }
 

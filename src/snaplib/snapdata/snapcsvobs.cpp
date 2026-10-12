@@ -128,7 +128,7 @@ void SnapCsvObs::CsvObservation::runtimeError(const string &message)
 
 string SnapCsvObs::CsvObservation::missing()
 {
-    std::string missingparts("");
+    std::string missingparts;
     bool need_tostn = false;
     datatypedef *type = getDataType();
     if (type && !type->ispoint)
@@ -384,7 +384,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         {
             double errcomp;
             error[0] = 0.0;
-            string component = "";
+            string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
             for (int i = 0; i < 2; i++)
@@ -424,7 +424,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double *pcomp;
             errseconds = false;
 
-            string component = "";
+            string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
             for (int i = 0; i < 2; i++)
@@ -479,7 +479,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double ppmerr = 0.0;
             double *pcomp;
 
-            string component = "";
+            string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
             for (int i = 0; i < 2; i++)
@@ -536,7 +536,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double *pcomp;
             errseconds = false;
 
-            string component = "";
+            string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
             for (int i = 0; i < 3; i++)

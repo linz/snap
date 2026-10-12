@@ -93,7 +93,6 @@ class LookupMapImp : public map<const string, const string>
 private:
     LookupMapImp(bool caseSensitive) :
         map<const string, const string>(),
-        _default(""),
         _caseSensitive( caseSensitive )
     {}
     void add( const string &key, const string &value );
