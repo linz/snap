@@ -10,7 +10,7 @@ public:
     MapPoint( double x, double y ) : x(x), y(y) {}
     MapPoint() : x(0.0), y(0.0) {}
     [[nodiscard]] MapPoint Shift( double dx, double dy ) const { return MapPoint(x + dx, y + dy); }
-    bool operator == (const MapPoint &pt ) { return x == pt.x && y == pt.y; }
+    bool operator == (const MapPoint &pt ) const { return x == pt.x && y == pt.y; }
 };
 
 class MapRect
@@ -31,7 +31,7 @@ public:
     {
         return MapRect( min.Shift( dx, dy ), max.Shift(dx,dy) );
     }
-    bool operator == ( const MapRect &rect ) { return min == rect.min && max == rect.max; }
+    bool operator == ( const MapRect &rect ) const { return min == rect.min && max == rect.max; }
     [[nodiscard]] bool Contains( const MapPoint &pt ) const
     {
         return pt.x >= min.x && pt.y >= min.y && pt.x <= max.x && pt.y <= max.y;

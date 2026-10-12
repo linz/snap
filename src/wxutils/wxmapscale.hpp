@@ -63,7 +63,7 @@ public:
     // get to plot coordinates (integer).  This is an average of the values used in the x and y
     // directions.
 
-    double GetScale();
+    [[nodiscard]] double GetScale() const;
 
     void ZoomAll();
     void ZoomTo( const MapRect &extents );
@@ -87,16 +87,16 @@ public:
     bool GetPoint( wxPoint &pt, bool &start );
 
     //
-    bool IsValid() { return scaleValid; }
+    [[nodiscard]] bool IsValid() const { return scaleValid; }
 
     void SetNotifyWindowId( int id ) { windowId = id; }
 
 private:
     void CalcScale();
-    char PointFlags( const MapPoint &pt );
+    [[nodiscard]] char PointFlags( const MapPoint &pt ) const;
     char ShiftIntoRange( MapPoint &p0, char flag0, const MapPoint p1, char flag1 );
     bool NextPoint( wxPoint &pt, bool &start );
-    void NotifyWindow();
+    void NotifyWindow() const;
 
     MapRect mapExtents;    // Requested extents
     MapRect mapWindow;  // Actual window plotted

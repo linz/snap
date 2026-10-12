@@ -21,7 +21,7 @@ namespace LINZ
             {
             public:
                 CsvClassification(const std::string &name);
-                int classId() { return _classId; }
+                [[nodiscard]] int classId() const { return _classId; }
                 int classValue();
 
             private:
@@ -32,7 +32,7 @@ namespace LINZ
             {
             public:
                 CsvClassColumn(const std::string &classname, const Column *column);
-                int classId() { return _classId; }
+                [[nodiscard]] int classId() const { return _classId; }
                 const std::string &value() { return _column->value(); }
 
             private:
@@ -151,7 +151,7 @@ namespace LINZ
 
             // Information relating to observations sets
 
-            bool InSet() { return _inset; }
+            [[nodiscard]] bool InSet() const { return _inset; }
             bool ContinueSet(const std::string &setid, const std::string &fromcode);
             void EndSet();
 

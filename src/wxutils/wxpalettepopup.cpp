@@ -54,7 +54,7 @@ void wxPalettePopup::LayoutPalette( int rows )
     SetClientSize( width, height );
 }
 
-wxPoint wxPalettePopup::GetBitmapPosition( int colourId, bool centre )
+wxPoint wxPalettePopup::GetBitmapPosition( int colourId, bool centre ) const
 {
     int row = colourId / ncol;
     int col = colourId - row * ncol;

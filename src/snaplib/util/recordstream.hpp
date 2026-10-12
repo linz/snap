@@ -47,7 +47,7 @@ namespace LINZ
         bool good() { return _str.good(); }
         bool readRecord();
         void restart();
-        int lineNo() { return _lineNo; }
+        [[nodiscard]] int lineNo() const { return _lineNo; }
 
         // Returns the current record as a string
         const std::string &recordString() { return _recordstr; }
@@ -56,9 +56,9 @@ namespace LINZ
         std::istringstream &record();
 
     private:
-        bool _iscomment(const std::string &str);
-        void _trimcomment(std::string &str);
-        bool _trimcontinue(std::string &str);
+        bool _iscomment(const std::string &str) const;
+        void _trimcomment(std::string &str) const;
+        bool _trimcontinue(std::string &str) const;
         std::ifstream _str;
         std::string _recordstr;
         std::istringstream _record;

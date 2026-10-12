@@ -129,7 +129,7 @@ void wxMapScale::SetMapExtents( const MapRect &extents )
     zoomStack.ClearStack();
 }
 
-double wxMapScale::GetScale()
+double wxMapScale::GetScale() const
 {
     if( ! scaleValid ) { return 0;
 }
@@ -253,7 +253,7 @@ void wxMapScale::PlotToWorld( const wxPoint &plot, MapPoint &data ) const
 }
 
 
-char wxMapScale::PointFlags( const MapPoint &pt )
+char wxMapScale::PointFlags( const MapPoint &pt ) const
 {
     char flags;
     if( pt.x < mapWindow.min.x ) { flags = LEFT;
@@ -403,7 +403,7 @@ bool wxMapScale::NextPoint( wxPoint &pt, bool &start )
     return true;
 }
 
-void wxMapScale::NotifyWindow()
+void wxMapScale::NotifyWindow() const
 {
     if( windowId != wxID_ANY )
     {

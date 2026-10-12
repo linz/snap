@@ -53,7 +53,7 @@ public:
     bool SelectColour( int &colourId );
 
 private:
-    wxPoint GetBitmapPosition( int colourId, bool centre );
+    [[nodiscard]] wxPoint GetBitmapPosition( int colourId, bool centre ) const;
     void GetHighlightRect( int colourId, wxRect &rect );
     int ColourIdFromPosition( const wxPoint &position );
     void LayoutPalette( int rows = 0 );
