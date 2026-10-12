@@ -4,6 +4,7 @@ Checks: >
   modernize-use-override,
   modernize-use-using,
   modernize-use-bool-literals,
-  readability-braces-around-statements
+  readability-braces-around-statements,
+  readability-isolate-declaration
 HeaderFilterRegex: 'src/.*'
 ExcludeHeaderFilterRegex: 'third_party'
