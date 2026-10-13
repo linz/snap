@@ -240,18 +240,25 @@ directory to the path, for example in the `.bashrc` file:
 export PATH=/usr/share/linz/snap:${PATH}
 ```
 
+**Static analysis and formatting (clang-tidy and clang-format)**
+
+`build.py` can run clang-tidy and clang-format over the C++ sources. Their results differ between
+versions, so the version is fixed (`REQUIRED_CLANG_VERSION` in `build.py`, currently 21) and
+`build.py` refuses to run with any other. Anyone fixing a tidy or format failure needs the same
+version.
+
+Both tools come from the LLVM apt repository (https://apt.llvm.org). On Ubuntu 24.04 (Noble), add
+the line `deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main` to the apt sources, install
+the repository's signing key, then `apt-get install clang-tidy-21 clang-format-21` (each only if
+you run its targets).
+
 **Static analysis (clang-tidy)**
 
-`build.py` can run clang-tidy over the C++ sources. The checks that are enforced are listed in
-`.clang-tidy`. Findings differ between clang-tidy versions, so the version is fixed
-(`REQUIRED_CLANG_VERSION` in `build.py`, currently 21) and `build.py` refuses to run with any
-other. Anyone fixing a tidy failure needs the same version.
+`build.py` runs clang-tidy with the checks that are enforced, which are listed in `.clang-tidy`.
 
 Requirements, on Ubuntu 24.04 (Noble):
 
-- clang-tidy 21 from the LLVM apt repository (https://apt.llvm.org): add the line
-  `deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main` to the apt sources, install the
-  repository's signing key, then `apt-get install clang-tidy-21`.
+- clang-tidy 21, installed as described above.
 - The Linux prerequisites above, including `libwxgtk3.2-dev`. The analysis always includes the
   GUI sources, because the GUI build compiles the most source files, so `--no-gui` is rejected.
   Only files that the build compiles are analysed. `src/wxtest` has no build target, so it is
@@ -273,6 +280,23 @@ left. Vendored code (`src/third_party`) and the generated `scriptimp_parse.cpp` 
 On a machine with more than one GCC installed, clang may pick a GCC that has no libstdc++
 headers. Set `SNAP_TIDY_GCC_INSTALL_DIR` to the one that does, for example
 `/usr/lib/gcc/x86_64-linux-gnu/13`.
+
+**Formatting (clang-format)**
+
+`build.py` can check and apply the code style in `.clang-format` (Google style with four-space
+indentation and a 120 column limit). It needs clang-format 21, installed as described above, and
+builds nothing, so no other dependencies are required.
+
+```
+python3 build.py debug format       # lists the files that would change and changes nothing; exits 1 if there are any
+python3 build.py debug format-fix   # reformats the sources (requires a clean git tree), then runs format to confirm
+```
+
+The build type is ignored, but one must be given first, as for the other targets. The files are
+the C and C++ sources that git tracks under `src/`, without those listed in `.clang-format-ignore`:
+the vendored `src/third_party`, `src/snapplot/resource.h` and the generated `scriptimp_parse.cpp`.
+`tools/lapg` is outside `src/` and is not formatted. A plain `clang-format` run (clang-format 21
+does) reads the same ignore file, so editors skip those files too.
 
 
 

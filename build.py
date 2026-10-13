@@ -26,6 +26,11 @@ TARGET (default: all):
                the full report is written there
     tidy-fix   Apply clang-tidy's fixes to the sources in place (debug only; requires a clean git
                tree), then run tidy to confirm that nothing is left. Same requirements as tidy
+    format     Report which sources clang-format would change (the style in .clang-format), changing
+               nothing; exits 1 if there are any. Needs clang-format 21 (the version CI uses). The
+               build type is ignored, as nothing is built
+    format-fix Reformat the sources in place (requires a clean git tree), then run format to
+               confirm that nothing is left. Same requirements as format
 
 Options:
     --no-gui         Skip wxWidgets GUI targets (snap_manager, snapadjust, snapplot); not allowed
@@ -46,6 +51,7 @@ Options:
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import os
 import platform
 import re
@@ -76,8 +82,9 @@ BUILD_TYPE_MAP = {
     "profile": "Profile",
 }
 
-# Major version of clang-tidy that the tidy and tidy-fix targets require.  CI installs the same
-# version, so a developer fixing a CI failure must match it (see BUILD.md).
+# Major version of clang-tidy and clang-format that the tidy, tidy-fix, format and format-fix targets
+# require.  CI installs the same version, so a developer fixing a CI failure must match it (see
+# BUILD.md).
 REQUIRED_CLANG_VERSION = 21
 
 TIDY_BUILD_DIR = REPO_ROOT / "build-tidy"
@@ -252,9 +259,10 @@ def mingw_build(args: argparse.Namespace) -> None:
 
 
 def clang_major_version(clang_tool: str) -> int | None:
-    """The major version that clang_tool --version reports, or None if it can't be read."""
+    """The major version that clang_tool --version reports, or None if it can't be read.  clang-tidy
+    prints "LLVM version 21.1.8" and clang-format "clang-format version 21.1.8"."""
     result = subprocess.run([clang_tool, "--version"], capture_output=True, text=True, check=False)
-    match = re.search(r"LLVM version (\d+)\.", result.stdout)
+    match = re.search(r"(?:LLVM|clang-format) version (\d+)\.", result.stdout)
     return int(match.group(1)) if match else None
 
 
@@ -371,6 +379,90 @@ def check_committed() -> None:
         sys.exit(1)
 
 
+# Extensions of the C and C++ sources that the format and format-fix targets cover.
+FORMAT_EXTENSIONS = (".c", ".cpp", ".h", ".hpp")
+
+
+def find_clang_format() -> str:
+    """Finds clang-format at REQUIRED_CLANG_VERSION, or aborts."""
+    for name in (f"clang-format-{REQUIRED_CLANG_VERSION}", "clang-format"):
+        path = shutil.which(name)
+        if path and clang_major_version(path) == REQUIRED_CLANG_VERSION:
+            return path
+    print(f"ABORTED: clang-format {REQUIRED_CLANG_VERSION} is required - see BUILD.md")
+    sys.exit(1)
+
+
+def format_files() -> list[str]:
+    """The tracked C and C++ sources under src/ that clang-format covers, as paths relative to
+    REPO_ROOT: every one that git tracks there except those that .clang-format-ignore lists (the
+    vendored third_party code, resource.h and the generated scriptimp_parse.cpp).  The ignore file is
+    read here so that it stays the one list for clang-format, editors and this script."""
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z", "--", "src"], cwd=REPO_ROOT, capture_output=True, text=True, check=True
+    ).stdout.split("\0")
+    patterns = [
+        line.strip()
+        for line in (REPO_ROOT / ".clang-format-ignore").read_text().splitlines()
+        if line.strip() and not line.startswith("#")
+    ]
+    return [
+        path
+        for path in tracked
+        if path.endswith(FORMAT_EXTENSIONS) and not any(fnmatch.fnmatch(path, pattern) for pattern in patterns)
+    ]
+
+
+def _format(fix: bool) -> None:
+    """Runs clang-format over the sources that format_files() lists, in the style of .clang-format.
+
+    Without fix nothing is changed: it prints the number of places clang-format would change in each
+    file and exits 1 if there are any.  With fix it rewrites the sources in place and exits 0.  In both
+    cases, if clang-format itself fails it exits with its own return code."""
+    clang_format = find_clang_format()
+    files = format_files()
+    if not files:
+        print("ABORTED: no sources to format, check format_files() against the git tree")
+        sys.exit(1)
+
+    mode = ["-i"] if fix else ["--dry-run", "-Werror"]
+    result = subprocess.run(
+        [clang_format, "--style=file", *mode, *files], cwd=REPO_ROOT, capture_output=True, text=True, check=False
+    )
+
+    violations = re.findall(r"^(.+?):\d+:\d+: error: code should be clang-formatted", result.stderr, re.MULTILINE)
+    if result.returncode != 0 and (fix or not violations):
+        print(result.stderr)
+        print(f"clang-format failed with exit code {result.returncode}")
+        sys.exit(result.returncode)
+
+    if fix:
+        print(f"clang-format applied to {len(files)} files (see git diff --stat)")
+        return
+
+    for file, count in sorted(Counter(os.path.relpath(path, REPO_ROOT) for path in violations).items()):
+        print(f"{count:6d}  {file}")
+    if violations:
+        print(f"clang-format would change {len(set(violations))} of {len(files)} files")
+        sys.exit(1)
+    print("clang-format would change nothing")
+
+
+def format_dry_run() -> None:
+    """Reports which sources clang-format would change, without changing anything.  Exits 1 if there
+    are any."""
+    _format(False)
+
+
+def format_fix() -> None:
+    """Reformats the sources in place.  Aborts if there are uncommitted changes, so that the
+    formatting is the only difference in git diff.  Then runs format_dry_run to confirm that a second
+    pass would change nothing."""
+    check_committed()
+    _format(True)
+    _format(False)
+
+
 def check_version_changelog() -> None:
     """Aborts if debian/changelog's latest entry doesn't match VERSION."""
     version = (REPO_ROOT / "VERSION").read_text().strip()
@@ -393,7 +485,7 @@ def main() -> None:  # pylint: disable=too-many-branches
         "target",
         nargs="?",
         default="all",
-        choices=["all", "snap_cmd", "test", "install", "package", "clean", "tidy", "tidy-fix"],
+        choices=["all", "snap_cmd", "test", "install", "package", "clean", "tidy", "tidy-fix", "format", "format-fix"],
         help="Build target (default: all)",
     )
     parser.add_argument(
@@ -424,6 +516,13 @@ def main() -> None:  # pylint: disable=too-many-branches
         if build_d.exists():
             print(f"Removing {build_d}")
             shutil.rmtree(build_d)
+        return
+
+    if args.target in ("format", "format-fix"):
+        if args.target == "format":
+            format_dry_run()
+        else:
+            format_fix()
         return
 
     if args.target in ("tidy", "tidy-fix"):
