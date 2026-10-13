@@ -426,8 +426,8 @@ try
         lsq_init();
         if( iterations==1 && nprm )
         {
-            long nfull = ((long) nprm * (nprm+1))/2;
-            long nsave = nfull - lsq_normal_matrix()->nelement;
+            long const nfull = ((long) nprm * (nprm+1))/2;
+            long const nsave = nfull - lsq_normal_matrix()->nelement;
             if( nsave > 0 )
             {
                 xprintf("\nStation reordering has reduced the matrix size by %.1lf%%\n",(nsave*100.0)/nfull);
@@ -933,7 +933,7 @@ static void write_filelist_csv()
         csv->writeInt(i);
         csv->writeString(filename);
         csv->writeString(filetype);
-        time_t modtime=file_modtime(filename);
+        time_t const modtime=file_modtime(filename);
         if( modtime != 0 )
         {
             const struct tm *ltime=localtime(&(modtime));

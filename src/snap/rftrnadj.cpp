@@ -388,7 +388,7 @@ static void print_rftrans_def( const std::array<std::string_view,14> &rownames, 
     gotcvr=0;
     for( i = 0; i < 14; i++ )
     {
-        double factor = vmult ? vmult[i] : 1.0;
+        double const factor = vmult ? vmult[i] : 1.0;
         dispcvr[i]=0;
         if( ! display[i]) { continue;
 }
@@ -468,7 +468,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
     double azmax;
     int i;
     int k;
-    int userates=rf->userates;
+    int const userates=rf->userates;
     int calced;
     tmatrix *trot;
 

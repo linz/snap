@@ -275,7 +275,7 @@ void coord_conversion::_defineVerticalDatumSteps( const bool refFrameChanges )
     }
     else
     {
-        int nlast=nfromHrs+ntoHrs-1;
+        int const nlast=nfromHrs+ntoHrs-1;
         fhrs=from->hrs;
         thrs=to->hrs;
         for( int i=0; i<nfromHrs; i++ ){ hrf[i]=fhrs->func; fhrs=fhrs->basehrs; }
@@ -392,14 +392,14 @@ int convert_coords( coord_conversion *conv,
         {
             coord_conversion_rf *crf = &(conv->crf[i]);
             ref_frame *rf=crf->rf;
-            int defonly=crf->def_only;
+            int const defonly=crf->def_only;
 
             /* If the system has a deformation model to apply */
             if( crf->xyz_to_std )
             {
                 if( rf->def )
                 {
-                    double tgtepoch= defonly ? 0.0 : conv->epochconv;
+                    double const tgtepoch= defonly ? 0.0 : conv->epochconv;
                     if( isgeoc ) { xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
                     if( tgtepoch != rf->defepoch )
                     {
@@ -445,7 +445,7 @@ int convert_coords( coord_conversion *conv,
                 /*  Apply deformation model */
                 if( rf->def )
                 {
-                    double srcepoch=defonly ? 0.0 : conv->epochconv;
+                    double const srcepoch=defonly ? 0.0 : conv->epochconv;
                     if( isgeoc ) { xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
                     if( srcepoch != rf->defepoch )
                     {

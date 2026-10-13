@@ -44,8 +44,8 @@ int chol_dec( ltmat N, int np )
     int j;
     int k;
     int kmin;
-    static double small = 1.0e-10;
-    static double abssmall = 1.0e-30;
+    static double const small = 1.0e-10;
+    static double const abssmall = 1.0e-30;
     for (i = 0; i<np; i++ )
     {
 

@@ -120,7 +120,7 @@ std::string matches( TestNetwork &tn, const std::string &select, bool useCache=f
 
 void check_matches( TestNetwork &tn, const std::string &select, const std::string &expected )
 {
-    for( bool useCache : { false, true } )
+    for( bool const useCache : { false, true } )
     {
         bool ok=false;
         const std::string actual=matches( tn, select, useCache, &ok );
@@ -131,7 +131,7 @@ void check_matches( TestNetwork &tn, const std::string &select, const std::strin
 
 void check_no_criteria_matches_nothing()
 {
-    TestNetwork tn;
+    TestNetwork const tn;
     void *psc=new_station_criteria();
     check( ! station_criteria_match( psc, station_ptr( tn.nw, 1 ) ), "an empty criteria list matches nothing" );
     // A list starts with an implied operator that the end of the list cannot follow
@@ -165,7 +165,7 @@ void check_operators()
 
 void check_missing_stations()
 {
-    TestNetwork tn;
+    TestNetwork const tn;
     void *psc=new_station_criteria();
     check( compile_station_criteria( psc, tn.nw, "AAA QQQ", "" ) == OK, "compile with a missing station" );
     check( check_station_criteria_codes( psc, tn.nw ) == INVALID_DATA, "a missing station fails by default" );
@@ -186,7 +186,7 @@ void check_cache_ids_beyond_the_network()
 {
     // Station ids beyond the size the cache was set up with, and the id the
     // old cache never initialised, must still give the right answer
-    TestNetwork tn;
+    TestNetwork const tn;
     void *psc=new_station_criteria();
     setup_station_criteria_cache( psc, 2 );
     compile_station_criteria( psc, tn.nw, "AAA ZZ1", "" );
@@ -221,7 +221,7 @@ struct ListFiles
 void check_station_list_files()
 {
     TestNetwork tn;
-    ListFiles files;
+    ListFiles const files;
     const std::string a=files.write( "a.lst", "AAA\nAB1 ! not a comment on the same line\n" );
     check_matches( tn, "@" + a, "AAA AB1" );
     const std::string b=files.write( "b.lst", "BBB\n@" + a + "\n" );
@@ -238,8 +238,8 @@ void check_station_list_files()
 
 void check_station_list_file_problems()
 {
-    TestNetwork tn;
-    ListFiles files;
+    TestNetwork const tn;
+    ListFiles const files;
     void *psc=new_station_criteria();
     check( compile_station_criteria( psc, tn.nw, "@" + (files.dir / "missing.lst").generic_string(), "" ) != OK,
            "a station list file that does not exist is an error" );
@@ -258,8 +258,8 @@ void check_missing_option_does_not_leak_out_of_nested_files()
     // c.lst is read under ignore_missing, set on the line in b.lst that
     // includes it. That must not leak back out to the lines of a.lst after
     // the @b.lst line, where a missing station is still an error.
-    TestNetwork tn;
-    ListFiles files;
+    TestNetwork const tn;
+    ListFiles const files;
     const std::string c=files.write( "c.lst", "AAA\n" );
     const std::string b=files.write( "b.lst", "ignore_missing @" + c + "\n" );
     const std::string a=files.write( "a.lst", "@" + b + "\nQQQ\n" );
@@ -279,7 +279,7 @@ void check_missing_option_does_not_leak_out_of_nested_files()
 
 void check_criteria_errors()
 {
-    TestNetwork tn;
+    TestNetwork const tn;
     for( const char *select : { "and", "AAA or", "except", "AAA and and BBB", "AB1-" } )
     {
         void *psc=new_station_criteria();
@@ -298,7 +298,7 @@ void check_empty_station_list_file()
     alarm( 20 );
 #endif
     TestNetwork tn;
-    ListFiles files;
+    ListFiles const files;
     const std::string empty=files.write( "empty.lst", "! nothing here\n" );
     check_matches( tn, "@" + empty, "" );
     check_matches( tn, "AAA @" + empty, "AAA" );

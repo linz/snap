@@ -149,7 +149,7 @@ bool SnapMgrScriptEnv::UnloadJob( bool canVeto )
         wxString message("Job ");
         message.Append( job->GetFilename() );
         message.Append( " has not been saved. Save now?");
-        int result = wxMessageBox( message, "Save job?", wxYES_NO | wxCANCEL | wxICON_QUESTION );
+        int const result = wxMessageBox( message, "Save job?", wxYES_NO | wxCANCEL | wxICON_QUESTION );
         if( result == wxCANCEL ) { return false;
 }
         if( result == wxYES ) { job->Save();
@@ -183,9 +183,9 @@ void SnapMgrScriptEnv::InsertPath( const wxString &path, const wxString &envvar 
         if( path.IsEmpty()) { return;
 }
         // Ensure path is using correct delimiter
-        wxString psep=PATH_SEPARATOR;
-        wxString psep2=PATH_SEPARATOR2;
-        wxString envsep=PATHENV_SEP;
+        wxString const psep=PATH_SEPARATOR;
+        wxString const psep2=PATH_SEPARATOR2;
+        wxString const envsep=PATHENV_SEP;
         wxString pathval=path;
         pathval.Replace(psep2,psep);
 
@@ -232,7 +232,7 @@ bool SnapMgrScriptEnv::RemoveDirectory(const wxString &dirpath)
 {
     bool dir_empty = false;
     {
-        wxDir dir(dirpath);
+        wxDir const dir(dirpath);
         if ( !dir.IsOpened() )
         {
             return false;
@@ -302,8 +302,8 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
     if( ! menuBar ) { return nullptr;
 }
 
-    wxString delimiter="|";
-    bool wantMenu = name.EndsWith(delimiter);
+    wxString const delimiter="|";
+    bool const wantMenu = name.EndsWith(delimiter);
     wxString menuName=name;
     if( wantMenu ) { menuName=name.BeforeLast('|'); }
 
@@ -324,7 +324,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
 
     // Find the menu, or create it if it doesn't exist...
 
-    int menuId = menuBar->FindMenu( menuName );
+    int const menuId = menuBar->FindMenu( menuName );
     wxMenu *menu;
     if( menuId == wxNOT_FOUND )
     {
@@ -373,7 +373,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
 bool SnapMgrScriptEnv::AddMenuItem( const wxString &name, const wxString &description, int id )
 {
     wxMenu *parent;
-    wxString menuName=name.AfterLast('|');
+    wxString const menuName=name.AfterLast('|');
     if( menuName.IsEmpty()) { return false;
 }
     wxMenuItem *item = GetMenuItem( name, &parent, true );
@@ -383,7 +383,7 @@ bool SnapMgrScriptEnv::AddMenuItem( const wxString &name, const wxString &descri
     if( item )
     {
         // Check the item doesn't already exist
-        wxString message = wxString::Format("Configuration error: Cannot create menu item %s of %s",
+        wxString const message = wxString::Format("Configuration error: Cannot create menu item %s of %s",
                                             menuName, name );
         ::wxMessageBox( message, "Configuration error", wxOK | wxICON_ERROR, frameWindow );
         return false;
@@ -417,7 +417,7 @@ void SnapMgrScriptEnv::EnableMenuItem( const wxString &name, bool enabled )
 
 void SnapMgrScriptEnv::OnCmdConfigMenuItem( wxCommandEvent &event )
 {
-    int id = event.GetId() - CMD_CONFIG_BASE;
+    int const id = event.GetId() - CMD_CONFIG_BASE;
     if( id >= 0 )
     {
         if( script ) { script->RunMenuActions( id );
@@ -439,8 +439,8 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     int iswindows=1;
     int islinux=0;
 #elif defined(__UNIX_LIKE__)
-    int iswindows=0;
-    int islinux=1;
+    int const iswindows=0;
+    int const islinux=1;
 #else
     int iswindows=0;
     int islinux=0;
@@ -517,7 +517,7 @@ static wxString quoteCmdArg( const wxString &arg )
 
 static wxString quoteCmdLine( const Value *params )
 {
-    int nParams=params ? params->Count() : 0;
+    int const nParams=params ? params->Count() : 0;
     wxString cmdline;
     if( nParams <= 0 ) { return cmdline;
 }
@@ -534,8 +534,8 @@ static wxString quoteCmdLine( const Value *params )
 
 FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName, const Value *params, Value &vresult )
 {
-    Value dummy;
-    int nParams=params ? params->Count() : 0;
+    Value const dummy;
+    int const nParams=params ? params->Count() : 0;
     if( ! params ) { params=&dummy;
 }
 
@@ -548,7 +548,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Query function
 
     DEFINE_FUNCTION("Ask",2)
-    int result = ::wxMessageBox(STRPRM(0),STRPRM(1), wxYES_NO | wxCANCEL | wxICON_QUESTION );
+    int const result = ::wxMessageBox(STRPRM(0),STRPRM(1), wxYES_NO | wxCANCEL | wxICON_QUESTION );
     if( result == wxCANCEL ) { return fsTerminateScript;
 }
     RETURN( result == wxYES )
@@ -556,7 +556,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Get a file name
 
     DEFINE_FUNCTION2("GetOpenFileName",2,3)
-    bool multiple = nParams == 3 && BOOLPRM(2);
+    bool const multiple = nParams == 3 && BOOLPRM(2);
     long style = wxFD_OPEN | wxFD_FILE_MUST_EXIST;
     if( multiple ) { style |= wxFD_MULTIPLE;
 }
@@ -612,7 +612,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION("FindProgram",1)
     wxPathList paths;
     paths.AddEnvList("PATH");
-    wxString progname=STRPRM(0);
+    wxString const progname=STRPRM(0);
     wxFileName progfile(progname);
     wxString program;
     if( ! progname.IsEmpty() && progfile.GetFullName() == progname )
@@ -662,7 +662,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION2("Filename",2,3)
     wxString result;
     wxFileName file(STRPRM(0));
-    wxString part(STRPRM(1));
+    wxString const part(STRPRM(1));
 
     if( part.IsSameAs("path",false) ) { result = file.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR); }
         else if( part.IsSameAs("directory",false) ) { result=file.GetPath(wxPATH_GET_VOLUME); }
@@ -686,18 +686,18 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     RETURN( result );
 
     DEFINE_FUNCTION2("Directory",1,2)
-    wxString result;
+    wxString const result;
     wxString files;
     wxString filename;
     wxString filespec = wxEmptyString;
     if( nParams == 2 ) { filespec = STRPRM(1);
 }
 
-    wxLogNull noLog;
-    wxString dirname=STRPRM(0);
+    wxLogNull const noLog;
+    wxString const dirname=STRPRM(0);
     if( ! dirname.IsEmpty() )
     {
-        wxDir dir(dirname);
+        wxDir const dir(dirname);
         if( dir.IsOpened() )
         {
             bool found = dir.GetFirst( &files, filespec );
@@ -715,13 +715,13 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION("DeleteFile",1)
     if( ::wxFileExists(STRPRM(0)) ) {::wxRemoveFile( STRPRM(0));
 }
-    bool result =  ! ::wxFileExists(STRPRM(0));
+    bool const result =  ! ::wxFileExists(STRPRM(0));
     if( result && tmpFiles.Index( STRPRM(0) ) != wxNOT_FOUND ) { tmpFiles.Remove( STRPRM(0));
 }
     RETURN( result );
 
     DEFINE_FUNCTION("RenameFile",2)
-    bool result = ::wxRenameFile( STRPRM(0), STRPRM(1), true );
+    bool const result = ::wxRenameFile( STRPRM(0), STRPRM(1), true );
     if( result && tmpFiles.Index( STRPRM(0) ) != wxNOT_FOUND ) { tmpFiles.Remove( STRPRM(0));
 }
     RETURN(        result  );
@@ -736,7 +736,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     RETURN( RemoveDirectory( STRPRM(0) ))
     
     DEFINE_FUNCTION("TempFile",0)
-    wxString tmpFile = wxFileName::CreateTempFileName("snap.tmp");
+    wxString const tmpFile = wxFileName::CreateTempFileName("snap.tmp");
     tmpFiles.Add( tmpFile );
     RETURN( tmpFile )
 
@@ -752,11 +752,11 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     RETURN( result )
 
     DEFINE_FUNCTION2("ReadFile",1,3)
-    wxLogNull noLog;
+    wxLogNull const noLog;
     wxTextFile text(STRPRM(0));
     wxRegEx re;
     long maxLines = 0;
-    bool haveRegex = nParams > 1 && re.Compile(STRPRM(1),wxRE_ADVANCED);
+    bool const haveRegex = nParams > 1 && re.Compile(STRPRM(1),wxRE_ADVANCED);
     if( nParams > 2 ) {  STRPRM(2).ToLong(&maxLines);
 }
     wxString result;
@@ -803,7 +803,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
                         wxString basePath=STRPRM(1);
                         if( ! wxDirExists(basePath)) 
                         {
-                                wxFileName bfn(basePath);
+                                wxFileName const bfn(basePath);
                                 basePath=bfn.GetPath(false);
                         }
             scriptFile.MakeAbsolute(basePath);
@@ -826,10 +826,10 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Functions to run programs
 
     DEFINE_FUNCTION2("Run",1,20)
-    wxLogNull noLog;
-    wxString cmdline=quoteCmdLine(params);
+    wxLogNull const noLog;
+    wxString const cmdline=quoteCmdLine(params);
     frameWindow->SetCursor( *wxHOURGLASS_CURSOR );
-    long result = ::wxExecute( cmdline, wxEXEC_SYNC );
+    long const result = ::wxExecute( cmdline, wxEXEC_SYNC );
     frameWindow->Raise();
     frameWindow->SetCursor( wxNullCursor );
     wxString resultStr;
@@ -837,12 +837,12 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     RETURN( resultStr );
 
     DEFINE_FUNCTION2("LogRun",1,20)
-    wxLogNull noLog;
-    wxString cmdline=quoteCmdLine(params);
+    wxLogNull const noLog;
+    wxString const cmdline=quoteCmdLine(params);
     wxArrayString output;
     wxArrayString errors;
     frameWindow->SetCursor( *wxHOURGLASS_CURSOR );
-    long result = ::wxExecute( cmdline, output, errors );
+    long const result = ::wxExecute( cmdline, output, errors );
     frameWindow->Raise();
     frameWindow->SetCursor( wxNullCursor );
     wxString outputString;
@@ -864,9 +864,9 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     RETURN( outputString );
 
     DEFINE_FUNCTION2("Start",1,20)
-    wxLogNull noLog;
-    wxString cmdline=quoteCmdLine(params);
-    long result = ::wxExecute( cmdline, wxEXEC_ASYNC );
+    wxLogNull const noLog;
+    wxString const cmdline=quoteCmdLine(params);
+    long const result = ::wxExecute( cmdline, wxEXEC_ASYNC );
     RETURN( result != 0 );
 
     // Configuration settings
@@ -882,7 +882,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION("SetConfig",2)
     wxConfigBase *config=wxConfigBase::Get();
     config->SetPath("/Settings");
-    bool result = config->Write(STRPRM(0),STRPRM(1));
+    bool const result = config->Write(STRPRM(0),STRPRM(1));
     RETURN( result );
 
         // Get a configuration file
@@ -891,7 +891,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
        reset_config_dirs();
         auto cfgfile=find_config_file(CSTRPRM(0),CSTRPRM(1),
                 nParams > 2 ? CSTRPRM(2) : "" );
-        wxString result = cfgfile.value_or("");
+        wxString const result = cfgfile.value_or("");
         RETURN( result );
 
     // Regular expression match
@@ -918,7 +918,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
     DEFINE_FUNCTION2("MatchGroups",2,3)
     Value result;
-    wxString text(STRPRM(0));
+    wxString const text(STRPRM(0));
     bool global=false;
     if( nParams == 3 && BOOLPRM(2)) { global=true;
 }
@@ -928,7 +928,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
         size_t index=0;
         while( re.Matches(text.Mid(index)) )
         {
-            size_t nMatch = re.GetMatchCount();
+            size_t const nMatch = re.GetMatchCount();
             for( size_t nm = 1; nm < nMatch; nm++ )
             {
                 if( nm == 1 ) { result.SetValue(re.GetMatch(text,nm));
@@ -981,8 +981,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
         // Insert path into environment variable (default PATH)
 
         DEFINE_FUNCTION2("InsertPath",1,2)
-        wxString pathval=STRPRM(0);
-        wxString pathvar= nParams > 1 ? STRPRM(1) : "PATH";
+        wxString const pathval=STRPRM(0);
+        wxString const pathvar= nParams > 1 ? STRPRM(1) : "PATH";
         InsertPath(pathval,pathvar);
         wxString result;
         wxGetEnv(pathvar,&result);
@@ -998,7 +998,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Environment variable
 
     DEFINE_FUNCTION("SetEnv",2)
-    wxString value=STRPRM(1);
+    wxString const value=STRPRM(1);
     wxSetEnv( STRPRM(0), value );
     #ifdef __WINDOWS__
     // See comment above in SnapMgrScriptEnv::InsertPath
@@ -1018,7 +1018,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     RETURN( value.MakeLower() )
 
     DEFINE_FUNCTION2("SubString",2,3)
-    wxString value=STRPRM(0);
+    wxString const value=STRPRM(0);
     size_t start=0;
     size_t length=wxString::npos;
     long nm;
@@ -1032,15 +1032,15 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // to ensure the user interface is updated...
 
     DEFINE_FUNCTION("UnloadJob",0)
-    bool success = UnloadJob( true );
+    bool const success = UnloadJob( true );
     RETURN( success )
 
     DEFINE_FUNCTION("UpdateJob",0)
-    bool success = UpdateJob();
+    bool const success = UpdateJob();
     RETURN(success)
 
     DEFINE_FUNCTION("LoadJob",1)
-    bool success = LoadJob(STRPRM(0));
+    bool const success = LoadJob(STRPRM(0));
     RETURN( success )
 
     DEFINE_FUNCTION("Log",1)

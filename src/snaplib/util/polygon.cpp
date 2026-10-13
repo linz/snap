@@ -33,7 +33,7 @@ class wktRing
 
 bool wktRing::isValid()
 {
-    int npt=points.size();
+    int const npt=points.size();
     if( npt < 3 ) { return false;
 }
     if( points[0].lon != points[npt-1].lon || points[0].lat != points[npt-1].lat ) { return false;
@@ -57,7 +57,7 @@ void wktRing::addPoint( double lon, double lat )
 
 bool wktRing::contains( double lon, double lat )
 {
-    int npt=points.size();
+    int const npt=points.size();
     if( npt < 3 ) { return false;
 }
     if( islatlon )
@@ -76,15 +76,15 @@ bool wktRing::contains( double lon, double lat )
     double lat1=points[0].lat-lat;
     for( int i=1; i<npt; i++ )
     {
-        double lon0=lon1;
-        double lat0=lat1;
+        double const lon0=lon1;
+        double const lat0=lat1;
         lon1=points[i].lon-lon;
         lat1=points[i].lat-lat;
         if( lat0 >= 0.0 && lat1 >= 0.0 ) { continue;
 }
         if( lat0 < 0.0 && lat1 < 0.0 ) { continue;
 }
-        double lonc=(lat1*lon0-lat0*lon1)/(lat1-lat0);
+        double const lonc=(lat1*lon0-lat0*lon1)/(lat1-lat0);
         if( lonc < 0.0 ) { inside = ! inside;
 }
     }
@@ -109,7 +109,7 @@ wktPolygon::wktPolygon( bool islatlon ) : islatlon(islatlon)
 
 wktPolygon::~wktPolygon()
 {
-    int nrings=rings.size();
+    int const nrings=rings.size();
     for( int i=0; i<nrings; i++ )
     {
         delete rings[i];
@@ -120,7 +120,7 @@ wktPolygon::~wktPolygon()
 bool wktPolygon::contains( double lon, double lat )
 {
     bool inside=false;
-    int nrings=rings.size();
+    int const nrings=rings.size();
     for( int i=0; i<nrings; i++ )
     {
         if( rings[i]->contains(lon,lat)) { inside=!inside;

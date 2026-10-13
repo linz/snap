@@ -49,17 +49,17 @@ bool SnapplotMapPrinter::OnPrintPage(int WXUNUSED(page) )
     // This seems consistent, though also seems illogical.  Gives something a
     // little bigger than 12 point though..
 
-    int titleFontSize = (int) ((dc->GetPPI().GetWidth()*12)/72);
+    int const titleFontSize = (int) ((dc->GetPPI().GetWidth()*12)/72);
     wxFont titleFont( *wxSWISS_FONT );
     titleFont.SetPointSize( titleFontSize );
     dc->SetFont( titleFont );
 
-    wxRect plotRect = sourceScale->GetWindowExtents();
+    wxRect const plotRect = sourceScale->GetWindowExtents();
 
     dc->GetTextExtent( job_title, &w, &h );
     dc->DrawText( job_title, (printRect.GetWidth() - w)/2, 0 );
 
-    int topMargin = dc->GetCharHeight() * 2;
+    int const topMargin = dc->GetCharHeight() * 2;
     printRect.SetHeight( printRect.GetHeight() - topMargin );
     printRect.SetTop( printRect.GetTop() + topMargin );
 
@@ -70,14 +70,14 @@ bool SnapplotMapPrinter::OnPrintPage(int WXUNUSED(page) )
     if( scale2 < scale )
     {
         scale2 /= scale;
-        int width = (int) (printRect.GetWidth() * scale2 );
+        int const width = (int) (printRect.GetWidth() * scale2 );
         printRect.SetLeft( printRect.GetLeft() + (printRect.GetWidth()-width)/2 );
         printRect.SetWidth( width );
     }
     else
     {
         scale /= scale2;
-        int height = (int) (printRect.GetHeight() * scale );
+        int const height = (int) (printRect.GetHeight() * scale );
         printRect.SetHeight( height );
     }
 

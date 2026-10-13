@@ -151,7 +151,7 @@ static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd
 static void describe_grid_vdatum_func( vdatum_func *hrf, output_string_def *os )
 {
     grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) hrf->data;
-    int sts=load_grid_vdatum_func( hrf, ghrfd );
+    int const sts=load_grid_vdatum_func( hrf, ghrfd );
     if( sts == OK )
     {
         for( int i=1; i < 4; i++ )

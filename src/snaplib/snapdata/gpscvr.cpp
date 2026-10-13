@@ -115,7 +115,7 @@ static void set_midpoint_rmat( survdata *sd, double rmat[3][3] )
 }
     for( int iobs=0; iobs < sd->nobs; iobs++ )
     {
-        int to=sd->obs.vdata[iobs].tgt.to;
+        int const to=sd->obs.vdata[iobs].tgt.to;
         if( to) {(*vertfunc)( to, tmp ); vecadd(vecu,tmp,vecu); }
     }
     rmat_from_vertical( rmat );
@@ -358,7 +358,7 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
         {
             if( jobs == iobs ) { continue;
 }
-            int jobs3 = jobs*3;
+            int const jobs3 = jobs*3;
 
             Lij(cvr, iobs3,  jobs3  ) += tcvr[0]/2;
             Lij(cvr, iobs3,  jobs3+1) += tcvr[1]/2;
@@ -786,7 +786,7 @@ double vector_standardised_residual( double vec[3], ltmat cvr, int *rank )
     int i;
     int j;
     int k;
-    static double small = 1.0e-10;
+    static double const small = 1.0e-10;
 
     /* Cholesky decomposition */
 
@@ -946,8 +946,8 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
 
             if( to != VD_REF_STN ) { for( pc = pcvr, ic = 0; ic < 3; ic++ )
                 {
-                    int i3c = i3 + ic;
-                    int j3c = j3 + ic;
+                    int const i3c = i3 + ic;
+                    int const j3c = j3 + ic;
                     for( jc = 0; jc <= ic; jc++, pc++ )
                     {
                         *pc -= Lij(source, i3c, j3+jc) + Lij( source, j3c, i3+jc );
@@ -1057,9 +1057,9 @@ void gps_covar_apply_obs_error_factor( survdata *sd, int iobs, double factor )
 {
     vecdata *vd=sd->obs.vdata+iobs;
     trgtdata *tgt=&(vd->tgt);
-    int ncvr=sd->nobs*3;
-    int i3=iobs*3;
-    double factor2=factor*factor;
+    int const ncvr=sd->nobs*3;
+    int const i3=iobs*3;
+    double const factor2=factor*factor;
     if( ! sd->cvr ) { return;
 }
     for( int row=0; row<i3; row++ )
@@ -1083,7 +1083,7 @@ void gps_covar_apply_obs_error_factor( survdata *sd, int iobs, double factor )
 void gps_covar_apply_obs_offset_error( survdata *sd, int iobs, double varhor, double varvrt )
 {
     double xform[3][3];
-    int iobs3 = iobs*3;
+    int const iobs3 = iobs*3;
     double ocvr[6];
     vecdata *vd=sd->obs.vdata+iobs;
     ltmat cvr=sd->cvr;
@@ -1107,8 +1107,8 @@ void gps_covar_apply_obs_offset_error( survdata *sd, int iobs, double varhor, do
 
 void gps_covar_apply_set_error_factor( survdata *sd, double factor )
 {
-    int i3=sd->nobs*3;
-    double factor2=factor*factor;
+    int const i3=sd->nobs*3;
+    double const factor2=factor*factor;
     int i;
     vecdata *vd;
     ltmat cvr=sd->cvr;
@@ -1142,10 +1142,10 @@ void gps_covar_apply_centroid_error( survdata *sd, double varhor, double varvrt 
     transform_cvr( xform, ocvr );
     for( int jobs=0; jobs < sd->nobs; jobs++ )
     {
-        int jobs3=jobs*3;
+        int const jobs3=jobs*3;
         for( int iobs=0; iobs<jobs; iobs++ )
         {
-            int iobs3=iobs*3;
+            int const iobs3=iobs*3;
             Lij( cvr, iobs3  , jobs3   ) += ocvr[0];
             Lij( cvr, iobs3  , jobs3+1 ) += ocvr[1];
             Lij( cvr, iobs3  , jobs3+2 ) += ocvr[3];
@@ -1182,10 +1182,10 @@ void gps_covar_apply_basestation_offset_error( survdata *sd, double varhor, doub
     transform_cvr( xform, ocvr );
     for( int jobs=0; jobs < sd->nobs; jobs++ )
     {
-        int jobs3=jobs*3;
+        int const jobs3=jobs*3;
         for( int iobs=0; iobs<jobs; iobs++ )
         {
-            int iobs3=iobs*3;
+            int const iobs3=iobs*3;
             Lij( cvr, iobs3  , jobs3   ) += ocvr[0];
             Lij( cvr, iobs3  , jobs3+1 ) += ocvr[1];
             Lij( cvr, iobs3  , jobs3+2 ) += ocvr[3];

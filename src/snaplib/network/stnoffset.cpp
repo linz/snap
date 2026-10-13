@@ -215,7 +215,7 @@ void calc_station_offset( station *st, double date, vector3 denu )
         }
         else if( comp.mode==STN_TS_VELOCITY )
         {
-            double factor=(date-tsp->date)/DAYS_PER_YEAR;
+            double const factor=(date-tsp->date)/DAYS_PER_YEAR;
             veccopy( tsp->denu, cenu );
             scalevec( cenu, factor );
         }
@@ -268,7 +268,7 @@ void print_station_offset( FILE *lst, station *st )
         stn_tspoint *tsp=&(comp.basepoint);
         for( int i = -1; i < numeric_cast<int>( comp.tspoints.size() ); i++ )
         {
-            int ndp=comp.mode==STN_TS_VELOCITY ? 6 : 4;
+            int const ndp=comp.mode==STN_TS_VELOCITY ? 6 : 4;
             char datestr[20]={0};
             if( i >= 0 ) { tsp=&comp.tspoints[i];
 }

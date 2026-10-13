@@ -148,7 +148,7 @@ SnapplotFrame::SnapplotFrame()
 
     // Set the size to the maximum available on the display
 
-    wxRect windowRect = wxGetClientDisplayRect();
+    wxRect const windowRect = wxGetClientDisplayRect();
     SetPosition( windowRect.GetPosition() );
     SetSize( windowRect.GetSize() );
 
@@ -260,7 +260,7 @@ void SnapplotFrame::CreateMainWindows()
     keyWindow = new wxLayerKey( infoDivider, -1 );
     mapInfoWindow = new wxStaticText( infoDivider, -1, "",wxDefaultPosition, wxDefaultSize, wxST_NO_AUTORESIZE );
 
-    int mapHeight = GetClientSize().GetHeight()/5;
+    int const mapHeight = GetClientSize().GetHeight()/5;
     textDivider->SetMinimumPaneSize( 50 );
     textDivider->SetSashGravity(0.8);
     textDivider->SplitHorizontally( keyDivider, dataView, -mapHeight );
@@ -506,10 +506,10 @@ void SnapplotFrame::CreateMenu()
         // Fixed, deterministic position rather than mouse-based: top at the
         // frame's client area (starts right below the menu bar), left
         // horizontally centred over the map window.
-        wxPoint clientTopLeft = ClientToScreen( wxPoint( 0, 0 ) );
-        wxRect frameRect = GetScreenRect();
-        wxRect mapRect = mapWindow->GetScreenRect();
-        wxSize popupSize = sizer->GetMinSize();
+        wxPoint const clientTopLeft = ClientToScreen( wxPoint( 0, 0 ) );
+        wxRect const frameRect = GetScreenRect();
+        wxRect const mapRect = mapWindow->GetScreenRect();
+        wxSize const popupSize = sizer->GetMinSize();
         int x = mapRect.GetLeft() + ( mapRect.GetWidth() - popupSize.GetWidth() ) / 2;
         if( x > frameRect.GetRight() - popupSize.GetWidth() ) { x = frameRect.GetRight() - popupSize.GetWidth();
 }
@@ -578,7 +578,7 @@ void SnapplotFrame::AddStationColourOptions()
     int nitems = 0;
     for( int i = 0; i++ < net->classification_count(); )
     {
-        wxString menuText = wxString::Format("&%d %.40s",i,net->class_name(i).c_str() );
+        wxString const menuText = wxString::Format("&%d %.40s",i,net->class_name(i).c_str() );
         stationColourMenu->Append( nextCommandId,
                                    menuText,
                                    wxString::Format("Colour stations according to %s",
@@ -614,7 +614,7 @@ void SnapplotFrame::AddColourByClassifications()
         classifyCommandFirst = nextCommandId;
         for( int i = 0; i++ < obs_classes.count(); )
         {
-            wxString menuText = wxString::Format("&%d %.40s",i,obs_classes.name(i).c_str() );
+            wxString const menuText = wxString::Format("&%d %.40s",i,obs_classes.name(i).c_str() );
             dataColourMenu->AppendCheckItem( nextCommandId,
                                     menuText,
                                     wxString::Format("Colour observations according to %s classification",
@@ -647,7 +647,7 @@ void SnapplotFrame::AddConfigMenuItems()
         for( int i = 0; i < config_menu_item_count(); i++ )
         {
             const std::string_view menuTextView = config_menu_text(i);
-            wxString menuText = wxString::Format("&%d %.40s",i+1,menuTextView.data() );
+            wxString const menuText = wxString::Format("&%d %.40s",i+1,menuTextView.data() );
             configMenu->Append( nextCommandId,
                                 menuText,
                                 wxString::Format("Load configuration file for %s",
@@ -730,7 +730,7 @@ void SnapplotFrame::OnCmdRestoreConfig( wxCommandEvent & WXUNUSED(event) )
     wxString cmdDir;
     if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
-    wxString configFile = wxFileSelector(
+    wxString const configFile = wxFileSelector(
                               "Select configuration file to restore",
                               cmdDir,
                               "*" SNAPPLOT_CONFIG_EXT,
@@ -764,8 +764,8 @@ void SnapplotFrame::OnCmdExportImage( wxCommandEvent & WXUNUSED(event) )
     if( dlgFile.ShowModal() != wxID_OK ) { return;
 }
 
-    wxBitmap mapImage = mapWindow->CreateImage();
-    wxImage img = mapImage.ConvertToImage();
+    wxBitmap const mapImage = mapWindow->CreateImage();
+    wxImage const img = mapImage.ConvertToImage();
 
     wxBitmapType type;
 
@@ -780,7 +780,7 @@ void SnapplotFrame::OnCmdExportImage( wxCommandEvent & WXUNUSED(event) )
         break;
     }
 
-    bool ok = img.SaveFile( dlgFile.GetPath(), type );
+    bool const ok = img.SaveFile( dlgFile.GetPath(), type );
 
     if( ! ok )
     {
@@ -830,7 +830,7 @@ void SnapplotFrame::OnCmdPrintMap( wxCommandEvent & WXUNUSED(event) )
 {
     SnapplotMapPrinter printout( GetLabel(), mapWindow->GetMap(), &(mapWindow->GetScale()), mapWindow->GetSymbology() );
 
-    wxString cwd = wxGetCwd();
+    wxString const cwd = wxGetCwd();
 
     wxPrintDialogData printDialogData( *printData);
     wxPrinter printer(& printDialogData);
@@ -857,7 +857,7 @@ void SnapplotFrame::OnCmdCopyMap( wxCommandEvent & WXUNUSED(event) )
 {
     if( wxTheClipboard->Open())
     {
-        wxBitmap mapImage = mapWindow->CreateImage();
+        wxBitmap const mapImage = mapWindow->CreateImage();
         wxTheClipboard->SetData(new wxBitmapDataObject( mapImage ) );
         wxTheClipboard->Close();
     }
@@ -867,7 +867,7 @@ void SnapplotFrame::OnCmdCopyDetails( wxCommandEvent & WXUNUSED(event) )
 {
     if( wxTheClipboard->Open())
     {
-        wxString text = detailsWindow->ToText();
+        wxString const text = detailsWindow->ToText();
         wxTheClipboard->SetData( new wxTextDataObject( text ) );
         wxTheClipboard->Close();
     }
@@ -877,7 +877,7 @@ void SnapplotFrame::OnCmdCopyStations( wxCommandEvent & WXUNUSED(event) )
 {
     if( wxTheClipboard->Open())
     {
-        wxString text = stationListWindow->GetText();
+        wxString const text = stationListWindow->GetText();
         wxTheClipboard->SetData( new wxTextDataObject( text ) );
         wxTheClipboard->Close();
     }
@@ -887,7 +887,7 @@ void SnapplotFrame::OnCmdCopyObsList( wxCommandEvent & WXUNUSED(event) )
 {
     if( wxTheClipboard->Open())
     {
-        wxString text = obsListWindow->GetText();
+        wxString const text = obsListWindow->GetText();
         wxTheClipboard->SetData( new wxTextDataObject( text ) );
         wxTheClipboard->Close();
     }
@@ -929,8 +929,8 @@ void SnapplotFrame::OnCmdViewDetails( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdViewAddColour( wxCommandEvent & WXUNUSED(event) )
 {
-    wxColour none;
-    wxColour colour = wxGetColourFromUser( this, none, "New palette colour");
+    wxColour const none;
+    wxColour const colour = wxGetColourFromUser( this, none, "New palette colour");
     if( colour.IsOk() )
     {
         Symbology *symbology = GetSnapplotSymbology();
@@ -942,7 +942,7 @@ void SnapplotFrame::OnCmdViewMapFont( wxCommandEvent & WXUNUSED(event) )
 {
     wxFont stationFont;
     stationFont.SetNativeFontInfoUserDesc( get_station_font() );
-    wxFont newFont = wxGetFontFromUser( this, stationFont, "New map font style");
+    wxFont const newFont = wxGetFontFromUser( this, stationFont, "New map font style");
     if( newFont.IsOk() )
     {
         set_station_font( newFont.GetNativeFontInfoUserDesc().ToStdString() );
@@ -975,7 +975,7 @@ void SnapplotFrame::OnCmdDataListOptions( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdColourBy( wxCommandEvent &event )
 {
-    int id = event.GetId();
+    int const id = event.GetId();
 
     if( id >= classifyCommandFirst && id <= classifyCommandLast )
     {
@@ -1054,7 +1054,7 @@ void SnapplotFrame::OnCmdStationColourResetAllOff( wxCommandEvent & WXUNUSED(eve
 
 void SnapplotFrame::OnCmdStationColourBy( wxCommandEvent &event )
 {
-    int id = event.GetId();
+    int const id = event.GetId();
 
     if( id >= stationColourCommandFirst && id <= stationColourCommandLast )
     {
@@ -1098,7 +1098,7 @@ void SnapplotFrame::OnCmdStationIgnoreOffsets( wxCommandEvent & WXUNUSED(event) 
 
 void SnapplotFrame::OnCmdStationFindStation( wxCommandEvent & WXUNUSED(event) )
 {
-    int stationId = GetFindStationId( help, zoomOnFind );
+    int const stationId = GetFindStationId( help, zoomOnFind );
     if( stationId > 0 )
     {
         wxSnapplotEvent spevent( wxEVT_SET_DETAILVIEW, GetId() );
@@ -1119,7 +1119,7 @@ void SnapplotFrame::OnCmdStationFindStation( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdReadConfig( wxCommandEvent &event )
 {
-    int id = event.GetId();
+    int const id = event.GetId();
     if( id >= configMenuCommandFirst && id <= configMenuCommandLast )
     {
         ReadConfiguration( std::string( config_menu_filename( id - configMenuCommandFirst ) ) );
@@ -1222,7 +1222,7 @@ void SnapplotFrame::OnShowDetails( wxSnapplotEvent &event )
 
 void SnapplotFrame::OnZoomMapview( wxSnapplotEvent &event )
 {
-    PutTextInfo info = event.GetInfo();
+    PutTextInfo const info = event.GetInfo();
     switch( info.type )
     {
     case ptfStation:
@@ -1237,7 +1237,7 @@ void SnapplotFrame::OnZoomMapview( wxSnapplotEvent &event )
 
 void SnapplotFrame::OnLocateMapview( wxSnapplotEvent &event )
 {
-    PutTextInfo info = event.GetInfo();
+    PutTextInfo const info = event.GetInfo();
     switch( info.type )
     {
     case ptfStation:

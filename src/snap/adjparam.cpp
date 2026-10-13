@@ -184,11 +184,11 @@ void print_adjusted_parameters( FILE *out )
         for( np = 0; np++ < nparam;  )
         {
             const std::string &name=get_obs_param_name(np);
-            double value=get_obs_param_value(np);
+            double const value=get_obs_param_value(np);
             fprintf(out,"%-30.30s   %11.5lf  ",name.c_str(),value);
             if( get_obs_param_rowno(np,nullptr) ) 
             {
-                double covar=sqrt(get_obs_param_covar(np))*semult;
+                double const covar=sqrt(get_obs_param_covar(np))*semult;
                 fprintf(out,"%11.5lf\n",covar);
             }
             else

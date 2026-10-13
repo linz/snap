@@ -356,7 +356,7 @@ void add_relative_covariance( int from, int to, double cvr[] )
 {
     conn_cvr covar;
     conn_ptr *ptr;
-    if( from < to ) { int tmp = from; from = to; to = tmp; }
+    if( from < to ) { int const tmp = from; from = to; to = tmp; }
 
     calc_error_ellipse( cvr, &covar.emax, &covar.emin,
                         &covar.az );
@@ -1015,8 +1015,8 @@ static void plot_connection( map_plotter *plotter, int from, int to, int pen, un
         return;
     }
     
-            double xm = (x1+x2)/2;
-        double ym = (y1+y2)/2;
+            double const xm = (x1+x2)/2;
+        double const ym = (y1+y2)/2;
         if( flags & CONN_REVERSE )
         {
             double tmp = x1; x1 = x2; x2 = tmp;
@@ -1445,11 +1445,11 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
             if( pltrelhgt && cvr.sehgt > 0.0 )
             {
 
-                double he = cvr.sehgt  * hgterr_factor * rel_hgterr_scale;
+                double const he = cvr.sehgt  * hgterr_factor * rel_hgterr_scale;
 
                 if( he > 0 )
                 {
-                    double s1 = stn_symbol_size/2;
+                    double const s1 = stn_symbol_size/2;
                     LINE(plotter, mide-s1, midn+he, hgtpen);
                     LINE(plotter, mide+s1, midn+he, CONTINUE_LINE );
                     LINE(plotter, mide, midn+he, hgtpen);
@@ -1628,7 +1628,7 @@ static void set_display_field_widths( void )
     int i;
     for( i = 0; i < nDisplayFields; i++ )
     {
-        int fldCode = displayFields[i];
+        int const fldCode = displayFields[i];
         int width = 0;
         if( fldCode == SRF_FROM || fldCode == SRF_TO )
         {
@@ -1639,7 +1639,7 @@ static void set_display_field_widths( void )
             int j;
             for( j = 0; j < survey_data_file_count(); j++ )
             {
-                std::string filnam = survey_data_file_name(j);
+                std::string const filnam = survey_data_file_name(j);
                 int dfw;
                 dfw = filnam.size();
                 if( dfw > width ) { width = dfw;
@@ -1654,8 +1654,8 @@ static void set_display_field_widths( void )
             width = 7;  /* Default string for "Default" is 7 chrs */
             for( j = 0; j < obs_classes.value_count(fldCode); j++ )
             {
-                std::string valnam = obs_classes.value_name( fldCode, j );
-                int dfw = numeric_cast<int>(valnam.size());
+                std::string const valnam = obs_classes.value_name( fldCode, j );
+                int const dfw = numeric_cast<int>(valnam.size());
                 if( dfw > width ) { width = dfw;
 }
             }
@@ -1723,12 +1723,12 @@ int SresDef::compare( const SresDef &other ) const
 {
     if( std::holds_alternative<double>(cmpval) )
     {
-        double diff = std::get<double>(cmpval) - std::get<double>(other.cmpval);
+        double const diff = std::get<double>(cmpval) - std::get<double>(other.cmpval);
         return diff < 0.0 ? -1 : diff > 0.0 ? 1 : 0;
     }
     if( std::holds_alternative<long>(cmpval) )
     {
-        long diff = std::get<long>(cmpval) - std::get<long>(other.cmpval);
+        long const diff = std::get<long>(cmpval) - std::get<long>(other.cmpval);
         return diff < 0 ? -1 : diff > 0 ? 1 : 0;
     }
     return stncodecmp( std::get<std::string>(cmpval), std::get<std::string>(other.cmpval) );
@@ -1736,11 +1736,11 @@ int SresDef::compare( const SresDef &other ) const
 
 int SresDef::compare_from( const SresDef &other ) const
 {
-    int cmp = compare( other );
+    int const cmp = compare( other );
     if( cmp != 0 ) { return cmp;
 }
-    int to1 = connlst[from].to[to_id].to;
-    int to2 = connlst[other.from].to[other.to_id].to;
+    int const to1 = connlst[from].to[to_id].to;
+    int const to2 = connlst[other.from].to[other.to_id].to;
     if( to1 == to2 ) { return 0;
 }
     if( to1 == 0 || to2 == 0 ) { return to1 - to2;
@@ -1752,8 +1752,8 @@ int SresDef::compare_line( const SresDef &other ) const
 {
     std::string_view f1 = std::get<std::string>(cmpval);
     std::string_view f2 = std::get<std::string>(other.cmpval);
-    int to1 = connlst[from].to[to_id].to;
-    int to2 = connlst[other.from].to[other.to_id].to;
+    int const to1 = connlst[from].to[to_id].to;
+    int const to2 = connlst[other.from].to[other.to_id].to;
     std::string_view t1 = to1 ? std::string_view( stnptr(to1)->Code ) : std::string_view();
     std::string_view t2 = to2 ? std::string_view( stnptr(to2)->Code ) : std::string_view();
 
@@ -1770,8 +1770,8 @@ int SresDef::compare_line( const SresDef &other ) const
 
 static int cmp_srdef_generic( const void *p1, const void *p2 )
 {
-    long i1 = * (long *) p1;
-    long i2 = * (long *) p2;
+    long const i1 = * (long *) p1;
+    long const i2 = * (long *) p2;
     int cmp = srList[i1].compare(srList[i2]);
     if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
 }
@@ -1780,8 +1780,8 @@ static int cmp_srdef_generic( const void *p1, const void *p2 )
 
 static int cmp_srdef_reversefloat( const void *p1, const void *p2 )
 {
-    long i1 = * (long *) p1;
-    long i2 = * (long *) p2;
+    long const i1 = * (long *) p1;
+    long const i2 = * (long *) p2;
     int cmp = -srList[i1].compare(srList[i2]);
     if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
 }
@@ -1794,8 +1794,8 @@ static int cmp_srdef_reversefloat( const void *p1, const void *p2 )
 
 static int cmp_srdef_from( const void *p1, const void *p2 )
 {
-    long i1 = * (long *) p1;
-    long i2 = * (long *) p2;
+    long const i1 = * (long *) p1;
+    long const i2 = * (long *) p2;
     int cmp = srList[i1].compare_from(srList[i2]);
     if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
 }
@@ -1806,8 +1806,8 @@ static int cmp_srdef_from( const void *p1, const void *p2 )
 
 static int cmp_srdef_line( const void *p1, const void *p2 )
 {
-    long i1 = * (long *) p1;
-    long i2 = * (long *) p2;
+    long const i1 = * (long *) p1;
+    long const i2 = * (long *) p2;
     int cmp = srList[i1].compare_line(srList[i2]);
     if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2];
 }
@@ -1818,8 +1818,8 @@ static int cmp_srdef_line( const void *p1, const void *p2 )
 
 static int cmp_srdef_fileloc( const void *p1, const void *p2 )
 {
-    long i1 = * (long *) p1;
-    long i2 = * (long *) p2;
+    long const i1 = * (long *) p1;
+    long const i2 = * (long *) p2;
     int cmp;
 
     get_connection_data_by_id( srList[i1].from, srList[i1].to_id, srList[i1].obs_id, connection );
@@ -1881,7 +1881,7 @@ static void create_sres_index( void )
 static void SetupSresIndex( void )
 {
     long idata;
-    int oldIndexCount = srIndexCount;
+    int const oldIndexCount = srIndexCount;
     int (*cmp_func)( const void *p1, const void *p2 );
 
     if( indexValid ) { return;
@@ -1981,7 +1981,7 @@ void SresDef::set_sort_key( int order )
     case SRF_LENGTH:
         {
             double value = 0.0;
-            int to = connlst[from].to[to_id].to;
+            int const to = connlst[from].to[to_id].to;
             if( to )
             {
                 station *sfrom = stnptr(from);
@@ -2021,7 +2021,7 @@ static void reverse_index()
     long i1;
     for( i0 = 0, i1=srIndexCount-1; i0 < i1; i0++, i1-- )
     {
-        long tmp = srIndex[i0];
+        long const tmp = srIndex[i0];
         srIndex[i0] = srIndex[i1];
         srIndex[i1] = tmp;
     }
@@ -2253,8 +2253,8 @@ static double calc_nearest_point( double x1, double y1, double x2, double y2, do
 {
     double dx = x2 - x1;
     double dy = y2 - y1;
-    double tx = x - x1;
-    double ty = y - y1;
+    double const tx = x - x1;
+    double const ty = y - y1;
     double ds2;
     double ts2;
     double dts;
@@ -2282,7 +2282,7 @@ static long xyindex_used = -1;
 
 int nearest_connection( double e, double n, double tol, int *from, int *to )
 {
-    double end_e = e + tol;
+    double const end_e = e + tol;
     int ixfrom;
     int ixlast;
     int i;
@@ -2484,8 +2484,8 @@ void list_connections( void *dest, PutTextFunc f, int from )
                 get_connection_data( from, tp, connection, first_conn);
                 first_conn = 0 )
         {
-            int obstype = connection->type;
-            int reverse = connection->flags & CONN_OBS_REVERSE ? 1 : 0;
+            int const obstype = connection->type;
+            int const reverse = connection->flags & CONN_OBS_REVERSE ? 1 : 0;
             count[obstype][reverse]++;
         }
         if( first_conn ) { continue;  /* No connections - covariance only */
@@ -2505,7 +2505,7 @@ void list_connections( void *dest, PutTextFunc f, int from )
             }
             else
             {
-                int total = count[i][0] + count[i][1];
+                int const total = count[i][0] + count[i][1];
                 if( total )
                 {
                     line += " " + std::string( datatype[i].code ) + "(" + std::to_string( total ) + ")";

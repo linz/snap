@@ -163,7 +163,7 @@ void ScriptDialog::AddControls()
             long number;
             if( ! info.IsEmpty() )
             {
-                wxString numbers("0123456789");
+                wxString const numbers("0123456789");
                 wxString delim('~');
                 for( size_t i = 0; i < info.Len(); i++ )
                 {
@@ -186,9 +186,9 @@ void ScriptDialog::AddControls()
 
         case ctListBox:
         {
-            wxRegEx extended("\\yextended\\y",wxRE_ADVANCED | wxRE_ICASE);
-            wxRegEx multiple("\\ymultiple\\y",wxRE_ADVANCED | wxRE_ICASE);
-            wxRegEx size("\\y(\\d+)x(\\d+)\\y",wxRE_ADVANCED | wxRE_ICASE);
+            wxRegEx const extended("\\yextended\\y",wxRE_ADVANCED | wxRE_ICASE);
+            wxRegEx const multiple("\\ymultiple\\y",wxRE_ADVANCED | wxRE_ICASE);
+            wxRegEx const size("\\y(\\d+)x(\\d+)\\y",wxRE_ADVANCED | wxRE_ICASE);
             int type = wxLB_SINGLE;
             long width = -1;
             long height = -1;
@@ -265,10 +265,10 @@ void ScriptDialog::AddControls()
 
 void ScriptDialog::HandleButton( wxEvent &event )
 {
-    int id = event.GetId();
+    int const id = event.GetId();
     for( int i = 0; i < nControls; i++ )
     {
-        ScriptDialogControl &control = controls[i];
+        ScriptDialogControl  const&control = controls[i];
         DialogControlToken &ctk = *(control.token);
         if( ctk.Type() == ctButton && control.intVal == id )
         {
@@ -308,12 +308,12 @@ bool ScriptDialog::RunDialogProgram( Token *program, bool isValidation )
     TransferDataFromWindow();
     Apply();
 
-    Value v = program->GetValue();
-    bool result = v.AsBool();
+    Value const v = program->GetValue();
+    bool const result = v.AsBool();
 
     if( ! isValidation )
     {
-        ExitLevel el = program->Owner()->GetExitLevel();
+        ExitLevel const el = program->Owner()->GetExitLevel();
         if( el == elExit || el == elReturn ) { EndModal( result ? wxID_OK : wxID_CANCEL );
 }
     }
@@ -363,7 +363,7 @@ void ScriptDialog::ReadData()
         {
             if( ctk.Selector() )
             {
-                wxString selector = ctk.Selector()->GetValue().AsString();
+                wxString const selector = ctk.Selector()->GetValue().AsString();
                 if( selector != control.selector )
                 {
                     if( ctk.Type() == ctListBox )
@@ -387,7 +387,7 @@ void ScriptDialog::Apply()
 
     for( int i = 0; i < nControls; i++ )
     {
-        ScriptDialogControl &control = controls[i];
+        ScriptDialogControl  const&control = controls[i];
         DialogControlToken &ctk = *(control.token);
 
         switch( ctk.Type() )
@@ -406,7 +406,7 @@ void ScriptDialog::Apply()
         case ctRadioSelector:
         case ctDropDownSelector:
             {
-            wxString selectorValue = GetSelectedValue( control.selector, control.intVal );
+            wxString const selectorValue = GetSelectedValue( control.selector, control.intVal );
             ctk.Variable()->SetOwnerValue( Value(selectorValue) );
             }
             break;
@@ -423,7 +423,7 @@ void ScriptDialog::Apply()
 
 wxString ScriptDialog::GetSelectorString( const wxString& selectorDef )
 {
-    wxString delim = selectorDef.Mid(0,1);
+    wxString const delim = selectorDef.Mid(0,1);
     wxStringTokenizer tok( selectorDef, delim, wxTOKEN_RET_EMPTY_ALL );
     wxString selectorString;
 
@@ -432,7 +432,7 @@ wxString ScriptDialog::GetSelectorString( const wxString& selectorDef )
         tok.GetNextToken();  // Skip initial empty wxString
         while( tok.CountTokens() > 1 )
         {
-            wxString indexValue = tok.GetNextToken();
+            wxString const indexValue = tok.GetNextToken();
             selectorString.Append(delim);
             selectorString.Append( tok.GetNextToken() );
         }
@@ -442,7 +442,7 @@ wxString ScriptDialog::GetSelectorString( const wxString& selectorDef )
 
 int ScriptDialog::GetSelectedIndex( const wxString& selectorDef, const wxString& selected )
 {
-    wxString delim = selectorDef.Mid(0,1);
+    wxString const delim = selectorDef.Mid(0,1);
     int index;
     int result = 0;
     wxStringTokenizer tok( selectorDef, delim, wxTOKEN_RET_EMPTY_ALL );
@@ -459,7 +459,7 @@ int ScriptDialog::GetSelectedIndex( const wxString& selectorDef, const wxString&
 
 wxString ScriptDialog::GetSelectedValue( const wxString& selectorDef, int selected )
 {
-    wxString delim = selectorDef.Mid(0,1);
+    wxString const delim = selectorDef.Mid(0,1);
     wxString value;
     wxStringTokenizer tok( selectorDef, delim, wxTOKEN_RET_EMPTY_ALL );
     if( (int) tok.CountTokens() >= selected )
@@ -503,7 +503,7 @@ Value DialogToken::evaluate()
     }
 
     ScriptDialog dialog( label->GetValue().AsString(), controls, buttons );
-    bool ok = dialog.RunDialog();
+    bool const ok = dialog.RunDialog();
 
     // Initial values may have been altered when running dialog programs
 

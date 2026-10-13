@@ -37,13 +37,13 @@ int merge_network( network *base, network *data, int mergeopts,
     int *classmap=nullptr;
     int nclass=0;
 
-    int overwrite = mergeopts & NW_MERGEOPT_OVERWRITE;
-    int addnew = mergeopts & NW_MERGEOPT_ADDNEW;
-    int addclasses = mergeopts & NW_MERGEOPT_ADDCLASSES;
-    int updateexu = ! overwrite && (mergeopts & NW_MERGEOPT_EXU);
-    int updatecrd = ! overwrite && (mergeopts & (NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU));
-    int updatecls = ! overwrite && (mergeopts & NW_MERGEOPT_CLASSES);
-    int updatestn = updatecrd || updatecls || overwrite;
+    int const overwrite = mergeopts & NW_MERGEOPT_OVERWRITE;
+    int const addnew = mergeopts & NW_MERGEOPT_ADDNEW;
+    int const addclasses = mergeopts & NW_MERGEOPT_ADDCLASSES;
+    int const updateexu = ! overwrite && (mergeopts & NW_MERGEOPT_EXU);
+    int const updatecrd = ! overwrite && (mergeopts & (NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU));
+    int const updatecls = ! overwrite && (mergeopts & NW_MERGEOPT_CLASSES);
+    int const updatestn = updatecrd || updatecls || overwrite;
     int ndata;
     int nbaseclass;
     int nclassnew;
@@ -209,8 +209,8 @@ int merge_network( network *base, network *data, int mergeopts,
             {
                 if( classmap[i] > 0 )
                 {
-                    std::string classval = data->class_value( i, st->get_class(i));
-                    int tgtval = base->class_value_id(classmap[i],classval,1);
+                    std::string const classval = data->class_value( i, st->get_class(i));
+                    int const tgtval = base->class_value_id(classmap[i],classval,1);
                     stnew->set_class( classmap[i],tgtval );
                 }
             }

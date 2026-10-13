@@ -35,7 +35,7 @@ double isometric_from_geodetic( double lat, double e )
 double geodetic_from_isometric( double q, double e )
 {
 
-    static double tol=4.848132e-11;
+    static double const tol=4.848132e-11;
     double lat;
     double zz;
     double diff;

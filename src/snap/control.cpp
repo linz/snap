@@ -485,22 +485,22 @@ static void set_station_mode( station *st, void *modep )
     stn_adjustment *sa;
     station_process_mode *spm = (station_process_mode *)modep;
 
-    int mode = spm->mode;
+    int const mode = spm->mode;
     int fixhor = spm->option & MODE_HOR;
     int fixver = spm->option & MODE_VRT;
-    int fixauto = spm->option & MODE_AUTO ? 1 : 0;
+    int const fixauto = spm->option & MODE_AUTO ? 1 : 0;
 
     if( mode == SPEC_TEST )
     {
-        int istn = find_station(net,st->Code);
+        int const istn = find_station(net,st->Code);
         set_station_spec_testid( istn, spm->option, 1 );
         return;
     }
 
     if( fixauto )
     {
-        int istn = find_station(net,st->Code);
-        int fixflags=station_autofix_constraints( istn );
+        int const istn = find_station(net,st->Code);
+        int const fixflags=station_autofix_constraints( istn );
         if( ! (fixflags & AUTOFIX_HOR ) ) { fixhor=0;
 }
         if( ! (fixflags & AUTOFIX_VRT ) ) { fixver=0;
@@ -714,7 +714,7 @@ static int read_ignore_missing_stations( CFG_FILE *cfg, std::string_view string,
         {
             unsigned char ignoremissing=0;
             first=0;
-            int sts=readcfg_boolean(cfg,*opt,&ignoremissing,1,0);
+            int const sts=readcfg_boolean(cfg,*opt,&ignoremissing,1,0);
             if( sts == OK )
             {
                 set_ignore_missing_stations( ignoremissing );
@@ -1307,7 +1307,7 @@ static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *,
 
         if( ! remaining.empty() )
         {
-            std::string_view afterFirstColon = remaining.substr(1);
+            std::string_view const afterFirstColon = remaining.substr(1);
             const auto nextColon = afterFirstColon.find(':');
             const std::string_view widthField = nextColon==std::string_view::npos ? afterFirstColon : afterFirstColon.substr(0,nextColon);
             remaining = nextColon==std::string_view::npos ? std::string_view() : afterFirstColon.substr(nextColon);
@@ -1501,7 +1501,7 @@ static int read_set_obs_option( CFG_FILE *cfg, std::string_view string, void *, 
 static int read_use_distance_ratios( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     unsigned char set=0;
-    int sts=readcfg_boolean(cfg,string,&set,1,0);
+    int const sts=readcfg_boolean(cfg,string,&set,1,0);
     if( sts == OK )
     {
         void *obsmod=snap_obs_modifications(true);
@@ -2027,7 +2027,7 @@ static int read_configuration_command( CFG_FILE *cfg, std::string_view string ,v
                              cfg_only ? SNAP_CONFIG_SECTION : "" );
         if( resolved )
         {
-            int status = constraint ? read_command_file_constraints( *resolved ) : process_configuration_file( *resolved, cfg_only );
+            int const status = constraint ? read_command_file_constraints( *resolved ) : process_configuration_file( *resolved, cfg_only );
             if( status != OK )
             {
                 sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,firstFile->c_str());

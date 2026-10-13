@@ -662,7 +662,7 @@ static int run_roundtrip( const char *input_path, const char *output_path )
         fail( std::string( "Cannot open " ) + input_path );
     }
 
-    ReloadedState state = reload_almost_everything( in.get() );
+    ReloadedState const state = reload_almost_everything( in.get() );
 
     BinaryFilePtr out( create_binary_file( output_path, BINFILE_SIGNATURE ) );
     if( !out ) {
@@ -705,7 +705,7 @@ static int run_dump( const char *input_path, const char *output_path )
         fail( std::string( "Cannot open " ) + input_path );
     }
 
-    ReloadedState state = reload_almost_everything( in.get() );
+    ReloadedState const state = reload_almost_everything( in.get() );
 
     std::ofstream out( output_path );
     if( !out ) {

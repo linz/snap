@@ -27,7 +27,7 @@ void define_PSProjection( PSProjection *psp, double a, double rf,
     psp->south = south;
     if( rf != 0.0 )
     {
-        double f = 1.0/rf;
+        double const f = 1.0/rf;
         psp->e2 = 2.0*f - f*f;
         psp->e = sqrt( psp->e2 );
     }

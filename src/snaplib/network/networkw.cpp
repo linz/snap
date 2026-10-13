@@ -37,7 +37,7 @@ int write_network( network *nw, const std::string &fname, const std::string_view
     int nclass;
     int ellipsoidal_heights;
     char degrees = 0;
-    char explicit_geoid=nw->options & NW_EXPLICIT_GEOID;
+    char const explicit_geoid=nw->options & NW_EXPLICIT_GEOID;
 
     if( !nw || !nw->stnlist || !nw->crdsys ) { return MISSING_DATA;
 }
@@ -102,7 +102,7 @@ int write_network( network *nw, const std::string &fname, const std::string_view
         int i;
         for( i = 0; i++ < nclass; )
         {
-            std::string name = nw->class_name( i );
+            std::string const name = nw->class_name( i );
             if( nclass==1 && boost::algorithm::iequals(name,STATION_ORDER_CLASS_NAME))
             {
                 fputs(" station_orders",stf);
@@ -155,7 +155,7 @@ int write_network( network *nw, const std::string &fname, const std::string_view
         int i;
         for( i = 0; i++ < nclass; )
         {
-            std::string name = nw->class_name( i );
+            std::string const name = nw->class_name( i );
             fprintf( stf, " %-5s", name.c_str());
         }
     }
@@ -227,8 +227,8 @@ int write_network( network *nw, const std::string &fname, const std::string_view
             int i;
             for( i = 0; i++ < nclass; )
             {
-                int clsid = st->get_class( i );
-                std::string cval = nw->class_value( i, clsid );
+                int const clsid = st->get_class( i );
+                std::string const cval = nw->class_value( i, clsid );
                 fprintf( stf, " %-5s", cval.empty() ? "-" : cval.c_str() );
             }
         }

@@ -49,7 +49,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     /* Check that the vertical datum conversion is possible */
     /* Mainly checking grid file can be opened */
 
-    int sts = coordsys_geoid_exu( cs, llh, nullptr, nullptr );
+    int const sts = coordsys_geoid_exu( cs, llh, nullptr, nullptr );
     if( sts != OK ) { return sts;
 }
 
@@ -68,7 +68,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     }
     /* Add the undulations - ignore individual errors */
 
-    int maxstn = number_of_stations( nw  );
+    int const maxstn = number_of_stations( nw  );
     int ninvalid = 0;
     int ncalc = 0;
     errhandler_type saved_error_handler=set_error_handler(  null_error_handler );
@@ -139,7 +139,7 @@ int set_network_geoid( network *nw, const std::optional<std::string> &geoid, con
         printf("Unable to load geoid model\n");
         return INVALID_DATA;
     }
-    int sts = set_network_geoid_def( nw, gd, fixed_height_type, errlevel );
+    int const sts = set_network_geoid_def( nw, gd, fixed_height_type, errlevel );
     delete_geoid_grid( gd );
     return sts;
 }
@@ -194,7 +194,7 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
 
     /* Add the undulations */
 
-    int maxstn = number_of_stations( nw  );
+    int const maxstn = number_of_stations( nw  );
     int ninvalid = 0;
     int ncalc = 0;
     for( int istn = 0; istn++ < maxstn; )

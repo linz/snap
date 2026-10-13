@@ -54,7 +54,7 @@ void RecordStream::_trimcomment(std::string &str) const
     if (!_comment) {
         return;
 }
-    string::size_type pos = str.find_first_of(_comment);
+    string::size_type const pos = str.find_first_of(_comment);
     if (pos == string::npos) {
         str.erase(pos);
 }
@@ -66,7 +66,7 @@ bool RecordStream::_trimcontinue(std::string &str) const
     if (!_contchar) {
         return false;
 }
-    string::size_type pos = str.size();
+    string::size_type const pos = str.size();
     if (pos > 1 && str[pos - 1] == _contchar && ::isspace(str[pos - 1]))
     {
         str.resize(pos - 1);

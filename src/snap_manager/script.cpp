@@ -147,8 +147,8 @@ VariableList::~VariableList()
 
 void VariableList::Add( const wxString& name, const Value& var )
 {
-    wxString lname = name.Lower();
-    iterator it = find(lname);
+    wxString const lname = name.Lower();
+    iterator const it = find(lname);
     if( it != end() )
     {
         (*it).second = var;
@@ -162,7 +162,7 @@ void VariableList::Add( const wxString& name, const Value& var )
 bool VariableList::Get( const wxString& name, Value &var )
 {
     bool result = false;
-    iterator it = find(name.Lower());
+    iterator const it = find(name.Lower());
     if( it != end() )
     {
         result = true;

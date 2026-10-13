@@ -224,7 +224,7 @@ int read_output_options( CFG_FILE *cfg, std::string_view string, void *, int, in
 
         if( boost::algorithm::iequals( st, "everything") )
         {
-            for( output_option &option : output_set ) { *(option.status) = true;
+            for( output_option  const&option : output_set ) { *(option.status) = true;
 }
             o = nullptr;
             continue;
@@ -330,7 +330,7 @@ int add_requested_covariance_connections()
     relcvr_opt *rco;
     station *stnf;
     station *stnt;
-    int nnode=number_of_stations(net);
+    int const nnode=number_of_stations(net);
     int sts=OK;
 
     if( ! relcvr_opts ) { return sts;
@@ -344,7 +344,7 @@ int add_requested_covariance_connections()
         std::fill( usenode.begin(), usenode.end(), 0 );
         if( ! rco->stnlist.empty() )
         {
-            int errcount=get_error_count();
+            int const errcount=get_error_count();
             process_selected_stations( net, rco->stnlist, command_file->path, (void *)usenode.data(), set_usenode );
             if( get_error_count() > errcount )
             {
@@ -373,7 +373,7 @@ int add_requested_covariance_connections()
                 if( rco->maxlen > 0 )
                 {
                     stnt=station_ptr( net, idt );
-                    double distance=calc_distance(stnf,0.0,stnt,0.0,nullptr,nullptr);
+                    double const distance=calc_distance(stnf,0.0,stnt,0.0,nullptr,nullptr);
                     if( distance > rco->maxlen ) { continue;
 }
                 }

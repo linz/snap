@@ -52,12 +52,12 @@ static void blt_load_col_cache_mt( bltmatrix *blt, double *tmpcol, double *sumco
                                 int *dosum, int iget, int nget, int isave, int nsave )
 {
 
-    int nrow = blt->nrow;
+    int const nrow = blt->nrow;
     int i;
 
     for( i = iget; i < nrow; i++ )
     {
-        int col0 = blt->row[i].col;
+        int const col0 = blt->row[i].col;
         int c0;
         double *row = blt->row[i].address;
         double *r;
@@ -136,8 +136,8 @@ static int blt_chol_inv_mt_rowrange( bltmatrix *blt, const int *dosum,
 
         for( int k = col0; k <= j; k++, row++ )
         {
-            double elem = *row;
-            int c_start = dosum[k] > dosum[j] ? dosum[k] : dosum[j];
+            double const elem = *row;
+            int const c_start = dosum[k] > dosum[j] ? dosum[k] : dosum[j];
             const double *tc_k = tmpcol + k * stride;
             if( k >= j_start )
             {

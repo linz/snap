@@ -54,7 +54,7 @@ void SnapplotStationList::Reload()
 
 void SnapplotStationList::OnLabelLeftClick( wxGridEvent &event )
 {
-    int colid = event.GetCol();
+    int const colid = event.GetCol();
     sort_station_list_col( colid );
     Refresh();
 }
@@ -62,7 +62,7 @@ void SnapplotStationList::OnLabelLeftClick( wxGridEvent &event )
 
 void SnapplotStationList::OnCellLeftClick( wxGridEvent &event )
 {
-    int row = event.GetRow();
+    int const row = event.GetRow();
     SelectRow(row);
 
     if( event.ShiftDown() )
@@ -80,13 +80,13 @@ void SnapplotStationList::OnCellLeftClick( wxGridEvent &event )
 
 void SnapplotStationList::OnCellLeftDClick( wxGridEvent & WXUNUSED(event) )
 {
-    wxCommandEvent evt( wxEVT_COMMAND_MENU_SELECTED, CMD_VIEW_DETAILS );
+    wxCommandEvent const evt( wxEVT_COMMAND_MENU_SELECTED, CMD_VIEW_DETAILS );
     AddPendingEvent( evt );
 }
 
 void SnapplotStationList::OnRowSelected( wxCommandEvent &event )
 {
-    int row = event.GetInt();
+    int const row = event.GetInt();
     PutTextInfo jump;
     station_item_info( row, &jump );
 

@@ -168,7 +168,7 @@ ref_deformation *rfdef_parse_bw14def( input_string_def &is )
 
     if( sts !=  OK && ! bad.empty() )
     {
-        std::string errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
+        std::string const errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
                                                     : "Invalid value for " + std::string(bad);
         report_string_error( is, sts, errmess );
         return nullptr;
@@ -235,7 +235,7 @@ ref_deformation *rfdef_parse_eulerdef( input_string_def &is )
 
     if( sts!=  OK && ! bad.empty() )
     {
-        std::string errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
+        std::string const errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
                                                     : "Invalid value for " + std::string(bad);
         report_string_error( is, sts, errmess );
         return nullptr;

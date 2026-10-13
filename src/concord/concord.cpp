@@ -1255,8 +1255,8 @@ static void setup_transformation( void )
 
     if( input_ortho || output_ortho )
     {
-        int need_ingeoid=input_ortho && ! coordsys_heights_orthometric(input_cs);
-        int need_outgeoid=output_ortho && ! coordsys_heights_orthometric(output_cs);
+        int const need_ingeoid=input_ortho && ! coordsys_heights_orthometric(input_cs);
+        int const need_outgeoid=output_ortho && ! coordsys_heights_orthometric(output_cs);
 
         if( need_ingeoid || need_outgeoid )
         {

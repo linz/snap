@@ -206,7 +206,7 @@ static int get_coef_id( int coeftype, int idname )
     if( idname==coef_class_id[coeftype].idname) { return coef_class_id[coeftype].idcoef;
 }
     const std::string name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
-    int idcoef = ldt_get_id( ID_COEF, coeftype, name );
+    int const idcoef = ldt_get_id( ID_COEF, coeftype, name );
     coef_class_id[coeftype].idcoef = idcoef;
     coef_class_id[coeftype].idname = idname;
     return idcoef;
@@ -215,7 +215,7 @@ static int get_coef_id( int coeftype, int idname )
 static int save_code( std::string_view code )
 {
     const int codelen=numeric_cast<int>( code.size() )+1;
-    int codeid=next_code_id;
+    int const codeid=next_code_id;
     int idoffset;
     recoded_id *newid;
 
@@ -297,8 +297,8 @@ static void reset_saved_code_ids()
 
 static void reset_saved_codes( int lastid )
 {
-    int ndrop=(lastid-saved_id_offset)+1;
-    int nkeep=next_saved_id-lastid;
+    int const ndrop=(lastid-saved_id_offset)+1;
+    int const nkeep=next_saved_id-lastid;
     if( ndrop <= 0 ) { return;
 }
     if( nkeep <= 0 )
@@ -310,8 +310,8 @@ static void reset_saved_codes( int lastid )
     saved_id_offset += ndrop;
 
     {
-        int codeloc=saved_ids.front().codeid;
-        int codeshift=codeloc-code_offset;
+        int const codeloc=saved_ids.front().codeid;
+        int const codeshift=codeloc-code_offset;
         saved_codes.erase( 0, codeshift );
         code_offset+=codeshift;
     }
@@ -461,7 +461,7 @@ static void check_data( void )
         }
         if( obsdatatype->refcoef && od->refcoef == ID_UNDEFINED )
         {
-            int idclass = coef_class_id[COEF_CLASS_REFCOEF].idclass;
+            int const idclass = coef_class_id[COEF_CLASS_REFCOEF].idclass;
             if( idclass )
             {
                 // If refraction coefficient not yet defined then define it (via classification)
@@ -488,13 +488,13 @@ static void check_data( void )
     case SD_VECDATA:
         if( obsdatatype->reffrm )
         {
-            int idclass = coef_class_id[COEF_CLASS_REFFRM].idclass;
+            int const idclass = coef_class_id[COEF_CLASS_REFFRM].idclass;
             if( idclass )
             {
                 // If reference frame not yet defined then define it (via classification)
                 if( data.reffrm == ID_UNDEFINED )
                 {
-                    int id = ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFFRM_NAME);
+                    int const id = ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFFRM_NAME);
                     ldt_classification( idclass, id );
                 }
                 // Else if subsequent vector and not classified then use previous classification
@@ -1105,7 +1105,7 @@ static void remove_ignored_obs()
 
     if( data.format == SD_VECDATA && cvr )
     {
-        int cvrperobs=3;
+        int const cvrperobs=3;
         int ir0;
         int ir1;
         int ir;
@@ -1175,16 +1175,16 @@ static void remove_ignored_obs()
         if( i == nused) { nused++; continue; }
         if( tgt->nclass > 0 )
         {
-            int nc=tgt->nclass;
-            int iclass0=tgt->iclass;
+            int const nc=tgt->nclass;
+            int const iclass0=tgt->iclass;
             memcpy( &(data.clsf[iclass]),&(data.clsf[iclass0]),(sizeof(classdata))*nc);
             tgt->iclass=iclass;
             iclass += nc;
         }
         if( tgt->nsyserr > 0 )
         {
-            int ns=tgt->nsyserr;
-            int isyserr0=tgt->isyserr;
+            int const ns=tgt->nsyserr;
+            int const isyserr0=tgt->isyserr;
             memcpy( &(data.syserr[isyserr]),&(data.syserr[isyserr0]),(sizeof(syserrdata))*ns);
             tgt->isyserr=isyserr;
             isyserr += ns;

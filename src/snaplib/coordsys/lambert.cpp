@@ -76,7 +76,7 @@ void defineLCCProjection( LCCProjection *lp,
     sp1 *= rev;
     sp2 *= rev;
     lt0 *= rev;
-    if( rev < 0 ) { double tmp = sp1; sp1 = sp2; sp2 = tmp; }
+    if( rev < 0 ) { double const tmp = sp1; sp1 = sp2; sp2 = tmp; }
 
     m1 = calc_m( e, sp1);
     m2 = calc_m( e, sp2);

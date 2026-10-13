@@ -333,7 +333,7 @@ void add_network_stations()
 {
     if ( ! net ) { return;
 }
-    int nstns=number_of_stations(net);
+    int const nstns=number_of_stations(net);
     for( int i=0; i++ < nstns; )
     {
         station *s=stnptr(i);
@@ -913,7 +913,7 @@ static void setup_ro_list( void )
 static int get_link_ro( int ro, double *pcorr )
 {
     double corr = 0.0;
-    int start_ro = ro;
+    int const start_ro = ro;
     char  s1 = 0;
     char  s2 = 0;
     if( !ro ) { if( pcorr ) { *pcorr = 0.0; 
@@ -1025,7 +1025,7 @@ static void use_horizontal_fix( stn *from )
     double azdst[5];
     int nro;
     int iro;
-    static int maxro = 5;
+    static int const maxro = 5;
     nro = 0;
     FOR_ALL_CONNECTIONS(from,cn)
     {
@@ -1079,8 +1079,8 @@ static void use_vertical_fix( stn *from )
 }
         if( cn->flag & CN_DS && cn->ds.type == DS_SLP )
         {
-            double hdiff = ds_calc_height_diff( from, cn->to );
-            double ds2 = cn->ds.ds * cn->ds.ds - hdiff * hdiff;
+            double const hdiff = ds_calc_height_diff( from, cn->to );
+            double const ds2 = cn->ds.ds * cn->ds.ds - hdiff * hdiff;
             if( ds2 > 0.0 )
             {
                 cn->ds.ds = sqrt( ds2 );
@@ -1459,7 +1459,7 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
         modify_network_station_coords( net, st->st, lat, lon, hgt );
         for( i = 0; i < 3; i++ )
         {
-            double dx = xyz[i] - st->st->XYZ[i];
+            double const dx = xyz[i] - st->st->XYZ[i];
             offset += dx*dx;
         }
         offset = sqrt(offset);
@@ -2450,7 +2450,7 @@ static int fix_by_traverse( void )
     int new_count;
     int nro;
     int iro;
-    int maxro = 5;
+    int const maxro = 5;
     int ro_id[5];
     double ro_corr[5];
     double ro_wgt[5];
@@ -2641,7 +2641,7 @@ static int fix_by_traverse( void )
 
     xyz[0] = xyz[1] = xyz[2] = 0;
     fixed_stns = 0;
-    for( stn &st : stnlist )
+    for( stn  const&st : stnlist )
     {
         if( st.traverse != -1 ) { continue;
 }
@@ -2674,7 +2674,7 @@ static int fix_by_traverse( void )
     ct[1] /= fixed_stns;
 
     sc = ss = rr = 0.0;
-    for( stn &st : stnlist )
+    for( stn  const&st : stnlist )
     {
         double dxa;
         double dya;
@@ -3225,7 +3225,7 @@ static void load_command_file( const std::string &cmd_file, int recalconly, int 
     auto found = find_file( cmd_file, DFLTCOMMAND_EXT2, std::nullopt, tryopt, "" );
     if( !found ) { found = find_file( cmd_file, DFLTCOMMAND_EXT, std::nullopt, tryopt, "" );
 }
-    std::string f = found.value_or(cmd_file);
+    std::string const f = found.value_or(cmd_file);
 
     cfg = open_config_file( f, COMMENT_CHAR );
     if( ! included ) { set_logname( f );

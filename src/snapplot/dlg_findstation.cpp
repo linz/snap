@@ -37,7 +37,7 @@ FindStationDialog::FindStationDialog( wxHelpController *help )
 
 bool FindStationDialog::Validate()
 {
-    wxString stationCode = stationCtrl->GetValue().Trim().Trim(false);
+    wxString const stationCode = stationCtrl->GetValue().Trim().Trim(false);
     if( stationCode.Len() == 0 )
     {
         wxMessageBox("You must enter a station code","Error",wxOK | wxICON_EXCLAMATION);

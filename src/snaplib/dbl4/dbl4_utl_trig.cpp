@@ -137,7 +137,7 @@ static short find_nearest( hTrigDef trig, double ptx, double pty )
     short im;
 
     const double *xy = trig->ptxy.data();
-    int npts = trig->npts;
+    int const npts = trig->npts;
 
     /* Use bisection to determine the immediately lower node in terms
        of the sorted x coordinates */
@@ -153,8 +153,8 @@ static short find_nearest( hTrigDef trig, double ptx, double pty )
 
     while( i0 < i1-1 )
     {
-        int im = (i0+i1)/2;
-        double xm = xy[im*2];
+        int const im = (i0+i1)/2;
+        double const xm = xy[im*2];
         if( ptx < xm )
         {
             x1 = xm;
@@ -454,7 +454,7 @@ static StatusType calc_triangle_value( hTrigDef trig, double x, double y,
     TriangleDef trd;
     hTriangleDef tr = &trd;
     StatusType sts;
-    short ndim = trig->ndim;
+    short const ndim = trig->ndim;
     short p;
     short i;
     double *xy1;

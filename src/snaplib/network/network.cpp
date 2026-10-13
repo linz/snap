@@ -106,11 +106,11 @@ void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc un
 void set_network_name( network *nw, const std::string &n )
 {
     nw->name = std::nullopt;
-    size_t start = n.find_first_not_of(" \n");
+    size_t const start = n.find_first_not_of(" \n");
     if( start == std::string::npos ) { return;
 }
     std::string name = n.substr(start);
-    size_t nl = name.find('\n');
+    size_t const nl = name.find('\n');
     if( nl != std::string::npos ) { name.resize(nl);
 }
     nw->name = std::move(name);

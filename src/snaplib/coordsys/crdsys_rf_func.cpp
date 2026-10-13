@@ -23,7 +23,7 @@
 
 int xyz_to_std( ref_frame *rf, double xyz[3], double date )
 {
-    int axis[] = { 1, 2, 0, 1 };
+    int const axis[] = { 1, 2, 0, 1 };
     int i;
     double x;
     double y;
@@ -59,7 +59,7 @@ int xyz_to_std( ref_frame *rf, double xyz[3], double date )
 
 int std_to_xyz( ref_frame *rf, double xyz[3], double date )
 {
-    int axis[] = { 1, 2, 0, 1 };
+    int const axis[] = { 1, 2, 0, 1 };
     int i;
     double x;
     double y;
@@ -115,8 +115,8 @@ int apply_ref_deformation_llh( ref_frame *rf, double llh[3], double epochfrom, d
             int sts;
         double denu[3] = {0,0,0};
         double denu1[3] = {0,0,0};
-        double lat = llh[CRD_LAT];
-        double lon = llh[CRD_LON];
+        double const lat = llh[CRD_LAT];
+        double const lon = llh[CRD_LON];
         sts = OK;
         if( epochfrom != 0 ) { sts = (*(rf->def->calc_denu))(rf, lon, lat, epochfrom, denu1 );
 }

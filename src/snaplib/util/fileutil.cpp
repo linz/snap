@@ -105,7 +105,7 @@ int  file_size(const std::string &path)
    literally, since there's nothing lexically valid to collapse it against. */
 static std::string normalize_path( const std::string &path )
 {
-    bool absolute = ! path.empty() &&
+    bool const absolute = ! path.empty() &&
         (path.front()==PATH_SEPARATOR || path.front()==PATH_SEPARATOR2);
 
     std::vector<std::string> segments;
@@ -190,7 +190,7 @@ std::optional<std::string> image_path()
     link += "/file";
 #endif
     std::string proc(512, '\0');
-    ssize_t len = readlink( link.c_str(), proc.data(), proc.size() );
+    ssize_t const len = readlink( link.c_str(), proc.data(), proc.size() );
     if ( len != -1 )
     {
         proc.resize(len);
@@ -236,7 +236,7 @@ std::string image_name()
 {
     if( imgname ) { return *imgname;
 }
-    std::filesystem::path path( image_path().value_or("") );
+    std::filesystem::path const path( image_path().value_or("") );
     imgname = path.stem().string();
     return *imgname;
 }
@@ -245,7 +245,7 @@ std::string image_dir()
 {
     if( imgdir ) { return *imgdir;
 }
-    std::filesystem::path path( image_path().value_or("") );
+    std::filesystem::path const path( image_path().value_or("") );
     imgdir = path.parent_path().string();
     return *imgdir;
 }
@@ -437,8 +437,8 @@ std::string relative_filename( const std::string &filepath, const std::string &b
 {
     try
     {
-        std::filesystem::path fp(filepath);
-        std::filesystem::path bp(basedir);
+        std::filesystem::path const fp(filepath);
+        std::filesystem::path const bp(basedir);
         // boost::filesystem::relative returns an empty path when either
         // input is empty; std::filesystem::relative instead returns "."
         // when the two (both-empty) paths compare equal. context_definition
@@ -460,7 +460,7 @@ std::string absolute_filename( const std::string &relname, const std::string &ba
 {
     try
     {
-        std::filesystem::path rp(relname);
+        std::filesystem::path const rp(relname);
         std::filesystem::path bp(basedir);
         // std::filesystem::absolute has no (path, base) overload - it only
         // resolves against the process's current directory - so resolve
@@ -511,7 +511,7 @@ std::optional<std::string> find_config_file( const std::string &config, const st
 
 std::optional<std::string> find_relative_file( const std::string &base, const std::string &name, const std::string &dflt_ext )
 {
-    bool pathonly = path_exists(base) && ! is_dir(base);
+    bool const pathonly = path_exists(base) && ! is_dir(base);
 
     std::string spec=build_config_filespec( base, pathonly, "", name, dflt_ext);
     if( path_exists(spec) ) { return spec;
@@ -598,7 +598,7 @@ int skip_utf8_bom( std::istream &f )
 }
     unsigned char bom[3] = {0,0,0};
     f.read( reinterpret_cast<char *>(bom), 3 );
-    std::streamsize nchar = f.gcount();
+    std::streamsize const nchar = f.gcount();
     f.clear();
     if( nchar >= 2 && ( (bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE') ) )
     {

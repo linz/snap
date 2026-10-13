@@ -91,7 +91,7 @@ int class_type::value_id( std::string_view value_name, int create )
         return parse_leading<int>( value_name ).value_or( 0 );
     };
 
-    int cmax = numeric_cast<int>(value.size());
+    int const cmax = numeric_cast<int>(value.size());
     for( int i=0; i<cmax; i++ )
     {
         if( is_name_match(std::get<std::string>(value[i].value), value_name) ) { return i;
@@ -127,7 +127,7 @@ class_value *class_type::find_value( int value_id, int create )
 
 int classifications::find_or_create_id( std::string_view name, ClassValueType type, int create )
 {
-    int class_count = numeric_cast<int>(class_index.size());
+    int const class_count = numeric_cast<int>(class_index.size());
     for( int i = 0; i<class_count; i++ )
     {
         if( is_name_match(name, class_index[i]->name) ) { return i+1;

@@ -212,7 +212,7 @@ void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std:
         len--;
         offset = len;
     }
-    string prefix = colName.substr(0, len);
+    string const prefix = colName.substr(0, len);
 
     for (int col = 0; col < reader->columnCount(); col++)
     {
@@ -220,7 +220,7 @@ void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std:
         string name = c->name();
         if (len > 0)
         {
-            string colprefix = name.substr(0, len);
+            string const colprefix = name.substr(0, len);
             if (!boost::iequals(prefix, colprefix)) {
                 continue;
 }
@@ -355,7 +355,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     if (!type->isvector)
     {
         bool errseconds = _angleerrorunits == AE_SECONDS;
-        bool ishorangle = type->id == HA || type->id == AZ || type->id == PB;
+        bool const ishorangle = type->id == HA || type->id == AZ || type->id == PB;
         if (type->isangle)
         {
             if (_angleformat != AF_DEGREES) { errseconds = _angleerrorunits != AE_DEGREES;
@@ -577,7 +577,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             if (mmherr > 0.0 || mmverr > 0.0)
             {
                 double distance = ldt_calc_value(CALC_DISTANCE, _stnidfrom, _stnidto);
-                double zendist = value[0] * DTOR;
+                double const zendist = value[0] * DTOR;
                 distance *= distance;
                 if (mmherr < distance / 4) {
                     mmherr /= distance;
@@ -647,7 +647,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                     break;
                 case CVR_FULL:
                 {
-                    double factor = errorfactor * errorfactor;
+                    double const factor = errorfactor * errorfactor;
                     for (int i = 0; i < 6; i++) {
                         error[i] *= factor;
 }
@@ -762,11 +762,11 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
     {
-        string value = cc->value();
+        string const value = cc->value();
         if (!value.empty())
         {
-            int idclass = cc->classId();
-            int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value);
+            int const idclass = cc->classId();
+            int const idvalue = ldt_get_id(ID_CLASSNAME, idclass, value);
             ldt_classification(idclass, idvalue);
         }
     }
@@ -807,7 +807,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     if (type->projctn && !_projection.value().empty())
     {
-        int id = ldt_get_id(ID_PROJCTN, 0, _projection.value());
+        int const id = ldt_get_id(ID_PROJCTN, 0, _projection.value());
         ldt_projection(id);
     }
     if (!_note.value().empty())
@@ -1108,7 +1108,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         }
         else if (command == "vector_error_type")
         {
-            string format = getConfigValue(command, rs);
+            string const format = getConfigValue(command, rs);
             if (!format.empty())
             {
                 obs.setVectorErrorMethod(format);
@@ -1120,7 +1120,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         }
         else if (command == "distance_error_type")
         {
-            string format = getConfigValue(command, rs);
+            string const format = getConfigValue(command, rs);
             if (!format.empty())
             {
                 obs.setDistanceErrorMethod(format);
@@ -1132,7 +1132,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         }
         else if (command == "angle_format")
         {
-            string format = getConfigValue(command, rs);
+            string const format = getConfigValue(command, rs);
             if (!format.empty())
             {
                 obs.setAngleFormat(format);
@@ -1144,7 +1144,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
         }
         else if (command == "angle_error_unit")
         {
-            string units = getConfigValue(command, rs);
+            string const units = getConfigValue(command, rs);
             if (!units.empty())
             {
                 obs.setAngleErrorUnits(units);
@@ -1247,7 +1247,7 @@ void SnapCsvObs::terminateLoadData()
 
 bool SnapCsvObs::ContinueSet(const std::string &setid, const std::string &fromcode)
 {
-    bool continued = _inset && setid == _setId && fromcode == _setFromCode;
+    bool const continued = _inset && setid == _setId && fromcode == _setFromCode;
     if (!continued)
     {
         _setId = setid;
@@ -1274,8 +1274,8 @@ int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_pro
 {
     try
     {
-        OptionString config(options);
-        std::string format = config.valueOf("format", "obs");
+        OptionString const config(options);
+        std::string const format = config.valueOf("format", "obs");
         auto formatfile = find_file(format, ".dtf", df.file_name(), FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
@@ -1287,7 +1287,7 @@ int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_pro
         SnapCsvObs csvobs(*formatfile, config);
         DatafileInput dfi(df, check_progress);
         csvobs.load(dfi);
-        std::string deffile = csvobs.definitionFilename();
+        std::string const deffile = csvobs.definitionFilename();
         if (!deffile.empty())
         {
             record_filename(deffile, "csv_obs_format");

@@ -66,7 +66,7 @@ int sortobj::compare( const sortobj &other ) const
 {
     if( std::holds_alternative<float>(value) )
     {
-        float diff = std::get<float>(value) - std::get<float>(other.value);
+        float const diff = std::get<float>(value) - std::get<float>(other.value);
         return diff < 0 ? -1 : diff > 0 ? 1 : 0;
     }
     if( std::holds_alternative<int>(value) )
@@ -187,8 +187,8 @@ void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azema
 static int cmp_stn_easting( const void *sp1, const void *sp2 )
 {
     double de;
-    int i1 = * (int *) sp1;
-    int i2 = * (int *) sp2;
+    int const i1 = * (int *) sp1;
+    int const i2 = * (int *) sp2;
     de = stns[i1].easting - stns[i2].easting;
     if( apply_station_offsets ) { de += stns[i1].e_offset - stns[i2].e_offset; }
     return de > 0.0 ? 1 : de < 0.0 ? -1 : 0;
@@ -264,15 +264,15 @@ static std::string_view station_flag_status( stn_adjustment *sa )
         "Adjust H Float V",
         "Adjust HV"
     };
-    int statusid = station_flag_status_id(sa);
+    int const statusid = station_flag_status_id(sa);
     return statusnames[ statusid ];
 }
 
 
 static int cmp_sortobj_generic( const void *sp1, const void *sp2 )
 {
-    int s1 = (*(int *) sp1 );
-    int s2 =  (*(int *) sp2 );
+    int const s1 = (*(int *) sp1 );
+    int const s2 =  (*(int *) sp2 );
     return sortValues[s1].compare(sortValues[s2]);
 }
 
@@ -297,7 +297,7 @@ static void build_sort_index( void )
 }
     for( i = 0; i < no_good_stations; i++ )
     {
-        int istn = sortIndex[i];
+        int const istn = sortIndex[i];
         stn = stnptr(istn);
 
         switch( indexCol )
@@ -372,7 +372,7 @@ static void reverse_sort_index()
     {
         for( i0 = 0, i1 = no_good_stations - 1; i0 < i1; i0++, i1-- )
         {
-            int tmp = sortIndex[i0];
+            int const tmp = sortIndex[i0];
             sortIndex[i0] = sortIndex[i1];
             sortIndex[i1] = tmp;
         }
@@ -383,7 +383,7 @@ static void reverse_sort_index()
 
 void init_station_list()
 {
-    int nclass = net->classification_count();
+    int const nclass = net->classification_count();
     delete [] slist_field;
     slist_field = new int[STNF_CLASS+1+nclass];
     slist_ncols = 0;
@@ -1246,7 +1246,7 @@ int station_showable( int istn )
 }
     if( stn_colourby_class > 0 )
     {
-        int cvalue = stnptr(istn)->get_class(stn_colourby_class);
+        int const cvalue = stnptr(istn)->get_class(stn_colourby_class);
         if( ! pen_selected(station_class_pen( cvalue )) ) { return 0;
 }
     }

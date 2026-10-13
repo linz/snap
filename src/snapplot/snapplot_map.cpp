@@ -31,7 +31,7 @@ static void mapdrawer_line_func( void *plotobj, double px, double py, int pen, i
 static void mapdrawer_text_func( void *plotobj, double px, double py, double WXUNUSED(size), int pen, const std::string &text )
 {
     wxMapDrawer *drawer = static_cast<wxMapDrawer *>( plotobj );
-    TextAlign alignment(1,-1);
+    TextAlign const alignment(1,-1);
     drawer->SetLayer( pen );
     drawer->SetTextStyle( get_station_font_id() );
     // TODO: Sort out text size and alignment properly..
@@ -184,7 +184,7 @@ bool SnapplotMap::DrawSome( wxMapDrawer &drawer, void *WXUNUSED(state) )
         section = smFirstSection;
         item = 0;
         init_plotting_stations();
-        MapRect extents = drawer.GetScale().GetWorldExtents();
+        MapRect const extents = drawer.GetScale().GetWorldExtents();
         set_plot_range( extents.min.x, extents.min.y, extents.max.x, extents.max.y );
         data_offset = calc_obs_offset();
         pconn_option = merge_common_obs;
@@ -197,8 +197,8 @@ bool SnapplotMap::DrawSome( wxMapDrawer &drawer, void *WXUNUSED(state) )
     case smBackground:
         if( item == 0 )
         {
-            int pen = get_pen(BACKGROUND_PEN);
-            wxColour colour = drawer.GetSymbology().LayerColour(pen);
+            int const pen = get_pen(BACKGROUND_PEN);
+            wxColour const colour = drawer.GetSymbology().LayerColour(pen);
             drawer.Clear( colour );
         }
         item = plot_background( &plotter, item );

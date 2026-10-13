@@ -153,7 +153,7 @@ static int cmp_stn_recode( const stn_recode &src0, const stn_recode &src1 )
 
 static void update_stn_recode( const std::string &codefrom, stn_recode &src, const stn_recode &src_update )
 {
-    int diffmark=stncodecmp(src.codeto,src_update.codeto);
+    int const diffmark=stncodecmp(src.codeto,src_update.codeto);
     if( diffmark || src.reject != src_update.reject )
     {
         const std::string codeto=(src_update.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src_update.codeto;
@@ -601,8 +601,8 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
         }
         else
         {
-            std::string filename(*filenameField);
-            int sts=read_station_recode_file( stt, filename, basefile );
+            std::string const filename(*filenameField);
+            int const sts=read_station_recode_file( stt, filename, basefile );
             if( sts != OK )
             {
                 msg="Error reading station recode file "+filename.substr(0,MAX_FILENAME_LEN);

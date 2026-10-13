@@ -71,7 +71,7 @@ void check_normalization()
 
 void check_find_relative_file()
 {
-    std::filesystem::path tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_relative";
+    std::filesystem::path const tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_relative";
     std::filesystem::remove_all(tmp);
     std::filesystem::create_directories( tmp / "sub" );
     { std::ofstream(tmp / "sub" / "target.dat").put('x'); }
@@ -79,7 +79,7 @@ void check_find_relative_file()
     // directory - a nonexistent filename is used as a literal
     // directory prefix instead, which is not what this exercises.
     { std::ofstream(tmp / "sub" / "other.dat").put('y'); }
-    std::string basefile = (tmp / "sub" / "other.dat").string();
+    std::string const basefile = (tmp / "sub" / "other.dat").string();
 
     auto found = find_relative_file( basefile, "target", ".dat" );
     check( found.has_value(), "find_relative_file: finds a file in the base's directory" );
@@ -98,7 +98,7 @@ void check_find_relative_file()
 // bit-is-set.
 void check_find_file_tryopt_bitmask()
 {
-    std::filesystem::path tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_tryopt";
+    std::filesystem::path const tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_tryopt";
     std::filesystem::remove_all(tmp);
     std::filesystem::create_directories( tmp / "project" );
     const std::string marker = "snap_fileutil_test_tryopt_marker";
@@ -121,7 +121,7 @@ void check_find_file_tryopt_bitmask()
 
 void check_find_config_file_via_snapenv()
 {
-    std::filesystem::path tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_config";
+    std::filesystem::path const tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_config";
     std::filesystem::remove_all(tmp);
     std::filesystem::create_directories( tmp / "mysection" );
     { std::ofstream(tmp / "mysection" / "cfgtest.def").put('x'); }
@@ -186,7 +186,7 @@ void check_build_config_filespec_pathonly()
 // "//" delimited relative paths, and recreate_context rebuilds the same context.
 void check_context_round_trip()
 {
-    std::filesystem::path tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_context";
+    std::filesystem::path const tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_context";
     push_file_context( tmp.string() );
     file_context *root = current_file_context();
     check( context_definition( root ).empty(), "context_definition: root context is empty" );

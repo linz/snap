@@ -60,7 +60,7 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
 {
     obsToShow = 0;
     lbFieldList = nullptr;
-    int nClassification = obs_classes.count();
+    int const nClassification = obs_classes.count();
 
     nFieldList = boost::numeric_cast<int>( fieldListOptions.size() ) + nClassification;
 
@@ -120,7 +120,7 @@ void ObsListOptionsDialog::ReadData()
     {
         lbFieldList->Check(i,false);
     }
-    int nDisplayed = get_displayed_fields( fieldList, nFieldList );
+    int const nDisplayed = get_displayed_fields( fieldList, nFieldList );
     for( int i = 0; i < nDisplayed; i++ )
     {
         for( int j = 0; j < nFieldList; j++ )

@@ -128,7 +128,7 @@ static code_loc *add_codes( crdsys_file_source *csf, int type, std::string_view 
     boost::algorithm::split( segments, code, boost::algorithm::is_any_of("=") );
     for( const std::string &segment : segments )
     {
-        CodeAlias alias = parse_code_alias( segment );
+        CodeAlias const alias = parse_code_alias( segment );
         if( !alias.code.empty() && alias.code.size() <= CRDSYS_CODE_LEN )
         {
             newloc=add_code( csf, type, alias.code, alias.hidden, loc );

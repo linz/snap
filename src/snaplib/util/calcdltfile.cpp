@@ -121,7 +121,7 @@ const string *LookupMapImp::lookup( const string &key ) const
 {
     string keyval = key;
     if( ! _caseSensitive ){ boost::to_lower( keyval ); }
-    map<const string, const string>::const_iterator match = find(keyval);
+    map<const string, const string>::const_iterator const match = find(keyval);
     if( match != end() ){ return &(match->second); }
     if( !_default.empty()) { return &(_default);
 }

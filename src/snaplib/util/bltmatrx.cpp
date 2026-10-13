@@ -412,7 +412,7 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
     {
         bltrow *rs = &(bltsrc->row[i]);
         bltrow *rc = &(bltcopy->row[i]);
-        int cs = rs->col;
+        int const cs = rs->col;
         int cc = rc->col;
         double *as = rs->address;
         double *ac = rc->address;
@@ -537,12 +537,12 @@ static void blt_load_col_cache( bltmatrix *blt, double *tmpcol, double *sumcol,
                                 int *dosum, int iget, int nget, int isave, int nsave )
 {
 
-    int nrow = blt->nrow;
+    int const nrow = blt->nrow;
     int i;
 
     for( i = iget; i < nrow; i++ )
     {
-        int col0 = blt->row[i].col;
+        int const col0 = blt->row[i].col;
         int c0;
         double *row = blt->row[i].address;
         double *r;
@@ -643,8 +643,8 @@ void blt_chol_inv( bltmatrix *blt )
                    c_start skips slots not yet active for either row, removing
                    the per-slot branch from the inner loop.  Pre-computing base
                    pointers avoids recomputing the row stride on every iteration. */
-                int c_start = dosum[col0] > dosum[j] ? dosum[col0] : dosum[j];
-                double elem = *row;
+                int const c_start = dosum[col0] > dosum[j] ? dosum[col0] : dosum[j];
+                double const elem = *row;
                 double *sc_col0 = sumcol + col0 * BLT_INV_CACHE_SIZE;
                 double *sc_j    = sumcol + j   * BLT_INV_CACHE_SIZE;
                 double *tc_j    = tmpcol + j   * BLT_INV_CACHE_SIZE;
@@ -671,7 +671,7 @@ void blt_chol_inv( bltmatrix *blt )
         for( c = nsave; c--; )
         {
             double sc;
-            int ic = i0 + c;
+            int const ic = i0 + c;
             /* Pre-compute base pointers for the current cached column ic so
                the j-loop body doesn't recompute the row stride each iteration. */
             double *sc_ic = sumcol + ic * BLT_INV_CACHE_SIZE;
@@ -807,7 +807,7 @@ void dump_bltmatrix( bltmatrix *blt, FILE *b )
     for( i = 0; i < blt->nrow; i++ )
     {
         bltrow *r = &(blt->row[i]);
-        int len = i + 1 - r->col;
+        int const len = i + 1 - r->col;
         fwrite(r->address,sizeof(double),len,b);
     }
 }
@@ -840,7 +840,7 @@ int reload_bltmatrix( bltmatrix **pblt, FILE *b )
     for( i = 0; i < blt->nrow; i++ )
     {
         bltrow *r = &(blt->row[i]);
-        int len = i + 1 - r->col;
+        int const len = i + 1 - r->col;
         if( fread(r->address,sizeof(double),len,b) != (unsigned int) len) { return FILE_READ_ERROR;
 }
     }
@@ -915,7 +915,7 @@ int reload_bltmatrix_dense( bltmatrix **pblt, FILE *b )
     for( i = 0; i < blt->nrow; i++ )
     {
         bltrow *r = &(blt->row[i]);
-        int len = i + 1 - r->col;
+        int const len = i + 1 - r->col;
         if( fread(r->address, sizeof(double), len, b) != (unsigned int) len) {
             return FILE_READ_ERROR;
         }
@@ -930,10 +930,10 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
     int ir0;
     int ic0;
     int col0;
-    int nrows=blt->nrow;
-    int matonly = options & BLT_JSON_MATRIX_ONLY;
+    int const nrows=blt->nrow;
+    int const matonly = options & BLT_JSON_MATRIX_ONLY;
     int rows = options & BLT_JSON_FULL;
-    int lower = rows == BLT_JSON_LOWER;
+    int const lower = rows == BLT_JSON_LOWER;
 
     if( matonly && ! rows ){ rows=BLT_JSON_LOWER; }
     if( ! format ) { format = "%15.8le";

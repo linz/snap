@@ -54,7 +54,7 @@ static void calc_relative_obseq( station *st1, station *st2, void *hA )
     init_oe( hA, 3, 2*dimension, OE_DIAGONAL_CVR );
     for( axis = 0; axis < 3; axis++ )
     {
-        int irow = axis+1;
+        int const irow = axis+1;
         set_station_obseq( st1, dst1[axis], hA, irow, UNDEFINED_DATE );
         set_station_obseq( st2, dst2[axis], hA, irow, UNDEFINED_DATE );
         oe_value( hA, irow+axis, dif[axis] );
@@ -118,7 +118,7 @@ void dump_relative_covariances( BINARY_FILE *b, int dumpall )
         for( istn=0; istn++ < maxstn; )
         {
             int iconn;
-            int nconn = get_connection_count( istn );
+            int const nconn = get_connection_count( istn );
             update_progress_meter( istn );
             if( !nconn ) { continue;
 }
@@ -200,8 +200,8 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, const std::vector
     double maxvratio;
     int istnmaxv;
     int jstnmaxv;
-    int printall = listopts & SPEC_LIST_ALL;
-    int printfail = listopts & SPEC_LIST_FAIL;
+    int const printall = listopts & SPEC_LIST_ALL;
+    int const printfail = listopts & SPEC_LIST_FAIL;
     long nstntest;
     double hratio;
     double vratio;

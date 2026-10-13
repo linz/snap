@@ -105,7 +105,7 @@ static void list_missing_stations( void )
     }
     /* TODO: Fix up this ...                       */
     /* print_log("\n\nPress enter to continue: "); */
-    for(;;) { int c = getchar(); if( c== '\n' || c == EOF ) { break; 
+    for(;;) { int const c = getchar(); if( c== '\n' || c == EOF ) { break; 
 }}
 }
 

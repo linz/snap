@@ -102,7 +102,7 @@ std::optional<std::string_view> FieldScanner::quotedValue( const std::string_vie
         if( *pos == quoteChar )
         {
             auto afterQuote=pos+1;
-            bool followOk = ! followOptions.has_value() || std::any_of( followOptions->begin(), followOptions->end(),
+            bool const followOk = ! followOptions.has_value() || std::any_of( followOptions->begin(), followOptions->end(),
                 [&]( const QuoteFollowOption opt )
                 {
                     return ( opt == QuoteFollowOption::End && afterQuote == _text.end() )

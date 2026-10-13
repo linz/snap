@@ -89,7 +89,7 @@ void sl_add_station( station_list *sl, station *st )
 
 void sl_add_station_at_id( station_list *sl, station *st )
 {
-    int id=st->id;
+    int const id=st->id;
     if( id <= sl->lastid ) { return;
 }
     while( sl->lastid < id-1 ) { sl_add_station(sl,nullptr);
@@ -99,7 +99,7 @@ void sl_add_station_at_id( station_list *sl, station *st )
 
 void sl_remove_station( station_list *sl, station *st )
 {
-    int id = st->id;
+    int const id = st->id;
     if( id > 0 && id <= sl->lastid && sl->index[id] == st )
     {
         sl->index[id]=nullptr;

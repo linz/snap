@@ -352,7 +352,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
     double obslength = 0.0;
     double serlim;
     double mde[3];
-    int resopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
+    int const resopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
     // char isvecdif;
 
 

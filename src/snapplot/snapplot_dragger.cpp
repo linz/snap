@@ -29,14 +29,14 @@ bool SnapplotMapDragger::InitDrag( const wxMouseEvent &event )
 
     if( ! mapWindow ) { return false;
 }
-    wxMapScale &scale = mapWindow->GetScale();
+    wxMapScale  const&scale = mapWindow->GetScale();
     if( ! scale.IsValid() ) { return false;
 }
 
     MapPoint refpt;
     scale.PlotToWorld( dragStartPoint, refpt );
 
-    double tolerance = pickTolerance * scale.GetScale();
+    double const tolerance = pickTolerance * scale.GetScale();
 
     istn = nearest_station( refpt.x, refpt.y, tolerance );
     if( ! istn ) { return false;
@@ -55,7 +55,7 @@ bool SnapplotMapDragger::InitDrag( const wxMouseEvent &event )
         while( nc-- )
         {
             char visible;
-            int to = get_connected_station( istn, nc, &visible );
+            int const to = get_connected_station( istn, nc, &visible );
             if( !to || !visible ) { continue;
 }
             MapPoint &pt = connections[nConnections++];

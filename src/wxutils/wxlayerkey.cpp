@@ -44,8 +44,8 @@ void wxBitmapGridRenderer::CreateTickBitmaps()
     wxMemoryDC dc;
 
     dc.SelectObject( *bitmap );
-    int width = bitmap->GetWidth();
-    int height = bitmap->GetHeight();
+    int const width = bitmap->GetWidth();
+    int const height = bitmap->GetHeight();
 
     dc.SetBrush( *wxWHITE );
     dc.SetPen(  *wxWHITE );
@@ -69,12 +69,12 @@ void wxBitmapGridRenderer::CreateTickBitmaps()
     dc.SelectObject( *bitmap );
 
     dc.SetPen( *wxBLACK );
-    int tx0 = 3;
-    int ty0 = height - 6;
-    int tx1 = 5;
-    int ty1 = height - 4;
-    int tx2 = width - 3;
-    int ty2 = 4;
+    int const tx0 = 3;
+    int const ty0 = height - 6;
+    int const tx1 = 5;
+    int const ty1 = height - 4;
+    int const tx2 = width - 3;
+    int const ty2 = 4;
 
     dc.DrawLine( tx0, ty0, tx1, ty1 );
     dc.DrawLine( tx1, ty1, tx2, ty2 );
@@ -109,7 +109,7 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
     const int layerIndex = wxsymkey.RowToLayerIndex( row );
     if( symkey && layerIndex >= 0 && layerIndex < symkey->LayerCount() )
     {
-        LayerSymbology &sym = symkey->GetLayer( layerIndex );
+        LayerSymbology  const&sym = symkey->GetLayer( layerIndex );
 
         if( col == 1 && sym.IsControlCheckbox() ) {
             if( ! wxsymkey.IsSingleChildMasterRow( layerIndex ) ) {
@@ -402,11 +402,11 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
         {
             int colourId = sym.ColourId();
             wxPalettePopup palettePopup( symbologyKey->GetPalette(), this );
-            bool colourChanged = palettePopup.SelectColour( colourId );
+            bool const colourChanged = palettePopup.SelectColour( colourId );
             if( colourChanged )
             {
                 sym.SetColourId( colourId );
-                wxGridCellCoords cell( row, event.GetCol() );
+                wxGridCellCoords const cell( row, event.GetCol() );
                 RefreshRect( BlockToDeviceRect( cell, cell) );
                 FireSymbologyChangedEvent();
             }
@@ -435,13 +435,13 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
             // there is nothing below the master row itself to refresh.
             const int masterRow = LayerIndexToRow( range.master );
             const int bottomRow = range.collapsed ? masterRow : LayerIndexToRow( range.lastChild );
-            wxGridCellCoords topLeft( masterRow, event.GetCol() );
-            wxGridCellCoords bottomRight( bottomRow, event.GetCol() );
+            wxGridCellCoords const topLeft( masterRow, event.GetCol() );
+            wxGridCellCoords const bottomRight( bottomRow, event.GetCol() );
             RefreshRect( BlockToDeviceRect( topLeft, bottomRight ) );
             FireSymbologyChangedEvent();
         } else if( sym.HasStatus() ) {
             sym.SetStatus( ! sym.Status() );
-            wxGridCellCoords cell( row, event.GetCol() );
+            wxGridCellCoords const cell( row, event.GetCol() );
             RefreshRect( BlockToDeviceRect( cell, cell) );
             // Any time a single child row is clicked, the master control that owns
             // it turns indeterminate to show its children no longer agree, no
@@ -452,7 +452,7 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
                 const int masterLayerIndex = masterRanges[lookup.rangeIndex].master;
                 symbologyKey->GetLayer( masterLayerIndex ).SetMixedRowStatus( true );
                 const int masterRow = LayerIndexToRow( masterLayerIndex );
-                wxGridCellCoords masterCell( masterRow, event.GetCol() );
+                wxGridCellCoords const masterCell( masterRow, event.GetCol() );
                 RefreshRect( BlockToDeviceRect( masterCell, masterCell ) );
             }
             FireSymbologyChangedEvent();
@@ -483,6 +483,6 @@ void wxLayerKey::OnSelectCell( wxGridEvent & WXUNUSED(event) )
 
 void wxLayerKey::FireSymbologyChangedEvent()
 {
-    wxSimpleEvent evt(WX_SYMBOLOGY_CHANGED, true);
+    wxSimpleEvent const evt(WX_SYMBOLOGY_CHANGED, true);
     AddPendingEvent(evt);
 }

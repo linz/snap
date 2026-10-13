@@ -56,7 +56,7 @@ std::string write_file( const bool tab_delimited, const std::function<void( outp
         }
         writer( *csv );
     }
-    std::ifstream in( filename, std::ios::binary );
+    std::ifstream const in( filename, std::ios::binary );
     std::ostringstream content;
     content << in.rdbuf();
     std::string text = content.str();

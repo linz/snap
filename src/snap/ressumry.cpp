@@ -362,7 +362,7 @@ static void sum_observation( const summary_def &sdf, survdata *sd )
 
         case SD_VECDATA:
         {
-            int vdopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
+            int const vdopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
             vecdata *vd;
             vd = &sd->obs.vdata[iobs];
             total[index].ssr += vd->vsres*vd->vsres*vd->rank;
@@ -442,7 +442,7 @@ static void print_summary_level( FILE *lst, const summary_def &sdf,
 {
     int ilvl;
     int sublevel_count;
-    int lastlevel= ilevel >= sdf.nlevel-1 && sdf.level_id[ilevel] == BY_DATA_TYPE;
+    int const lastlevel= ilevel >= sdf.nlevel-1 && sdf.level_id[ilevel] == BY_DATA_TYPE;
 
     /* To avoid using unecessary space in the recursive call, enclose
        the working bit and its automatic variables in a block */

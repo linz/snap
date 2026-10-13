@@ -83,8 +83,8 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, std::string_view string, v
     if( sts == OK )
     {
         const std::string fnameStr(*fname);
-        int adding=net ? 1 : 0;
-        int n0=adding ? number_of_stations(net) : 0;
+        int const adding=net ? 1 : 0;
+        int const n0=adding ? number_of_stations(net) : 0;
         const std::string action=(! adding) ? "Reading"
                          :  mergeopts & NW_MERGEOPT_ADDNEW ? "Reading additional"
                          : "Updating";

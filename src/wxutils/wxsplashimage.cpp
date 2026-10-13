@@ -7,7 +7,7 @@ wxSplashImage::wxSplashImage(wxWindow *parent, const wxBitmap& bitmap)
                wxNO_BORDER),
     m_bitmap(bitmap)
 {
-    wxSize bitmapSize( bitmap.GetWidth(), bitmap.GetHeight() );
+    wxSize const bitmapSize( bitmap.GetWidth(), bitmap.GetHeight() );
     SetMinSize( bitmapSize );
     SetMaxSize( bitmapSize );
 }
