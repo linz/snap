@@ -13,6 +13,7 @@
 #define _SYMMATRX_H
 
 using ltmat = double *;
+using const_ltmat = const double *;   /* The same, for a matrix that is only read */
 
 
 /*------------------------------------------------------------*/
@@ -27,7 +28,7 @@ using ltmat = double *;
 /* Routines defined in symmatrx.c */
 
 int chol_dec( ltmat N, int np );
-void chol_slv( ltmat N, ltmat b, ltmat r, int np );
+void chol_slv( ltmat N, const_ltmat b, ltmat r, int np );
 void chol_inv( ltmat N, ltmat tmp, int np );
 
 /* Routines which fill zero diagonal elements to force a solution */
@@ -35,8 +36,8 @@ void chol_inv( ltmat N, ltmat tmp, int np );
 /* preserved between calls.                                       */
 
 int pvt_chol_dec( ltmat N, int *col, int np );
-void pvt_chol_slv( ltmat N, ltmat b, ltmat r, int *col, int np );
-void pvt_chol_inv( ltmat N, ltmat tmp, int *col, int np );
+void pvt_chol_slv( const_ltmat N, const_ltmat b, ltmat r, const int *col, int np );
+void pvt_chol_inv( ltmat N, ltmat tmp, const int *col, int np );
 
 void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent );
 void print_ltmat_json( FILE *out, ltmat N, int nrow, const char *format, int indent );

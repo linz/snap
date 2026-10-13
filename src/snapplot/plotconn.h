@@ -107,7 +107,7 @@ void set_sres_sort_col( int col );
 void set_sres_sort_option( int option );
 int get_sres_sort_option();
 void init_displayed_fields();
-void set_displayed_fields( int *fields, int nFields );
+void set_displayed_fields( const int *fields, int nFields );
 int get_displayed_fields( int *fields, int maxFields );
 int get_display_field_code( std::string_view name );
 std::optional<std::string> get_display_field_name( int code );

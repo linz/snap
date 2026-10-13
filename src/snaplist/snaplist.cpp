@@ -1142,7 +1142,7 @@ static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int
 }
 
 
-void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax )
+void calc_error_ellipse( const double cvr[], double *emax, double *emin, double *azemax )
 {
     double v1;
     double v2;

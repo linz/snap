@@ -149,7 +149,7 @@ cfg_stack *cfgs = nullptr;
 /*============================================================*/
 
 
-static double calc_error_ellipse_semimajor2( double cvr[] )
+static double calc_error_ellipse_semimajor2( const double cvr[] )
 {
     double v1;
     double v2;

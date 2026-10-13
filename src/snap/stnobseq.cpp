@@ -355,7 +355,7 @@ int find_station_row( const int row, std::string_view &description )
     return 0;
 }
 
-void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double date )
+void set_station_obseq( station *st, const vector3 dst, void *hA, int irow, double date )
 {
     stn_adjustment *sa;
     double denu[3];
@@ -1475,7 +1475,7 @@ double rf_scale_error( double dist, void *hA, int irow )
    E */
 
 
-void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax )
+void calc_error_ellipse( const double cvr[], double *emax, double *emin, double *azemax )
 {
     double v1;
     double v2;

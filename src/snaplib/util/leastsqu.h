@@ -88,7 +88,7 @@ bltmatrix *lsq_get_covariance_matrix( void );
 
 void lsq_invert_normal_equations( void );
 
-void lsq_get_params( int row[], int nrow, double *value, ltmat covar );
+void lsq_get_params( const int row[], int nrow, double *value, ltmat covar );
 
 void lsq_calc_obs( void *hA, double *calc, double *res,
                    double *schprm, double *schvar,

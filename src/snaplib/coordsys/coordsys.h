@@ -98,7 +98,7 @@ struct ref_deformation;
 struct ref_frame
 {
     ref_frame( const std::string &code, const std::string &name, ellipsoid *el,
-               std::optional<std::string> refcode, double txyz[3], double rxyz[3], double scale,
+               std::optional<std::string> refcode, const double txyz[3], const double rxyz[3], double scale,
                double refdate, double dtxyz[3], double drxyz[3], double dscale,
                ref_frame_func *func = nullptr, ref_deformation *def = nullptr,
                int use_iersunits = 0 );
@@ -534,7 +534,7 @@ double deformation_model_epoch( coordsys *cs );
    shifted by a multiple of 2*PI to get into range */
 
 int en_coords_in_range( coordsys *cs, double e, double n );
-int ll_coords_in_range( coordsys *cs, double *lon, double *lat );
+int ll_coords_in_range( coordsys *cs, double *lon, const double *lat );
 
 /*=====================================================================*/
 /* Routines to do coordinate conversions                               */
@@ -554,7 +554,7 @@ int apply_ref_deformation_llh( ref_frame *rf, double llh[3],
 
 /* Utility function for deformation implementations */
 
-int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], double denu[3] );
+int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], const double denu[3] );
 
 /* Conversions geodetic (lon, lat, ellipsoidal height) <=> geocentric */
 /* Lat, long in radians.  dNdLT and dEdLn may be NULL.  The new array */
@@ -583,7 +583,7 @@ int proj_to_geog( projection *prj, double easting, double northing,
 /* gravitational components are ignored.                               */
 
 int convert_coords( coord_conversion *conv,
-                    double *fenh, double *fexu,
+                    const double *fenh, const double *fexu,
                     double *tenh, double *texu );
 
 coordsys *conversion_from_coordsys( coord_conversion *conv );

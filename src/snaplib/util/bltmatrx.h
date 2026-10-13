@@ -82,7 +82,7 @@ void expand_bltmatrix_to_requested( bltmatrix *blt );
 int blt_nrows( bltmatrix *blt );
 long blt_requested_size( bltmatrix *blt );
 int blt_chol_dec( bltmatrix *blt, int fill );
-void blt_chol_slv( bltmatrix *blt, double *b, double *r );
+void blt_chol_slv( bltmatrix *blt, const double *b, double *r );
 void blt_chol_inv( bltmatrix *blt );
 double blt_get_small( int absolute );
 void blt_set_small( int absolute, double value );

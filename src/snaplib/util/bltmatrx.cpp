@@ -494,7 +494,7 @@ int blt_chol_dec( bltmatrix *blt, int fill )
 
 /* Solve linear equations using the cholesky decomposition */
 
-void blt_chol_slv( bltmatrix *blt, double *b, double *r )
+void blt_chol_slv( bltmatrix *blt, const double *b, double *r )
 {
     double *r1;
     double sum;

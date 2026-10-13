@@ -35,7 +35,7 @@ rotmat rotmat::gravimetric( const double Lat, const double Lon, const double Xi,
 }
 
 
-void rotmat::rotvec( vector3 in, vector3 out ) const
+void rotmat::rotvec( const vector3 in, vector3 out ) const
 {
     vector3 tmp;
 
@@ -47,7 +47,7 @@ void rotmat::rotvec( vector3 in, vector3 out ) const
     out[2] = tmp[2];
 }
 
-void rotmat::unrotvec( vector3 in, vector3 out ) const
+void rotmat::unrotvec( const vector3 in, vector3 out ) const
 {
     vector3 tmp;
 
@@ -76,7 +76,7 @@ void rotmat::rot_vertical( vector3 vrt ) const
 /*   vecadd     Adds two scaled vectors                           */
 /*----------------------------------------------------------------*/
 
-double vecdot( vector3 vec1, vector3 vec2 )
+double vecdot( const vector3 vec1, const vector3 vec2 )
 {
     return vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2];
 }
@@ -86,14 +86,14 @@ double veclen( vector3 vec )
     return sqrt( vecdot( vec, vec ));
 }
 
-void veccopy( vector3 vec, vector3 copy )
+void veccopy( const vector3 vec, vector3 copy )
 {
     copy[0] = vec[0];
     copy[1] = vec[1];
     copy[2] = vec[2];
 }
 
-void vecprd( vector3 vec1, vector3 vec2, vector3 prd )
+void vecprd( const vector3 vec1, const vector3 vec2, vector3 prd )
 {
     double tmp[3];
     tmp[0] = vec1[1]*vec2[2] - vec1[2]*vec2[1];
@@ -104,7 +104,7 @@ void vecprd( vector3 vec1, vector3 vec2, vector3 prd )
     prd[2] = tmp[2];
 }
 
-void vecadd2( vector3 vec1, double mult1, vector3 vec2, double mult2,
+void vecadd2( const vector3 vec1, double mult1, const vector3 vec2, double mult2,
               vector3 res )
 {
     int i;
@@ -112,14 +112,14 @@ void vecadd2( vector3 vec1, double mult1, vector3 vec2, double mult2,
 }
 }
 
-void vecadd( vector3 vec1, vector3 vec2, vector3 sum )
+void vecadd( const vector3 vec1, const vector3 vec2, vector3 sum )
 {
     sum[0] = vec1[0] + vec2[0];
     sum[1] = vec1[1] + vec2[1];
     sum[2] = vec1[2] + vec2[2];
 }
 
-void vecdif( vector3 vec1, vector3 vec2, vector3 dif )
+void vecdif( const vector3 vec1, const vector3 vec2, vector3 dif )
 {
     dif[0] = vec1[0] - vec2[0];
     dif[1] = vec1[1] - vec2[1];
@@ -136,7 +136,7 @@ void scalevec( vector3 vec, double mult )
 
 /* Put product m1.m2 in mr, where mr and m2 can be the same */
 
-void premult3( double *m1, double *m2, double *mr, int ndim )
+void premult3( const double *m1, const double *m2, double *mr, int ndim )
 {
     double col[3];
     double sum;

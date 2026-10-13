@@ -132,7 +132,7 @@ int apply_ref_deformation_llh( ref_frame *rf, double llh[3], double epochfrom, d
 }
 
 
-int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], double denu[3] )
+int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], const double denu[3] )
 {
     int sts = OK;
     if( denu[0] != 0 || denu[1] != 0 )

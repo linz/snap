@@ -162,7 +162,7 @@ const std::string &plot_crdsys_name()
    E */
 
 
-void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax )
+void calc_error_ellipse( const double cvr[], double *emax, double *emin, double *azemax )
 {
     double v1;
     double v2;
