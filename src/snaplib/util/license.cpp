@@ -58,9 +58,9 @@ char* decrypted_license(unsigned char* license_text) {
 static unsigned char license_text[MAX_LICENSE_TEXT + LICENSE_HEADER_LEN + 1];
 static unsigned char* license = license_text + LICENSE_HEADER_LEN;
 
-#include <stdio.h>
+#include <cstdio>
 #include "util/snapctype.h"
-#include <string.h>
+#include <cstring>
 #include <stdlib.h>
 
 int main(int argc, char* argv[]) {

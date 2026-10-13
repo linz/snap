@@ -59,7 +59,7 @@ double geodetic_from_isometric(double q, double e) {
 
 #ifdef TEST_ISOMETRIC
 
-#include <stdio.h>
+#include <cstdio>
 #include "util/pi.h"
 
 int main() {
