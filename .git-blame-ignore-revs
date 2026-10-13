@@ -1,3 +1,6 @@
 # Rename .c -> .cpp: all source files were already compiled as C++,
-# this commit just makes the extensions reflect that.
-79a6590f
+# this commit just makes the extensions reflect that (#127).
+79a6590fbdad75939a64898e827c9fc73f69c57b
+
+# Format the sources with clang-format (#200).
+38da49261fca5572dae9804121bf07985694fc46
