@@ -111,7 +111,8 @@ void list_calculated_parameters(std::FILE* out) {
 
 static void print_adjusted_parameters_header(std::FILE* out) {
     print_section_header(out, "OTHER PARAMETERS");
-    std::fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
+    std::fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n",
+                 apriori ? "apriori" : "aposteriori");
     std::fprintf(out, "\nParameter                          value         +/-\n");
 }
 

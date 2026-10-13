@@ -387,7 +387,7 @@ static void close_listing_file(void) {
     if (errcount > 0) {
         print_section_header(lst, "ERRORS");
         std::fprintf(lst, "\nNote: %d errors reported in %s\n", errcount,
-                std::filesystem::path(err_name).filename().string().c_str());
+                     std::filesystem::path(err_name).filename().string().c_str());
         print_section_footer(lst);
     }
     if (!output_noruntime) {
@@ -432,7 +432,7 @@ static void close_error_file(const error_message mess1, const error_message mess
 
 static int print_err(const int sts, const std::string_view mess1, const error_message mess2) {
     std::fprintf(err, "\n%s: %.*s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error",
-            boost::numeric_cast<int>(mess1.size()), mess1.data());
+                 boost::numeric_cast<int>(mess1.size()), mess1.data());
     if (mess2) {
         std::fprintf(err, "       %.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
     }
@@ -567,7 +567,7 @@ void print_report_footer(std::FILE*) {}
 
 void print_control_options(std::FILE* lst) {
     std::fprintf(lst, "\n\nProgram options read from %s\n\n",
-            std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
+                 std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
     std::fprintf(lst, "Job: %s\n\n", job_title.c_str());
     print_solution_type(lst);
 }
@@ -576,7 +576,8 @@ void print_section_header(std::FILE* out, const std::string_view heading) {
     new_page(out);
     print_line(out);
     const int rtl = boost::numeric_cast<int>(run_time.size());
-    std::fprintf(out, "%-*s   %s\n\n", page_width - rtl - 3, job_title.c_str(), output_noruntime ? "" : run_time.c_str());
+    std::fprintf(out, "%-*s   %s\n\n", page_width - rtl - 3, job_title.c_str(),
+                 output_noruntime ? "" : run_time.c_str());
 
     print_centred(out, heading);
     std::fputc('\n', out);
@@ -656,7 +657,7 @@ void print_iteration_update(int iteration, double maxadj, int maxstn, int nstnad
 
     if (output_iteration_summary) {
         std::fprintf(lst, "\nIteration %d: Maximum change is %.4lf metres at station %s\n", (int)iteration, maxadj,
-                station_code(maxstn).c_str());
+                     station_code(maxstn).c_str());
         std::fprintf(lst, "             %d station adjustments exceed convergence criteria\n", (int)nstnadj);
     }
 }
@@ -811,7 +812,7 @@ void print_problem_summary(std::FILE* lst) {
             continue;
         }
         std::fprintf(lst, "%c%-*s   %s\n", stnadj(st)->flag.autoreject ? '*' : ' ', stn_name_width, st->Code.c_str(),
-                st->Name.c_str());
+                     st->Name.c_str());
     }
 
     /* Print out auto constrained stations */
@@ -833,9 +834,9 @@ void print_problem_summary(std::FILE* lst) {
         }
 
         std::fprintf(lst, "\n\nThe following stations have been automatically fixed %s\n",
-                i == 4   ? "in 3 dimensions"
-                : i == 2 ? "horizontally"
-                         : "vertically");
+                     i == 4   ? "in 3 dimensions"
+                     : i == 2 ? "horizontally"
+                              : "vertically");
 
         row = 0;
         for (reset_station_list(net, (int)output_sorted_stations); nullptr != (st = next_station(net));) {
@@ -906,13 +907,15 @@ void print_solution_summary(std::FILE* lst) {
 
     if (c2sig > 0.5) {
         c2sig = 100.0 * (1.0 - c2sig);
-        std::fprintf(lst, "\nThe probability of an SSR this low is %.3lf%% (from Chi squared (%ld))\n", c2sig, (long)dof);
+        std::fprintf(lst, "\nThe probability of an SSR this low is %.3lf%% (from Chi squared (%ld))\n", c2sig,
+                     (long)dof);
         if (c2sig < 2.5) {
             std::fprintf(lst, "\nYou may have over-estimated the errors of the data.\n");
         }
     } else {
         c2sig = 100.0 * c2sig;
-        std::fprintf(lst, "\nThe probability of an SSR this high is %.3lf%% (from Chi squared (%ld))\n", c2sig, (long)dof);
+        std::fprintf(lst, "\nThe probability of an SSR this high is %.3lf%% (from Chi squared (%ld))\n", c2sig,
+                     (long)dof);
         if (c2sig < 2.5) {
             std::fprintf(lst, "\nYou may have under-estimated the errors of the data,\n");
             std::fprintf(lst, "or there may be gross errors in the data\n");
@@ -953,8 +956,8 @@ void print_json_params(std::FILE* lst, int nprefix) {
         for (int i = 0; i++ < nprm;) {
             int stno;
             const std::string paramname = describe_parameter_row(i, stno);
-            std::fprintf(lst, "%s\n%*s\"%s%s%s\"", i > 1 ? "," : "", nprefix + 2, "", stno ? station_code(stno).c_str() : "",
-                    stno ? ": " : "", paramname.c_str());
+            std::fprintf(lst, "%s\n%*s\"%s%s%s\"", i > 1 ? "," : "", nprefix + 2, "",
+                         stno ? station_code(stno).c_str() : "", stno ? ": " : "", paramname.c_str());
         }
         std::fprintf(lst, "\n%*s]", nprefix, "");
     }

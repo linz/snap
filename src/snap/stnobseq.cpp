@@ -74,8 +74,8 @@ static int add_colocation_constraint(station* stcol, station* st0, double herror
     stn_adjustment* sa = stnadj(stcol);
     if (sa->idcol) {
         char errmsg[80 + STNCODELEN * 2];
-        std::sprintf(errmsg, "Cannot colocate %.*s with %.*s - already colocated with %.*s", STNCODELEN, stcol->Code.c_str(),
-                STNCODELEN, st0->Code.c_str(), STNCODELEN, stnptr(sa->idcol)->Code.c_str());
+        std::sprintf(errmsg, "Cannot colocate %.*s with %.*s - already colocated with %.*s", STNCODELEN,
+                     stcol->Code.c_str(), STNCODELEN, st0->Code.c_str(), STNCODELEN, stnptr(sa->idcol)->Code.c_str());
         handle_error(INCONSISTENT_DATA, errmsg, NO_MESSAGE);
         return INCONSISTENT_DATA;
     }
@@ -346,8 +346,8 @@ void set_station_obseq(station* st, const vector3 dst, void* hA, int irow, doubl
 
     if (deformation && date != UNDEFINED_DATE && calc_deformation(deformation, st, date, denu) == OK) {
         if (output_deformation && lst) {
-            std::fprintf(lst, "Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n", stn_name_width, st->Code.c_str(),
-                    date_as_year(date), denu[0], denu[1], denu[2], st->Name.c_str());
+            std::fprintf(lst, "Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n", stn_name_width,
+                         st->Code.c_str(), date_as_year(date), denu[0], denu[1], denu[2], st->Name.c_str());
         }
         oe_add_value(hA, irow, -(denu[0] * dst[0] + denu[1] * dst[1] + denu[2] * dst[2]));
     }
@@ -634,12 +634,13 @@ void print_adjusted_coordinates(std::FILE* lst) {
 
     if (errconflim) {
         std::fprintf(lst, "The error ellipse and height error are the %s %.2f confidence limits\n",
-                apriori ? "apriori" : "aposteriori", errconfval);
+                     apriori ? "apriori" : "aposteriori", errconfval);
     } else if (errconfval == 1.0) {
-        std::fprintf(lst, "The error ellipse and height error are the %s errors\n", apriori ? "apriori" : "aposteriori");
+        std::fprintf(lst, "The error ellipse and height error are the %s errors\n",
+                     apriori ? "apriori" : "aposteriori");
     } else {
         std::fprintf(lst, "The error ellipse and height error are %s %.1f times standard errors\n",
-                apriori ? "apriori" : "aposteriori", errconfval);
+                     apriori ? "apriori" : "aposteriori", errconfval);
     }
 
     if (output_rejected_stations) {
@@ -657,12 +658,12 @@ void print_adjusted_coordinates(std::FILE* lst) {
 
     if (projection_coords) {
         std::fprintf(lst, " %-*s      Easting  %s  Error  Brng  Name\n", stn_name_width, "Code",
-                adjusted ? " Adjustment" : "");
+                     adjusted ? " Adjustment" : "");
         std::fprintf(lst, " %-*s      Northing %s Ellipse\n", stn_name_width, "", adjusted ? "  (metres) " : "");
         std::fprintf(lst, " %-*s      Height   %s Hgt err\n", stn_name_width, "", adjusted ? "           " : "");
     } else {
         std::fprintf(lst, " %-*s      Latitude      %s  Error  Brng  Name\n", stn_name_width, "Code",
-                adjusted ? " Adjustment" : "");
+                     adjusted ? " Adjustment" : "");
         std::fprintf(lst, " %-*s      Longitude     %s Ellipse\n", stn_name_width, "", adjusted ? "  (metres) " : "");
         std::fprintf(lst, " %-*s      Height        %s Hgt err\n", stn_name_width, "", adjusted ? "           " : "");
     }
@@ -710,7 +711,7 @@ void print_adjusted_coordinates(std::FILE* lst) {
         /* Print the first line - latitude or easting */
 
         std::fprintf(lst, "\n%c%-*s ", stnadj(st)->flag.rejected ? REJECTED_STN_FLAG : ' ', stn_name_width,
-                st->Code.c_str());
+                     st->Code.c_str());
         if (projection_coords) {
             std::fprintf(lst, "%13.*lf  ", (int)coord_precision, easting);
         } else {
@@ -1123,7 +1124,7 @@ void write_station_csv() {
                 std::sprintf(wkt, "POINT(%.*lf %.*lf)", coord_precision, easting, coord_precision, northing);
             } else {
                 std::sprintf(wkt, "POINT(%.*lf %.*lf)", coord_precision + 5, st->ELon * RTOD, coord_precision + 5,
-                        st->ELat * RTOD);
+                             st->ELat * RTOD);
             }
             csv->writeString(wkt);
         }
@@ -1154,9 +1155,9 @@ void print_floated_stations(std::FILE* out) {
 
     std::fprintf(lst, "\nThis list shows %s errors\n", apriori ? "apriori" : "aposteriori");
     std::fprintf(out, "\nAdjustments outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[0],
-            taumax[0] ? "for the maximum " : "", FLAG1);
+                 taumax[0] ? "for the maximum " : "", FLAG1);
     std::fprintf(out, "Adjustments outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[1],
-            taumax[1] ? "for the maximum " : "", FLAG2);
+                 taumax[1] ? "for the maximum " : "", FLAG2);
     if (relative_floating) {
         std::fprintf(out, "The rel column lists the reference station for co-location constraints\n");
     }
@@ -1172,7 +1173,7 @@ void print_floated_stations(std::FILE* out) {
     semult = apriori ? 1 : seu;
 
     std::fprintf(out, "\n%-*s %-*s  coord      error      calc.err    residual    adj.err    std.res\n", stn_name_width,
-            "Code", relative_floating ? stn_name_width : 0, relative_floating ? "rel" : "");
+                 "Code", relative_floating ? stn_name_width : 0, relative_floating ? "rel" : "");
 
     void* hA = create_oe(nprm);
 
@@ -1200,10 +1201,10 @@ void print_floated_stations(std::FILE* out) {
             const double resval = res[rowno];
             const double ser = std::sqrt(std::fabs(Lij(rescvr, rowno, rowno))) * semult;
             std::fprintf(out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ", stn_name_width,
-                    (rowno == 0 ? st->Code.c_str() : ""), relative_floating ? stn_name_width + 1 : 0,
-                    stcol ? stcol->Code.c_str() : "", coordname[axis].data(),
-                    (axis < 2 ? sa->herror : sa->verror) * semult, std::sqrt(std::fabs(Lij(calccvr, rowno, rowno))) * semult,
-                    -resval, ser);
+                         (rowno == 0 ? st->Code.c_str() : ""), relative_floating ? stn_name_width + 1 : 0,
+                         stcol ? stcol->Code.c_str() : "", coordname[axis].data(),
+                         (axis < 2 ? sa->herror : sa->verror) * semult,
+                         std::sqrt(std::fabs(Lij(calccvr, rowno, rowno))) * semult, -resval, ser);
             if (ser > 1.0e-5) {
                 const double stres = std::fabs(resval) / ser;
                 std::fprintf(out, "%8.2lf %s\n", stres, std::string(residual_flag(0, 1, stres)).c_str());
@@ -1233,8 +1234,8 @@ void print_station_offsets(std::FILE*) {
 
             std::fprintf(lst, "\nThe following coordinate offsets apply to stations in the network.\n");
             std::fprintf(lst,
-                    "Each offset is applied for determining station coordinates based on the date\n"
-                    "at which the coordinate is required.\n");
+                         "Each offset is applied for determining station coordinates based on the date\n"
+                         "at which the coordinate is required.\n");
         }
 
         std::fprintf(lst, "\n");

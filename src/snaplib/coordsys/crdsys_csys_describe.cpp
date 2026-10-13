@@ -77,7 +77,7 @@ int describe_ref_frame(output_string_def* os, ref_frame* rf) {
         if (translation) {
             std::sprintf(unitstr, "(%s)", (*units)[0].data());
             std::sprintf(out, format1, (*components)[0].data(), unitstr, uf * rf->txyz[0], uf * rf->txyz[1],
-                    uf * rf->txyz[2]);
+                         uf * rf->txyz[2]);
             write_output_string(os, out);
             if (rates) {
                 std::sprintf(unitstr, "(%s/yr)", (*units)[0].data());
@@ -88,7 +88,7 @@ int describe_ref_frame(output_string_def* os, ref_frame* rf) {
         if (rotation) {
             std::sprintf(unitstr, "(%s)", (*units)[1].data());
             std::sprintf(out, format1, (*components)[1].data(), unitstr, af * rf->rxyz[0], af * rf->rxyz[1],
-                    af * rf->rxyz[2]);
+                         af * rf->rxyz[2]);
             write_output_string(os, out);
             if (rates) {
                 std::sprintf(unitstr, "(%s/yr)", (*units)[1].data());

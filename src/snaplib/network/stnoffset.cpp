@@ -256,15 +256,15 @@ void print_station_offset(std::FILE* lst, station* st) {
                 std::sprintf(datestr, "%02d-%02d-%04d", d, m, y);
             }
             std::fprintf(lst, "    %3s %-11s  %10s  %10.*lf %10.*lf %10.*lf\n",
-                    i >= 0       ? ""
-                    : comp.isxyz ? "XYZ"
-                                 : "ENU",
-                    i >= 0                         ? ""
-                    : comp.mode == STN_TS_SERIES   ? "time series"
-                    : comp.mode == STN_TS_VELOCITY ? "velocity"
-                    : comp.mode == STN_TS_STEP     ? "offset"
-                                                   : "undefined",
-                    datestr, ndp, tsp->denu[0], ndp, tsp->denu[1], ndp, tsp->denu[2]);
+                         i >= 0       ? ""
+                         : comp.isxyz ? "XYZ"
+                                      : "ENU",
+                         i >= 0                         ? ""
+                         : comp.mode == STN_TS_SERIES   ? "time series"
+                         : comp.mode == STN_TS_VELOCITY ? "velocity"
+                         : comp.mode == STN_TS_STEP     ? "offset"
+                                                        : "undefined",
+                         datestr, ndp, tsp->denu[0], ndp, tsp->denu[1], ndp, tsp->denu[2]);
         }
     }
 }

@@ -875,7 +875,8 @@ int write_config_file(std::FILE* out, int key_only) {
         std::fputs("obs_listing_fields ", out);
         std::fputs(write_display_fields_definition().c_str(), out);
         std::fputs("\n", out);
-        std::fprintf(out, "obs_listing_order %s\n", get_display_field_name(get_sres_sort_option()).value_or("").c_str());
+        std::fprintf(out, "obs_listing_order %s\n",
+                     get_display_field_name(get_sres_sort_option()).value_or("").c_str());
         std::fputs("observation_options ", out);
 
         if (!show_oneway_obs) {

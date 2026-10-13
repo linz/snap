@@ -174,8 +174,8 @@ struct SDCTestImp {
     int twopass;                  /**< Non zero if using two pass calculation */
     int needphase2;               /**< Set to true if not all required data found in phase1*/
     char logbuffer[1024];         /**< Buffer used for writing log messages */
-    std::clock_t reftime;              /**< Reference time for timestamps */
-    std::clock_t lasttime;             /**< Time of last timestamp */
+    std::clock_t reftime;         /**< Reference time for timestamps */
+    std::clock_t lasttime;        /**< Time of last timestamp */
     std::unique_ptr<SDC_KDTreeBundle> kdtree;       /**< All stations — pair-loop range filter */
     std::unique_ptr<SDC_CtlKDTreeBundle> ctlkdtree; /**< Control stations — nearest-control */
 
@@ -1637,7 +1637,8 @@ static unsigned char sdcTestPairAccuracy(SDCTestImp* sdci, SDCTest* sdc, SDCStat
                     if (cfg->logcompact) {
                         sdcWriteCompactLog(sdci, sdcstni, sdcstnj, SDC_TEST_HRAS, "P", error, tolij, "");
                     }
-                } else if ((error = (stni->error2 + stnj->error2 - 2 * std::sqrt(stni->error2 * stnj->error2))) > tolij) {
+                } else if ((error = (stni->error2 + stnj->error2 - 2 * std::sqrt(stni->error2 * stnj->error2))) >
+                           tolij) {
                     stsij = SDC_STS_FAIL;
                     if (cfg->logcalcs2) {
                         sdcWriteLog(sdci, SDC_LOG_CALCS2,
@@ -1894,7 +1895,8 @@ static StatusType sdcSetupRelAccuracyStatus(SDCTestImp* sdci, SDCOrderTest* test
         usemaxdistance = 1;
         if (logcalcs) {
             sdcWriteLog(sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                        "  Relative hor accuracy assumed achieved for lines longer than %.2lf m\n", std::sqrt(maxtestdist));
+                        "  Relative hor accuracy assumed achieved for lines longer than %.2lf m\n",
+                        std::sqrt(maxtestdist));
         }
     }
     if (shortcircuit && testvrt && dtolv > 0.0) {
@@ -1908,7 +1910,8 @@ static StatusType sdcSetupRelAccuracyStatus(SDCTestImp* sdci, SDCOrderTest* test
         usemaxdistancev = 1;
         if (logcalcs) {
             sdcWriteLog(sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                        "  Relative vrt accuracy assumed achieved for lines longer than %.2lf m\n", std::sqrt(maxtestdistv));
+                        "  Relative vrt accuracy assumed achieved for lines longer than %.2lf m\n",
+                        std::sqrt(maxtestdistv));
         }
     }
 
@@ -2447,8 +2450,8 @@ static void sdcWriteCompactLog(SDCTestImp* sdci, long stn1, long stn2, const cha
         std::sprintf(cv2, "%.8lf", v2);
     }
 
-    std::snprintf(sdci->logbuffer, sizeof(sdci->logbuffer), "%d,%d,%s,%s,%s,%s,%s,%s,%s\n", sdci->phase, sdci->order, cstn1,
-             cstn2, test, status, cv1, cv2, comment);
+    std::snprintf(sdci->logbuffer, sizeof(sdci->logbuffer), "%d,%d,%s,%s,%s,%s,%s,%s,%s\n", sdci->phase, sdci->order,
+                  cstn1, cstn2, test, status, cv1, cv2, comment);
 
     /*> Use the function pointer in the sdc object to write the log */
 
@@ -2506,6 +2509,6 @@ static void sdcTimeStamp(SDCTestImp* sdci, const std::string_view status) {
     sdci->lasttime = now;
 
     std::snprintf(sdci->logbuffer, sizeof(sdci->logbuffer), "   .. %.*s took %.2lf seconds (total %.2lf seconds)\n",
-             boost::numeric_cast<int>(status.size()), status.data(), tlast, ttotal);
+                  boost::numeric_cast<int>(status.size()), status.data(), tlast, ttotal);
     (sdci->sdc->pfWriteLog)(sdci->sdc->env, sdci->logbuffer);
 }

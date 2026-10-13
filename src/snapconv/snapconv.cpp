@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 
     if (!quiet) {
         std::printf("\n%s %s: Converts a SNAP coord file to a different coordinate system\n\n", PROGRAM_NAME,
-               PROGRAM_VERSION);
+                    PROGRAM_VERSION);
     }
 
     if (syntax_error) {
@@ -129,7 +129,8 @@ int main(int argc, char* argv[]) {
     if (argc != 4 || syntax_error) {
         std::printf("snapconv: Missing or invalid parameters\n\n");
 
-        std::printf("Syntax: snapconv [-d][-h][-q][-y yyyymmdd] input_coord_file new_coordsys_code output_coord_file\n\n");
+        std::printf(
+            "Syntax: snapconv [-d][-h][-q][-y yyyymmdd] input_coord_file new_coordsys_code output_coord_file\n\n");
         std::printf("Options are:\n");
         std::printf("  -d   Output angles in decimal degrees\n");
         std::printf("  -h   Output angles in degrees/minutes/seconds\n");

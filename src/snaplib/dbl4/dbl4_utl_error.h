@@ -63,14 +63,14 @@
 
 /* Function to abort the program */
 
-#define THROW_EXCEPTION(m)                                                              \
-    {                                                                                   \
-        TRACE_ABORT(("%s: at %s line %d", m, __FILE__, (int)__LINE__));                 \
-        {                                                                               \
-            char msg[1024];                                                             \
+#define THROW_EXCEPTION(m)                                                                   \
+    {                                                                                        \
+        TRACE_ABORT(("%s: at %s line %d", m, __FILE__, (int)__LINE__));                      \
+        {                                                                                    \
+            char msg[1024];                                                                  \
             std::sprintf(msg, "Abort: %.100s at %.30s line %d", m, __FILE__, (int)__LINE__); \
-            utlAbort(msg);                                                              \
-        }                                                                               \
+            utlAbort(msg);                                                                   \
+        }                                                                                    \
     }
 
 /* Assertion macro - can be replaced with empty macro in production */

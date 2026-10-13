@@ -42,7 +42,7 @@ static bool load_field(std::FILE* bin, T& value) {
 // using this macro.
 #define LOAD(x)                \
     if (!load_field(bin, x)) { \
-        std::fclose(bin);           \
+        std::fclose(bin);      \
         return INVALID_DATA;   \
     }
 
@@ -757,9 +757,10 @@ void grd_grid_spacing(grid_def* grd, double* dx, double* dy) {
 
 void grd_print_grid_data(grid_def* grd, std::FILE* out, char showGrid) {
     std::fprintf(out, "\n\nDefinition of grid data\n\n  %s\n  %s\n  %s\n", grd->desc1 ? grd->desc1->c_str() : nullptr,
-            grd->desc2 ? grd->desc2->c_str() : nullptr, grd->desc3 ? grd->desc3->c_str() : nullptr);
+                 grd->desc2 ? grd->desc2->c_str() : nullptr, grd->desc3 ? grd->desc3->c_str() : nullptr);
     std::fprintf(out, "  Coordinate system code: %s\n", grd->crdsys ? grd->crdsys->c_str() : nullptr);
-    std::fprintf(out, "  X:  maximum %8.4lf  minimum  %8.4lf   increments %4d\n", grd->maxx, grd->minx, (int)grd->ngrdx);
+    std::fprintf(out, "  X:  maximum %8.4lf  minimum  %8.4lf   increments %4d\n", grd->maxx, grd->minx,
+                 (int)grd->ngrdx);
     std::fprintf(out, "  Y: maximum %8.4lf  minimum  %8.4lf   increments %4d\n", grd->maxy, grd->miny, (int)grd->ngrdy);
     std::fprintf(out, "  Vertical resolution: %8.4lf\n", grd->vres);
     std::fprintf(out, "  Global longitude extents? : %s\n", grd->global ? "Yes" : "No");

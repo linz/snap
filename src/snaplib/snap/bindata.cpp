@@ -70,7 +70,8 @@ std::int64_t write_bindata_header(long size, int type) {
 
 int read_bindata_header(long* size, int* type) {
     std::int64_t disksize;
-    if (std::fread(&disksize, sizeof(disksize), 1, bindata_file) == 1 && std::fread(type, sizeof(int), 1, bindata_file) == 1) {
+    if (std::fread(&disksize, sizeof(disksize), 1, bindata_file) == 1 &&
+        std::fread(type, sizeof(int), 1, bindata_file) == 1) {
         *size = static_cast<long>(disksize);
         return 1;
     }
@@ -201,10 +202,10 @@ int get_bindata(int bintype, bindata& b) {
        once padding is excluded - everything else after the header is already
        fixed-width per-element and needs no such adjustment. */
 
-    const std::int64_t reqsize =
-        (b.bintype == SURVDATA)
-            ? static_cast<std::int64_t>(sizeof(survdata)) + (b.size - static_cast<std::int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE))
-            : b.size;
+    const std::int64_t reqsize = (b.bintype == SURVDATA)
+                                     ? static_cast<std::int64_t>(sizeof(survdata)) +
+                                           (b.size - static_cast<std::int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE))
+                                     : b.size;
 
     if (b.buffer.size() < boost::numeric_cast<size_t>(reqsize)) {
         // The old contents are not needed, so empty the buffer first to avoid copying them
@@ -712,7 +713,7 @@ void print_json_observations(std::FILE* out) {
                         std::fprintf(out, ",");
                     }
                     std::fprintf(out, "\n          \"%s\":\"%s\"", obs_classes.name(clsf->class_id).c_str(),
-                            obs_classes.value_name(clsf->class_id, clsf->name_id).c_str());
+                                 obs_classes.value_name(clsf->class_id, clsf->name_id).c_str());
                 }
                 std::fprintf(out, "\n          },\n");
             }
@@ -725,7 +726,7 @@ void print_json_observations(std::FILE* out) {
                         std::fprintf(out, ",");
                     }
                     std::fprintf(out, "\n          \"%s\":%.8le", param_type_name(PRM_SYSERR, syserr->prm_id).data(),
-                            syserr->influence);
+                                 syserr->influence);
                 }
                 std::fprintf(out, "\n          },\n");
             }

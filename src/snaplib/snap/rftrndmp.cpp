@@ -122,9 +122,9 @@ static_assert(rftrans_disk_fields_contiguous(),
 // to match.
 static std::uint16_t pack_rftrans_flags(const RfTransformationData& rf) {
     return static_cast<std::uint16_t>((rf.istopo << 0) | (rf.isiers << 1) | (rf.userates << 2) | (rf.usetrans << 3) |
-                                 (rf.localoriginok << 4) | (rf.localorigin << 5) | (rf.calctrans << 6) |
-                                 (rf.calcrot << 7) | (rf.calcscale << 8) | (rf.calctransrate << 9) |
-                                 (rf.calcrotrate << 10) | (rf.calcscalerate << 11));
+                                      (rf.localoriginok << 4) | (rf.localorigin << 5) | (rf.calctrans << 6) |
+                                      (rf.calcrot << 7) | (rf.calcscale << 8) | (rf.calctransrate << 9) |
+                                      (rf.calcrotrate << 10) | (rf.calcscalerate << 11));
 }
 static void unpack_rftrans_flags(const std::uint16_t flags, RfTransformationData& rf) {
     rf.istopo = (flags >> 0) & 1;

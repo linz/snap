@@ -356,8 +356,8 @@ int sum_bindata(int iteration) {
             char location[200];
             survdata* sd = b.survey_data();
             trgtdata* tgt = get_trgtdata(sd, 0);
-            std::sprintf(location, "Cannot sum observation from %.80s line %d\n", survey_data_file_name(sd->file).c_str(),
-                    (int)(tgt->lineno));
+            std::sprintf(location, "Cannot sum observation from %.80s line %d\n",
+                         survey_data_file_name(sd->file).c_str(), (int)(tgt->lineno));
             handle_error(INVALID_DATA, "Observation error", location);
             sts = stsobs;
         }
@@ -1179,7 +1179,7 @@ void print_residuals(std::FILE* out) {
 
     if (WANT(OF_FLAGS)) {
         std::fprintf(out, "Residuals outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[0],
-                taumax[0] ? "for the maximum " : "", FLAG1);
+                     taumax[0] ? "for the maximum " : "", FLAG1);
         if (taumax[0]) {
             double prob = (100 - flag_level[0]) / 100.0;
             prob = prob_of_maximum(prob, 1);
@@ -1188,7 +1188,7 @@ void print_residuals(std::FILE* out) {
         }
 
         std::fprintf(out, "Residuals outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[1],
-                taumax[1] ? "for the maximum " : "", FLAG2);
+                     taumax[1] ? "for the maximum " : "", FLAG2);
         if (taumax[1]) {
             double prob = (100 - flag_level[1]) / 100.0;
             prob = prob_of_maximum(prob, 1);
@@ -1201,7 +1201,8 @@ void print_residuals(std::FILE* out) {
         } else if (dof < 1) {
             std::fprintf(out, "The a posteriori significance of residuals cannot be calculated\n");
         } else {
-            std::fprintf(out, "\nSignificance is based on the Tau distribution with %ld degrees of freedom\n", (long)dof);
+            std::fprintf(out, "\nSignificance is based on the Tau distribution with %ld degrees of freedom\n",
+                         (long)dof);
             std::fprintf(out, "(the Students t distribution is used for rejected observations)\n");
         }
 
@@ -1212,7 +1213,7 @@ void print_residuals(std::FILE* out) {
             std::fprintf(out, "Observations to or from rejected stations are not listed\n");
         }
         std::fprintf(out, "Observations with redundancy less than %.2lf are flagged %c\n", redundancy_flag_level,
-                LOW_REDUNDANCY_FLAG);
+                     LOW_REDUNDANCY_FLAG);
     }
 
     if (WANT(OF_MDE)) {

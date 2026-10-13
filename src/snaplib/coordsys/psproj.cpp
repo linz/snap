@@ -30,7 +30,8 @@ void define_PSProjection(PSProjection* psp, double a, double rf, double cm, doub
     } else {
         psp->e = psp->e2 = 0.0;
     }
-    psp->k = 2.0 * psp->sf * psp->a / std::sqrt(1.0 - psp->e2) * std::pow((1.0 - psp->e) / (1.0 + psp->e), psp->e / 2.0);
+    psp->k =
+        2.0 * psp->sf * psp->a / std::sqrt(1.0 - psp->e2) * std::pow((1.0 - psp->e) / (1.0 + psp->e), psp->e / 2.0);
 }
 
 void psp_geod(PSProjection* psp, double ce, double cn, double* slam, double* sphi) {

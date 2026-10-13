@@ -275,8 +275,8 @@ void list_vecdata(std::FILE* out, survdata* v) {
             sd = v->syserr + t->tgt.isyserr;
             for (i = 0; i < t->tgt.nsyserr; i += 3, sd += 3) {
                 const std::string_view name = syserr_name(sd->prm_id);
-                std::fprintf(out, "     Systematic error: %s = %lf %lf %lf\n", name.data(), sd[0].influence, sd[1].influence,
-                        sd[2].influence);
+                std::fprintf(out, "     Systematic error: %s = %lf %lf %lf\n", name.data(), sd[0].influence,
+                             sd[1].influence, sd[2].influence);
             }
         }
     }

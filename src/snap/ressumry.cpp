@@ -391,7 +391,8 @@ static void sum_summary(const summary_def& sdf) {
 #define LEVEL_INDENT 5
 #define AXIS_INDENT 8
 
-static void print_summary_level(std::FILE* lst, const summary_def& sdf, int ilevel, int index, int axis, double semult) {
+static void print_summary_level(std::FILE* lst, const summary_def& sdf, int ilevel, int index, int axis,
+                                double semult) {
     int ilvl;
     int sublevel_count;
     const int lastlevel = ilevel >= sdf.nlevel - 1 && sdf.level_id[ilevel] == BY_DATA_TYPE;
@@ -499,7 +500,7 @@ static void print_summary_level(std::FILE* lst, const summary_def& sdf, int ilev
                             }
                             if (!lastlevel) {
                                 std::sprintf(ttlbuf, "%.4s %s", datatype[obstype_from_index[ilvl]].code.data(),
-                                        title.c_str());
+                                             title.c_str());
                                 title = ttlbuf;
                             }
                         } else {
@@ -523,7 +524,7 @@ static void print_summary_level(std::FILE* lst, const summary_def& sdf, int ilev
                 for (j = 0; j < 3; j++) {
                     if (sum_total[j].count) {
                         std::fprintf(lst, " %7.2lf %4ld", std::sqrt(sum_total[j].ssr / sum_total[j].count) / semult,
-                                sum_total[j].count);
+                                     sum_total[j].count);
                     } else {
                         std::fprintf(lst, "     -      -");
                     }
@@ -564,7 +565,7 @@ static void print_summary(std::FILE* lst, summary_def& sdf, double semult) {
         }
     }
     std::fprintf(lst, "\n\n%-*s%s\n%-*s%s\n\n", TITLE_WIDTH, "Classification", "     Used        Unused       Total",
-            TITLE_WIDTH, "", "    RMS  Count   RMS  Count   RMS  Count\n");
+                 TITLE_WIDTH, "", "    RMS  Count   RMS  Count   RMS  Count\n");
     print_summary_level(lst, sdf, 0, 0, 0, semult);
     term_summary();
 }

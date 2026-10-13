@@ -21,9 +21,9 @@
 #undef SORTOBS_C
 
 struct obsdef {
-    int from;    /* From station */
-    int to;      /* To station, or 0 if there are several */
-    int type;    /* Observation type */
+    int from;         /* From station */
+    int to;           /* To station, or 0 if there are several */
+    int type;         /* Observation type */
     std::int64_t loc; /* File location */
 };
 

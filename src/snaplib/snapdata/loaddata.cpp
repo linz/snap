@@ -39,8 +39,8 @@ using boost::numeric_cast;
 #define INC_SIZE 5 /* Increment for data blocks */
 
 #ifdef DEBUG_LOADDATA
-#define DEBUG_PRINT(x) \
-    {                  \
+#define DEBUG_PRINT(x)      \
+    {                       \
         std::putchar('\n'); \
         std::printf x;      \
         std::putchar('\n'); \
@@ -320,7 +320,8 @@ static void report_error(const std::string_view location) {
     handle_error(INTERNAL_ERROR, msg, "In module loaddata.c");
 }
 
-void init_load_data(void (*usedata)(survdata* sd), std::int64_t (*idfunc)(int type, int group_id, std::string_view code),
+void init_load_data(void (*usedata)(survdata* sd),
+                    std::int64_t (*idfunc)(int type, int group_id, std::string_view code),
                     std::string (*codefunc)(int type, int group_id, long id),
                     double (*calcfunc)(int type, long id1, long id2)) {
     DEBUG_PRINT(("LDT: init_load_data"));

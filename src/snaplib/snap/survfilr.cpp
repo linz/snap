@@ -141,8 +141,9 @@ long read_data_files(std::FILE* lst) {
         if (lst) {
             if (sd->mindate != UNDEFINED_DATE) {
                 std::fprintf(lst, "    Observations between %s",
-                        date_as_string(sd->mindate, DateStringFormat::timeIfNotMidnight).c_str());
-                std::fprintf(lst, " and %s\n", date_as_string(sd->maxdate, DateStringFormat::timeIfNotMidnight).c_str());
+                             date_as_string(sd->mindate, DateStringFormat::timeIfNotMidnight).c_str());
+                std::fprintf(lst, " and %s\n",
+                             date_as_string(sd->maxdate, DateStringFormat::timeIfNotMidnight).c_str());
             }
             if (sd->nnodate > 0) {
                 std::fprintf(lst, "    %4ld observations do not have a date\n", sd->nnodate);
@@ -152,7 +153,7 @@ long read_data_files(std::FILE* lst) {
                     xprintf("        %4ld %s%s\n", sd->obscount[c], datatype[c].name.data(), PLURAL(sd->obscount[c]));
                     if (lst) {
                         std::fprintf(lst, "    %4ld %s%s\n", sd->obscount[c], datatype[c].name.data(),
-                                PLURAL(sd->obscount[c]));
+                                     PLURAL(sd->obscount[c]));
                     }
                 }
             }

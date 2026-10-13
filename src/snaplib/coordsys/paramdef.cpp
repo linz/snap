@@ -21,8 +21,8 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-#define DO_PRINT(fmt, type)             \
-    char buf[40];                       \
+#define DO_PRINT(fmt, type)                  \
+    char buf[40];                            \
     std::sprintf(buf, fmt, *(type*)address); \
     return (*os->write)(buf, os->sink)
 

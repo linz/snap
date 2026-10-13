@@ -606,7 +606,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             if (!pgnfileField) {
                 const std::string fieldText(*field);
                 std::sprintf(errmess, "Invalid \"%s\" option in %s requires coord sys code and wkt file name",
-                        fieldText.c_str(), src.c_str());
+                             fieldText.c_str(), src.c_str());
                 break;
             }
             const std::string crdsys(*crdsysField);
@@ -614,7 +614,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             cs = load_coordsys(crdsys);
             if (!cs) {
                 std::sprintf(errmess, "Invalid coordinate system %-20s in \"%s\" option in %s", crdsys.c_str(),
-                        std::string(*field).c_str(), src.c_str());
+                             std::string(*field).c_str(), src.c_str());
                 break;
             }
 
@@ -633,7 +633,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
                 conv = new coord_conversion(nw->geosys, cs, DEFAULT_CRDSYS_EPOCH);
                 if (!conv->valid) {
                     std::sprintf(errmess, "Cannot use WKT coordinate system %.20s in %s option in %s", crdsys.c_str(),
-                            std::string(*field).c_str(), src.c_str());
+                                 std::string(*field).c_str(), src.c_str());
                     delete conv;
                     delete cs;
                     break;

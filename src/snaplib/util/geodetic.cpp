@@ -18,7 +18,8 @@
 /*                                                                */
 /*----------------------------------------------------------------*/
 
-rotmat::rotmat(const double Lat, const double Lon) : cslt(std::cos(Lat)), snlt(std::sin(Lat)), csln(std::cos(Lon)), snln(std::sin(Lon)) {}
+rotmat::rotmat(const double Lat, const double Lon)
+    : cslt(std::cos(Lat)), snlt(std::sin(Lat)), csln(std::cos(Lon)), snln(std::sin(Lon)) {}
 
 rotmat rotmat::gravimetric(const double Lat, const double Lon, const double Xi, const double Eta) {
     const double gravLat = Lat + Xi;

@@ -81,7 +81,7 @@ static int init_griddef(void*) {
     tovcs = coord_conversion(net->geosys, vcs);
     if (!tovcs.valid) {
         std::sprintf(buf, "Cannot convert station coordinates to coordinate system %-20s of velocity model",
-                vcs->code.c_str());
+                     vcs->code.c_str());
         handle_error(WARNING_ERROR, buf, NO_MESSAGE);
         return INVALID_DATA;
     }
@@ -101,8 +101,8 @@ static int init_griddef(void*) {
         xyz[CRD_LON] = st->ELon;
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
         if (convert_coords(&tovcs, xyz, nullptr, xyz, nullptr) != OK) {
-            std::sprintf(buf, "Cannot convert coordinates of %-20s to velocity coordinate system %-20s", st->Code.c_str(),
-                    vcs->code.c_str());
+            std::sprintf(buf, "Cannot convert coordinates of %-20s to velocity coordinate system %-20s",
+                         st->Code.c_str(), vcs->code.c_str());
             handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             return INVALID_DATA;
         }

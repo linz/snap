@@ -27,7 +27,7 @@ void print_gps_baselines(std::FILE* out, int* stn, int nstns) {
         s2 = station_ptr(net, stn[j]);
         calc_vec_dif(s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr);
         std::fprintf(out, "%-5s %-5s %10.3lf %10.3lf %10.3lf\n", s1->Code.c_str(), s2->Code.c_str(), dxyz[0], dxyz[1],
-                dxyz[2]);
+                     dxyz[2]);
     }
 }
 
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
     CONFIGURE_RUNTIME();
 
     std::printf("\n%s %s: Creates a dummy GPS data file from a site file and list of lines\n\n", PROGRAM_NAME,
-           PROGRAM_VERSION);
+                PROGRAM_VERSION);
 
     while (argc > 1 && argv[1][0] == '-') {
         switch (argv[1][1]) {

@@ -250,7 +250,8 @@ int open_dxf_file(const std::string& dxfname) {
                 get_pen_colour(i - 1, red, green, blue);
                 colourid = dxf_colour_id(red, green, blue);
             }
-            std::fprintf(dxf, "  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n", layer_name[i].c_str(), colourid);
+            std::fprintf(dxf, "  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n", layer_name[i].c_str(),
+                         colourid);
         }
         std::fprintf(dxf, "  0\nENDTAB\n");
 
@@ -285,7 +286,7 @@ static long end_line(void) {
         std::fprintf(dxf, "  0\nLINE\n  8\n%s\n", cur_layer.c_str());
         id = write_dxf_entity_id();
         std::fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n 11\n%.*lf\n 21\n%.*lf\n", precision, save_x1, precision, save_y1,
-                precision, save_x2, precision, save_y2);
+                     precision, save_x2, precision, save_y2);
     }
     nppt = 0;
     return id;

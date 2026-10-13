@@ -241,7 +241,7 @@ void print_worst_residuals(std::FILE* out) {
         }
         level = i < 2 ? i : 1;
         std::fprintf(out, "%6.2lf%%%c significant    Used: %3ld    Unused: %3ld\n", flag_level[level],
-                taumax[level] ? 'M' : ' ', nsigres[1][i], nsigres[0][i]);
+                     taumax[level] ? 'M' : ' ', nsigres[1][i], nsigres[0][i]);
     }
 
     std::fprintf(out, "\n");
@@ -284,7 +284,7 @@ void print_worst_residuals(std::FILE* out) {
         }
 
         std::fprintf(out, "\n\n%-*s  %-*s%s  Type     S.R.  Sig (%%)       Line  File\n", stn_name_width, "From",
-                stn_name_width, "To", have_obs_ids ? "      Id" : "");
+                     stn_name_width, "To", have_obs_ids ? "      Id" : "");
 
         for (i = imin; i <= imax; i++) {
             for (j = 0; j < MAXRANK; j++) {
@@ -327,7 +327,7 @@ void print_worst_residuals(std::FILE* out) {
             list_note(out, ws->note);
 
             std::fprintf(out, "\n%-*s  %-*s", stn_name_width, station_code(from).c_str(), stn_name_width,
-                    to ? station_code(to).c_str() : "");
+                         to ? station_code(to).c_str() : "");
             if (have_obs_ids) {
                 std::fprintf(out, " %7d", ws->id);
             }

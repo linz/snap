@@ -390,7 +390,7 @@ static void help(void) {
 
 static void error_exit(const std::string_view errmsg1, const std::string_view errmsg2) {
     std::printf("%s: %.*s%.*s\n\n", PROGRAM_NAME, numeric_cast<int>(errmsg1.size()), errmsg1.data(),
-           numeric_cast<int>(errmsg2.size()), errmsg2.data());
+                numeric_cast<int>(errmsg2.size()), errmsg2.data());
     std::printf("Enter %s -H for a list of command line parameters\n", PROGRAM_NAME);
     std::exit(1);
 }
@@ -866,7 +866,7 @@ static void prompt_for_proj(coordsys*& proj, AngleFormat& dms, bool& ne, bool& g
         while (true) {
             std::printf("    Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)\n");
             std::printf("    Enter %.*s coordinate order(default %s%s): ", ioLength, iostring.data(), ne ? "NE" : "EN",
-                   gothgt ? (orthohgt ? "O" : "H") : "");
+                        gothgt ? (orthohgt ? "O" : "H") : "");
             instring = read_answer(4);
             if (instring.empty()) {
                 break;
@@ -1521,7 +1521,7 @@ static void open_files(void) {
 static void head_output(std::FILE* out) {
     output_string_def os;
     std::fprintf(out, "\n%s - coordinate conversion program (version %s dated %s)\n", PROGRAM_NAME, PROGRAM_VERSION,
-            PROGRAM_DATE);
+                 PROGRAM_DATE);
     std::fprintf(out, "\nInput coordinates:  %s", input_cs->name.c_str());
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
     std::fprintf(out, "\n");
@@ -1851,13 +1851,14 @@ static void write_dms(std::FILE* out, double deg, int prec, bool no_secs, std::s
             std::fprintf(out, "%02d%c", dms.minutes, separator);
         }
         std::fprintf(out, "%0*.*lf%c%c", prec + 3, prec, dms.seconds < 0.0 ? 0.0 : dms.seconds, separator,
-                dms.neg ? hem[1] : hem[0]);
+                     dms.neg ? hem[1] : hem[0]);
     } else {
         std::fprintf(out, "%d ", dms.degrees);
         if (!no_secs) {
             std::fprintf(out, "%02d ", dms.minutes);
         }
-        std::fprintf(out, "%0*.*lf %c", prec + 3, prec, dms.seconds < 0.0 ? 0.0 : dms.seconds, dms.neg ? hem[1] : hem[0]);
+        std::fprintf(out, "%0*.*lf %c", prec + 3, prec, dms.seconds < 0.0 ? 0.0 : dms.seconds,
+                     dms.neg ? hem[1] : hem[0]);
     }
 }
 

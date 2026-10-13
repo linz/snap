@@ -951,8 +951,8 @@ static bool read_time(FieldScanner& scanner, double& obstime) {
         return false;
     }
 
-    if ((std::sscanf(time.c_str(), "%d:%d", &hr, &min) < 2 && std::sscanf(time.c_str(), "%d.%d", &hr, &min) < 2) || hr < 0 ||
-        hr > 24 || min < 0 || min > 59) {
+    if ((std::sscanf(time.c_str(), "%d:%d", &hr, &min) < 2 && std::sscanf(time.c_str(), "%d.%d", &hr, &min) < 2) ||
+        hr < 0 || hr > 24 || min < 0 || min > 59) {
         return false;
     }
 

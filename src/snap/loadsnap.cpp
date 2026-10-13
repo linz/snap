@@ -194,7 +194,7 @@ static void list_missing_stations(void) {
             continue;
         }
         std::sprintf(buf, "Station %-10s is not in the coordinate file.  Used %d times", station.code.c_str(),
-                station.refcount);
+                     station.refcount);
         handle_error(WARNING_ERROR, buf, NO_MESSAGE);
     }
 }
@@ -368,7 +368,8 @@ static void load_snap(survdata* sd) {
 
     if (need_obs_date && sd->date == UNDEFINED_DATE) {
         char location[80];
-        std::sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno);
+        std::sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(),
+                     sd->obs.vdata[0].tgt.lineno);
         handle_error(INVALID_DATA, "Observation date not defined", location);
         missing_data++;
         return;
@@ -378,7 +379,8 @@ static void load_snap(survdata* sd) {
 
     if (sd->format == SD_VECDATA && !sd->cvr) {
         char location[80];
-        std::sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno);
+        std::sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(),
+                     sd->obs.vdata[0].tgt.lineno);
         handle_error(INVALID_DATA, "Observation covariance not defined", location);
         missing_data++;
         return;

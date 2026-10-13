@@ -309,8 +309,8 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
                     headed = 1;
                 }
 
-                std::fprintf(lst, "     %-*s  %-*s  %7.0lf ", stn_name_width, stnptr(istn)->Code.c_str(), stn_name_width,
-                        stnptr(jstn)->Code.c_str(), veclen);
+                std::fprintf(lst, "     %-*s  %-*s  %7.0lf ", stn_name_width, stnptr(istn)->Code.c_str(),
+                             stn_name_width, stnptr(jstn)->Code.c_str(), veclen);
                 if (gothtol) {
                     std::fprintf(lst, "    %8.2lf", hratio);
                 }
@@ -333,7 +333,7 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
         std::fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailh);
         if (istnmaxh) {
             std::fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxhratio,
-                    stnptr(istnmaxh)->Code.c_str(), stnptr(jstnmaxh)->Code.c_str());
+                         stnptr(istnmaxh)->Code.c_str(), stnptr(jstnmaxh)->Code.c_str());
         }
     }
 
@@ -344,7 +344,7 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
         std::fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailv);
         if (istnmaxv) {
             std::fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxvratio,
-                    stnptr(istnmaxv)->Code.c_str(), stnptr(jstnmaxv)->Code.c_str());
+                         stnptr(istnmaxv)->Code.c_str(), stnptr(jstnmaxv)->Code.c_str());
         }
     }
 

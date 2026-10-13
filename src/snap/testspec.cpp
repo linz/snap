@@ -129,7 +129,8 @@ int set_station_spec_testid(int stnid, int testid, int add) {
 
 static void print_spec(std::FILE* out, SpecDef* spec) {
     std::fprintf(out, "\nTesting order specifications: %s\n", spec->name.c_str());
-    std::fprintf(out, "\nBased on %.2lf %s confidence limits\n", spec->confidence, spec_apriori ? "apriori" : "aposteriori");
+    std::fprintf(out, "\nBased on %.2lf %s confidence limits\n", spec->confidence,
+                 spec_apriori ? "apriori" : "aposteriori");
     if (spec->gothtol) {
         std::fprintf(out, "Horizontal accuracy: (error multiplier: %6.2lf)\n", spec->htolfactor);
         if (spec->htolmax > 0) {
@@ -211,8 +212,8 @@ void test_specifications(void) {
 
         if (i) {
             std::fprintf(lst,
-                    "\n\n========================================"
-                    "========================================\n");
+                         "\n\n========================================"
+                         "========================================\n");
         }
 
         print_spec(lst, spec);
@@ -389,7 +390,8 @@ void test_absolute_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
         std::fprintf(lst, "    Stations tested:              %10ld\n", nstntest);
         std::fprintf(lst, "    Stations exceeding tolerance: %10ld\n", nfailh);
         if (istnmaxh) {
-            std::fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxhratio, stnptr(istnmaxh)->Code.c_str());
+            std::fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxhratio,
+                         stnptr(istnmaxh)->Code.c_str());
         }
     }
 
@@ -398,7 +400,8 @@ void test_absolute_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
         std::fprintf(lst, "    Stations tested:              %10ld\n", nstntest);
         std::fprintf(lst, "    Stations exceeding tolerance: %10ld\n", nfailv);
         if (istnmaxv) {
-            std::fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxvratio, stnptr(istnmaxv)->Code.c_str());
+            std::fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxvratio,
+                         stnptr(istnmaxv)->Code.c_str());
         }
     }
 }

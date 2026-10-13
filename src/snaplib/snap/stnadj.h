@@ -38,13 +38,13 @@ struct stn_adjustment {
     double initELat; /* Initial coordinates */
     double initELon;
     double initOHgt;
-    int hrowno;       /* The first row number in the obs equations */
-    int vrowno;       /* The row number for verical coord */
-    int nobsprm;      /* Number of observation set parameters associated with the station */
+    int hrowno;            /* The first row number in the obs equations */
+    int vrowno;            /* The row number for verical coord */
+    int nobsprm;           /* Number of observation set parameters associated with the station */
     std::int32_t obscount; /* Count of observations referencing the station */
-    int idcol;        /* Relative station for float error (co-location constraint) */
-    float herror;     /* The horizontal error if the station is floated */
-    float verror;     /* The vertical error if the station is floated */
+    int idcol;             /* Relative station for float error (co-location constraint) */
+    float herror;          /* The horizontal error if the station is floated */
+    float verror;          /* The vertical error if the station is floated */
     struct {
         unsigned adj_h : 1;
         unsigned adj_v : 1;

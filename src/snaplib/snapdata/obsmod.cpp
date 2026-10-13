@@ -340,7 +340,8 @@ static bool obs_datafile_match(obs_datafile_criterion& datafile, obsmod_context*
     return obs_datafile_match_fileid(oac->obsmod, datafile, oac->sd->file);
 }
 
-static void describe_obs_datafile_criterion(std::FILE* lst, const obs_datafile_criterion& datafile, const std::string&) {
+static void describe_obs_datafile_criterion(std::FILE* lst, const obs_datafile_criterion& datafile,
+                                            const std::string&) {
     if (datafile.wildcard) {
         std::fprintf(lst, "which are from files matching %s", datafile.filenamepattern.c_str());
     } else {
@@ -429,7 +430,7 @@ static bool obs_wildcard_classification_match(wildcard_obs_classification_criter
 static void describe_obs_classification_criterion(std::FILE* lst, const obs_classification_criterion& classification,
                                                   const std::string&, classifications* classes) {
     std::fprintf(lst, "where %s classification is \"%s\"", classes->name(classification.class_id).c_str(),
-            classes->value_name(classification.class_id, classification.value_id).c_str());
+                 classes->value_name(classification.class_id, classification.value_id).c_str());
 }
 
 static void describe_obs_mult_classification_criterion(std::FILE* lst, const mult_obs_classification_criterion& mult,
@@ -444,7 +445,7 @@ static void describe_obs_wildcard_classification_criterion(std::FILE* lst,
                                                            const wildcard_obs_classification_criterion& wildcard,
                                                            const std::string&, classifications* classes) {
     std::fprintf(lst, "where %s classification matches \"%s\"", classes->name(wildcard.class_id).c_str(),
-            wildcard.wildclass.c_str());
+                 wildcard.wildclass.c_str());
 }
 
 /// Adds a criterion for observations with one of the ids in a '/' separated
@@ -528,8 +529,8 @@ static void describe_obs_date_criterion(std::FILE* lst, const obs_date_criterion
         std::fprintf(lst, "which have no observation date");
     } else {
         std::fprintf(lst, "which are observed %s %s",
-                date_criterion.date_criterion_type == obs_date_criterion_type::before ? "before" : "after",
-                date_as_string(date_criterion.date, DateStringFormat::timeIfNotMidnight).c_str());
+                     date_criterion.date_criterion_type == obs_date_criterion_type::before ? "before" : "after",
+                     date_as_string(date_criterion.date, DateStringFormat::timeIfNotMidnight).c_str());
     }
 }
 
@@ -587,7 +588,8 @@ static bool obs_stations_match(obs_stations_criterion& stations, obsmod_context*
     return matchfrom && matchto;
 }
 
-static void describe_obs_stations_criterion(std::FILE* lst, const obs_stations_criterion& stations, const std::string&) {
+static void describe_obs_stations_criterion(std::FILE* lst, const obs_stations_criterion& stations,
+                                            const std::string&) {
     std::fprintf(lst, "which %s stations %s", stations.between ? "are between" : "use", stations.station_list.c_str());
 }
 
@@ -745,7 +747,7 @@ static void summarize_obs_criteria(std::FILE* lst, const std::string& prefix, co
 
     if (ocr.action == OBS_MOD_REWEIGHT_SET) {
         std::fprintf(lst, "%s  Observations in sets including one or more observations%s", prefix.c_str(),
-                just1 ? " " : ":");
+                     just1 ? " " : ":");
     } else {
         std::fprintf(lst, "%s  Observations%s", prefix.c_str(), just1 ? " " : ":");
     }
@@ -1381,19 +1383,20 @@ void summarize_obs_modifications(void* pobsmod, std::FILE* lst, const std::strin
             } else if (action == OBS_MOD_REJECT) {
                 std::fprintf(lst, "\n%sThe following observations are rejected\n", prefix.c_str());
             } else if (action == OBS_MOD_REWEIGHT) {
-                std::fprintf(lst, "\n%sErrors of the following observations are scaled by %.3lf\n", prefix.c_str(), errfct);
+                std::fprintf(lst, "\n%sErrors of the following observations are scaled by %.3lf\n", prefix.c_str(),
+                             errfct);
             } else if (action == OBS_MOD_REWEIGHT_SET) {
-                std::fprintf(lst, "\n%sErrors of the following observations are scaled by set by %.3lf\n", prefix.c_str(),
-                        errfct);
+                std::fprintf(lst, "\n%sErrors of the following observations are scaled by set by %.3lf\n",
+                             prefix.c_str(), errfct);
             } else if (action == OBS_MOD_OFFSET_ERROR) {
-                std::fprintf(lst, "\n%sOffset error %0.3lf %0.3lf m applied to the following observations\n", prefix.c_str(),
-                        match->factor, match->factor2);
+                std::fprintf(lst, "\n%sOffset error %0.3lf %0.3lf m applied to the following observations\n",
+                             prefix.c_str(), match->factor, match->factor2);
             } else if (action == OBS_MOD_CENTROID_ERROR) {
                 std::fprintf(lst, "\n%sCentroid error %0.3lf %0.3lf m applied to the following observations\n",
-                        prefix.c_str(), match->factor, match->factor2);
+                             prefix.c_str(), match->factor, match->factor2);
             } else if (action == OBS_MOD_ANTENNA_OFFSET) {
                 std::fprintf(lst, "\n%sAntenna offset %0.3lf m applied to the following GX/GB observations\n",
-                        prefix.c_str(), match->factor);
+                             prefix.c_str(), match->factor);
             }
             while (match != criteria_end) {
                 summarize_obs_criteria(lst, prefix, *match, obsmod->classes);
@@ -1425,7 +1428,7 @@ void summarize_obs_modifications(void* pobsmod, std::FILE* lst, const std::strin
 
         if (action & (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) && ncriteria > 1) {
             std::fprintf(lst, "\n%sNote: error factors are multiplied for observations meeting several criteria\n",
-                    prefix.c_str());
+                         prefix.c_str());
         }
     }
 }

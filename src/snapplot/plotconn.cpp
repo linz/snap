@@ -90,7 +90,7 @@ struct conn_data {
     float sres;          /* standardised residual */
     float rfac;          /*  factor */
     double date;         /*  date of observation */
-    std::int64_t bloc;        /* location of binary data in data source */
+    std::int64_t bloc;   /* location of binary data in data source */
     int idata;           /* Index of data in data block in file */
     int cclass[1];       /* Classifications */
 };

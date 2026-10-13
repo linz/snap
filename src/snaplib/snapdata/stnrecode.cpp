@@ -594,7 +594,8 @@ int read_station_recode_definition(stn_recode_map* stt, std::string_view def, co
     return ok ? OK : INVALID_DATA;
 }
 
-void print_stn_recode_list(std::FILE* out, stn_recode_map* stt, bool onlyused, int stn_name_width, std::string_view prefix) {
+void print_stn_recode_list(std::FILE* out, stn_recode_map* stt, bool onlyused, int stn_name_width,
+                           std::string_view prefix) {
     if (!stt) {
         return;
     }

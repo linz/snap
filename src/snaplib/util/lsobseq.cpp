@@ -225,7 +225,8 @@ void print_obseqn_json(std::FILE* out, void* hA, const std::optional<std::string
 
     std::fprintf(out, "{\n%*s", nprefix, "");
     if (source) {
-        std::fprintf(out, "  \"source\": %.*s,\n%*s", boost::numeric_cast<int>(source->size()), source->data(), nprefix, "");
+        std::fprintf(out, "  \"source\": %.*s,\n%*s", boost::numeric_cast<int>(source->size()), source->data(), nprefix,
+                     "");
     }
     std::fprintf(out, "  \"nobs\": %d,\n%*s", A->nrow, nprefix, "");
     std::fprintf(out, "  \"obs\": [\n%*s", nprefix, "");

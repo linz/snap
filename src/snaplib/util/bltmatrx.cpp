@@ -878,7 +878,7 @@ void print_bltmatrix_json(bltmatrix* blt, std::FILE* out, int nprefix, int optio
 
     if (!matonly) {
         std::fprintf(out, "{\n%*s\"nrows\": %d,\n%*s\"nsparse\": %d,\n%*s\"col0\": [", nprefix, "", nrows, nprefix, "",
-                blt->nsparse, nprefix, "");
+                     blt->nsparse, nprefix, "");
         for (ir = 0; ir < nrows; ir++) {
             if (ir) {
                 if (ir % 20 == 0) {

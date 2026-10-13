@@ -35,8 +35,8 @@ struct grid_def {
     // is called (see create_grid_def in griddata.cpp) - this constructor
     // itself always succeeds; a load failure means it is never called at
     // all.
-    grid_def(std::FILE* bin, long indexloc, double miny, double maxy, double minx, double maxx, double vres, short ngrdy,
-             short ngrdx, short ngrdval, short latlon, int rowfmt, std::optional<std::string> desc1,
+    grid_def(std::FILE* bin, long indexloc, double miny, double maxy, double minx, double maxx, double vres,
+             short ngrdy, short ngrdx, short ngrdval, short latlon, int rowfmt, std::optional<std::string> desc1,
              std::optional<std::string> desc2, std::optional<std::string> desc3, std::optional<std::string> crdsys,
              file_row* rows);
     ~grid_def();

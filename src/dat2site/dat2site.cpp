@@ -404,10 +404,11 @@ static void add_vecdata(stn* from, stn* to, double value[3], int type) {
         rcn = get_connection(to, from);
         if (cn->flag & CN_GB) {
             double diff;
-            diff = std::fabs(cn->gb.xyz[0] - value[0]) + std::fabs(cn->gb.xyz[1] - value[1]) + std::fabs(cn->gb.xyz[2] - value[2]);
+            diff = std::fabs(cn->gb.xyz[0] - value[0]) + std::fabs(cn->gb.xyz[1] - value[1]) +
+                   std::fabs(cn->gb.xyz[2] - value[2]);
             if (diff > GB_TOL) {
                 std::fprintf(errlog, "\nFrom %s to %s\n: GPS baselines differ by %.2f m\n", from->code.c_str(),
-                        to->code.c_str(), diff);
+                             to->code.c_str(), diff);
                 errcount++;
             }
             cn->gb.xyz[0] = (cn->gb.xyz[0] + value[0]) / 2;
@@ -426,7 +427,8 @@ static void add_vecdata(stn* from, stn* to, double value[3], int type) {
     } else if (type == GX) {
         if (to->flag & CN_GX) {
             double diff;
-            diff = std::fabs(value[0] - to->gx.xyz[0]) + std::fabs(value[1] - to->gx.xyz[1]) + std::fabs(value[2] - to->gx.xyz[2]);
+            diff = std::fabs(value[0] - to->gx.xyz[0]) + std::fabs(value[1] - to->gx.xyz[1]) +
+                   std::fabs(value[2] - to->gx.xyz[2]);
             if (diff > GX_TOL) {
                 std::fprintf(errlog, "\nFrom %s\n: Point coordinate obs differ by %.2f m\n", to->code.c_str(), diff);
                 errcount++;
@@ -456,8 +458,8 @@ static void add_dsdata(stn* from, stn* to, double dist, char type) {
             double diff;
             diff = std::fabs(cn->ds.ds - dist);
             if (diff > DS_TOL) {
-                std::fprintf(errlog, "From %s to %s: Distances differ by %.1f m\n", from->code.c_str(), to->code.c_str(),
-                        diff);
+                std::fprintf(errlog, "From %s to %s: Distances differ by %.1f m\n", from->code.c_str(),
+                             to->code.c_str(), diff);
             }
             cn->ds.ds = dist;
             cn->ds.type = type;
@@ -484,7 +486,7 @@ static void add_zddata(stn* from, stn* to, double zd) {
         diff = std::fabs(cn->zd.zd - zd);
         if (diff > ZD_TOL) {
             std::fprintf(errlog, "From %s to %s: Zenith distances differ by %.3f degrees\n", from->code.c_str(),
-                    to->code.c_str(), diff);
+                         to->code.c_str(), diff);
             errcount++;
         }
         cn->zd.zd = (cn->zd.zd + zd) / 2.0;
@@ -507,8 +509,8 @@ static void add_lvdata(stn* from, stn* to, double hd) {
         double diff;
         diff = std::fabs(cn->lv.hd - hd);
         if (diff > LV_TOL) {
-            std::fprintf(errlog, "From %s to %s: Height differences differ by %.1fm\n", from->code.c_str(), to->code.c_str(),
-                    diff);
+            std::fprintf(errlog, "From %s to %s: Height differences differ by %.1fm\n", from->code.c_str(),
+                         to->code.c_str(), diff);
             errcount++;
         }
         cn->lv.hd = (cn->lv.hd + hd) / 2.0;
@@ -541,7 +543,7 @@ static void add_azdata(stn* from, stn* to, double az, int* ro_id, double* ro_cor
             diff = std::fabs(diff);
             if (diff > AZ_TOL) {
                 std::fprintf(errlog, "From %s to %s: Angle/azimuth discrepancy of %.2f deg\n", from->code.c_str(),
-                        to->code.c_str(), diff * RTOD);
+                             to->code.c_str(), diff * RTOD);
                 errcount++;
             }
             cn->az.az = (cn->az.az + az) / 2.0;
@@ -718,8 +720,8 @@ static void convert_zd_to_lv(stn* from, stn* to, double arcdist) {
         a2 = rcn->zd.zd + corr;
         diff = std::fabs(a1 + a2 - PI);
         if (diff > ZD_TOL) {
-            std::fprintf(errlog, "From %s to %s: Zenith distances differ by %.1f deg", from->code.c_str(), to->code.c_str(),
-                    diff * RTOD);
+            std::fprintf(errlog, "From %s to %s: Zenith distances differ by %.1f deg", from->code.c_str(),
+                         to->code.c_str(), diff * RTOD);
             errcount++;
         }
         zd = (a1 + PI - a2) / 2.0;

@@ -511,7 +511,7 @@ static void print_rftrans(rfTransformation* rf, double semult, std::FILE* out, i
 
     std::fprintf(out, "\nReference frame: %s\n", rf->name.c_str());
     std::fprintf(out, "\n   %s as a %s reference frame\n", calced ? "Calculated" : "Defined",
-            rf->istopo ? "topocentric" : "geocentric");
+                 rf->istopo ? "topocentric" : "geocentric");
     if (!rf->usetrans) {
         std::fprintf(out, "   Reference frame translations are not used in this adjustment\n");
     }
@@ -526,7 +526,7 @@ static void print_rftrans(rfTransformation* rf, double semult, std::FILE* out, i
     }
     if (rf->localorigin) {
         std::fprintf(out, "   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n", rf->origin[0],
-                rf->origin[1], rf->origin[2]);
+                     rf->origin[1], rf->origin[2]);
     }
 
     if (output_types & OUTPUT_IERS) {
@@ -546,11 +546,11 @@ static void print_rftrans(rfTransformation* rf, double semult, std::FILE* out, i
             units = "mm";
             factor = 1000.0;
         }
-        std::fprintf(out, "\n   Translation at origin (%.4lf, %.4lf, %.4lf) %s\n", oshift[0] * factor, oshift[1] * factor,
-                oshift[2] * factor, units);
+        std::fprintf(out, "\n   Translation at origin (%.4lf, %.4lf, %.4lf) %s\n", oshift[0] * factor,
+                     oshift[1] * factor, oshift[2] * factor, units);
         if (rf->userates) {
             std::fprintf(out, "\n   Translation rate at origin (%.4lf, %.4lf, %.4lf) %s/yr\n", oshiftrate[0] * factor,
-                    oshiftrate[1] * factor, oshiftrate[2] * factor, units);
+                         oshiftrate[1] * factor, oshiftrate[2] * factor, units);
         }
     }
 
@@ -603,7 +603,8 @@ void print_rftrans_list(std::FILE* out) {
 
     print_section_header(out, "REFERENCE FRAME PARAMETERS");
 
-    std::fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
+    std::fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n",
+                 apriori ? "apriori" : "aposteriori");
 
     if (topo_header) {
         const DmsFormat latitudeFormat(3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S");

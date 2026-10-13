@@ -1047,8 +1047,8 @@ static void write_station_index(stn_relacc_array* ra) {
     std::fprintf(out, "    id %-*s role prty\n", stn_name_width, "code");
     for (i = 0; i < ra->nstn; i++) {
         const int ist0 = i + 1;
-        std::fprintf(out, "  %4d %-*s %4d %4d\n", ist0, stn_name_width, stnptr(ist0)->Code.c_str(), f_station_role(ra, i),
-                f_station_priority(ra, i));
+        std::fprintf(out, "  %4d %-*s %4d %4d\n", ist0, stn_name_width, stnptr(ist0)->Code.c_str(),
+                     f_station_role(ra, i), f_station_priority(ra, i));
     }
     std::fprintf(out, "\n");
 }
@@ -1265,7 +1265,7 @@ static void write_coord_files(const SDCTest& hsdc, stn_relacc_array* ra, const s
             const std::string order = (iorder ? hsdc.tests[iorder - 1].scOrder : dfltOrder).str();
             const std::string crdfile = fname + "_" + order + ".crd";
             std::sprintf(comment, "Stations assigned order %s by snapspec - run at %s", order.c_str(),
-                    spec_run_time.c_str());
+                         spec_run_time.c_str());
             station_order = iorder;
             write_network(net, crdfile, comment, coord_precision, stations_of_order);
             break;
@@ -1330,7 +1330,8 @@ static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_arr
 
     if (!net->order_count()) {
         if (ra->logfile) {
-            std::fprintf(ra->logfile, "Cannot determine control station orders as network doesn't have order information\n");
+            std::fprintf(ra->logfile,
+                         "Cannot determine control station orders as network doesn't have order information\n");
         }
         std::printf("Cannot determine control station orders as network doesn't have order information\n");
         return MaxControlOrder(-1);
@@ -1403,7 +1404,7 @@ static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_arr
         if (iorder == -2) {
             if (ra->logfile) {
                 std::fprintf(ra->logfile, "Control station %s has unrecognised order %s\n", st->Code.c_str(),
-                        net->order(orderid).c_str());
+                             net->order(orderid).c_str());
             }
             nbadorder++;
             order_lookup[orderid] = -3;
@@ -1424,7 +1425,8 @@ static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_arr
                 if (i == 0) {
                     std::printf("Control stations have undefined orders\n");
                 } else {
-                    std::printf("Control stations order %s not defined in snapspec configuration\n", net->order(i).c_str());
+                    std::printf("Control stations order %s not defined in snapspec configuration\n",
+                                net->order(i).c_str());
                 }
             }
         }
@@ -2044,7 +2046,7 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
                             char errmsg1[80];
                             char errmsg2[MAX_FILENAME_LEN + 80];
                             std::sprintf(errmsg1, "Invalid order %.10s in station configuration file",
-                                    field[orderfield]->c_str());
+                                         field[orderfield]->c_str());
                             std::sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
                             handle_error(INVALID_DATA, errmsg1, errmsg2);
                             sts = INVALID_DATA;
@@ -2066,7 +2068,7 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
                         char errmsg1[80];
                         char errmsg2[MAX_FILENAME_LEN + 80];
                         std::sprintf(errmsg1, "Invalid priority %.10s in station configuration file",
-                                field[priorityfield]->c_str());
+                                     field[priorityfield]->c_str());
                         std::sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
                         handle_error(INVALID_DATA, errmsg1, errmsg2);
                         sts = INVALID_DATA;
@@ -2229,7 +2231,8 @@ static int read_station_config_command(CFG_FILE* cfg, std::string_view string, v
         const int sts = read_station_config_file(*cfn, *(stn_relacc_array**)value, csv);
         if (sts != OK) {
             char buf[100 + MAX_FILENAME_LEN];
-            std::sprintf(buf, "Errors encountered reading station configuration file %.*s", MAX_FILENAME_LEN, cfn->c_str());
+            std::sprintf(buf, "Errors encountered reading station configuration file %.*s", MAX_FILENAME_LEN,
+                         cfn->c_str());
             send_config_error(cfg, INVALID_DATA, buf);
         }
     } else {
@@ -2663,10 +2666,10 @@ int main(int argc, char* argv[]) {
     if (reload_covariances(b, ra) != OK ||
         (!relacc_create_blt_req(ra) && (reload_relative_covariances(b, ra) != OK || check_relacc_complete(ra) != OK))) {
         std::fprintf(out,
-                "Cannot reload covariance data from binary file %s\n"
-                "Make sure that the SNAP command file includes \"output all_relative_covariances\"\n"
-                "or \"output decomposition\"\n",
-                bfn.c_str());
+                     "Cannot reload covariance data from binary file %s\n"
+                     "Make sure that the SNAP command file includes \"output all_relative_covariances\"\n"
+                     "or \"output decomposition\"\n",
+                     bfn.c_str());
         std::printf(
             "snapspec: Cannot reload covariance data from binary file %s\n"
             "Make sure the SNAP command file includes\n"

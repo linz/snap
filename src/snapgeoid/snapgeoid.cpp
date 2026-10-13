@@ -175,7 +175,7 @@ int main(int argc, char* argv[]) {
 
     if (!quiet) {
         std::printf("%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n", PROGRAM_NAME,
-               PROGRAM_VERSION);
+                    PROGRAM_VERSION);
     }
 
     if (syntax_error) {

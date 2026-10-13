@@ -200,7 +200,7 @@ void print_coord_covariance_json(void) {
             double easting;
             geog_to_proj(net->crdsys->prj, st->ELon, st->ELat, &easting, &northing);
             std::fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision, easting, (int)coord_precision, northing,
-                    (int)coord_precision, height);
+                         (int)coord_precision, height);
         } else if (geocentric_coords) {
             double llh[3];
             double xyz[3];
@@ -209,10 +209,10 @@ void print_coord_covariance_json(void) {
             llh[CRD_HGT] = height;
             llh_to_xyz(elp, llh, xyz, nullptr, nullptr);
             std::fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision, xyz[0], (int)coord_precision, xyz[1],
-                    (int)coord_precision, xyz[2]);
+                         (int)coord_precision, xyz[2]);
         } else {
             std::fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision + 6, st->ELon * RTOD, (int)coord_precision + 6,
-                    st->ELat * RTOD, (int)coord_precision, height);
+                         st->ELat * RTOD, (int)coord_precision, height);
         }
         std::fprintf(f, "    }");
 
@@ -442,8 +442,8 @@ void print_coord_sinex(void) {
             const std::string longitudeText = dms_string(lon, longitudeFormat);
 
             std::fprintf(f, " %-4.4s %-2.2s %-9.9s P %-22.22s %11.11s %11.11s %7.1lf\n", st->Code.c_str(), mark,
-                    st->Code.c_str(), st->Name.c_str(), longitudeText.c_str(), latitudeText.c_str(),
-                    st->OHgt + st->GUnd);
+                         st->Code.c_str(), st->Name.c_str(), longitudeText.c_str(), latitudeText.c_str(),
+                         st->OHgt + st->GUnd);
         }
         std::fprintf(f, "-SITE/ID\n");
     }

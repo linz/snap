@@ -97,7 +97,8 @@ void list_obsdata(std::FILE* out, survdata* o) {
         std::fprintf(out, "%2s%c  ", datatype[type].code.data(), t->tgt.unused ? '*' : ' ');
 
         if (datatype[type].isangle) {
-            std::fprintf(out, "%11s   %6.1lf", dms_string(t->value * RTOD, angle_format(type)).c_str(), t->error * RTOS);
+            std::fprintf(out, "%11s   %6.1lf", dms_string(t->value * RTOD, angle_format(type)).c_str(),
+                         t->error * RTOS);
         } else {
             std::fprintf(out, "%11.4lf   %6.4lf", t->value, t->error);
         }
@@ -215,7 +216,7 @@ int obsdata_obseq(survdata* o, void* hA, int nextra) {
         if (value < 0.0001) {
             char buf[256];
             std::sprintf(buf, "Unable to calculate %s obs from colocated stations %s to %s - obs not used",
-                    datatype[t->tgt.type].name.data(), st1->Code.c_str(), st2->Code.c_str());
+                         datatype[t->tgt.type].name.data(), st1->Code.c_str(), st2->Code.c_str());
 
             handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             status = INVALID_DATA;
@@ -276,7 +277,7 @@ int obsdata_obseq(survdata* o, void* hA, int nextra) {
                 if (obsstatus != OK) {
                     char buf[256];
                     std::sprintf(buf, "Unable to calculate %s projection bearin from %s to %s - obs not used",
-                            bproj_name(o->reffrm).data(), st1->Code.c_str(), st2->Code.c_str());
+                                 bproj_name(o->reffrm).data(), st1->Code.c_str(), st2->Code.c_str());
                     handle_error(WARNING_ERROR, buf, NO_MESSAGE);
                     status = INVALID_DATA;
                     continue;
@@ -518,8 +519,8 @@ void list_obsdata_residuals(std::FILE* out, survdata* o, double semult) {
             }
             se *= semult;
 
-            std::fprintf(out, "\n%*sDistance scale factor %.1lfppm +/- %.1lfppm\n", stn_name_width * 2 + 2, "", o->schval,
-                    se);
+            std::fprintf(out, "\n%*sDistance scale factor %.1lfppm +/- %.1lfppm\n", stn_name_width * 2 + 2, "",
+                         o->schval, se);
         }
     }
 }

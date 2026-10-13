@@ -361,7 +361,8 @@ std::optional<ColumnSource> TableDefinition::classColumn(const std::string_view 
     return ColumnSource{std::string_view(), 0, 0, JST_LEFT, TYPE_TEXT, classIds.size() - 1};
 }
 
-void TableWriter::_printField(TableColumn& column, const std::string_view text, const int quoting, std::FILE* out) const {
+void TableWriter::_printField(TableColumn& column, const std::string_view text, const int quoting,
+                              std::FILE* out) const {
     if (!column.extralen) {
         int extralen = 0;
         if (quoting == QT_QUOTE && _quote) {

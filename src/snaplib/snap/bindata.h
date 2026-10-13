@@ -20,7 +20,7 @@
 struct bindata {
     std::int64_t loc = 0;   ///< Location of structure on the file
     std::int64_t size = 0;  ///< The size of the data element on the file
-    int bintype = 0;   ///< The binary data format - see enum below
+    int bintype = 0;        ///< The binary data format - see enum below
     std::vector<unsigned char>
         buffer;  ///< The data element, for SURVDATA a survdata followed by its variable width data
 

@@ -256,7 +256,7 @@ int snap_main(int argc, char* argv[]) try {
 
     if (output_file_summary) {
         std::fprintf(lst, "\n\nCoordinates file %s\n    %4d stations read\n", station_file->filename.c_str(),
-                number_of_stations(net));
+                     number_of_stations(net));
     }
 
     if (geoid_file) {
@@ -508,7 +508,7 @@ int snap_main(int argc, char* argv[]) try {
 
         if (maxadj > max_adjustment) {
             std::sprintf(errmess, "Adjustment %.4lf at station %s greater than allowable maximum", maxadj,
-                    station_code(maxstn).c_str());
+                         station_code(maxstn).c_str());
             handle_error(WARNING_ERROR, errmess, NO_MESSAGE);
             break;
         }
@@ -807,7 +807,7 @@ static void print_command_file(void) {
         return;
     }
     std::fprintf(lst, "\nThe command file %s contains:\n",
-            std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
+                 std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
     while (std::fgets(inrec, 256, cmd)) {
         if (std::strlen(inrec) == 0) {
             continue;

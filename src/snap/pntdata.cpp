@@ -141,7 +141,7 @@ void list_pntdata(std::FILE* out, survdata* p) {
     list_note(out, t->noteloc);
 
     std::fprintf(out, "%2d:%-4d  %-*s %5.3lf  ", (int)(p->file + 1), (int)(t->lineno), stn_name_width,
-            station_code(p->from).c_str(), 0.0);
+                 station_code(p->from).c_str(), 0.0);
 
     std::fprintf(out, "%*s        ", stn_name_width, "");
     std::fprintf(out, "%2s%c  ", datatype[type].code.data(), t->unused ? '*' : ' ');
@@ -149,11 +149,11 @@ void list_pntdata(std::FILE* out, survdata* p) {
     switch (type) {
         case LT:
             std::fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *latitudeObservationFormat).c_str(),
-                    pd->error * RTOS);
+                         pd->error * RTOS);
             break;
         case LN:
             std::fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *longitudeObservationFormat).c_str(),
-                    pd->error * RTOS);
+                         pd->error * RTOS);
             break;
         case OH:
         case EH:
