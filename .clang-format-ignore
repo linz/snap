@@ -1,0 +1,4 @@
+src/third_party/**
+tools/lapg/**
+src/snapplot/resource.h
+src/snap_manager/scriptimp_parse.cpp
