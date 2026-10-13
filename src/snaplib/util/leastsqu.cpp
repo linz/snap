@@ -727,7 +727,7 @@ void lsq_invert_normal_equations( void )
 /* Routine to return one or more parameters with their a priori covariance */
 /* Doesn't check that the parameter numbers are valid */
 
-void lsq_get_params( int row[], int nrows, double *value, ltmat covar )
+void lsq_get_params( const int row[], int nrows, double *value, ltmat covar )
 {
     int c;
     int r;
@@ -779,7 +779,7 @@ static double calc_vtNv( obsrow *o1, bltmatrix *N, obsrow *o2 )
 /* Vector product of a vector in sparse storage format with a full
    vector */
 
-static double vecprd_ov( obsrow *obs, ltmat vec )
+static double vecprd_ov( obsrow *obs, const_ltmat vec )
 {
     int icol;
     double *val;
@@ -827,7 +827,7 @@ static double vecprd_ol( obsrow *obs, bltmatrix *N, int irow )
 
 /* Vector product of a vector with a matrix in symmetric format */
 
-static double vecprd_vl( ltmat vec, ltmat cvr, int irow, int nrow )
+static double vecprd_vl( const_ltmat vec, const_ltmat cvr, int irow, int nrow )
 {
     int icol;
     double sum;

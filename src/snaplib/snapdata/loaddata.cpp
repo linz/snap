@@ -851,7 +851,7 @@ void ldt_nextdata( int type )
 }
 
 
-void ldt_value( double *value )
+void ldt_value( const double *value )
 {
     int i;
 
@@ -871,7 +871,7 @@ void ldt_value( double *value )
     gotval = 1;
 }
 
-void ldt_error( double *error )
+void ldt_error( const double *error )
 {
     int i;
 
@@ -894,7 +894,7 @@ void ldt_error( double *error )
 /* Note: this should be called only when all the vectors have been read,
    (ie nobs is correct) */
 
-ltmat ldt_covariance( int type, double* mmerr )
+ltmat ldt_covariance( int type, const double* mmerr )
 {
     DEBUG_PRINT(("LDT: ldt_covariance %d", (int) type ));
 

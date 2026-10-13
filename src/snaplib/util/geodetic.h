@@ -45,11 +45,11 @@ struct rotmat
 
     /// Rotates a vector from the geocentric axes to the local axes.  The
     /// input and output may be the same vector.
-    void rotvec( vector3 in, vector3 out ) const;
+    void rotvec( const vector3 in, vector3 out ) const;
 
     /// Rotates a vector from the local axes to the geocentric axes.  The
     /// input and output may be the same vector.
-    void unrotvec( vector3 in, vector3 out ) const;
+    void unrotvec( const vector3 in, vector3 out ) const;
 
     /// The local vertical as a unit vector in the geocentric axes.
     void rot_vertical( vector3 vrt ) const;
@@ -59,16 +59,16 @@ static_assert( sizeof(rotmat) == 4*sizeof(double), "rotmat is written to disk as
 
 /* Basic vector functions */
 
-double vecdot( vector3 vec1, vector3 vec2 ) ;
+double vecdot( const vector3 vec1, const vector3 vec2 ) ;
 double veclen( vector3 vec ) ;
-void vecprd( vector3 vec1, vector3 vec2, vector3 prd ) ;
-void vecadd2( vector3 vec1, double mult1, vector3 vec2, double mult2,
+void vecprd( const vector3 vec1, const vector3 vec2, vector3 prd ) ;
+void vecadd2( const vector3 vec1, double mult1, const vector3 vec2, double mult2,
               vector3 res ) ;
-void vecadd( vector3 vec1, vector3 vec2, vector3 sum );
-void vecdif( vector3 vec1, vector3 vec2, vector3 dif );
+void vecadd( const vector3 vec1, const vector3 vec2, vector3 sum );
+void vecdif( const vector3 vec1, const vector3 vec2, vector3 dif );
 void scalevec( vector3 vec, double mult );
-void veccopy( vector3 vec, vector3 copy );
+void veccopy( const vector3 vec, vector3 copy );
 
-void premult3( double *m1, double *m2, double *mr, int ndim );
+void premult3( const double *m1, const double *m2, double *mr, int ndim );
 
 #endif /* GEODETIC_H not defined */

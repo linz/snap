@@ -311,7 +311,7 @@ static int check_crdsys_range( coordsys *cs, double llh[3] )
 
 
 int convert_coords( coord_conversion *conv,
-                    double *fenh, double *fexu,
+                    const double *fenh, const double *fexu,
                     double *tenh, double *texu )
 {
 
@@ -575,7 +575,7 @@ int en_coords_in_range( coordsys *cs, double e, double n )
 }
 
 
-int ll_coords_in_range( coordsys *cs, double *lon, double *lat )
+int ll_coords_in_range( coordsys *cs, double *lon, const double *lat )
 {
     double llh[3];
     int result;

@@ -356,8 +356,8 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
     }
 }
 
-static void print_rftrans_def( const std::array<std::string_view,14> &rownames, int *row, int *identical,
-                               double *val, double *cvr, double *vmult, double semult, int *display, 
+static void print_rftrans_def( const std::array<std::string_view,14> &rownames, const int *row, int *identical,
+                               const double *val, double *cvr, const double *vmult, double semult, const int *display, 
                                FILE *out )
 {
     int i;

@@ -76,7 +76,7 @@ static int rf_xyz_describe(  ref_frame *rf, output_string_def *os )
     return OK;
 }
 
-static void calc_dxyz( ref_deformation_xyz *dxyz, double xyz[3], double years, double xyzdif[3] )
+static void calc_dxyz( ref_deformation_xyz *dxyz, const double xyz[3], double years, double xyzdif[3] )
 {
     int i;
     int j;

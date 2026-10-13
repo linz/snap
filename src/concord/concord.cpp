@@ -1832,7 +1832,7 @@ static void write_dms( FILE *out, double deg, int prec, bool no_secs, std::strin
 
 
 
-static void write_coords( FILE *out, double *c1, double *c2, double *c3,
+static void write_coords( FILE *out, const double *c1, const double *c2, const double *c3,
                           std::string_view h1, std::string_view h2, int len, int prec,
                           int vlen, int vprec, AngleFormat dms, bool radians )
 {

@@ -1695,7 +1695,7 @@ void init_displayed_fields()
     }
 }
 
-void set_displayed_fields( int *fields, int nFields )
+void set_displayed_fields( const int *fields, int nFields )
 {
     for( nDisplayFields = 0;
             nDisplayFields < nFields && nDisplayFields < MAX_DISPLAY_FIELDS;

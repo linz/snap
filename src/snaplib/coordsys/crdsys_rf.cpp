@@ -50,7 +50,7 @@ bool compute_use_rates( const double dtxyz[3], const double drxyz[3], double dsc
 }
 
 ref_frame::ref_frame( const std::string &code_, const std::string &name_, ellipsoid *el_,
-                       std::optional<std::string> refcode_, double txyz_[3], double rxyz_[3], double scale_,
+                       std::optional<std::string> refcode_, const double txyz_[3], const double rxyz_[3], double scale_,
                        double refdate_, double dtxyz_[3], double drxyz_[3], double dscale_,
                        ref_frame_func *func_, ref_deformation *def_, int use_iersunits_ ) :
     code( boost::algorithm::to_upper_copy(code_) ),

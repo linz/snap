@@ -1809,7 +1809,7 @@ static int fix_with_hgtdif( stn *st, double *lt, double *ln, double *hgt )
 
 static double vxyz[3], exyz[3], nxyz[3], cxyz[3];
 
-static void setup_plane_projection(  double xyz[3] )
+static void setup_plane_projection(  const double xyz[3] )
 {
     int i;
     double v;
@@ -1880,7 +1880,7 @@ static int setup_plane_projection_at( stn *st )
 }
 
 
-static void plane_to_geodetic( double plxy[2], double *lat, double *lon )
+static void plane_to_geodetic( const double plxy[2], double *lat, double *lon )
 {
     int i;
     double xyz[3];

@@ -79,7 +79,7 @@ int chol_dec( ltmat N, int np )
     return 0;
 }
 
-void chol_slv( ltmat N, ltmat b, ltmat r, int np )
+void chol_slv( ltmat N, const_ltmat b, ltmat r, int np )
 {
     ltmat r1;
     double sum;
@@ -304,7 +304,7 @@ int pvt_chol_dec( ltmat N, int *col, int nprm )
 }
 
 
-void pvt_chol_slv( ltmat N, ltmat b, ltmat r, int *col, int np )
+void pvt_chol_slv( const_ltmat N, const_ltmat b, ltmat r, const int *col, int np )
 {
     double sum;
     int i;
@@ -336,7 +336,7 @@ void pvt_chol_slv( ltmat N, ltmat b, ltmat r, int *col, int np )
 }
 
 
-void pvt_chol_inv( ltmat N, ltmat tmp, int *col, int np )
+void pvt_chol_inv( ltmat N, ltmat tmp, const int *col, int np )
 {
     double sum;
     int i;

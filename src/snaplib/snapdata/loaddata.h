@@ -142,8 +142,8 @@ void ldt_tgtstn( int stn_id, double ihgt );
 
 /* Initialises an observation */
 void ldt_nextdata( int type );
-void ldt_value( double *value );
-void ldt_error( double *error );
+void ldt_value( const double *value );
+void ldt_error( const double *error );
 
 void ldt_unused( void );
 
@@ -158,7 +158,7 @@ void ldt_note( std::string_view note );
 
 /* Once all observations in a set are created */
 
-ltmat ldt_covariance( int cvrtype, double *mmerr );
+ltmat ldt_covariance( int cvrtype, const double *mmerr );
 
 void ldt_cancel_data( void );
 void ldt_cancel_trgt( void );

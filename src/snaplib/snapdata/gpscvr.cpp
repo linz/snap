@@ -222,8 +222,8 @@ static void get_rf_enu_xform( int st1, int st2, int rf,
 
 
 
-static void calc_default_cvr( double length, ltmat cvr, double *mmerr2,
-                              double *ppmerr2 )
+static void calc_default_cvr( double length, ltmat cvr, const double *mmerr2,
+                              const double *ppmerr2 )
 {
     int i;
     int j;
@@ -282,7 +282,7 @@ static void transform_cvr( double xform[3][3], ltmat cvr )
       (C(D12) + C(D13) - C(D23))/2.0
    where C(Dij) is the default covariance for the vector from i to j. */
 
-static void build_default_baseline_cvr( survdata *vd, double *mmerr )
+static void build_default_baseline_cvr( survdata *vd, const double *mmerr )
 {
     double xform[3][3];
     int i;
@@ -409,7 +409,7 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
    between them.
    */
 
-static void build_default_point_cvr( survdata *vd, double *mmerr )
+static void build_default_point_cvr( survdata *vd, const double *mmerr )
 {
     double xform[3][3];
     int havecvr;

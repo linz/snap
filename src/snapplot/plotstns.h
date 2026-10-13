@@ -128,7 +128,7 @@ int plot_height_errors( map_plotter *plotter, int first );
 int plot_station_names( map_plotter *plotter, int first );
 int plot_adjustments( map_plotter *plotter, int first );
 
-void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax );
+void calc_error_ellipse( const double cvr[], double *emax, double *emin, double *azemax );
 
 void free_station_resources();
 
