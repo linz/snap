@@ -63,9 +63,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-21 libclang-21-dev llvm-21-dev
       - name: Cache the include-what-you-use build
+        # Both directories: cmake --install copies iwyu_tool.py and the mapping files from the source
+        # directory, and a fresh checkout would be newer than the cached objects and be rebuilt.
         uses: actions/cache@v6.1.0
         with:
-          path: ~/iwyu-build
+          path: |
+            ~/iwyu
+            ~/iwyu-build
           key: iwyu-${{ env.IWYU_COMMIT }}-clang21-noble
       - name: Build include-what-you-use
         run: |
