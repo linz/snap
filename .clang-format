@@ -1,0 +1,12 @@
+BasedOnStyle: Google
+Language: Cpp
+IndentWidth: 4
+ColumnLimit: 120
+AccessModifierOffset: -3
+SortIncludes: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+BreakStringLiterals: false
+ReflowComments: Never
+QualifierAlignment: Left
