@@ -26,10 +26,15 @@ Checks: >
   modernize-use-nodiscard,
   performance-unnecessary-copy-initialization,
   readability-make-member-function-const,
-  performance-unnecessary-value-param
+  performance-unnecessary-value-param,
+  misc-const-correctness
 CheckOptions:
   # string_view("") is not the same as string_view(): data() of the second is a null pointer, which
   # printf-style code cannot take.  Only std::string is checked.
   readability-redundant-string-init.StringNames: '::std::basic_string'
+  # The pointee analysis (const T *p) is wrong in too many places: it proposes const for pointers that are
+  # returned as T *, passed on as T ** or written through, so the fix does not compile.  Only plain
+  # variables and references are checked.
+  misc-const-correctness.WarnPointersAsPointers: 'false'
 HeaderFilterRegex: 'src/.*'
 ExcludeHeaderFilterRegex: 'third_party'
