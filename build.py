@@ -440,7 +440,8 @@ def _format(fix: bool) -> None:
         print(f"clang-format applied to {len(files)} files (see git diff --stat)")
         return
 
-    for file, count in sorted(Counter(os.path.relpath(path, REPO_ROOT) for path in violations).items()):
+    # clang-format reports each path as it was given, which is relative to REPO_ROOT, not to the current directory.
+    for file, count in sorted(Counter((REPO_ROOT / path).relative_to(REPO_ROOT) for path in violations).items()):
         print(f"{count:6d}  {file}")
     if violations:
         print(f"clang-format would change {len(set(violations))} of {len(files)} files")
