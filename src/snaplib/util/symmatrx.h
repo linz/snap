@@ -38,7 +38,7 @@ int pvt_chol_dec(ltmat N, int* col, int np);
 void pvt_chol_slv(const_ltmat N, const_ltmat b, ltmat r, const int* col, int np);
 void pvt_chol_inv(ltmat N, ltmat tmp, const int* col, int np);
 
-void print_ltmat(FILE* out, ltmat N, int nrow, const char* format, int indent);
-void print_ltmat_json(FILE* out, ltmat N, int nrow, const char* format, int indent);
+void print_ltmat(std::FILE* out, ltmat N, int nrow, const char* format, int indent);
+void print_ltmat_json(std::FILE* out, ltmat N, int nrow, const char* format, int indent);
 
 #endif

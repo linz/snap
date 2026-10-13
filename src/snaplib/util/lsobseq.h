@@ -112,10 +112,10 @@ void oe_covar(void* A, int irow, int jrow, double v);
 
 void oe_add_param(obseqn* A, int irow, int c, double v);
 
-void print_obseqn(FILE* out, void* hA);
+void print_obseqn(std::FILE* out, void* hA);
 
 /// Writes the observation equation as JSON. The source, if given, is JSON text describing where the observation came from.
-void print_obseqn_json(FILE* out, void* hA, std::optional<std::string_view> source, int nprefix);
+void print_obseqn_json(std::FILE* out, void* hA, std::optional<std::string_view> source, int nprefix);
 
 #define obseqn_rows(hA) (((obseqn*)hA)->nrow)
 #define obseqn_cvr_diagonal(hA) (((obseqn*)hA)->flag & OE_DIAGONAL_CVR)

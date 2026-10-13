@@ -579,7 +579,7 @@ int lsq_solve_equations(int force_solution) {
         seu = ssr / ndof;
     }
     if (seu > 0.0) {
-        seu = sqrt(seu);
+        seu = std::sqrt(seu);
     }
 
     lsq_status = LSQ_SOLVED;
@@ -1132,56 +1132,56 @@ void lsq_calc_obs(void* hA, double* calc, double* res, double* schprm, double* s
 #undef ATNA
 }
 
-void lsq_print_normal_equations_json(FILE* out, int nprefix) {
+void lsq_print_normal_equations_json(std::FILE* out, int nprefix) {
     int ir;
     if (lsq_status != LSQ_SUMMING) {
         sequence_error("lsq_print_normal_equations_json");
     }
 
-    fprintf(out, "{\n%*s\"nparam\": %d", nprefix, "", nprm);
+    std::fprintf(out, "{\n%*s\"nparam\": %d", nprefix, "", nprm);
     if (nprm) {
-        fprintf(out, ",\n%*s\"b\": [", nprefix, "");
+        std::fprintf(out, ",\n%*s\"b\": [", nprefix, "");
         for (ir = 0; ir < nprm; ir++) {
             if (ir) {
-                fprintf(out, ",");
+                std::fprintf(out, ",");
                 if (ir % 20 == 0) {
-                    fprintf(out, "\n%*s  ", nprefix, "");
+                    std::fprintf(out, "\n%*s  ", nprefix, "");
                 }
             }
-            fprintf(out, "%15.8le", b[ir]);
+            std::fprintf(out, "%15.8le", b[ir]);
         }
-        fprintf(out, "%*s  ]", nprefix, "");
+        std::fprintf(out, "%*s  ]", nprefix, "");
         if (N) {
-            fprintf(out, ",\n%*s\"N\": ", nprefix, "");
+            std::fprintf(out, ",\n%*s\"N\": ", nprefix, "");
             print_bltmatrix_json(N, out, nprefix + 2, BLT_JSON_FULL, nullptr);
         }
     }
-    fprintf(out, "\n%*s}", nprefix, "");
+    std::fprintf(out, "\n%*s}", nprefix, "");
 }
 
-void lsq_print_solution_vector_json(FILE* out, int print_cvr, int nprefix) {
+void lsq_print_solution_vector_json(std::FILE* out, int print_cvr, int nprefix) {
     int ir;
     set_lsq_status(print_cvr ? LSQ_INVERTED : LSQ_SOLVED, "lsq_print_solution");
 
-    fprintf(out, "{\n%*s\"nparam\": %d", nprefix, "", nprm);
+    std::fprintf(out, "{\n%*s\"nparam\": %d", nprefix, "", nprm);
     if (nprm) {
-        fprintf(out, ",\n%*s\"b\": [", nprefix, "");
+        std::fprintf(out, ",\n%*s\"b\": [", nprefix, "");
         for (ir = 0; ir < nprm; ir++) {
             if (ir) {
-                fprintf(out, ",");
+                std::fprintf(out, ",");
                 if (ir % 20 == 0) {
-                    fprintf(out, "\n%*s  ", nprefix, "");
+                    std::fprintf(out, "\n%*s  ", nprefix, "");
                 }
             }
-            fprintf(out, "%15.8le", b[ir]);
+            std::fprintf(out, "%15.8le", b[ir]);
         }
-        fprintf(out, "%*s  ]", nprefix, "");
+        std::fprintf(out, "%*s  ]", nprefix, "");
         if (print_cvr && N) {
-            fprintf(out, ",\n%*s\"N\": ", nprefix, "");
+            std::fprintf(out, ",\n%*s\"N\": ", nprefix, "");
             print_bltmatrix_json(N, out, nprefix + 2, BLT_JSON_FULL, nullptr);
         }
     }
-    fprintf(out, "\n%*s}", nprefix, "");
+    std::fprintf(out, "\n%*s}", nprefix, "");
 }
 
 #ifdef TESTLSQ
@@ -1189,7 +1189,7 @@ void lsq_print_solution_vector_json(FILE* out, int print_cvr, int nprefix) {
 /*===================================================================*/
 /*  TEST CODE FOR LEAST SQUARES ROUTINES                             */
 
-int read_obseqn(FILE* in, void* hA, char* diag) {
+int read_obseqn(std::FILE* in, void* hA, char* diag) {
     int nrow, ncol, icol;
     char opts[5];
     char flag;
@@ -1197,7 +1197,7 @@ int read_obseqn(FILE* in, void* hA, char* diag) {
     double val;
     int i, j;
 
-    if (fscanf(in, "%d%d%4s", &nrow, &ncol, &opts) != 3)
+    if (std::fscanf(in, "%d%d%4s", &nrow, &ncol, &opts) != 3)
         return 0;
     if (opts[0] == 'L')
         flag = OE_LOWERTRI_CVR;
@@ -1217,32 +1217,32 @@ int read_obseqn(FILE* in, void* hA, char* diag) {
     init_oe(hA, nrow, ncol, flag);
 
     for (i = 0; i++ < nrow;) {
-        if (fscanf(in, "%lf", &val) == 0) {
-            if (fgetc(in) == '*') {
+        if (std::fscanf(in, "%lf", &val) == 0) {
+            if (std::fgetc(in) == '*') {
                 oe_flag_unused(hA, i);
-                if (fscanf(in, "%lf", &val) != 1)
+                if (std::fscanf(in, "%lf", &val) != 1)
                     return 0;
             } else
                 return 0;
         }
         oe_value(hA, i, val);
         if (flag & OE_SCHREIBER) {
-            if (fscanf(in, "%lf", &val) != 1)
+            if (std::fscanf(in, "%lf", &val) != 1)
                 return 0;
             oe_schreiber(hA, i, val);
         }
         if (full) {
             for (icol = 0; icol++ < nprm;) {
-                fscanf(in, "%lf", &val);
+                std::fscanf(in, "%lf", &val);
                 if (val != 0.0)
                     oe_param(hA, i, icol, val);
             }
         } else {
             for (;;) {
-                fscanf(in, "%d", &icol);
+                std::fscanf(in, "%d", &icol);
                 if (icol <= 0)
                     break;
-                fscanf(in, "%lf", &val);
+                std::fscanf(in, "%lf", &val);
                 oe_param(hA, i, icol, val);
             }
         }
@@ -1250,7 +1250,7 @@ int read_obseqn(FILE* in, void* hA, char* diag) {
 
     for (i = 0; i++ < nrow;) {
         for (j = flag & OE_DIAGONAL_CVR ? i - 1 : 0; j++ < i;) {
-            if (fscanf(in, "%lf", &val) != 1)
+            if (std::fscanf(in, "%lf", &val) != 1)
                 return 0;
             oe_covar(hA, i, j, val);
         }
@@ -1259,7 +1259,7 @@ int read_obseqn(FILE* in, void* hA, char* diag) {
 }
 
 int main(int argc, char* argv[]) {
-    FILE *in, *out;
+    std::FILE *in, *out;
     int nprm;
     long nobs, nschp, dof;
     int maxrow;
@@ -1278,14 +1278,14 @@ int main(int argc, char* argv[]) {
         xprintf("Need input file name as parameter\n");
         return 0;
     }
-    if (NULL == (in = fopen(argv[1], "r"))) {
+    if (NULL == (in = std::fopen(argv[1], "r"))) {
         xprintf("Cannot open file %s\n", argv[1]);
         return 0;
     }
     if (argc < 3) {
         out = stdout;
     } else {
-        out = fopen(argv[2], "w");
+        out = std::fopen(argv[2], "w");
         if (out == NULL) {
             xprintf("Cannot open output file %s\n", argv[2]);
             return 0;
@@ -1294,7 +1294,7 @@ int main(int argc, char* argv[]) {
 
     /* Read in the order of the equations */
 
-    fscanf(in, "%d", &nprm);
+    std::fscanf(in, "%d", &nprm);
 
     /* Initialise the equations... */
 
@@ -1316,24 +1316,24 @@ int main(int argc, char* argv[]) {
 
     /* Dump out the least squares summation, including b and ssr */
 
-    fputs("\n\nNormal matrix plus b and ssr in final row/column\n", out);
+    std::fputs("\n\nNormal matrix plus b and ssr in final row/column\n", out);
     print_bltmatrix(out, N, "%10.3le", 0);
 
-    fprintf(out, "\n\nSOLUTION GIVES STATUS %d\n", (int)lsq_solve_equations(0));
+    std::fprintf(out, "\n\nSOLUTION GIVES STATUS %d\n", (int)lsq_solve_equations(0));
 
     lsq_get_stats(&nobs, &nprm, &nschp, &dof, &ssr, &seu);
 
-    fprintf(out, "\nSTATISTICS\n");
-    fprintf(out, "nobs = %ld\nnprm = %d\ndof = %ld\nssr = %.4lf\nseu = %.4lf\n\n", nobs, (int)nprm, dof, ssr, seu);
+    std::fprintf(out, "\nSTATISTICS\n");
+    std::fprintf(out, "nobs = %ld\nnprm = %d\ndof = %ld\nssr = %.4lf\nseu = %.4lf\n\n", nobs, (int)nprm, dof, ssr, seu);
 
     for (i = 0; i++ < nprm;) {
         lsq_get_params(i, 1, &val, (ltmat)&var);
-        fprintf(out, "Param %d = %.4lf  var %.8lf\n", (int)i, val, var);
+        std::fprintf(out, "Param %d = %.4lf  var %.8lf\n", (int)i, val, var);
     }
 
     /* Dump out the least squares summation, including b and ssr */
 
-    fputs("\n\nCovariance matrix of parameters\n", out);
+    std::fputs("\n\nCovariance matrix of parameters\n", out);
     print_bltmatrix(out, N, "%10.3le", 0);
 
     /* Create arrays that will be needed..  */
@@ -1347,35 +1347,35 @@ int main(int argc, char* argv[]) {
 
     /* Now go over all observations dumping out the parameters */
 
-    fseek(in, 0L, SEEK_SET);
-    fscanf(in, "%*d");
+    std::fseek(in, 0L, SEEK_SET);
+    std::fscanf(in, "%*d");
 
     while (read_obseqn(in, hA, &diag)) {
         A = (obseqn*)hA;
 
         lsq_calc_obs(hA, calcval, resval, &schval, &schvar, diag, calccvr, rescvr);
 
-        fprintf(out, "\n\nObservation equations\n   observed  calculated  residual\n");
+        std::fprintf(out, "\n\nObservation equations\n   observed  calculated  residual\n");
 
         for (i = 0; i < A->nrow; i++) {
-            fprintf(out, "   %10.4lf  %10.4lf  %10.4lf\n", A->obs[i]->obsv, calcval[i], resval[i]);
+            std::fprintf(out, "   %10.4lf  %10.4lf  %10.4lf\n", A->obs[i]->obsv, calcval[i], resval[i]);
         }
 
         if (diag) {
-            fprintf(out, "\nCovariance of calculated values and residuals\n");
+            std::fprintf(out, "\nCovariance of calculated values and residuals\n");
             for (i = 0; i < A->nrow; i++) {
-                fprintf(out, "%3d   %10.3le  %10.3le\n", (int)i, calccvr[i], rescvr[i]);
+                std::fprintf(out, "%3d   %10.3le  %10.3le\n", (int)i, calccvr[i], rescvr[i]);
             }
         } else {
-            fprintf(out, "\nCovariance of calculated values\n");
+            std::fprintf(out, "\nCovariance of calculated values\n");
             print_ltmat(out, calccvr, A->nrow, "%10.3le", 0);
 
-            fprintf(out, "\nCovariance of residual values\n");
+            std::fprintf(out, "\nCovariance of residual values\n");
             print_ltmat(out, rescvr, A->nrow, "%10.3le", 0);
         }
 
         if (A->flag & OE_SCHREIBER) {
-            fprintf(out, "\n Schreiber %10.4lf  var %10.3le\n", schval, schvar);
+            std::fprintf(out, "\n Schreiber %10.4lf  var %10.3le\n", schval, schvar);
         }
     }
 

@@ -63,7 +63,7 @@ std::string native_path(std::string_view path);
 int path_exists(const std::string& path);
 int is_dir(const std::string& path);
 int file_size(const std::string& path);
-time_t file_modtime(const std::string& path);
+std::time_t file_modtime(const std::string& path);
 
 /// Composes dir, name, and dflt_ext into a single path, with no config subdirectory
 /// and dir taken literally (never as a filename to extract a directory from).
@@ -141,10 +141,10 @@ std::string portable_path(const std::string& path);
 /* Writes path to disk via dump_string (util/dstring.h), normalized via
    portable_path first. Use in place of dump_string for any path being written
    to a .bin file. */
-void dump_filepath(const std::string& path, FILE* f);
+void dump_filepath(const std::string& path, std::FILE* f);
 /* std::optional<std::string> overload, for a genuinely-absent path field -
    writes std::nullopt exactly as dump_string(std::nullopt, f) does. */
-void dump_filepath(const std::optional<std::string>& path, FILE* f);
+void dump_filepath(const std::optional<std::string>& path, std::FILE* f);
 
 /// Searches the user's then the system's configuration directories (each in turn, with
 /// and without dflt_ext) for name inside the configdir subdirectory. Returns nullopt if
@@ -210,16 +210,16 @@ std::optional<std::string> find_file(
    which a non-administrator Windows account often cannot write to. Use a
    proper scratch-file implementation based on the actual temp directory
    (TMP/TEMP/USERPROFILE) instead. */
-FILE* snaptmpfile();
+std::FILE* snaptmpfile();
 #else
-#define snaptmpfile tmpfile
+#define snaptmpfile std::tmpfile
 #endif
 
 /* Skip unicode BOM (byte order marker).  Assumes file pointer is set to beginning of file */
 /* Returns 1 if successful (UTF8 or no BOM), 0 if UTF16 BOM at start of file */
 /* Returns 1 if file pointer is not set to the beginning of the file */
 
-int skip_utf8_bom(FILE* f);
+int skip_utf8_bom(std::FILE* f);
 
 /* Same as skip_utf8_bom(FILE*) above, for a std::istream - identical rules,
    just read via stream operations instead of stdio. */

@@ -196,14 +196,14 @@ int vecdata_obseq(survdata* v, void* hA, int nextra) {
     return OK;
 }
 
-void list_vecdata(FILE* out, survdata* v) {
+void list_vecdata(std::FILE* out, survdata* v) {
     vecdata* t;
     int iobs;
     int axis;
     int j;
     char isvecdif;
 
-    fputs("\n", out);
+    std::fputs("\n", out);
 
     for (iobs = 0; iobs < v->nobs; iobs++) {
         t = &v->obs.vdata[iobs];
@@ -212,48 +212,48 @@ void list_vecdata(FILE* out, survdata* v) {
         list_note(out, t->tgt.noteloc);
         for (axis = 0; axis < 3; axis++) {
             if (axis == 0) {
-                fprintf(out, "%2d:%-4d  ", (int)(v->file + 1), (int)(t->tgt.lineno));
+                std::fprintf(out, "%2d:%-4d  ", (int)(v->file + 1), (int)(t->tgt.lineno));
             } else {
-                fprintf(out, "         ");
+                std::fprintf(out, "         ");
             }
 
             if (isvecdif) {
                 if (axis == 0 && iobs == 0) {
-                    fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(v->from).c_str(), v->fromhgt);
+                    std::fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(v->from).c_str(), v->fromhgt);
                 } else {
-                    fprintf(out, "%*s        ", stn_name_width, "");
+                    std::fprintf(out, "%*s        ", stn_name_width, "");
                 }
             }
 
             if (axis == 0) {
-                fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(t->tgt.to).c_str(), t->tgt.tohgt);
+                std::fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(t->tgt.to).c_str(), t->tgt.tohgt);
             } else {
-                fprintf(out, "%*s        ", stn_name_width, "");
+                std::fprintf(out, "%*s        ", stn_name_width, "");
             }
 
             if (!isvecdif) {
-                fprintf(out, "%*s        ", stn_name_width, "");
+                std::fprintf(out, "%*s        ", stn_name_width, "");
             }
 
             if (axis == 0) {
-                fprintf(out, "%2s%c  ", datatype[t->tgt.type].code.data(), t->tgt.unused ? '*' : ' ');
+                std::fprintf(out, "%2s%c  ", datatype[t->tgt.type].code.data(), t->tgt.unused ? '*' : ' ');
             } else {
-                fprintf(out, "     ");
+                std::fprintf(out, "     ");
             }
 
-            fprintf(out, "%11.4lf  ", t->vector[axis]);
+            std::fprintf(out, "%11.4lf  ", t->vector[axis]);
 
             if (v->nobs == 1) {
                 for (j = 0; j < 3; j++) {
-                    fprintf(out, "  %12.8lf", Lij(v->cvr, axis, j));
+                    std::fprintf(out, "  %12.8lf", Lij(v->cvr, axis, j));
                 }
             }
 
             if (axis == 0 && iobs == 0) {
-                fprintf(out, "   %s", rftrans_from_id(v->reffrm)->name.c_str());
+                std::fprintf(out, "   %s", rftrans_from_id(v->reffrm)->name.c_str());
             }
 
-            fputs("\n", out);
+            std::fputs("\n", out);
         }
 
         {
@@ -265,7 +265,7 @@ void list_vecdata(FILE* out, survdata* v) {
                 std::string class_value;
                 class_name = obs_classes.name(clsf->class_id);
                 class_value = obs_classes.value_name(clsf->class_id, clsf->name_id);
-                fprintf(out, "     %s = %s\n", class_name.c_str(), class_value.c_str());
+                std::fprintf(out, "     %s = %s\n", class_name.c_str(), class_value.c_str());
             }
         }
 
@@ -275,19 +275,19 @@ void list_vecdata(FILE* out, survdata* v) {
             sd = v->syserr + t->tgt.isyserr;
             for (i = 0; i < t->tgt.nsyserr; i += 3, sd += 3) {
                 const std::string_view name = syserr_name(sd->prm_id);
-                fprintf(out, "     Systematic error: %s = %lf %lf %lf\n", name.data(), sd[0].influence, sd[1].influence,
+                std::fprintf(out, "     Systematic error: %s = %lf %lf %lf\n", name.data(), sd[0].influence, sd[1].influence,
                         sd[2].influence);
             }
         }
     }
 
     if (v->nobs > 1) {
-        fprintf(out, "\n      Covariance matrix\n");
+        std::fprintf(out, "\n      Covariance matrix\n");
         print_ltmat(out, v->cvr, v->nobs * 3, "%12.8lf", 6);
     }
 }
 
-void list_vecdata_residuals(FILE* out, survdata* v, double semult) {
+void list_vecdata_residuals(std::FILE* out, survdata* v, double semult) {
     vecdata* t;
     int axis;
     int iobs;
@@ -337,7 +337,7 @@ void list_vecdata_residuals(FILE* out, survdata* v, double semult) {
                 list_file_location(out, v->file, v->obs.vdata[0].tgt.lineno);
             }
 
-            fprintf(out, "\n");
+            std::fprintf(out, "\n");
             list_note(out, t->tgt.noteloc);
 
             /* Determine the parameters to be printed */

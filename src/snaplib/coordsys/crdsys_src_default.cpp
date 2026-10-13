@@ -36,7 +36,7 @@ std::optional<std::string> get_default_crdsys_file() {
 
     /* Try for an environment variable definition */
 
-    const char* envfile = getenv(CRDSYSENV);
+    const char* envfile = std::getenv(CRDSYSENV);
     if (envfile) {
         return std::string(envfile);
     }

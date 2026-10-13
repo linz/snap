@@ -397,9 +397,9 @@ void PointSymbology::SetSymbol(int nNodes, double size, double indent, const wxC
             npt += npt;
         }
 
-        const double angle = (atan(1.0) * 8.0) / npt;
-        cosAngle = cos(angle);
-        sinAngle = sin(angle);
+        const double angle = (std::atan(1.0) * 8.0) / npt;
+        cosAngle = std::cos(angle);
+        sinAngle = std::sin(angle);
         cosStart = 1.0;
         sinStart = 0.0;
 
@@ -412,8 +412,8 @@ void PointSymbology::SetSymbol(int nNodes, double size, double indent, const wxC
         } else {
             size2 = size;
             if (nNodes < 0) {
-                cosStart = cos(angle / 2);
-                sinStart = sin(angle / 2);
+                cosStart = std::cos(angle / 2);
+                sinStart = std::sin(angle / 2);
             }
         }
         pointOffsets = new wxPoint[npt];
@@ -438,8 +438,8 @@ void PointSymbology::CalcOffsets(int refSize) {
     double ox = sinStart;
     for (int i = 0; i < npt; i++) {
         double s = i % 2 ? size : size2;
-        pointOffsets[i].x = floor(ox * s * refSize + 0.5);
-        pointOffsets[i].y = floor(oy * s * refSize + 0.5);
+        pointOffsets[i].x = std::floor(ox * s * refSize + 0.5);
+        pointOffsets[i].y = std::floor(oy * s * refSize + 0.5);
         s = ox * cosAngle + oy * sinAngle;
         oy = oy * cosAngle - ox * sinAngle;
         ox = s;
@@ -480,7 +480,7 @@ void PointSymbology::Render(wxDC& dc, const wxPoint& pt, int refSize, const wxCo
     }
 
     if (npt == 0) {
-        const int radius = floor(size * refSize + 0.5);
+        const int radius = std::floor(size * refSize + 0.5);
         dc.DrawCircle(pt, radius);
     } else {
         if (refSize != this->refSize) {

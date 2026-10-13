@@ -41,18 +41,18 @@ void wxStringLog::DoLogText(const wxString& msg) {
 }
 
 int print_log(const char* format, ...) {
-    va_list args;
+    std::va_list args;
     va_start(args, format);
     return print_log_args(format, args);
 }
 
 // NOTE: Not threadsafe ... designed for efficiency ...
 
-int print_log_args(const char* format, va_list args) {
+int print_log_args(const char* format, std::va_list args) {
     int len;
     static char* buffer = nullptr;
     static int buflen = 0;
-    va_list copy;
+    std::va_list copy;
 
     va_copy(copy, args);
 
@@ -60,7 +60,7 @@ int print_log_args(const char* format, va_list args) {
         buflen = 1024;
         buffer = new char[buflen];
     }
-    len = vsnprintf(buffer, buflen, format, args);
+    len = std::vsnprintf(buffer, buflen, format, args);
     if (buflen < len + 1) {
         if (buffer) {
             delete[] buffer;
@@ -74,7 +74,7 @@ int print_log_args(const char* format, va_list args) {
     }
 
     if (buffer) {
-        len = vsnprintf(buffer, buflen, format, copy);
+        len = std::vsnprintf(buffer, buflen, format, copy);
         wxLogMessage("%s", buffer);
     }
     va_end(copy);

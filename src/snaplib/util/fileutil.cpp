@@ -75,7 +75,7 @@ int is_dir(const std::string& path) {
    pre-C++20 (std::chrono::clock_cast is a C++20 addition, and this
    codebase targets C++17) - stays on _stat's st_mtime rather than
    std::filesystem::last_write_time. */
-time_t file_modtime(const std::string& path) {
+std::time_t file_modtime(const std::string& path) {
     struct _stat info;
     if (_stat(path.c_str(), &info) != 0) {
         return 0;
@@ -195,7 +195,7 @@ std::optional<std::string> user_config_dir() {
     if (usercfg) {
         return usercfg;
     }
-    const char* homedir = getenv("HOME");
+    const char* homedir = std::getenv("HOME");
     if (!homedir) {
         return std::nullopt;
     }
@@ -217,7 +217,7 @@ std::optional<std::string> image_path() {
 std::optional<std::string> user_config_dir() {
     if (usercfg)
         return usercfg;
-    const char* appdata = getenv("APPDATA");
+    const char* appdata = std::getenv("APPDATA");
     if (!appdata)
         return std::nullopt;
     usercfg = std::string(appdata) + PATH_SEPARATOR + USER_CONFIG_BASE;
@@ -262,7 +262,7 @@ static const std::forward_list<std::string>& config_dirs() {
     config_dir_list.emplace();
     auto last = config_dir_list->before_begin();
 
-    if (const char* snapenv = getenv(SNAPENV)) {
+    if (const char* snapenv = std::getenv(SNAPENV)) {
         std::string_view remaining(snapenv);
         while (!remaining.empty()) {
             const size_t end = std::min(remaining.find(PATHENV_SEP), remaining.size());
@@ -334,11 +334,11 @@ std::string portable_path(const std::string& path) {
     return result;
 }
 
-void dump_filepath(const std::string& path, FILE* f) {
+void dump_filepath(const std::string& path, std::FILE* f) {
     dump_string(portable_path(path), f);
 }
 
-void dump_filepath(const std::optional<std::string>& path, FILE* f) {
+void dump_filepath(const std::optional<std::string>& path, std::FILE* f) {
     if (!path) {
         dump_string(std::nullopt, f);
         return;
@@ -522,7 +522,7 @@ std::optional<std::string> find_file(const std::string& name, const std::string&
 }
 
 #ifdef _WIN32
-FILE* snaptmpfile() {
+std::FILE* snaptmpfile() {
     char tmpdir[MAX_PATH];
     char tmpname[MAX_PATH];
     if (!GetTempPathA(MAX_PATH, tmpdir))
@@ -537,18 +537,18 @@ FILE* snaptmpfile() {
 }
 #endif
 
-int skip_utf8_bom(FILE* f) {
+int skip_utf8_bom(std::FILE* f) {
     unsigned char bom[3];
     int nchar;
     if (ftell64(f) != 0) {
         return 1;
     }
-    nchar = fread(bom, 1, 3, f);
+    nchar = std::fread(bom, 1, 3, f);
     if (nchar >= 2 && ((bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE'))) {
         return 0;
     }
     if (nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF') {
-        fseek(f, 0L, SEEK_SET);
+        std::fseek(f, 0L, SEEK_SET);
     }
     return 1;
 }

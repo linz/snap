@@ -472,14 +472,14 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
 static int compile_station_list_file_criteria(station_criteria* sc, network* nw, const std::string& file,
                                               const std::string& basefile, int stacklevel, int missing_error) {
     std::optional<std::string> spec;
-    FILE* list_file;
+    std::FILE* list_file;
     char buf[2048];
     int sts = OK;
 
     spec = find_file(file, DFLTSTLIST_EXT, std::optional<std::string>(basefile), FF_TRYLOCAL, "");
     list_file = nullptr;
     if (spec) {
-        list_file = fopen(spec->c_str(), "r");
+        list_file = std::fopen(spec->c_str(), "r");
     }
 
     if (!list_file) {
@@ -492,7 +492,7 @@ static int compile_station_list_file_criteria(station_criteria* sc, network* nw,
     skip_utf8_bom(list_file);
 
     const size_t source = station_criteria_source_index(sc, file);
-    while (sts == OK && fgets(buf, 2048, list_file)) {
+    while (sts == OK && std::fgets(buf, 2048, list_file)) {
         char* b = buf;
         while (*b && ISSPACE(*b)) {
             b++;
@@ -552,7 +552,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             if (op) {
                 if (curop) {
                     const std::string fieldText(*field);
-                    sprintf(errmess, "\"%s\" out of place in %.100s", fieldText.c_str(), src.c_str());
+                    std::sprintf(errmess, "\"%s\" out of place in %.100s", fieldText.c_str(), src.c_str());
                     break;
                 }
                 /* Except increments stack level by one so can evaluate except clause on stack
@@ -578,14 +578,14 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             /* Add a placeholder for the current operation */
             add_station_criterion(sc, new_criteria_frame(op, stacklevel), source);
             if (station_criteria_source_used(sc, stacklevel, file)) {
-                sprintf(errmess, "Station list file %.100s uses itself", file.c_str());
+                std::sprintf(errmess, "Station list file %.100s uses itself", file.c_str());
                 break;
             }
             /* Embedded station list increments stack level by 2 to distinguish from
              * except stack level */
             sts = compile_station_list_file_criteria(sc, nw, file, basefile, stacklevel + 1, missing_error);
             if (sts != OK) {
-                sprintf(errmess, "Error processing station list file %.100s", file.c_str());
+                std::sprintf(errmess, "Error processing station list file %.100s", file.c_str());
                 break;
             }
             curop.reset();
@@ -605,7 +605,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             const auto pgnfileField = scanner.next();
             if (!pgnfileField) {
                 const std::string fieldText(*field);
-                sprintf(errmess, "Invalid \"%s\" option in %s requires coord sys code and wkt file name",
+                std::sprintf(errmess, "Invalid \"%s\" option in %s requires coord sys code and wkt file name",
                         fieldText.c_str(), src.c_str());
                 break;
             }
@@ -613,7 +613,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             const std::string pgnfile(*pgnfileField);
             cs = load_coordsys(crdsys);
             if (!cs) {
-                sprintf(errmess, "Invalid coordinate system %-20s in \"%s\" option in %s", crdsys.c_str(),
+                std::sprintf(errmess, "Invalid coordinate system %-20s in \"%s\" option in %s", crdsys.c_str(),
                         std::string(*field).c_str(), src.c_str());
                 break;
             }
@@ -621,7 +621,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             std::optional<std::string> spec =
                 find_file(pgnfile, DFLT_WKT_EXT, std::optional<std::string>(basefile), FF_TRYLOCAL, "");
             if (!spec) {
-                sprintf(errmess, "Cannot find WKT polygon file %.50s in %s", pgnfile.c_str(), src.c_str());
+                std::sprintf(errmess, "Cannot find WKT polygon file %.50s in %s", pgnfile.c_str(), src.c_str());
                 break;
             }
 
@@ -632,7 +632,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
                 isgeo = is_geodetic(cs);
                 conv = new coord_conversion(nw->geosys, cs, DEFAULT_CRDSYS_EPOCH);
                 if (!conv->valid) {
-                    sprintf(errmess, "Cannot use WKT coordinate system %.20s in %s option in %s", crdsys.c_str(),
+                    std::sprintf(errmess, "Cannot use WKT coordinate system %.20s in %s option in %s", crdsys.c_str(),
                             std::string(*field).c_str(), src.c_str());
                     delete conv;
                     delete cs;
@@ -642,7 +642,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
 
             void* const pgn = read_polygon_wkt(*spec, isgeo);
             if (!pgn) {
-                sprintf(errmess, "Cannot read WKT polygon file %.50s in %s", pgnfile.c_str(), src.c_str());
+                std::sprintf(errmess, "Cannot read WKT polygon file %.50s in %s", pgnfile.c_str(), src.c_str());
                 delete conv;
                 delete cs;
 
@@ -713,7 +713,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
         }
     }
     if (!errmess[0] && curop) {
-        sprintf(errmess, "Station list cannot end with and, or, or except in %.100s", src.c_str());
+        std::sprintf(errmess, "Station list cannot end with and, or, or except in %.100s", src.c_str());
     }
     if (errmess[0]) {
         sts = INVALID_DATA;

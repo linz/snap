@@ -152,28 +152,28 @@ int main(int argc, char* argv[]) {
     }
 
     if (!quiet) {
-        printf("\n%s %s: Merges two SNAP coordinate files\n\n", PROGRAM_NAME, PROGRAM_VERSION);
+        std::printf("\n%s %s: Merges two SNAP coordinate files\n\n", PROGRAM_NAME, PROGRAM_VERSION);
     }
 
     if (syntaxerror) {
-        printf("Syntax: snapmerge [options] basefile datafile [newfile]\n\n");
-        printf("where\n");
-        printf("  basefile    is the input coordinate file\n");
-        printf("  datafile    is the coordinate file to merge\n");
-        printf("  newfile     is the name of the output coordinate file\n");
-        printf("              (defaults to the same as basefile)\n");
-        printf("and options are:\n");
-        printf("  -o          replace existing stations with new versions\n");
-        printf("  -oc         overwrite coordinates of stations\n");
-        printf("  -oa         overwrite classification attributes of stations\n");
-        printf("  -u          update only .. don't add any new stations\n");
-        printf("  -ua         update classes only .. don't add new classes\n");
-        printf("  -c or -cb   Remove coordinate orders from basefile\n");
-        printf("  -cd         Remove coordinate orders from datafile\n");
-        printf("  -y yyyymmdd Date for coordinate conversion\n");
-        printf("  -l listfile defines a file with a list of station codes to include\n");
-        printf("              from data file - only these codes will be added\n");
-        printf("  -q          quiet mode - minimal output\n");
+        std::printf("Syntax: snapmerge [options] basefile datafile [newfile]\n\n");
+        std::printf("where\n");
+        std::printf("  basefile    is the input coordinate file\n");
+        std::printf("  datafile    is the coordinate file to merge\n");
+        std::printf("  newfile     is the name of the output coordinate file\n");
+        std::printf("              (defaults to the same as basefile)\n");
+        std::printf("and options are:\n");
+        std::printf("  -o          replace existing stations with new versions\n");
+        std::printf("  -oc         overwrite coordinates of stations\n");
+        std::printf("  -oa         overwrite classification attributes of stations\n");
+        std::printf("  -u          update only .. don't add any new stations\n");
+        std::printf("  -ua         update classes only .. don't add new classes\n");
+        std::printf("  -c or -cb   Remove coordinate orders from basefile\n");
+        std::printf("  -cd         Remove coordinate orders from datafile\n");
+        std::printf("  -y yyyymmdd Date for coordinate conversion\n");
+        std::printf("  -l listfile defines a file with a list of station codes to include\n");
+        std::printf("              from data file - only these codes will be added\n");
+        std::printf("  -q          quiet mode - minimal output\n");
 
         return 2;
     }
@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
 
     base = new_network();
     if (read_network(base, basefile, 0) != OK) {
-        printf("Cannot open base coordinate file %s\n", basefile);
+        std::printf("Cannot open base coordinate file %s\n", basefile);
         return 2;
     }
     if (clearbaseorders && base->orderclsid > 0) {
@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 
     data = new_network();
     if (read_network(data, datafile, 0) != OK) {
-        printf("Cannot open data coordinate file %s\n", datafile);
+        std::printf("Cannot open data coordinate file %s\n", datafile);
         return 2;
     }
     if (cleardataorders && data->orderclsid > 0) {
@@ -214,17 +214,17 @@ int main(int argc, char* argv[]) {
 
     if (stnlistfile) {
         char code[81];
-        FILE* list;
-        list = fopen(stnlistfile, "r");
+        std::FILE* list;
+        list = std::fopen(stnlistfile, "r");
         if (!list) {
-            printf("Cannot open station list file %s\n", stnlistfile);
+            std::printf("Cannot open station list file %s\n", stnlistfile);
             return 2;
         }
         skip_utf8_bom(list);
-        while (fscanf(list, "%80s", code) == 1) {
+        while (std::fscanf(list, "%80s", code) == 1) {
             codes.emplace_back(code);
         }
-        fclose(list);
+        std::fclose(list);
         listonly = 1;
     }
 

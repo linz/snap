@@ -47,7 +47,7 @@ static bool datafile_progress(DATAFILE&) {
 }
 // #pragma warning ( default : 4100 )
 
-long read_data_files(FILE* lst) {
+long read_data_files(std::FILE* lst) {
     std::unique_ptr<DATAFILE> d;
     survey_data_file* sd;
     int i;
@@ -112,7 +112,7 @@ long read_data_files(FILE* lst) {
 
         xprintf("\n   Reading data from %s\n", sd->name.c_str());
         if (lst) {
-            fprintf(lst, "\nData file %d: %s\n", (int)(i + 1), sd->name.c_str());
+            std::fprintf(lst, "\nData file %d: %s\n", (int)(i + 1), sd->name.c_str());
         }
 
         misc_errors = get_error_count();
@@ -140,25 +140,25 @@ long read_data_files(FILE* lst) {
 
         if (lst) {
             if (sd->mindate != UNDEFINED_DATE) {
-                fprintf(lst, "    Observations between %s",
+                std::fprintf(lst, "    Observations between %s",
                         date_as_string(sd->mindate, DateStringFormat::timeIfNotMidnight).c_str());
-                fprintf(lst, " and %s\n", date_as_string(sd->maxdate, DateStringFormat::timeIfNotMidnight).c_str());
+                std::fprintf(lst, " and %s\n", date_as_string(sd->maxdate, DateStringFormat::timeIfNotMidnight).c_str());
             }
             if (sd->nnodate > 0) {
-                fprintf(lst, "    %4ld observations do not have a date\n", sd->nnodate);
+                std::fprintf(lst, "    %4ld observations do not have a date\n", sd->nnodate);
             }
             for (c = 0; c < NOBSTYPE; c++) {
                 if (sd->obscount[c]) {
                     xprintf("        %4ld %s%s\n", sd->obscount[c], datatype[c].name.data(), PLURAL(sd->obscount[c]));
                     if (lst) {
-                        fprintf(lst, "    %4ld %s%s\n", sd->obscount[c], datatype[c].name.data(),
+                        std::fprintf(lst, "    %4ld %s%s\n", sd->obscount[c], datatype[c].name.data(),
                                 PLURAL(sd->obscount[c]));
                     }
                 }
             }
 
             if (sd->recode && recodes_used(sd->recode)) {
-                fprintf(lst, "    Recoding stations:\n");
+                std::fprintf(lst, "    Recoding stations:\n");
                 print_stn_recode_list(lst, sd->recode, true, stn_name_width, "    ");
             }
         }
@@ -173,7 +173,7 @@ long read_data_files(FILE* lst) {
             xprintf("   *** %ld error%s reading the file\n", file_errors, PLURAL(file_errors));
 
             if (lst) {
-                fprintf(lst, "   *** %ld error%s reading the file\n", file_errors, PLURAL(file_errors));
+                std::fprintf(lst, "   *** %ld error%s reading the file\n", file_errors, PLURAL(file_errors));
             }
         }
 
@@ -192,7 +192,7 @@ long read_data_files(FILE* lst) {
     if (sts >= WARNING_ERROR) {
         total_errors++;
         if (lst) {
-            fprintf(lst, "\nErrors found in station lists in reweight/reject/ignore observations\n");
+            std::fprintf(lst, "\nErrors found in station lists in reweight/reject/ignore observations\n");
         }
     }
     return total_errors;

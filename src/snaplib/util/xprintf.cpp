@@ -6,12 +6,12 @@ static xprintf_func pf = nullptr;
 
 int xprintf(const char* format, ...) {
     int result;
-    va_list args;
+    std::va_list args;
     va_start(args, format);
     if (pf) {
         result = (*pf)(format, args);
     } else {
-        result = vprintf(format, args);
+        result = std::vprintf(format, args);
     }
     va_end(args);
     return result;

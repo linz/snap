@@ -35,7 +35,7 @@ struct grid_def {
     // is called (see create_grid_def in griddata.cpp) - this constructor
     // itself always succeeds; a load failure means it is never called at
     // all.
-    grid_def(FILE* bin, long indexloc, double miny, double maxy, double minx, double maxx, double vres, short ngrdy,
+    grid_def(std::FILE* bin, long indexloc, double miny, double maxy, double minx, double maxx, double vres, short ngrdy,
              short ngrdx, short ngrdval, short latlon, int rowfmt, std::optional<std::string> desc1,
              std::optional<std::string> desc2, std::optional<std::string> desc3, std::optional<std::string> crdsys,
              file_row* rows);
@@ -45,7 +45,7 @@ struct grid_def {
     // the grid file didn't include that title.
     [[nodiscard]] const std::optional<std::string>& title(int titleno) const;
 
-    FILE* const bin;
+    std::FILE* const bin;
     const long indexloc;
     const double maxy;
     const double miny;
@@ -93,6 +93,6 @@ void grd_delete_grid(grid_def* grd);
 void grd_grid_spacing(grid_def* grd, double* dx, double* dy);
 int grd_calc_cubic(grid_def* grd, double x, double y, double* value);
 int grd_calc_linear(grid_def* grd, double x, double y, double* value);
-void grd_print_grid_data(grid_def* grd, FILE* out, char showGrid);
+void grd_print_grid_data(grid_def* grd, std::FILE* out, char showGrid);
 
 #endif

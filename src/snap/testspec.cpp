@@ -127,25 +127,25 @@ int set_station_spec_testid(int stnid, int testid, int add) {
     return OK;
 }
 
-static void print_spec(FILE* out, SpecDef* spec) {
-    fprintf(out, "\nTesting order specifications: %s\n", spec->name.c_str());
-    fprintf(out, "\nBased on %.2lf %s confidence limits\n", spec->confidence, spec_apriori ? "apriori" : "aposteriori");
+static void print_spec(std::FILE* out, SpecDef* spec) {
+    std::fprintf(out, "\nTesting order specifications: %s\n", spec->name.c_str());
+    std::fprintf(out, "\nBased on %.2lf %s confidence limits\n", spec->confidence, spec_apriori ? "apriori" : "aposteriori");
     if (spec->gothtol) {
-        fprintf(out, "Horizontal accuracy: (error multiplier: %6.2lf)\n", spec->htolfactor);
+        std::fprintf(out, "Horizontal accuracy: (error multiplier: %6.2lf)\n", spec->htolfactor);
         if (spec->htolmax > 0) {
-            fprintf(out, "           Absolute: %5.1lf mm\n", spec->htolmax * 1000);
+            std::fprintf(out, "           Absolute: %5.1lf mm\n", spec->htolmax * 1000);
         }
         if (spec->htolabs > 0 || spec->htolppm > 0) {
-            fprintf(out, "           Relative: %5.1lf mm  %7.3lf ppm\n", spec->htolabs * 1000, spec->htolppm);
+            std::fprintf(out, "           Relative: %5.1lf mm  %7.3lf ppm\n", spec->htolabs * 1000, spec->htolppm);
         }
     }
     if (spec->gotvtol) {
-        fprintf(out, "Vertical accuracy:   (error multiplier: %6.2lf)\n", spec->vtolfactor);
+        std::fprintf(out, "Vertical accuracy:   (error multiplier: %6.2lf)\n", spec->vtolfactor);
         if (spec->vtolmax > 0) {
-            fprintf(out, "           Absolute: %5.1lf mm\n", spec->vtolmax * 1000);
+            std::fprintf(out, "           Absolute: %5.1lf mm\n", spec->vtolmax * 1000);
         }
         if (spec->vtolabs > 0 || spec->vtolppm > 0) {
-            fprintf(out, "           Relative: %5.1lf mm  %7.3lf ppm\n", spec->vtolabs * 1000, spec->vtolppm);
+            std::fprintf(out, "           Relative: %5.1lf mm  %7.3lf ppm\n", spec->vtolabs * 1000, spec->vtolppm);
         }
     }
 }
@@ -179,7 +179,7 @@ void test_specifications(void) {
     }
 
     if (nrej > 0) {
-        fprintf(lst, "\nNote: %d rejected stations not used in specification tests\n", (int)nrej);
+        std::fprintf(lst, "\nNote: %d rejected stations not used in specification tests\n", (int)nrej);
     }
 
     for (i = 0; i < ntestid; i++) {
@@ -200,17 +200,17 @@ void test_specifications(void) {
            degrees of freedom */
 
         if (spec_apriori) {
-            spec->vtolfactor = sqrt(fabs(inv_chi2_distn(prob, 1)));
-            spec->htolfactor = sqrt(fabs(inv_chi2_distn(prob, 2)));
+            spec->vtolfactor = std::sqrt(std::fabs(inv_chi2_distn(prob, 1)));
+            spec->htolfactor = std::sqrt(std::fabs(inv_chi2_distn(prob, 2)));
         } else {
-            spec->vtolfactor = sqrt(fabs(inv_f_distn(prob, 1, dof)));
-            spec->htolfactor = sqrt(fabs(inv_f_distn(prob, 2, dof) * 2));
+            spec->vtolfactor = std::sqrt(std::fabs(inv_f_distn(prob, 1, dof)));
+            spec->htolfactor = std::sqrt(std::fabs(inv_f_distn(prob, 2, dof) * 2));
         }
 
         /* Head up output log for this specification */
 
         if (i) {
-            fprintf(lst,
+            std::fprintf(lst,
                     "\n\n========================================"
                     "========================================\n");
         }
@@ -265,7 +265,7 @@ void test_absolute_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
         return;
     }
 
-    fprintf(lst, "\n------------------------\nAbsolute (network) accuracy tests\n");
+    std::fprintf(lst, "\n------------------------\nAbsolute (network) accuracy tests\n");
 
     nstns = number_of_stations(net);
 
@@ -321,7 +321,7 @@ void test_absolute_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
         }
 
         if (gotvtol) {
-            verr = sqrt(fabs(covar[5]));
+            verr = std::sqrt(std::fabs(covar[5]));
             verr *= spec->vtolfactor;
             if (!apriori) {
                 verr *= seu;
@@ -350,33 +350,33 @@ void test_absolute_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
                 if (gotvtol) {
                     width += 12;
                 }
-                fprintf(lst, "\nRatio of calculated error to tolerance\n\n     ");
+                std::fprintf(lst, "\nRatio of calculated error to tolerance\n\n     ");
                 for (w = 0; w < width; w++) {
-                    fprintf(lst, "=");
+                    std::fprintf(lst, "=");
                 }
-                fprintf(lst, "\n     %-*s    ", stn_name_width, "Station");
+                std::fprintf(lst, "\n     %-*s    ", stn_name_width, "Station");
                 if (gothtol) {
-                    fprintf(lst, "  Horizontal");
+                    std::fprintf(lst, "  Horizontal");
                 }
                 if (gotvtol) {
-                    fprintf(lst, "   Vertical ");
+                    std::fprintf(lst, "   Vertical ");
                 }
-                fprintf(lst, "\n     ");
+                std::fprintf(lst, "\n     ");
                 for (w = 0; w < width; w++) {
-                    fprintf(lst, "=");
+                    std::fprintf(lst, "=");
                 }
-                fprintf(lst, "\n\n");
+                std::fprintf(lst, "\n\n");
                 headed = 1;
             }
 
-            fprintf(lst, "     %-*s  ", stn_name_width, stnptr(istn)->Code.c_str());
+            std::fprintf(lst, "     %-*s  ", stn_name_width, stnptr(istn)->Code.c_str());
             if (gothtol) {
-                fprintf(lst, "    %8.2lf", hratio);
+                std::fprintf(lst, "    %8.2lf", hratio);
             }
             if (gotvtol) {
-                fprintf(lst, "    %8.2lf", vratio);
+                std::fprintf(lst, "    %8.2lf", vratio);
             }
-            fprintf(lst, "\n");
+            std::fprintf(lst, "\n");
         }
     }
 
@@ -385,20 +385,20 @@ void test_absolute_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
     /* Summarise tests for this specification */
 
     if (gothtol) {
-        fprintf(lst, "\nHorizontal tolerance:\n");
-        fprintf(lst, "    Stations tested:              %10ld\n", nstntest);
-        fprintf(lst, "    Stations exceeding tolerance: %10ld\n", nfailh);
+        std::fprintf(lst, "\nHorizontal tolerance:\n");
+        std::fprintf(lst, "    Stations tested:              %10ld\n", nstntest);
+        std::fprintf(lst, "    Stations exceeding tolerance: %10ld\n", nfailh);
         if (istnmaxh) {
-            fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxhratio, stnptr(istnmaxh)->Code.c_str());
+            std::fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxhratio, stnptr(istnmaxh)->Code.c_str());
         }
     }
 
     if (gotvtol) {
-        fprintf(lst, "\nVertical tolerance:\n");
-        fprintf(lst, "    Stations tested:              %10ld\n", nstntest);
-        fprintf(lst, "    Stations exceeding tolerance: %10ld\n", nfailv);
+        std::fprintf(lst, "\nVertical tolerance:\n");
+        std::fprintf(lst, "    Stations tested:              %10ld\n", nstntest);
+        std::fprintf(lst, "    Stations exceeding tolerance: %10ld\n", nfailv);
         if (istnmaxv) {
-            fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxvratio, stnptr(istnmaxv)->Code.c_str());
+            std::fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n", maxvratio, stnptr(istnmaxv)->Code.c_str());
         }
     }
 }

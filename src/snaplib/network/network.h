@@ -365,8 +365,8 @@ void delete_station(station* st);
 
 void stnmultifunc(station* st, void* data);
 
-void dump_station(station* s, FILE* bin);
-station* reload_station(FILE* bin);
+void dump_station(station* s, std::FILE* bin);
+station* reload_station(std::FILE* bin);
 
 /*-------------------------------------------------------------------*/
 /* Geodetic calculations using stations.  These routines calculate various
@@ -472,8 +472,8 @@ void sl_process_stations(station_list* sl, void* data, stnfunc function);
 
 int sl_number_of_stations(station_list* sl);
 
-void dump_station_list(station_list* sl, FILE* f);
-station_list* reload_station_list(FILE* f);
+void dump_station_list(station_list* sl, std::FILE* f);
+station_list* reload_station_list(std::FILE* f);
 
 /* Station code comparison function */
 
@@ -492,7 +492,7 @@ struct station_code_order {
 int station_has_offset(station* st);
 int station_offset_is_deformation(station* st);
 void calc_station_offset(station* st, double date, double denu[3]);
-void print_station_offset(FILE* lst, station* st);
+void print_station_offset(std::FILE* lst, station* st);
 
 /*------------------------------------------------------------------*/
 /* The network                                                      */
@@ -598,8 +598,8 @@ void set_network_topocentre(network* nw, double lat, double lon);
 void get_network_topocentre(network* nw, double* lat, double* lon);
 void get_network_topocentre_xyz(network* nw, double* xyz);
 
-void dump_network(network* nw, FILE* bin);
-network* reload_network(FILE* bin);
+void dump_network(network* nw, std::FILE* bin);
+network* reload_network(std::FILE* bin);
 
 /* Initialise an object to hold station selection criteria */
 /* If maxstn is greater than zero then the criteria have a selection cache installed 

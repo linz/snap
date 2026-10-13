@@ -44,14 +44,14 @@ static std::string get_geoid_filename(const std::optional<std::string>& geoidnam
         filename = find_coordsys_data_file(geoid, GEOID_GRID_EXTENSION);
     }
     /* Else if a specific geoid file is defined */
-    else if (getenv("GEOIDBIN")) {
-        filename = getenv("GEOIDBIN");
+    else if (std::getenv("GEOIDBIN")) {
+        filename = std::getenv("GEOIDBIN");
     }
     /* Else look for a file named according to the GEOID env variable,
        or failing that, the "geoid.grd" */
     else {
-        if (getenv("GEOID")) {
-            geoid = getenv("GEOID");
+        if (std::getenv("GEOID")) {
+            geoid = std::getenv("GEOID");
         }
         filename = find_coordsys_data_file(geoid, GEOID_GRID_EXTENSION);
     }
@@ -130,7 +130,7 @@ coordsys* get_geoid_coordsys(geoid_def* gd) {
     return gd->cs;
 }
 
-void print_geoid_header(geoid_def* gd, FILE* out, int width, std::string_view prefix) {
+void print_geoid_header(geoid_def* gd, std::FILE* out, int width, std::string_view prefix) {
     if (!gd->grd) {
         return;
     }
@@ -139,14 +139,14 @@ void print_geoid_header(geoid_def* gd, FILE* out, int width, std::string_view pr
         if (!s) {
             continue;
         }
-        fwrite(prefix.data(), 1, prefix.size(), out);
+        std::fwrite(prefix.data(), 1, prefix.size(), out);
         if (width > 0) {
             const int nblank = width - boost::numeric_cast<int>(s->size() / 2);
             if (nblank > 0) {
-                fprintf(out, "%*s", nblank, "");
+                std::fprintf(out, "%*s", nblank, "");
             }
         }
-        fprintf(out, "%s\n", s->c_str());
+        std::fprintf(out, "%s\n", s->c_str());
     }
 }
 
@@ -158,12 +158,12 @@ std::string_view geoid_title(geoid_def* gd, int titleno) {
     return title ? std::string_view(*title) : std::string_view();
 }
 
-void print_geoid_data(geoid_def* gd, FILE* out, char showGrid) {
+void print_geoid_data(geoid_def* gd, std::FILE* out, char showGrid) {
     if (!gd->grd) {
-        fprintf(out, "\n\nNo geoid file loaded\n\n");
+        std::fprintf(out, "\n\nNo geoid file loaded\n\n");
         return;
     }
-    fprintf(out, "\n\nDefinition of geoid model\n");
+    std::fprintf(out, "\n\nDefinition of geoid model\n");
     grd_print_grid_data(gd->grd, out, showGrid);
 }
 
@@ -205,7 +205,7 @@ int calculate_geoid_exu(geoid_def* gd, double lat, double lon, double exu[3]) {
        of the reference point, and determine the deflection north from
        these */
 
-    llh[CRD_LAT] -= fabs(gd->gridsize / 2.0) * DTOR;
+    llh[CRD_LAT] -= std::fabs(gd->gridsize / 2.0) * DTOR;
     sts = calculate_geoid_undulation(gd, llh[CRD_LAT], llh[CRD_LON], &u1);
     if (sts != OK) {
         return sts;

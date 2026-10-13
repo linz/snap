@@ -28,16 +28,16 @@
 
 static double calc_m(double e, double lt) {
     double es;
-    es = e * sin(lt);
-    return cos(lt) / sqrt(1 - es * es);
+    es = e * std::sin(lt);
+    return std::cos(lt) / std::sqrt(1 - es * es);
 }
 
 static double calc_t(double e, double lt) {
     double s;
     double es;
-    s = sin(lt);
+    s = std::sin(lt);
     es = e * s;
-    return sqrt((1 - s) * pow((1 + es) / (1 - es), e) / (1 + s));
+    return std::sqrt((1 - s) * std::pow((1 + es) / (1 - es), e) / (1 + s));
 }
 
 void defineLCCProjection(LCCProjection* lp, double a, double rf, double sp1, double sp2, double lt0, double ln0,
@@ -50,7 +50,7 @@ void defineLCCProjection(LCCProjection* lp, double a, double rf, double sp1, dou
     int rev;
 
     e = rf == 0.0 ? 0.0 : 1.0 / rf;
-    e = sqrt(2 * e - e * e);
+    e = std::sqrt(2 * e - e * e);
 
     lp->a = a;
     lp->rf = rf;
@@ -77,13 +77,13 @@ void defineLCCProjection(LCCProjection* lp, double a, double rf, double sp1, dou
     m2 = calc_m(e, sp2);
     t1 = calc_t(e, sp1);
     t2 = calc_t(e, sp2);
-    if (fabs(sp1 - sp2) > 1.0e-5) {
-        lp->n = (log(m1) - log(m2)) / (log(t1) - log(t2));
+    if (std::fabs(sp1 - sp2) > 1.0e-5) {
+        lp->n = (std::log(m1) - std::log(m2)) / (std::log(t1) - std::log(t2));
     } else {
-        lp->n = sin(lp->sp1);
+        lp->n = std::sin(lp->sp1);
     }
-    lp->F = m1 / (lp->n * pow(t1, lp->n));
-    lp->r0 = a * lp->F * pow(calc_t(e, lt0), lp->n);
+    lp->F = m1 / (lp->n * std::pow(t1, lp->n));
+    lp->r0 = a * lp->F * std::pow(calc_t(e, lt0), lp->n);
 }
 
 void convertGeogToLCC(LCCProjection* lp, double ln, double lt, double* ce, double* cn, double* sf, double* cnv) {
@@ -91,7 +91,7 @@ void convertGeogToLCC(LCCProjection* lp, double ln, double lt, double* ce, doubl
     double th;
 
     lt = lt * lp->rev;
-    r = lp->a * lp->F * pow(calc_t(lp->e, lt), lp->n);
+    r = lp->a * lp->F * std::pow(calc_t(lp->e, lt), lp->n);
     th = ln - lp->ln0;
     while (th < -PI) {
         th += TWOPI;
@@ -100,13 +100,13 @@ void convertGeogToLCC(LCCProjection* lp, double ln, double lt, double* ce, doubl
         th -= TWOPI;
     }
     th *= lp->n;
-    *ce = r * sin(th) + lp->e0;
-    *cn = lp->rev * (lp->r0 - r * cos(th)) + lp->n0;
+    *ce = r * std::sin(th) + lp->e0;
+    *cn = lp->rev * (lp->r0 - r * std::cos(th)) + lp->n0;
 
     if (sf) {
         double es;
-        es = lp->e * sin(lt);
-        *sf = lp->n * r * sqrt(1 - es * es) / (lp->a * cos(lt));
+        es = lp->e * std::sin(lt);
+        *sf = lp->n * r * std::sqrt(1 - es * es) / (lp->a * std::cos(lt));
     }
     if (cnv) {
         *cnv = -th * lp->rev;
@@ -128,28 +128,28 @@ void convertLCCToGeog(LCCProjection* lp, double ce, double cn, double* ln, doubl
     if (lp->n < 0) {
         r = -r;
     }
-    t = pow(r / (lp->a * lp->F), 1.0 / lp->n);
+    t = std::pow(r / (lp->a * lp->F), 1.0 / lp->n);
 
-    lt0 = PI / 2.0 - 2.0 * atan(t);
+    lt0 = PI / 2.0 - 2.0 * std::atan(t);
 
     it = 0;
     do {
-        es = lp->e * sin(lt0);
-        lt1 = PI / 2 - 2.0 * atan(t * pow((1 - es) / (1 + es), lp->e / 2));
-        if (fabs(lt0 - lt1) < TOLERANCE) {
+        es = lp->e * std::sin(lt0);
+        lt1 = PI / 2 - 2.0 * std::atan(t * std::pow((1 - es) / (1 + es), lp->e / 2));
+        if (std::fabs(lt0 - lt1) < TOLERANCE) {
             break;
         }
         lt0 = lt1;
     } while (it++ < MAX_IT);
 
 #ifdef TESTLC
-    printf("convertLCCToGeog: %d iterations\n", it);
+    std::printf("convertLCCToGeog: %d iterations\n", it);
 #endif
 
     *lt = lt1 * lp->rev;
 
     es = lp->n > 0 ? 1 : -1;
-    *ln = atan2(es * ce, es * cn) / lp->n + lp->ln0;
+    *ln = std::atan2(es * ce, es * cn) / lp->n + lp->ln0;
     while (*ln > PI) {
         *ln -= TWOPI;
     }
@@ -171,20 +171,20 @@ int main(int argc, char* argv[]) {
     double e, n;
     double lt, ln;
     double sf, cnv;
-    FILE *in, *out;
+    std::FILE *in, *out;
 
     if (argc < 3) {
-        printf("\nNeed input and output file names as parameters\n");
+        std::printf("\nNeed input and output file names as parameters\n");
         return 0;
     }
 
-    if (NULL == (in = fopen(argv[1], "r"))) {
-        printf("Cannot open input file %s\n", argv[2]);
+    if (NULL == (in = std::fopen(argv[1], "r"))) {
+        std::printf("Cannot open input file %s\n", argv[2]);
         return 0;
     }
 
-    if (NULL == (out = fopen(argv[2], "w"))) {
-        printf("Cannot open output file %s\n", argv[3]);
+    if (NULL == (out = std::fopen(argv[2], "w"))) {
+        std::printf("Cannot open output file %s\n", argv[3]);
         return 0;
     }
 
@@ -192,31 +192,31 @@ int main(int argc, char* argv[]) {
     f = 297.0;
     gotProj = 0;
 
-    while (fgets(inrec, 256, in)) {
+    while (std::fgets(inrec, 256, in)) {
         switch (inrec[0]) {
             case 'E':
             case 'e':
-                if (sscanf(inrec + 1, "%lf%lf", &a, &f) != 2) {
-                    printf("Error reading ellipsoid definition\n");
+                if (std::sscanf(inrec + 1, "%lf%lf", &a, &f) != 2) {
+                    std::printf("Error reading ellipsoid definition\n");
                     return 0;
                 }
                 break;
 
             case 'P':
             case 'p':
-                if (sscanf(inrec + 1, "%lf%lf%lf%lf%lf%lf", &sp1, &sp2, &lt0, &ln0, &e0, &n0) != 6) {
-                    printf("Error reading projection definition\n");
+                if (std::sscanf(inrec + 1, "%lf%lf%lf%lf%lf%lf", &sp1, &sp2, &lt0, &ln0, &e0, &n0) != 6) {
+                    std::printf("Error reading projection definition\n");
                     return 0;
                 }
 
-                e = sqrt(2.0 / f - 1.0 / (f * f));
+                e = std::sqrt(2.0 / f - 1.0 / (f * f));
                 setupLCCProjection(&lp, a, e, DTOR * sp1, DTOR * sp2, DTOR * lt0, DTOR * ln0, e0, n0);
                 gotProj = 1;
-                fprintf(out, "\nL Conformal Conic Projection\n");
-                fprintf(out, "  Ellipsoid  a = %.3lf  1/f = %.6lf  e = %.9lf\n", a, f, e);
-                fprintf(out, "  Standard parallels:  %.6lf   %.6lf\n", sp1, sp2);
-                fprintf(out, "  Origin:       lat = %.6lf  long = %.6lf\n", lt0, ln0);
-                fprintf(out, "  False origin: e   = %.3lf     n = %.3lf\n", e0, n0);
+                std::fprintf(out, "\nL Conformal Conic Projection\n");
+                std::fprintf(out, "  Ellipsoid  a = %.3lf  1/f = %.6lf  e = %.9lf\n", a, f, e);
+                std::fprintf(out, "  Standard parallels:  %.6lf   %.6lf\n", sp1, sp2);
+                std::fprintf(out, "  Origin:       lat = %.6lf  long = %.6lf\n", lt0, ln0);
+                std::fprintf(out, "  False origin: e   = %.3lf     n = %.3lf\n", e0, n0);
 
                 break;
 
@@ -224,52 +224,52 @@ int main(int argc, char* argv[]) {
             case 't':
 
                 if (!gotProj) {
-                    fprintf(out, "Need projection definition before conversion\n");
+                    std::fprintf(out, "Need projection definition before conversion\n");
                     break;
                 }
 
-                if (sscanf(inrec + 1, "%lf%lf", &lt, &ln) != 2) {
-                    fprintf(out, "Invalid coordinate definition\n");
+                if (std::sscanf(inrec + 1, "%lf%lf", &lt, &ln) != 2) {
+                    std::fprintf(out, "Invalid coordinate definition\n");
                     break;
                 }
 
-                fprintf(out, "\nInput geodetic:  %14.8lf %14.8lf\n", lt, ln);
+                std::fprintf(out, "\nInput geodetic:  %14.8lf %14.8lf\n", lt, ln);
                 lt *= DTOR;
                 ln *= DTOR;
                 convertGeogToLCC(&lp, ln, lt, &e, &n, &sf, &cnv);
                 sf = (sf - 1.0) * 1e6;
                 cnv *= RTOD * 3600;
-                fprintf(out, "Projection:      %14.3lf %14.3lf  sf = %.0lfppm conv = %.0lfsecs\n", e, n, sf, cnv);
+                std::fprintf(out, "Projection:      %14.3lf %14.3lf  sf = %.0lfppm conv = %.0lfsecs\n", e, n, sf, cnv);
                 convertLCCToGeog(&lp, e, n, &ln, &lt);
                 lt *= RTOD;
                 ln *= RTOD;
-                fprintf(out, "Geodetic:        %14.8lf %14.8lf\n", lt, ln);
+                std::fprintf(out, "Geodetic:        %14.8lf %14.8lf\n", lt, ln);
                 break;
 
             case 'F':
             case 'f':
 
                 if (!gotProj) {
-                    fprintf(out, "Need projection definition before conversion\n");
+                    std::fprintf(out, "Need projection definition before conversion\n");
                     break;
                 }
 
-                if (sscanf(inrec + 1, "%lf%lf", &e, &n) != 2) {
-                    fprintf(out, "Invalid coordinate definition\n");
+                if (std::sscanf(inrec + 1, "%lf%lf", &e, &n) != 2) {
+                    std::fprintf(out, "Invalid coordinate definition\n");
                     break;
                 }
 
-                fprintf(out, "\nInput projctn:   %14.8lf %14.8lf\n", e, n);
+                std::fprintf(out, "\nInput projctn:   %14.8lf %14.8lf\n", e, n);
                 convertLCCToGeog(&lp, e, n, &ln, &lt);
                 lt *= RTOD;
                 ln *= RTOD;
-                fprintf(out, "Geodetic:        %14.8lf %14.8lf\n", lt, ln);
+                std::fprintf(out, "Geodetic:        %14.8lf %14.8lf\n", lt, ln);
                 lt *= DTOR;
                 ln *= DTOR;
                 convertGeogToLCC(&lp, ln, lt, &e, &n, &sf, &cnv);
                 sf = (sf - 1.0) * 1e6;
                 cnv *= RTOD * 3600;
-                fprintf(out, "Projection:      %14.3lf %14.3lf sf = %.0lfppm conv = %.0lfsecs\n", e, n, sf, cnv);
+                std::fprintf(out, "Projection:      %14.3lf %14.3lf sf = %.0lfppm conv = %.0lfsecs\n", e, n, sf, cnv);
                 break;
         }
     }

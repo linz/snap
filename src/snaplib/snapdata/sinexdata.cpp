@@ -79,7 +79,7 @@ void SinexDataReader::loadObservations(RecordInputBase& dfi) {
     }
     const double startdate = readSinexDate(input.substr(32, 12));
     const double enddate = readSinexDate(input.substr(45, 12));
-    const double nprm = atoi(input.substr(60, 5).c_str());
+    const double nprm = std::atoi(input.substr(60, 5).c_str());
     if (startdate == UNDEFINED_DATE || enddate == UNDEFINED_DATE) {
         dfi.raiseError("Invalid start/end date in SINEX header");
     }
@@ -164,9 +164,9 @@ void SinexDataReader::loadObservations(RecordInputBase& dfi) {
         }
 
         // Store the ordinate
-        const double value = strtod(input.substr(47, 21).c_str(), nullptr);
+        const double value = std::strtod(input.substr(47, 21).c_str(), nullptr);
         points[id]->xyz[ord] = value;
-        const int prmid = atoi(input.substr(1, 5).c_str());
+        const int prmid = std::atoi(input.substr(1, 5).c_str());
 
         // Store the mapping from SINEX param number to cvr row number
         if (prmid < 1 || prmid > nprm) {
@@ -215,7 +215,7 @@ void SinexDataReader::loadObservations(RecordInputBase& dfi) {
                 if (input[0] != ' ') {
                     continue;
                 }
-                const int prm1 = atoi(input.substr(1, 5).c_str());
+                const int prm1 = std::atoi(input.substr(1, 5).c_str());
                 if (prm1 < 1 || prm1 > nprm) {
                     continue;
                 }
@@ -223,7 +223,7 @@ void SinexDataReader::loadObservations(RecordInputBase& dfi) {
                 if (icvr < 0) {
                     continue;
                 }
-                int prm2 = atoi(input.substr(7, 5).c_str());
+                int prm2 = std::atoi(input.substr(7, 5).c_str());
                 if (prm2 < 1) {
                     continue;
                 }
@@ -234,7 +234,7 @@ void SinexDataReader::loadObservations(RecordInputBase& dfi) {
                     if (jcvr < 0) {
                         continue;
                     }
-                    const double value = strtod(input.substr(col, 21).c_str(), nullptr);
+                    const double value = std::strtod(input.substr(col, 21).c_str(), nullptr);
                     int pcvr;
                     if (icvr > jcvr) {
                         pcvr = (icvr * (icvr + 1)) / 2 + jcvr;
@@ -284,9 +284,9 @@ double SinexDataReader::readSinexDate(const std::string& datestr) {
     if (!RGX::regex_match(datestr.begin(), datestr.end(), match, re)) {
         return UNDEFINED_DATE;
     }
-    int yy = atoi(match[1].str().c_str());
-    const int ddd = atoi(match[2].str().c_str());
-    const int sec = atoi(match[3].str().c_str());
+    int yy = std::atoi(match[1].str().c_str());
+    const int ddd = std::atoi(match[2].str().c_str());
+    const int sec = std::atoi(match[3].str().c_str());
     yy += (yy < 50 ? 2000 : 1900);
     return snap_yds(yy, ddd, sec);
 }

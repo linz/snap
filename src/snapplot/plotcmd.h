@@ -34,7 +34,7 @@ std::string_view config_menu_filename(int i);
 /* Function to write configuration information to a file */
 
 int save_configuration(const std::string& cfgname);
-int write_config_file(FILE* out, int key_only);
+int write_config_file(std::FILE* out, int key_only);
 
 #define SNAPPLOT_CONFIG_EXT ".spc"
 #define SNAPPLOT_CONFIG_FILE "snapplot.spc"

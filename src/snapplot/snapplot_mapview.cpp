@@ -99,8 +99,8 @@ void SnapplotMapView::ZoomToLine(int from, int to) {
     // If zooming to a line then just get the extents of the line
     if (to && to != from) {
         get_station_coordinates(to, &x2, &y2);
-        const double dx = fabs(x1 - x2);
-        const double dy = fabs(y1 - y2);
+        const double dx = std::fabs(x1 - x2);
+        const double dy = std::fabs(y1 - y2);
         if (dx > 0.0 || dy > 0.0) {
             x1 = (x1 + x2) / 2.0;
             y1 = (y1 + y2) / 2.0;
@@ -173,7 +173,7 @@ void SnapplotMapView::ZoomToLine(int from, int to) {
         if (nstns) {
             stnarea /= nstns;
         }
-        y2 = sqrt(stnarea) * 0.7;
+        y2 = std::sqrt(stnarea) * 0.7;
         if (y2 <= 0.0) {
             y2 = 1000.0;
         }
@@ -376,9 +376,9 @@ void SnapplotMapView::DrawLocator(wxDC& dc) {
                 wxPoint pts[] = {ptStart, ptEnd};
                 const double xdiff = ptEnd.x - ptStart.x;
                 const double ydiff = ptEnd.y - ptStart.y;
-                const double len = sqrt(xdiff * xdiff + ydiff * ydiff);
-                const int xoffset = -(int)round(locatorWidth * ydiff / len);
-                const int yoffset = (int)round(locatorWidth * xdiff / len);
+                const double len = std::sqrt(xdiff * xdiff + ydiff * ydiff);
+                const int xoffset = -(int)std::round(locatorWidth * ydiff / len);
+                const int yoffset = (int)std::round(locatorWidth * xdiff / len);
                 const wxPoint offset(xoffset, yoffset);
                 dc.DrawLines(2, pts, xoffset, yoffset);
                 dc.DrawLines(2, pts, -xoffset, -yoffset);

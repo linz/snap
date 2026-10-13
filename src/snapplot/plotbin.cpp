@@ -46,7 +46,7 @@ static int reload_relative_covariances(BINARY_FILE* b);
 */
 
 static BINARY_FILE* b = nullptr;
-static FILE* f = nullptr;
+static std::FILE* f = nullptr;
 static std::optional<bindata> bd;
 
 int reload_binary_data() {
@@ -100,7 +100,7 @@ void load_observations_from_binary(void) {
 
 inline constexpr long NOTEWIDTH = 90;
 
-void display_note_text(void* dest, PutTextFunc f, int64_t loc) {
+void display_note_text(void* dest, PutTextFunc f, std::int64_t loc) {
     PutTextInfo jmp;
     long size;
     int type;
@@ -109,7 +109,7 @@ void display_note_text(void* dest, PutTextFunc f, int64_t loc) {
     if (loc < 0) {
         return;
     }
-    const int64_t curloc = ftell64(b->f);
+    const std::int64_t curloc = ftell64(b->f);
     fseek64(b->f, loc, SEEK_SET);
 
     jmp.type = ptfNone;
@@ -117,7 +117,7 @@ void display_note_text(void* dest, PutTextFunc f, int64_t loc) {
 
     std::string prefix = "Note: ";
     while (read_bindata_header(&size, &type) && type == NOTEDATA) {
-        c = fgetc(b->f);
+        c = std::fgetc(b->f);
         size--;
         if (firstline && c != '\n') {
             break;
@@ -127,13 +127,13 @@ void display_note_text(void* dest, PutTextFunc f, int64_t loc) {
         while (size) {
             const long block = size > NOTEWIDTH ? NOTEWIDTH : size;
             std::string text(block, '\0');
-            fread(&text[0], 1, block, b->f);
-            text.resize(strlen(text.c_str())); /* The text ends at the first NUL, as it did as a C string */
+            std::fread(&text[0], 1, block, b->f);
+            text.resize(std::strlen(text.c_str())); /* The text ends at the first NUL, as it did as a C string */
             (*f)(dest, &jmp, prefix + text);
             size -= block;
         }
-        fgetc(b->f);
-        fgetc(b->f); /* Tail of the note */
+        std::fgetc(b->f);
+        std::fgetc(b->f); /* Tail of the note */
         prefix = "      ";
     }
 
@@ -154,7 +154,7 @@ static int reload_observations(BINARY_FILE* bf) {
     return OK;
 }
 
-survdata* get_survdata_from_binary(int64_t loc) {
+survdata* get_survdata_from_binary(std::int64_t loc) {
     if (!bd) {
         bd.emplace();
     }
@@ -178,14 +178,14 @@ static int reload_relative_covariances(BINARY_FILE* b) {
     }
 
     for (;;) {
-        if (fread(&from, sizeof(from), 1, b->f) != 1) {
+        if (std::fread(&from, sizeof(from), 1, b->f) != 1) {
             break;
         }
         if (from < 0) {
             break;
         }
-        fread(&to, sizeof(to), 1, b->f);
-        fread(cvr, sizeof(cvr), 1, b->f);
+        std::fread(&to, sizeof(to), 1, b->f);
+        std::fread(cvr, sizeof(cvr), 1, b->f);
         add_relative_covariance(from, to, cvr);
     }
 
@@ -196,7 +196,7 @@ void open_data_source(void) {
     if (!b && !f) {
         f = snaptmpfile();
         if (f) {
-            fputs("SNAPPLOT TEMP FILE\r\n\x1A", f);
+            std::fputs("SNAPPLOT TEMP FILE\r\n\x1A", f);
         }
         init_bindata(f);
     }
@@ -209,7 +209,7 @@ void close_data_source(void) {
         b = nullptr;
     }
     if (f) {
-        fclose(f);
+        std::fclose(f);
         f = nullptr;
     }
 }

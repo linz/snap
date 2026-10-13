@@ -166,7 +166,7 @@ int report_missing_config_items(CFG_FILE* cfg, config_item item[]) {
     errcount = 0;
     for (it = item; it->option; it++) {
         if (it->flags & CFG_REQUIRED && !(it->flags & CFG_PRESENT)) {
-            sprintf(errmess, "Definition of %.32s is missing", it->option);
+            std::sprintf(errmess, "Definition of %.32s is missing", it->option);
             send_config_error(cfg, MISSING_DATA, errmess);
             errcount++;
         }
@@ -210,7 +210,7 @@ int read_config_file(CFG_FILE* cfg, config_item item[]) {
 
         if (line.overrun) {
             if (!(cfg->read_options & CFG_IGNORE_BAD)) {
-                sprintf(errmess, "Line %d characters too long in configuration file", line.overrun);
+                std::sprintf(errmess, "Line %d characters too long in configuration file", line.overrun);
                 send_config_error(cfg, INVALID_DATA, errmess);
             }
             continue;
@@ -289,7 +289,7 @@ int read_config_file(CFG_FILE* cfg, config_item item[]) {
         /* Offer the command to the user supplied processor */
 
         if (it->store == STORE_AS_STRING) {
-            strncpy(address, val.c_str(), it->vallen - 1);
+            std::strncpy(address, val.c_str(), it->vallen - 1);
             address[it->vallen - 1] = '\0';
         } else {
             errstat = (*it->store)(cfg, val, (void*)address, it->vallen, it->code);

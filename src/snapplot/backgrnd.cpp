@@ -57,7 +57,7 @@ struct bkg_point {
     double x, y;
 };
 
-static FILE* bkg_file = nullptr;
+static std::FILE* bkg_file = nullptr;
 static std::vector<background_file> bkg_list;
 static std::vector<background_layer> bkg_layers;
 static long npts = 0;
@@ -112,7 +112,7 @@ const std::string& background_layer_name(int pen_id) {
 }
 
 static void load_background_file(const background_file& bf) {
-    FILE* in;
+    std::FILE* in;
     coordsys* cs;
     coordsys* csp;
     coord_conversion cnv;
@@ -128,7 +128,7 @@ static void load_background_file(const background_file& bf) {
     long flines;
     char input_latlon;
 
-    in = fopen(bf.filename.c_str(), "r");
+    in = std::fopen(bf.filename.c_str(), "r");
     if (!in) {
         return;
     }
@@ -162,7 +162,7 @@ static void load_background_file(const background_file& bf) {
     flines = 0;
     nlines = 0;
     init_file_display(in);
-    while (fgets(inrec, 256, in)) {
+    while (std::fgets(inrec, 256, in)) {
         int pen;
         char oldfirstpt;
         bkg_point pt;
@@ -203,7 +203,7 @@ static void load_background_file(const background_file& bf) {
         if (bad_coordsys) {
             continue;
         }
-        if (sscanf(inrec, "%d%lf%lf", &pen, xyz + 0, xyz + 1) != 3) {
+        if (std::sscanf(inrec, "%d%lf%lf", &pen, xyz + 0, xyz + 1) != 3) {
             continue;
         }
         if (input_latlon) {
@@ -240,7 +240,7 @@ static void load_background_file(const background_file& bf) {
         pt.pen = pen;
         pt.x = xyz[0];
         pt.y = xyz[1];
-        fwrite(&pt, sizeof(pt), 1, bkg_file);
+        std::fwrite(&pt, sizeof(pt), 1, bkg_file);
         npts++;
         fpts++;
         if (pen) {
@@ -249,7 +249,7 @@ static void load_background_file(const background_file& bf) {
     }
     end_file_display();
     print_log("%ld lines loaded\n", flines);
-    fclose(in);
+    std::fclose(in);
     delete cs;
 }
 
@@ -291,7 +291,7 @@ int plot_background(map_plotter* plotter, int start) {
             return ALL_DONE;
         }
 
-        fseek(bkg_file, 0L, SEEK_SET);
+        std::fseek(bkg_file, 0L, SEEK_SET);
         if (start < 0) {
             count = npts + 2;
         }
@@ -300,7 +300,7 @@ int plot_background(map_plotter* plotter, int start) {
 
     while (count--) {
         bkg_point pt;
-        if (fread(&pt, sizeof(pt), 1, bkg_file) != 1) {
+        if (std::fread(&pt, sizeof(pt), 1, bkg_file) != 1) {
             return ALL_DONE;
         }
         if (pt.pen) {

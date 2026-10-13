@@ -226,7 +226,7 @@ unsigned char classifications::value_usage(int class_id, int value_id) {
 
 /* Dump and reload classifications */
 
-void classifications::dump(FILE* f) const {
+void classifications::dump(std::FILE* f) const {
     write_raw(f, numeric_cast<int>(class_index.size()));
     for (auto& cl : class_index) {
         dump_string(cl->name, f);
@@ -244,7 +244,7 @@ void classifications::dump(FILE* f) const {
     }
 }
 
-int classifications::reload(FILE* f) {
+int classifications::reload(std::FILE* f) {
     int class_count;
     read_raw(f, class_count);
     for (int ic = 0; ic < class_count; ic++) {

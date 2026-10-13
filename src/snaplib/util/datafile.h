@@ -57,7 +57,7 @@ class DATAFILE {
     [[nodiscard]] const std::string& file_name() const {
         return _fname;
     }
-    [[nodiscard]] FILE* file() const {
+    [[nodiscard]] std::FILE* file() const {
         return _f;
     }
     void set_comment(char comment) {
@@ -110,7 +110,7 @@ class DATAFILE {
                                          std::string_view errmsg);  ///< what is wrong with the record
 
     std::string _fname;
-    FILE* _f = nullptr;  ///< owned, and closed when the DATAFILE is destroyed
+    std::FILE* _f = nullptr;  ///< owned, and closed when the DATAFILE is destroyed
     long _startloc = 0;
     long _startlineno = 0;
     long _reclineno = 0;

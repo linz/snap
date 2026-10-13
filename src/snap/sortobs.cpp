@@ -24,14 +24,14 @@ struct obsdef {
     int from;    /* From station */
     int to;      /* To station, or 0 if there are several */
     int type;    /* Observation type */
-    int64_t loc; /* File location */
+    std::int64_t loc; /* File location */
 };
 
 static std::vector<obsdef> obsdeflst;
-static std::vector<int64_t> sorted_locs;
+static std::vector<std::int64_t> sorted_locs;
 static size_t nextobs = 0;
 
-void save_observation(int from, int to, int type, int64_t loc) {
+void save_observation(int from, int to, int type, std::int64_t loc) {
     obsdef& o = obsdeflst.emplace_back();
     if ((to && to < from && sort_obs & SORT_BY_LINE) || !from) {
         o.from = to;
@@ -83,7 +83,7 @@ void init_get_sorted_obs_loc(void) {
     nextobs = 0;
 }
 
-int64_t get_sorted_obs_loc(void) {
+std::int64_t get_sorted_obs_loc(void) {
     if (sorted_locs.empty()) {
         sort_observation_list();
     }

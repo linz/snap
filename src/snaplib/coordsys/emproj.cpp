@@ -29,9 +29,9 @@ void define_EMProjection(EMProjection* em, double a, double rf, double cm, doubl
     } else {
         e2 = 0.0;
     }
-    em->e = sqrt(e2);
-    slt = sin(rlat);
-    em->c = a * cos(rlat) / sqrt(1.0 - e2 * slt * slt);
+    em->e = std::sqrt(e2);
+    slt = std::sin(rlat);
+    em->c = a * std::cos(rlat) / std::sqrt(1.0 - e2 * slt * slt);
 }
 
 /* ================================================================== */

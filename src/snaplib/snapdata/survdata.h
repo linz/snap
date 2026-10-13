@@ -60,7 +60,7 @@ struct trgtdata {
     int nsyserr;     /* Number of systematic errors */
     int isyserr;     /* Index of first systematic error in array of syserrs */
     char unused;     /* Flags whether the observation has been rejected */
-    int64_t noteloc; /* Identifies a note associated with the obs */
+    std::int64_t noteloc; /* Identifies a note associated with the obs */
     double errfct;   /* Error factor applied to the obs by obs modifications */
 };
 
@@ -129,7 +129,7 @@ struct survdata {
         vecdata* vdata;
         pntdata* pdata;
     } obs;
-    int32_t obsalloc;   /* Space allocated for the observations */
+    std::int32_t obsalloc;   /* Space allocated for the observations */
     int maxcvr;         /* Allocated size of covariance matrices */
     int maxclass;       /* Allocated size of classification array */
     int maxsyserr;      /* Allocated size of systematic error array */

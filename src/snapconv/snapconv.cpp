@@ -101,11 +101,11 @@ int main(int argc, char* argv[]) {
                     argc--;
                     argv++;
                 } else {
-                    printf("Missing value for conversion epoch (-Y)\n");
+                    std::printf("Missing value for conversion epoch (-Y)\n");
                     return 1;
                 }
                 if (!parse_crdsys_epoch(epochstr, epoch)) {
-                    printf("Invalid value for conversion epoch (-Y %s)\n", epochstr);
+                    std::printf("Invalid value for conversion epoch (-Y %s)\n", epochstr);
                     return 1;
                 }
                 break;
@@ -118,28 +118,28 @@ int main(int argc, char* argv[]) {
     }
 
     if (!quiet) {
-        printf("\n%s %s: Converts a SNAP coord file to a different coordinate system\n\n", PROGRAM_NAME,
+        std::printf("\n%s %s: Converts a SNAP coord file to a different coordinate system\n\n", PROGRAM_NAME,
                PROGRAM_VERSION);
     }
 
     if (syntax_error) {
-        printf("\nInvalid command options specified to snapconv\n");
+        std::printf("\nInvalid command options specified to snapconv\n");
     }
 
     if (argc != 4 || syntax_error) {
-        printf("snapconv: Missing or invalid parameters\n\n");
+        std::printf("snapconv: Missing or invalid parameters\n\n");
 
-        printf("Syntax: snapconv [-d][-h][-q][-y yyyymmdd] input_coord_file new_coordsys_code output_coord_file\n\n");
-        printf("Options are:\n");
-        printf("  -d   Output angles in decimal degrees\n");
-        printf("  -h   Output angles in degrees/minutes/seconds\n");
-        printf("  -e   Output heights in ellipsoidal\n");
-        printf("  -o   Output heights in orthometric\n");
-        printf("  -p   Preserve orthometric heights where geoid changing\n");
-        printf("  -y yyyymmdd Specify a conversion date for conversions requiring it\n");
-        printf("  -q   Operate quietly\n");
-        printf("\nThe -d and -h options cannot both be used.\n");
-        printf("\nThe -e and -o options cannot both be used.\n");
+        std::printf("Syntax: snapconv [-d][-h][-q][-y yyyymmdd] input_coord_file new_coordsys_code output_coord_file\n\n");
+        std::printf("Options are:\n");
+        std::printf("  -d   Output angles in decimal degrees\n");
+        std::printf("  -h   Output angles in degrees/minutes/seconds\n");
+        std::printf("  -e   Output heights in ellipsoidal\n");
+        std::printf("  -o   Output heights in orthometric\n");
+        std::printf("  -p   Preserve orthometric heights where geoid changing\n");
+        std::printf("  -y yyyymmdd Specify a conversion date for conversions requiring it\n");
+        std::printf("  -q   Operate quietly\n");
+        std::printf("\nThe -d and -h options cannot both be used.\n");
+        std::printf("\nThe -e and -o options cannot both be used.\n");
 
         return 1;
     }
@@ -148,20 +148,20 @@ int main(int argc, char* argv[]) {
 
     cs = load_coordsys(argv[2]);
     if (!cs) {
-        printf("\nUnable to find a definition of coordinate system %s\n", argv[2]);
+        std::printf("\nUnable to find a definition of coordinate system %s\n", argv[2]);
         return 2;
     }
 
     net = new_network();
     if (read_network(net, argv[1], 0) != OK) {
-        printf("Cannot open coordinate file %s\n", argv[1]);
+        std::printf("Cannot open coordinate file %s\n", argv[1]);
         return 2;
     }
 
     netcrdsys = net->crdsysdef;
 
     if (set_network_coordsys(net, cs, epoch, hgtfixopt, msg) != OK) {
-        printf("Unable to convert network coordinate system to %s\n%s\n", argv[2], msg.c_str());
+        std::printf("Unable to convert network coordinate system to %s\n%s\n", argv[2], msg.c_str());
         return 2;
     }
 

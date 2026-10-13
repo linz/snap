@@ -81,7 +81,7 @@ void set_coef_class(int coeftype, std::string_view name);
    before and after loading a data file */
 
 void init_load_data(void (*usedata_func)(survdata* sd),
-                    int64_t (*idfunc)(int type, int group_id, std::string_view code),
+                    std::int64_t (*idfunc)(int type, int group_id, std::string_view code),
                     std::string (*namefunc)(int type, int group_id, long id),
                     double (*calcfunc)(int type, long id1, long id2));
 void term_load_data(void);
@@ -109,7 +109,7 @@ void set_gpscvr_func(void (*func)(survdata* vd, int cvrtype, double* mmerr));
    data routines assemble these to convert the data to a standard internal
    format */
 
-int64_t ldt_get_id(int type, int group_id, std::string_view code);
+std::int64_t ldt_get_id(int type, int group_id, std::string_view code);
 std::string ldt_get_code(int type, int group_id, long id);
 double ldt_calc_value(int calc_type, long id1, long id2);
 

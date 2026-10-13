@@ -122,14 +122,14 @@ static int init_linzdef_deformation(void* deformation) {
 
     vcs = load_coordsys(vcsdef);
     if (!vcs) {
-        sprintf(buf, "Cannot load deformation model coordinate system %.20s",
+        std::sprintf(buf, "Cannot load deformation model coordinate system %.20s",
                 std::string(vcsdef.substr(0, 20)).c_str());
         handle_error(WARNING_ERROR, buf, NO_MESSAGE);
         return INVALID_DATA;
     }
     tovcs = coord_conversion(net->geosys, vcs);
     if (!tovcs.valid) {
-        sprintf(buf, "Cannot convert station coordinates to coordinate system %.20s of deformation model",
+        std::sprintf(buf, "Cannot convert station coordinates to coordinate system %.20s of deformation model",
                 vcs->code.c_str());
         handle_error(WARNING_ERROR, buf, NO_MESSAGE);
         return INVALID_DATA;
@@ -155,7 +155,7 @@ static int init_linzdef_deformation(void* deformation) {
         xyz[CRD_LON] = st->ELon;
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
         if (convert_coords(&tovcs, xyz, nullptr, xyz, nullptr) != OK) {
-            sprintf(buf, "Cannot convert coordinates of %.20s to deformation model coordinate system %.20s",
+            std::sprintf(buf, "Cannot convert coordinates of %.20s to deformation model coordinate system %.20s",
                     st->Code.c_str(), vcs->code.c_str());
             handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             return INVALID_DATA;
@@ -169,7 +169,7 @@ static int init_linzdef_deformation(void* deformation) {
         if (model->epoch != 0) {
             sts = utlCalcLinzDef(model->linzdef, model->epoch, std->x, std->y, std->y0def);
             if (sts != STS_OK) {
-                sprintf(buf, "Cannot calculate deformation of %.20s at date %.1lf", st->Code.c_str(), model->epoch);
+                std::sprintf(buf, "Cannot calculate deformation of %.20s at date %.1lf", st->Code.c_str(), model->epoch);
                 handle_error(WARNING_ERROR, buf, NO_MESSAGE);
                 return INVALID_DATA;
             }
@@ -201,7 +201,7 @@ static int calc_linzdef_deformation(void* deformation, station* st, double date,
     if (std->year == 0.0 || std->year != date) {
         sts = utlCalcLinzDef(model->linzdef, year, std->x, std->y, std->def);
         if (sts != STS_OK) {
-            sprintf(buf, "Cannot calculate deformation of %.20s at %.1lf", st->Code.c_str(), year);
+            std::sprintf(buf, "Cannot calculate deformation of %.20s at %.1lf", st->Code.c_str(), year);
             handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -220,7 +220,7 @@ static int calc_linzdef_deformation(void* deformation, station* st, double date,
 
 /* Describe the deformation model in an output file */
 
-static int print_linzdef(void* deformation, FILE* out, const std::string_view prefix) {
+static int print_linzdef(void* deformation, std::FILE* out, const std::string_view prefix) {
     std::optional<std::string_view> title;
     int i;
     int sts;
@@ -232,12 +232,12 @@ static int print_linzdef(void* deformation, FILE* out, const std::string_view pr
     for (i = 1; i <= 3; i++) {
         sts = utlLinzDefTitle(model->linzdef, i, title);
         if (sts == STS_OK && title && !title->empty()) {
-            fwrite(prefix.data(), 1, prefix.size(), out);
+            std::fwrite(prefix.data(), 1, prefix.size(), out);
             if (i == 3) {
-                fputs("Version: ", out);
+                std::fputs("Version: ", out);
             }
-            fputs(std::string(*title).c_str(), out);
-            fputs("\n", out);
+            std::fputs(std::string(*title).c_str(), out);
+            std::fputs("\n", out);
         }
     }
     return OK;

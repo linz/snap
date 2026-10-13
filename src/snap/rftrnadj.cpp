@@ -116,9 +116,9 @@ static void init_rftrans_prms(rfTransformation* rf) {
 
     /* Define the parameters of the reference frame */
 
-    strncpy(prmname, rf->name.c_str(), REFFRAMELEN);
+    std::strncpy(prmname, rf->name.c_str(), REFFRAMELEN);
     prmname[REFFRAMELEN] = 0;
-    prmtype = prmname + strlen(prmname);
+    prmtype = prmname + std::strlen(prmname);
 
     prmNames = rf->istopo ? &topoPrmNames : &geoPrmNames;
 
@@ -127,7 +127,7 @@ static void init_rftrans_prms(rfTransformation* rf) {
             continue;
         }
         if (!rf->prmId[i]) {
-            strcpy(prmtype, (*prmNames)[i].data());
+            std::strcpy(prmtype, (*prmNames)[i].data());
             rf->prmId[i] = define_param(prmname, 0.0, 0);
             flag_param_listed(rf->prmId[i]);
         }
@@ -284,7 +284,7 @@ static void transform_rftrans(double xform[3][3], double* val, double* cvr) {
 
 static void print_rftrans_def(const std::array<std::string_view, 14>& rownames, const int* row, int* identical,
                               const double* val, double* cvr, const double* vmult, double semult, const int* display,
-                              FILE* out) {
+                              std::FILE* out) {
     int i;
     int j;
     int ii;
@@ -299,7 +299,7 @@ static void print_rftrans_def(const std::array<std::string_view, 14>& rownames, 
     for (i = 0, ii = 0, ij = 0; i < 14; i++, ij = ii + 1, ii += i + 1) {
         se[i] = cvr[ii];
         if (se[i] > 0.0) {
-            se[i] = sqrt(se[i]);
+            se[i] = std::sqrt(se[i]);
         }
         for (j = 0; j < i; j++, ij++) {
             if (se[j] > 0.0 && se[i] > 0.0) {
@@ -308,7 +308,7 @@ static void print_rftrans_def(const std::array<std::string_view, 14>& rownames, 
         }
         cvr[ii] = 1.0;
     }
-    fprintf(out, "\n      %-30s  %15s  %15s\n", "Parameter", "Value    ", "Error    ");
+    std::fprintf(out, "\n      %-30s  %15s  %15s\n", "Parameter", "Value    ", "Error    ");
     nval = 0;
     gotcvr = 0;
     for (i = 0; i < 14; i++) {
@@ -317,34 +317,34 @@ static void print_rftrans_def(const std::array<std::string_view, 14>& rownames, 
         if (!display[i]) {
             continue;
         }
-        fprintf(out, "      %-30s", rownames[i].data());
-        fprintf(out, valformat[i].data(), val[i] * factor);
+        std::fprintf(out, "      %-30s", rownames[i].data());
+        std::fprintf(out, valformat[i].data(), val[i] * factor);
         if (row[i]) {
-            fprintf(out, valformat[i].data(), se[i] * semult * fabs(factor));
+            std::fprintf(out, valformat[i].data(), se[i] * semult * std::fabs(factor));
             gotcvr++;
             dispcvr[i] = 1;
         } else {
-            fprintf(out, "%s", missingstr);
+            std::fprintf(out, "%s", missingstr);
         }
         if (identical[i]) {
-            fprintf(out, "  (same as %s)", param_name(identical[i]).data());
+            std::fprintf(out, "  (same as %s)", param_name(identical[i]).data());
         }
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
         nval++;
     }
     nval = nval > 8 ? 0 : 7;
     if (gotcvr > 1) {
-        fprintf(out, "\n      Correlation matrix:\n");
+        std::fprintf(out, "\n      Correlation matrix:\n");
         for (j0 = 0; j0 < 14; j0 += 7 + nval) {
             j1 = j0 + 7 + nval;
             if (j0) {
-                fprintf(out, "\n");
+                std::fprintf(out, "\n");
             }
             ij = (j0 * (j0 + 1)) / 2;
             for (i = j0; i < 14; i++) {
                 int started = 0;
                 if (dispcvr[i]) {
-                    fprintf(out, "      ");
+                    std::fprintf(out, "      ");
                 }
                 for (j = 0; j <= i; j++, ij++) {
                     if (!dispcvr[i] || !dispcvr[j]) {
@@ -354,20 +354,20 @@ static void print_rftrans_def(const std::array<std::string_view, 14>& rownames, 
                         continue;
                     }
                     if (!started) {
-                        fprintf(out, "      ");
+                        std::fprintf(out, "      ");
                     }
-                    fprintf(out, "  %8.4lf", cvr[ij]);
+                    std::fprintf(out, "  %8.4lf", cvr[ij]);
                     started = 1;
                 }
                 if (started) {
-                    fprintf(out, "\n");
+                    std::fprintf(out, "\n");
                 }
             }
         }
     }
 }
 
-static void print_rftrans(rfTransformation* rf, double semult, FILE* out, int output_types) {
+static void print_rftrans(rfTransformation* rf, double semult, std::FILE* out, int output_types) {
     double* tval;
     double* tcvr;
     double* gval;
@@ -474,26 +474,26 @@ static void print_rftrans(rfTransformation* rf, double semult, FILE* out, int ou
     c3 = tcvr[13];
     cmax = c2 * c2 + c3 * c3;
     if (cmax > 0.0) {
-        azmax = 0.5 * atan2(c3, -c2);
+        azmax = 0.5 * std::atan2(c3, -c2);
         while (azmax > PI) {
             azmax -= PI;
         }
         while (azmax < 0.0) {
             azmax += PI;
         }
-        cmax = sqrt(cmax);
+        cmax = std::sqrt(cmax);
         cmin = c1 - cmax;
         cmax += c1;
         if (cmax > 0.0) {
-            cmax = sqrt(cmax);
+            cmax = std::sqrt(cmax);
         }
         if (cmin > 0.0) {
-            cmin = sqrt(cmin);
+            cmin = std::sqrt(cmin);
         }
     } else {
         cmax = c1;
         if (cmax > 0.0) {
-            cmax = sqrt(cmax);
+            cmax = std::sqrt(cmax);
         }
         cmin = cmax;
         azmax = 0.0;
@@ -509,11 +509,11 @@ static void print_rftrans(rfTransformation* rf, double semult, FILE* out, int ou
 
     /* OK - now all we need to do is to print out the results... */
 
-    fprintf(out, "\nReference frame: %s\n", rf->name.c_str());
-    fprintf(out, "\n   %s as a %s reference frame\n", calced ? "Calculated" : "Defined",
+    std::fprintf(out, "\nReference frame: %s\n", rf->name.c_str());
+    std::fprintf(out, "\n   %s as a %s reference frame\n", calced ? "Calculated" : "Defined",
             rf->istopo ? "topocentric" : "geocentric");
     if (!rf->usetrans) {
-        fprintf(out, "   Reference frame translations are not used in this adjustment\n");
+        std::fprintf(out, "   Reference frame translations are not used in this adjustment\n");
     }
     if (rf->userates) {
         double epoch_date;
@@ -522,20 +522,20 @@ static void print_rftrans(rfTransformation* rf, double semult, FILE* out, int ou
         int d;
         epoch_date = year_as_snapdate(rf->refepoch);
         date_as_ymd(epoch_date, &y, &m, &d);
-        fprintf(out, "   Reference epoch of frame %02d-%02d-%04d\n", d, m, y);
+        std::fprintf(out, "   Reference epoch of frame %02d-%02d-%04d\n", d, m, y);
     }
     if (rf->localorigin) {
-        fprintf(out, "   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n", rf->origin[0],
+        std::fprintf(out, "   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n", rf->origin[0],
                 rf->origin[1], rf->origin[2]);
     }
 
     if (output_types & OUTPUT_IERS) {
-        fprintf(out, "\n   IERS definition\n");
+        std::fprintf(out, "\n   IERS definition\n");
         print_rftrans_def(irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, out);
     }
 
     if (output_types & OUTPUT_GEO) {
-        fprintf(out, "\n   Geocentric definition\n");
+        std::fprintf(out, "\n   Geocentric definition\n");
         print_rftrans_def(grownames, grow, gidentical, gval, gcvr, nullptr, semult, display, out);
     }
 
@@ -546,29 +546,29 @@ static void print_rftrans(rfTransformation* rf, double semult, FILE* out, int ou
             units = "mm";
             factor = 1000.0;
         }
-        fprintf(out, "\n   Translation at origin (%.4lf, %.4lf, %.4lf) %s\n", oshift[0] * factor, oshift[1] * factor,
+        std::fprintf(out, "\n   Translation at origin (%.4lf, %.4lf, %.4lf) %s\n", oshift[0] * factor, oshift[1] * factor,
                 oshift[2] * factor, units);
         if (rf->userates) {
-            fprintf(out, "\n   Translation rate at origin (%.4lf, %.4lf, %.4lf) %s/yr\n", oshiftrate[0] * factor,
+            std::fprintf(out, "\n   Translation rate at origin (%.4lf, %.4lf, %.4lf) %s/yr\n", oshiftrate[0] * factor,
                     oshiftrate[1] * factor, oshiftrate[2] * factor, units);
         }
     }
 
     if (output_types & OUTPUT_TOPO) {
-        fprintf(out, "\n   Topocentric definition\n");
+        std::fprintf(out, "\n   Topocentric definition\n");
         print_rftrans_def(trownames, trow, tidentical, tval, tcvr, nullptr, semult, display, out);
     }
 
     if (output_types & OUTPUT_TOPO) {
-        fprintf(out, "\n   Minimum error of horizontal tilt is %.5lf arc sec\n", cmin * semult);
-        fprintf(out, "   Maximum error of horizontal tilt is %.5lf arc sec\n", cmax * semult);
-        fprintf(out, "   Rotation axis of maximum tilt error has azimuth %.0lf degrees\n", azmax * RTOD);
+        std::fprintf(out, "\n   Minimum error of horizontal tilt is %.5lf arc sec\n", cmin * semult);
+        std::fprintf(out, "   Maximum error of horizontal tilt is %.5lf arc sec\n", cmax * semult);
+        std::fprintf(out, "   Rotation axis of maximum tilt error has azimuth %.0lf degrees\n", azmax * RTOD);
     }
 }
 
 #define DS (double*)
 
-void print_rftrans_list(FILE* out) {
+void print_rftrans_list(std::FILE* out) {
     int nrf;
     double semult;
     double topolat;
@@ -603,17 +603,17 @@ void print_rftrans_list(FILE* out) {
 
     print_section_header(out, "REFERENCE FRAME PARAMETERS");
 
-    fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
+    std::fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
 
     if (topo_header) {
         const DmsFormat latitudeFormat(3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S");
         const DmsFormat longitudeFormat(3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W");
         get_network_topocentre(net, &topolat, &topolon);
-        fprintf(out, "\nTopocentric axes are east, north, up directions at\n   ");
-        fputs(dms_string(topolat * RTOD, latitudeFormat).c_str(), out);
-        fputs("    ", out);
-        fputs(dms_string(topolon * RTOD, longitudeFormat).c_str(), out);
-        fputs("\n", out);
+        std::fprintf(out, "\nTopocentric axes are east, north, up directions at\n   ");
+        std::fputs(dms_string(topolat * RTOD, latitudeFormat).c_str(), out);
+        std::fputs("    ", out);
+        std::fputs(dms_string(topolon * RTOD, longitudeFormat).c_str(), out);
+        std::fputs("\n", out);
     }
 
     semult = apriori ? 1.0 : seu;

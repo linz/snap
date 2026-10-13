@@ -7,11 +7,11 @@
 // <cctype> if/when the repo migrates to that. The cast to unsigned char is
 // needed because isalnum is undefined for negative values such as the bytes
 // of a UTF-8 character.
-#define ISALNUM(c) (isalnum((unsigned char)(c)))
-#define ISPRINT(c) (isprint((unsigned char)(c)))
+#define ISALNUM(c) (std::isalnum((unsigned char)(c)))
+#define ISPRINT(c) (std::isprint((unsigned char)(c)))
 #define ISSPACE(c) (isspace((unsigned char)(c)))
-#define ISXDIGIT(c) (isxdigit((unsigned char)(c)))
-#define TOLOWER(c) (((unsigned char)(c) & 0x80) ? c : tolower((unsigned char)(c)))
-#define TOUPPER(c) (((unsigned char)(c) & 0x80) ? c : toupper((unsigned char)(c)))
+#define ISXDIGIT(c) (std::isxdigit((unsigned char)(c)))
+#define TOLOWER(c) (((unsigned char)(c) & 0x80) ? c : std::tolower((unsigned char)(c)))
+#define TOUPPER(c) (((unsigned char)(c) & 0x80) ? c : std::toupper((unsigned char)(c)))
 
 #endif

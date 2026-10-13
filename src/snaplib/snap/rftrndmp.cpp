@@ -120,13 +120,13 @@ static_assert(rftrans_disk_fields_contiguous(),
 // above the table and at the bitfield declarations in rftrans.h: adding a 13th
 // bitfield there gives no compiler error if only one side (pack/unpack) is updated
 // to match.
-static uint16_t pack_rftrans_flags(const RfTransformationData& rf) {
-    return static_cast<uint16_t>((rf.istopo << 0) | (rf.isiers << 1) | (rf.userates << 2) | (rf.usetrans << 3) |
+static std::uint16_t pack_rftrans_flags(const RfTransformationData& rf) {
+    return static_cast<std::uint16_t>((rf.istopo << 0) | (rf.isiers << 1) | (rf.userates << 2) | (rf.usetrans << 3) |
                                  (rf.localoriginok << 4) | (rf.localorigin << 5) | (rf.calctrans << 6) |
                                  (rf.calcrot << 7) | (rf.calcscale << 8) | (rf.calctransrate << 9) |
                                  (rf.calcrotrate << 10) | (rf.calcscalerate << 11));
 }
-static void unpack_rftrans_flags(const uint16_t flags, RfTransformationData& rf) {
+static void unpack_rftrans_flags(const std::uint16_t flags, RfTransformationData& rf) {
     rf.istopo = (flags >> 0) & 1;
     rf.isiers = (flags >> 1) & 1;
     rf.userates = (flags >> 2) & 1;
@@ -146,7 +146,7 @@ static void unpack_rftrans_flags(const uint16_t flags, RfTransformationData& rf)
 // dump_string(rf->name, ...) (kept as a separate call at the existing call site,
 // since name is a variable-length std::string and out of scope for this
 // fixed-width table), this covers every field of rfTransformation.
-static void write_rftrans_fixed_width(const RfTransformationData& rf, FILE* f) {
+static void write_rftrans_fixed_width(const RfTransformationData& rf, std::FILE* f) {
     for_each_disk_field(rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
                         [f](FieldKind kind, auto value) { write_disk_field(f, kind, value); });
     write_raw(f, pack_rftrans_flags(rf));
@@ -155,10 +155,10 @@ static void write_rftrans_fixed_width(const RfTransformationData& rf, FILE* f) {
 // Mirrors write_rftrans_fixed_width: same table, same iteration order, reading
 // into each field in place instead of writing, then unpacking the trailing
 // uint16_t back into the 12 named bitfields.
-static void read_rftrans_fixed_width(FILE* f, RfTransformationData& rf) {
+static void read_rftrans_fixed_width(std::FILE* f, RfTransformationData& rf) {
     for_each_disk_field_mutable(rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
                                 [f](FieldKind kind, auto& value) { read_disk_field(f, kind, value); });
-    uint16_t flags;
+    std::uint16_t flags;
     read_raw(f, flags);
     unpack_rftrans_flags(flags, rf);
 }
@@ -171,7 +171,7 @@ void dump_rftransformations(BINARY_FILE* b) {
     create_section(b, "RFTRANSFORMATIONS");
     nrf = rftrans_count();
 
-    fwrite(&nrf, sizeof(nrf), 1, b->f);
+    std::fwrite(&nrf, sizeof(nrf), 1, b->f);
 
     /* Dump the reference frame definitions */
 
@@ -195,7 +195,7 @@ int reload_rftransformations(BINARY_FILE* b) {
 
     /* Dump the station definitions */
 
-    if (fread(&nrf, sizeof(nrf), 1, b->f) != 1 || nrf < 0) {
+    if (std::fread(&nrf, sizeof(nrf), 1, b->f) != 1 || nrf < 0) {
         return INVALID_DATA;
     }
 

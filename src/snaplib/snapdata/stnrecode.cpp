@@ -594,7 +594,7 @@ int read_station_recode_definition(stn_recode_map* stt, std::string_view def, co
     return ok ? OK : INVALID_DATA;
 }
 
-void print_stn_recode_list(FILE* out, stn_recode_map* stt, bool onlyused, int stn_name_width, std::string_view prefix) {
+void print_stn_recode_list(std::FILE* out, stn_recode_map* stt, bool onlyused, int stn_name_width, std::string_view prefix) {
     if (!stt) {
         return;
     }
@@ -627,11 +627,11 @@ void print_stn_recode_list(FILE* out, stn_recode_map* stt, bool onlyused, int st
             }
             if (first) {
                 first = false;
-                fprintf(out, "%.*s%-*s ", prefix_length, prefix.data(), stn_name_width, codefrom.c_str());
+                std::fprintf(out, "%.*s%-*s ", prefix_length, prefix.data(), stn_name_width, codefrom.c_str());
             } else {
-                fprintf(out, "%.*s%-*s ", prefix_length, prefix.data(), stn_name_width, " ");
+                std::fprintf(out, "%.*s%-*s ", prefix_length, prefix.data(), stn_name_width, " ");
             }
-            fprintf(out, "to %s\n", describe_stn_recode(src, stn_name_width).c_str());
+            std::fprintf(out, "to %s\n", describe_stn_recode(src, stn_name_width).c_str());
         }
     }
     bool first = true;
@@ -641,11 +641,11 @@ void print_stn_recode_list(FILE* out, stn_recode_map* stt, bool onlyused, int st
         }
         if (first) {
             first = false;
-            fprintf(out, "%.*sOther stations ", prefix_length, prefix.data());
+            std::fprintf(out, "%.*sOther stations ", prefix_length, prefix.data());
         } else {
-            fprintf(out, "%.*s              ", prefix_length, prefix.data());
+            std::fprintf(out, "%.*s              ", prefix_length, prefix.data());
         }
-        fprintf(out, "to %s\n", describe_stn_recode(src, stn_name_width).c_str());
+        std::fprintf(out, "to %s\n", describe_stn_recode(src, stn_name_width).c_str());
     }
 }
 

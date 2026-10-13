@@ -113,14 +113,14 @@ static void reload_relative_covariances_raw(BINARY_FILE* b, RelativeCovariances&
         fail("Missing section: STATION_RELATIVE_COVARIANCES");
     }
     for (;;) {
-        int32_t from;
+        std::int32_t from;
         read_raw(b->f, from);
         if (from < 0) {
             break;
         }
         RelativeCovariances::Entry e;
         e.from = from;
-        read_raw_as<int32_t>(b->f, e.to);
+        read_raw_as<std::int32_t>(b->f, e.to);
         for (double& v : e.cvr) {
             read_raw(b->f, v);
         }
@@ -132,13 +132,13 @@ static void reload_relative_covariances_raw(BINARY_FILE* b, RelativeCovariances&
 static void dump_relative_covariances_raw(BINARY_FILE* b, const RelativeCovariances& rc) {
     create_section(b, "STATION_RELATIVE_COVARIANCES");
     for (const auto& e : rc.entries) {
-        write_raw_as<int32_t>(b->f, e.from);
-        write_raw_as<int32_t>(b->f, e.to);
+        write_raw_as<std::int32_t>(b->f, e.from);
+        write_raw_as<std::int32_t>(b->f, e.to);
         for (const double v : e.cvr) {
             write_raw(b->f, v);
         }
     }
-    write_raw_as<int32_t>(b->f, -1);
+    write_raw_as<std::int32_t>(b->f, -1);
     end_section(b);
 }
 
@@ -434,7 +434,7 @@ static void copy_observations(BINARY_FILE* in, BINARY_FILE* out) {
             save_survdata(bd.survey_data());
         } else {
             write_bindata_header(bd.size, NOTEDATA);
-            fwrite(bd.buffer.data(), bd.size, 1, bindata_file);
+            std::fwrite(bd.buffer.data(), bd.size, 1, bindata_file);
         }
     }
 
@@ -557,7 +557,7 @@ static void dump_observations_text(std::ostream& out, BINARY_FILE* in) {
             out << "=== OBSERVATIONS[" << irec << "] (NOTEDATA) ===\n";
             const unsigned char* note = bd.buffer.data();
             dump_bare_value(out, static_cast<long long>(note[0]));
-            const int64_t nch = bd.size - 3;
+            const std::int64_t nch = bd.size - 3;
             out << std::string(reinterpret_cast<const char*>(note + 1), static_cast<size_t>(nch)) << "\n";
             continue;
         }

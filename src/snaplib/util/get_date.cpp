@@ -27,13 +27,13 @@ std::string get_date() {
     // that, so this override returns a fixed value instead. The field
     // writer pads it to the full GETDATELEN bytes, so no output byte is
     // left non-deterministic.
-    const char* const fixed_date = getenv("SNAP_TEST_FIXED_DATE");
+    const char* const fixed_date = std::getenv("SNAP_TEST_FIXED_DATE");
     if (fixed_date) {
         return std::string(fixed_date).substr(0, GETDATELEN - 1);
     }
 
-    const time_t now = time(nullptr);
-    const struct tm* const lt = localtime(&now);
+    const std::time_t now = time(nullptr);
+    const struct tm* const lt = std::localtime(&now);
     std::ostringstream text;
     text << std::setfill(' ') << std::setw(2) << lt->tm_mday << '-' << mon[lt->tm_mon] << '-' << std::setw(4)
          << 1900 + lt->tm_year << ' ' << std::setfill('0') << std::setw(2) << lt->tm_hour << ':' << std::setw(2)
@@ -41,15 +41,15 @@ std::string get_date() {
     return text.str();
 }
 
-void write_run_date_field(FILE* const f, const std::string& runDate) {
+void write_run_date_field(std::FILE* const f, const std::string& runDate) {
     std::string field = runDate.substr(0, GETDATELEN - 1);
     field.resize(GETDATELEN, '\0');
-    fwrite(field.data(), GETDATELEN, 1, f);
+    std::fwrite(field.data(), GETDATELEN, 1, f);
 }
 
-bool read_run_date_field(FILE* const f, std::string& runDate) {
+bool read_run_date_field(std::FILE* const f, std::string& runDate) {
     std::array<char, GETDATELEN> field{};
-    if (fread(field.data(), GETDATELEN, 1, f) != 1) {
+    if (std::fread(field.data(), GETDATELEN, 1, f) != 1) {
         return false;
     }
     const std::string_view text(field.data(), field.size());

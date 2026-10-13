@@ -74,8 +74,8 @@ enum {
     OF_COUNT
 };
 
-void print_input_data(FILE* out);
-void print_station_recoding(FILE* out);
+void print_input_data(std::FILE* out);
+void print_station_recoding(std::FILE* out);
 
 int max_syserr_params(survdata* sd);
 
@@ -83,7 +83,7 @@ int sum_bindata(int iteration);
 
 int got_vector_data(void);
 void calc_residuals(void);
-void print_residuals(FILE* out);
+void print_residuals(std::FILE* out);
 void write_observation_csv();
 
 /* Functions relating to the residual listing format */
@@ -92,13 +92,13 @@ int define_residual_formats(std::string_view typelist, int add_columns);
 int add_residual_field(std::string_view code, int width, std::optional<std::string_view> title1,
                        std::optional<std::string_view> title2);
 
-int set_residual_listing_data_type(FILE* out, int itype);
+int set_residual_listing_data_type(std::FILE* out, int itype);
 void clear_residual_field_defs(void);
 
 /* Functions used to print residual listing */
 
-void print_residual_line(FILE* out);
-void print_residual_title(FILE* out);
+void print_residual_line(std::FILE* out);
+void print_residual_title(std::FILE* out);
 void clear_residual_fields(void);
 /* The value is copied, so it need not outlive the call */
 void set_residual_field(int field_id, std::string_view value);
@@ -110,6 +110,6 @@ void set_residual_type_field(std::string_view code, char flag);
 void set_residual_field_value(int id, int ndp, double value);
 void set_residual_field_dms(int id, const DmsFormat& format, double value);
 
-void list_file_location(FILE* out, int file, int lineno);
+void list_file_location(std::FILE* out, int file, int lineno);
 
 #endif

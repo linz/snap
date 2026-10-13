@@ -47,9 +47,9 @@ DMS* deg_dms(double d, DMS* dms) {
     if (dms->neg) {
         d = -d;
     }
-    d -= (dms->deg = floor(d));
+    d -= (dms->deg = std::floor(d));
     d *= 60.0;
-    d -= (dms->min = floor(d));
+    d -= (dms->min = std::floor(d));
     dms->sec = d * 60.0;
     return dms;
 }

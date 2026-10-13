@@ -68,7 +68,7 @@
         TRACE_ABORT(("%s: at %s line %d", m, __FILE__, (int)__LINE__));                 \
         {                                                                               \
             char msg[1024];                                                             \
-            sprintf(msg, "Abort: %.100s at %.30s line %d", m, __FILE__, (int)__LINE__); \
+            std::sprintf(msg, "Abort: %.100s at %.30s line %d", m, __FILE__, (int)__LINE__); \
             utlAbort(msg);                                                              \
         }                                                                               \
     }

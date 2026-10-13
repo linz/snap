@@ -78,6 +78,6 @@ bool obsmod_ignore_datafile(void* obsmod, int file_id);
 int check_obsmod_station_criteria_codes(void* pobsmod, network* nw);
 
 /* Summarise the observation modifications */
-void summarize_obs_modifications(void* obsmod, FILE* lst, const std::string& prefix);
+void summarize_obs_modifications(void* obsmod, std::FILE* lst, const std::string& prefix);
 
 #endif /* _OBSMOD_HPP */

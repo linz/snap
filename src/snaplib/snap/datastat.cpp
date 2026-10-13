@@ -68,7 +68,7 @@ double residual_significance(double sres, int used, int rank) {
 
 double prob_of_maximum(double prob, int rank) {
     if (prob < 1.0 && nobs > 0) {
-        prob = 1.0 - exp((log(1.0 - prob) * rank) / nobs);
+        prob = 1.0 - std::exp((std::log(1.0 - prob) * rank) / nobs);
     } else {
         prob = 0.0;
     }

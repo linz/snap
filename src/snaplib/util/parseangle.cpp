@@ -34,7 +34,7 @@ double ParseAngle::parseAngle(AngleFormat format, const string& value, const str
     RGX::smatch match;
     string tvalue = value;
     if (format == AF_DEGREES) {
-        angle = atof(value.c_str());
+        angle = std::atof(value.c_str());
         return angle;
     }
     if (format == AF_HPFORMAT) {
@@ -48,9 +48,9 @@ double ParseAngle::parseAngle(AngleFormat format, const string& value, const str
     if (!RGX::regex_match(tvalue, match, formatre)) {
         throw ParseAngleException(string("Invalid angle degrees/minutes/seconds: ") + value);
     }
-    const int deg = atoi(match[2].str().c_str());
-    const int min = atoi(match[3].str().c_str());
-    const double sec = atof((match[4].str() + "." + match[5].str()).c_str());
+    const int deg = std::atoi(match[2].str().c_str());
+    const int min = std::atoi(match[3].str().c_str());
+    const double sec = std::atof((match[4].str() + "." + match[5].str()).c_str());
     angle = deg + min / 60.0 + sec / 3600.0;
     string hem = match[1].str() + match[6].str();
     if (!hem.empty()) {

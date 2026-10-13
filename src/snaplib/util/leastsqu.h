@@ -99,7 +99,7 @@ bltmatrix* lsq_normal_matrix(void);
 
 /* Print the normal equations - only generates output during summing phase */
 
-void lsq_print_normal_equations_json(FILE* out, int nprefix);
-void lsq_print_solution_vector_json(FILE* out, int print_cvr, int nprefix);
+void lsq_print_normal_equations_json(std::FILE* out, int nprefix);
+void lsq_print_solution_vector_json(std::FILE* out, int print_cvr, int nprefix);
 
 #endif

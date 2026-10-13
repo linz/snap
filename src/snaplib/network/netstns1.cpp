@@ -110,14 +110,14 @@ static_assert(station_disk_fields_contiguous(),
 // templates from binfile.h. classval/Name/ts/hook are handled separately
 // (see the table comment above) - together, this covers every field of
 // station.
-static void write_station_fixed_width(const station& st, FILE* f) {
+static void write_station_fixed_width(const station& st, std::FILE* f) {
     for_each_disk_field(st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT,
                         [f](FieldKind kind, auto value) { write_disk_field(f, kind, value); });
 }
 
 // Mirrors write_station_fixed_width. Same table, same iteration order,
 // reading into each field in place instead of writing.
-static void read_station_fixed_width(FILE* f, station& st) {
+static void read_station_fixed_width(std::FILE* f, station& st) {
     for_each_disk_field_mutable(st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT,
                                 [f](FieldKind kind, auto& value) { read_disk_field(f, kind, value); });
 }
@@ -129,22 +129,22 @@ static void read_station_fixed_width(FILE* f, station& st) {
 // Writes the data st->ts points to (a stn_offset, cast from void*).
 // The pointer itself is never written. On reload, reload_station_offset
 // rebuilds a fresh stn_offset and points st->ts at that instead.
-static void dump_station_offset(station* st, FILE* f) {
+static void dump_station_offset(station* st, std::FILE* f) {
     const stn_offset* sto = static_cast<const stn_offset*>(st->ts);
     const int ncomp = sto ? boost::numeric_cast<int>(sto->components.size()) : 0;
-    fwrite(&ncomp, sizeof(int), 1, f);
+    std::fwrite(&ncomp, sizeof(int), 1, f);
     if (!ncomp) {
         return;
     }
-    fwrite(&(sto->isdeformation), sizeof(int), 1, f);
+    std::fwrite(&(sto->isdeformation), sizeof(int), 1, f);
     for (const stn_offset_comp& comp : sto->components) {
         const int ntspoints = boost::numeric_cast<int>(comp.tspoints.size());
-        fwrite(&(comp.mode), sizeof(int), 1, f);
-        fwrite(&(comp.isxyz), sizeof(int), 1, f);
-        fwrite(&ntspoints, sizeof(int), 1, f);
-        fwrite(&(comp.basepoint), sizeof(stn_tspoint), 1, f);
+        std::fwrite(&(comp.mode), sizeof(int), 1, f);
+        std::fwrite(&(comp.isxyz), sizeof(int), 1, f);
+        std::fwrite(&ntspoints, sizeof(int), 1, f);
+        std::fwrite(&(comp.basepoint), sizeof(stn_tspoint), 1, f);
         if (ntspoints) {
-            fwrite(comp.tspoints.data(), sizeof(stn_tspoint), comp.tspoints.size(), f);
+            std::fwrite(comp.tspoints.data(), sizeof(stn_tspoint), comp.tspoints.size(), f);
         }
     }
 }
@@ -152,48 +152,48 @@ static void dump_station_offset(station* st, FILE* f) {
 // Mirrors dump_station_offset: reads the same data back and rebuilds
 // a fresh stn_offset, then points st->ts at it via
 // add_stn_offset_comp_to_station below.
-static void reload_station_offset(station* st, FILE* f) {
+static void reload_station_offset(station* st, std::FILE* f) {
     int ncomp;
     int isdef;
-    fread(&ncomp, sizeof(int), 1, f);
+    std::fread(&ncomp, sizeof(int), 1, f);
     if (ncomp == 0) {
         return;
     }
-    fread(&isdef, sizeof(int), 1, f);
+    std::fread(&isdef, sizeof(int), 1, f);
     while (ncomp--) {
         int mode;
         int isxyz;
         int ntspoints;
-        fread(&mode, sizeof(int), 1, f);
-        fread(&isxyz, sizeof(int), 1, f);
-        fread(&ntspoints, sizeof(int), 1, f);
+        std::fread(&mode, sizeof(int), 1, f);
+        std::fread(&isxyz, sizeof(int), 1, f);
+        std::fread(&ntspoints, sizeof(int), 1, f);
         stn_offset_comp comp(mode, isxyz, boost::numeric_cast<size_t>(ntspoints));
-        fread(&(comp.basepoint), sizeof(stn_tspoint), 1, f);
+        std::fread(&(comp.basepoint), sizeof(stn_tspoint), 1, f);
         if (ntspoints > 0) {
-            fread(comp.tspoints.data(), sizeof(stn_tspoint), ntspoints, f);
+            std::fread(comp.tspoints.data(), sizeof(stn_tspoint), ntspoints, f);
         }
         add_stn_offset_comp_to_station(st, std::move(comp), isdef);
     }
 }
 
-void dump_station(station* st, FILE* f) {
+void dump_station(station* st, std::FILE* f) {
     write_station_fixed_width(*st, f);
     write_disk_field(f, FieldKind::Int32, numeric_cast<int>(st->classval.size()));
     if (!st->classval.empty()) {
-        fwrite(st->classval.data(), sizeof(int), st->classval.size(), f);
+        std::fwrite(st->classval.data(), sizeof(int), st->classval.size(), f);
     }
     dump_station_offset(st, f);  // handle ts
     dump_string(st->Name, f);
 }
 
-station* reload_station(FILE* f) {
+station* reload_station(std::FILE* f) {
     station* st = new station;
     read_station_fixed_width(f, *st);
     int nclass = 0;
     read_disk_field(f, FieldKind::Int32, nclass);
     if (nclass > 0) {
         st->set_class_count(nclass);
-        fread(st->classval.data(), sizeof(int), st->classval.size(), f);
+        std::fread(st->classval.data(), sizeof(int), st->classval.size(), f);
     }
     reload_station_offset(st, f);  // reconstruct ts
     st->Name = reload_string(f);

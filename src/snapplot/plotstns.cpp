@@ -158,13 +158,13 @@ void calc_error_ellipse(const double cvr[], double* emax, double* emin, double* 
     v3 = cvr[1];
     v4 = v2 * v2 + v3 * v3;
     if (v4 > 0.0) {
-        v4 = sqrt(v4);
+        v4 = std::sqrt(v4);
     }
-    *azemax = v4 > 0.0 ? atan2(v3, v2) / 2.0 : 0.0;
+    *azemax = v4 > 0.0 ? std::atan2(v3, v2) / 2.0 : 0.0;
     v2 = v1 - v4;
     v1 = v1 + v4;
-    *emax = v1 > 0.0 ? sqrt(v1) : 0.0;
-    *emin = v2 > 0.0 ? sqrt(v2) : 0.0;
+    *emax = v1 > 0.0 ? std::sqrt(v1) : 0.0;
+    *emin = v2 > 0.0 ? std::sqrt(v2) : 0.0;
 }
 
 /* Stations as used for plotting */
@@ -302,7 +302,7 @@ static void build_sort_index(void) {
                 break;
             case STNF_VADJ:
                 get_station_adjustment(istn, dxyz);
-                sortValues[istn].value = (float)fabs(dxyz[2]);
+                sortValues[istn].value = (float)std::fabs(dxyz[2]);
                 break;
             default:
                 classid = indexCol - STNF_CLASS;
@@ -315,27 +315,27 @@ static void build_sort_index(void) {
     switch (indexCol) {
         case STNF_CODE:
         case STNF_NAME:
-            qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
+            std::qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
             break;
         case STNF_STS:
-            qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
+            std::qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
             break;
         case STNF_LAT:
         case STNF_LON:
         case STNF_EAST:
         case STNF_NRTH:
         case STNF_HGT:
-            qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
+            std::qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
             break;
 
         case STNF_HERR:
         case STNF_HADJ:
         case STNF_VERR:
         case STNF_VADJ:
-            qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_reverse);
+            std::qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_reverse);
             break;
         default:
-            qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
+            std::qsort(sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic);
     }
 }
 
@@ -835,8 +835,8 @@ void init_plotstns(int adjusted) {
                 adjmaxh = ds;
             }
             stns[istn].dh = st->OHgt - sa->initOHgt;
-            if (fabs(stns[istn].dh) > adjmaxv) {
-                adjmaxv = fabs(stns[istn].dh);
+            if (std::fabs(stns[istn].dh) > adjmaxv) {
+                adjmaxv = std::fabs(stns[istn].dh);
             }
         } else {
             stns[istn].dn = stns[istn].de = stns[istn].dh = 0.0;
@@ -930,7 +930,7 @@ void init_plotstns(int adjusted) {
 
 static void validate_xyindex(void) {
     if (!xyindex_valid) {
-        qsort(xyindex, no_good_stations, sizeof(int), cmp_stn_easting);
+        std::qsort(xyindex, no_good_stations, sizeof(int), cmp_stn_easting);
         xyindex_valid = 1;
         xyindex_version++;
     }
@@ -971,12 +971,12 @@ int reload_covariances(BINARY_FILE* b) {
     covar = new covariance[nstns + 1];
 
     for (istn = 0; istn++ < nstns;) {
-        fread(cvr, sizeof(cvr), 1, b->f);
+        std::fread(cvr, sizeof(cvr), 1, b->f);
         calc_error_ellipse(cvr, &covar[istn].emax, &covar[istn].emin, &covar[istn].az);
         if (covar[istn].emax > cvrmaxh) {
             cvrmaxh = covar[istn].emax;
         }
-        covar[istn].sehgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
+        covar[istn].sehgt = cvr[5] > 0.0 ? std::sqrt(cvr[5]) : 0.0;
         if (covar[istn].sehgt > cvrmaxv) {
             cvrmaxv = covar[istn].sehgt;
         }
@@ -1063,7 +1063,7 @@ void set_station_offset(int istn, double oe, double on) {
     stns[istn].e_offset = (float)oe;
     stns[istn].n_offset = (float)on;
     was_offset = stns[istn].flags & PSFLG_OFFSET;
-    if (fabs(oe) > 0.001 || fabs(on) > 0.001) {
+    if (std::fabs(oe) > 0.001 || std::fabs(on) > 0.001) {
         stns[istn].flags |= PSFLG_OFFSET;
         if (!was_offset) {
             noffset++;
@@ -1152,7 +1152,7 @@ int nearest_station(double px, double py, double tol) {
 
     in = i1 = i2 = find_spanning(px);
     get_station_coordinates(xyindex[in], &x, &y);
-    dst = fabs(x - px) + fabs(y - py);
+    dst = std::fabs(x - px) + std::fabs(y - py);
     valid = stns[xyindex[in]].flags & PSFLG_VISIBLE && dst < tol;
     if (!valid) {
         dst = tol;
@@ -1163,7 +1163,7 @@ int nearest_station(double px, double py, double tol) {
             de = px - x;
             if (de > dst) {
                 i1 = 0;
-            } else if (stns[xyindex[i1]].flags & PSFLG_VISIBLE && (idst = de + fabs(py - y)) < dst) {
+            } else if (stns[xyindex[i1]].flags & PSFLG_VISIBLE && (idst = de + std::fabs(py - y)) < dst) {
                 in = i1;
                 dst = idst;
                 valid = 1;
@@ -1175,7 +1175,7 @@ int nearest_station(double px, double py, double tol) {
             de = x - px;
             if (de > dst) {
                 i2 = no_good_stations;
-            } else if (stns[xyindex[i2]].flags & PSFLG_VISIBLE && (idst = de + fabs(py - y)) < dst) {
+            } else if (stns[xyindex[i2]].flags & PSFLG_VISIBLE && (idst = de + std::fabs(py - y)) < dst) {
                 in = i2;
                 dst = idst;
                 valid = 1;

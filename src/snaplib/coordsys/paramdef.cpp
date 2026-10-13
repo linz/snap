@@ -23,7 +23,7 @@
 
 #define DO_PRINT(fmt, type)             \
     char buf[40];                       \
-    sprintf(buf, fmt, *(type*)address); \
+    std::sprintf(buf, fmt, *(type*)address); \
     return (*os->write)(buf, os->sink)
 
 int print_int(output_string_def* os, void* address) {
@@ -53,7 +53,7 @@ int print_double6(output_string_def* os, void* address) {
 int print_radians(output_string_def* os, void* address) {
     char buf[40];
     const double deg = *(double*)(address)*RTOD;
-    sprintf(buf, "%.6lf", deg);
+    std::sprintf(buf, "%.6lf", deg);
     return (*os->write)(buf, os->sink);
 }
 

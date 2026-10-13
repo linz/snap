@@ -90,7 +90,7 @@ struct conn_data {
     float sres;          /* standardised residual */
     float rfac;          /*  factor */
     double date;         /*  date of observation */
-    int64_t bloc;        /* location of binary data in data source */
+    std::int64_t bloc;        /* location of binary data in data source */
     int idata;           /* Index of data in data block in file */
     int cclass[1];       /* Classifications */
 };
@@ -281,19 +281,19 @@ void conn_ptr::expand() {
 }
 
 void conn_ptr::write_record(const int index, const conn_data* data) {
-    memcpy(mem.data() + sizeof(conn_cvr) + index * conn_data_size, data, conn_data_size);
+    std::memcpy(mem.data() + sizeof(conn_cvr) + index * conn_data_size, data, conn_data_size);
 }
 
 void conn_ptr::read_record(const int index, conn_data* data) const {
-    memcpy(data, mem.data() + sizeof(conn_cvr) + index * conn_data_size, conn_data_size);
+    std::memcpy(data, mem.data() + sizeof(conn_cvr) + index * conn_data_size, conn_data_size);
 }
 
 void conn_ptr::write_cvr(const conn_cvr& cvr) {
-    memcpy(mem.data(), &cvr, sizeof(cvr));
+    std::memcpy(mem.data(), &cvr, sizeof(cvr));
 }
 
 void conn_ptr::read_cvr(conn_cvr& cvr) const {
-    memcpy(&cvr, mem.data(), sizeof(cvr));
+    std::memcpy(&cvr, mem.data(), sizeof(cvr));
 }
 
 /* Add a block of data to the list of connections */
@@ -354,7 +354,7 @@ void add_relative_covariance(int from, int to, double cvr[]) {
     if (covar.emax > relcvrmaxh) {
         relcvrmaxh = covar.emax;
     }
-    covar.sehgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
+    covar.sehgt = cvr[5] > 0.0 ? std::sqrt(cvr[5]) : 0.0;
     if (covar.sehgt > relcvrmaxv) {
         relcvrmaxv = covar.sehgt;
     }
@@ -432,7 +432,7 @@ static int get_connection_to_id(int from, int to) {
     return -1;
 }
 
-static int get_connection_obs_id(int from, int to_id, int64_t bloc, int index) {
+static int get_connection_obs_id(int from, int to_id, std::int64_t bloc, int index) {
     fconn_ptr* fp;
     tconn_ptr* tp;
     int obs_id;
@@ -461,7 +461,7 @@ int have_binary_data() {
     return binary_data;
 }
 
-void add_survdata_connections(survdata* sd, int64_t bloc) {
+void add_survdata_connections(survdata* sd, std::int64_t bloc) {
     trgtdata* t;
     int i;
     int j;
@@ -513,7 +513,7 @@ void add_survdata_connections(survdata* sd, int64_t bloc) {
                     if (!t->unused && !rejected_station(sd->from) && !rejected_station(t->to)) {
                         connection->rfac = 0.0;
                         if (re > 0.0 && oe > 0.0) {
-                            connection->rfac = sqrt(re / oe);
+                            connection->rfac = std::sqrt(re / oe);
                         }
                     }
                     break;
@@ -596,7 +596,7 @@ void add_survdata_connections(survdata* sd, int64_t bloc) {
                     calc_vecdata_vector(sd, i, j, VD_RESVEC, nullptr, cvr);
                     re = cvr[0] + cvr[2] + cvr[5];
                     if (oe > 0.0) {
-                        connection->rfac = sqrt(re / oe);
+                        connection->rfac = std::sqrt(re / oe);
                     }
                 }
 
@@ -1225,7 +1225,7 @@ int plot_connections(map_plotter* plotter, int first, int offset_opt, double off
                         cpen = connection->file;
                         break;
                     case DPEN_BY_SRES:
-                        cpen = get_range_pen(fabs(connection->sres) * sresmult);
+                        cpen = get_range_pen(std::fabs(connection->sres) * sresmult);
                         break;
                     case DPEN_BY_RFAC:
                         cpen = get_range_pen(connection->rfac);
@@ -1269,17 +1269,17 @@ int plot_connections(map_plotter* plotter, int first, int offset_opt, double off
                         pens[j].highlight = highlight_line;
                         break;
                     case PCONN_HIGHLIGHT_SRES:
-                        if (fabs(connection->sres) > highlight_threshhold) {
+                        if (std::fabs(connection->sres) > highlight_threshhold) {
                             pens[j].highlight = 1;
                         }
                         break;
                     case PCONN_HIGHLIGHT_APOST_SRES:
-                        if (fabs(connection->sres) > highlight_threshhold * seu) {
+                        if (std::fabs(connection->sres) > highlight_threshhold * seu) {
                             pens[j].highlight = 1;
                         }
                         break;
                     case PCONN_HIGHLIGHT_RFAC:
-                        if (fabs(connection->rfac) < highlight_threshhold) {
+                        if (std::fabs(connection->rfac) < highlight_threshhold) {
                             pens[j].highlight = 1;
                         }
                         break;
@@ -1858,7 +1858,7 @@ static void SetupSresIndex(void) {
             break;
     }
 
-    qsort(srIndex.data(), srIndexCount, sizeof(long), cmp_func);
+    std::qsort(srIndex.data(), srIndexCount, sizeof(long), cmp_func);
     indexValid = 1;
     set_display_field_widths();
 }
@@ -2092,23 +2092,23 @@ std::string sres_item_description(long id) {
                 if (sres < 0.0) {
                     data = "-   ";
                 } else {
-                    sprintf(number, "%6.2f", sres);
+                    std::sprintf(number, "%6.2f", sres);
                     data = number;
                 }
                 break;
             case SRF_RFAC:
-                sprintf(number, "%6.3f", connection->rfac);
+                std::sprintf(number, "%6.3f", connection->rfac);
                 data = number;
                 break;
             case SRF_FILE:
                 data = survey_data_file_name(connection->file);
                 break;
             case SRF_LINENO:
-                sprintf(number, "%d", (int)(connection->line));
+                std::sprintf(number, "%d", (int)(connection->line));
                 data = number;
                 break;
             case SRF_OBSID:
-                sprintf(number, "%d", (int)(connection->id));
+                std::sprintf(number, "%d", (int)(connection->id));
                 data = number;
                 break;
             case SRF_DATE:
@@ -2118,9 +2118,9 @@ std::string sres_item_description(long id) {
                 if (sto) {
                     value = calc_distance(sfrom, 0.0, sto, 0.0, nullptr, nullptr);
                     value *= ellipsoidal_distance_correction(sfrom, sto);
-                    sprintf(number, "%.2lf", value);
+                    std::sprintf(number, "%.2lf", value);
                 } else {
-                    strcpy(number, "-");
+                    std::strcpy(number, "-");
                 }
                 data = number;
                 break;
@@ -2536,7 +2536,7 @@ static void list_line_statistics(void* dest, PutTextFunc f, int from, int to) {
         get_projection_coordinates(to, &x2, &y2);
         if (x1 != x2 && y1 != y2) {
             dist = _hypot(x2 - x1, y2 - y1);
-            az = atan2(x2 - x1, y2 - y1) * RTOD;
+            az = std::atan2(x2 - x1, y2 - y1) * RTOD;
             while (az > 360.0) {
                 az -= 360.0;
             }
@@ -2671,7 +2671,7 @@ static double degree_angle(double rad) {
     return angle;
 }
 
-void list_obsdata(void* dest, PutTextFunc f, survdata* sd, int64_t binloc, int index) {
+void list_obsdata(void* dest, PutTextFunc f, survdata* sd, std::int64_t binloc, int index) {
     PutTextInfo jmp;
     obsdata* o;
     station* sfrom;
@@ -2751,7 +2751,7 @@ void list_obsdata(void* dest, PutTextFunc f, survdata* sd, int64_t binloc, int i
                     obslength = calc_distance(stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0, nullptr, nullptr);
                     altres = o->residual * obslength;
                     if (type == ZD) {
-                        altres *= sin(o->value);
+                        altres *= std::sin(o->value);
                     }
                     residualText += "     (" + format_fixed(altres, 3) + "m offset)";
                     break;
@@ -2760,7 +2760,7 @@ void list_obsdata(void* dest, PutTextFunc f, survdata* sd, int64_t binloc, int i
                     obslength = calc_ellipsoidal_distance(stnptr(sd->from), stnptr(o->tgt.to), nullptr, nullptr);
                     altres = o->residual * obslength;
                     if (type == ZD) {
-                        altres *= sin(o->value);
+                        altres *= std::sin(o->value);
                     }
                     residualText += "     (" + format_fixed(altres, 3) + "m offset)";
                     break;
@@ -2857,7 +2857,7 @@ void list_obsdata(void* dest, PutTextFunc f, survdata* sd, int64_t binloc, int i
     }
 }
 
-void list_vecdata(void* dest, PutTextFunc f, survdata* sd, unsigned char flags, int64_t bloc, int index) {
+void list_vecdata(void* dest, PutTextFunc f, survdata* sd, unsigned char flags, std::int64_t bloc, int index) {
     PutTextInfo jmp;
     vecdata* v;
     trgtdata* tgt;
@@ -2995,12 +2995,12 @@ void list_vecdata(void* dest, PutTextFunc f, survdata* sd, unsigned char flags, 
     (*f)(dest, &jmp,
          std::string("     Observed (XYZ)") +
              (binary_data ? "     Calculated (XYZ)   Residual (ENU)    S.R  Redundancy" : ""));
-    obslen = sqrt(oxyz[0] * oxyz[0] + oxyz[1] * oxyz[1] + oxyz[2] * oxyz[2]);
+    obslen = std::sqrt(oxyz[0] * oxyz[0] + oxyz[1] * oxyz[1] + oxyz[2] * oxyz[2]);
     ndp = (obslen < 999999.0) ? 4 : 3;
     for (axis = 0; axis < 3; axis++) {
         std::string axisText = format_fixed(oxyz[axis], ndp, 12) + " " + format_fixed(eoxyz[axis] * semult, ndp, 7);
         if (binary_data) {
-            sres[axis] = erenu[axis] > small ? fabs(renu[axis] / erenu[axis]) : -1.0;
+            sres[axis] = erenu[axis] > small ? std::fabs(renu[axis] / erenu[axis]) : -1.0;
             if (!unused && rfac[axis] > small) {
                 rfac[axis] = erenu[axis] / rfac[axis];
             } else {
@@ -3014,8 +3014,8 @@ void list_vecdata(void* dest, PutTextFunc f, survdata* sd, unsigned char flags, 
     }
     std::string lengthText = format_fixed(obslen, ndp, 12);
     if (binary_data) {
-        calclen = sqrt(cxyz[0] * cxyz[0] + cxyz[1] * cxyz[1] + cxyz[2] * cxyz[2]);
-        reslen = sqrt(renu[0] * renu[0] + renu[1] * renu[1] + renu[2] * renu[2]);
+        calclen = std::sqrt(cxyz[0] * cxyz[0] + cxyz[1] * cxyz[1] + cxyz[2] * cxyz[2]);
+        reslen = std::sqrt(renu[0] * renu[0] + renu[1] * renu[1] + renu[2] * renu[2]);
         calc_vecdata_vector(sd, ofrom, oto, VD_RESVEC, renu, erenu);
         vsres = vector_standardised_residual(renu, erenu, &rank);
         lengthText += "         " + format_fixed(calclen, ndp, 12) + "         " + format_fixed(reslen, ndp, 8) +
@@ -3081,7 +3081,7 @@ void list_vecdata(void* dest, PutTextFunc f, survdata* sd, unsigned char flags, 
             }
             if (ispoint) {
                 calc_vecdata_point(sd, otgt, VD_OBSVEC, oxyz, nullptr);
-                obslen = sqrt(oxyz[0] * oxyz[0] + oxyz[1] * oxyz[1] + oxyz[2] * oxyz[2]);
+                obslen = std::sqrt(oxyz[0] * oxyz[0] + oxyz[1] * oxyz[1] + oxyz[2] * oxyz[2]);
                 std::string line = "     " + pad_right(stnptr(to)->Code, 10) + "   " + format_fixed(obslen, 4, 12);
                 if (binary_data) {
                     calc_vecdata_point(sd, otgt, VD_RESVEC, renu, erenu);
@@ -3093,7 +3093,7 @@ void list_vecdata(void* dest, PutTextFunc f, survdata* sd, unsigned char flags, 
                 (*f)(dest, &jmp, line);
             } else {
                 calc_vecdata_vector(sd, ofrom, otgt, VD_OBSVEC, oxyz, nullptr);
-                obslen = sqrt(oxyz[0] * oxyz[0] + oxyz[1] * oxyz[1] + oxyz[2] * oxyz[2]);
+                obslen = std::sqrt(oxyz[0] * oxyz[0] + oxyz[1] * oxyz[1] + oxyz[2] * oxyz[2]);
                 std::string line = "     " + pad_right(stnptr(to)->Code, 10) + "   " + format_fixed(obslen, 4, 12);
                 if (binary_data) {
                     calc_vecdata_vector(sd, ofrom, otgt, VD_RESVEC, renu, erenu);

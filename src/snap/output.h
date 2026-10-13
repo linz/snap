@@ -105,14 +105,14 @@ SCOPE bool output_csv_tab;
 
 SCOPE std::string lst_name;
 SCOPE std::string err_name;
-SCOPE FILE* lst;
-SCOPE FILE* err;
+SCOPE std::FILE* lst;
+SCOPE std::FILE* err;
 
 #else
 std::string lst_name;
 std::string err_name;
-FILE* lst = nullptr;
-FILE* err = nullptr;
+std::FILE* lst = nullptr;
+std::FILE* err = nullptr;
 
 #endif
 
@@ -128,26 +128,26 @@ int open_output_files();
 void close_output_files(error_message mess1, error_message mess2);
 void init_output_options(void);
 void eliminate_inconsistent_outputs(void);
-void print_report_header(FILE* out);
-void print_section_header(FILE* out, std::string_view heading);
-void print_section_footer(FILE* out);
-void print_report_footer(FILE* out);
-void print_control_options(FILE* out);
+void print_report_header(std::FILE* out);
+void print_section_header(std::FILE* out, std::string_view heading);
+void print_section_footer(std::FILE* out);
+void print_report_footer(std::FILE* out);
+void print_control_options(std::FILE* out);
 void handle_singularity(int sts);
-void print_zero_inverse_warning(FILE* out);
-void print_convergence_warning(FILE* out);
+void print_zero_inverse_warning(std::FILE* out);
+void print_convergence_warning(std::FILE* out);
 void print_iteration_header(int iteration);
 void print_iteration_update(int iteration, double maxadj, int maxstn, int nstnadj);
 void print_iteration_footer();
-void print_problem_summary(FILE* out);
-void print_ls_summary(FILE* out);
+void print_problem_summary(std::FILE* out);
+void print_ls_summary(std::FILE* out);
 void xprint_ls_summary();
-void print_solution_summary(FILE* out);
-void print_bandwidth_reduction(FILE* out);
+void print_solution_summary(std::FILE* out);
+void print_bandwidth_reduction(std::FILE* out);
 
-void print_json_start(FILE* out, std::string_view name);
-void print_json_end(FILE* out, std::string_view name);
-void print_json_params(FILE* lst, int nprefix);
+void print_json_start(std::FILE* out, std::string_view name);
+void print_json_end(std::FILE* out, std::string_view name);
+void print_json_params(std::FILE* lst, int nprefix);
 void print_solution_json_file();
 
 std::unique_ptr<output_csv> open_snap_output_csv(std::string_view type);

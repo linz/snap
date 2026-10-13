@@ -15,7 +15,7 @@ void init_progress_meter(long total_size);
 void update_progress_meter(long progress);
 void end_progress_meter(void);
 
-void init_file_display(FILE* infile);
+void init_file_display(std::FILE* infile);
 void update_file_display(void);
 void end_file_display(void);
 

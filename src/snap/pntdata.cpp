@@ -123,7 +123,7 @@ static void create_dms_formats(void) {
     longitudeObservationFormat.emplace(3, obs_precision[LN], 0, std::nullopt, std::nullopt, std::nullopt, " E", " W");
 }
 
-void list_pntdata(FILE* out, survdata* p) {
+void list_pntdata(std::FILE* out, survdata* p) {
     int type;
     pntdata* pd;
     trgtdata* t;
@@ -136,32 +136,32 @@ void list_pntdata(FILE* out, survdata* p) {
         create_dms_formats();
     }
 
-    fputs("\n", out);
+    std::fputs("\n", out);
 
     list_note(out, t->noteloc);
 
-    fprintf(out, "%2d:%-4d  %-*s %5.3lf  ", (int)(p->file + 1), (int)(t->lineno), stn_name_width,
+    std::fprintf(out, "%2d:%-4d  %-*s %5.3lf  ", (int)(p->file + 1), (int)(t->lineno), stn_name_width,
             station_code(p->from).c_str(), 0.0);
 
-    fprintf(out, "%*s        ", stn_name_width, "");
-    fprintf(out, "%2s%c  ", datatype[type].code.data(), t->unused ? '*' : ' ');
+    std::fprintf(out, "%*s        ", stn_name_width, "");
+    std::fprintf(out, "%2s%c  ", datatype[type].code.data(), t->unused ? '*' : ' ');
 
     switch (type) {
         case LT:
-            fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *latitudeObservationFormat).c_str(),
+            std::fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *latitudeObservationFormat).c_str(),
                     pd->error * RTOS);
             break;
         case LN:
-            fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *longitudeObservationFormat).c_str(),
+            std::fprintf(out, "%14s  %6.2lf", dms_string(pd->value * RTOD, *longitudeObservationFormat).c_str(),
                     pd->error * RTOS);
             break;
         case OH:
         case EH:
-            fprintf(out, "%14.4lf  %6.4lf", pd->value, pd->error);
+            std::fprintf(out, "%14.4lf  %6.4lf", pd->value, pd->error);
             break;
     }
 
-    fputs("\n", out);
+    std::fputs("\n", out);
 
     {
         classdata* clsf;
@@ -172,7 +172,7 @@ void list_pntdata(FILE* out, survdata* p) {
             std::string class_value;
             class_name = obs_classes.name(clsf->class_id);
             class_value = obs_classes.value_name(clsf->class_id, clsf->name_id);
-            fprintf(out, "     %s = %s\n", class_name.c_str(), class_value.c_str());
+            std::fprintf(out, "     %s = %s\n", class_name.c_str(), class_value.c_str());
         }
     }
 
@@ -182,13 +182,13 @@ void list_pntdata(FILE* out, survdata* p) {
         sd = p->syserr + t->isyserr;
         for (i = 0; i < t->nsyserr; i++, sd++) {
             const std::string_view name = syserr_name(sd->prm_id);
-            fprintf(out, "     Systematic error: %s = %lf", name.data(), sd->influence);
-            fprintf(out, "\n");
+            std::fprintf(out, "     Systematic error: %s = %lf", name.data(), sd->influence);
+            std::fprintf(out, "\n");
         }
     }
 }
 
-void list_pntdata_residuals(FILE* out, survdata* p, double semult) {
+void list_pntdata_residuals(std::FILE* out, survdata* p, double semult) {
     double calc;
     double se;
     double ser;
@@ -222,7 +222,7 @@ void list_pntdata_residuals(FILE* out, survdata* p, double semult) {
         unused = ' ';
     }
 
-    fputc('\n', out);
+    std::fputc('\n', out);
 
     calc = pd->calc;
     se = pd->error;
@@ -301,9 +301,9 @@ void calc_pntdata_residuals(survdata* p, lsdata* l) {
     }
 
     pd->calc = pd->value - l->res[0];
-    pd->calcerr = l->calccvr[0] > 0.0 ? sqrt(l->calccvr[0]) : 0.0;
+    pd->calcerr = l->calccvr[0] > 0.0 ? std::sqrt(l->calccvr[0]) : 0.0;
     pd->residual = l->res[0];
-    pd->reserr = l->rescvr[0] > 0.0 ? sqrt(l->rescvr[0]) : 0.0;
+    pd->reserr = l->rescvr[0] > 0.0 ? std::sqrt(l->rescvr[0]) : 0.0;
 
     error = pd->error;
 

@@ -68,7 +68,7 @@ static std::string description_filetype(std::string_view description) {
 
 std::unique_ptr<DATAFILE> DATAFILE::open(std::string_view fname, std::string_view description) {
     const std::string filename(fname);
-    FILE* f = fopen(filename.c_str(), "rb");
+    std::FILE* f = std::fopen(filename.c_str(), "rb");
     if (f == nullptr) {
         const std::string msg = "Unable to open " + std::string(description.substr(0, 60));
         handle_error(FILE_OPEN_ERROR, msg, filename);
@@ -78,22 +78,22 @@ std::unique_ptr<DATAFILE> DATAFILE::open(std::string_view fname, std::string_vie
     record_filename(filename, description_filetype(description));
 
     char header[80];
-    const std::string_view start(header, fread(header, 1, sizeof(header), f));
+    const std::string_view start(header, std::fread(header, 1, sizeof(header), f));
     const bool unicode = start.substr(0, DATAFILE_UTF8_BOM.size()) == DATAFILE_UTF8_BOM ||
                          start.substr(0, DATAFILE_UTF16_BOM.size()) == DATAFILE_UTF16_BOM;
     const bool binary = !unicode && std::any_of(start.begin(), start.end(),
                                                 [](char c) { return c == 0 || static_cast<unsigned char>(c) >= 0x80; });
     if (unicode) {
-        fclose(f);
+        std::fclose(f);
         handle_error(FILE_OPEN_ERROR, "Cannot use unicode file - convert to ASCII", filename);
         return nullptr;
     }
     if (binary) {
-        fclose(f);
+        std::fclose(f);
         handle_error(FILE_OPEN_ERROR, "File appears to contain binary data", filename);
         return nullptr;
     }
-    fseek(f, 0L, SEEK_SET);
+    std::fseek(f, 0L, SEEK_SET);
 
     std::unique_ptr<DATAFILE> d(new DATAFILE);
     d->_fname = filename;
@@ -105,7 +105,7 @@ std::unique_ptr<DATAFILE> DATAFILE::open(std::string_view fname, std::string_vie
 
 DATAFILE::~DATAFILE() {
     if (_f) {
-        fclose(_f);
+        std::fclose(_f);
     }
 }
 
@@ -125,7 +125,7 @@ int DATAFILE::skip_to_blank_line() {
     bool blank = true;
     int c;
 
-    while (EOF != (c = fgetc(_f))) {
+    while (EOF != (c = std::fgetc(_f))) {
         if (c == '\n') {
             _lineno++;
             if (blank) {
@@ -142,10 +142,10 @@ int DATAFILE::skip_to_blank_line() {
 /// Appends the next line of the file, including its newline, to text. A line
 /// is cut short at any null character, as fgets and strlen always have. Returns
 /// false if the end of the file was reached.
-static bool append_line(FILE* f, std::string& text) {
+static bool append_line(std::FILE* f, std::string& text) {
     char chunk[256];
-    while (fgets(chunk, sizeof(chunk), f)) {
-        const size_t len = strlen(chunk);
+    while (std::fgets(chunk, sizeof(chunk), f)) {
+        const size_t len = std::strlen(chunk);
         if (!len) {
             return true;
         }
@@ -161,7 +161,7 @@ int DATAFILE::read_record() {
     bool eof = false;
 
     _startlineno = _lineno;
-    _startloc = ftell(_f);
+    _startloc = std::ftell(_f);
     _inrec.clear();
     _reclineno = 0;
 
@@ -228,6 +228,6 @@ void DATAFILE::save_loc(datafile_loc& dl) const {
 
 void DATAFILE::reset_loc(const datafile_loc& dl) {
     _lineno = dl.line;
-    fseek(_f, dl.loc, SEEK_SET);
+    std::fseek(_f, dl.loc, SEEK_SET);
     read_record();
 }

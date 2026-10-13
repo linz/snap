@@ -28,10 +28,10 @@
 #include "util/fileutil.h"
 #undef BINDATA_C
 
-static int64_t start_loc;
+static std::int64_t start_loc;
 static long maxsize = 0;
 
-int init_bindata(FILE* f) {
+int init_bindata(std::FILE* f) {
     maxsize = 0;
     nbindata = 0;
     bindata_file = f ? f : snaptmpfile();
@@ -48,16 +48,16 @@ void end_bindata(void) {
     write_bindata_header(0, ENDDATA);
 }
 
-void init_get_bindata(int64_t loc) {
+void init_get_bindata(std::int64_t loc) {
     if (loc == 0) {
         loc = start_loc;
     }
     fseek64(bindata_file, loc, SEEK_SET);
 }
 
-int64_t write_bindata_header(long size, int type) {
-    const int64_t loc = ftell64(bindata_file);
-    write_raw_as<int64_t>(bindata_file, size);
+std::int64_t write_bindata_header(long size, int type) {
+    const std::int64_t loc = ftell64(bindata_file);
+    write_raw_as<std::int64_t>(bindata_file, size);
     write_raw(bindata_file, type);
     if (size > maxsize) {
         maxsize = size;
@@ -69,8 +69,8 @@ int64_t write_bindata_header(long size, int type) {
 }
 
 int read_bindata_header(long* size, int* type) {
-    int64_t disksize;
-    if (fread(&disksize, sizeof(disksize), 1, bindata_file) == 1 && fread(type, sizeof(int), 1, bindata_file) == 1) {
+    std::int64_t disksize;
+    if (std::fread(&disksize, sizeof(disksize), 1, bindata_file) == 1 && std::fread(type, sizeof(int), 1, bindata_file) == 1) {
         *size = static_cast<long>(disksize);
         return 1;
     }
@@ -155,29 +155,29 @@ static const size_t SURVDATA_DISK_FIXED_WIDTH_SIZE = survdata_disk_fixed_width_s
 // templates from binfile.h - the only part of survdata serialized field-by-field;
 // everything after it (obs array, classes, syserrs, covariances) is a raw
 // fixed-stride copy, already portable without per-field handling.
-static void write_survdata_fixed_width(const survdata& sd, FILE* f) {
+static void write_survdata_fixed_width(const survdata& sd, std::FILE* f) {
     for_each_disk_field(sd, SURVDATA_DISK_FIELDS, SURVDATA_DISK_FIELD_COUNT,
                         [f](FieldKind kind, auto value) { write_disk_field(f, kind, value); });
 }
 
 // Mirrors write_survdata_fixed_width: same table, same iteration order,
 // reading into each field in place instead of writing.
-static void read_survdata_fixed_width(FILE* f, survdata& sd) {
+static void read_survdata_fixed_width(std::FILE* f, survdata& sd) {
     for_each_disk_field_mutable(sd, SURVDATA_DISK_FIELDS, SURVDATA_DISK_FIELD_COUNT,
                                 [f](FieldKind kind, auto& value) { read_disk_field(f, kind, value); });
 }
 
 int get_bindata(int bintype, bindata& b) {
-    int64_t loc;
+    std::int64_t loc;
     int sts;
 
     /* Read the size and type of the next data item */
 
     while (true) {
         loc = ftell64(bindata_file);
-        sts = fread(&b.size, sizeof(b.size), 1, bindata_file);
+        sts = std::fread(&b.size, sizeof(b.size), 1, bindata_file);
         if (sts) {
-            sts = fread(&b.bintype, sizeof(b.bintype), 1, bindata_file);
+            sts = std::fread(&b.bintype, sizeof(b.bintype), 1, bindata_file);
         }
         if (!sts || b.bintype == ENDDATA) {
             fseek64(bindata_file, loc, SEEK_SET);
@@ -201,9 +201,9 @@ int get_bindata(int bintype, bindata& b) {
        once padding is excluded - everything else after the header is already
        fixed-width per-element and needs no such adjustment. */
 
-    const int64_t reqsize =
+    const std::int64_t reqsize =
         (b.bintype == SURVDATA)
-            ? static_cast<int64_t>(sizeof(survdata)) + (b.size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE))
+            ? static_cast<std::int64_t>(sizeof(survdata)) + (b.size - static_cast<std::int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE))
             : b.size;
 
     if (b.buffer.size() < boost::numeric_cast<size_t>(reqsize)) {
@@ -214,17 +214,17 @@ int get_bindata(int bintype, bindata& b) {
 
     if (b.bintype == SURVDATA) {
         survdata* sd = b.survey_data();
-        memset(sd, 0, sizeof(survdata));
+        std::memset(sd, 0, sizeof(survdata));
         read_survdata_fixed_width(bindata_file, *sd);
-        const int64_t variable_size = b.size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
+        const std::int64_t variable_size = b.size - static_cast<std::int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
         if (variable_size > 0) {
             unsigned char* variable = b.buffer.data() + sizeof(survdata);
-            if (fread(variable, variable_size, 1, bindata_file) != 1) {
+            if (std::fread(variable, variable_size, 1, bindata_file) != 1) {
                 return FILE_READ_ERROR;
             }
         }
     } else {
-        if (fread(b.buffer.data(), b.size, 1, bindata_file) != 1) {
+        if (std::fread(b.buffer.data(), b.size, 1, bindata_file) != 1) {
             return FILE_READ_ERROR;
         }
     }
@@ -247,17 +247,17 @@ int get_bindata(int bintype, bindata& b) {
 }
 
 void update_bindata(bindata& b) {
-    const int64_t loc = ftell64(bindata_file);
+    const std::int64_t loc = ftell64(bindata_file);
     fseek64(bindata_file, b.loc + sizeof(b.bintype) + sizeof(b.size), SEEK_SET);
     if (b.bintype == SURVDATA) {
         write_survdata_fixed_width(*b.survey_data(), bindata_file);
-        const int64_t variable_size = b.size - static_cast<int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
+        const std::int64_t variable_size = b.size - static_cast<std::int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE);
         if (variable_size > 0) {
             const unsigned char* variable = b.buffer.data() + sizeof(survdata);
-            fwrite(variable, variable_size, 1, bindata_file);
+            std::fwrite(variable, variable_size, 1, bindata_file);
         }
     } else {
-        fwrite(b.buffer.data(), b.size, 1, bindata_file);
+        std::fwrite(b.buffer.data(), b.size, 1, bindata_file);
     }
     fseek64(bindata_file, loc, SEEK_SET);
 }
@@ -300,22 +300,22 @@ static long survdata_size(survdata* sd) {
 	       not saved.
      */
 
-int64_t save_survdata(survdata* sd) {
-    const int64_t loc = write_bindata_header(survdata_size(sd), SURVDATA);
+std::int64_t save_survdata(survdata* sd) {
+    const std::int64_t loc = write_bindata_header(survdata_size(sd), SURVDATA);
     write_survdata_fixed_width(*sd, bindata_file);
-    fwrite(sd->obs.odata, sd->obssize, sd->nobs, bindata_file);
+    std::fwrite(sd->obs.odata, sd->obssize, sd->nobs, bindata_file);
     if (sd->nclass) {
-        fwrite(sd->clsf, sizeof(classdata), sd->nclass, bindata_file);
+        std::fwrite(sd->clsf, sizeof(classdata), sd->nclass, bindata_file);
     }
     if (sd->nsyserr) {
-        fwrite(sd->syserr, sizeof(syserrdata), sd->nsyserr, bindata_file);
+        std::fwrite(sd->syserr, sizeof(syserrdata), sd->nsyserr, bindata_file);
     }
     if (sd->ncvr) {
         int cvrsize;
         cvrsize = ((sd->ncvr) * (sd->ncvr + 1)) / 2;
-        fwrite(sd->cvr, sizeof(double), cvrsize, bindata_file);
-        fwrite(sd->calccvr, sizeof(double), cvrsize, bindata_file);
-        fwrite(sd->rescvr, sizeof(double), cvrsize, bindata_file);
+        std::fwrite(sd->cvr, sizeof(double), cvrsize, bindata_file);
+        std::fwrite(sd->calccvr, sizeof(double), cvrsize, bindata_file);
+        std::fwrite(sd->rescvr, sizeof(double), cvrsize, bindata_file);
     }
     if (!have_obs_ids) {
         for (int i = 0; i < sd->nobs; i++) {
@@ -328,7 +328,7 @@ int64_t save_survdata(survdata* sd) {
     return loc;
 }
 
-int64_t save_survdata_subset(survdata* sd, int iobs, int type) {
+std::int64_t save_survdata_subset(survdata* sd, int iobs, int type) {
     int nobs;
     int nclass;
     int nsyserr;
@@ -394,7 +394,7 @@ int64_t save_survdata_subset(survdata* sd, int iobs, int type) {
     sd->nsyserr = nsyserr;
     sd->ncvr = cvrperobs * nobs;
 
-    const int64_t loc = write_bindata_header(survdata_size(sd), SURVDATA);
+    const std::int64_t loc = write_bindata_header(survdata_size(sd), SURVDATA);
 
     write_survdata_fixed_width(*sd, bindata_file);
 
@@ -434,7 +434,7 @@ int64_t save_survdata_subset(survdata* sd, int iobs, int type) {
             iclass += t->nclass;
             isyserr += t->nsyserr;
 
-            fwrite(data, sd->obssize, 1, bindata_file);
+            std::fwrite(data, sd->obssize, 1, bindata_file);
 
             t->iclass = oldiclass;
             t->isyserr = oldisyserr;
@@ -454,7 +454,7 @@ int64_t save_survdata_subset(survdata* sd, int iobs, int type) {
                 continue;
             }
 
-            fwrite(sd->clsf + t->iclass, sizeof(classdata), t->nclass, bindata_file);
+            std::fwrite(sd->clsf + t->iclass, sizeof(classdata), t->nclass, bindata_file);
         }
     }
 
@@ -469,7 +469,7 @@ int64_t save_survdata_subset(survdata* sd, int iobs, int type) {
                 continue;
             }
 
-            fwrite(sd->syserr + t->isyserr, sizeof(syserrdata), t->nsyserr, bindata_file);
+            std::fwrite(sd->syserr + t->isyserr, sizeof(syserrdata), t->nsyserr, bindata_file);
         }
     }
 
@@ -525,7 +525,7 @@ int64_t save_survdata_subset(survdata* sd, int iobs, int type) {
                             jr0 = ir0;
                             njr = ir - ir0 + 1;
                         }
-                        fwrite(&Lij(cvr, ir, jr0), sizeof(double), njr, bindata_file);
+                        std::fwrite(&Lij(cvr, ir, jr0), sizeof(double), njr, bindata_file);
                     }
                 }
             }
@@ -590,26 +590,26 @@ std::optional<std::string> get_obs_classification_name(survdata* sd, trgtdata* t
     return std::nullopt;
 }
 
-void print_json_observation_types(FILE* out) {
+void print_json_observation_types(std::FILE* out) {
     int first = 1;
-    fprintf(out, "{\n");
+    std::fprintf(out, "{\n");
     for (int type = 0; type < NOBSTYPE; type++) {
         if (obstypecount[type]) {
             if (first) {
                 first = 0;
             } else {
-                fprintf(out, ",");
+                std::fprintf(out, ",");
             }
-            fprintf(out, "\n  \"%s\": \"%s\"", datatype[type].code.data(), datatype[type].name.data());
+            std::fprintf(out, "\n  \"%s\": \"%s\"", datatype[type].code.data(), datatype[type].name.data());
         }
     }
-    fprintf(out, "\n}\n");
+    std::fprintf(out, "\n}\n");
 }
 
-void print_json_observations(FILE* out) {
+void print_json_observations(std::FILE* out) {
     bindata b;
     init_get_bindata(0L);
-    fprintf(out, "[");
+    std::fprintf(out, "[");
     int first = 1;
     while (get_bindata(SURVDATA, b) == OK) {
         int iobs;
@@ -618,9 +618,9 @@ void print_json_observations(FILE* out) {
         if (first) {
             first = 0;
         } else {
-            fprintf(out, ",");
+            std::fprintf(out, ",");
         }
-        fprintf(out, "\n  {\n  \"obs\":\n    [");
+        std::fprintf(out, "\n  {\n  \"obs\":\n    [");
         for (iobs = 0; iobs < sd->nobs; iobs++) {
             const char* fromstr = "from";
             const char* tostr = "to";
@@ -631,31 +631,31 @@ void print_json_observations(FILE* out) {
             trgtdata* tgt = get_trgtdata(sd, iobs);
 
             if (iobs) {
-                fprintf(out, ",");
+                std::fprintf(out, ",");
             }
-            fprintf(out, "\n      {\n");
-            fprintf(out, "        \"obsid\":%d,\n", tgt->obsid);
-            fprintf(out, "        \"srcid\":%d,\n", tgt->id);
+            std::fprintf(out, "\n      {\n");
+            std::fprintf(out, "        \"obsid\":%d,\n", tgt->obsid);
+            std::fprintf(out, "        \"srcid\":%d,\n", tgt->id);
             /* sd->from is 0 for point vector data */
             /* Could be more rigorous here! */
             if (sd->from) {
-                fprintf(out, "        \"from\":\"%s\",\n", station_code(sd->from).c_str());
-                fprintf(out, "        \"from_hgt\":%.4lf,\n", sd->fromhgt);
+                std::fprintf(out, "        \"from\":\"%s\",\n", station_code(sd->from).c_str());
+                std::fprintf(out, "        \"from_hgt\":%.4lf,\n", sd->fromhgt);
                 totype = tostr;
             }
             if (tgt->to) {
-                fprintf(out, "        \"%s\":\"%s\",\n", totype, station_code(tgt->to).c_str());
+                std::fprintf(out, "        \"%s\":\"%s\",\n", totype, station_code(tgt->to).c_str());
             } else {
-                fprintf(out, "        \"%s\":null,\n", totype);
+                std::fprintf(out, "        \"%s\":null,\n", totype);
             }
-            fprintf(out, "        \"%s_hgt\":%.4lf,\n", totype, tgt->tohgt);
+            std::fprintf(out, "        \"%s_hgt\":%.4lf,\n", totype, tgt->tohgt);
             if (sd->date == UNDEFINED_DATE) {
-                fprintf(out, "        \"date\":null,\n");
+                std::fprintf(out, "        \"date\":null,\n");
             } else {
-                fprintf(out, "        \"date\":\"%s\",\n", date_as_string(sd->date).c_str());
+                std::fprintf(out, "        \"date\":\"%s\",\n", date_as_string(sd->date).c_str());
             }
-            fprintf(out, "        \"type\":\"%s\",\n", datatype[tgt->type].code.data());
-            fprintf(out, "        \"errfct\":%.4lf,\n", tgt->errfct);
+            std::fprintf(out, "        \"type\":\"%s\",\n", datatype[tgt->type].code.data());
+            std::fprintf(out, "        \"errfct\":%.4lf,\n", tgt->errfct);
 
             switch (sd->format) {
                 case SD_OBSDATA: {
@@ -685,61 +685,61 @@ void print_json_observations(FILE* out) {
                     ndp += 4;
                     factor = RTOD;
                 }
-                fprintf(out, "        \"value\": [");
+                std::fprintf(out, "        \"value\": [");
                 for (ivalue = 0; ivalue < nvalue; ivalue++) {
                     if (ivalue) {
-                        fprintf(out, ",");
+                        std::fprintf(out, ",");
                     }
-                    fprintf(out, "%.*lf", ndp, value[ivalue] * factor);
+                    std::fprintf(out, "%.*lf", ndp, value[ivalue] * factor);
                 }
-                fprintf(out, "],\n");
+                std::fprintf(out, "],\n");
                 if (error) {
-                    fprintf(out, "        \"error\": [%.*lf],\n", ndp + 2, (*error) * factor);
+                    std::fprintf(out, "        \"error\": [%.*lf],\n", ndp + 2, (*error) * factor);
                 }
             }
             if (tgt->type == PB) {
-                fprintf(out, "        \"projection\": \"%s\",\n", bproj_name(sd->reffrm).data());
+                std::fprintf(out, "        \"projection\": \"%s\",\n", bproj_name(sd->reffrm).data());
             }
             if (sd->format == SD_VECDATA) {
-                fprintf(out, "        \"ref_frame\": \"%s\",\n", rftrans_from_id(sd->reffrm)->name.c_str());
+                std::fprintf(out, "        \"ref_frame\": \"%s\",\n", rftrans_from_id(sd->reffrm)->name.c_str());
             }
             if (tgt->nclass) {
                 int iclass;
-                fprintf(out, "        \"classifications\": {");
+                std::fprintf(out, "        \"classifications\": {");
                 for (iclass = 0; iclass < tgt->nclass; iclass++) {
                     classdata* clsf = sd->clsf + iclass + tgt->iclass;
                     if (iclass) {
-                        fprintf(out, ",");
+                        std::fprintf(out, ",");
                     }
-                    fprintf(out, "\n          \"%s\":\"%s\"", obs_classes.name(clsf->class_id).c_str(),
+                    std::fprintf(out, "\n          \"%s\":\"%s\"", obs_classes.name(clsf->class_id).c_str(),
                             obs_classes.value_name(clsf->class_id, clsf->name_id).c_str());
                 }
-                fprintf(out, "\n          },\n");
+                std::fprintf(out, "\n          },\n");
             }
             if (tgt->nsyserr) {
                 int isyserr;
-                fprintf(out, "        \"systematic_errors\": {");
+                std::fprintf(out, "        \"systematic_errors\": {");
                 for (isyserr = 0; isyserr < tgt->nsyserr; isyserr++) {
                     syserrdata* syserr = sd->syserr + isyserr + tgt->isyserr;
                     if (isyserr) {
-                        fprintf(out, ",");
+                        std::fprintf(out, ",");
                     }
-                    fprintf(out, "\n          \"%s\":%.8le", param_type_name(PRM_SYSERR, syserr->prm_id).data(),
+                    std::fprintf(out, "\n          \"%s\":%.8le", param_type_name(PRM_SYSERR, syserr->prm_id).data(),
                             syserr->influence);
                 }
-                fprintf(out, "\n          },\n");
+                std::fprintf(out, "\n          },\n");
             }
-            fprintf(out, "        \"useobs\":%s,\n", tgt->unused ? "false" : "true");
-            fprintf(out, "        \"file\":\"%s\",\n", survey_data_file_name(sd->file).c_str());
-            fprintf(out, "        \"file_line_no\":%d\n", tgt->lineno);
-            fprintf(out, "      }");
+            std::fprintf(out, "        \"useobs\":%s,\n", tgt->unused ? "false" : "true");
+            std::fprintf(out, "        \"file\":\"%s\",\n", survey_data_file_name(sd->file).c_str());
+            std::fprintf(out, "        \"file_line_no\":%d\n", tgt->lineno);
+            std::fprintf(out, "      }");
         }
-        fprintf(out, "\n    ]");
+        std::fprintf(out, "\n    ]");
         if (ncvrrow) {
-            fprintf(out, ",\n  \"covariance\": ");
+            std::fprintf(out, ",\n  \"covariance\": ");
             print_ltmat_json(out, sd->cvr, ncvrrow, "%15.8le", 4);
         }
-        fprintf(out, "\n  }");
+        std::fprintf(out, "\n  }");
     }
-    fprintf(out, "\n]\n");
+    std::fprintf(out, "\n]\n");
 }

@@ -252,17 +252,17 @@ Value ForeachToken::evaluate() {
 
     RunPermission rp(Owner(), elLoop);
 
-    for (Token* strtok = string; strtok; strtok = strtok->Next()) {
+    for (Token* std::strtok = string; std::strtok; std::strtok = std::strtok->Next()) {
         if (!usere) {
             if (rp.CanRun()) {
-                var->SetOwnerValue(strtok->GetValue());
+                var->SetOwnerValue(std::strtok->GetValue());
                 RunLoop();
             }
             continue;
         }
 
         int start = 0;
-        const wxString str = strtok->GetValue().AsString();
+        const wxString str = std::strtok->GetValue().AsString();
 
         while (rp.CanRun() && re.Matches(str.Mid(start))) {
             size_t mstart;
@@ -845,9 +845,9 @@ char ScriptImp::getchar() {
 void ScriptImp::error(const char* format, ...) {
     char* buf;
     buf = new char[1024];
-    va_list arglist;
+    std::va_list arglist;
     va_start(arglist, format);
-    vsprintf(buf, format, arglist);
+    std::vsprintf(buf, format, arglist);
     errorMessage = buf;
     delete[] buf;
 

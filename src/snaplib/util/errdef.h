@@ -100,7 +100,7 @@ int get_error_count(void);
  * Each returns old value, apart from location.
  */
 
-FILE* set_error_file(FILE* errfile);
+std::FILE* set_error_file(std::FILE* errfile);
 int set_error_level(int level);
 int set_error_prefix(int prefix);
 
@@ -108,6 +108,6 @@ void set_error_location(error_message loc);
 
 inline constexpr std::nullopt_t NO_MESSAGE = std::nullopt;
 #define DEFAULT_ERROR_HANDLER ((errhandler_type)0)
-#define DEFAULT_ERROR_FILE ((FILE*)0)
+#define DEFAULT_ERROR_FILE ((std::FILE*)0)
 
 #endif

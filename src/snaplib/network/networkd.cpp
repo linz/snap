@@ -21,16 +21,16 @@
 /*=============================================================*/
 /* Routines to dump and reload a network to a binary data file */
 
-void dump_network(network* nw, FILE* f) {
+void dump_network(network* nw, std::FILE* f) {
     /* Dump the station file data */
 
     dump_string(nw->name, f);
     dump_string(nw->crdsysdef, f);
-    fwrite(&nw->topolat, sizeof(nw->topolat), 1, f);
-    fwrite(&nw->topolon, sizeof(nw->topolon), 1, f);
-    fwrite(&nw->got_topocentre, sizeof(nw->got_topocentre), 1, f);
-    fwrite(&nw->options, sizeof(nw->options), 1, f);
-    fwrite(&nw->orderclsid, sizeof(nw->orderclsid), 1, f);
+    std::fwrite(&nw->topolat, sizeof(nw->topolat), 1, f);
+    std::fwrite(&nw->topolon, sizeof(nw->topolon), 1, f);
+    std::fwrite(&nw->got_topocentre, sizeof(nw->got_topocentre), 1, f);
+    std::fwrite(&nw->options, sizeof(nw->options), 1, f);
+    std::fwrite(&nw->orderclsid, sizeof(nw->orderclsid), 1, f);
 
     /* Dump the station list and coordinate system */
 
@@ -38,7 +38,7 @@ void dump_network(network* nw, FILE* f) {
     dump_station_list(nw->stnlist, f);
 }
 
-network* reload_network(FILE* f) {
+network* reload_network(std::FILE* f) {
     network* nw;
     coordsys* cs;
 
@@ -47,11 +47,11 @@ network* reload_network(FILE* f) {
     nw = new_network();
     nw->name = reload_optional_string(f);
     nw->crdsysdef = reload_string(f);
-    fread(&nw->topolat, sizeof(nw->topolat), 1, f);
-    fread(&nw->topolon, sizeof(nw->topolon), 1, f);
-    fread(&nw->got_topocentre, sizeof(nw->got_topocentre), 1, f);
-    fread(&nw->options, sizeof(nw->options), 1, f);
-    fread(&nw->orderclsid, sizeof(nw->orderclsid), 1, f);
+    std::fread(&nw->topolat, sizeof(nw->topolat), 1, f);
+    std::fread(&nw->topolon, sizeof(nw->topolon), 1, f);
+    std::fread(&nw->got_topocentre, sizeof(nw->got_topocentre), 1, f);
+    std::fread(&nw->options, sizeof(nw->options), 1, f);
+    std::fread(&nw->orderclsid, sizeof(nw->orderclsid), 1, f);
 
     /* Restore the station list and coordinate system */
 
@@ -77,59 +77,59 @@ network* reload_network(FILE* f) {
 #include <alloc.h>
 
 int main(int argc, char* argv[]) {
-    FILE* bin;
+    std::FILE* bin;
     network* nw;
     int sts;
 
     define_coordsys_file(argv[0]);
 
     if (argc < 2) {
-        printf("Need one or two file name parameters\n");
+        std::printf("Need one or two file name parameters\n");
         return 0;
     }
 
     bin = snaptmpfile();
 
-    printf("Before creation mem = %ld\n", (long)coreleft());
+    std::printf("Before creation mem = %ld\n", (long)coreleft());
 
     nw = new_network();
     sts = read_network(nw, argv[1], 0);
-    printf("Read status = %d\n", sts);
+    std::printf("Read status = %d\n", sts);
     if (sts != OK)
         return 0;
 
-    printf("After reading = %ld\n", (long)coreleft());
+    std::printf("After reading = %ld\n", (long)coreleft());
 
     dump_network(nw, bin);
     delete_network(nw);
 
-    printf("After deleting mem = %ld\n", (long)coreleft());
+    std::printf("After deleting mem = %ld\n", (long)coreleft());
 
-    fseek(bin, 0L, SEEK_SET);
+    std::fseek(bin, 0L, SEEK_SET);
     nw = reload_network(bin);
 
-    printf("After reloading = %ld\n", (long)coreleft());
+    std::printf("After reloading = %ld\n", (long)coreleft());
 
     if (argc > 2) {
         write_network(nw, argv[2], "TESTST", "today");
     }
     delete_network(nw);
 
-    printf("After final deletion = %ld\n", (long)coreleft());
+    std::printf("After final deletion = %ld\n", (long)coreleft());
 
-    fseek(bin, 0L, SEEK_SET);
+    std::fseek(bin, 0L, SEEK_SET);
     nw = reload_network(bin);
 
-    printf("After reloading = %ld\n", (long)coreleft());
+    std::printf("After reloading = %ld\n", (long)coreleft());
 
     if (argc > 2) {
-        FILE* out;
-        out = fopen(argv[2], "w");
-        fclose(out);
+        std::FILE* out;
+        out = std::fopen(argv[2], "w");
+        std::fclose(out);
     }
     delete_network(nw);
 
-    printf("After final deletion = %ld\n", (long)coreleft());
+    std::printf("After final deletion = %ld\n", (long)coreleft());
     return 0;
 }
 

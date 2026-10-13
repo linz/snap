@@ -74,7 +74,7 @@ static int add_colocation_constraint(station* stcol, station* st0, double herror
     stn_adjustment* sa = stnadj(stcol);
     if (sa->idcol) {
         char errmsg[80 + STNCODELEN * 2];
-        sprintf(errmsg, "Cannot colocate %.*s with %.*s - already colocated with %.*s", STNCODELEN, stcol->Code.c_str(),
+        std::sprintf(errmsg, "Cannot colocate %.*s with %.*s - already colocated with %.*s", STNCODELEN, stcol->Code.c_str(),
                 STNCODELEN, st0->Code.c_str(), STNCODELEN, stnptr(sa->idcol)->Code.c_str());
         handle_error(INCONSISTENT_DATA, errmsg, NO_MESSAGE);
         return INCONSISTENT_DATA;
@@ -170,7 +170,7 @@ int add_station_colocation_constraints() {
             }
             if (st0) {
                 if (stto) {
-                    sts0 = add_colocation_constraint(st0, stto, sqrt(herror2), sqrt(verror2));
+                    sts0 = add_colocation_constraint(st0, stto, std::sqrt(herror2), std::sqrt(verror2));
                     if (sts0 != OK) {
                         sts = sts0;
                     }
@@ -186,7 +186,7 @@ int add_station_colocation_constraints() {
             }
         }
         if (st0) {
-            sts0 = add_colocation_constraint(st0, st, sqrt(herror2), sqrt(verror2));
+            sts0 = add_colocation_constraint(st0, st, std::sqrt(herror2), std::sqrt(verror2));
             if (sts0 != OK) {
                 sts = sts0;
             }
@@ -225,7 +225,7 @@ int add_station_colocation_constraints() {
             if (recode->herror > 0.0 && recode->verror >= 0.0 && stto && st0) {
                 herror2 += recode->herror * recode->herror;
                 verror2 += recode->verror * recode->verror;
-                sts0 = add_colocation_constraint(stto, st0, sqrt(herror2), sqrt(verror2));
+                sts0 = add_colocation_constraint(stto, st0, std::sqrt(herror2), std::sqrt(verror2));
                 if (sts0 != OK) {
                     sts = sts0;
                 }
@@ -346,7 +346,7 @@ void set_station_obseq(station* st, const vector3 dst, void* hA, int irow, doubl
 
     if (deformation && date != UNDEFINED_DATE && calc_deformation(deformation, st, date, denu) == OK) {
         if (output_deformation && lst) {
-            fprintf(lst, "Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n", stn_name_width, st->Code.c_str(),
+            std::fprintf(lst, "Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n", stn_name_width, st->Code.c_str(),
                     date_as_year(date), denu[0], denu[1], denu[2], st->Name.c_str());
         }
         oe_add_value(hA, irow, -(denu[0] * dst[0] + denu[1] * dst[1] + denu[2] * dst[2]));
@@ -442,7 +442,7 @@ void sum_floating_stations(int iteration) {
 
     if (output_observation_equations) {
         print_json_start(lst, header);
-        fprintf(lst, "\n{ \"float_stations\": [\n");
+        std::fprintf(lst, "\n{ \"float_stations\": [\n");
     }
 
     hA = create_oe(nprm);
@@ -458,7 +458,7 @@ void sum_floating_stations(int iteration) {
         if (output_observation_equations) {
             const std::string source = std::string("{\"station\":\"") + std::string(st->Code) + "\"}";
             if (nfloat) {
-                fprintf(lst, ",\n");
+                std::fprintf(lst, ",\n");
             }
             nfloat++;
             print_obseqn_json(lst, hA, source, 2);
@@ -466,7 +466,7 @@ void sum_floating_stations(int iteration) {
     }
 
     if (output_observation_equations) {
-        fprintf(lst, "]}\n");
+        std::fprintf(lst, "]}\n");
         print_json_end(lst, header);
     }
 
@@ -513,39 +513,39 @@ void update_station_coords(void) {
     }
 }
 
-void print_coordinate_changes(FILE* out) {
+void print_coordinate_changes(std::FILE* out) {
     station* st;
     stn_adjustment* sa;
     double change[2];
 
-    fprintf(out, "\nChanges to station coordinates\n\n");
-    fprintf(out, "%-*s     East      North       Up       Name\n\n", stn_name_width, "Code");
+    std::fprintf(out, "\nChanges to station coordinates\n\n");
+    std::fprintf(out, "%-*s     East      North       Up       Name\n\n", stn_name_width, "Code");
 
     for (reset_station_list(net, (int)output_sorted_stations); nullptr != (st = next_station(net));) {
         sa = stnadj(st);
         if (sa->hrowno || sa->vrowno) {
-            fprintf(out, "%-*s  ", stn_name_width, st->Code.c_str());
+            std::fprintf(out, "%-*s  ", stn_name_width, st->Code.c_str());
 
             if (sa->hrowno) {
                 int rows[2];
                 rows[1] = sa->hrowno;
                 rows[0] = rows[1] - 1;
                 lsq_get_params(rows, 2, change, nullptr);
-                fprintf(out, "%9.*lf  %9.*lf  ", (int)coord_precision, change[0], (int)coord_precision, change[1]);
+                std::fprintf(out, "%9.*lf  %9.*lf  ", (int)coord_precision, change[0], (int)coord_precision, change[1]);
             } else {
-                fprintf(out, "    -          -      ");
+                std::fprintf(out, "    -          -      ");
             }
 
             if (sa->vrowno) {
                 int rows[1];
                 rows[0] = sa->vrowno - 1;
                 lsq_get_params(rows, 1, change, nullptr);
-                fprintf(out, "%9.*lf", (int)coord_precision, change[0]);
+                std::fprintf(out, "%9.*lf", (int)coord_precision, change[0]);
             } else {
-                fprintf(out, "    -    ");
+                std::fprintf(out, "    -    ");
             }
 
-            fprintf(out, "   %s\n", st->Name.c_str());
+            std::fprintf(out, "   %s\n", st->Name.c_str());
         }
     }
 }
@@ -560,9 +560,9 @@ static void calc_confidence_limit_factors(double* perrmult, double* phgtmult) {
         prob = (100 - errconfval) / 100.0;
         dofd = apriori ? 0 : dof;
         hgterr_factor = inv_f_distn(prob, 1, dofd);
-        hgterr_factor = hgterr_factor > 0.0 ? sqrt(hgterr_factor) : 0.0;
+        hgterr_factor = hgterr_factor > 0.0 ? std::sqrt(hgterr_factor) : 0.0;
         errell_factor = inv_f_distn(prob, 2, dofd);
-        errell_factor = errell_factor > 0.0 ? sqrt(errell_factor * 2.0) : 0.0;
+        errell_factor = errell_factor > 0.0 ? std::sqrt(errell_factor * 2.0) : 0.0;
     } else {
         errell_factor = hgterr_factor = errconfval;
     }
@@ -576,7 +576,7 @@ static void calc_confidence_limit_factors(double* perrmult, double* phgtmult) {
     *phgtmult = hgterr_factor;
 }
 
-void print_adjusted_coordinates(FILE* lst) {
+void print_adjusted_coordinates(std::FILE* lst) {
     station* st;
     stn_adjustment* sa;
     projection* prj;
@@ -613,19 +613,19 @@ void print_adjusted_coordinates(FILE* lst) {
 
     ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
 
-    fprintf(lst, "\nStation heights are %s heights.\n", ellipsoidal ? "ellipsoidal" : "orthometric");
+    std::fprintf(lst, "\nStation heights are %s heights.\n", ellipsoidal ? "ellipsoidal" : "orthometric");
     if (!(net->options & NW_GEOID_HEIGHTS)) {
-        fprintf(lst, "Geoid heights not defined - orthometric and ellipsoidal heights are the same.\n");
+        std::fprintf(lst, "Geoid heights not defined - orthometric and ellipsoidal heights are the same.\n");
     }
 
     if (deformation) {
-        fprintf(lst, "\nThe following deformation model has been applied\n");
+        std::fprintf(lst, "\nThe following deformation model has been applied\n");
         print_deformation_model(deformation, lst, "");
-        fprintf(lst, "\n");
+        std::fprintf(lst, "\n");
     }
 
     if (has_deformation_model(net->crdsys) && ignore_deformation) {
-        fprintf(lst, "\nNote: the deformation model associated with %s has not been used\n\n", cs->name.c_str());
+        std::fprintf(lst, "\nNote: the deformation model associated with %s has not been used\n\n", cs->name.c_str());
     }
 
     adjusted = program_mode != PREANALYSIS;
@@ -633,22 +633,22 @@ void print_adjusted_coordinates(FILE* lst) {
     calc_confidence_limit_factors(&errmult, &hgtmult);
 
     if (errconflim) {
-        fprintf(lst, "The error ellipse and height error are the %s %.2f confidence limits\n",
+        std::fprintf(lst, "The error ellipse and height error are the %s %.2f confidence limits\n",
                 apriori ? "apriori" : "aposteriori", errconfval);
     } else if (errconfval == 1.0) {
-        fprintf(lst, "The error ellipse and height error are the %s errors\n", apriori ? "apriori" : "aposteriori");
+        std::fprintf(lst, "The error ellipse and height error are the %s errors\n", apriori ? "apriori" : "aposteriori");
     } else {
-        fprintf(lst, "The error ellipse and height error are %s %.1f times standard errors\n",
+        std::fprintf(lst, "The error ellipse and height error are %s %.1f times standard errors\n",
                 apriori ? "apriori" : "aposteriori", errconfval);
     }
 
     if (output_rejected_stations) {
-        fprintf(lst, "\nRejected stations are flagged %c\n", REJECTED_STN_FLAG);
+        std::fprintf(lst, "\nRejected stations are flagged %c\n", REJECTED_STN_FLAG);
     } else {
-        fprintf(lst, "\nRejected stations are not listed\n");
+        std::fprintf(lst, "\nRejected stations are not listed\n");
     }
 
-    fprintf(lst, "\n");
+    std::fprintf(lst, "\n");
 
     projection_coords = is_projection(net->crdsys) ? 1 : 0;
     prj = net->crdsys->prj;
@@ -656,15 +656,15 @@ void print_adjusted_coordinates(FILE* lst) {
     const DmsFormat longitudeFormat(3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W");
 
     if (projection_coords) {
-        fprintf(lst, " %-*s      Easting  %s  Error  Brng  Name\n", stn_name_width, "Code",
+        std::fprintf(lst, " %-*s      Easting  %s  Error  Brng  Name\n", stn_name_width, "Code",
                 adjusted ? " Adjustment" : "");
-        fprintf(lst, " %-*s      Northing %s Ellipse\n", stn_name_width, "", adjusted ? "  (metres) " : "");
-        fprintf(lst, " %-*s      Height   %s Hgt err\n", stn_name_width, "", adjusted ? "           " : "");
+        std::fprintf(lst, " %-*s      Northing %s Ellipse\n", stn_name_width, "", adjusted ? "  (metres) " : "");
+        std::fprintf(lst, " %-*s      Height   %s Hgt err\n", stn_name_width, "", adjusted ? "           " : "");
     } else {
-        fprintf(lst, " %-*s      Latitude      %s  Error  Brng  Name\n", stn_name_width, "Code",
+        std::fprintf(lst, " %-*s      Latitude      %s  Error  Brng  Name\n", stn_name_width, "Code",
                 adjusted ? " Adjustment" : "");
-        fprintf(lst, " %-*s      Longitude     %s Ellipse\n", stn_name_width, "", adjusted ? "  (metres) " : "");
-        fprintf(lst, " %-*s      Height        %s Hgt err\n", stn_name_width, "", adjusted ? "           " : "");
+        std::fprintf(lst, " %-*s      Longitude     %s Ellipse\n", stn_name_width, "", adjusted ? "  (metres) " : "");
+        std::fprintf(lst, " %-*s      Height        %s Hgt err\n", stn_name_width, "", adjusted ? "           " : "");
     }
 
     for (reset_station_list(net, (int)output_sorted_stations); nullptr != (st = next_station(net));) {
@@ -690,7 +690,7 @@ void print_adjusted_coordinates(FILE* lst) {
             while (brng > 180) {
                 brng -= 180;
             }
-            OHgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
+            OHgt = cvr[5] > 0.0 ? std::sqrt(cvr[5]) : 0.0;
 
             dn = (st->ELat - sa->initELat) * st->dNdLt;
             de = (st->ELon - sa->initELon) * st->dEdLn;
@@ -709,43 +709,43 @@ void print_adjusted_coordinates(FILE* lst) {
 
         /* Print the first line - latitude or easting */
 
-        fprintf(lst, "\n%c%-*s ", stnadj(st)->flag.rejected ? REJECTED_STN_FLAG : ' ', stn_name_width,
+        std::fprintf(lst, "\n%c%-*s ", stnadj(st)->flag.rejected ? REJECTED_STN_FLAG : ' ', stn_name_width,
                 st->Code.c_str());
         if (projection_coords) {
-            fprintf(lst, "%13.*lf  ", (int)coord_precision, easting);
+            std::fprintf(lst, "%13.*lf  ", (int)coord_precision, easting);
         } else {
-            fprintf(lst, "%s  ", dms_string(st->ELat * RTOD, latitudeFormat).c_str());
+            std::fprintf(lst, "%s  ", dms_string(st->ELat * RTOD, latitudeFormat).c_str());
         }
 
         if (adjusted) {
             if (stnadj(st)->flag.adj_h) {
-                fprintf(lst, "%9.4lf  ", dn);
+                std::fprintf(lst, "%9.4lf  ", dn);
             } else {
-                fprintf(lst, "    -      ");
+                std::fprintf(lst, "    -      ");
             }
         }
 
         if (stnadj(st)->flag.adj_h) {
-            fprintf(lst, "%8.4lf %3.0lf  ", emax * errmult, brng);
+            std::fprintf(lst, "%8.4lf %3.0lf  ", emax * errmult, brng);
         } else {
-            fprintf(lst, "   -          ");
+            std::fprintf(lst, "   -          ");
         }
-        fprintf(lst, "%s\n", st->Name.c_str());
+        std::fprintf(lst, "%s\n", st->Name.c_str());
 
         /* Print the second line, longitude or northing */
 
-        fprintf(lst, "%*s", stn_name_width, "");
+        std::fprintf(lst, "%*s", stn_name_width, "");
         if (projection_coords) {
-            fprintf(lst, "  %13.*lf  ", (int)coord_precision, northing);
+            std::fprintf(lst, "  %13.*lf  ", (int)coord_precision, northing);
         } else {
-            fprintf(lst, "  %s  ", dms_string(st->ELon * RTOD, longitudeFormat).c_str());
+            std::fprintf(lst, "  %s  ", dms_string(st->ELon * RTOD, longitudeFormat).c_str());
         }
 
         if (adjusted) {
             if (stnadj(st)->flag.adj_h) {
-                fprintf(lst, "%9.4lf  ", de);
+                std::fprintf(lst, "%9.4lf  ", de);
             } else {
-                fprintf(lst, "    -      ");
+                std::fprintf(lst, "    -      ");
             }
         }
 
@@ -754,36 +754,36 @@ void print_adjusted_coordinates(FILE* lst) {
             if (brng >= 180.0) {
                 brng -= 180.0;
             }
-            fprintf(lst, "%8.4lf %3.0lf\n", emin * errmult, brng);
+            std::fprintf(lst, "%8.4lf %3.0lf\n", emin * errmult, brng);
         } else {
-            fprintf(lst, "   -\n");
+            std::fprintf(lst, "   -\n");
         }
 
         /* Print the third line - height */
 
-        fprintf(lst, "%*s", stn_name_width, "");
+        std::fprintf(lst, "%*s", stn_name_width, "");
         hgt = st->OHgt;
         if (ellipsoidal) {
             hgt += st->GUnd;
         }
         if (projection_coords) {
-            fprintf(lst, "  %13.*lf  ", (int)coord_precision, hgt);
+            std::fprintf(lst, "  %13.*lf  ", (int)coord_precision, hgt);
         } else {
-            fprintf(lst, "  %14.*lf      ", (int)coord_precision, hgt);
+            std::fprintf(lst, "  %14.*lf      ", (int)coord_precision, hgt);
         }
 
         if (adjusted) {
             if (stnadj(st)->flag.adj_v) {
-                fprintf(lst, "%9.4lf  ", dh);
+                std::fprintf(lst, "%9.4lf  ", dh);
             } else {
-                fprintf(lst, "    -      ");
+                std::fprintf(lst, "    -      ");
             }
         }
 
         if (stnadj(st)->flag.adj_v) {
-            fprintf(lst, "%8.4lf\n", OHgt * hgtmult);
+            std::fprintf(lst, "%8.4lf\n", OHgt * hgtmult);
         } else {
-            fprintf(lst, "   -\n");
+            std::fprintf(lst, "   -\n");
         }
     }
     print_section_footer(lst);
@@ -940,7 +940,7 @@ void write_station_csv() {
             while (brng > 180) {
                 brng -= 180;
             }
-            OHgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
+            OHgt = cvr[5] > 0.0 ? std::sqrt(cvr[5]) : 0.0;
 
             dn = (st->ELat - sa->initELat) * st->dNdLt;
             de = (st->ELon - sa->initELon) * st->dEdLn;
@@ -1067,8 +1067,8 @@ void write_station_csv() {
                 if (nfprm == 2 || nfprm == 3) {
                     vrow = 2;
                     calc_error_ellipse(cvr, &emax, &emin, &brng);
-                    const double cs = cos(brng);
-                    const double sn = sin(brng);
+                    const double cs = std::cos(brng);
+                    const double sn = std::sin(brng);
                     brng *= RTOD;
                     while (brng < 0) {
                         brng += 180;
@@ -1088,7 +1088,7 @@ void write_station_csv() {
                             const double dmin = sn * res[0] - cs * res[1];
                             dmax += (dmin * dmin) / (emin * emin);
                         }
-                        dmax = sqrt(dmax);
+                        dmax = std::sqrt(dmax);
                         csv->writeDouble(dmax, 3);
                     } else {
                         csv->writeNullField();
@@ -1098,12 +1098,12 @@ void write_station_csv() {
                 }
                 if (nfprm == 1 || nfprm == 3) {
                     csv->writeDouble(-res[vrow], coord_precision);
-                    const double verr = sqrt(fabs(Lij(cvr, vrow, vrow)));
+                    const double verr = std::sqrt(std::fabs(Lij(cvr, vrow, vrow)));
                     csv->writeDouble(verr, coord_precision);
                     if (verr < 1.0e-5) {
                         csv->writeNullField();
                     } else {
-                        csv->writeDouble(fabs(res[vrow]) / verr, 3);
+                        csv->writeDouble(std::fabs(res[vrow]) / verr, 3);
                     }
                 } else {
                     csv->writeNullFields(3);
@@ -1120,9 +1120,9 @@ void write_station_csv() {
         if (output_csv_shape) {
             char wkt[128];
             if (projection_coords) {
-                sprintf(wkt, "POINT(%.*lf %.*lf)", coord_precision, easting, coord_precision, northing);
+                std::sprintf(wkt, "POINT(%.*lf %.*lf)", coord_precision, easting, coord_precision, northing);
             } else {
-                sprintf(wkt, "POINT(%.*lf %.*lf)", coord_precision + 5, st->ELon * RTOD, coord_precision + 5,
+                std::sprintf(wkt, "POINT(%.*lf %.*lf)", coord_precision + 5, st->ELon * RTOD, coord_precision + 5,
                         st->ELat * RTOD);
             }
             csv->writeString(wkt);
@@ -1132,7 +1132,7 @@ void write_station_csv() {
     delete_oe(hA);
 }
 
-void print_floated_stations(FILE* out) {
+void print_floated_stations(std::FILE* out) {
     station* st;
     stn_adjustment* sa;
     constexpr std::array<std::string_view, 3> coordname = {"East", "North", "Up"};
@@ -1152,26 +1152,26 @@ void print_floated_stations(FILE* out) {
     print_zero_inverse_warning(lst);
     print_convergence_warning(lst);
 
-    fprintf(lst, "\nThis list shows %s errors\n", apriori ? "apriori" : "aposteriori");
-    fprintf(out, "\nAdjustments outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[0],
+    std::fprintf(lst, "\nThis list shows %s errors\n", apriori ? "apriori" : "aposteriori");
+    std::fprintf(out, "\nAdjustments outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[0],
             taumax[0] ? "for the maximum " : "", FLAG1);
-    fprintf(out, "Adjustments outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[1],
+    std::fprintf(out, "Adjustments outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[1],
             taumax[1] ? "for the maximum " : "", FLAG2);
     if (relative_floating) {
-        fprintf(out, "The rel column lists the reference station for co-location constraints\n");
+        std::fprintf(out, "The rel column lists the reference station for co-location constraints\n");
     }
 
     if (apriori) {
-        fprintf(out, "Significance is based on the Normal distribution function\n");
+        std::fprintf(out, "Significance is based on the Normal distribution function\n");
     } else if (dof < 1) {
-        fprintf(out, "The a posteriori significance of adjustments cannot be calculated\n");
+        std::fprintf(out, "The a posteriori significance of adjustments cannot be calculated\n");
     } else {
-        fprintf(out, "Significance is based on the Tau distribution with %ld degrees of freedom\n", (long)dof);
+        std::fprintf(out, "Significance is based on the Tau distribution with %ld degrees of freedom\n", (long)dof);
     }
 
     semult = apriori ? 1 : seu;
 
-    fprintf(out, "\n%-*s %-*s  coord      error      calc.err    residual    adj.err    std.res\n", stn_name_width,
+    std::fprintf(out, "\n%-*s %-*s  coord      error      calc.err    residual    adj.err    std.res\n", stn_name_width,
             "Code", relative_floating ? stn_name_width : 0, relative_floating ? "rel" : "");
 
     void* hA = create_oe(nprm);
@@ -1195,20 +1195,20 @@ void print_floated_stations(FILE* out) {
         rowno = 0;
         for (axis = axis0; axis < axis1; axis++) {
             if (rowno == 0) {
-                fprintf(out, "\n");
+                std::fprintf(out, "\n");
             }
             const double resval = res[rowno];
-            const double ser = sqrt(fabs(Lij(rescvr, rowno, rowno))) * semult;
-            fprintf(out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ", stn_name_width,
+            const double ser = std::sqrt(std::fabs(Lij(rescvr, rowno, rowno))) * semult;
+            std::fprintf(out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ", stn_name_width,
                     (rowno == 0 ? st->Code.c_str() : ""), relative_floating ? stn_name_width + 1 : 0,
                     stcol ? stcol->Code.c_str() : "", coordname[axis].data(),
-                    (axis < 2 ? sa->herror : sa->verror) * semult, sqrt(fabs(Lij(calccvr, rowno, rowno))) * semult,
+                    (axis < 2 ? sa->herror : sa->verror) * semult, std::sqrt(std::fabs(Lij(calccvr, rowno, rowno))) * semult,
                     -resval, ser);
             if (ser > 1.0e-5) {
-                const double stres = fabs(resval) / ser;
-                fprintf(out, "%8.2lf %s\n", stres, std::string(residual_flag(0, 1, stres)).c_str());
+                const double stres = std::fabs(resval) / ser;
+                std::fprintf(out, "%8.2lf %s\n", stres, std::string(residual_flag(0, 1, stres)).c_str());
             } else {
-                fprintf(out, "     -\n");
+                std::fprintf(out, "     -\n");
             }
             rowno++;
             stcol = nullptr;
@@ -1218,7 +1218,7 @@ void print_floated_stations(FILE* out) {
     print_section_footer(lst);
 }
 
-void print_station_offsets(FILE*) {
+void print_station_offsets(std::FILE*) {
     station* st;
     char first = 1;
 
@@ -1231,13 +1231,13 @@ void print_station_offsets(FILE*) {
 
             print_section_header(lst, "STATION OFFSETS");
 
-            fprintf(lst, "\nThe following coordinate offsets apply to stations in the network.\n");
-            fprintf(lst,
+            std::fprintf(lst, "\nThe following coordinate offsets apply to stations in the network.\n");
+            std::fprintf(lst,
                     "Each offset is applied for determining station coordinates based on the date\n"
                     "at which the coordinate is required.\n");
         }
 
-        fprintf(lst, "\n");
+        std::fprintf(lst, "\n");
         print_station_offset(lst, st);
     }
     if (!first) {
@@ -1291,7 +1291,7 @@ void max_station_adjustment(double tol, int* pmaxadjstn, double* pmaxadj, int* p
         }
     }
     if (maxadj > 0.0) {
-        maxadj = sqrt(maxadj);
+        maxadj = std::sqrt(maxadj);
     }
 
     if (pmaxadj) {
@@ -1335,13 +1335,13 @@ void calc_error_ellipse(const double cvr[], double* emax, double* emin, double* 
     v3 = cvr[1];
     v4 = v2 * v2 + v3 * v3;
     if (v4 > 0.0) {
-        v4 = sqrt(v4);
+        v4 = std::sqrt(v4);
     }
-    *azemax = v4 > 0.0 ? atan2(v3, v2) / 2.0 : 0.0;
+    *azemax = v4 > 0.0 ? std::atan2(v3, v2) / 2.0 : 0.0;
     v2 = v1 - v4;
     v1 = v1 + v4;
-    *emax = v1 > 0.0 ? sqrt(v1) : 0.0;
-    *emin = v2 > 0.0 ? sqrt(v2) : 0.0;
+    *emax = v1 > 0.0 ? std::sqrt(v1) : 0.0;
+    *emin = v2 > 0.0 ? std::sqrt(v2) : 0.0;
 }
 
 void get_station_covariance(station* st, double cvr[]) {
@@ -1383,7 +1383,7 @@ void dump_station_covariances(BINARY_FILE* b) {
 
     for (istn = 0, maxstn = number_of_stations(net); istn++ < maxstn;) {
         get_station_covariance(stnptr(istn), covar);
-        fwrite(covar, sizeof(covar), 1, b->f);
+        std::fwrite(covar, sizeof(covar), 1, b->f);
     }
 
     end_section(b);

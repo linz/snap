@@ -35,8 +35,8 @@ void init_rf_scale_error(double value, int adjust);
 double rf_scale_error(double dist, void* hA, int irow);
 void max_station_adjustment(double tol, int* pmaxadjstn, double* pmaxadj, int* pnstnadj);
 void update_station_coords(void);
-void print_coordinate_changes(FILE* out);
-void print_adjusted_coordinates(FILE* out);
+void print_coordinate_changes(std::FILE* out);
+void print_adjusted_coordinates(std::FILE* out);
 int add_station_colocation_constraints();
 void write_station_csv();
 void sum_floating_stations(int iteration);
@@ -44,7 +44,7 @@ void calc_error_ellipse(const double cvr[], double* emax, double* emin, double* 
 void get_station_covariance(station* st, double cvr[]);
 void dump_station_covariances(BINARY_FILE* b);
 
-void print_floated_stations(FILE* out);
-void print_station_offsets(FILE* out);
+void print_floated_stations(std::FILE* out);
+void print_station_offsets(std::FILE* out);
 
 #endif

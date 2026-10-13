@@ -136,7 +136,7 @@ static double hor_vec_err;
 static double ppm_hor_vec_err;
 static double rf_hor_vec_err;
 
-static FILE* out;
+static std::FILE* out;
 static BINARY_FILE* b;
 
 static const std::vector<ColumnSource> obs_valid_columns = {
@@ -240,8 +240,8 @@ class TableWriter {
         _classValue[index] = std::move(value);
     }
 
-    void printHeader(FILE* out);
-    void printRow(FILE* out);
+    void printHeader(std::FILE* out);
+    void printRow(std::FILE* out);
 
  private:
     /// What to write for a character that cannot be written as it is
@@ -255,7 +255,7 @@ class TableWriter {
     };
 
     static Replacements _replacementsFor(std::optional<char> quote, std::optional<char> escape, char delimiter);
-    void _printField(TableColumn& column, std::string_view text, int quoting, FILE* out) const;
+    void _printField(TableColumn& column, std::string_view text, int quoting, std::FILE* out) const;
 
     const bool _stationData;
     const std::vector<ColumnSource>* const _validColumns;
@@ -270,8 +270,8 @@ class TableWriter {
     std::vector<std::string> _classValue;
 };
 
-static void write_text(FILE* out, const std::string_view text) {
-    fwrite(text.data(), 1, text.size(), out);
+static void write_text(std::FILE* out, const std::string_view text) {
+    std::fwrite(text.data(), 1, text.size(), out);
 }
 
 static std::string character_text(const std::optional<char> character) {
@@ -361,7 +361,7 @@ std::optional<ColumnSource> TableDefinition::classColumn(const std::string_view 
     return ColumnSource{std::string_view(), 0, 0, JST_LEFT, TYPE_TEXT, classIds.size() - 1};
 }
 
-void TableWriter::_printField(TableColumn& column, const std::string_view text, const int quoting, FILE* out) const {
+void TableWriter::_printField(TableColumn& column, const std::string_view text, const int quoting, std::FILE* out) const {
     if (!column.extralen) {
         int extralen = 0;
         if (quoting == QT_QUOTE && _quote) {
@@ -389,23 +389,23 @@ void TableWriter::_printField(TableColumn& column, const std::string_view text, 
         }
     }
     while (left--) {
-        fputc(' ', out);
+        std::fputc(' ', out);
     }
     write_text(out, column.prefix);
     if (quoting == QT_LITERAL) {
         write_text(out, text);
     } else if (quoting == QT_QUOTE && _quote) {
-        fputc(*_quote, out);
+        std::fputc(*_quote, out);
         for (const char character : text) {
             if (character == _quote) {
                 write_text(out, _replacements.quotedQuote);
             } else if (character == _escape) {
                 write_text(out, _replacements.quotedEscape);
             } else {
-                fputc(character, out);
+                std::fputc(character, out);
             }
         }
-        fputc(*_quote, out);
+        std::fputc(*_quote, out);
     } else {
         for (const char character : text) {
             if (character == _quote) {
@@ -417,17 +417,17 @@ void TableWriter::_printField(TableColumn& column, const std::string_view text, 
             } else if (character == '\n') {
                 write_text(out, _replacements.unquotedNewline);
             } else {
-                fputc(character, out);
+                std::fputc(character, out);
             }
         }
     }
     write_text(out, column.suffix);
     while (right--) {
-        fputc(' ', out);
+        std::fputc(' ', out);
     }
 }
 
-void TableWriter::printHeader(FILE* out) {
+void TableWriter::printHeader(std::FILE* out) {
     for (std::size_t row = 0; row < _headerRows; row++) {
         bool first = true;
         for (TableColumn& column : _columns) {
@@ -436,15 +436,15 @@ void TableWriter::printHeader(FILE* out) {
             if (first) {
                 first = false;
             } else {
-                fputc(_delimiter, out);
+                std::fputc(_delimiter, out);
             }
             _printField(column, text, QT_QUOTE, out);
         }
-        fputc('\n', out);
+        std::fputc('\n', out);
     }
 }
 
-void TableWriter::printRow(FILE* out) {
+void TableWriter::printRow(std::FILE* out) {
     if (!out) {
         return;
     }
@@ -475,14 +475,14 @@ void TableWriter::printRow(FILE* out) {
         if (first) {
             first = false;
         } else {
-            fputc(_delimiter, out);
+            std::fputc(_delimiter, out);
         }
         _printField(column, text, column.quote, out);
     }
-    fputc('\n', out);
+    std::fputc('\n', out);
 }
 
-void list_vecdata_residuals(FILE* out, survdata* v, TableWriter& table) {
+void list_vecdata_residuals(std::FILE* out, survdata* v, TableWriter& table) {
     vecdata* t;
     station* from;
     station* to;
@@ -540,7 +540,7 @@ void list_vecdata_residuals(FILE* out, survdata* v, TableWriter& table) {
         convert_coords(&from_xyz, d1xyz, nullptr, d1xyz, nullptr);
         convert_coords(&from_xyz, d2xyz, nullptr, d2xyz, nullptr);
 
-        obs_prj_brng = atan2(d2xyz[CRD_EAST] - d1xyz[CRD_EAST], d2xyz[CRD_NORTH] - d1xyz[CRD_NORTH]);
+        obs_prj_brng = std::atan2(d2xyz[CRD_EAST] - d1xyz[CRD_EAST], d2xyz[CRD_NORTH] - d1xyz[CRD_NORTH]);
         /* obs_bearing = RTOD * atan2( d2xyz[CRD_EAST]-d1xyz[CRD_EAST], d2xyz[CRD_NORTH]-d1xyz[CRD_NORTH] );
         while( obs_bearing > 360.0 ) obs_bearing -= 360.0;
         while( obs_bearing < 0.0 ) obs_bearing += 360.0;
@@ -549,7 +549,7 @@ void list_vecdata_residuals(FILE* out, survdata* v, TableWriter& table) {
         convert_coords(&from_xyz, from->XYZ, nullptr, d1xyz, nullptr);
         convert_coords(&from_xyz, to->XYZ, nullptr, d2xyz, nullptr);
 
-        calc_prj_brng = atan2(d2xyz[CRD_EAST] - d1xyz[CRD_EAST], d2xyz[CRD_NORTH] - d1xyz[CRD_NORTH]);
+        calc_prj_brng = std::atan2(d2xyz[CRD_EAST] - d1xyz[CRD_EAST], d2xyz[CRD_NORTH] - d1xyz[CRD_NORTH]);
         /*
         calc_bearing = RTOD * atan2( d2xyz[CRD_EAST]-d1xyz[CRD_EAST], d2xyz[CRD_NORTH]-d1xyz[CRD_NORTH] );
         while( calc_bearing > 360.0 ) calc_bearing -= 360.0;
@@ -566,7 +566,7 @@ void list_vecdata_residuals(FILE* out, survdata* v, TableWriter& table) {
         brngdiff *= 3600.0;
         prj_brng_err = brngdiff;
 
-        brngppm = fabs(brngdiff * STOR);
+        brngppm = std::fabs(brngdiff * STOR);
         if (brngppm < 1.0e-6) {
             brngrf = 999999.0;
         } else {
@@ -587,7 +587,7 @@ void list_vecdata_residuals(FILE* out, survdata* v, TableWriter& table) {
 
         distppm = 0.0;
         if (obs_dist > 1.0e-6) {
-            distppm = fabs(distdiff / obs_dist);
+            distppm = std::fabs(distdiff / obs_dist);
         }
         if (distppm < 1.0e-6) {
             distrf = 999999.0;
@@ -604,7 +604,7 @@ void list_vecdata_residuals(FILE* out, survdata* v, TableWriter& table) {
         vecdiff = 2.0 * calc_distance(&dummy1, -dummy1.OHgt, from, -from->OHgt, nullptr, nullptr);
         vecppm = 0.0;
         if (obs_dist > 1.0e-6) {
-            vecppm = fabs(vecdiff / obs_dist);
+            vecppm = std::fabs(vecdiff / obs_dist);
         }
         if (vecppm < 1.0e-6) {
             vecrf = 999999.0;
@@ -632,7 +632,7 @@ void list_vecdata_residuals(FILE* out, survdata* v, TableWriter& table) {
     }
 }
 
-static int list_observations(FILE* out, BINARY_FILE* bf, TableWriter& table) {
+static int list_observations(std::FILE* out, BINARY_FILE* bf, TableWriter& table) {
     survdata* sd;
 
     if (find_section(bf, "OBSERVATIONS") != OK) {
@@ -655,7 +655,7 @@ static int list_observations(FILE* out, BINARY_FILE* bf, TableWriter& table) {
     return OK;
 }
 
-static int list_stations(FILE* out, TableWriter& table) {
+static int list_stations(std::FILE* out, TableWriter& table) {
     int nstns;
     int istn;
     station* st;
@@ -719,11 +719,11 @@ static int list_stations(FILE* out, TableWriter& table) {
 
 static void print_table(TableWriter& table) {
     if (!table.stationData() && !is_projection(net->crdsys)) {
-        printf("Cannot print snaplist data for coordinate systems without projections\n");
+        std::printf("Cannot print snaplist data for coordinate systems without projections\n");
         return;
     }
 
-    printf("\nPrinting table...\n");
+    std::printf("\nPrinting table...\n");
     table.printHeader(out);
 
     if (table.listsObservations()) {
@@ -884,7 +884,7 @@ static int read_text(CFG_FILE* cfg, std::string_view, void*, int, int) {
             finished = true;
         } else {
             if (out) {
-                fprintf(out, "%s\n", line.content.c_str());
+                std::fprintf(out, "%s\n", line.content.c_str());
             }
         }
     }
@@ -1121,13 +1121,13 @@ void calc_error_ellipse(const double cvr[], double* emax, double* emin, double* 
     v3 = cvr[1];
     v4 = v2 * v2 + v3 * v3;
     if (v4 > 0.0) {
-        v4 = sqrt(v4);
+        v4 = std::sqrt(v4);
     }
-    *azemax = v4 > 0.0 ? atan2(v3, v2) / 2.0 : 0.0;
+    *azemax = v4 > 0.0 ? std::atan2(v3, v2) / 2.0 : 0.0;
     v2 = v1 - v4;
     v1 = v1 + v4;
-    *emax = v1 > 0.0 ? sqrt(v1) : 0.0;
-    *emin = v2 > 0.0 ? sqrt(v2) : 0.0;
+    *emax = v1 > 0.0 ? std::sqrt(v1) : 0.0;
+    *emin = v2 > 0.0 ? std::sqrt(v2) : 0.0;
 }
 
 int reload_covariances(BINARY_FILE* b) {
@@ -1143,9 +1143,9 @@ int reload_covariances(BINARY_FILE* b) {
     covar.assign(nstns + 1, covariance());
 
     for (istn = 0; istn++ < nstns;) {
-        fread(cvr, sizeof(cvr), 1, b->f);
+        std::fread(cvr, sizeof(cvr), 1, b->f);
         calc_error_ellipse(cvr, &covar[istn].emax, &covar[istn].emin, &covar[istn].az);
-        covar[istn].sehgt = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
+        covar[istn].sehgt = cvr[5] > 0.0 ? std::sqrt(cvr[5]) : 0.0;
     }
 
     return check_end_section(b);
@@ -1166,10 +1166,10 @@ int main(int argc, char* argv[]) {
 
     CONFIGURE_RUNTIME();
 
-    printf("snaplist:  Tabulates observations and stations in a SNAP binary file\n");
+    std::printf("snaplist:  Tabulates observations and stations in a SNAP binary file\n");
 
     if (argc != 3 && argc != 4) {
-        printf("Syntax: snaplist binary_file_name [config_file_name] listing_file_name\n");
+        std::printf("Syntax: snaplist binary_file_name [config_file_name] listing_file_name\n");
         return 0;
     }
 
@@ -1182,7 +1182,7 @@ int main(int argc, char* argv[]) {
 
     if (!b || reload_snap_globals(b) != OK || reload_stations(b) != OK || reload_filenames(b) != OK ||
         reload_rftransformations(b) != OK) {
-        printf("Cannot reload data from binary file %s\n", bfn.c_str());
+        std::printf("Cannot reload data from binary file %s\n", bfn.c_str());
         return 0;
     }
 
@@ -1217,20 +1217,20 @@ int main(int argc, char* argv[]) {
         cfg = open_config_file(*cfn, '!');
     }
     if (!cfn || !cfg) {
-        printf("Cannot open configuration file %s\n", basecfn);
+        std::printf("Cannot open configuration file %s\n", basecfn);
         return 0;
     }
 
-    out = fopen(ofn, "w");
+    out = std::fopen(ofn, "w");
     if (!out) {
-        printf("Cannot open output file %s\n", ofn);
+        std::printf("Cannot open output file %s\n", ofn);
         return 0;
     }
 
-    printf("\nUsing configuration file %s\n", cfn->c_str());
+    std::printf("\nUsing configuration file %s\n", cfn->c_str());
     read_config_file(cfg, main_commands);
     close_config_file(cfg);
 
-    fclose(out);
+    std::fclose(out);
     return 0;
 }

@@ -87,7 +87,7 @@ static int init_csdef_deformation(void* deformation) {
             int sts;
             sts = ref_deformation_at_epoch(net->crdsys->rf, xyz, csepoch, std->y0def);
             if (sts != OK) {
-                sprintf(buf, "Cannot calculate deformation of %.20s at date %.1lf", st->Code.c_str(), csepoch);
+                std::sprintf(buf, "Cannot calculate deformation of %.20s at date %.1lf", st->Code.c_str(), csepoch);
                 handle_error(WARNING_ERROR, buf, NO_MESSAGE);
                 return INVALID_DATA;
             }
@@ -125,7 +125,7 @@ static int calc_csdef_deformation(void* deformation, station* st, double date, d
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
         sts = ref_deformation_at_epoch(net->crdsys->rf, xyz, year, std->def);
         if (sts != OK) {
-            sprintf(buf, "Cannot calculate deformation of %.20s at %.1lf", st->Code.c_str(), year);
+            std::sprintf(buf, "Cannot calculate deformation of %.20s at %.1lf", st->Code.c_str(), year);
             handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -144,12 +144,12 @@ static int calc_csdef_deformation(void* deformation, station* st, double date, d
 
 /* Describe the deformation model in an output file */
 
-static int print_csdef(void* deformation, FILE* out, const std::string_view prefix) {
+static int print_csdef(void* deformation, std::FILE* out, const std::string_view prefix) {
     if (!deformation) {
         return OK;
     }
-    fwrite(prefix.data(), 1, prefix.size(), out);
-    fputs("Applying coordinate system deformation model\n", out);
+    std::fwrite(prefix.data(), 1, prefix.size(), out);
+    std::fputs("Applying coordinate system deformation model\n", out);
     output_string_def os;
     output_string_to_file(&os, out);
     describe_deformation_model(&os, net->crdsys->rf);

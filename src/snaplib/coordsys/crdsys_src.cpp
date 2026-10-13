@@ -218,7 +218,7 @@ coordsys* load_coordsys(std::string_view code) {
         if (hrs) {
             if (!coordsys_vdatum_compatible(cs, hrs)) {
                 char errmsg[100];
-                sprintf(errmsg, "Vertical datum %.20s not compatible with coordinate system %.20s", hrs->code.c_str(),
+                std::sprintf(errmsg, "Vertical datum %.20s not compatible with coordinate system %.20s", hrs->code.c_str(),
                         cs->code.c_str());
                 handle_error(INVALID_DATA, errmsg, NO_MESSAGE);
                 delete cs;

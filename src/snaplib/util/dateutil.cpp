@@ -94,10 +94,10 @@ double snap_yds(int year, int dayno, int secs) {
 }
 
 double snap_datetime_now() {
-    time_t now;
+    std::time_t now;
     struct tm* ltime;
     time(&now);
-    ltime = localtime(&now);
+    ltime = std::localtime(&now);
     return snap_datetime(ltime->tm_year + 1900, ltime->tm_mon + 1, ltime->tm_mday, ltime->tm_hour, ltime->tm_min,
                          ltime->tm_sec);
 }
@@ -130,7 +130,7 @@ double snap_datetime_parse(std::string_view definition, std::optional<std::strin
         double years;
         double result = 0.0;
         const std::string definitionText(definition);
-        if (sscanf(definitionText.c_str(), "%lf%1s", &years, extra) > 0 && extra[0] == 0 && years > 1000.0 &&
+        if (std::sscanf(definitionText.c_str(), "%lf%1s", &years, extra) > 0 && extra[0] == 0 && years > 1000.0 &&
             years < 4000.0) {
             result = year_as_snapdate(years);
         }
@@ -264,7 +264,7 @@ double year_as_snapdate(double years) {
 }
 
 int same_date(double date0, double date1) {
-    return fabs(date0 - date1) < SAME_DATE_TOLERANCE;
+    return std::fabs(date0 - date1) < SAME_DATE_TOLERANCE;
 }
 
 void date_as_ymd(double snapdate, int* year, int* month, int* day) {
@@ -276,7 +276,7 @@ void date_as_ymdhms(double snapdate, int* year, int* month, int* day, int* hour,
     int m;
     int s;
     date_as_ymd(snapdate, year, month, day);
-    snapdate -= floor(snapdate);
+    snapdate -= std::floor(snapdate);
     snapdate *= 24;
     h = (int)snapdate;
     snapdate = (snapdate - h) * 60;

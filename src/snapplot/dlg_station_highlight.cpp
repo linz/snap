@@ -374,7 +374,7 @@ void StationHighlightDialog::SelectStations(bool select) {
 
                 case scVrtAdj:
                     get_station_adjustment(istn, dxyz);
-                    testValue = fabs(dxyz[2]);
+                    testValue = std::fabs(dxyz[2]);
                     break;
 
                 default:

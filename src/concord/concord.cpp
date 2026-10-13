@@ -48,8 +48,8 @@ static LineReader keyboard(std::cin);
 static std::optional<std::ifstream> crdin_file;
 static std::optional<LineReader> crdin_file_reader;
 static LineReader* crdin = &keyboard;
-static FILE* crdout;
-static FILE* crdcom;
+static std::FILE* crdout;
+static std::FILE* crdcom;
 
 static std::optional<std::string> coordsys_file;
 static std::optional<std::string> geoid_file;
@@ -153,13 +153,13 @@ static int printf_func(std::string_view s, void* dummy);
 output_string_def printf_writer = {nullptr, printf_func};
 
 static void clear_screen(void) {
-    printf("\n\n=====================================================================\n");
+    std::printf("\n\n=====================================================================\n");
 }
 
 // #pragma warning (disable : 4100)
 
 static int printf_func(std::string_view s, void*) {
-    printf("%.*s", static_cast<int>(s.size()), s.data());
+    std::printf("%.*s", static_cast<int>(s.size()), s.data());
     return 0;
 }
 /*------------------------------------------------------------------*/
@@ -209,10 +209,10 @@ static DMS* deg_dms(double deg, DMS* dms, int prec, char no_seconds) {
     } else {
         deg += offset / 3600.0;
     }
-    deg -= (dms->degrees = floor(deg));
+    deg -= (dms->degrees = std::floor(deg));
     if (!no_seconds) {
         deg *= 60.0;
-        deg -= (dms->minutes = floor(deg));
+        deg -= (dms->minutes = std::floor(deg));
     }
     dms->seconds = deg * 60.0 - offset;
     dms->no_seconds = no_seconds;
@@ -232,7 +232,7 @@ static DMS* deg_dms(double deg, DMS* dms, int prec, char no_seconds) {
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static void copy_rest_of_line(LineReader& input, FILE* output, const std::string_view prefix) {
+static void copy_rest_of_line(LineReader& input, std::FILE* output, const std::string_view prefix) {
     if (output) {
         bool started = false;
         for (const char c : input.remainder()) {
@@ -240,13 +240,13 @@ static void copy_rest_of_line(LineReader& input, FILE* output, const std::string
                 continue;
             }
             if (!started && !prefix.empty()) {
-                fwrite(prefix.data(), 1, prefix.size(), output);
+                std::fwrite(prefix.data(), 1, prefix.size(), output);
             }
             started = true;
-            putc(c, output);
+            std::putc(c, output);
         }
         if (input.endsWithNewline()) {
-            putc('\n', output);
+            std::putc('\n', output);
         }
     }
     input.skipRemaining();
@@ -325,61 +325,61 @@ static int pause_output(void) {
 }
 
 static void help(void) {
-    puts("");
-    printf("%s - Converts coordinates between different coordinate systems\n", PROGRAM_NAME);
-    puts("");
-    printf("Syntax:  %s [switches] [input_file] [output_file]\n", PROGRAM_NAME);
-    puts("");
-    puts("Switches:  -a       Ask for program parameters");
-    puts("           -k       Ask for coordinates at the keyboard");
-    puts("           -l       List the coord system codes used by the program");
-    puts("           -i XXXX  Define input coord system, and order - e.g.NZTM:EN");
-    puts("           -r       List the reference frames available");
-    puts("           -v       List the vertical datums available");
-    puts("           -o XXXX  Define output coord system, and order");
-    puts("           -n#      Specifies coordinates preceded by up to n character id");
-    puts("           -p #     Define the precision of output coordinates");
-    puts("           -s c     Defines input and output field separator is c");
-    puts("           -e       Skip over input format errors");
-    puts("           -c file  Specify the coordinate system definition file");
-    puts("           -g file  Specify the geoid file");
-    puts("           -y yyyy  Specify the conversion epoch for conversions");
-    puts("           -f       Include input coordinates in output");
-    puts("           -h       List this help information");
-    puts("           -z       List the program version");
-    puts("");
+    std::puts("");
+    std::printf("%s - Converts coordinates between different coordinate systems\n", PROGRAM_NAME);
+    std::puts("");
+    std::printf("Syntax:  %s [switches] [input_file] [output_file]\n", PROGRAM_NAME);
+    std::puts("");
+    std::puts("Switches:  -a       Ask for program parameters");
+    std::puts("           -k       Ask for coordinates at the keyboard");
+    std::puts("           -l       List the coord system codes used by the program");
+    std::puts("           -i XXXX  Define input coord system, and order - e.g.NZTM:EN");
+    std::puts("           -r       List the reference frames available");
+    std::puts("           -v       List the vertical datums available");
+    std::puts("           -o XXXX  Define output coord system, and order");
+    std::puts("           -n#      Specifies coordinates preceded by up to n character id");
+    std::puts("           -p #     Define the precision of output coordinates");
+    std::puts("           -s c     Defines input and output field separator is c");
+    std::puts("           -e       Skip over input format errors");
+    std::puts("           -c file  Specify the coordinate system definition file");
+    std::puts("           -g file  Specify the geoid file");
+    std::puts("           -y yyyy  Specify the conversion epoch for conversions");
+    std::puts("           -f       Include input coordinates in output");
+    std::puts("           -h       List this help information");
+    std::puts("           -z       List the program version");
+    std::puts("");
     pause_output();
-    puts("The -i and -o switches are required to specify the input and output");
-    puts("coordinate systems.  Coordinate systems specify both the geodetic");
-    puts("system and an optional vertical datum (geoid) for height coordinates");
-    puts("separated by a / character.  For example NZGD2000/NZVD2016. Both must be");
-    puts("defined in terms of the same coordinate system.  The geodetic system");
-    puts("can specify an alternative reference frame code in brackets after the code.");
-    puts("For example NZTM(NZGD2000_20130801).");
-    puts("Use concord -l for a list of valid coordinate systems, concord -r for");
-    puts("for a list of alternative reference frames, and concord -v  for a list of");
-    puts("vertical datums.\n");
-    puts("For non-geocentric coordinate systems the code may be followed by a");
-    puts("colon and the order of the coordinates (one of EN, NE, ENH, NEH, ENO,");
-    puts("NEO.  Here E and N are the east and north coordinates, H is ellipsoidal");
-    puts("heights or O for orthometric heights. If a vertical datum is");
-    puts("defined then heights are orthometric.  Otherwise orthometric heights are");
-    puts("require a geoid file to be defined\n");
-    puts("For lat/long systems this can be followed by \",H\", \",M\", or \",D\" for");
-    puts("for degrees minutes and seconds, degrees and minutes or");
-    puts("decimal degrees respectively\n");
-    puts("The conversion epoch is the date at which conversions apply. It affects");
-    puts("coordinate systems with a deformation model, and transformations between");
-    puts("datums with a time dependent terms (eg between different ITRS realisations).");
-    puts("The epoch can be entered as a decimal year, as YYYYMMDD, or \"now\" to use");
-    puts("the current date.\n");
-    puts("The -n switch specifies there is an id or code before each coordinate. By");
-    puts("default this is up to 10 characters long.  Use -n### to specify a longer id.\n");
-    puts("The -p switch specifies the number of decimal places used to represent");
-    puts("the output horizontal coordinates. The precision of heights is based on the");
-    puts("geometric precision of the horizontal coordinates.  Height precision can be");
-    puts("specified explicitly using the format -p h:v, where h is the horizontal");
-    puts("precision and v is the vertical precision.");
+    std::puts("The -i and -o switches are required to specify the input and output");
+    std::puts("coordinate systems.  Coordinate systems specify both the geodetic");
+    std::puts("system and an optional vertical datum (geoid) for height coordinates");
+    std::puts("separated by a / character.  For example NZGD2000/NZVD2016. Both must be");
+    std::puts("defined in terms of the same coordinate system.  The geodetic system");
+    std::puts("can specify an alternative reference frame code in brackets after the code.");
+    std::puts("For example NZTM(NZGD2000_20130801).");
+    std::puts("Use concord -l for a list of valid coordinate systems, concord -r for");
+    std::puts("for a list of alternative reference frames, and concord -v  for a list of");
+    std::puts("vertical datums.\n");
+    std::puts("For non-geocentric coordinate systems the code may be followed by a");
+    std::puts("colon and the order of the coordinates (one of EN, NE, ENH, NEH, ENO,");
+    std::puts("NEO.  Here E and N are the east and north coordinates, H is ellipsoidal");
+    std::puts("heights or O for orthometric heights. If a vertical datum is");
+    std::puts("defined then heights are orthometric.  Otherwise orthometric heights are");
+    std::puts("require a geoid file to be defined\n");
+    std::puts("For lat/long systems this can be followed by \",H\", \",M\", or \",D\" for");
+    std::puts("for degrees minutes and seconds, degrees and minutes or");
+    std::puts("decimal degrees respectively\n");
+    std::puts("The conversion epoch is the date at which conversions apply. It affects");
+    std::puts("coordinate systems with a deformation model, and transformations between");
+    std::puts("datums with a time dependent terms (eg between different ITRS realisations).");
+    std::puts("The epoch can be entered as a decimal year, as YYYYMMDD, or \"now\" to use");
+    std::puts("the current date.\n");
+    std::puts("The -n switch specifies there is an id or code before each coordinate. By");
+    std::puts("default this is up to 10 characters long.  Use -n### to specify a longer id.\n");
+    std::puts("The -p switch specifies the number of decimal places used to represent");
+    std::puts("the output horizontal coordinates. The precision of heights is based on the");
+    std::puts("geometric precision of the horizontal coordinates.  Height precision can be");
+    std::puts("specified explicitly using the format -p h:v, where h is the horizontal");
+    std::puts("precision and v is the vertical precision.");
 }
 
 /*-------------------------------------------------------------------*/
@@ -389,10 +389,10 @@ static void help(void) {
 /*-------------------------------------------------------------------*/
 
 static void error_exit(const std::string_view errmsg1, const std::string_view errmsg2) {
-    printf("%s: %.*s%.*s\n\n", PROGRAM_NAME, numeric_cast<int>(errmsg1.size()), errmsg1.data(),
+    std::printf("%s: %.*s%.*s\n\n", PROGRAM_NAME, numeric_cast<int>(errmsg1.size()), errmsg1.data(),
            numeric_cast<int>(errmsg2.size()), errmsg2.data());
-    printf("Enter %s -H for a list of command line parameters\n", PROGRAM_NAME);
-    exit(1);
+    std::printf("Enter %s -H for a list of command line parameters\n", PROGRAM_NAME);
+    std::exit(1);
 }
 
 /*-------------------------------------------------------------------*/
@@ -524,16 +524,16 @@ static void list_coordsys_with_pause(void) {
             }
         }
         nl++;
-        printf("  %-10s %s\n", coordsys_list_code(i).c_str(), coordsys_list_desc(i).c_str());
+        std::printf("  %-10s %s\n", coordsys_list_code(i).c_str(), coordsys_list_desc(i).c_str());
     }
-    printf("\n");
+    std::printf("\n");
 }
 
 static void list_vertical_datum_with_pause(void) {
     int maxi;
     int i;
     int nl;
-    printf("\n%s: Vertical datum codes are:\n", PROGRAM_NAME);
+    std::printf("\n%s: Vertical datum codes are:\n", PROGRAM_NAME);
     maxi = vdatum_list_count();
     nl = 0;
     for (i = 0; i < maxi; i++) {
@@ -545,16 +545,16 @@ static void list_vertical_datum_with_pause(void) {
             }
         }
         nl++;
-        printf("  %-10s %s\n", vdatum_list_code(i).c_str(), vdatum_list_desc(i).c_str());
+        std::printf("  %-10s %s\n", vdatum_list_code(i).c_str(), vdatum_list_desc(i).c_str());
     }
-    printf("\n");
+    std::printf("\n");
 }
 
 static void list_ref_frame_with_pause(void) {
     int maxi;
     int i;
     int nl;
-    printf("\n%s: Reference frame codes are:\n", PROGRAM_NAME);
+    std::printf("\n%s: Reference frame codes are:\n", PROGRAM_NAME);
     maxi = ref_frame_list_count();
     nl = 0;
     for (i = 0; i < maxi; i++) {
@@ -566,9 +566,9 @@ static void list_ref_frame_with_pause(void) {
             }
         }
         nl++;
-        printf("  %-10s %s\n", ref_frame_list_code(i).c_str(), ref_frame_list_desc(i).c_str());
+        std::printf("  %-10s %s\n", ref_frame_list_code(i).c_str(), ref_frame_list_desc(i).c_str());
     }
-    printf("\n");
+    std::printf("\n");
 }
 
 static void list_coordsys_and_exit(const std::vector<std::string>& codes) {
@@ -585,10 +585,10 @@ static void list_coordsys_and_exit(const std::vector<std::string>& codes) {
             if (cs) {
                 int firsthrs = 1;
                 describe_coordsys(&printf_writer, cs);
-                printf("\n");
+                std::printf("\n");
                 sts = get_crdsys_notes(cs, &printf_writer);
                 if (sts == OK) {
-                    printf("\n");
+                    std::printf("\n");
                 }
                 if (!coordsys_heights_orthometric(cs)) {
                     for (int ihrs = 0; ihrs < maxhrs; ihrs++) {
@@ -598,10 +598,10 @@ static void list_coordsys_and_exit(const std::vector<std::string>& codes) {
                         }
                         if (coordsys_vdatum_compatible(cs, hrs)) {
                             if (firsthrs) {
-                                printf("Compatible vertical datums:\n");
+                                std::printf("Compatible vertical datums:\n");
                                 firsthrs = 0;
                             }
-                            printf("  %-20s %s\n", vdatum_list_code(ihrs).c_str(), vdatum_list_desc(ihrs).c_str());
+                            std::printf("  %-20s %s\n", vdatum_list_code(ihrs).c_str(), vdatum_list_desc(ihrs).c_str());
                         }
                         delete hrs;
                     }
@@ -613,19 +613,19 @@ static void list_coordsys_and_exit(const std::vector<std::string>& codes) {
         }
     }
     if (ncs == 0) {
-        printf("\n%s: Valid coordinate systems are:\n", PROGRAM_NAME);
+        std::printf("\n%s: Valid coordinate systems are:\n", PROGRAM_NAME);
         list_coordsys_with_pause();
     }
-    exit(1);
+    std::exit(1);
 }
 
 static void list_program_details_and_exit(void) {
-    printf("\nProgram %s version %s, dated %s\n", PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_DATE);
-    printf("Copyright: Land Information New Zealand\n");
-    printf("Author: Chris Crook\n");
-    printf("Coordsys file: %s\n", coordsys_file.value_or("").c_str());
+    std::printf("\nProgram %s version %s, dated %s\n", PROGRAM_NAME, PROGRAM_VERSION, PROGRAM_DATE);
+    std::printf("Copyright: Land Information New Zealand\n");
+    std::printf("Author: Chris Crook\n");
+    std::printf("Coordsys file: %s\n", coordsys_file.value_or("").c_str());
     /* printf("Licensed to: %s\n",decrypted_license()); */
-    exit(1);
+    std::exit(1);
 }
 
 /*-------------------------------------------------------------------*/
@@ -638,7 +638,7 @@ static bool switch_value[11] = {false, false, false, false, false, false, false,
 static std::vector<std::string> unused_args;
 
 static bool switch_option(char opt) {
-    const char* prm = strchr(switch_args, opt);
+    const char* prm = std::strchr(switch_args, opt);
     return prm ? switch_value[prm - switch_args] : false;
 }
 
@@ -664,7 +664,7 @@ static void parse_command_line(int argc, char** argv) {
             break;
         }
         const char argchar = TOUPPER(arg[1]);
-        const char* prm = strchr(switch_args, argchar);
+        const char* prm = std::strchr(switch_args, argchar);
         if (prm) {
             switch_value[prm - switch_args] = true;
             if (arg.size() == 2) {
@@ -684,7 +684,7 @@ static void parse_command_line(int argc, char** argv) {
             }
             continue;
         }
-        prm = strchr(switch_args, argchar);
+        prm = std::strchr(switch_args, argchar);
         if (prm) {
             switch_value[prm - switch_args] = false;
             continue;
@@ -695,7 +695,7 @@ static void parse_command_line(int argc, char** argv) {
 
     if (switch_option('H') || switch_option('?')) {
         help();
-        exit(0);
+        std::exit(0);
     }
 
     coordsys_file = command_line_option('C');
@@ -710,11 +710,11 @@ static void process_command_line_options() {
     }
     if (switch_option('V')) {
         list_vertical_datum_with_pause();
-        exit(1);
+        std::exit(1);
     }
     if (switch_option('R')) {
         list_ref_frame_with_pause();
-        exit(1);
+        std::exit(1);
     }
     if (switch_option('Z')) {
         list_program_details_and_exit();
@@ -838,13 +838,13 @@ static void prompt_for_proj(coordsys*& proj, AngleFormat& dms, bool& ne, bool& g
         delete nprj;
 
         nprj = nullptr;
-        printf("    Enter %.*s coord sys code or ?: ", ioLength, iostring.data());
+        std::printf("    Enter %.*s coord sys code or ?: ", ioLength, iostring.data());
         instring = read_answer(20);
         if (instring.empty()) {
             continue;
         }
         if (instring == "?") {
-            printf("\n    Valid coordinate system codes are:\n");
+            std::printf("\n    Valid coordinate system codes are:\n");
             list_coordsys_with_pause();
         } else {
             nprj = load_coordsys(instring);
@@ -855,7 +855,7 @@ static void prompt_for_proj(coordsys*& proj, AngleFormat& dms, bool& ne, bool& g
                 }
                 break;
             }
-            printf("    **** Invalid coordinate system code ****\n");
+            std::printf("    **** Invalid coordinate system code ****\n");
             get_notes(CS_COORDSYS_NOTE, instring, &printf_writer);
         }
     }
@@ -864,8 +864,8 @@ static void prompt_for_proj(coordsys*& proj, AngleFormat& dms, bool& ne, bool& g
 
     if (!is_geocentric(proj)) {
         while (true) {
-            printf("    Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)\n");
-            printf("    Enter %.*s coordinate order(default %s%s): ", ioLength, iostring.data(), ne ? "NE" : "EN",
+            std::printf("    Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)\n");
+            std::printf("    Enter %.*s coordinate order(default %s%s): ", ioLength, iostring.data(), ne ? "NE" : "EN",
                    gothgt ? (orthohgt ? "O" : "H") : "");
             instring = read_answer(4);
             if (instring.empty()) {
@@ -906,7 +906,7 @@ static void prompt_for_proj(coordsys*& proj, AngleFormat& dms, bool& ne, bool& g
                 orthohgt = true;
                 break;
             }
-            printf("    **** Invalid definition of coordinate order ****\n");
+            std::printf("    **** Invalid definition of coordinate order ****\n");
         }
     }
 
@@ -919,7 +919,7 @@ static void prompt_for_proj(coordsys*& proj, AngleFormat& dms, bool& ne, bool& g
 
     if (is_geodetic(proj)) {
         while (true) {
-            printf("    Enter angle format (D = deg, M = deg mins, H = deg min secs, default H): ");
+            std::printf("    Enter angle format (D = deg, M = deg mins, H = deg min secs, default H): ");
             instring = read_answer(4);
             if (instring.empty()) {
                 break;
@@ -949,18 +949,18 @@ static void prompt_for_epoch(const std::string_view prompt, double& value) {
     int ok;
 
     while (true) {
-        printf("%.*s (default \"now\"): ", numeric_cast<int>(prompt.size()), prompt.data());
+        std::printf("%.*s (default \"now\"): ", numeric_cast<int>(prompt.size()), prompt.data());
         instring = read_answer(20);
         if (instring.empty()) {
             instring = "now";
         }
         ok = parse_crdsys_epoch(instring, epoch);
         if (!ok) {
-            printf("    **** Invalid data ****\n");
+            std::printf("    **** Invalid data ****\n");
             continue;
         }
         if (epoch < 1800.0 || epoch > 2500.0) {
-            printf("    **** Invalid coordinate epoch ****\n");
+            std::printf("    **** Invalid coordinate epoch ****\n");
             continue;
         }
         value = epoch;
@@ -972,7 +972,7 @@ static void prompt_for_number(const std::string_view prompt, int& value, const i
     std::string instring;
 
     while (true) {
-        printf("%.*s (default %d): ", numeric_cast<int>(prompt.size()), prompt.data(), value);
+        std::printf("%.*s (default %d): ", numeric_cast<int>(prompt.size()), prompt.data(), value);
         instring = read_answer(20);
         if (instring.empty()) {
             break;
@@ -982,7 +982,7 @@ static void prompt_for_number(const std::string_view prompt, int& value, const i
             value = *newval;
             break;
         }
-        printf("    **** Invalid data or out of range ****\n");
+        std::printf("    **** Invalid data or out of range ****\n");
     }
 }
 
@@ -991,7 +991,7 @@ static void prompt_for_number(const std::string_view prompt, int& value, const i
 
 static void prompt_for_input_file(const std::string_view prompt) {
     while (true) {
-        printf("%.*s", numeric_cast<int>(prompt.size()), prompt.data());
+        std::printf("%.*s", numeric_cast<int>(prompt.size()), prompt.data());
         const std::string name = read_answer(80);
         if (name.empty()) {
             break;
@@ -1005,7 +1005,7 @@ static void prompt_for_input_file(const std::string_view prompt) {
             break;
         }
         crdin_file.reset();
-        printf("    **** Unable to open file ****\n");
+        std::printf("    **** Unable to open file ****\n");
     }
 }
 
@@ -1014,46 +1014,46 @@ static void prompt_for_input_file(const std::string_view prompt) {
 
 static void prompt_for_output_file(const std::string_view prompt) {
     while (true) {
-        printf("%.*s", numeric_cast<int>(prompt.size()), prompt.data());
+        std::printf("%.*s", numeric_cast<int>(prompt.size()), prompt.data());
         const std::string name = read_answer(80);
         if (name.empty()) {
             break;
         }
-        FILE* newfile = fopen(name.c_str(), "w");
+        std::FILE* newfile = std::fopen(name.c_str(), "w");
         if (newfile != nullptr) {
             crdout = newfile;
             crdout_fname = name;
             crdout_open = true;
             break;
         }
-        printf("    **** Unable to open file ****\n");
+        std::printf("    **** Unable to open file ****\n");
     }
 }
 
 static void prompt_for_parameters(void) {
     std::string ans;
 
-    printf("\n%s:  Coordinate conversion program\n", PROGRAM_NAME);
-    printf("\nInput coordinates:\n");
+    std::printf("\n%s:  Coordinate conversion program\n", PROGRAM_NAME);
+    std::printf("\nInput coordinates:\n");
     prompt_for_proj(input_cs, input_dms, input_ne, input_h, input_ortho, "input");
-    printf("\nOutput coordinates:\n");
+    std::printf("\nOutput coordinates:\n");
     prompt_for_proj(output_cs, output_dms, output_ne, output_h, output_ortho, "output");
-    printf("\nSome conversions depend on the date of the coordinatesr. This can be\n");
-    printf("formatted as YYYYMMDD, or a decimal year, or \"now\"\n");
+    std::printf("\nSome conversions depend on the date of the coordinatesr. This can be\n");
+    std::printf("formatted as YYYYMMDD, or a decimal year, or \"now\"\n");
     prompt_for_epoch("Enter the conversion date", conv_epoch);
 
     prompt_for_number("    Enter number of decimal places for output", output_prec, 0, 15);
-    printf("\nEach point you convert can have a name.  If you want to use names you must\n");
-    printf("specify the length of the longest name you want to use\n\n");
+    std::printf("\nEach point you convert can have a name.  If you want to use names you must\n");
+    std::printf("specify the length of the longest name you want to use\n\n");
     id_length = 0;
     prompt_for_number("Enter maximum name length, or 0 for no names", id_length, 0, 80);
     point_ids = id_length > 0;
-    printf("\nYou can enter the coordinates to convert yourself, or read them from a file\n");
-    printf("If you want to read them from a file then specify the name of the file,\n");
-    printf("otherwise just press Enter\n\n");
+    std::printf("\nYou can enter the coordinates to convert yourself, or read them from a file\n");
+    std::printf("If you want to read them from a file then specify the name of the file,\n");
+    std::printf("otherwise just press Enter\n\n");
     prompt_for_input_file("Enter coordinate input filename: ");
     if (crdin_fname) {
-        printf("Enter field separator in input file (default is blank, use t for tab)");
+        std::printf("Enter field separator in input file (default is blank, use t for tab)");
         ans = read_answer(1);
         if (!ans.empty()) {
             separator = ans.front();
@@ -1062,12 +1062,12 @@ static void prompt_for_parameters(void) {
             separator = '\t';
         }
     }
-    printf("\nIf you want the output to go to a file, enter the file name\n\n");
+    std::printf("\nIf you want the output to go to a file, enter the file name\n\n");
     prompt_for_output_file("Enter output file name: ");
 
     if (crdout_fname) {
-        printf("\nDo you want the input coordinates copied to the output file?\n");
-        printf("Enter yes or no: ");
+        std::printf("\nDo you want the input coordinates copied to the output file?\n");
+        std::printf("Enter yes or no: ");
         ans = read_answer(1);
         verbose = !ans.empty() && (ans.front() == 'y' || ans.front() == 'Y');
     }
@@ -1080,7 +1080,7 @@ static void prompt_for_parameters(void) {
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static void head_output(FILE* out);
+static void head_output(std::FILE* out);
 
 static void show_example_input(void) {
     static constexpr std::array<std::string_view, 6> east = {"315378.28",   "2571312.90",     "171.14238",
@@ -1094,10 +1094,10 @@ static void show_example_input(void) {
     clear_screen();
     head_output(stdout);
 
-    printf("\nYou can now enter coordinates you want converted.  Your input should look\n");
-    printf("something like this: \n\n");
+    std::printf("\nYou can now enter coordinates you want converted.  Your input should look\n");
+    std::printf("something like this: \n\n");
     if (point_ids) {
-        printf("STN_3  ");
+        std::printf("STN_3  ");
     }
     ncd = 0;
     if (is_geodetic(input_cs)) {
@@ -1123,12 +1123,12 @@ static void show_example_input(void) {
         c1 = east[ncd];
         c2 = north[ncd];
     }
-    printf("%s  %s%s\n\n", c1.data(), c2.data(), input_h ? "  1532.40" : "");
-    printf("Each item should be separated by at least one blank space.\n");
+    std::printf("%s  %s%s\n\n", c1.data(), c2.data(), input_h ? "  1532.40" : "");
+    std::printf("Each item should be separated by at least one blank space.\n");
     if (point_ids) {
-        printf("The name cannot include blanks.\n");
+        std::printf("The name cannot include blanks.\n");
     }
-    printf("When you have finished enter a blank line to quit the program\n\n");
+    std::printf("When you have finished enter a blank line to quit the program\n\n");
 }
 
 /*-------------------------------------------------------------------*/
@@ -1286,13 +1286,13 @@ static void setup_transformation(void) {
                 gfile = create_geoid_filename(geoid_file);
             }
             if (!gfile || !path_exists(*gfile)) {
-                printf("Cannot find geoid file %s\n", geoid_file.value_or("").c_str());
-                exit(1);
+                std::printf("Cannot find geoid file %s\n", geoid_file.value_or("").c_str());
+                std::exit(1);
             } else {
                 geoid_def* geoiddef = create_geoid_grid(gfile);
                 if (!geoiddef) {
-                    printf("Cannot read geoid file %s\n", gfile->c_str());
-                    exit(1);
+                    std::printf("Cannot read geoid file %s\n", gfile->c_str());
+                    std::exit(1);
                 }
                 delete_geoid_grid(geoiddef);
                 if (need_ingeoid) {
@@ -1308,12 +1308,12 @@ static void setup_transformation(void) {
     cnv = coord_conversion(input_cs, output_cs, conv_epoch);
     if (!cnv.valid) {
         if (!cnv.errmsg.empty()) {
-            printf("%s\n", cnv.errmsg.c_str());
+            std::printf("%s\n", cnv.errmsg.c_str());
         } else {
-            printf("Cannot convert coordinates from %s to %s\n", input_cs->code.c_str(), output_cs->code.c_str());
+            std::printf("Cannot convert coordinates from %s to %s\n", input_cs->code.c_str(), output_cs->code.c_str());
         }
         get_conv_code_notes(CS_COORDSYS_NOTE, input_cs->code, output_cs->code, &printf_writer);
-        exit(1);
+        std::exit(1);
     }
 
     /* Set up pointers to input coordinates and parameters */
@@ -1398,26 +1398,26 @@ static void setup_transformation(void) {
 
     /* Create the coordinate prompt */
 
-    strcpy(coord_prompt, "Enter");
+    std::strcpy(coord_prompt, "Enter");
     if (point_ids) {
-        strcat(coord_prompt, " name,");
+        std::strcat(coord_prompt, " name,");
     }
     if (is_geodetic(input_cs)) {
         if (input_ne) {
-            strcat(coord_prompt, " latitude, longitude: ");
+            std::strcat(coord_prompt, " latitude, longitude: ");
         } else {
-            strcat(coord_prompt, " longitude, latitude: ");
+            std::strcat(coord_prompt, " longitude, latitude: ");
         }
     } else if (is_projection(input_cs)) {
         if (input_ne) {
-            strcat(coord_prompt, " northing, easting: ");
+            std::strcat(coord_prompt, " northing, easting: ");
         } else {
-            strcat(coord_prompt, " easting, northing: ");
+            std::strcat(coord_prompt, " easting, northing: ");
         }
     } else {
-        strcat(coord_prompt, " X, Y, Z: ");
+        std::strcat(coord_prompt, " X, Y, Z: ");
     }
-    prompt_length = strlen(coord_prompt);
+    prompt_length = std::strlen(coord_prompt);
 
     /* Define the input and output field lengths */
 
@@ -1508,7 +1508,7 @@ static void open_files(void) {
         if (*crdout_fname == "-") {
             crdout = stdout;
         } else {
-            crdout = fopen(crdout_fname->c_str(), "w");
+            crdout = std::fopen(crdout_fname->c_str(), "w");
         }
         if (crdout == nullptr) {
             error_exit("Cannot open output file ", *crdout_fname);
@@ -1518,31 +1518,31 @@ static void open_files(void) {
     crdcom = !ask_coords || crdout_fname ? crdout : nullptr;
 }
 
-static void head_output(FILE* out) {
+static void head_output(std::FILE* out) {
     output_string_def os;
-    fprintf(out, "\n%s - coordinate conversion program (version %s dated %s)\n", PROGRAM_NAME, PROGRAM_VERSION,
+    std::fprintf(out, "\n%s - coordinate conversion program (version %s dated %s)\n", PROGRAM_NAME, PROGRAM_VERSION,
             PROGRAM_DATE);
-    fprintf(out, "\nInput coordinates:  %s", input_cs->name.c_str());
+    std::fprintf(out, "\nInput coordinates:  %s", input_cs->name.c_str());
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
     if (input_ortho) {
-        fprintf(out, "                    Input heights are orthometric\n");
+        std::fprintf(out, "                    Input heights are orthometric\n");
     }
-    fprintf(out, "\nOutput coordinates: %s", output_cs->name.c_str());
+    std::fprintf(out, "\nOutput coordinates: %s", output_cs->name.c_str());
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto); */
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
     if (output_ortho) {
-        fprintf(out, "                    Output heights are orthometric\n");
+        std::fprintf(out, "                    Output heights are orthometric\n");
     }
     if (cnv.needsepoch) {
-        fprintf(out, "\nDatum conversion epoch %.2lf\n", cnv.epochconv);
+        std::fprintf(out, "\nDatum conversion epoch %.2lf\n", cnv.epochconv);
     }
 
     output_string_to_file(&os, out);
     get_conv_notes(&cnv, &os);
 }
 
-static void head_columns(FILE* out) {
+static void head_columns(std::FILE* out) {
     constexpr std::array<std::string_view, 3> prjcol = {"Easting", "Northing", "Height"};
     constexpr std::array<std::string_view, 3> geocol = {"Longitude", "Latitude", "Height"};
     constexpr std::array<std::string_view, 3> xyzcol = {"X", "Y", "Z"};
@@ -1553,9 +1553,9 @@ static void head_columns(FILE* out) {
     int ncol;
     int icol;
 
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
     if (point_ids) {
-        fprintf(out, "%-*s  ", id_length, "ID");
+        std::fprintf(out, "%-*s  ", id_length, "ID");
     }
     if (verbose) {
         if (is_projection(input_cs)) {
@@ -1576,9 +1576,9 @@ static void head_columns(FILE* out) {
             ncol = 2;
         }
         for (icol = 0; icol < ncol; icol++) {
-            fprintf(out, "%*s ", icol == 2 ? invfldlen : infldlen, (*cols)[order[icol]].data());
+            std::fprintf(out, "%*s ", icol == 2 ? invfldlen : infldlen, (*cols)[order[icol]].data());
         }
-        fprintf(out, " ");
+        std::fprintf(out, " ");
     }
 
     if (is_projection(output_cs)) {
@@ -1599,9 +1599,9 @@ static void head_columns(FILE* out) {
         ncol = 2;
     }
     for (icol = 0; icol < ncol; icol++) {
-        fprintf(out, "%*s ", icol == 2 ? outvfldlen : outfldlen, (*cols)[order[icol]].data());
+        std::fprintf(out, "%*s ", icol == 2 ? outvfldlen : outfldlen, (*cols)[order[icol]].data());
     }
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
 }
 
 static void close_files(void) {
@@ -1611,7 +1611,7 @@ static void close_files(void) {
         crdin_file.reset();
     }
     if (crdout_fname && crdout != stdout) {
-        fclose(crdout);
+        std::fclose(crdout);
     }
 }
 
@@ -1643,7 +1643,7 @@ static void close_files(void) {
 static bool find_next_data_line(void) {
     while (true) {
         if (ask_coords) {
-            printf("\n%s", coord_prompt);
+            std::printf("\n%s", coord_prompt);
         }
         crdin->skipBlanks();
         const std::string_view line = crdin->remainder();
@@ -1834,34 +1834,34 @@ static int read_coordinates(void) {
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static void write_point_id(FILE* out) {
+static void write_point_id(std::FILE* out) {
     if (!separator) {
-        fprintf(out, "%-*s  ", id_length, id.c_str());
+        std::fprintf(out, "%-*s  ", id_length, id.c_str());
     } else {
-        fprintf(out, "%s%c", id.c_str(), separator);
+        std::fprintf(out, "%s%c", id.c_str(), separator);
     }
 }
 
-static void write_dms(FILE* out, double deg, int prec, bool no_secs, std::string_view hem) {
+static void write_dms(std::FILE* out, double deg, int prec, bool no_secs, std::string_view hem) {
     DMS dms;
     deg_dms(deg, &dms, prec, no_secs);
     if (separator && sepdms) {
-        fprintf(out, "%d%c", dms.degrees, separator);
+        std::fprintf(out, "%d%c", dms.degrees, separator);
         if (!no_secs) {
-            fprintf(out, "%02d%c", dms.minutes, separator);
+            std::fprintf(out, "%02d%c", dms.minutes, separator);
         }
-        fprintf(out, "%0*.*lf%c%c", prec + 3, prec, dms.seconds < 0.0 ? 0.0 : dms.seconds, separator,
+        std::fprintf(out, "%0*.*lf%c%c", prec + 3, prec, dms.seconds < 0.0 ? 0.0 : dms.seconds, separator,
                 dms.neg ? hem[1] : hem[0]);
     } else {
-        fprintf(out, "%d ", dms.degrees);
+        std::fprintf(out, "%d ", dms.degrees);
         if (!no_secs) {
-            fprintf(out, "%02d ", dms.minutes);
+            std::fprintf(out, "%02d ", dms.minutes);
         }
-        fprintf(out, "%0*.*lf %c", prec + 3, prec, dms.seconds < 0.0 ? 0.0 : dms.seconds, dms.neg ? hem[1] : hem[0]);
+        std::fprintf(out, "%0*.*lf %c", prec + 3, prec, dms.seconds < 0.0 ? 0.0 : dms.seconds, dms.neg ? hem[1] : hem[0]);
     }
 }
 
-static void write_coords(FILE* out, const double* c1, const double* c2, const double* c3, std::string_view h1,
+static void write_coords(std::FILE* out, const double* c1, const double* c2, const double* c3, std::string_view h1,
                          std::string_view h2, int len, int prec, int vlen, int vprec, AngleFormat dms, bool radians) {
     char sep;
     double mult;
@@ -1878,19 +1878,19 @@ static void write_coords(FILE* out, const double* c1, const double* c2, const do
     }
     if (dms == AF_DMS || dms == AF_DM) {
         write_dms(out, *c1 * mult, prec, dms == AF_DM, h1);
-        fprintf(out, "%c", sep);
+        std::fprintf(out, "%c", sep);
         write_dms(out, *c2 * mult, prec, dms == AF_DM, h2);
     } else {
-        fprintf(out, "%*.*lf%c%*.*lf", len, prec, *c1 * mult, sep, len, prec, *c2 * mult);
+        std::fprintf(out, "%*.*lf%c%*.*lf", len, prec, *c1 * mult, sep, len, prec, *c2 * mult);
     }
     if (c3) {
-        fprintf(out, "%c%*.*lf", sep, vlen, vprec, *c3);
+        std::fprintf(out, "%c%*.*lf", sep, vlen, vprec, *c3);
     }
 }
 
 static void write_results(void) {
     if (ask_coords) {
-        printf("%*s", prompt_length, " ");
+        std::printf("%*s", prompt_length, " ");
         write_coords(stdout, out1, out2, out3, outdms1, outdms2, outfldlen, output_prec, outvfldlen, output_vprec,
                      output_dms, output_latlong);
     }
@@ -1902,9 +1902,9 @@ static void write_results(void) {
             write_coords(crdout, in1, in2, in3, indms1, indms2, infldlen, input_prec, invfldlen, input_vprec, input_dms,
                          input_latlong);
             if (separator) {
-                fputc(separator, crdout);
+                std::fputc(separator, crdout);
             } else {
-                fputs("  ", crdout);
+                std::fputs("  ", crdout);
             }
         }
         write_coords(crdout, out1, out2, out3, outdms1, outdms2, outfldlen, output_prec, outvfldlen, output_vprec,
@@ -1925,10 +1925,10 @@ static void report_read_error(void) {
     const std::string point = point_ids ? " for point " + id : std::string();
 
     if (ask_coords) {
-        printf("%*s**** Error reading data ****", prompt_length, "");
+        std::printf("%*s**** Error reading data ****", prompt_length, "");
     }
     if (!ask_coords || crdout_fname) {
-        fprintf(crdout, "**** Error reading data%s **** ", point.c_str());
+        std::fprintf(crdout, "**** Error reading data%s **** ", point.c_str());
     }
 }
 
@@ -1939,10 +1939,10 @@ static void report_conv_error(const int sts) {
         em = cnv.errmsg;
     }
     if (ask_coords) {
-        printf("%*s**** %s ****", prompt_length, "", em.c_str());
+        std::printf("%*s**** %s ****", prompt_length, "", em.c_str());
     }
     if (!ask_coords || crdout_fname) {
-        fprintf(crdout, "**** %s%s **** ", em.c_str(), point.c_str());
+        std::fprintf(crdout, "**** %s%s **** ", em.c_str(), point.c_str());
     }
 }
 
@@ -2000,9 +2000,9 @@ static void process_coordinates(void) {
     }
 }
 
-static void summarise_job(FILE* out) {
-    fprintf(out, "\n%d coordinates converted\n", ncrdcnv);
-    fprintf(out, "%d errors occurred reading or converting coordinates\n", ncrderr);
+static void summarise_job(std::FILE* out) {
+    std::fprintf(out, "\n%d coordinates converted\n", ncrdcnv);
+    std::fprintf(out, "%d errors occurred reading or converting coordinates\n", ncrderr);
 }
 
 /*-------------------------------------------------------------------*/
@@ -2023,12 +2023,12 @@ int main(int argc, char* argv[]) {
         coordsys_file = get_default_crdsys_file();
     }
     if (!coordsys_file) {
-        printf("Cannot find coordsys.def file\n");
+        std::printf("Cannot find coordsys.def file\n");
     }
     install_default_projections();
     sts = install_crdsys_file(coordsys_file.value_or(""));
     if (sts != OK) {
-        printf("Cannot read coordsys.def file %s\n", coordsys_file.value_or("").c_str());
+        std::printf("Cannot read coordsys.def file %s\n", coordsys_file.value_or("").c_str());
         return 0;
     }
     process_command_line_options();

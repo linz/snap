@@ -20,7 +20,7 @@
 // which is implementation-defined and could differ in size between
 // compilers - this gets written to a .bin file via write_raw<T>, which
 // sizes itself off sizeof(T).
-enum class ClassValueType : int32_t { Char = 0, Int = 1 };
+enum class ClassValueType : std::int32_t { Char = 0, Int = 1 };
 #define CLASS_VALUE_NOT_DEFINED -1
 
 /// A plain value type. value holds the Char name or the Int id this
@@ -97,8 +97,8 @@ struct classifications {
     unsigned char value_usage(int class_id, int value_id);
     double value_error_factor(int class_id, int value_id);
 
-    void dump(FILE* f) const;
-    int reload(FILE* f);
+    void dump(std::FILE* f) const;
+    int reload(std::FILE* f);
 
     std::vector<std::unique_ptr<class_type>> class_index;
 };

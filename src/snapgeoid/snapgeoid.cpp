@@ -174,32 +174,32 @@ int main(int argc, char* argv[]) {
     }
 
     if (!quiet) {
-        printf("%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n", PROGRAM_NAME,
+        std::printf("%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n", PROGRAM_NAME,
                PROGRAM_VERSION);
     }
 
     if (syntax_error) {
-        printf("Error in snapgeoid command\n\n");
+        std::printf("Error in snapgeoid command\n\n");
     }
 
     if ((argc < 2 && !list_only) || syntax_error) {
-        printf("Syntax:  snapgeoid  [options] station_file_name [new_station_file_name]\n\n");
-        printf("Options can include:\n");
-        printf(" -h vd_code     calculate geoid from vertical datum (-v to list)\n");
-        printf(" -g geoid_file  calculate geoid height from gridded geoid model file\n");
-        printf(" -c             calculate geoid height from coordinate system vertical datum\n");
-        printf(" -z             remove explicit geoid information from coordinate file\n");
-        printf(" -k             keep existing geoid information - only add if not already in file\n");
-        printf(" -p             preserves orthometric heights when the geoid height is changed\n");
-        printf(" -i             ignore errors calculating geoid heights for specific stations\n");
-        printf(" -a vd_code     add a vertical datum to coordinate system\n");
-        printf(" -d             remove vertical datum from coordinate system\n");
-        printf(" -e             set the height coordinate type to ellipsoidal\n");
-        printf(" -o             set the height coordinate type to orthometric\n");
-        printf(" -v             list the available vertical datums and exit\n");
-        printf(" -q             minimises output comments\n");
-        printf("\nOnly one of -h, -g, -c -z can be selected.\n");
-        printf("\nOnly one of -e and -o can be selected.\n");
+        std::printf("Syntax:  snapgeoid  [options] station_file_name [new_station_file_name]\n\n");
+        std::printf("Options can include:\n");
+        std::printf(" -h vd_code     calculate geoid from vertical datum (-v to list)\n");
+        std::printf(" -g geoid_file  calculate geoid height from gridded geoid model file\n");
+        std::printf(" -c             calculate geoid height from coordinate system vertical datum\n");
+        std::printf(" -z             remove explicit geoid information from coordinate file\n");
+        std::printf(" -k             keep existing geoid information - only add if not already in file\n");
+        std::printf(" -p             preserves orthometric heights when the geoid height is changed\n");
+        std::printf(" -i             ignore errors calculating geoid heights for specific stations\n");
+        std::printf(" -a vd_code     add a vertical datum to coordinate system\n");
+        std::printf(" -d             remove vertical datum from coordinate system\n");
+        std::printf(" -e             set the height coordinate type to ellipsoidal\n");
+        std::printf(" -o             set the height coordinate type to orthometric\n");
+        std::printf(" -v             list the available vertical datums and exit\n");
+        std::printf(" -q             minimises output comments\n");
+        std::printf("\nOnly one of -h, -g, -c -z can be selected.\n");
+        std::printf("\nOnly one of -e and -o can be selected.\n");
         return 1;
     }
 
@@ -210,9 +210,9 @@ int main(int argc, char* argv[]) {
         for (i = 0; i < nhrf; i++) {
             const std::string& code = vdatum_list_code(i);
             const std::string& name = vdatum_list_desc(i);
-            printf("  %-*s %s\n", CRDSYS_CODE_LEN, code.c_str(), name.c_str());
+            std::printf("  %-*s %s\n", CRDSYS_CODE_LEN, code.c_str(), name.c_str());
         }
-        exit(0);
+        std::exit(0);
     }
     /* Load the station file */
 
@@ -232,7 +232,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (read_network(&net, oldfn, readopt) != OK) {
-        printf("Unable to load station file %s\n", oldfn.c_str());
+        std::printf("Unable to load station file %s\n", oldfn.c_str());
         return 2;
     }
 
@@ -253,7 +253,7 @@ int main(int argc, char* argv[]) {
     if (csyshrs) {
         vdatum* hrs = load_vdatum(*csyshrs);
         if (!hrs) {
-            printf("Unable to load vertical datum %s\n", csyshrs->c_str());
+            std::printf("Unable to load vertical datum %s\n", csyshrs->c_str());
             return 2;
         }
         const int sts = set_coordsys_vdatum(net.crdsys, hrs);
@@ -272,36 +272,36 @@ int main(int argc, char* argv[]) {
         }
         vdatum* hrs = coordsys_vdatum(net.crdsys);
         if (hrs) {
-            sprintf(geoid_msg, "Geoid undulations from %.80s", hrs->name.c_str());
+            std::sprintf(geoid_msg, "Geoid undulations from %.80s", hrs->name.c_str());
         }
     }
 
     if (calc_geoid_opt == CALC_HGTREF) {
         vdatum* hrs = load_vdatum(*hrscode);
         if (!hrs) {
-            printf("Unable to load vertical datum %s\n", hrscode->c_str());
+            std::printf("Unable to load vertical datum %s\n", hrscode->c_str());
             return 2;
         }
         ref_frame* rf = vdatum_ref_frame(hrs);
         if (!rf) {
-            printf("Unable to load reference frame for vertical datum %s\n", hrscode->c_str());
+            std::printf("Unable to load reference frame for vertical datum %s\n", hrscode->c_str());
             return 2;
         }
         coordsys* cs = new coordsys(rf->code, "", CSTP_GEODETIC, rf, nullptr);
         if (!cs) {
-            printf("Unable to create reference coordinate system for vertical datum %s\n", hrscode->c_str());
+            std::printf("Unable to create reference coordinate system for vertical datum %s\n", hrscode->c_str());
             return 2;
         }
         int sts = set_coordsys_vdatum(cs, hrs);
         if (sts != OK) {
-            printf("Unable to assign vertical datum %s to base coordinate system", hrscode->c_str());
+            std::printf("Unable to assign vertical datum %s to base coordinate system", hrscode->c_str());
             return 2;
         }
         sts = calc_station_geoid_info_from_coordsys(&net, cs, orthometric_fixed, errlevel);
         if (sts != OK && sts != INFO_ERROR) {
             return 2;
         }
-        sprintf(geoid_msg, "Geoid undulations from %.80s", hrs->name.c_str());
+        std::sprintf(geoid_msg, "Geoid undulations from %.80s", hrs->name.c_str());
     }
 
     else if (calc_geoid_opt == CALC_GEOID) {
@@ -310,16 +310,16 @@ int main(int argc, char* argv[]) {
         }
         gd = create_geoid_grid(geoid);
         if (!gd) {
-            printf("Unable to load geoid model\n");
+            std::printf("Unable to load geoid model\n");
             return 2;
         }
 
         if (!quiet) {
-            printf("\nGeoid model definition\n");
+            std::printf("\nGeoid model definition\n");
             print_geoid_header(gd, stdout, 0, "   ");
         }
 
-        sprintf(geoid_msg, "Geoid undulations from %.80s", std::string(get_geoid_model(gd)).c_str());
+        std::sprintf(geoid_msg, "Geoid undulations from %.80s", std::string(get_geoid_model(gd)).c_str());
         const int sts = set_network_geoid_def(&net, gd, orthometric_fixed, errlevel);
         if (sts != OK && sts != INFO_ERROR) {
             return 2;
@@ -345,7 +345,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!quiet) {
-        printf("\nThe updated station file is %s\n", newfn.c_str());
+        std::printf("\nThe updated station file is %s\n", newfn.c_str());
     }
 
     return 0;

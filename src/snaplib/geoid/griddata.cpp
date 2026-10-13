@@ -30,8 +30,8 @@
 // callers decide what a failed read means for bin's lifetime (see LOAD
 // below vs. load_row2's own direct calls).
 template <typename T>
-static bool load_field(FILE* bin, T& value) {
-    return fread(&value, sizeof(value), 1, bin) == 1;
+static bool load_field(std::FILE* bin, T& value) {
+    return std::fread(&value, sizeof(value), 1, bin) == 1;
 }
 
 // Only for use while bin is still local to create_grid_def, before any
@@ -42,13 +42,13 @@ static bool load_field(FILE* bin, T& value) {
 // using this macro.
 #define LOAD(x)                \
     if (!load_field(bin, x)) { \
-        fclose(bin);           \
+        std::fclose(bin);           \
         return INVALID_DATA;   \
     }
 
 grid_def::~grid_def() {
     if (bin) {
-        fclose(bin);
+        std::fclose(bin);
     }
     delete[] rows;
     for (int i = 0; i++ < ncache;) {
@@ -64,16 +64,16 @@ grid_def::~grid_def() {
 // char* did). Absent (no bytes read, or zero length) is a real "not
 // present" distinct from an empty string, hence optional rather than
 // collapsing to "".
-static std::optional<std::string> load_string(FILE* bin) {
+static std::optional<std::string> load_string(std::FILE* bin) {
     short len;
-    if (!fread(&len, sizeof(len), 1, bin)) {
+    if (!std::fread(&len, sizeof(len), 1, bin)) {
         return std::nullopt;
     }
     if (!len) {
         return std::nullopt;
     }
     std::string s(len, '\0');
-    if (!fread(s.data(), len, 1, bin)) {
+    if (!std::fread(s.data(), len, 1, bin)) {
         return std::nullopt;
     }
     // The text is stored as a C string, so drop the terminator and anything after it
@@ -89,7 +89,7 @@ static cache_row* allocate_cache(int maxcache) {
     return new cache_row[maxcache + 1]();
 }
 
-grid_def::grid_def(FILE* bin, long indexloc, double miny, double maxy, double minx, double maxx, double vres,
+grid_def::grid_def(std::FILE* bin, long indexloc, double miny, double maxy, double minx, double maxx, double vres,
                    short ngrdy, short ngrdx, short ngrdval, short latlon, int rowfmt, std::optional<std::string> desc1,
                    std::optional<std::string> desc2, std::optional<std::string> desc3,
                    std::optional<std::string> crdsys, file_row* rows)
@@ -117,26 +117,26 @@ grid_def::grid_def(FILE* bin, long indexloc, double miny, double maxy, double mi
       rows(rows),
       cache(allocate_cache(MAXCACHE)) {}
 
-static int check_header(FILE* bin, long* indexloc) {
+static int check_header(std::FILE* bin, long* indexloc) {
     char buf[80];
     short len;
     int version;
     int iloc;
     version = 0;
-    len = strlen(GRID_FILE_HEADER_1);
-    if (!fread(buf, len, 1, bin)) {
+    len = std::strlen(GRID_FILE_HEADER_1);
+    if (!std::fread(buf, len, 1, bin)) {
         return 0;
     }
-    if (!fread(&iloc, sizeof(iloc), 1, bin)) {
+    if (!std::fread(&iloc, sizeof(iloc), 1, bin)) {
         return 0;
     }
     *indexloc = iloc;
 
-    if (memcmp(buf, GRID_FILE_HEADER_1, len) == 0) {
+    if (std::memcmp(buf, GRID_FILE_HEADER_1, len) == 0) {
         version = 1;
-    } else if (memcmp(buf, GRID_FILE_HEADER_2, len) == 0) {
+    } else if (std::memcmp(buf, GRID_FILE_HEADER_2, len) == 0) {
         version = 2;
-    } else if (memcmp(buf, GRID_FILE_HEADER_4, len) == 0) {
+    } else if (std::memcmp(buf, GRID_FILE_HEADER_4, len) == 0) {
         version = 3;
     }
     if (!indexloc) {
@@ -150,17 +150,17 @@ static int check_header(FILE* bin, long* indexloc) {
 // known good - see grid_def's own constructor, which never fails, since a
 // load failure means it is never called at all.
 static int create_grid_def(grid_def** defr, const std::string& filename, short dimension) {
-    FILE* bin = fopen(filename.c_str(), "rb");
+    std::FILE* bin = std::fopen(filename.c_str(), "rb");
     if (!bin) {
         return FILE_OPEN_ERROR;
     }
     long indexloc;
     const int version = check_header(bin, &indexloc);
     if (!version) {
-        fclose(bin);
+        std::fclose(bin);
         return INVALID_DATA;
     }
-    fseek(bin, indexloc, SEEK_SET);
+    std::fseek(bin, indexloc, SEEK_SET);
     const int rowfmt = version == 3 ? 2 : 1;
 
     double miny;
@@ -188,11 +188,11 @@ static int create_grid_def(grid_def** defr, const std::string& filename, short d
         ngrdval = 1;
     }
     if (ngrdval != dimension) {
-        fclose(bin);
+        std::fclose(bin);
         return INCONSISTENT_DATA;
     }
     if (ngrdy < 4 || ngrdx < 4) {
-        fclose(bin);
+        std::fclose(bin);
         return INVALID_DATA;
     }
     std::optional<std::string> desc1 = load_string(bin);
@@ -200,23 +200,23 @@ static int create_grid_def(grid_def** defr, const std::string& filename, short d
     std::optional<std::string> desc3 = load_string(bin);
     std::optional<std::string> crdsys = load_string(bin);
 #ifdef DEBUG_GRID
-    printf("Lat %.4lf - %.4lf\n", miny, maxy);
-    printf("Lon %.4lf - %.4lf\n", minx, maxx);
-    printf("vres %.4lf\n", vres);
-    printf("ngrdy = %d  ngrdx = %d\n", ngrdy, ngrdx);
+    std::printf("Lat %.4lf - %.4lf\n", miny, maxy);
+    std::printf("Lon %.4lf - %.4lf\n", minx, maxx);
+    std::printf("vres %.4lf\n", vres);
+    std::printf("ngrdy = %d  ngrdx = %d\n", ngrdy, ngrdx);
 #endif
     file_row* rows = new file_row[ngrdy];
     for (short i = 0; i < ngrdy; i++) {
         int loc;
-        if (fread(&loc, sizeof(loc), 1, bin) != 1) {
+        if (std::fread(&loc, sizeof(loc), 1, bin) != 1) {
             delete[] rows;
-            fclose(bin);
+            std::fclose(bin);
             return INVALID_DATA;
         }
         rows[i].fileloc = loc;
         rows[i].cacheloc = nullptr;
 #ifdef DEBUG_GRID
-        printf("%03d %06ld\n", i, rows[i].fileloc);
+        std::printf("%03d %06ld\n", i, rows[i].fileloc);
 #endif
     }
 
@@ -231,7 +231,7 @@ static int load_row1(grid_def* def, long* data) {
 
     /* Format 1 rows - simply held as an array of shorts */
 
-    if (fread(data, sizeof(short), def->rowsize, def->bin) != (size_t)def->rowsize) {
+    if (std::fread(data, sizeof(short), def->rowsize, def->bin) != (size_t)def->rowsize) {
         return INVALID_DATA;
     }
     sdata = (short*)data;
@@ -380,7 +380,7 @@ static short load_row2_dim(grid_def* def, long* data) {
         /* Read the values from the file */
 
         i = imax + 1 - imin;
-        if (fread(def->loadbuffer, bytes, i, def->bin) != (size_t)i) {
+        if (std::fread(def->loadbuffer, bytes, i, def->bin) != (size_t)i) {
             return INVALID_DATA;
         }
         if (bytes == 1) {
@@ -500,7 +500,7 @@ static long* get_row(grid_def* def, short lat) {
         }
         cr->lat = fr;
         fr->cacheloc = cr;
-        fseek(def->bin, def->rows[lat].fileloc, SEEK_SET);
+        std::fseek(def->bin, def->rows[lat].fileloc, SEEK_SET);
         if (def->rowfmt == 1) {
             sts = load_row1(def, cr->data);
             if (sts != OK) {
@@ -755,14 +755,14 @@ void grd_grid_spacing(grid_def* grd, double* dx, double* dy) {
     (*dy) = grd->yres;
 }
 
-void grd_print_grid_data(grid_def* grd, FILE* out, char showGrid) {
-    fprintf(out, "\n\nDefinition of grid data\n\n  %s\n  %s\n  %s\n", grd->desc1 ? grd->desc1->c_str() : nullptr,
+void grd_print_grid_data(grid_def* grd, std::FILE* out, char showGrid) {
+    std::fprintf(out, "\n\nDefinition of grid data\n\n  %s\n  %s\n  %s\n", grd->desc1 ? grd->desc1->c_str() : nullptr,
             grd->desc2 ? grd->desc2->c_str() : nullptr, grd->desc3 ? grd->desc3->c_str() : nullptr);
-    fprintf(out, "  Coordinate system code: %s\n", grd->crdsys ? grd->crdsys->c_str() : nullptr);
-    fprintf(out, "  X:  maximum %8.4lf  minimum  %8.4lf   increments %4d\n", grd->maxx, grd->minx, (int)grd->ngrdx);
-    fprintf(out, "  Y: maximum %8.4lf  minimum  %8.4lf   increments %4d\n", grd->maxy, grd->miny, (int)grd->ngrdy);
-    fprintf(out, "  Vertical resolution: %8.4lf\n", grd->vres);
-    fprintf(out, "  Global longitude extents? : %s\n", grd->global ? "Yes" : "No");
+    std::fprintf(out, "  Coordinate system code: %s\n", grd->crdsys ? grd->crdsys->c_str() : nullptr);
+    std::fprintf(out, "  X:  maximum %8.4lf  minimum  %8.4lf   increments %4d\n", grd->maxx, grd->minx, (int)grd->ngrdx);
+    std::fprintf(out, "  Y: maximum %8.4lf  minimum  %8.4lf   increments %4d\n", grd->maxy, grd->miny, (int)grd->ngrdy);
+    std::fprintf(out, "  Vertical resolution: %8.4lf\n", grd->vres);
+    std::fprintf(out, "  Global longitude extents? : %s\n", grd->global ? "Yes" : "No");
     if (showGrid) {
         const double lonInc = (grd->maxx - grd->minx) / (grd->ngrdx - 1);
         const double latInc = (grd->maxy - grd->miny) / (grd->ngrdy - 1);
@@ -773,22 +773,22 @@ void grd_print_grid_data(grid_def* grd, FILE* out, char showGrid) {
         short k;
         for (i = 0, lat = grd->miny; i < grd->ngrdy; i++, lat += latInc) {
             long* data = get_row(grd, i);
-            fprintf(out, "\n");
-            fprintf(out, "Row %d starts at location %ld\n", (int)i, grd->rows[i].fileloc);
+            std::fprintf(out, "\n");
+            std::fprintf(out, "Row %d starts at location %ld\n", (int)i, grd->rows[i].fileloc);
             for (j = 0, lon = grd->minx; j < grd->ngrdx; j++, lon += lonInc) {
-                fprintf(out, "  %8.4lf  %8.4lf", lat, lon);
+                std::fprintf(out, "  %8.4lf  %8.4lf", lat, lon);
                 for (k = 0; k < grd->ngrdval; k++) {
                     const long v = (*data);
                     if (v == grd->undef) {
-                        fprintf(out, "     *   ");
+                        std::fprintf(out, "     *   ");
                     } else {
-                        fprintf(out, "  %8.4lf", (double)(v * grd->vres));
+                        std::fprintf(out, "  %8.4lf", (double)(v * grd->vres));
                     }
                     data++;
                 }
-                fprintf(out, "\n");
+                std::fprintf(out, "\n");
             }
         }
     }
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
 }

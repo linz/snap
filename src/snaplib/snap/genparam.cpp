@@ -386,7 +386,7 @@ int init_param_rowno(int nextprm) {
         }
         if (!(p->flags & PRM_USED)) {
             char errmsg[80];
-            sprintf(errmsg, "Parameter %.40s cannot be calculated", p->name.c_str());
+            std::sprintf(errmsg, "Parameter %.40s cannot be calculated", p->name.c_str());
             handle_error(WARNING_ERROR, errmsg, NO_MESSAGE);
             continue;
         }
@@ -459,14 +459,14 @@ static_assert(param_disk_fields_contiguous(),
 // templates from binfile.h. name is handled separately via dump_string (it's
 // a variable-length std::string, out of scope for this fixed-width table) -
 // together, this covers every field of param.
-static void write_param_fixed_width(const param& p, FILE* f) {
+static void write_param_fixed_width(const param& p, std::FILE* f) {
     for_each_disk_field(p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT,
                         [f](FieldKind kind, auto value) { write_disk_field(f, kind, value); });
 }
 
 // Mirrors write_param_fixed_width: same table, same iteration order, reading
 // into each field in place instead of writing.
-static void read_param_fixed_width(FILE* f, param& p) {
+static void read_param_fixed_width(std::FILE* f, param& p) {
     for_each_disk_field_mutable(p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT,
                                 [f](FieldKind kind, auto& value) { read_disk_field(f, kind, value); });
 }
@@ -474,12 +474,12 @@ static void read_param_fixed_width(FILE* f, param& p) {
 void dump_parameters(BINARY_FILE* b) {
     create_section(b, "MISCPARAMS");
     const int nprm = param_count();
-    fwrite(&nprm, sizeof(nprm), 1, b->f);
+    std::fwrite(&nprm, sizeof(nprm), 1, b->f);
     for (const std::unique_ptr<param>& p : prmlist) {
         write_param_fixed_width(*p, b->f);
         dump_string(p->name, b->f);
     }
-    fwrite(srtlist.data(), sizeof(int), srtlist.size(), b->f);
+    std::fwrite(srtlist.data(), sizeof(int), srtlist.size(), b->f);
     end_section(b);
 }
 
@@ -489,7 +489,7 @@ int reload_parameters(BINARY_FILE* b) {
         return MISSING_DATA;
     }
     int nprm = 0;
-    if (fread(&nprm, sizeof(nprm), 1, b->f) != 1) {
+    if (std::fread(&nprm, sizeof(nprm), 1, b->f) != 1) {
         return INVALID_DATA;
     }
     if (nprm < 0) {
@@ -508,7 +508,7 @@ int reload_parameters(BINARY_FILE* b) {
     }
 
     std::vector<int> sorted(params.size());
-    if (fread(sorted.data(), sizeof(int), sorted.size(), b->f) != sorted.size()) {
+    if (std::fread(sorted.data(), sizeof(int), sorted.size(), b->f) != sorted.size()) {
         return INVALID_DATA;
     }
     prmlist = std::move(params);

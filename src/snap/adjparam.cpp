@@ -64,7 +64,7 @@ void update_params(int get_covariance) {
     }
 }
 
-void list_calculated_parameters(FILE* out) {
+void list_calculated_parameters(std::FILE* out) {
     int np;
     int first;
     int nparam;
@@ -81,41 +81,41 @@ void list_calculated_parameters(FILE* out) {
                 continue;
             }
             if (first) {
-                fputs(header, out);
+                std::fputs(header, out);
                 first = 0;
             }
 
-            fputs(p->name.c_str(), out);
+            std::fputs(p->name.c_str(), out);
             if (p->identical) {
-                fprintf(out, "  (same as %s)", param_name(p->identical).data());
+                std::fprintf(out, "  (same as %s)", param_name(p->identical).data());
             }
-            fputs("\n", out);
+            std::fputs("\n", out);
         }
     }
 
     nparam = get_obs_param_count();
     if (nparam) {
         if (first) {
-            fputs(header, out);
+            std::fputs(header, out);
             first = 0;
         }
         for (np = 0; np++ < nparam;) {
             if (!get_obs_param_used(np)) {
                 continue;
             }
-            fputs(get_obs_param_name(np).c_str(), out);
-            fputs("\n", out);
+            std::fputs(get_obs_param_name(np).c_str(), out);
+            std::fputs("\n", out);
         }
     }
 }
 
-static void print_adjusted_parameters_header(FILE* out) {
+static void print_adjusted_parameters_header(std::FILE* out) {
     print_section_header(out, "OTHER PARAMETERS");
-    fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
-    fprintf(out, "\nParameter                          value         +/-\n");
+    std::fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
+    std::fprintf(out, "\nParameter                          value         +/-\n");
 }
 
-void print_adjusted_parameters(FILE* out) {
+void print_adjusted_parameters(std::FILE* out) {
     param* p;
     int np;
     int nparam;
@@ -138,16 +138,16 @@ void print_adjusted_parameters(FILE* out) {
                 first = 0;
             }
 
-            fprintf(out, "%-30.30s   %11.5lf  ", p->name.c_str(), p->value);
+            std::fprintf(out, "%-30.30s   %11.5lf  ", p->name.c_str(), p->value);
             if (param_rowno(pid)) {
-                fprintf(out, "%11.5lf", p->covar > 0.0 ? sqrt(p->covar) * semult : 0.0);
+                std::fprintf(out, "%11.5lf", p->covar > 0.0 ? std::sqrt(p->covar) * semult : 0.0);
             } else {
-                fprintf(out, "     -     ");
+                std::fprintf(out, "     -     ");
             }
             if (p->identical) {
-                fprintf(out, "  = %s", param_name(p->identical).data());
+                std::fprintf(out, "  = %s", param_name(p->identical).data());
             }
-            fprintf(out, "\n");
+            std::fprintf(out, "\n");
         }
     }
 
@@ -160,12 +160,12 @@ void print_adjusted_parameters(FILE* out) {
         for (np = 0; np++ < nparam;) {
             const std::string& name = get_obs_param_name(np);
             const double value = get_obs_param_value(np);
-            fprintf(out, "%-30.30s   %11.5lf  ", name.c_str(), value);
+            std::fprintf(out, "%-30.30s   %11.5lf  ", name.c_str(), value);
             if (get_obs_param_rowno(np, nullptr)) {
-                const double covar = sqrt(get_obs_param_covar(np)) * semult;
-                fprintf(out, "%11.5lf\n", covar);
+                const double covar = std::sqrt(get_obs_param_covar(np)) * semult;
+                std::fprintf(out, "%11.5lf\n", covar);
             } else {
-                fprintf(out, "     -\n");
+                std::fprintf(out, "     -\n");
             }
         }
     }

@@ -25,7 +25,7 @@ projection::projection(const projection& other) : projection(*other.type) {
     if (type->copy) {
         (*type->copy)(data, other.data);
     } else if (type->size) {
-        memcpy(data, other.data, type->size);
+        std::memcpy(data, other.data, type->size);
     }
 }
 
@@ -50,5 +50,5 @@ int identical_projections(projection* prj1, projection* prj2) {
     if (prj1->type->identical) {
         return (*prj1->type->identical)(prj1->data, prj2->data);
     }
-    return memcmp(prj1->data, prj2->data, prj1->type->size) ? 0 : 1;
+    return std::memcmp(prj1->data, prj2->data, prj1->type->size) ? 0 : 1;
 }

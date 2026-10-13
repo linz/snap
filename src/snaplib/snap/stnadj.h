@@ -41,7 +41,7 @@ struct stn_adjustment {
     int hrowno;       /* The first row number in the obs equations */
     int vrowno;       /* The row number for verical coord */
     int nobsprm;      /* Number of observation set parameters associated with the station */
-    int32_t obscount; /* Count of observations referencing the station */
+    std::int32_t obscount; /* Count of observations referencing the station */
     int idcol;        /* Relative station for float error (co-location constraint) */
     float herror;     /* The horizontal error if the station is floated */
     float verror;     /* The vertical error if the station is floated */
