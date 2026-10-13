@@ -29,11 +29,11 @@
 #include <string>
 
 #ifndef _GET_DATA_H
-#include "util/get_date.h"  /* For definition of GETDATELEN  */
+#include "util/get_date.h" /* For definition of GETDATELEN  */
 #endif
 
 #ifndef _DATATYPE_H
-#include "snapdata/datatype.h"  /* For definition of NOBSTYPE    */
+#include "snapdata/datatype.h" /* For definition of NOBSTYPE    */
 #endif
 
 #ifndef _DEFORM_H
@@ -53,26 +53,25 @@
 #endif
 
 /// The command file a program is run with, and the names derived from it.
-class CommandFile
-{
-public:
+class CommandFile {
+ public:
     /// Locates the command file, trying the default command file extensions if
     /// the name as given does not exist, and derives its directory and root name.
-    explicit CommandFile( const std::string &name );
+    explicit CommandFile(const std::string& name);
 
-    const std::string path; ///< The command file name, including any extension that was added
-    const std::string dir;  ///< The drive/directory of the command file
-    const std::string root; ///< The command file name without its extension, used as the base of the output file names
+    const std::string path;  ///< The command file name, including any extension that was added
+    const std::string dir;   ///< The drive/directory of the command file
+    const std::string root;  ///< The command file name without its extension, used as the base of the output file names
 
-private:
-    static std::string _locate( const std::string &name );
+ private:
+    static std::string _locate(const std::string& name);
 };
 
 /* The program output files */
 
 extern std::optional<CommandFile> command_file;
 extern std::optional<std::string> config_file;
-extern std::optional<std::string> snap_user;  /* User id running SNAP */
+extern std::optional<std::string> snap_user; /* User id running SNAP */
 
 #ifdef _SNAPGLOB_C
 #define SCOPE
@@ -82,7 +81,7 @@ extern std::optional<std::string> snap_user;  /* User id running SNAP */
 
 /* Program modes */
 
-enum { ADJUST=1, PREANALYSIS, DATA_CHECK, DATA_CONSISTENCY };
+enum { ADJUST = 1, PREANALYSIS, DATA_CHECK, DATA_CONSISTENCY };
 
 /* Basic data relating to the adjustment */
 
@@ -106,21 +105,21 @@ SCOPE double last_iteration_max_adjustment;
 /* Other miscellaneous data */
 
 SCOPE int have_obs_ids;
-SCOPE unsigned char obs_usage[ NOBSTYPE ];
-SCOPE double   obs_errfct[ NOBSTYPE ];
-SCOPE long     obstypecount[ NOBSTYPE ];
-SCOPE int  maxworst;
+SCOPE unsigned char obs_usage[NOBSTYPE];
+SCOPE double obs_errfct[NOBSTYPE];
+SCOPE long obstypecount[NOBSTYPE];
+SCOPE int maxworst;
 SCOPE int ignore_deformation; /* Ignore the coordinate system deformation */
-SCOPE deformation_model *deformation;
+SCOPE deformation_model* deformation;
 SCOPE classifications obs_classes;
-SCOPE void *obs_modifications;
+SCOPE void* obs_modifications;
 
 /* General output options */
 
 SCOPE int coord_precision;
-SCOPE int  file_location_frequency;
-SCOPE int  stn_name_width;
-SCOPE int  obs_precision[ NOBSTYPE ];
+SCOPE int file_location_frequency;
+SCOPE int stn_name_width;
+SCOPE int obs_precision[NOBSTYPE];
 
 /* Information relating to statistics from the program */
 
@@ -137,9 +136,9 @@ SCOPE double mde_power;
 SCOPE double redundancy_flag_level;
 
 void init_snap_globals();
-void set_snap_command_file( const std::string &cmd_file );
-void set_snap_config_file( const std::string &cfg_file );
-void *snap_obs_modifications( bool create );
+void set_snap_command_file(const std::string& cmd_file);
+void set_snap_config_file(const std::string& cfg_file);
+void* snap_obs_modifications(bool create);
 
 #undef SCOPE
 

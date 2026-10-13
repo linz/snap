@@ -8,8 +8,7 @@
 
 */
 
-void register_gnomic_projection( void );
-projection *create_gnomic_projection(  double orglat, double orglon,
-                                       double fe, double fn );
+void register_gnomic_projection(void);
+projection* create_gnomic_projection(double orglat, double orglon, double fe, double fn);
 
 #endif

@@ -21,45 +21,44 @@
 
 */
 
-
 #include <cstdio>
 #include <optional>
 #include <string_view>
 
-#define OK                0
-#define NO_MORE_DATA      1
-#define EOF_ENCOUNTERED   2
+#define OK 0
+#define NO_MORE_DATA 1
+#define EOF_ENCOUNTERED 2
 
-#define INFO_ERROR       16
+#define INFO_ERROR 16
 
-#define WARNING_ERROR    32
-#define FILE_OPEN_ERROR  33
-#define FILE_READ_ERROR  34
+#define WARNING_ERROR 32
+#define FILE_OPEN_ERROR 33
+#define FILE_READ_ERROR 34
 #define FILE_WRITE_ERROR 35
-#define UNEXPECTED_EOF   36
-#define SYNTAX_ERROR     37
-#define INVALID_DATA     38
-#define MISSING_DATA     39
+#define UNEXPECTED_EOF 36
+#define SYNTAX_ERROR 37
+#define INVALID_DATA 38
+#define MISSING_DATA 39
 #define INCONSISTENT_DATA 40
-#define TOO_MUCH_DATA     41
+#define TOO_MUCH_DATA 41
 #define OPERATION_ABORTED 42
 
-#define FATAL_ERROR      64
-#define MEM_ALLOC_ERROR  65
-#define INTERNAL_ERROR   66
+#define FATAL_ERROR 64
+#define MEM_ALLOC_ERROR 65
+#define INTERNAL_ERROR 66
 
 /* Orthogonal modifier bit, ORed onto a severity above (e.g.
    WARNING_ERROR | SHOW_DIALOG) - not a severity/condition itself. Lets a
    caller explicitly ask for a warning to be shown as a dialog in GUI
    programs that support it, rather than only logged, without changing
    default behaviour for every other (unaudited) warning call site. */
-#define SHOW_DIALOG      128
+#define SHOW_DIALOG 128
 
-#define REPORTABLE_ERROR(sts)        ((sts) & (INFO_ERROR | WARNING_ERROR | FATAL_ERROR))
-#define INFO_ERROR_CONDITION(sts)    (((sts) & INFO_ERROR) && !((sts) & (FATAL_ERROR | WARNING_ERROR)))
-#define FATAL_ERROR_CONDITION(sts)    ((sts) & FATAL_ERROR)
-#define WARNING_ERROR_CONDITION(sts)  ((sts) & WARNING_ERROR)
-#define SHOW_DIALOG_CONDITION(sts)    ((sts) & SHOW_DIALOG)
+#define REPORTABLE_ERROR(sts) ((sts) & (INFO_ERROR | WARNING_ERROR | FATAL_ERROR))
+#define INFO_ERROR_CONDITION(sts) (((sts) & INFO_ERROR) && !((sts) & (FATAL_ERROR | WARNING_ERROR)))
+#define FATAL_ERROR_CONDITION(sts) ((sts) & FATAL_ERROR)
+#define WARNING_ERROR_CONDITION(sts) ((sts) & WARNING_ERROR)
+#define SHOW_DIALOG_CONDITION(sts) ((sts) & SHOW_DIALOG)
 
 /* Define a default error handler - takes three parameters,
    1) An integer error status
@@ -86,13 +85,13 @@ using error_message = std::optional<std::string_view>;
 /* A handler is always passed a message for msg1 - handle_error substitutes
    a default when mess1 is absent. */
 
-using errhandler_type = int (*)( int sts, std::string_view msg1, error_message msg2 );
+using errhandler_type = int (*)(int sts, std::string_view msg1, error_message msg2);
 
-int handle_error( int sts, error_message mess1, error_message mess2 );
-int default_error_handler( int sts, std::string_view mess1, error_message mess2 );
-int null_error_handler( int sts, std::string_view mess1, error_message mess2 );
-errhandler_type set_error_handler( errhandler_type errhndler );
-int get_error_count( void );
+int handle_error(int sts, error_message mess1, error_message mess2);
+int default_error_handler(int sts, std::string_view mess1, error_message mess2);
+int null_error_handler(int sts, std::string_view mess1, error_message mess2);
+errhandler_type set_error_handler(errhandler_type errhndler);
+int get_error_count(void);
 
 /* Settings for default error handler - output file, prefix (true or false),
  * and reporting level (INFO_ERROR, WARNING_ERROR, FATAL_ERROR ), and location
@@ -101,15 +100,14 @@ int get_error_count( void );
  * Each returns old value, apart from location.
  */
 
-FILE * set_error_file( FILE *errfile );
-int  set_error_level( int level );
-int set_error_prefix( int prefix );
+FILE* set_error_file(FILE* errfile);
+int set_error_level(int level);
+int set_error_prefix(int prefix);
 
-void set_error_location( error_message loc );
-
+void set_error_location(error_message loc);
 
 inline constexpr std::nullopt_t NO_MESSAGE = std::nullopt;
-#define DEFAULT_ERROR_HANDLER ( (errhandler_type) 0 )
-#define DEFAULT_ERROR_FILE    ( (FILE *) 0 )
+#define DEFAULT_ERROR_HANDLER ((errhandler_type)0)
+#define DEFAULT_ERROR_FILE ((FILE*)0)
 
 #endif

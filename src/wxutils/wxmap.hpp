@@ -17,20 +17,18 @@
 #include "wxsymbology.hpp"
 #include "wxmapdrawer.hpp"
 
-class wxMap
-{
-public:
+class wxMap {
+ public:
     wxMap();
     virtual ~wxMap();
-    virtual void GetMapExtents( MapRect &extents ) = 0;
-    virtual void GetLayer( Symbology &symbology ) = 0;
-    void DrawMap( wxMapDrawer &drawer );
-    virtual void *StartDrawing() = 0;
-    virtual bool DrawSome( wxMapDrawer &drawer, void *state ) = 0;
-    virtual void EndDrawing( void *state ) = 0;
-private:
+    virtual void GetMapExtents(MapRect& extents) = 0;
+    virtual void GetLayer(Symbology& symbology) = 0;
+    void DrawMap(wxMapDrawer& drawer);
+    virtual void* StartDrawing() = 0;
+    virtual bool DrawSome(wxMapDrawer& drawer, void* state) = 0;
+    virtual void EndDrawing(void* state) = 0;
+
+ private:
 };
-
-
 
 #endif

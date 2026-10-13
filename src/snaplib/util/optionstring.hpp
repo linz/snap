@@ -6,28 +6,28 @@
 #include <map>
 #include <vector>
 
-namespace LINZ
-{
+namespace LINZ {
 
 // Parses a string formatted as "key=value key=value ..."
 // Keys must be alphanumeric (including _) and start with alpha or _
 // Values can be quoted to include spaces, quotes may be included by repeating
 // Keys are case insensitive
 
-class OptionString
-{
-public:
-    OptionString( const std::string &options );
-    bool defines( const std::string &option );
-    [[nodiscard]] const std::string &valueOf( const std::string &key, const std::string &dflt="" ) const;
-    const std::vector<std::string> errors(){ return _invalid; }
-private:
-    void _load( const std::string &options );
+class OptionString {
+ public:
+    OptionString(const std::string& options);
+    bool defines(const std::string& option);
+    [[nodiscard]] const std::string& valueOf(const std::string& key, const std::string& dflt = "") const;
+    const std::vector<std::string> errors() {
+        return _invalid;
+    }
+
+ private:
+    void _load(const std::string& options);
     std::map<const std::string, const std::string> _options;
     std::vector<std::string> _invalid;
 };
 
 }  // End of namespace LINZ
-
 
 #endif

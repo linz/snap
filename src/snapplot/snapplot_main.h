@@ -8,8 +8,8 @@
 
 */
 
-#include <cstdio>    /* For definition of FILE */
-#include "snapdata/datatype.h"  /* For definition of NOBSTYPE */
+#include <cstdio>              /* For definition of FILE */
+#include "snapdata/datatype.h" /* For definition of NOBSTYPE */
 
 #ifdef MAIN
 #define SCOPE
@@ -21,9 +21,6 @@ SCOPE char highlight_all_connections;
 
 #undef SCOPE
 
-
 #define NTEXTLINES 4
 
 #endif
-
-

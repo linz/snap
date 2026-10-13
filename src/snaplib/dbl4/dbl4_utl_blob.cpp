@@ -55,10 +55,9 @@
 **************************************************************************
 */
 
-StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob)
-{
+StatusType utlCreateBlobHandle(DBHandle conn, hBlob* blob) {
     (*blob) = new BlobType;
-    TRACE_BLBMGMT(("utlCreateBlobHandle: Blob created with handle %llX",reinterpret_cast<unsigned long long>(*blob) ));
+    TRACE_BLBMGMT(("utlCreateBlobHandle: Blob created with handle %llX", reinterpret_cast<unsigned long long>(*blob)));
     return STS_OK;
 }
 
@@ -76,17 +75,14 @@ StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob)
 **************************************************************************
 */
 
-StatusType utlBlobClose( hBlob blob)
-{
-    TRACE_BLBMGMT(("utlBlobClose: Blob closed with handle %llX",reinterpret_cast<unsigned long long>(blob) ));
-    if( blob->pvBlob )
-    {
-        utlReleaseBlobDB( blob->pvBlob );
+StatusType utlBlobClose(hBlob blob) {
+    TRACE_BLBMGMT(("utlBlobClose: Blob closed with handle %llX", reinterpret_cast<unsigned long long>(blob)));
+    if (blob->pvBlob) {
+        utlReleaseBlobDB(blob->pvBlob);
     }
     delete blob;
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: utlBlobReadAt
@@ -104,23 +100,16 @@ StatusType utlBlobClose( hBlob blob)
 **************************************************************************
 */
 
-StatusType utlBlobReadAt( hBlob blob, long lngOffset, long lngBufSize,
-                          void * pvBuffer)
-{
+StatusType utlBlobReadAt(hBlob blob, long lngOffset, long lngBufSize, void* pvBuffer) {
     TRACE_BLBREAD(("utlBlobReadAt: Blob read - handle %llX offset %ld bytes %ld",
-                   reinterpret_cast<unsigned long long>(blob), lngOffset, lngBufSize ));
-    if( blob->pvBlob )
-    {
-        utlReadBlobDB( blob->pvBlob, lngOffset, lngBufSize, pvBuffer );
-    }
-    else
-    {
-        THROW_EXCEPTION( "utlBlobReadAt called with uninitialised hBlob" );
+                   reinterpret_cast<unsigned long long>(blob), lngOffset, lngBufSize));
+    if (blob->pvBlob) {
+        utlReadBlobDB(blob->pvBlob, lngOffset, lngBufSize, pvBuffer);
+    } else {
+        THROW_EXCEPTION("utlBlobReadAt called with uninitialised hBlob");
     }
     return STS_OK;
 }
-
-
 
 /*************************************************************************
 ** Function name: utlBlobWrite
@@ -136,20 +125,15 @@ StatusType utlBlobReadAt( hBlob blob, long lngOffset, long lngBufSize,
 **************************************************************************
 */
 
-StatusType utlBlobWrite( hBlob blob, long lngBufSize, void *buffer)
-{
-    TRACE_BLBREAD(("utlBlobWrite: Blob write - handle %llX",reinterpret_cast<unsigned long long>(blob) ));
-    if( blob->pvBlob )
-    {
-        utlWriteBlobDB( blob->pvBlob, lngBufSize, buffer);
-    }
-    else
-    {
-        THROW_EXCEPTION( "utlBlobWrite called with uninitialised hBlob" );
+StatusType utlBlobWrite(hBlob blob, long lngBufSize, void* buffer) {
+    TRACE_BLBREAD(("utlBlobWrite: Blob write - handle %llX", reinterpret_cast<unsigned long long>(blob)));
+    if (blob->pvBlob) {
+        utlWriteBlobDB(blob->pvBlob, lngBufSize, buffer);
+    } else {
+        THROW_EXCEPTION("utlBlobWrite called with uninitialised hBlob");
     }
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: utlBlobSeek
@@ -167,20 +151,15 @@ StatusType utlBlobWrite( hBlob blob, long lngBufSize, void *buffer)
 **************************************************************************
 */
 
-StatusType utlBlobSeek( hBlob blob, long position, int whence)
-{
-    TRACE_BLBREAD(("utlBlobSeek: Blob handle %llX",reinterpret_cast<unsigned long long>(blob) ));
-    if( blob->pvBlob )
-    {
-        utlSeekBlobDB( blob->pvBlob, position, whence );
-    }
-    else
-    {
-        THROW_EXCEPTION( "utlBlobSeek called with uninitialised hBlob" );
+StatusType utlBlobSeek(hBlob blob, long position, int whence) {
+    TRACE_BLBREAD(("utlBlobSeek: Blob handle %llX", reinterpret_cast<unsigned long long>(blob)));
+    if (blob->pvBlob) {
+        utlSeekBlobDB(blob->pvBlob, position, whence);
+    } else {
+        THROW_EXCEPTION("utlBlobSeek called with uninitialised hBlob");
     }
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: utlBlobTell
@@ -196,18 +175,12 @@ StatusType utlBlobSeek( hBlob blob, long position, int whence)
 **************************************************************************
 */
 
-StatusType utlBlobTell( hBlob blob, long *position)
-{
-    TRACE_BLBREAD(("utlBlobTell: Blob handle %llX",reinterpret_cast<unsigned long long>(blob) ));
-    if( blob->pvBlob )
-    {
-        utlTellBlobDB( blob->pvBlob, position );
-    }
-    else
-    {
-        THROW_EXCEPTION( "utlBlobTell called with uninitialised hBlob" );
+StatusType utlBlobTell(hBlob blob, long* position) {
+    TRACE_BLBREAD(("utlBlobTell: Blob handle %llX", reinterpret_cast<unsigned long long>(blob)));
+    if (blob->pvBlob) {
+        utlTellBlobDB(blob->pvBlob, position);
+    } else {
+        THROW_EXCEPTION("utlBlobTell called with uninitialised hBlob");
     }
     return STS_OK;
 }
-
-

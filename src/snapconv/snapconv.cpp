@@ -33,114 +33,101 @@
 #include "snap/filenames.h"
 #include "util/getversion.h"
 
-enum
-{
-    SET_HGTTYPE_DEFAULT=0,
-    SET_HGTTYPE_ELLIPSOIDAL,
-    SET_HGTTYPE_ORTHOMETRIC
-};
+enum { SET_HGTTYPE_DEFAULT = 0, SET_HGTTYPE_ELLIPSOIDAL, SET_HGTTYPE_ORTHOMETRIC };
 
-enum
-{
-    SET_DEGOPT_DEFAULT=0,
-    SET_DEGOPT_DMS,
-    SET_DEGOPT_DECIMAL
-};
+enum { SET_DEGOPT_DEFAULT = 0, SET_DEGOPT_DMS, SET_DEGOPT_DECIMAL };
 
-int main( int argc, char *argv[] )
-{
-    coordsys *cs;
-    network *net;
+int main(int argc, char* argv[]) {
+    coordsys* cs;
+    network* net;
     std::string msg;
     char quiet = 0;
     double epoch = 0.0;
-    const char *epochstr=nullptr;
+    const char* epochstr = nullptr;
     std::string netcrdsys;
-    char syntax_error=0;
-    int hgtfixopt=NW_HGTFIXEDOPT_ELLIPSOIDAL;
+    char syntax_error = 0;
+    int hgtfixopt = NW_HGTFIXEDOPT_ELLIPSOIDAL;
     int degopt = SET_DEGOPT_DEFAULT;
-    int hgttype=SET_HGTTYPE_DEFAULT;
+    int hgttype = SET_HGTTYPE_DEFAULT;
 
     CONFIGURE_RUNTIME();
 
     /* Crude fix to allow suppression of output */
 
-    while( argc > 1 && argv[1][0] == '-' )
-    {
-        switch( argv[1][1] )
-        {
-        case 'Q':
-        case 'q': quiet = 1; break;
-        case 'D':
-        case 'd': 
-                  if( degopt != SET_DEGOPT_DEFAULT ) { syntax_error=1;
-}
-                  degopt = SET_DEGOPT_DECIMAL;
-                  break;
-        case 'H':
-        case 'h': 
-                  if( degopt != SET_DEGOPT_DEFAULT ) { syntax_error=1;
-}
-                  degopt = SET_DEGOPT_DMS;
-                  break;
-        case 'E':
-        case 'e': 
-                  if( hgttype != SET_HGTTYPE_DEFAULT ) { syntax_error=1;
-}
-                  hgttype=SET_HGTTYPE_ELLIPSOIDAL;
-                  break;
-        case 'O':
-        case 'o': 
-                  if( hgttype != SET_HGTTYPE_DEFAULT ) { syntax_error=1;
-}
-                  hgttype=SET_HGTTYPE_ORTHOMETRIC;
-                  break;
-        case 'P':
-        case 'p': 
-                  hgtfixopt=NW_HGTFIXEDOPT_ORTHOMETRIC;
-                  break;
-        case 'Y':
-        case 'y':
-            if( argv[1][2] ) { epochstr=argv[1]+2; }
-            else if( argc >= 3 )
-            {
-                epochstr=argv[2];
-                argc--;
-                argv++;
-            }
-            else
-            {
-                printf("Missing value for conversion epoch (-Y)\n");
-                return 1;
-            }
-            if( ! parse_crdsys_epoch( epochstr, epoch ))
-            {
-                printf("Invalid value for conversion epoch (-Y %s)\n",epochstr);
-                return 1;
-            }
-            break;
-        default:
-            argc = 0;
+    while (argc > 1 && argv[1][0] == '-') {
+        switch (argv[1][1]) {
+            case 'Q':
+            case 'q':
+                quiet = 1;
+                break;
+            case 'D':
+            case 'd':
+                if (degopt != SET_DEGOPT_DEFAULT) {
+                    syntax_error = 1;
+                }
+                degopt = SET_DEGOPT_DECIMAL;
+                break;
+            case 'H':
+            case 'h':
+                if (degopt != SET_DEGOPT_DEFAULT) {
+                    syntax_error = 1;
+                }
+                degopt = SET_DEGOPT_DMS;
+                break;
+            case 'E':
+            case 'e':
+                if (hgttype != SET_HGTTYPE_DEFAULT) {
+                    syntax_error = 1;
+                }
+                hgttype = SET_HGTTYPE_ELLIPSOIDAL;
+                break;
+            case 'O':
+            case 'o':
+                if (hgttype != SET_HGTTYPE_DEFAULT) {
+                    syntax_error = 1;
+                }
+                hgttype = SET_HGTTYPE_ORTHOMETRIC;
+                break;
+            case 'P':
+            case 'p':
+                hgtfixopt = NW_HGTFIXEDOPT_ORTHOMETRIC;
+                break;
+            case 'Y':
+            case 'y':
+                if (argv[1][2]) {
+                    epochstr = argv[1] + 2;
+                } else if (argc >= 3) {
+                    epochstr = argv[2];
+                    argc--;
+                    argv++;
+                } else {
+                    printf("Missing value for conversion epoch (-Y)\n");
+                    return 1;
+                }
+                if (!parse_crdsys_epoch(epochstr, epoch)) {
+                    printf("Invalid value for conversion epoch (-Y %s)\n", epochstr);
+                    return 1;
+                }
+                break;
+            default:
+                argc = 0;
         }
         quiet = 1;
         argv++;
         argc--;
     }
 
-    if( ! quiet )
-    {
-        printf("\n%s %s: Converts a SNAP coord file to a different coordinate system\n\n",
-               PROGRAM_NAME, PROGRAM_VERSION);
+    if (!quiet) {
+        printf("\n%s %s: Converts a SNAP coord file to a different coordinate system\n\n", PROGRAM_NAME,
+               PROGRAM_VERSION);
     }
 
-    if( syntax_error )
-    {
+    if (syntax_error) {
         printf("\nInvalid command options specified to snapconv\n");
     }
 
-    if( argc != 4 || syntax_error )
-    {
-        printf ("snapconv: Missing or invalid parameters\n\n");
+    if (argc != 4 || syntax_error) {
+        printf("snapconv: Missing or invalid parameters\n\n");
 
         printf("Syntax: snapconv [-d][-h][-q][-y yyyymmdd] input_coord_file new_coordsys_code output_coord_file\n\n");
         printf("Options are:\n");
@@ -159,59 +146,47 @@ int main( int argc, char *argv[] )
 
     install_default_crdsys_file();
 
-    cs = load_coordsys( argv[2] );
-    if( !cs )
-    {
-        printf("\nUnable to find a definition of coordinate system %s\n",argv[2]);
+    cs = load_coordsys(argv[2]);
+    if (!cs) {
+        printf("\nUnable to find a definition of coordinate system %s\n", argv[2]);
         return 2;
     }
 
     net = new_network();
-    if( read_network( net, argv[1], 0 ) != OK )
-    {
-        printf("Cannot open coordinate file %s\n",argv[1]);
+    if (read_network(net, argv[1], 0) != OK) {
+        printf("Cannot open coordinate file %s\n", argv[1]);
         return 2;
     }
 
     netcrdsys = net->crdsysdef;
 
-    if( set_network_coordsys( net, cs, epoch, hgtfixopt, msg ) != OK )
-    {
-        printf("Unable to convert network coordinate system to %s\n%s\n",argv[2],msg.c_str());
+    if (set_network_coordsys(net, cs, epoch, hgtfixopt, msg) != OK) {
+        printf("Unable to convert network coordinate system to %s\n%s\n", argv[2], msg.c_str());
         return 2;
     }
 
     msg.clear();
-    if( ! netcrdsys.empty() )
-    {
-        msg="Converted from "+netcrdsys.substr(0,32);
-        if( epochstr )
-        {
-            msg += " at epoch "+std::string(epochstr).substr(0,32);
+    if (!netcrdsys.empty()) {
+        msg = "Converted from " + netcrdsys.substr(0, 32);
+        if (epochstr) {
+            msg += " at epoch " + std::string(epochstr).substr(0, 32);
         }
     }
 
-    if( degopt != SET_DEGOPT_DEFAULT )
-    {
+    if (degopt != SET_DEGOPT_DEFAULT) {
         net->options &= ~NW_DEC_DEGREES;
         net->options |= (degopt == SET_DEGOPT_DECIMAL) ? NW_DEC_DEGREES : 0;
     }
 
-    if( hgttype == SET_HGTTYPE_ELLIPSOIDAL )
-    {
-        set_network_height_coord_ellipsoidal( net );
-    }
-    else if( hgttype == SET_HGTTYPE_ORTHOMETRIC )
-    {
-        set_network_height_coord_orthometric( net );
+    if (hgttype == SET_HGTTYPE_ELLIPSOIDAL) {
+        set_network_height_coord_ellipsoidal(net);
+    } else if (hgttype == SET_HGTTYPE_ORTHOMETRIC) {
+        set_network_height_coord_orthometric(net);
     }
 
-    if( write_network( net, argv[3], msg, 0, nullptr ) != OK )
-    {
+    if (write_network(net, argv[3], msg, 0, nullptr) != OK) {
         return 2;
     }
 
     return 0;
 }
-
-

@@ -28,170 +28,161 @@
 #include "snap/filenames.h"
 #include "util/getversion.h"
 
-enum
-{
-    CALC_NONE=0,
-    CALC_CRDSYS,
-    CALC_HGTREF,
-    CALC_GEOID,
-    CALC_REMOVE
-};
+enum { CALC_NONE = 0, CALC_CRDSYS, CALC_HGTREF, CALC_GEOID, CALC_REMOVE };
 
-enum
-{
-    SET_HGTTYPE_DEFAULT=0,
+enum {
+    SET_HGTTYPE_DEFAULT = 0,
     SET_HGTTYPE_ELLIPSOIDAL,
     SET_HGTTYPE_ORTHOMETRIC,
 };
 
-int main( int argc, char *argv[] )
-{
+int main(int argc, char* argv[]) {
     std::string newfn;
     int readopt;
     network net;
-    char list_only=0;
+    char list_only = 0;
     char keep_existing = 0;
     char syntax_error = 0;
     char quiet = 0;
     char set_height_type = SET_HGTTYPE_DEFAULT;
     char calc_geoid_opt = CALC_NONE;
     char calc_crdsys_geoid = 0;
-    int orthometric_fixed=NW_HGTFIXEDOPT_ELLIPSOIDAL;
+    int orthometric_fixed = NW_HGTFIXEDOPT_ELLIPSOIDAL;
     char geoid_msg[120];
     char remove_csyshrs = 0;
     std::optional<std::string> csyshrs;
     std::optional<std::string> hrscode;
     std::optional<std::string> geoid;
-    std::optional<std::string> *argptr = nullptr;
-    int errlevel=WARNING_ERROR;
-    geoid_def *gd = nullptr;
+    std::optional<std::string>* argptr = nullptr;
+    int errlevel = WARNING_ERROR;
+    geoid_def* gd = nullptr;
 
     CONFIGURE_RUNTIME();
 
-    set_error_file( stdout );
+    set_error_file(stdout);
     geoid_msg[0] = 0;
 
-    while( argc > 1 && argv[1][0] == '-' )
-    {
+    while (argc > 1 && argv[1][0] == '-') {
         argptr = nullptr;
-        switch( argv[1][1] )
-        {
-        case 'v':
-        case 'V':
-            list_only = 1;
-            break;
+        switch (argv[1][1]) {
+            case 'v':
+            case 'V':
+                list_only = 1;
+                break;
 
-        case 'e':
-        case 'E':
-            if( set_height_type != SET_HGTTYPE_DEFAULT ) { syntax_error = 1;
-}
-            set_height_type = SET_HGTTYPE_ELLIPSOIDAL;
-            break;
+            case 'e':
+            case 'E':
+                if (set_height_type != SET_HGTTYPE_DEFAULT) {
+                    syntax_error = 1;
+                }
+                set_height_type = SET_HGTTYPE_ELLIPSOIDAL;
+                break;
 
-        case 'o':
-        case 'O':
-            if( set_height_type != SET_HGTTYPE_DEFAULT ) { syntax_error = 1;
-}
-            set_height_type = SET_HGTTYPE_ORTHOMETRIC;
-            break;
+            case 'o':
+            case 'O':
+                if (set_height_type != SET_HGTTYPE_DEFAULT) {
+                    syntax_error = 1;
+                }
+                set_height_type = SET_HGTTYPE_ORTHOMETRIC;
+                break;
 
-        case 'p':
-        case 'P':
-            orthometric_fixed=NW_HGTFIXEDOPT_ORTHOMETRIC;
-            break;
+            case 'p':
+            case 'P':
+                orthometric_fixed = NW_HGTFIXEDOPT_ORTHOMETRIC;
+                break;
 
-        case 'i':
-        case 'I':
-            errlevel=INFO_ERROR;
-            break;
+            case 'i':
+            case 'I':
+                errlevel = INFO_ERROR;
+                break;
 
-        case 'z':
-        case 'Z':
-            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
-}
-            calc_geoid_opt = CALC_REMOVE;
-            break;
+            case 'z':
+            case 'Z':
+                if (calc_geoid_opt != CALC_NONE) {
+                    syntax_error = 1;
+                }
+                calc_geoid_opt = CALC_REMOVE;
+                break;
 
-        case 'c':
-        case 'C':
-            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
-}
-            calc_geoid_opt = CALC_CRDSYS;
-            break;
+            case 'c':
+            case 'C':
+                if (calc_geoid_opt != CALC_NONE) {
+                    syntax_error = 1;
+                }
+                calc_geoid_opt = CALC_CRDSYS;
+                break;
 
-        case 'g':
-        case 'G':
-            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
-}
-            calc_geoid_opt = CALC_GEOID;
-            argptr=&geoid;
-            break;
+            case 'g':
+            case 'G':
+                if (calc_geoid_opt != CALC_NONE) {
+                    syntax_error = 1;
+                }
+                calc_geoid_opt = CALC_GEOID;
+                argptr = &geoid;
+                break;
 
-        case 'h':
-        case 'H':
-            if( calc_geoid_opt != CALC_NONE ) { syntax_error = 1;
-}
-            calc_geoid_opt = CALC_HGTREF;
-            argptr=&hrscode;
-            break;
+            case 'h':
+            case 'H':
+                if (calc_geoid_opt != CALC_NONE) {
+                    syntax_error = 1;
+                }
+                calc_geoid_opt = CALC_HGTREF;
+                argptr = &hrscode;
+                break;
 
-        case 'k':
-        case 'K':
-            keep_existing=1;
-            break;
+            case 'k':
+            case 'K':
+                keep_existing = 1;
+                break;
 
-        case 'a':
-        case 'A':
-            if( remove_csyshrs ) { syntax_error=1;
-}
-            argptr=&csyshrs;
-            break;
+            case 'a':
+            case 'A':
+                if (remove_csyshrs) {
+                    syntax_error = 1;
+                }
+                argptr = &csyshrs;
+                break;
 
-        case 'd':
-        case 'D':
-            if( csyshrs ) { syntax_error=1;
-}
-            remove_csyshrs=1;
-            break;
+            case 'd':
+            case 'D':
+                if (csyshrs) {
+                    syntax_error = 1;
+                }
+                remove_csyshrs = 1;
+                break;
 
-        case 'q':
-        case 'Q': quiet = 1;
-            break;
+            case 'q':
+            case 'Q':
+                quiet = 1;
+                break;
 
-        default:
-            syntax_error = 1;
-            break;
+            default:
+                syntax_error = 1;
+                break;
         }
         argv++;
         argc--;
-        if( argptr )
-        {
-            if( argc > 1  && ! *argptr )
-            {
+        if (argptr) {
+            if (argc > 1 && !*argptr) {
                 (*argptr) = argv[1];
                 argv++;
                 argc--;
-            }
-            else
-            {
+            } else {
                 syntax_error = 1;
             }
         }
     }
 
-    if( ! quiet )
-    {
-        printf("%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n",
-               PROGRAM_NAME, PROGRAM_VERSION);
+    if (!quiet) {
+        printf("%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n", PROGRAM_NAME,
+               PROGRAM_VERSION);
     }
 
-    if( syntax_error )
-    {
+    if (syntax_error) {
         printf("Error in snapgeoid command\n\n");
     }
 
-    if( (argc < 2 && ! list_only) || syntax_error )
-    {
+    if ((argc < 2 && !list_only) || syntax_error) {
         printf("Syntax:  snapgeoid  [options] station_file_name [new_station_file_name]\n\n");
         printf("Options can include:\n");
         printf(" -h vd_code     calculate geoid from vertical datum (-v to list)\n");
@@ -213,15 +204,13 @@ int main( int argc, char *argv[] )
     }
 
     install_default_crdsys_file();
-    if( list_only )
-    {
+    if (list_only) {
         int i;
-        int const nhrf=vdatum_list_count();
-        for( i=0; i < nhrf; i++)
-        {
-            const std::string &code=vdatum_list_code(i);
-            const std::string &name=vdatum_list_desc(i);
-            printf("  %-*s %s\n",CRDSYS_CODE_LEN,code.c_str(),name.c_str());
+        const int nhrf = vdatum_list_count();
+        for (i = 0; i < nhrf; i++) {
+            const std::string& code = vdatum_list_code(i);
+            const std::string& name = vdatum_list_desc(i);
+            printf("  %-*s %s\n", CRDSYS_CODE_LEN, code.c_str(), name.c_str());
         }
         exit(0);
     }
@@ -230,168 +219,134 @@ int main( int argc, char *argv[] )
     readopt = NW_READOPT_CALCHGTREF;
     const std::string oldfn = argv[1];
 
-    if( argc > 2 && _stricmp(argv[2],"gb")==0 )
-    {
+    if (argc > 2 && _stricmp(argv[2], "gb") == 0) {
         argc--;
         argv++;
         readopt |= NW_READOPT_GBFORMAT;
     }
 
-    if( argc > 2 )
-    {
+    if (argc > 2) {
         newfn = argv[2];
-    }
-    else
-    {
-        newfn = std::filesystem::path( oldfn ).replace_extension( ".new" ).string();
+    } else {
+        newfn = std::filesystem::path(oldfn).replace_extension(".new").string();
     }
 
-    if( read_network( &net, oldfn, readopt ) != OK )
-    {
-        printf("Unable to load station file %s\n",oldfn.c_str());
+    if (read_network(&net, oldfn, readopt) != OK) {
+        printf("Unable to load station file %s\n", oldfn.c_str());
         return 2;
     }
 
-    if( keep_existing && network_has_explicit_geoid_info(&net) && calc_geoid_opt != CALC_REMOVE )
-    {
-        calc_geoid_opt=CALC_NONE;
+    if (keep_existing && network_has_explicit_geoid_info(&net) && calc_geoid_opt != CALC_REMOVE) {
+        calc_geoid_opt = CALC_NONE;
     }
 
-    if( ! network_has_geoid_info(&net) && 
-        ( set_height_type == SET_HGTTYPE_ORTHOMETRIC ||
-            ( set_height_type == SET_HGTTYPE_DEFAULT && 
-                ! network_height_coord_is_ellipsoidal( &net ) )
-        )
-      )
-    {
+    if (!network_has_geoid_info(&net) &&
+        (set_height_type == SET_HGTTYPE_ORTHOMETRIC ||
+         (set_height_type == SET_HGTTYPE_DEFAULT && !network_height_coord_is_ellipsoidal(&net)))) {
         orthometric_fixed = NW_HGTFIXEDOPT_ORTHOMETRIC;
     }
 
-    if( errlevel == INFO_ERROR && quiet ) { errlevel=OK;
-}
+    if (errlevel == INFO_ERROR && quiet) {
+        errlevel = OK;
+    }
 
-    if( csyshrs )
-    {
-        vdatum *hrs=load_vdatum( *csyshrs );
-        if( ! hrs )
-        {
-            printf("Unable to load vertical datum %s\n",csyshrs->c_str());
+    if (csyshrs) {
+        vdatum* hrs = load_vdatum(*csyshrs);
+        if (!hrs) {
+            printf("Unable to load vertical datum %s\n", csyshrs->c_str());
             return 2;
         }
-        int const sts=set_coordsys_vdatum( net.crdsys, hrs );
-        if( sts != OK )
-        {
+        const int sts = set_coordsys_vdatum(net.crdsys, hrs);
+        if (sts != OK) {
             return 2;
         }
-        if( ! network_has_explicit_geoid_info(&net) )
-        {
+        if (!network_has_explicit_geoid_info(&net)) {
             calc_crdsys_geoid = 1;
         }
     }
 
-    if( calc_crdsys_geoid || calc_geoid_opt == CALC_CRDSYS )
-    {
-        int const sts=calc_station_geoid_info_from_coordsys( &net, net.crdsys,
-                orthometric_fixed, errlevel );
-        if( sts != OK && sts != INFO_ERROR ) { return 2;
-}
-        vdatum *hrs = coordsys_vdatum( net.crdsys );
-        if( hrs )
-        {
-            sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name.c_str());
+    if (calc_crdsys_geoid || calc_geoid_opt == CALC_CRDSYS) {
+        const int sts = calc_station_geoid_info_from_coordsys(&net, net.crdsys, orthometric_fixed, errlevel);
+        if (sts != OK && sts != INFO_ERROR) {
+            return 2;
+        }
+        vdatum* hrs = coordsys_vdatum(net.crdsys);
+        if (hrs) {
+            sprintf(geoid_msg, "Geoid undulations from %.80s", hrs->name.c_str());
         }
     }
 
-    if( calc_geoid_opt == CALC_HGTREF )
-    {
-        vdatum *hrs=load_vdatum( *hrscode );
-        if( ! hrs )
-        {
-            printf("Unable to load vertical datum %s\n",hrscode->c_str());
+    if (calc_geoid_opt == CALC_HGTREF) {
+        vdatum* hrs = load_vdatum(*hrscode);
+        if (!hrs) {
+            printf("Unable to load vertical datum %s\n", hrscode->c_str());
             return 2;
         }
-        ref_frame *rf=vdatum_ref_frame(hrs);
-        if( ! rf )
-        {
-            printf("Unable to load reference frame for vertical datum %s\n",
-                    hrscode->c_str());
+        ref_frame* rf = vdatum_ref_frame(hrs);
+        if (!rf) {
+            printf("Unable to load reference frame for vertical datum %s\n", hrscode->c_str());
             return 2;
         }
-        coordsys *cs=new coordsys(rf->code,"",CSTP_GEODETIC,rf,nullptr);
-        if( ! cs )
-        {
-            printf("Unable to create reference coordinate system for vertical datum %s\n",
-                    hrscode->c_str());
+        coordsys* cs = new coordsys(rf->code, "", CSTP_GEODETIC, rf, nullptr);
+        if (!cs) {
+            printf("Unable to create reference coordinate system for vertical datum %s\n", hrscode->c_str());
             return 2;
         }
-        int sts=set_coordsys_vdatum( cs, hrs );
-        if( sts != OK )
-        {
-            printf("Unable to assign vertical datum %s to base coordinate system",
-                    hrscode->c_str());
+        int sts = set_coordsys_vdatum(cs, hrs);
+        if (sts != OK) {
+            printf("Unable to assign vertical datum %s to base coordinate system", hrscode->c_str());
             return 2;
         }
-        sts=calc_station_geoid_info_from_coordsys( &net, cs,
-                orthometric_fixed, errlevel );
-        if( sts != OK && sts != INFO_ERROR ) { return 2;
-}
-        sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name.c_str());
+        sts = calc_station_geoid_info_from_coordsys(&net, cs, orthometric_fixed, errlevel);
+        if (sts != OK && sts != INFO_ERROR) {
+            return 2;
+        }
+        sprintf(geoid_msg, "Geoid undulations from %.80s", hrs->name.c_str());
     }
 
-    else if( calc_geoid_opt == CALC_GEOID )
-    {
-        if( errlevel == INFO_ERROR && quiet ) { errlevel=OK;
-}
-        gd = create_geoid_grid( geoid );
-        if( !gd )
-        {
+    else if (calc_geoid_opt == CALC_GEOID) {
+        if (errlevel == INFO_ERROR && quiet) {
+            errlevel = OK;
+        }
+        gd = create_geoid_grid(geoid);
+        if (!gd) {
             printf("Unable to load geoid model\n");
             return 2;
         }
 
-        if( ! quiet )
-        {
+        if (!quiet) {
             printf("\nGeoid model definition\n");
-            print_geoid_header( gd, stdout, 0, "   " );
+            print_geoid_header(gd, stdout, 0, "   ");
         }
 
-        sprintf(geoid_msg,"Geoid undulations from %.80s",std::string( get_geoid_model( gd ) ).c_str());
-        int const sts = set_network_geoid_def( &net, gd, orthometric_fixed, errlevel );
-        if( sts != OK && sts != INFO_ERROR ) { return 2;
-}
+        sprintf(geoid_msg, "Geoid undulations from %.80s", std::string(get_geoid_model(gd)).c_str());
+        const int sts = set_network_geoid_def(&net, gd, orthometric_fixed, errlevel);
+        if (sts != OK && sts != INFO_ERROR) {
+            return 2;
+        }
     }
 
-    if( calc_geoid_opt == CALC_REMOVE ) 
-    {
-        clear_network_explicit_geoid_info( &net );
-    }
-    else if ( calc_geoid_opt != CALC_NONE )
-    {
-        set_network_explicit_geoid_info( &net, 0 );
+    if (calc_geoid_opt == CALC_REMOVE) {
+        clear_network_explicit_geoid_info(&net);
+    } else if (calc_geoid_opt != CALC_NONE) {
+        set_network_explicit_geoid_info(&net, 0);
     }
 
-
-    if( set_height_type == SET_HGTTYPE_ELLIPSOIDAL )
-    {
-        set_network_height_coord_ellipsoidal( &net );
-    }
-    else if( set_height_type == SET_HGTTYPE_ORTHOMETRIC )
-    {
-        set_network_height_coord_orthometric( &net );
+    if (set_height_type == SET_HGTTYPE_ELLIPSOIDAL) {
+        set_network_height_coord_ellipsoidal(&net);
+    } else if (set_height_type == SET_HGTTYPE_ORTHOMETRIC) {
+        set_network_height_coord_orthometric(&net);
     }
 
     /* And write the file out again */
 
-    if( write_network( &net, newfn, geoid_msg, 0, nullptr ) != OK )
-    {
+    if (write_network(&net, newfn, geoid_msg, 0, nullptr) != OK) {
         return 2;
     }
 
-    if( ! quiet )
-    {
-        printf("\nThe updated station file is %s\n",newfn.c_str());
+    if (!quiet) {
+        printf("\nThe updated station file is %s\n", newfn.c_str());
     }
-
 
     return 0;
 }

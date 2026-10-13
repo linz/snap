@@ -8,28 +8,26 @@
 #include "resources/splashscreen_bmp.xpm"
 #endif
 
-class wxHelpAbout : public wxSimpleDialog
-{
-public:
-    wxHelpAbout(const std::string &progname, const std::string &progver, const std::string &progdate) :
-        wxSimpleDialog( progname, wxOK )
-    {
-        wxBitmap const bitmap = wxBITMAP(IDB_SPLASHSCREEN);
-        wxBoxSizer *sizer = new wxBoxSizer( wxHORIZONTAL );
-        sizer->Add(new wxSplashImage( this, bitmap ));
-        sizer->AddSpacer( GetCharWidth() );
-        wxFlexGridSizer *sizer2 = new wxFlexGridSizer(2,0,GetCharWidth());
-        sizer2->Add( Label("Program:"));
-        sizer2->Add(Label( progname ));
+class wxHelpAbout : public wxSimpleDialog {
+ public:
+    wxHelpAbout(const std::string& progname, const std::string& progver, const std::string& progdate)
+        : wxSimpleDialog(progname, wxOK) {
+        const wxBitmap bitmap = wxBITMAP(IDB_SPLASHSCREEN);
+        wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+        sizer->Add(new wxSplashImage(this, bitmap));
+        sizer->AddSpacer(GetCharWidth());
+        wxFlexGridSizer* sizer2 = new wxFlexGridSizer(2, 0, GetCharWidth());
+        sizer2->Add(Label("Program:"));
+        sizer2->Add(Label(progname));
         sizer2->Add(Label("Version:"));
-        sizer2->Add(Label( progver ));
+        sizer2->Add(Label(progver));
         sizer2->Add(Label("Build date:"));
-        sizer2->Add(Label( progdate ));
+        sizer2->Add(Label(progdate));
         sizer2->Add(Label("Copyright:"));
-        sizer2->Add(Label( "Land Information New Zealand" ));
-        sizer->Add( sizer2 );
+        sizer2->Add(Label("Land Information New Zealand"));
+        sizer->Add(sizer2);
 
-        AddSizer( sizer );
+        AddSizer(sizer);
         AddSpacer();
         AddLabel(
             "DISCLAIMER: Land Information New Zealand does not offer any support for this software.\n"
@@ -43,8 +41,7 @@ public:
     }
 };
 
-void ShowHelpAbout(const std::string &progname, const std::string &progver, const std::string &progdate)
-{
-    wxHelpAbout helpAbout(progname,progver,progdate);
+void ShowHelpAbout(const std::string& progname, const std::string& progver, const std::string& progdate) {
+    wxHelpAbout helpAbout(progname, progver, progdate);
     helpAbout.RunDialog();
 }

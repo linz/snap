@@ -7,7 +7,6 @@
 
 */
 
-
 /* Need definitions of a coordinate system and of basic geodetic functions */
 
 #ifndef _COORDSYS_H
@@ -38,8 +37,8 @@
 
 #include <string>
 
-#define DFLTSTLIST_EXT  ".stl"
-#define DFLTSTOFFS_EXT  ".sts"
+#define DFLTSTLIST_EXT ".stl"
+#define DFLTSTOFFS_EXT ".sts"
 
 /*------------------------------------------------------------------------
    Structures
@@ -54,102 +53,104 @@ inline constexpr int STNCODELEN = 15;
 /// A station code of up to STNCODELEN characters.  It is held in a fixed array
 /// so that the code has a fixed size and needs no allocation, and so that
 /// STATION_DISK_FIELDS can still read and write it in place.
-class StationCode
-{
-public:
+class StationCode {
+ public:
     StationCode() = default;
 
     /// Replaces the code, truncating it to STNCODELEN characters.
-    void assign( const std::string_view code ) ///< The new code
+    void assign(const std::string_view code)  ///< The new code
     {
-        const size_t length = std::min( code.size(), _capacity - 1 );
-        code.copy( _chars, length );
-        std::fill( _chars + length, _chars + _capacity, '\0' );
+        const size_t length = std::min(code.size(), _capacity - 1);
+        code.copy(_chars, length);
+        std::fill(_chars + length, _chars + _capacity, '\0');
     }
 
     /// The number of characters before the terminating NUL
-    [[nodiscard]] size_t size() const
-    {
-        const size_t end = std::string_view( _chars, _capacity ).find( '\0' );
+    [[nodiscard]] size_t size() const {
+        const size_t end = std::string_view(_chars, _capacity).find('\0');
         return end == std::string_view::npos ? _capacity : end;
     }
 
-    [[nodiscard]] bool empty() const { return _chars[0] == '\0'; }
+    [[nodiscard]] bool empty() const {
+        return _chars[0] == '\0';
+    }
 
-    operator std::string_view() const { return std::string_view( _chars, size() ); }
+    operator std::string_view() const {
+        return std::string_view(_chars, size());
+    }
 
     /// The NUL terminated code, for the printf family and other C interfaces
-    [[nodiscard]] const char *c_str() const { return _chars; }
+    [[nodiscard]] const char* c_str() const {
+        return _chars;
+    }
 
-private:
+ private:
     static constexpr size_t _capacity = STNCODELEN + 1;
     char _chars[_capacity] = {};
 };
 
-static_assert( sizeof(StationCode) == STNCODELEN+1, "StationCode is written to disk as STNCODELEN+1 bytes" );
+static_assert(sizeof(StationCode) == STNCODELEN + 1, "StationCode is written to disk as STNCODELEN+1 bytes");
 
-struct station
-{
-    StationCode Code;     /* Station ID */
-    int     id = 0;    /* Used to identify the station - populated when indexed */
-    double  ELat = 0.0; /* Ellipsoidal lat, long, hgt */
-    double  ELon = 0.0;
-    double  OHgt = 0.0; /* Orthometric height */
-    double  GXi = 0.0;  /* Gravitational corrections to ellipsoidal */
-    double  GEta = 0.0; /* coordinates */
-    double  GUnd = 0.0;
+struct station {
+    StationCode Code;  /* Station ID */
+    int id = 0;        /* Used to identify the station - populated when indexed */
+    double ELat = 0.0; /* Ellipsoidal lat, long, hgt */
+    double ELon = 0.0;
+    double OHgt = 0.0; /* Orthometric height */
+    double GXi = 0.0;  /* Gravitational corrections to ellipsoidal */
+    double GEta = 0.0; /* coordinates */
+    double GUnd = 0.0;
 
     /* The following components are used primarily to calculate
        observations between stations and to facilitate station
        adjustments */
 
-    double  XYZ[3] = {};  /* Geocentric coordinates */
-    rotmat  rTopo;     /* Rotation to topocentric system */
-    rotmat  rGrav;     /* Rotation to gravimetric system */
-    double  dNdLt = 0.0; /* The rate of change of latitude with distance */
-    double  dEdLn = 0.0; /* The rate of change of longitude with distance */
-    std::vector<int> classval;  /* Class values, one per classification */
-    std::string Name;  /* Station name */
-    void    *ts = nullptr;   /* Station coordinate time series data, freed by delete_station */
-    void    *hook = nullptr; /* Pointer to user defined info, owned by the program that sets it */
+    double XYZ[3] = {};        /* Geocentric coordinates */
+    rotmat rTopo;              /* Rotation to topocentric system */
+    rotmat rGrav;              /* Rotation to gravimetric system */
+    double dNdLt = 0.0;        /* The rate of change of latitude with distance */
+    double dEdLn = 0.0;        /* The rate of change of longitude with distance */
+    std::vector<int> classval; /* Class values, one per classification */
+    std::string Name;          /* Station name */
+    void* ts = nullptr;        /* Station coordinate time series data, freed by delete_station */
+    void* hook = nullptr;      /* Pointer to user defined info, owned by the program that sets it */
 
     station() = default;
 
     /// Creates a station and calculates the quantities derived from its
     /// coordinates.  Its classifications are not set.
-    station( std::string_view code,   ///< The station code, truncated to STNCODELEN characters
-             std::string_view name,   ///< The station name
-             double Lat,              ///< Ellipsoidal latitude (radians)
-             double Lon,              ///< Ellipsoidal longitude (radians)
-             double Hgt,              ///< Orthometric height
-             double Xi,               ///< Gravitational (deflection of the vertical) correction to the latitude (GXi)
-             double Eta,              ///< Gravitational (deflection of the vertical) correction to the longitude (GEta)
-             double Und,              ///< Geoid undulation (GUnd)
-             ellipsoid &el );         ///< The ellipsoid of the network's coordinate system
+    station(std::string_view code,  ///< The station code, truncated to STNCODELEN characters
+            std::string_view name,  ///< The station name
+            double Lat,             ///< Ellipsoidal latitude (radians)
+            double Lon,             ///< Ellipsoidal longitude (radians)
+            double Hgt,             ///< Orthometric height
+            double Xi,              ///< Gravitational (deflection of the vertical) correction to the latitude (GXi)
+            double Eta,             ///< Gravitational (deflection of the vertical) correction to the longitude (GEta)
+            double Und,             ///< Geoid undulation (GUnd)
+            ellipsoid& el);         ///< The ellipsoid of the network's coordinate system
 
     /// Sets the coordinates and recalculates the quantities derived from them.
-    void modify_coords( double Lat, double Lon, double Hgt, ellipsoid &el );
+    void modify_coords(double Lat, double Lon, double Hgt, ellipsoid& el);
 
     /// As modify_coords, also setting the gravitational corrections.
-    void modify_coords_xeu( double Lat, double Lon, double Hgt,
-                            double Xi, double Eta, double Und, ellipsoid &el );
+    void modify_coords_xeu(double Lat, double Lon, double Hgt, double Xi, double Eta, double Und, ellipsoid& el);
 
     /// Sets the geocentric coordinates and recalculates the others from them.
-    void modify_xyz( double xyz[3], ellipsoid &el );
+    void modify_xyz(double xyz[3], ellipsoid& el);
 
     /// Sets the number of classifications.  The existing class values are kept
     /// (up to the new count) and any added ones are zero.
-    void set_class_count( int count );
+    void set_class_count(int count);
 
     /// Sets the value of a classification (class ids start at 1)
-    void set_class( int class_id, int value );
+    void set_class(int class_id, int value);
 
     /// The value of a classification (class ids start at 1), or 0 if there is
     /// no such classification.
-    [[nodiscard]] int get_class( int class_id ) const;
+    [[nodiscard]] int get_class(int class_id) const;
 
-private:
-    void _derive_geometry( ellipsoid &el );
+ private:
+    void _derive_geometry(ellipsoid& el);
 };
 
 // The fixed-width on-disk layout of every field above except classval (a
@@ -169,7 +170,6 @@ private:
 extern const DiskField STATION_DISK_FIELDS[];
 extern const size_t STATION_DISK_FIELD_COUNT;
 
-
 /*------------------------------------------------------------------------
 
 station_list
@@ -182,19 +182,16 @@ station_list
 
 ------------------------------------------------------------------------*/
 
-
-struct station_list
-{
-    int count;               /* Number of stations */
-    int lastid;              /* Last allocated station id - same as count if no deletions*/
-    int indexsize;           /* Current size of index */
-    station **index;         /* Array of stations */
-    int nsorted;             /* Number of sorted ids */
-    int maxsortid;           /* Array of ids sorted by code */
-    station **codeindex;     /* Array of sorted stations */
-    int usesorted;           /* Define which index to use for processing stations */
-    int nextstn;             /* The next station to be returned by the iterator */
-
+struct station_list {
+    int count;           /* Number of stations */
+    int lastid;          /* Last allocated station id - same as count if no deletions*/
+    int indexsize;       /* Current size of index */
+    station** index;     /* Array of stations */
+    int nsorted;         /* Number of sorted ids */
+    int maxsortid;       /* Array of ids sorted by code */
+    station** codeindex; /* Array of sorted stations */
+    int usesorted;       /* Define which index to use for processing stations */
+    int nextstn;         /* The next station to be returned by the iterator */
 };
 
 /*------------------------------------------------------------------------
@@ -205,26 +202,26 @@ network:
 
 ------------------------------------------------------------------------*/
 
-using stationfunc = void (*)( station *st);
+using stationfunc = void (*)(station* st);
 
 /// Every field is set explicitly by the constructor. Nothing is known
 /// yet at either real construction site (a plain stack network net; or
 /// new_network()'s heap allocation) - name/crdsysdef/stations are all
 /// populated later, incrementally, by set_network_name()/
 /// set_network_coordsys()/read_network()/add_station() etc.
-struct network
-{
+struct network {
     network();
-    network( const network& ) = delete; ///< stnclasses owns a vector of unique_ptr, which can't be copied, so neither can network
+    network(const network&) =
+        delete;  ///< stnclasses owns a vector of unique_ptr, which can't be copied, so neither can network
     /// && marks a move constructor. Takes ownership of o's station list and
     /// coordinate systems, leaving o empty (as if freshly constructed, apart
     /// from its station callbacks), so the two never both delete them.
-    network( network&& o ) noexcept;
+    network(network&& o) noexcept;
 
     /// && marks a move assignment operator. Clears this network first (so what
     /// it owned is freed rather than leaked), then takes ownership as the
     /// move constructor does. Assigning a network to itself does nothing.
-    network& operator=( network&& o ) noexcept;
+    network& operator=(network&& o) noexcept;
     ~network();
 
     /// Resets every field to the same empty state a freshly-constructed
@@ -240,21 +237,21 @@ struct network
     /// Id of the classification named classname. If create is set and no
     /// such classification yet exists, creates one with a default value
     /// of "-" and returns its id; otherwise returns 0 if not found.
-    int class_id( const std::string &classname, int create );
+    int class_id(const std::string& classname, int create);
 
     /// Name of the classification identified by class_id.
-    [[nodiscard]] std::string class_name( int class_id ) const;
+    [[nodiscard]] std::string class_name(int class_id) const;
 
     /// Count of values defined for the classification identified by class_id.
-    [[nodiscard]] int class_count( int class_id ) const;
+    [[nodiscard]] int class_count(int class_id) const;
 
     /// Id of the value named value within the classification identified
     /// by class_id, creating it if create is set and no such value yet exists.
-    int class_value_id( int class_id, const std::string &value, int create );
+    int class_value_id(int class_id, const std::string& value, int create);
 
     /// Name of the value identified by value_id within the classification
     /// identified by class_id.
-    [[nodiscard]] std::string class_value( int class_id, int value_id ) const;
+    [[nodiscard]] std::string class_value(int class_id, int value_id) const;
 
     /// Defines the "Order" classification used to record each station's
     /// order, returning its classification id.
@@ -264,32 +261,32 @@ struct network
     [[nodiscard]] int order_count() const;
 
     /// Id of the named order value, creating it if addorder is set.
-    int order_id( const std::string &order, int addorder );
+    int order_id(const std::string& order, int addorder);
 
     /// Name of the order value identified by orderid.
-    [[nodiscard]] std::string order( int orderid ) const;
+    [[nodiscard]] std::string order(int orderid) const;
 
     /// The order classification value id assigned to stn, or 0 if this
     /// network has no order classification defined.
-    int station_order( station *stn ) const;
+    int station_order(station* stn) const;
 
-    std::optional<std::string> name;   /* Name of network, or nullopt if never set */
-    std::string   crdsysdef;     /* Definition of the coordinate system */
-    station_list *stnlist;       /* List of stations */
-    coordsys     *crdsys;        /* Parameters of the coordinate system */
-    coordsys     *geosys;        /* Parameters of the related geodetic system */
-    coord_conversion ccnet;      /* Coord conversion to network */
-    coord_conversion ccgeo;      /* Coord conversion to geodetic */
-    double       topolat;        /* Definition of the topocentre */
-    double       topolon;
-    char         got_topocentre;
-    char         options;        /* Flags availability of info about geoid */
-    int          orderclsid;     /* Classification id used for station orders */
-    classifications stnclasses;  /* Array of classifications used for stations */
-    stationfunc  initstation;    /* Function called when a station is added */
-    stationfunc  uninitstation;  /* Function called when a station is deleted */
+    std::optional<std::string> name; /* Name of network, or nullopt if never set */
+    std::string crdsysdef;           /* Definition of the coordinate system */
+    station_list* stnlist;           /* List of stations */
+    coordsys* crdsys;                /* Parameters of the coordinate system */
+    coordsys* geosys;                /* Parameters of the related geodetic system */
+    coord_conversion ccnet;          /* Coord conversion to network */
+    coord_conversion ccgeo;          /* Coord conversion to geodetic */
+    double topolat;                  /* Definition of the topocentre */
+    double topolon;
+    char got_topocentre;
+    char options;               /* Flags availability of info about geoid */
+    int orderclsid;             /* Classification id used for station orders */
+    classifications stnclasses; /* Array of classifications used for stations */
+    stationfunc initstation;    /* Function called when a station is added */
+    stationfunc uninitstation;  /* Function called when a station is deleted */
 
-private:
+ private:
     /// Sets every field except the station callbacks to the value the
     /// constructor gives it. Does not free stnlist, crdsys or geosys, so
     /// only call it once they have been freed or handed to another network.
@@ -300,13 +297,13 @@ private:
 
 /* Network options flags */
 
-#define NW_GEOID_HEIGHTS       1
-#define NW_DEFLECTIONS         2
+#define NW_GEOID_HEIGHTS 1
+#define NW_DEFLECTIONS 2
 #define NW_ELLIPSOIDAL_HEIGHTS 4
-#define NW_EXPLICIT_GEOID      8
-#define NW_GEOID_INFO          (NW_GEOID_HEIGHTS | NW_DEFLECTIONS)
-#define NW_DEC_DEGREES        16
-#define NW_EXPLICIT_HGT_TYPE  32
+#define NW_EXPLICIT_GEOID 8
+#define NW_GEOID_INFO (NW_GEOID_HEIGHTS | NW_DEFLECTIONS)
+#define NW_DEC_DEGREES 16
+#define NW_EXPLICIT_HGT_TYPE 32
 
 #define STATION_ORDER_CLASS_NAME "Order"
 
@@ -319,9 +316,9 @@ private:
 // Update class information for existing marks (if not overwrite)
 #define NW_MERGEOPT_CLASSES 16
 // Update coordinates for existing marks (if not overwrite)
-#define NW_MERGEOPT_COORDS  32
+#define NW_MERGEOPT_COORDS 32
 // Update geoid info as well as crd info for existing marks (if not overwrite)
-#define NW_MERGEOPT_EXU  64
+#define NW_MERGEOPT_EXU 64
 // Update all info
 #define NW_MERGEOPT_UPDATE (NW_MERGEOPT_CLASSES | NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU)
 
@@ -336,15 +333,20 @@ private:
  *                        branch" format
  */
 
-#define NW_READOPT_CALCHGTREF      1 
-#define NW_READOPT_GBFORMAT       16
+#define NW_READOPT_CALCHGTREF 1
+#define NW_READOPT_GBFORMAT 16
 
 /*----------------------------------------------------------------------
  * Function to process stations
  */
 
-using stnfunc = void (*)(station *st, void *data);
-struct stnmultifunc_data { void *data1; stnfunc func1; void *data2; stnfunc func2; };
+using stnfunc = void (*)(station* st, void* data);
+struct stnmultifunc_data {
+    void* data1;
+    stnfunc func1;
+    void* data2;
+    stnfunc func2;
+};
 
 /*------------------------------------------------------------------------
 
@@ -359,12 +361,12 @@ List of station/network functions supplied by the library
 /// Deletes a station allocated with new, including its station offset data
 /// (ts), which the station destructor does not free because copies of a
 /// station share the ts pointer.
-void    delete_station( station *st );
+void delete_station(station* st);
 
-void    stnmultifunc( station *st, void *data );
+void stnmultifunc(station* st, void* data);
 
-void    dump_station( station *s, FILE *bin );
-station *reload_station( FILE *bin );
+void dump_station(station* s, FILE* bin);
+station* reload_station(FILE* bin);
 
 /*-------------------------------------------------------------------*/
 /* Geodetic calculations using stations.  These routines calculate various
@@ -376,80 +378,70 @@ station *reload_station( FILE *bin );
 
 /* Latitude, longitude, orthometric height */
 
-double calc_lat( station *st, vector3 dst ) ;
-double calc_lon( station *st, vector3 dst ) ;
-double calc_ohgt( station *st, double hgt, vector3 dst ) ;
-double calc_ehgt( station *st, double hgt, vector3 dst ) ;
-
+double calc_lat(station* st, vector3 dst);
+double calc_lon(station* st, vector3 dst);
+double calc_ohgt(station* st, double hgt, vector3 dst);
+double calc_ehgt(station* st, double hgt, vector3 dst);
 
 /* Geocentric X, Y, Z */
 
-double calc_x( station *st, vector3 dst ) ;
-double calc_y( station *st, vector3 dst ) ;
-double calc_z( station *st, vector3 dst ) ;
+double calc_x(station* st, vector3 dst);
+double calc_y(station* st, vector3 dst);
+double calc_z(station* st, vector3 dst);
 
 /* Slope distance (metres) */
 
-double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
-                      vector3 dst1, vector3 dst2 );
+double calc_distance(station* st1, double hgt1, station* st2, double hgt2, vector3 dst1, vector3 dst2);
 
 /* Horizontal distance (metres), ie at mean height of marks */
 
-double calc_horizontal_distance( station *st1, station *st2,
-                                 vector3 dst1, vector3 dst2 );
+double calc_horizontal_distance(station* st1, station* st2, vector3 dst1, vector3 dst2);
 /* Ellipsoidal distance (metres) */
 
-double calc_ellipsoidal_distance( station *st1, station *st2,
-                                  vector3 dst1, vector3 dst2 );
+double calc_ellipsoidal_distance(station* st1, station* st2, vector3 dst1, vector3 dst2);
 
 /* Sea level distance (metres) */
 
-double calc_msl_distance( station *st1, station *st2,
-                          vector3 dst1, vector3 dst2 );
+double calc_msl_distance(station* st1, station* st2, vector3 dst1, vector3 dst2);
 
 /* Azimuth (radians) - use gravitational reference frame if usegrav is
    true, ow use topocentric frame */
 
-double calc_azimuth( station *st1, double hgt1, station *st2, double hgt2,
-                     int usegrav, vector3 dst1, vector3 dst2 );
+double calc_azimuth(station* st1, double hgt1, station* st2, double hgt2, int usegrav, vector3 dst1, vector3 dst2);
 
 /* Projection azimuth (radians) */
 
-double calc_prj_azimuth( network *net, station *st1, double hgt1, station *st2, double hgt2,
-                         vector3 dst1, vector3 dst2 );
+double calc_prj_azimuth(network* net, station* st1, double hgt1, station* st2, double hgt2, vector3 dst1, vector3 dst2);
 
 /* Zenith distance (radians) */
 
-double calc_zenith_dist( station *st1, double hgt1, station *st2, double hgt2,
-                         vector3 dst1, vector3 dst2 );
+double calc_zenith_dist(station* st1, double hgt1, station* st2, double hgt2, vector3 dst1, vector3 dst2);
 
 /* Orthometric height difference (metres) */
 
-double calc_hgt_diff( station *st1, double hgt1, station *st2, double hgt2,
-                      vector3 dst1, vector3 dst2 ) ;
+double calc_hgt_diff(station* st1, double hgt1, station* st2, double hgt2, vector3 dst1, vector3 dst2);
 
 /* Vector difference (metres, geocentric XYZ) */
 
-void calc_vec_dif( station *st1, double hgt1, station *st2, double hgt2 ,
-                   vector3 dif, vector3 dst1[3], vector3 dst2[3] );
+void calc_vec_dif(station* st1, double hgt1, station* st2, double hgt2, vector3 dif, vector3 dst1[3], vector3 dst2[3]);
 
 /* Vector difference (metres, geocentric XYZ) */
 
-void calc_xyz( station *st1, double hgt1, vector3 xyz, vector3 dst1[3] );
+void calc_xyz(station* st1, double hgt1, vector3 xyz, vector3 dst1[3]);
 
 /* Calculate the ellipsoidal chord to arc correction as a ppm factor */
 
-double ellipsoidal_distance_correction( station *st1, station *st2 );
+double ellipsoidal_distance_correction(station* st1, station* st2);
 
 /*-------------------------------------------------------------------*/
 /* Managing a station list.. */
 
-station_list *new_station_list( void );
-void    delete_station_list( station_list *sl );
+station_list* new_station_list(void);
+void delete_station_list(station_list* sl);
 
-void    sl_add_station( station_list *sl, station *st );
-void    sl_add_station_at_id( station_list *sl, station *st );
-void    sl_remove_station( station_list *sl, station *st );
+void sl_add_station(station_list* sl, station* st);
+void sl_add_station_at_id(station_list* sl, station* st);
+void sl_remove_station(station_list* sl, station* st);
 
 /* Reindex stations packs list after removing stations.  Station ids will change.
  * Returns number of spaces removed. */
@@ -457,72 +449,68 @@ void    sl_remove_station( station_list *sl, station *st );
  * if reindex is non-zero then station list will be reindexed after removal. 
  * Returns number of stations removed */
 
-int    sl_reindex_stations( station_list *sl );
-int    sl_remove_duplicate_stations( station_list *sl, int reindex, 
-           void *data, stnfunc function );
+int sl_reindex_stations(station_list* sl);
+int sl_remove_duplicate_stations(station_list* sl, int reindex, void* data, stnfunc function);
 
-int   sl_find_station( station_list *sl, std::string_view code );
-int   sl_station_id( station_list *sl, station *st );
-station *sl_station_ptr( station_list *sl, int stnindex );
+int sl_find_station(station_list* sl, std::string_view code);
+int sl_station_id(station_list* sl, station* st);
+station* sl_station_ptr(station_list* sl, int stnindex);
 
 /* Integer pointer to sorted index, and corresponding station  */
 
-int sl_find_station_sorted_id( station_list *sl, std::string_view code );
-station *sl_station_sorted_ptr( station_list *sl, int istn );
+int sl_find_station_sorted_id(station_list* sl, std::string_view code);
+station* sl_station_sorted_ptr(station_list* sl, int istn);
 
 /* Iterator, sorted or not */
 
-void    sl_reset_station_list( station_list *sl, int sorted );
-station *sl_next_station( station_list *sl );
+void sl_reset_station_list(station_list* sl, int sorted);
+station* sl_next_station(station_list* sl);
 
 /* Process stations in sorted order */
 
-void    sl_process_stations( station_list *sl, void *data, stnfunc function );
+void sl_process_stations(station_list* sl, void* data, stnfunc function);
 
-int   sl_number_of_stations( station_list *sl );
+int sl_number_of_stations(station_list* sl);
 
-void    dump_station_list( station_list *sl, FILE *f );
-station_list *reload_station_list( FILE *f );
+void dump_station_list(station_list* sl, FILE* f);
+station_list* reload_station_list(FILE* f);
 
 /* Station code comparison function */
 
-int stncodecmp( std::string_view s1, std::string_view s2 );
+int stncodecmp(std::string_view s1, std::string_view s2);
 
 /// Orders station codes as stncodecmp does. Transparent so that maps can be searched by string_view.
-struct station_code_order
-{
+struct station_code_order {
     using is_transparent = void;
-    bool operator()( std::string_view code1, std::string_view code2 ) const
-    {
-        return stncodecmp( code1, code2 ) < 0;
+    bool operator()(std::string_view code1, std::string_view code2) const {
+        return stncodecmp(code1, code2) < 0;
     }
 };
 
 /* Functions for processing station offsets */
 
-int station_has_offset( station *st );
-int station_offset_is_deformation( station *st );
-void calc_station_offset( station *st, double date, double denu[3] );
-void print_station_offset( FILE *lst, station *st );
+int station_has_offset(station* st);
+int station_offset_is_deformation(station* st);
+void calc_station_offset(station* st, double date, double denu[3]);
+void print_station_offset(FILE* lst, station* st);
 
 /*------------------------------------------------------------------*/
 /* The network                                                      */
 
-network *new_network( void );
+network* new_network(void);
 /* Set the function hook called when network station is created or removed.
  * If nw is NULL then sets default values that are used for a new network.
  */
-void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc );
-void delete_network( network *nw );
+void set_network_initstn_func(network* nw, stationfunc initfunc, stationfunc uninitfunc);
+void delete_network(network* nw);
 
-int read_network( network *nw, std::string_view filename, int options );
+int read_network(network* nw, std::string_view filename, int options);
 /// Writes the network's stations to a coordinate file.  An empty comment is
 /// not written.
-int write_network( network *nw, const std::string &filename, std::string_view comment,
-                   int coord_precision, int (*select)(station *st) );
+int write_network(network* nw, const std::string& filename, std::string_view comment, int coord_precision,
+                  int (*select)(station* st));
 
-int merge_network( network *base, network *data, int mergeopts,
-                   double mergedate, int (*select)(station *code) );
+int merge_network(network* base, network* data, int mergeopts, double mergedate, int (*select)(station* code));
 
 /* set_network_coordsys.  Returns OK if succeeds.  Otherwise network is unaltered
  * hgtfixopt is one of the NW_HGTFIXEDOPT_ values.
@@ -530,97 +518,88 @@ int merge_network( network *base, network *data, int mergeopts,
  * otherwise errmsg is not altered.
  */
 
-int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, std::string &errmsg );
-void    set_network_name( network *nw, const std::string &name );
+int set_network_coordsys(network* nw, coordsys* cs, double epoch, int hgtfixopt, std::string& errmsg);
+void set_network_name(network* nw, const std::string& name);
 
-station * new_network_station( network *nw,
-                               std::string_view code, std::string_view Name,
-                               double Lat, double Lon, double Hgt,
-                               double Xi, double Eta, double Und );
+station* new_network_station(network* nw, std::string_view code, std::string_view Name, double Lat, double Lon,
+                             double Hgt, double Xi, double Eta, double Und);
 
-station * duplicate_network_station(  network *nw,
-            station *st,
-            std::string_view newcode,
-            std::string_view name
-        );
+station* duplicate_network_station(network* nw, station* st, std::string_view newcode, std::string_view name);
 
-void    modify_network_station_coords( network *nw, station *st, double Lat,
-                                       double Lon, double Hgt );
+void modify_network_station_coords(network* nw, station* st, double Lat, double Lon, double Hgt);
 
 /* Remove duplicate stations based on station code. 
  * Calls function for removed stations (which are not deleted, * just removed from list).  
  * If reindex is non-zero then reindex list after removal, 
  * which changes station ids. Returns INCONSISTENT_DATA if stations are removed. */
 
-int remove_duplicate_network_stations( network *nw, int reindex, void *data, stnfunc function );
+int remove_duplicate_network_stations(network* nw, int reindex, void* data, stnfunc function);
 
 /* Calculate geoid info from a coordinate system vertical datum 
  * for all stations.  Assumes that the coordinate system is based on the 
  * geocentric coordinate system matching the station coordinates. */
 /* For library use only, fixed_height_type one of the NW_HGTFIXOPT... defines */
 
-int calculate_network_coordsys_geoid( network *nw, int errlevel );
-int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel );
+int calculate_network_coordsys_geoid(network* nw, int errlevel);
+int calc_station_geoid_info_from_coordsys(network* nw, coordsys* cs, int fixed_height_type, int errlevel);
 
 /* set_network_geoid errlevel can be OK, no error, INFO_ERROR, or WARNING_DATA */
 /* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */
 /* Returns INVALID_DATA if geoid not defined or invalid coordinate system */
 
-int set_network_geoid( network *nw, const std::optional<std::string> &geoid, int fixed_height_type, int errlevel );
-int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, int errlevel );
+int set_network_geoid(network* nw, const std::optional<std::string>& geoid, int fixed_height_type, int errlevel);
+int set_network_geoid_def(network* nw, geoid_def* gd, int fixed_height_type, int errlevel);
 
 /* Network has explicit geoid information? */
 
-int network_has_explicit_geoid_info( network *nw );
-int network_has_geoid_info( network *nw );
+int network_has_explicit_geoid_info(network* nw);
+int network_has_geoid_info(network* nw);
 
 /* Note: set/clear explicit geoid info do not change station geoid
  * info, they just change the flags on the network, which will affect
  * what information is written to a coordinate file.
  */
 
-void set_network_explicit_geoid_info( network *nw, char geoid_opts );
-void clear_network_explicit_geoid_info( network *nw );
-
+void set_network_explicit_geoid_info(network* nw, char geoid_opts);
+void clear_network_explicit_geoid_info(network* nw);
 
 /* Set the network input output height type */
 
-int network_height_coord_is_ellipsoidal( network *nw );
-void set_network_height_coord_ellipsoidal( network *nw );
-void set_network_height_coord_orthometric( network *nw );
+int network_height_coord_is_ellipsoidal(network* nw);
+void set_network_height_coord_ellipsoidal(network* nw);
+void set_network_height_coord_orthometric(network* nw);
 
 /* Read station offset definition file */
 
-int read_network_station_offsets( network *nw, std::string_view filename );
+int read_network_station_offsets(network* nw, std::string_view filename);
 
 /* add_station only to be used by network routines .. use new_network_station */
-int   add_station( network *nw, station *st );
+int add_station(network* nw, station* st);
 
-void    remove_station( network *nw, station *st );
+void remove_station(network* nw, station* st);
 
-int   find_station( network *nw, std::string_view code );
-int station_id( network *nw, station *st );
-station *station_ptr( network *nw, int stnindex );
+int find_station(network* nw, std::string_view code);
+int station_id(network* nw, station* st);
+station* station_ptr(network* nw, int stnindex);
 
-int   find_station_sorted_id( network *nw, std::string_view code );
-station *station_sorted_ptr( network *nw, int sortedid );
+int find_station_sorted_id(network* nw, std::string_view code);
+station* station_sorted_ptr(network* nw, int sortedid);
 
-void    reset_station_list( network *nw, int sorted );
-station *next_station( network *nw );
+void reset_station_list(network* nw, int sorted);
+station* next_station(network* nw);
 
-void    process_stations( network *nw, void *data, stnfunc function );
+void process_stations(network* nw, void* data, stnfunc function);
 
-int   number_of_stations( network *nw );
+int number_of_stations(network* nw);
 
-void get_network_coordinates( network *nw, station *st, double crd[3] );
+void get_network_coordinates(network* nw, station* st, double crd[3]);
 
-void    set_network_topocentre( network *nw, double lat, double lon );
-void    get_network_topocentre( network *nw, double *lat, double *lon );
-void    get_network_topocentre_xyz( network *nw, double *xyz );
+void set_network_topocentre(network* nw, double lat, double lon);
+void get_network_topocentre(network* nw, double* lat, double* lon);
+void get_network_topocentre_xyz(network* nw, double* xyz);
 
-
-void dump_network( network *nw, FILE *bin );
-network *reload_network( FILE *bin );
+void dump_network(network* nw, FILE* bin);
+network* reload_network(FILE* bin);
 
 /* Initialise an object to hold station selection criteria */
 /* If maxstn is greater than zero then the criteria have a selection cache installed 
@@ -628,16 +607,16 @@ network *reload_network( FILE *bin );
  * station once in any case!
  */
 
-void *new_station_criteria();
+void* new_station_criteria();
 
 /* Delete the selection criteria object */
 
-void delete_station_criteria( void *psc );
+void delete_station_criteria(void* psc);
 
 /* Add a cache to existing station criteria */
 /* No-op if cache already installed */
 
-void setup_station_criteria_cache( void *psc, int maxstn );
+void setup_station_criteria_cache(void* psc, int maxstn);
 
 /* Compile selection criteria into the station_criteria object
  * Possible criteria are:
@@ -652,31 +631,27 @@ void setup_station_criteria_cache( void *psc, int maxstn );
  *    except ...        don't match following stations/criteria on the line
  */
 
-int  compile_station_criteria( void *psc, network *nw, const std::string &select, const std::string &basefile );
+int compile_station_criteria(void* psc, network* nw, const std::string& select, const std::string& basefile);
 
 /* Check if a station matches the criteria */
 
-bool station_criteria_match( void *psc, station *stn );
+bool station_criteria_match(void* psc, station* stn);
 
 /* Check station criteria codes are valid.  Tests each station not already
  * tested against network, and returns stations based on selection criteria 
  * specifications for handling of missing station codes 
  */
 
-int check_station_criteria_codes( void *psc, network *nw );
+int check_station_criteria_codes(void* psc, network* nw);
 
 /* Apply station criteria to a network - processes each matching station with a function */
 
-void apply_station_criteria_to_network( void *psc, network *nw, 
-    void *data, stnfunc function);
+void apply_station_criteria_to_network(void* psc, network* nw, void* data, stnfunc function);
 
 /* Process selected stations - compiles and applies station criteria in
  * a single function */
 
-int process_selected_stations( network *nw, const std::string &select, const std::string &basefile,
-        void *data, stnfunc function);
+int process_selected_stations(network* nw, const std::string& select, const std::string& basefile, void* data,
+                              stnfunc function);
 
 #endif /* NETWORK_H not defined */
-
-
-

@@ -24,21 +24,20 @@
 #include <optional>
 #include <string_view>
 
-using hLinzDefModel = void *;
+using hLinzDefModel = void*;
 
-StatusType utlCreateLinzDef( hBinSrc blob, hLinzDefModel *def );
+StatusType utlCreateLinzDef(hBinSrc blob, hLinzDefModel* def);
 
-StatusType utlReleaseLinzDef( hLinzDefModel def );
+StatusType utlReleaseLinzDef(hLinzDefModel def);
 
-StatusType utlSetLinzDefVersion( hLinzDefModel def, std::string_view version );
+StatusType utlSetLinzDefVersion(hLinzDefModel def, std::string_view version);
 
-StatusType utlLinzDefCoordSysDef( hLinzDefModel def, std::string_view &crdsys );
+StatusType utlLinzDefCoordSysDef(hLinzDefModel def, std::string_view& crdsys);
 
 /* nTitle = 1 for name, 2 for description, 3 for version */
 
-StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, std::optional<std::string_view> &title );
+StatusType utlLinzDefTitle(hLinzDefModel def, int nTitle, std::optional<std::string_view>& title);
 
-StatusType utlCalcLinzDef( hLinzDefModel def, double date, double x, double y,
-                           double * value);
+StatusType utlCalcLinzDef(hLinzDefModel def, double date, double x, double y, double* value);
 
 #endif /* DBL4_UTL_LNZDEF_H not defined */

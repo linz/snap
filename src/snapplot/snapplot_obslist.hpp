@@ -3,29 +3,28 @@
 
 #include "wxtabbedtextgrid.hpp"
 
-class SnapplotObsSource : public wxTabbedTextSource
-{
-public:
+class SnapplotObsSource : public wxTabbedTextSource {
+ public:
     SnapplotObsSource();
     ~SnapplotObsSource() override;
     std::string GetHeader() override;
     int GetRowCount() override;
-    std::string GetRow( int i ) override;
+    std::string GetRow(int i) override;
 };
 
-class SnapplotObsList : public wxTabbedTextGrid
-{
-public:
-    SnapplotObsList( wxWindow* parent, wxWindowID id );
+class SnapplotObsList : public wxTabbedTextGrid {
+ public:
+    SnapplotObsList(wxWindow* parent, wxWindowID id);
     ~SnapplotObsList() override;
     void Reload();
-private:
-    void OnCellLeftClick( wxGridEvent &event );
-    void OnCellLeftDClick( wxGridEvent &event );
-    void OnLabelLeftClick( wxGridEvent &event );
-    void OnLabelRightClick( wxGridEvent &event );
-    void OnRowSelected( wxCommandEvent &event );
-    void OnSetFocus( wxFocusEvent &event );
+
+ private:
+    void OnCellLeftClick(wxGridEvent& event);
+    void OnCellLeftDClick(wxGridEvent& event);
+    void OnLabelLeftClick(wxGridEvent& event);
+    void OnLabelRightClick(wxGridEvent& event);
+    void OnRowSelected(wxCommandEvent& event);
+    void OnSetFocus(wxFocusEvent& event);
     SnapplotObsSource source;
     DECLARE_EVENT_TABLE();
 };

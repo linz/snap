@@ -17,7 +17,6 @@
 #include "dbl4_types.h"
 #endif
 
-StatusType utlCheckAbort( void );
-
+StatusType utlCheckAbort(void);
 
 #endif /* DBL4_UTL_YIELD_H not defined */

@@ -8,8 +8,8 @@
 
 */
 
-void init_readdata( void );
-void term_readdata( void );
-void load_connections( void );
+void init_readdata(void);
+void term_readdata(void);
+void load_connections(void);
 
 #endif

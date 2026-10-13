@@ -37,21 +37,19 @@
 #include "util/fileutil.h"
 #include "util/xprintf.h"
 
-#define PLURAL(d) ( ((d)>1) ? "s" : "" )
+#define PLURAL(d) (((d) > 1) ? "s" : "")
 
 // #pragma warning ( disable : 4100 )
 
-static bool datafile_progress( DATAFILE & )
-{
+static bool datafile_progress(DATAFILE&) {
     update_file_display();
     return true;
 }
 // #pragma warning ( default : 4100 )
 
-long read_data_files( FILE *lst )
-{
+long read_data_files(FILE* lst) {
     std::unique_ptr<DATAFILE> d;
-    survey_data_file *sd;
+    survey_data_file* sd;
     int i;
     int c;
     int nfile;
@@ -60,159 +58,141 @@ long read_data_files( FILE *lst )
     long total_errors;
     long misc_errors;
     stn_recode_data recodedata;
-    file_context *saved_context = current_file_context();
+    file_context* saved_context = current_file_context();
 
     nfile = survey_data_file_count();
-    if( nfile <= 0 ) { return 0;
-}
+    if (nfile <= 0) {
+        return 0;
+    }
 
-    recodedata.global_map=stnrecode;
-    recodedata.net=net;
+    recodedata.global_map = stnrecode;
+    recodedata.net = net;
 
-    total_errors=0;
+    total_errors = 0;
 
-    for( i = 0; i < nfile; i++ )
-    {
-        if( obsmod_ignore_datafile( obs_modifications, i )) { continue;
-}
-
-        sd = survey_data_file_ptr(i);
-
-        set_file_context( sd->context );
-
-        const std::string &filename = sd->name;
-
-        d = DATAFILE::open( filename, "survey data file" );
-        if( !d )
-        {
-            xprintf("\n   Unable to open data file %s\n",sd->name.c_str());
+    for (i = 0; i < nfile; i++) {
+        if (obsmod_ignore_datafile(obs_modifications, i)) {
             continue;
         }
 
-        if( sd->recodefile.has_value() && ! sd->recode )
-        {
-            sd->recode=create_stn_recode_map( net );
-            sts = read_station_recode_file( sd->recode, *sd->recodefile, filename );
-            if( sts != OK )
-            {
-                xprintf("\n   Unable to read station recode file %s\n",sd->recodefile->c_str());
+        sd = survey_data_file_ptr(i);
+
+        set_file_context(sd->context);
+
+        const std::string& filename = sd->name;
+
+        d = DATAFILE::open(filename, "survey data file");
+        if (!d) {
+            xprintf("\n   Unable to open data file %s\n", sd->name.c_str());
+            continue;
+        }
+
+        if (sd->recodefile.has_value() && !sd->recode) {
+            sd->recode = create_stn_recode_map(net);
+            sts = read_station_recode_file(sd->recode, *sd->recodefile, filename);
+            if (sts != OK) {
+                xprintf("\n   Unable to read station recode file %s\n", sd->recodefile->c_str());
                 total_errors++;
                 continue;
             }
         }
 
-        recodedata.file_map=sd->recode;
-        if( recodedata.global_map || recodedata.file_map )
-        {
-            set_stn_recode_func( recoded_network_station, &recodedata );
-        }
-        else
-        {
-            set_stn_recode_func( nullptr, nullptr );
+        recodedata.file_map = sd->recode;
+        if (recodedata.global_map || recodedata.file_map) {
+            set_stn_recode_func(recoded_network_station, &recodedata);
+        } else {
+            set_stn_recode_func(nullptr, nullptr);
         }
 
-        for( c = 0; c < NOBSTYPE; c++ ) { sd->obscount[c] = 0;
-}
-        sd->mindate=sd->maxdate=UNDEFINED_DATE;
-        sd->nnodate=0;
+        for (c = 0; c < NOBSTYPE; c++) {
+            sd->obscount[c] = 0;
+        }
+        sd->mindate = sd->maxdate = UNDEFINED_DATE;
+        sd->nnodate = 0;
 
-        xprintf("\n   Reading data from %s\n",sd->name.c_str());
-        if( lst )
-        {
-            fprintf(lst,"\nData file %d: %s\n",(int) (i+1),sd->name.c_str());
+        xprintf("\n   Reading data from %s\n", sd->name.c_str());
+        if (lst) {
+            fprintf(lst, "\nData file %d: %s\n", (int)(i + 1), sd->name.c_str());
         }
 
-        misc_errors=get_error_count();
-        ldt_init_obs_modifications( obs_modifications );
-        ldt_file( i );
-        init_file_display( d->file() );
-        switch( sd->format )
-        {
-        case GB_FORMAT:
-            read_gb_data( *d, datafile_progress);
-            break;
-        case SNAP_FORMAT:
-            read_snap_data( *d, datafile_progress );
-            break;
-        case CSV_FORMAT:
-            load_snap_csv_obs( sd->subtype.value_or(""), *d, datafile_progress );
-            break;
-        case SINEX_FORMAT:
-            load_sinex_obs( sd->subtype.value_or(""), *d, datafile_progress );
-            break;
-        default:
-            handle_error( INTERNAL_ERROR, "Program error: Invalid file format",
-                          "Occurred in read_data_files");
-            break;
+        misc_errors = get_error_count();
+        ldt_init_obs_modifications(obs_modifications);
+        ldt_file(i);
+        init_file_display(d->file());
+        switch (sd->format) {
+            case GB_FORMAT:
+                read_gb_data(*d, datafile_progress);
+                break;
+            case SNAP_FORMAT:
+                read_snap_data(*d, datafile_progress);
+                break;
+            case CSV_FORMAT:
+                load_snap_csv_obs(sd->subtype.value_or(""), *d, datafile_progress);
+                break;
+            case SINEX_FORMAT:
+                load_sinex_obs(sd->subtype.value_or(""), *d, datafile_progress);
+                break;
+            default:
+                handle_error(INTERNAL_ERROR, "Program error: Invalid file format", "Occurred in read_data_files");
+                break;
         }
         end_file_display();
 
-        if( lst )
-        {
-            if( sd->mindate != UNDEFINED_DATE )
-            {
-                fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,DateStringFormat::timeIfNotMidnight).c_str());
-                fprintf(lst," and %s\n",date_as_string(sd->maxdate,DateStringFormat::timeIfNotMidnight).c_str());
+        if (lst) {
+            if (sd->mindate != UNDEFINED_DATE) {
+                fprintf(lst, "    Observations between %s",
+                        date_as_string(sd->mindate, DateStringFormat::timeIfNotMidnight).c_str());
+                fprintf(lst, " and %s\n", date_as_string(sd->maxdate, DateStringFormat::timeIfNotMidnight).c_str());
             }
-            if( sd->nnodate > 0 )
-            {
-                fprintf(lst,"    %4ld observations do not have a date\n",sd->nnodate);
+            if (sd->nnodate > 0) {
+                fprintf(lst, "    %4ld observations do not have a date\n", sd->nnodate);
             }
-            for( c = 0; c < NOBSTYPE; c++ )
-            {
-                if( sd->obscount[c] )
-                {
-                    xprintf("        %4ld %s%s\n",sd->obscount[c],
-                            datatype[c].name.data(),PLURAL(sd->obscount[c]) );
-                    if( lst ) {
-                        fprintf(lst,"    %4ld %s%s\n",sd->obscount[c],
-                                datatype[c].name.data(),PLURAL(sd->obscount[c]) );
-}
+            for (c = 0; c < NOBSTYPE; c++) {
+                if (sd->obscount[c]) {
+                    xprintf("        %4ld %s%s\n", sd->obscount[c], datatype[c].name.data(), PLURAL(sd->obscount[c]));
+                    if (lst) {
+                        fprintf(lst, "    %4ld %s%s\n", sd->obscount[c], datatype[c].name.data(),
+                                PLURAL(sd->obscount[c]));
+                    }
                 }
             }
-            
-            if( sd->recode && recodes_used( sd->recode ) )
-            {
-                fprintf(lst,"    Recoding stations:\n");
-                print_stn_recode_list( lst, sd->recode, true, stn_name_width, "    ");
+
+            if (sd->recode && recodes_used(sd->recode)) {
+                fprintf(lst, "    Recoding stations:\n");
+                print_stn_recode_list(lst, sd->recode, true, stn_name_width, "    ");
             }
         }
 
         file_errors = d->error_count();
-        misc_errors=get_error_count()-misc_errors;
-        if( misc_errors < 0 ) { misc_errors=0;
-}
+        misc_errors = get_error_count() - misc_errors;
+        if (misc_errors < 0) {
+            misc_errors = 0;
+        }
         total_errors += file_errors = misc_errors;
-        if( file_errors )
-        {
-            xprintf("   *** %ld error%s reading the file\n",file_errors,
-                    PLURAL(file_errors) );
+        if (file_errors) {
+            xprintf("   *** %ld error%s reading the file\n", file_errors, PLURAL(file_errors));
 
-            if( lst ) {
-                fprintf(lst,"   *** %ld error%s reading the file\n",file_errors,
-                        PLURAL(file_errors) );
-}
+            if (lst) {
+                fprintf(lst, "   *** %ld error%s reading the file\n", file_errors, PLURAL(file_errors));
+            }
         }
 
-        if( sd->recode ) 
-        {
-            delete_stn_recode_map( sd->recode );
+        if (sd->recode) {
+            delete_stn_recode_map(sd->recode);
             sd->recode = nullptr;
         }
 
         d.reset();
     }
-    set_file_context( saved_context );
+    set_file_context(saved_context);
 
-    set_stn_recode_func( nullptr, nullptr );
+    set_stn_recode_func(nullptr, nullptr);
 
-    sts=check_obsmod_station_criteria_codes( obs_modifications, net );
-    if( sts >= WARNING_ERROR )
-    {
+    sts = check_obsmod_station_criteria_codes(obs_modifications, net);
+    if (sts >= WARNING_ERROR) {
         total_errors++;
-        if( lst )
-        {
-            fprintf(lst,"\nErrors found in station lists in reweight/reject/ignore observations\n");
+        if (lst) {
+            fprintf(lst, "\nErrors found in station lists in reweight/reject/ignore observations\n");
         }
     }
     return total_errors;
@@ -220,25 +200,17 @@ long read_data_files( FILE *lst )
 
 // #pragma warning(disable: 4100)
 
-void count_obs( int type, int ifile, double date, char )
-{
-    survey_data_file *sd=survey_data_file_ptr(ifile);
+void count_obs(int type, int ifile, double date, char) {
+    survey_data_file* sd = survey_data_file_ptr(ifile);
     sd->obscount[type]++;
-    if( date == UNDEFINED_DATE )
-    {
+    if (date == UNDEFINED_DATE) {
         sd->nnodate++;
-    }
-    else if( sd->mindate == UNDEFINED_DATE )
-    {
-        sd->mindate=sd->maxdate=date;
-    }
-    else if( date < sd->mindate )
-    {
-        sd->mindate=date;
-    }
-    else if( date > sd->maxdate )
-    {
-        sd->maxdate=date;
+    } else if (sd->mindate == UNDEFINED_DATE) {
+        sd->mindate = sd->maxdate = date;
+    } else if (date < sd->mindate) {
+        sd->mindate = date;
+    } else if (date > sd->maxdate) {
+        sd->maxdate = date;
     }
     obstypecount[type]++;
 }

@@ -8,8 +8,7 @@
 
 */
 
-struct StationSizeDef
-{
+struct StationSizeDef {
     double symSize;
     double txtSize;
     char symAuto;
@@ -21,6 +20,6 @@ struct StationSizeDef
 #ifdef __cplusplus
 //extern "C"
 #endif
-int EditStationSize( StationSizeDef *def );
+int EditStationSize(StationSizeDef* def);
 
 #endif

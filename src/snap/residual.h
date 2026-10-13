@@ -11,9 +11,9 @@
 #include <cstdint>
 #include <string_view>
 
-std::string_view residual_flag( int unused, int rank, double sres );
-void save_residual( int from, int to, int id, int type,
-                    int file, int line, char unused, int rank, double sres, int64_t loc );
-void print_worst_residuals( FILE *out );
+std::string_view residual_flag(int unused, int rank, double sres);
+void save_residual(int from, int to, int id, int type, int file, int line, char unused, int rank, double sres,
+                   int64_t loc);
+void print_worst_residuals(FILE* out);
 
 #endif

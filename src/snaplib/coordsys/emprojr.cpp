@@ -18,66 +18,53 @@
 #include "coordsys/emproj.h"
 #include "coordsys/emprojr.h"
 
-static param_def emparams[]  =
-{
-    {
-        "Central meridian","CM",OFFSET_OF(cm,EMProjection),
-        read_radians, print_radians, print_longitude
-    },
-    {
-        "Standard parallel","CM",OFFSET_OF(rlat,EMProjection),
-        read_radians, print_radians, print_latitude
-    },
+static param_def emparams[] = {
+    {"Central meridian", "CM", OFFSET_OF(cm, EMProjection), read_radians, print_radians, print_longitude},
+    {"Standard parallel", "CM", OFFSET_OF(rlat, EMProjection), read_radians, print_radians, print_latitude},
 };
 
-static projection_type *em_type = nullptr;
+static projection_type* em_type = nullptr;
 
-
-static int em_bind_ellipsoid( void *data, ellipsoid *el )
-{
-    EMProjection *em;
-    em = (EMProjection *) data;
-    define_EMProjection( em, el->a, el->rf, em->cm, em->rlat );
+static int em_bind_ellipsoid(void* data, ellipsoid* el) {
+    EMProjection* em;
+    em = (EMProjection*)data;
+    define_EMProjection(em, el->a, el->rf, em->cm, em->rlat);
     return OK;
 }
 
-static int em_proj_to_geog( void *data, double e, double n, double *ln, double *lt )
-{
-    em_geod( (EMProjection *) data, e, n, ln, lt );
+static int em_proj_to_geog(void* data, double e, double n, double* ln, double* lt) {
+    em_geod((EMProjection*)data, e, n, ln, lt);
     return OK;
 }
 
-static int em_geog_to_proj( void *data, double ln, double lt, double *e, double *n )
-{
-    geod_em( (EMProjection *) data, ln, lt, e, n );
+static int em_geog_to_proj(void* data, double ln, double lt, double* e, double* n) {
+    geod_em((EMProjection*)data, ln, lt, e, n);
     return OK;
 }
 
-void register_em_projection( void )
-{
-    if( em_type ) { return;
+void register_em_projection(void) {
+    if (em_type) {
+        return;
+    }
+
+    em_type = register_projection_type(
+        new projection_type("EM", "Equatorial Mercator", sizeof(EMProjection), emparams, COUNT_OF(emparams), nullptr,
+                            nullptr, nullptr, em_bind_ellipsoid, nullptr, em_geog_to_proj, em_proj_to_geog, nullptr));
 }
 
-    em_type = register_projection_type( new projection_type(
-        "EM", "Equatorial Mercator", sizeof(EMProjection), emparams, COUNT_OF(emparams),
-        nullptr, nullptr, nullptr, em_bind_ellipsoid, nullptr,
-        em_geog_to_proj, em_proj_to_geog, nullptr ) );
-}
+projection* create_em_projection(double cm, double sp) {
+    projection* prj;
 
-projection *create_em_projection(  double cm, double sp )
-{
-    projection *prj;
+    if (!em_type) {
+        register_em_projection();
+    }
+    if (!em_type) {
+        return nullptr;
+    }
 
-    if( !em_type ) { register_em_projection();
-}
-    if( !em_type ) { return nullptr;
-}
+    prj = new projection(*em_type);
 
-    prj = new projection( *em_type );
-
-    define_EMProjection( (EMProjection *) prj->data, 6378388.0, 297.0,
-                         cm, sp );
+    define_EMProjection((EMProjection*)prj->data, 6378388.0, 297.0, cm, sp);
 
     return prj;
 }
-

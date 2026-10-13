@@ -39,17 +39,15 @@ std::optional<CommandFile> command_file;
 std::optional<std::string> config_file;
 std::optional<std::string> snap_user;
 
-static bool initialised=false;
+static bool initialised = false;
 
-void init_snap_globals()
-{
-    if( initialised ) { return;
-}
-    for( const char *const variable : { "SNAPUSER", "USERNAME", "USER" } )
-    {
-        const char *const value = getenv( variable );
-        if( value )
-        {
+void init_snap_globals() {
+    if (initialised) {
+        return;
+    }
+    for (const char* const variable : {"SNAPUSER", "USERNAME", "USER"}) {
+        const char* const value = getenv(variable);
+        if (value) {
             snap_user = value;
             break;
         }
@@ -78,98 +76,91 @@ void init_snap_globals()
     ignore_deformation = 0;
     deformation = nullptr;
     have_obs_ids = 0;
-    for( int i=0; i<NOBSTYPE; i++ )
-    {
+    for (int i = 0; i < NOBSTYPE; i++) {
         obs_usage[i] = 0;
         obs_errfct[i] = 1.0;
         obstypecount[i] = 0;
         obs_precision[i] = datatype[i].dfltndp;
     }
-    obs_modifications=nullptr;
-    converged=1;
-    last_iteration_max_adjustment=0.0;
-    initialised=true;
+    obs_modifications = nullptr;
+    converged = 1;
+    last_iteration_max_adjustment = 0.0;
+    initialised = true;
 }
 
+std::string CommandFile::_locate(const std::string& name) {
+    if (path_exists(name)) {
+        return name;
+    }
 
-std::string CommandFile::_locate( const std::string &name )
-{
-    if( path_exists( name ) ) { return name;
-}
-
-    constexpr std::array<std::string_view, 3> extensions{ DFLTCOMMAND_EXT, DFLTCOMMAND_EXT2, DFLTCOMMAND_EXT3 };
-    for( const std::string_view extension : extensions )
-    {
+    constexpr std::array<std::string_view, 3> extensions{DFLTCOMMAND_EXT, DFLTCOMMAND_EXT2, DFLTCOMMAND_EXT3};
+    for (const std::string_view extension : extensions) {
         const std::string candidate = std::string(name).append(extension);
-        if( path_exists(candidate) ) { return candidate;
-}
+        if (path_exists(candidate)) {
+            return candidate;
+        }
     }
     return name;
 }
 
-CommandFile::CommandFile( const std::string &name )
-    : path( _locate( name ) ),
-      dir( std::filesystem::path( native_path( path ) ).remove_filename().string() ),
-      root( std::filesystem::path( native_path( path ) ).replace_extension().string() )
-{
+CommandFile::CommandFile(const std::string& name)
+    : path(_locate(name)),
+      dir(std::filesystem::path(native_path(path)).remove_filename().string()),
+      root(std::filesystem::path(native_path(path)).replace_extension().string()) {}
+
+void set_snap_command_file(const std::string& cmd_file) {
+    if (!initialised) {
+        init_snap_globals();
+    }
+    command_file.emplace(cmd_file);
+    push_file_context(command_file->dir);
 }
 
-void set_snap_command_file( const std::string &cmd_file )
-{
-    if( ! initialised ) { init_snap_globals();
-}
-    command_file.emplace( cmd_file );
-    push_file_context( command_file->dir );
-}
-
-
-void set_snap_config_file( const std::string &cfg_file )
-{
-    if( ! initialised ) { init_snap_globals();
-}
+void set_snap_config_file(const std::string& cfg_file) {
+    if (!initialised) {
+        init_snap_globals();
+    }
     config_file = cfg_file;
 }
 
-void *snap_obs_modifications( bool create )
-{
-    if( ! initialised ) { init_snap_globals();
-}
-    if( (! obs_modifications) && create)
-    {
-        obs_modifications=new_obs_modifications( net, &obs_classes );
-        set_obs_modifications_file_func( obs_modifications, survey_data_file_id, survey_data_file_name );
+void* snap_obs_modifications(bool create) {
+    if (!initialised) {
+        init_snap_globals();
+    }
+    if ((!obs_modifications) && create) {
+        obs_modifications = new_obs_modifications(net, &obs_classes);
+        set_obs_modifications_file_func(obs_modifications, survey_data_file_id, survey_data_file_name);
     }
     return obs_modifications;
 }
 
 /// Writes the job title as a JOBTITLELEN+1 byte field, padded with NUL bytes.
-static void write_job_title_field( FILE *const f )
-{
-    std::string field = job_title.substr( 0, JOBTITLELEN );
-    field.resize( JOBTITLELEN+1, '\0' );
-    fwrite( field.data(), field.size(), 1, f );
+static void write_job_title_field(FILE* const f) {
+    std::string field = job_title.substr(0, JOBTITLELEN);
+    field.resize(JOBTITLELEN + 1, '\0');
+    fwrite(field.data(), field.size(), 1, f);
 }
 
 /// Reads the job title from a JOBTITLELEN+1 byte field, up to the first NUL byte.
 /// Returns false, leaving job_title unchanged, if the field cannot be read.
-static bool read_job_title_field( FILE *const f )
-{
-    std::array<char,JOBTITLELEN+1> field{};
-    if( fread( field.data(), field.size(), 1, f ) != 1 ) { return false;
-}
-    const std::string_view text( field.data(), field.size() );
-    job_title = std::string( text.substr( 0, text.find( '\0' ) ) );
+static bool read_job_title_field(FILE* const f) {
+    std::array<char, JOBTITLELEN + 1> field{};
+    if (fread(field.data(), field.size(), 1, f) != 1) {
+        return false;
+    }
+    const std::string_view text(field.data(), field.size());
+    job_title = std::string(text.substr(0, text.find('\0')));
     return true;
 }
 
-void dump_snap_globals( BINARY_FILE *b )
-{
-    if( ! initialised ) { init_snap_globals();
-}
-    create_section( b, "SNAP_GLOBALS" );
+void dump_snap_globals(BINARY_FILE* b) {
+    if (!initialised) {
+        init_snap_globals();
+    }
+    create_section(b, "SNAP_GLOBALS");
 
-    write_job_title_field( b->f );
-    write_run_date_field( b->f, run_time );
+    write_job_title_field(b->f);
+    write_run_date_field(b->f, run_time);
     dump_bin(b, dimension);
     dump_bin(b, program_mode);
     dump_bin_long32(b, nobs);
@@ -191,20 +182,20 @@ void dump_snap_globals( BINARY_FILE *b )
     dump_bin(b, have_obs_ids);
     dump_bin(b, errconflim);
     dump_bin(b, errconfval);
-    end_section( b );
+    end_section(b);
 }
 
+int reload_snap_globals(BINARY_FILE* b) {
+    if (!initialised) {
+        init_snap_globals();
+    }
 
-int reload_snap_globals( BINARY_FILE *b )
-{
-    if( ! initialised ) { init_snap_globals();
-}
+    if (find_section(b, "SNAP_GLOBALS") != OK) {
+        return MISSING_DATA;
+    }
 
-    if( find_section( b, "SNAP_GLOBALS" ) != OK ) { return MISSING_DATA;
-}
-
-    read_job_title_field( b->f );
-    read_run_date_field( b->f, run_time );
+    read_job_title_field(b->f);
+    read_run_date_field(b->f, run_time);
     reload_bin(b, dimension);
     reload_bin(b, program_mode);
     reload_bin_long32(b, nobs);
@@ -223,26 +214,24 @@ int reload_snap_globals( BINARY_FILE *b )
     reload_bin(b, taumax[1]);
     reload_bin(b, coord_precision);
     reload_bin(b, have_obs_ids);
-    if( check_end_section(b) == OK ) { return OK;
-}
+    if (check_end_section(b) == OK) {
+        return OK;
+    }
     reload_bin(b, errconflim);
     reload_bin(b, errconfval);
-    return check_end_section( b );
-}
-
-void dump_obs_classes( BINARY_FILE *b )
-{
-    create_section( b, "OBS_CLASSES" );
-    obs_classes.dump( b->f );
-    end_section(b);
-
-}
-
-int reload_obs_classes( BINARY_FILE *b )
-{
-    if( find_section( b, "OBS_CLASSES") != OK ) { return MISSING_DATA;
-}
-    obs_classes.reload( b->f );
     return check_end_section(b);
 }
 
+void dump_obs_classes(BINARY_FILE* b) {
+    create_section(b, "OBS_CLASSES");
+    obs_classes.dump(b->f);
+    end_section(b);
+}
+
+int reload_obs_classes(BINARY_FILE* b) {
+    if (find_section(b, "OBS_CLASSES") != OK) {
+        return MISSING_DATA;
+    }
+    obs_classes.reload(b->f);
+    return check_end_section(b);
+}

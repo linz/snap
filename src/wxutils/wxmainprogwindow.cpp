@@ -13,23 +13,22 @@
 #include "resources/snap32_icon.xpm"
 #endif
 
-
-BEGIN_EVENT_TABLE( wxMainProgWindow, wxDialog )
-    EVT_BUTTON( wxID_CLOSE, wxMainProgWindow::OnCloseButton )
-    EVT_TEXT_ENTER(wxID_ANY, wxMainProgWindow::OnCloseButton)
-    EVT_CLOSE( wxMainProgWindow::OnClose )
+BEGIN_EVENT_TABLE(wxMainProgWindow, wxDialog)
+EVT_BUTTON(wxID_CLOSE, wxMainProgWindow::OnCloseButton)
+EVT_TEXT_ENTER(wxID_ANY, wxMainProgWindow::OnCloseButton)
+EVT_CLOSE(wxMainProgWindow::OnClose)
 END_EVENT_TABLE()
 
-wxMainProgWindow::wxMainProgWindow( const wxString &title, bool hasProgress, bool reportTimes ) :
-    wxDialog( nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
-              wxCAPTION | wxRESIZE_BORDER | wxSYSTEM_MENU | wxCLOSE_BOX ),
-    hasProgress( hasProgress ),
-    reportTimes ( reportTimes )
-{
-
+wxMainProgWindow::wxMainProgWindow(const wxString& title, bool hasProgress, bool reportTimes)
+    : wxDialog(nullptr, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
+               wxCAPTION | wxRESIZE_BORDER | wxSYSTEM_MENU | wxCLOSE_BOX),
+      hasProgress(hasProgress),
+      reportTimes(reportTimes) {
     // TODO: Fail somehow if already an instance running
 
-    if( instance ) { return; }
+    if (instance) {
+        return;
+    }
 
     wxIconBundle icons;
 #ifdef __WXMSW__
@@ -37,126 +36,113 @@ wxMainProgWindow::wxMainProgWindow( const wxString &title, bool hasProgress, boo
     // explicit size is needed here to still get a distinct small and large icon -
     // wxICON()'s default load just returns whichever frame matches the system's
     // standard large-icon size for both calls.
-    icons.AddIcon( wxIcon(wxT("ICO_SNAP16"), wxBITMAP_TYPE_ICO_RESOURCE, 16, 16) );
-    icons.AddIcon( wxIcon(wxT("ICO_SNAP32"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32) );
+    icons.AddIcon(wxIcon(wxT("ICO_SNAP16"), wxBITMAP_TYPE_ICO_RESOURCE, 16, 16));
+    icons.AddIcon(wxIcon(wxT("ICO_SNAP32"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32));
 #else
-    icons.AddIcon( wxIcon(wxICON(ICO_SNAP16)) );
-    icons.AddIcon( wxIcon(wxICON(ICO_SNAP32)) );
+    icons.AddIcon(wxIcon(wxICON(ICO_SNAP16)));
+    icons.AddIcon(wxIcon(wxICON(ICO_SNAP32)));
 #endif
-    SetIcons( icons );
+    SetIcons(icons);
 
-    wxSizer *sizer = new wxBoxSizer( wxVERTICAL );
+    wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     wxSizerFlags flags;
     flags.Expand().Border();
 
-    logText = new wxTextCtrl( this, wxID_ANY, "",
-                              wxDefaultPosition,
-                              wxSize(GetCharWidth()*85, GetCharHeight()*25),
-                              wxTE_MULTILINE  |
-                              wxHSCROLL       |
-                              // needed for Win32 to avoid 65Kb limit but it doesn't work well
-                              // when using RichEdit 2.0 which we always do in the Unicode build
+    logText = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxSize(GetCharWidth() * 85, GetCharHeight() * 25),
+                             wxTE_MULTILINE | wxHSCROLL |
+    // needed for Win32 to avoid 65Kb limit but it doesn't work well
+    // when using RichEdit 2.0 which we always do in the Unicode build
 #if !wxUSE_UNICODE
-                              wxTE_RICH       |
-#endif // !wxUSE_UNICODE
-                              wxTE_READONLY |
-                              wxTE_PROCESS_ENTER );
+                                 wxTE_RICH |
+#endif  // !wxUSE_UNICODE
+                                 wxTE_READONLY | wxTE_PROCESS_ENTER);
 
     wxSizerFlags flags2;
     flags2.Expand().Border().Proportion(1);
-    sizer->Add( logText, flags2 );
+    sizer->Add(logText, flags2);
 
     progressText = nullptr;
     progressGauge = nullptr;
 
-    if( hasProgress )
-    {
-        sizer->AddSpacer( GetCharHeight() );
+    if (hasProgress) {
+        sizer->AddSpacer(GetCharHeight());
 
-        progressText = 	new wxStaticText( this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
-        sizer->Add( progressText, flags );
+        progressText = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize);
+        sizer->Add(progressText, flags);
 
-        progressGauge = new wxGauge( this, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL | wxGA_SMOOTH );
-        sizer->Add( progressGauge, flags);
+        progressGauge =
+            new wxGauge(this, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL | wxGA_SMOOTH);
+        sizer->Add(progressGauge, flags);
     }
 
-    sizer->AddSpacer( GetCharHeight() );
+    sizer->AddSpacer(GetCharHeight());
     wxSizerFlags flags3;
     flags3.Border().Right();
-    closeButton = new wxButton( this, wxID_CLOSE );
+    closeButton = new wxButton(this, wxID_CLOSE);
     closeButton->SetDefault();
-    sizer->Add( closeButton, flags3 );
+    sizer->Add(closeButton, flags3);
 
-    SetSizerAndFit( sizer );
-
+    SetSizerAndFit(sizer);
 
     running = false;
-    buffer.resize( 1024 );
+    buffer.resize(1024);
     instance = this;
 
     lastUpdate = clock();
 
-    set_printf_target( PrintArgs );
+    set_printf_target(PrintArgs);
 
     progress_meter_def meter;
     meter.init_meter = InitMeter;
     meter.update_meter = UpdateMeter;
     meter.end_meter = EndMeter;
-    install_progress_meter( &meter );
+    install_progress_meter(&meter);
 
-    set_error_handler( ErrorHandler );
-
+    set_error_handler(ErrorHandler);
 }
 
-wxMainProgWindow::~wxMainProgWindow()
-{
-    set_error_handler( default_error_handler );
+wxMainProgWindow::~wxMainProgWindow() {
+    set_error_handler(default_error_handler);
 
     uninstall_progress_meter();
 
-    set_printf_target( nullptr );
+    set_printf_target(nullptr);
 
     instance = nullptr;
 }
 
-void wxMainProgWindow::OnCloseButton( wxCommandEvent & WXUNUSED(event) )
-{
-    if( ! running ) { Close();
-}
+void wxMainProgWindow::OnCloseButton(wxCommandEvent& WXUNUSED(event)) {
+    if (!running) {
+        Close();
+    }
 }
 
-void wxMainProgWindow::OnClose( wxCloseEvent &event )
-{
-    if( running && event.CanVeto() )
-    {
+void wxMainProgWindow::OnClose(wxCloseEvent& event) {
+    if (running && event.CanVeto()) {
         event.Veto();
         return;
     }
-    
-            Destroy();
-   
+
+    Destroy();
 }
 
-void wxMainProgWindow::RunMainProg( int (*mainfunc)( int argc, char *argv[] ))
-{
-    closeButton->Enable( false );
+void wxMainProgWindow::RunMainProg(int (*mainfunc)(int argc, char* argv[])) {
+    closeButton->Enable(false);
     running = true;
 
-    (*mainfunc)( wxTheApp->argc, wxTheApp->argv );
+    (*mainfunc)(wxTheApp->argc, wxTheApp->argv);
 
     running = false;
-    closeButton->Enable( true );
+    closeButton->Enable(true);
     // closeButton->SetDefault();
 }
 
-void wxMainProgWindow::AppendString( const wxString &text )
-{
-
+void wxMainProgWindow::AppendString(const wxString& text) {
     // remove selection (WriteText is in fact ReplaceSelection)
 #ifdef __WXMSW__
     wxTextPos nLen = logText->GetLastPosition();
     logText->SetSelection(nLen, nLen);
-#endif // Windows
+#endif  // Windows
 
     logText->AppendText(text);
 
@@ -164,116 +150,104 @@ void wxMainProgWindow::AppendString( const wxString &text )
     lastUpdate = clock();
 
     // Keep track of the last non-blank line as the header for the progress meter
-    wxStringTokenizer tokens(text,"\n");
-    while( tokens.HasMoreTokens())
-    {
+    wxStringTokenizer tokens(text, "\n");
+    while (tokens.HasMoreTokens()) {
         wxString line = tokens.GetNextToken();
         line.Trim();
-        if( ! line.IsEmpty() ) { lastLine = line;
-}
+        if (!line.IsEmpty()) {
+            lastLine = line;
+        }
     }
 }
 
-int wxMainProgWindow::DoPrintArgs( const char *format, va_list args )
-{
+int wxMainProgWindow::DoPrintArgs(const char* format, va_list args) {
     va_list copy;
-    va_copy(copy,args);
+    va_copy(copy, args);
 
     // The first call may truncate, and only measures the length needed
-    const int required = vsnprintf( buffer.data(), buffer.size(), format, args );
-    if( required >= 0 && buffer.size() < static_cast<size_t>(required) + 1 )
-    {
-        buffer.resize( static_cast<size_t>(required) + 1 );
+    const int required = vsnprintf(buffer.data(), buffer.size(), format, args);
+    if (required >= 0 && buffer.size() < static_cast<size_t>(required) + 1) {
+        buffer.resize(static_cast<size_t>(required) + 1);
     }
 
-    const int len = vsnprintf( buffer.data(), buffer.size(), format, copy );
-    AppendString( wxString( buffer.data() ) );
+    const int len = vsnprintf(buffer.data(), buffer.size(), format, copy);
+    AppendString(wxString(buffer.data()));
     va_end(copy);
     return len;
 }
 
-int wxMainProgWindow::DoErrorHandler( const int sts, const std::string_view msg1, const error_message msg2 )
-{
-    const wxString text1{ std::string( msg1 ) };
-    const wxString text2( msg2 ? std::string( *msg2 ) : std::string() );
-    const wxString text = wxString::Format("%s %s\n", text1, text2 );
-    AppendString( text );
+int wxMainProgWindow::DoErrorHandler(const int sts, const std::string_view msg1, const error_message msg2) {
+    const wxString text1{std::string(msg1)};
+    const wxString text2(msg2 ? std::string(*msg2) : std::string());
+    const wxString text = wxString::Format("%s %s\n", text1, text2);
+    AppendString(text);
     return sts;
 }
 
-int wxMainProgWindow::PrintArgs( const char *format, va_list args )
-{
-    if( instance ) { return instance->DoPrintArgs( format, args );
-}
+int wxMainProgWindow::PrintArgs(const char* format, va_list args) {
+    if (instance) {
+        return instance->DoPrintArgs(format, args);
+    }
     return 0;
 }
 
-int wxMainProgWindow::ErrorHandler( const int sts, const std::string_view msg1, const error_message msg2 )
-{
-    if( instance ) { return instance->DoErrorHandler( sts, msg1, msg2 );
-}
+int wxMainProgWindow::ErrorHandler(const int sts, const std::string_view msg1, const error_message msg2) {
+    if (instance) {
+        return instance->DoErrorHandler(sts, msg1, msg2);
+    }
     return 0;
 }
 
-void wxMainProgWindow::DoInitMeter( long total_size )
-{
-    if( hasProgress )
-    {
-        progressText->SetLabel( lastLine.Trim(false) );
+void wxMainProgWindow::DoInitMeter(long total_size) {
+    if (hasProgress) {
+        progressText->SetLabel(lastLine.Trim(false));
         progressText->Update();
-        progressGauge->SetRange( total_size );
+        progressGauge->SetRange(total_size);
         startTime = clock();
-        maxUnreportedProgress = total_size/100;
+        maxUnreportedProgress = total_size / 100;
         nextProgressUpdate = maxUnreportedProgress;
     }
 }
 
-void wxMainProgWindow::DoUpdateMeter( long progress )
-{
-    if( hasProgress && progress > nextProgressUpdate )
-    {
-        progressGauge->SetValue( progress );
+void wxMainProgWindow::DoUpdateMeter(long progress) {
+    if (hasProgress && progress > nextProgressUpdate) {
+        progressGauge->SetValue(progress);
         nextProgressUpdate = progress + maxUnreportedProgress;
-
     }
-    if( clock() - lastUpdate > CLOCKS_PER_SEC )
-    {
+    if (clock() - lastUpdate > CLOCKS_PER_SEC) {
         Update();
         // while( wxTheApp->Pending() ){ wxTheApp->Dispatch(); }
         lastUpdate = clock();
     }
 }
 
-void wxMainProgWindow::DoEndMeter()
-{
-    if( hasProgress )
-    {
+void wxMainProgWindow::DoEndMeter() {
+    if (hasProgress) {
         progressText->SetLabel("");
         progressGauge->SetValue(0);
-        if( reportTimes )
-        {
-            double const time = (double)(clock()-startTime) / CLOCKS_PER_SEC;
-            AppendString( wxString::Format("     ... duration %.2lf seconds\n",time) );
+        if (reportTimes) {
+            const double time = (double)(clock() - startTime) / CLOCKS_PER_SEC;
+            AppendString(wxString::Format("     ... duration %.2lf seconds\n", time));
         }
     }
 }
 
-void wxMainProgWindow::InitMeter( long total_size )
-{
-    if( instance ) { instance->DoInitMeter( total_size );
-}
-}
-
-void wxMainProgWindow::UpdateMeter( long progress )
-{
-    if( instance ) { instance->DoUpdateMeter( progress );
-}
+void wxMainProgWindow::InitMeter(long total_size) {
+    if (instance) {
+        instance->DoInitMeter(total_size);
+    }
 }
 
-void wxMainProgWindow::EndMeter()
-{
-    if( instance ) { instance->DoEndMeter();
-}
+void wxMainProgWindow::UpdateMeter(long progress) {
+    if (instance) {
+        instance->DoUpdateMeter(progress);
+    }
 }
 
-wxMainProgWindow *wxMainProgWindow::instance = nullptr;
+void wxMainProgWindow::EndMeter() {
+    if (instance) {
+        instance->DoEndMeter();
+    }
+}
+
+wxMainProgWindow* wxMainProgWindow::instance = nullptr;

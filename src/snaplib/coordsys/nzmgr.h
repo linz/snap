@@ -8,7 +8,7 @@
 
 */
 
-void register_nzmg_projection( void );
-projection *create_nzmg_projection( void );
+void register_nzmg_projection(void);
+projection* create_nzmg_projection(void);
 
 #endif

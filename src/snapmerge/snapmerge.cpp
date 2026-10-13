@@ -18,30 +18,28 @@
 #include "util/getversion.h"
 #include "snap/filenames.h"
 
-
 std::vector<std::string> codes;
-network *base = nullptr;
+network* base = nullptr;
 char listonly = 0;
 
-int select_station( station *st )
-{
-    if( ! listonly ) { return 1;
-}
-    for( const std::string &code : codes )
-    {
-        if( compare_ignoring_case( st->Code, code ) == 0 ) { return 1;
-}
+int select_station(station* st) {
+    if (!listonly) {
+        return 1;
+    }
+    for (const std::string& code : codes) {
+        if (compare_ignoring_case(st->Code, code) == 0) {
+            return 1;
+        }
     }
     return 0;
 }
 
-int main( int argc, char *argv[] )
-{
-    char *stnlistfile = nullptr;
-    char *basefile = nullptr;
-    char *datafile = nullptr;
-    char *newfile = nullptr;
-    network *data;
+int main(int argc, char* argv[]) {
+    char* stnlistfile = nullptr;
+    char* basefile = nullptr;
+    char* datafile = nullptr;
+    char* newfile = nullptr;
+    network* data;
     int quiet = 0;
     int overwrite = 0;
     int syntaxerror = 0;
@@ -57,117 +55,107 @@ int main( int argc, char *argv[] )
 
     CONFIGURE_RUNTIME();
 
-    while( ! syntaxerror && argc > 1 && argv[1][0] == '-' )
-    {
-        switch ( argv[1][1] )
-        {
-        case 'q':
-        case 'Q': quiet = 1; break;
-
-        case 'o':
-        case 'O': 
-            switch (argv[1][2])
-            {
-            case 0:
-                overwrite=1; 
+    while (!syntaxerror && argc > 1 && argv[1][0] == '-') {
+        switch (argv[1][1]) {
+            case 'q':
+            case 'Q':
+                quiet = 1;
                 break;
+
+            case 'o':
+            case 'O':
+                switch (argv[1][2]) {
+                    case 0:
+                        overwrite = 1;
+                        break;
+                    case 'c':
+                    case 'C':
+                        updatecrd = 1;
+                        break;
+                    case 'a':
+                    case 'A':
+                        updatecls = 1;
+                        break;
+                    default:
+                        syntaxerror = 1;
+                        break;
+                };
+                break;
+
+            case 'u':
+            case 'U':
+                switch (argv[1][2]) {
+                    case 0:
+                        addstn = 0;
+                        break;
+                    case 'a':
+                    case 'A':
+                        addclass = 0;
+                        break;
+                    default:
+                        syntaxerror = 1;
+                        break;
+                };
+                break;
+
             case 'c':
-            case 'C': 
-                updatecrd= 1;
+            case 'C':
+                switch (argv[1][2]) {
+                    case 0:
+                    case 'b':
+                    case 'B':
+                        clearbaseorders = 1;
+                        break;
+                    case 'd':
+                    case 'D':
+                        cleardataorders = 1;
+                        break;
+                    default:
+                        syntaxerror = 1;
+                        break;
+                };
                 break;
-            case 'a':
-            case 'A': 
-                updatecls= 1;
-                break;
-            default:
-                syntaxerror=1;
-                break;
-            };
-            break;
 
-        case 'u':
-        case 'U': 
-            switch (argv[1][2])
-            {
-            case 0:
-                addstn = 0; 
-                break;
-            case 'a':
-            case 'A': 
-                addclass = 0;
-                break;
-            default:
-                syntaxerror=1;
-                break;
-            };
-            break;
-
-        case 'c':
-        case 'C':
-            switch (argv[1][2])
-            {
-            case 0:
-            case 'b':
-            case 'B': clearbaseorders= 1;
-                break;
-            case 'd':
-            case 'D': cleardataorders= 1;
-                break;
-            default:
-                syntaxerror=1;
-                break;
-            };
-            break;
-
-        case 'l':
-        case 'L':
-            if( argc > 2 )
-            {
-                stnlistfile = argv[2];
-                argc--;
-                argv++;
-            }
-            else
-            {
-                syntaxerror = 1;
-            }
-            break;
-
-        case 'y':
-        case 'Y':
-            if( argc > 2 )
-            {
-                if( ! parse_crdsys_epoch(argv[2],mergedate) )
-                {
-                    syntaxerror=1;
+            case 'l':
+            case 'L':
+                if (argc > 2) {
+                    stnlistfile = argv[2];
+                    argc--;
+                    argv++;
+                } else {
+                    syntaxerror = 1;
                 }
-                argc--;
-                argv++;
-            }
-            else
-            {
+                break;
+
+            case 'y':
+            case 'Y':
+                if (argc > 2) {
+                    if (!parse_crdsys_epoch(argv[2], mergedate)) {
+                        syntaxerror = 1;
+                    }
+                    argc--;
+                    argv++;
+                } else {
+                    syntaxerror = 1;
+                }
+                break;
+            default:
                 syntaxerror = 1;
-            }
-            break;
-        default:
-            syntaxerror = 1;
-            break;
+                break;
         }
         argc--;
         argv++;
     }
 
-    if( argc != 3 && argc != 4 ) { syntaxerror = 1;
-}
-
-    if( ! quiet )
-    {
-        printf("\n%s %s: Merges two SNAP coordinate files\n\n",
-               PROGRAM_NAME, PROGRAM_VERSION );
+    if (argc != 3 && argc != 4) {
+        syntaxerror = 1;
     }
 
-    if( syntaxerror )
-    {
+    if (!quiet) {
+        printf("\n%s %s: Merges two SNAP coordinate files\n\n", PROGRAM_NAME, PROGRAM_VERSION);
+    }
+
+    if (syntaxerror) {
         printf("Syntax: snapmerge [options] basefile datafile [newfile]\n\n");
         printf("where\n");
         printf("  basefile    is the input coordinate file\n");
@@ -197,76 +185,71 @@ int main( int argc, char *argv[] )
     install_default_crdsys_file();
 
     base = new_network();
-    if( read_network( base, basefile, 0 ) != OK )
-    {
-        printf("Cannot open base coordinate file %s\n",basefile);
+    if (read_network(base, basefile, 0) != OK) {
+        printf("Cannot open base coordinate file %s\n", basefile);
         return 2;
     }
-    if( clearbaseorders && base->orderclsid > 0)
-    {
-        int const nstn= number_of_stations( base );
-        int const clsid = base->orderclsid;
-        for( int istn = 1; istn <= nstn; istn++ )
-        {
-            station *st = station_ptr( base, istn );
-            st->set_class( clsid, 0 );
+    if (clearbaseorders && base->orderclsid > 0) {
+        const int nstn = number_of_stations(base);
+        const int clsid = base->orderclsid;
+        for (int istn = 1; istn <= nstn; istn++) {
+            station* st = station_ptr(base, istn);
+            st->set_class(clsid, 0);
         }
-
     }
 
     data = new_network();
-    if( read_network( data, datafile, 0 ) != OK )
-    {
-        printf("Cannot open data coordinate file %s\n",datafile);
+    if (read_network(data, datafile, 0) != OK) {
+        printf("Cannot open data coordinate file %s\n", datafile);
         return 2;
     }
-    if( cleardataorders && data->orderclsid > 0)
-    {
-        int const nstn= number_of_stations( data );
-        int const clsid = data->orderclsid;
-        for( int istn = 1; istn <= nstn; istn++ )
-        {
-            station *st = station_ptr( data, istn );
-            st->set_class( clsid, 0 );
+    if (cleardataorders && data->orderclsid > 0) {
+        const int nstn = number_of_stations(data);
+        const int clsid = data->orderclsid;
+        for (int istn = 1; istn <= nstn; istn++) {
+            station* st = station_ptr(data, istn);
+            st->set_class(clsid, 0);
         }
     }
 
-    if( stnlistfile )
-    {
+    if (stnlistfile) {
         char code[81];
-        FILE *list;
-        list = fopen( stnlistfile,"r");
-        if( ! list )
-        {
-            printf("Cannot open station list file %s\n",stnlistfile);
+        FILE* list;
+        list = fopen(stnlistfile, "r");
+        if (!list) {
+            printf("Cannot open station list file %s\n", stnlistfile);
             return 2;
         }
         skip_utf8_bom(list);
-        while( fscanf( list,"%80s",code) == 1 )
-        {
-            codes.emplace_back(code );
+        while (fscanf(list, "%80s", code) == 1) {
+            codes.emplace_back(code);
         }
         fclose(list);
         listonly = 1;
     }
 
-    if( ! addstn && ! (updatecrd | updatecls) ) { overwrite=1;
-}
+    if (!addstn && !(updatecrd | updatecls)) {
+        overwrite = 1;
+    }
     mergeopt = 0;
-    if( addstn) { mergeopt |= NW_MERGEOPT_ADDNEW;
-}
-    if( addclass ) { mergeopt |= NW_MERGEOPT_ADDCLASSES;
-}
-    if( overwrite ) { mergeopt |= NW_MERGEOPT_OVERWRITE;
-}
-    if( updatecrd ) { mergeopt |= NW_MERGEOPT_COORDS;
-}
-    if( updatecls ) { mergeopt |= NW_MERGEOPT_CLASSES;
-}
-    sts=merge_network( base, data, mergeopt, mergedate, &select_station );
+    if (addstn) {
+        mergeopt |= NW_MERGEOPT_ADDNEW;
+    }
+    if (addclass) {
+        mergeopt |= NW_MERGEOPT_ADDCLASSES;
+    }
+    if (overwrite) {
+        mergeopt |= NW_MERGEOPT_OVERWRITE;
+    }
+    if (updatecrd) {
+        mergeopt |= NW_MERGEOPT_COORDS;
+    }
+    if (updatecls) {
+        mergeopt |= NW_MERGEOPT_CLASSES;
+    }
+    sts = merge_network(base, data, mergeopt, mergedate, &select_station);
 
-    if( sts != OK || write_network( base, newfile, std::string_view(), 0, nullptr ) != OK )
-    {
+    if (sts != OK || write_network(base, newfile, std::string_view(), 0, nullptr) != OK) {
         return 2;
     }
 

@@ -10,7 +10,7 @@
 
 #include <string>
 
-int define_error_summary( const std::string &definition );
-void print_error_summary( FILE *lst );
+int define_error_summary(const std::string& definition);
+void print_error_summary(FILE* lst);
 
 #endif

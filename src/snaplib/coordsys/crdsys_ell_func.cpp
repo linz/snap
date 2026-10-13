@@ -10,7 +10,6 @@
 #include <cmath>
 #include "coordsys/coordsys.h"
 
-
 /*------------------------------------------------------------------*/
 /*  Conversions between geodetic coordinates (ellipsoidal heights)  */
 /*  and geocentric coordinates.                                     */
@@ -23,10 +22,7 @@
 /*  Formulae from any standard geodetic reference.                  */
 /*------------------------------------------------------------------*/
 
-
-double * llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
-                     double *dEdLn, double *dNdLt )
-{
+double* llh_to_xyz(ellipsoid* el, double llh[3], double xyz[3], double* dEdLn, double* dNdLt) {
     double bsac;
     double p;
     double clt;
@@ -34,28 +30,28 @@ double * llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
     double cln;
     double sln;
     double hgt;
-    clt  = cos(llh[CRD_LAT]);
-    slt  = sin(llh[CRD_LAT]);
-    cln  = cos(llh[CRD_LON]);
-    sln  = sin(llh[CRD_LON]);
+    clt = cos(llh[CRD_LAT]);
+    slt = sin(llh[CRD_LAT]);
+    cln = cos(llh[CRD_LON]);
+    sln = sin(llh[CRD_LON]);
     hgt = llh[CRD_HGT];
-    bsac = _hypot( el->b*slt, el->a*clt );
-    p    = el->a2*clt/bsac + hgt*clt;
-    xyz[0] = p*cln;
-    xyz[1] = p*sln;
-    xyz[2] = el->b2*slt/bsac + llh[CRD_HGT]*slt;
+    bsac = _hypot(el->b * slt, el->a * clt);
+    p = el->a2 * clt / bsac + hgt * clt;
+    xyz[0] = p * cln;
+    xyz[1] = p * sln;
+    xyz[2] = el->b2 * slt / bsac + llh[CRD_HGT] * slt;
 
-    if( dEdLn ) { *dEdLn = p;
-}
-    if( dNdLt ) { *dNdLt = (el->a2 * el->b2)/(bsac*bsac*bsac) + hgt;
-}
+    if (dEdLn) {
+        *dEdLn = p;
+    }
+    if (dNdLt) {
+        *dNdLt = (el->a2 * el->b2) / (bsac * bsac * bsac) + hgt;
+    }
 
     return &xyz[0];
 }
 
-
-double * xyz_to_llh( ellipsoid *el, double xyz[3], double llh[3] )
-{
+double* xyz_to_llh(ellipsoid* el, double xyz[3], double llh[3]) {
     double bsac;
     double p;
     double slt;
@@ -65,23 +61,22 @@ double * xyz_to_llh( ellipsoid *el, double xyz[3], double llh[3] )
     double lt;
     double hgt;
     int it;
-    ln = atan2( xyz[1], xyz[0] );
-    p      = _hypot( xyz[0], xyz[1] );
-    lt = atan2( el->a2*xyz[2], el->b2*p );
+    ln = atan2(xyz[1], xyz[0]);
+    p = _hypot(xyz[0], xyz[1]);
+    lt = atan2(el->a2 * xyz[2], el->b2 * p);
     it = 0;
-    do
-    {
-        lt0    = lt;
-        slt    = sin(lt);
-        clt    = cos(lt);
-        bsac   = _hypot( el->b*slt, el->a*clt );
-        lt     = atan2( xyz[2]+slt*el->a2b2/bsac, p );
-        if ( fabs(lt-lt0) < 1.0e-10 ) { break;
-}
-    }
-    while( it++ < 10);
+    do {
+        lt0 = lt;
+        slt = sin(lt);
+        clt = cos(lt);
+        bsac = _hypot(el->b * slt, el->a * clt);
+        lt = atan2(xyz[2] + slt * el->a2b2 / bsac, p);
+        if (fabs(lt - lt0) < 1.0e-10) {
+            break;
+        }
+    } while (it++ < 10);
 
-    hgt = p*clt+xyz[2]*slt - bsac;
+    hgt = p * clt + xyz[2] * slt - bsac;
 
     llh[CRD_LAT] = lt;
     llh[CRD_LON] = ln;

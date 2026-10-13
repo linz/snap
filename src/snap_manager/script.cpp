@@ -7,164 +7,153 @@ using namespace std;
 
 // Script variable class
 
-Value::Value() : next(nullptr)
-{
+Value::Value() : next(nullptr) {
     SetValue(false);
 }
 
-Value::Value( const wxString& value ) : next(nullptr)
-{
-    SetValue( value );
+Value::Value(const wxString& value) : next(nullptr) {
+    SetValue(value);
 }
 
-Value::Value( bool value) : next(nullptr)
-{
-    SetValue( value );
+Value::Value(bool value) : next(nullptr) {
+    SetValue(value);
 }
 
-Value::Value( double value) : next(nullptr)
-{
-    SetValue( value );
+Value::Value(double value) : next(nullptr) {
+    SetValue(value);
 }
 
-void Value::SetValue( bool value )
-{
-    if( value ) { stringValue = wxString("true"); }
-    else { stringValue = wxString(""); }
+void Value::SetValue(bool value) {
+    if (value) {
+        stringValue = wxString("true");
+    } else {
+        stringValue = wxString("");
+    }
     doubleValue = value ? 1.0 : 0.0;
     boolValue = value;
 }
 
-void Value::SetValue( const wxString &value )
-{
+void Value::SetValue(const wxString& value) {
     stringValue = value;
-    if( ! value.ToDouble( &doubleValue ) ) { doubleValue=0.0;
-}
+    if (!value.ToDouble(&doubleValue)) {
+        doubleValue = 0.0;
+    }
     boolValue = !value.empty();
 }
 
-void Value::SetValue( double value )
-{
+void Value::SetValue(double value) {
     doubleValue = value;
     stringValue = "";
     stringValue << value;
     boolValue = value != 0.0;
 }
 
-Value::Value( const Value &value, bool valueOnly )
-{
+Value::Value(const Value& value, bool valueOnly) {
     doubleValue = value.doubleValue;
     stringValue = value.stringValue;
     boolValue = value.boolValue;
     next = nullptr;
-    if( ! valueOnly && value.Next() ) { SetNext(value.Next());
-}
-}
-
-void Value::SetNext( Value *v )
-{
-    SetNext( *v );
+    if (!valueOnly && value.Next()) {
+        SetNext(value.Next());
+    }
 }
 
-void Value::SetNext( const Value &v )
-{
-    Value *np=this;
-    while( np->next ) { np=np->next;
+void Value::SetNext(Value* v) {
+    SetNext(*v);
 }
-    Value *nv = new Value(v);
+
+void Value::SetNext(const Value& v) {
+    Value* np = this;
+    while (np->next) {
+        np = np->next;
+    }
+    Value* nv = new Value(v);
     np->next = nv;
 }
 
-Value *Value::Next() const
-{
+Value* Value::Next() const {
     return next;
 }
 
-Value::~Value()
-{
-    if( next )
-    {
-        Value *v=next;
-        next=nullptr;
+Value::~Value() {
+    if (next) {
+        Value* v = next;
+        next = nullptr;
         delete v;
     }
 }
 
-Value &Value::operator = ( const Value &value )
-{
-    if( &value != this )
-    {
+Value& Value::operator=(const Value& value) {
+    if (&value != this) {
         boolValue = value.boolValue;
         doubleValue = value.doubleValue;
         stringValue = value.stringValue;
-        if( next ) { Value *v=next; next=nullptr; delete( v ); }
-        if( value.Next() ) { SetNext(value.Next());
-}
+        if (next) {
+            Value* v = next;
+            next = nullptr;
+            delete (v);
+        }
+        if (value.Next()) {
+            SetNext(value.Next());
+        }
     }
     return *this;
 }
 
-wxString Value::AsString(int index) const
-{
-    const Value *vp=this;
-    while( index-- && vp ) { vp=vp->next;
-}
+wxString Value::AsString(int index) const {
+    const Value* vp = this;
+    while (index-- && vp) {
+        vp = vp->next;
+    }
     return vp ? vp->stringValue : wxString();
 }
 
-bool Value::AsBool(int index) const
-{
-    const Value *vp=this;
-    while( index-- && vp ) { vp=vp->next;
-}
+bool Value::AsBool(int index) const {
+    const Value* vp = this;
+    while (index-- && vp) {
+        vp = vp->next;
+    }
     return vp ? vp->boolValue : false;
 }
 
-double Value::AsDouble(int index) const
-{
-    const Value *vp=this;
-    while( index-- && vp ) { vp=vp->next;
-}
-    return vp ? vp->doubleValue :  0.0;
+double Value::AsDouble(int index) const {
+    const Value* vp = this;
+    while (index-- && vp) {
+        vp = vp->next;
+    }
+    return vp ? vp->doubleValue : 0.0;
 }
 
-int Value::Count() const
-{
-    const Value *vp=this;
-    int count=1;
-    while( vp->next ){ vp=vp->next; count++; }
+int Value::Count() const {
+    const Value* vp = this;
+    int count = 1;
+    while (vp->next) {
+        vp = vp->next;
+        count++;
+    }
     return count;
 }
 
 //////////////////////////////////////////////////////////////////
 
+VariableList::VariableList() = default;
 
-VariableList::VariableList()
-= default;
+VariableList::~VariableList() = default;
 
-VariableList::~VariableList()
-= default;
-
-void VariableList::Add( const wxString& name, const Value& var )
-{
-    wxString const lname = name.Lower();
-    iterator const it = find(lname);
-    if( it != end() )
-    {
+void VariableList::Add(const wxString& name, const Value& var) {
+    const wxString lname = name.Lower();
+    const iterator it = find(lname);
+    if (it != end()) {
         (*it).second = var;
-    }
-    else
-    {
-        insert( pair<wxString,Value>(lname,var) );
+    } else {
+        insert(pair<wxString, Value>(lname, var));
     }
 }
 
-bool VariableList::Get( const wxString& name, Value &var )
-{
+bool VariableList::Get(const wxString& name, Value& var) {
     bool result = false;
-    iterator const it = find(name.Lower());
-    if( it != end() )
-    {
+    const iterator it = find(name.Lower());
+    if (it != end()) {
         result = true;
         var = (*it).second;
     }
@@ -174,28 +163,22 @@ bool VariableList::Get( const wxString& name, Value &var )
 //////////////////////////////////////////////////////////////////
 // Script class .. interface to ScriptImp .. implementation class
 
-
-Script::Script( EnvBase &environment )
-{
-    implementation = new ScriptImp( environment );
+Script::Script(EnvBase& environment) {
+    implementation = new ScriptImp(environment);
 }
 
-Script::~Script()
-{
+Script::~Script() {
     delete implementation;
 }
 
-bool Script::ExecuteScript( const std::string &filename )
-{
-    return implementation->ExecuteScript( filename );
+bool Script::ExecuteScript(const std::string& filename) {
+    return implementation->ExecuteScript(filename);
 }
 
-void Script::RunMenuActions( int id )
-{
-    implementation->RunMenuActions( id );
+void Script::RunMenuActions(int id) {
+    implementation->RunMenuActions(id);
 }
 
-void Script::EnableMenuItems()
-{
+void Script::EnableMenuItems() {
     implementation->EnableMenuItems();
 }

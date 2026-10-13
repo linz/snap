@@ -44,119 +44,106 @@
 #include "output.h"
 #include "relerror.h"
 
-static void calc_relative_obseq( station *st1, station *st2, void *hA )
-{
+static void calc_relative_obseq(station* st1, station* st2, void* hA) {
     vector3 dif;
     vector3 dst1[3];
     vector3 dst2[3];
     int axis;
-    calc_vec_dif( st1, 0.0, st2, 0.0, dif, dst1, dst2 );
-    init_oe( hA, 3, 2*dimension, OE_DIAGONAL_CVR );
-    for( axis = 0; axis < 3; axis++ )
-    {
-        int const irow = axis+1;
-        set_station_obseq( st1, dst1[axis], hA, irow, UNDEFINED_DATE );
-        set_station_obseq( st2, dst2[axis], hA, irow, UNDEFINED_DATE );
-        oe_value( hA, irow+axis, dif[axis] );
-        oe_covar( hA, irow, irow, 1.0 );
+    calc_vec_dif(st1, 0.0, st2, 0.0, dif, dst1, dst2);
+    init_oe(hA, 3, 2 * dimension, OE_DIAGONAL_CVR);
+    for (axis = 0; axis < 3; axis++) {
+        const int irow = axis + 1;
+        set_station_obseq(st1, dst1[axis], hA, irow, UNDEFINED_DATE);
+        set_station_obseq(st2, dst2[axis], hA, irow, UNDEFINED_DATE);
+        oe_value(hA, irow + axis, dif[axis]);
+        oe_covar(hA, irow, irow, 1.0);
     }
 }
 
-
-static void station_vertical( int id, double vrt[3] )
-{
-    stnptr(id)->rTopo.rot_vertical( vrt );
+static void station_vertical(int id, double vrt[3]) {
+    stnptr(id)->rTopo.rot_vertical(vrt);
 }
 
-static void *hA;
+static void* hA;
 static VRTFUNC oldvrt;
 static XFMFUNC oldxfm;
 static int oldfixed;
 
-static void init_calc_covar( void )
-{
+static void init_calc_covar(void) {
     oldvrt = gps_vrtfunc();
     oldxfm = gps_xfmfunc();
     oldfixed = gps_vertical_fixed();
     set_gps_vertical_fixed(0);
-    init_gps_covariances( station_vertical, (XFMFUNC) nullptr );
-    hA = create_oe( nprm );
+    init_gps_covariances(station_vertical, (XFMFUNC) nullptr);
+    hA = create_oe(nprm);
 }
 
-static void term_calc_covar( void )
-{
-    delete_oe( hA );
-    set_gps_vertical_fixed( oldfixed );
-    init_gps_covariances( oldvrt, oldxfm );
+static void term_calc_covar(void) {
+    delete_oe(hA);
+    set_gps_vertical_fixed(oldfixed);
+    init_gps_covariances(oldvrt, oldxfm);
 }
 
-static void calc_covar( int istn1, int istn2, double *relcvr )
-{
+static void calc_covar(int istn1, int istn2, double* relcvr) {
     /* Calculate the vector covariance (XYZ system) */
     double vec[3];
-    calc_relative_obseq( stnptr(istn1), stnptr(istn2), hA );
-    lsq_calc_obs( hA, vec, nullptr, nullptr, nullptr, 0, relcvr, nullptr );
+    calc_relative_obseq(stnptr(istn1), stnptr(istn2), hA);
+    lsq_calc_obs(hA, vec, nullptr, nullptr, nullptr, 0, relcvr, nullptr);
     /* Convert to topocentric */
-    transform_vec_to_topo( istn1, istn2, 0, vec, relcvr );
+    transform_vec_to_topo(istn1, istn2, 0, vec, relcvr);
 }
 
-
-void dump_relative_covariances( BINARY_FILE *b, int dumpall )
-{
+void dump_relative_covariances(BINARY_FILE* b, int dumpall) {
     double relcvr[6];
     int istn;
     int maxstn;
 
     init_calc_covar();
-    create_section( b, "STATION_RELATIVE_COVARIANCES" );
+    create_section(b, "STATION_RELATIVE_COVARIANCES");
 
-    maxstn=number_of_stations(net);
+    maxstn = number_of_stations(net);
 
-    if( ! dumpall )
-    {
-        init_progress_meter( maxstn );
-        for( istn=0; istn++ < maxstn; )
-        {
+    if (!dumpall) {
+        init_progress_meter(maxstn);
+        for (istn = 0; istn++ < maxstn;) {
             int iconn;
-            int const nconn = get_connection_count( istn );
-            update_progress_meter( istn );
-            if( !nconn ) { continue;
-}
-            for( iconn = 0; iconn < nconn; iconn++ )
-            {
-                int jstn = get_connection( istn, iconn );
-                if( jstn <= istn ) { continue;
-}
+            const int nconn = get_connection_count(istn);
+            update_progress_meter(istn);
+            if (!nconn) {
+                continue;
+            }
+            for (iconn = 0; iconn < nconn; iconn++) {
+                int jstn = get_connection(istn, iconn);
+                if (jstn <= istn) {
+                    continue;
+                }
 
-                calc_covar( istn, jstn, relcvr );
+                calc_covar(istn, jstn, relcvr);
 
-                fwrite( &istn, sizeof(istn), 1, b->f );
-                fwrite( &jstn, sizeof(jstn), 1, b->f );
-                fwrite( relcvr,sizeof(relcvr), 1, b->f );
+                fwrite(&istn, sizeof(istn), 1, b->f);
+                fwrite(&jstn, sizeof(jstn), 1, b->f);
+                fwrite(relcvr, sizeof(relcvr), 1, b->f);
             }
         }
         end_progress_meter();
-    }
-    else
-    {
+    } else {
         long nelt = maxstn;
         long ielt = 0;
         int jstn;
-        nelt = nelt * ((maxstn-1)) / 2;
-        init_progress_meter( nelt );
-        for( istn=1; istn++ < maxstn; )
-        {
-            for( jstn = 1; jstn < istn; jstn++ )
-            {
+        nelt = nelt * ((maxstn - 1)) / 2;
+        init_progress_meter(nelt);
+        for (istn = 1; istn++ < maxstn;) {
+            for (jstn = 1; jstn < istn; jstn++) {
                 ielt++;
-                if( ielt % 20 == 0 ) { update_progress_meter( ielt );
-}
+                if (ielt % 20 == 0) {
+                    update_progress_meter(ielt);
+                }
 
-                calc_covar( istn, jstn, relcvr );
+                calc_covar(istn, jstn, relcvr);
 
-                fwrite( &istn, sizeof(istn), 1, b->f );
-                fwrite( &jstn, sizeof(jstn), 1, b->f );
-                fwrite( relcvr,sizeof(relcvr), 1, b->f );
+                fwrite(&istn, sizeof(istn), 1, b->f);
+                fwrite(&jstn, sizeof(jstn), 1, b->f);
+                fwrite(relcvr, sizeof(relcvr), 1, b->f);
             }
         }
         end_progress_meter();
@@ -164,18 +151,15 @@ void dump_relative_covariances( BINARY_FILE *b, int dumpall )
 
     /* Mark the end with a station code -1 */
     istn = -1;
-    fwrite( &istn, sizeof(istn), 1, b->f );
+    fwrite(&istn, sizeof(istn), 1, b->f);
 
-    end_section( b );
-
+    end_section(b);
 
     /* Restore the gps processing options */
     term_calc_covar();
 }
 
-
-void test_relative_accuracy_specs( SpecDef *spec, int apriori, const std::vector<int> &stn_testids, int listopts )
-{
+void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<int>& stn_testids, int listopts) {
     int istn;
     int jstn;
     int nstns;
@@ -200,22 +184,23 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, const std::vector
     double maxvratio;
     int istnmaxv;
     int jstnmaxv;
-    int const printall = listopts & SPEC_LIST_ALL;
-    int const printfail = listopts & SPEC_LIST_FAIL;
+    const int printall = listopts & SPEC_LIST_ALL;
+    const int printfail = listopts & SPEC_LIST_FAIL;
     long nstntest;
     double hratio;
     double vratio;
 
     gothtol = spec->gothtol && (spec->htolabs > 0.0 || spec->htolppm > 0.0);
     gotvtol = spec->gotvtol && (spec->vtolabs > 0.0 || spec->vtolppm > 0.0);
-    if( ! gothtol && ! gotvtol ) { return;
-}
+    if (!gothtol && !gotvtol) {
+        return;
+    }
 
     init_calc_covar();
 
     fprintf(lst, "\n------------------------\nRelative (local) accuracy tests\n");
 
-    nstns = number_of_stations( net );
+    nstns = number_of_stations(net);
 
     headed = 0;
 
@@ -231,45 +216,42 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, const std::vector
 
     nstntest = 0;
     testid = spec->testid;
-    for( istn = 1; istn <= nstns; istn++ )
-    {
-        if( stn_testids[istn] & testid ) { nstntest++;
-}
+    for (istn = 1; istn <= nstns; istn++) {
+        if (stn_testids[istn] & testid) {
+            nstntest++;
+        }
     }
 
-    init_progress_meter( (nstntest*(nstntest+1))/2 );
+    init_progress_meter((nstntest * (nstntest + 1)) / 2);
 
-    for( istn = 1; istn < nstns; istn++ )
-    {
-        if( ! (stn_testids[istn] & testid) ) { continue;
-}
-        for( jstn = istn+1; jstn <= nstns; jstn++ )
-        {
+    for (istn = 1; istn < nstns; istn++) {
+        if (!(stn_testids[istn] & testid)) {
+            continue;
+        }
+        for (jstn = istn + 1; jstn <= nstns; jstn++) {
             int failed = 0;
-            if( ! (stn_testids[jstn] & testid) ) { continue;
-}
+            if (!(stn_testids[jstn] & testid)) {
+                continue;
+            }
             ntest++;
-            update_progress_meter( ntest );
-            calc_covar( istn, jstn, covar );
-            veclen = calc_distance( stnptr(istn), 0.0, stnptr(jstn), 0.0, nullptr, nullptr );
+            update_progress_meter(ntest);
+            calc_covar(istn, jstn, covar);
+            veclen = calc_distance(stnptr(istn), 0.0, stnptr(jstn), 0.0, nullptr, nullptr);
             hratio = vratio = 0.0;
-            if( gothtol )
-            {
-                calc_error_ellipse( covar, &emax, &emin, &azemax );
+            if (gothtol) {
+                calc_error_ellipse(covar, &emax, &emin, &azemax);
                 emax *= spec->htolfactor;
-                if( ! apriori ) { emax *= seu;
-}
-                htol = _hypot( spec->htolabs, (spec->htolppm)*veclen*1.0e-6);
-                if( htol > 0.0 )
-                {
-                    hratio = emax/htol;
-                    if( hratio > 1.0 )
-                    {
+                if (!apriori) {
+                    emax *= seu;
+                }
+                htol = _hypot(spec->htolabs, (spec->htolppm) * veclen * 1.0e-6);
+                if (htol > 0.0) {
+                    hratio = emax / htol;
+                    if (hratio > 1.0) {
                         nfailh++;
                         failed = 1;
                     }
-                    if( hratio > maxhratio )
-                    {
+                    if (hratio > maxhratio) {
                         maxhratio = hratio;
                         istnmaxh = istn;
                         jstnmaxh = jstn;
@@ -277,64 +259,65 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, const std::vector
                 }
             }
 
-            if( gotvtol )
-            {
-                verr = sqrt( fabs( covar[5] ));
+            if (gotvtol) {
+                verr = sqrt(fabs(covar[5]));
                 verr *= spec->vtolfactor;
-                if( ! apriori ) { verr *= seu;
-}
-                vtol = _hypot( spec->vtolabs, (spec->vtolppm)*veclen*1.0e-6);
-                if( vtol > 0.0 )
-                {
-                    vratio = verr/vtol;
-                    if( vratio > 1.0 )
-                    {
+                if (!apriori) {
+                    verr *= seu;
+                }
+                vtol = _hypot(spec->vtolabs, (spec->vtolppm) * veclen * 1.0e-6);
+                if (vtol > 0.0) {
+                    vratio = verr / vtol;
+                    if (vratio > 1.0) {
                         nfailv++;
                         failed = 1;
                     }
-                    if( vratio > maxvratio )
-                    {
+                    if (vratio > maxvratio) {
                         maxvratio = vratio;
                         istnmaxv = istn;
                         jstnmaxv = jstn;
                     }
                 }
             }
-            if( (failed && printfail) || printall )
-            {
-                if( ! headed )
-                {
+            if ((failed && printfail) || printall) {
+                if (!headed) {
                     int width;
                     int w;
-                    width = (stn_name_width+2)*2+9;
-                    if( gothtol ) { width += 12;
-}
-                    if( gotvtol ) { width += 12;
-}
-                    fprintf(lst,"\nRatio of calculated error to tolerance\n\n     ");
-                    for( w = 0; w < width; w++ ) { fprintf(lst,"=");
-}
-                    fprintf(lst,"\n     %-*s  %-*s   Length  ",stn_name_width,"From",
-                            stn_name_width,"To");
-                    if( gothtol ) { fprintf(lst,"  Horizontal");
-}
-                    if( gotvtol ) { fprintf(lst,"   Vertical ");
-}
-                    fprintf(lst,"\n     ");
-                    for( w = 0; w < width; w++ ) { fprintf(lst,"=");
-}
-                    fprintf(lst,"\n\n");
+                    width = (stn_name_width + 2) * 2 + 9;
+                    if (gothtol) {
+                        width += 12;
+                    }
+                    if (gotvtol) {
+                        width += 12;
+                    }
+                    fprintf(lst, "\nRatio of calculated error to tolerance\n\n     ");
+                    for (w = 0; w < width; w++) {
+                        fprintf(lst, "=");
+                    }
+                    fprintf(lst, "\n     %-*s  %-*s   Length  ", stn_name_width, "From", stn_name_width, "To");
+                    if (gothtol) {
+                        fprintf(lst, "  Horizontal");
+                    }
+                    if (gotvtol) {
+                        fprintf(lst, "   Vertical ");
+                    }
+                    fprintf(lst, "\n     ");
+                    for (w = 0; w < width; w++) {
+                        fprintf(lst, "=");
+                    }
+                    fprintf(lst, "\n\n");
                     headed = 1;
                 }
 
-                fprintf(lst,"     %-*s  %-*s  %7.0lf ",
-                        stn_name_width, stnptr(istn)->Code.c_str(),
-                        stn_name_width, stnptr(jstn)->Code.c_str(), veclen );
-                if( gothtol ) { fprintf(lst,"    %8.2lf",hratio);
-}
-                if( gotvtol ) { fprintf(lst,"    %8.2lf",vratio);
-}
-                fprintf(lst,"\n");
+                fprintf(lst, "     %-*s  %-*s  %7.0lf ", stn_name_width, stnptr(istn)->Code.c_str(), stn_name_width,
+                        stnptr(jstn)->Code.c_str(), veclen);
+                if (gothtol) {
+                    fprintf(lst, "    %8.2lf", hratio);
+                }
+                if (gotvtol) {
+                    fprintf(lst, "    %8.2lf", vratio);
+                }
+                fprintf(lst, "\n");
             }
         }
     }
@@ -343,28 +326,26 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, const std::vector
 
     /* Summarise tests for this specification */
 
-    if( gothtol )
-    {
+    if (gothtol) {
         fprintf(lst, "\nHorizontal tolerance:\n");
-        fprintf(lst, "    Stations tested:             %10ld\n",nstntest);
-        fprintf(lst, "    Vectors tested:              %10ld\n",ntest);
-        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n",nfailh);
-        if( istnmaxh ) {
-            fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n",
-                    maxhratio, stnptr(istnmaxh)->Code.c_str(), stnptr(jstnmaxh)->Code.c_str() );
-}
+        fprintf(lst, "    Stations tested:             %10ld\n", nstntest);
+        fprintf(lst, "    Vectors tested:              %10ld\n", ntest);
+        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailh);
+        if (istnmaxh) {
+            fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxhratio,
+                    stnptr(istnmaxh)->Code.c_str(), stnptr(jstnmaxh)->Code.c_str());
+        }
     }
 
-    if( gotvtol )
-    {
+    if (gotvtol) {
         fprintf(lst, "\nVertical tolerance:\n");
-        fprintf(lst, "    Stations tested:             %10ld\n",nstntest);
-        fprintf(lst, "    Vectors tested:              %10ld\n",ntest);
-        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n",nfailv);
-        if( istnmaxv ) {
-            fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n",
-                    maxvratio, stnptr(istnmaxv)->Code.c_str(), stnptr(jstnmaxv)->Code.c_str() );
-}
+        fprintf(lst, "    Stations tested:             %10ld\n", nstntest);
+        fprintf(lst, "    Vectors tested:              %10ld\n", ntest);
+        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailv);
+        if (istnmaxv) {
+            fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxvratio,
+                    stnptr(istnmaxv)->Code.c_str(), stnptr(jstnmaxv)->Code.c_str());
+        }
     }
 
     term_calc_covar();

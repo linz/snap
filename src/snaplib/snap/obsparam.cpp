@@ -16,167 +16,155 @@ using boost::numeric_cast;
 #include "snap/obsparam.h"
 #include "util/errdef.h"
 
-
 /// A calculated parameter of an observation set
-class obs_param
-{
-public:
+class obs_param {
+ public:
     /// Creates an unused parameter with zero value, referenced by the observation set with id \p obsid
-    obs_param( int obsid, std::string prmname )
-        : obsid( obsid ), prmname_( std::move( prmname ) ) {}
+    obs_param(int obsid, std::string prmname) : obsid(obsid), prmname_(std::move(prmname)) {}
 
     /// Returns the name of the parameter
-    [[nodiscard]] const std::string &prmname() const { return prmname_; }
+    [[nodiscard]] const std::string& prmname() const {
+        return prmname_;
+    }
 
-    const int obsid;      ///< Id of first obs of referencing observation set
-    int rowno = 0;        ///< Row number in obs equations
-    int used = 0;         ///< Flag that the parameter is used
-    double value = 0.0;   ///< Calculated value of parameter
-    double covar = 0.0;   ///< Error of calculated value
+    const int obsid;     ///< Id of first obs of referencing observation set
+    int rowno = 0;       ///< Row number in obs equations
+    int used = 0;        ///< Flag that the parameter is used
+    double value = 0.0;  ///< Calculated value of parameter
+    double covar = 0.0;  ///< Error of calculated value
 
-private:
-    std::string prmname_; ///< Name of the parameter
+ private:
+    std::string prmname_;  ///< Name of the parameter
 };
 
 /// All observation parameters in order of creation.  Parameter id n is element n-1.
 static std::vector<obs_param> obs_params;
 
-static obs_param *get_obs_param( int oprmid );
+static obs_param* get_obs_param(int oprmid);
 
-void add_survdata_observation_parameters( survdata *sd, int nprm, const std::array<std::string_view,3> &descriptions )
-{
-    if( nprm == 0 ) { return;
-}
-    if( sd->nprms > 0 )
-    {
-        handle_error(FATAL_ERROR,
-                "Cannot handle multiple add_observation_parameters for same obs set",
-                "add_observation_parameters");
+void add_survdata_observation_parameters(survdata* sd, int nprm, const std::array<std::string_view, 3>& descriptions) {
+    if (nprm == 0) {
+        return;
+    }
+    if (sd->nprms > 0) {
+        handle_error(FATAL_ERROR, "Cannot handle multiple add_observation_parameters for same obs set",
+                     "add_observation_parameters");
         return;
     }
     sd->nprms = nprm;
-    sd->prmid = get_obs_param_count()+1;
-    const int obsid=get_trgtdata(sd,0)->obsid;
-    for( int iprm = 0; iprm < nprm; iprm++ )
-    {
-        const std::string description( descriptions[iprm].substr( 0, 40 ) );
-        obs_params.emplace_back( obsid, "Obs set " + std::to_string(obsid) + " " + description );
+    sd->prmid = get_obs_param_count() + 1;
+    const int obsid = get_trgtdata(sd, 0)->obsid;
+    for (int iprm = 0; iprm < nprm; iprm++) {
+        const std::string description(descriptions[iprm].substr(0, 40));
+        obs_params.emplace_back(obsid, "Obs set " + std::to_string(obsid) + " " + description);
     }
 }
 
-void flag_obsparam_used( survdata *sd )
-{
-    int nprm=sd->nprms;
-    if( ! nprm ) { return;
-}
-    const int obsid = get_trgtdata(sd,0)->obsid;
-    for( auto oprm=obs_params.rbegin(); oprm != obs_params.rend(); ++oprm )
-    {
-        if( oprm->obsid == obsid )
-        {
-            oprm->used=1;
+void flag_obsparam_used(survdata* sd) {
+    int nprm = sd->nprms;
+    if (!nprm) {
+        return;
+    }
+    const int obsid = get_trgtdata(sd, 0)->obsid;
+    for (auto oprm = obs_params.rbegin(); oprm != obs_params.rend(); ++oprm) {
+        if (oprm->obsid == obsid) {
+            oprm->used = 1;
             nprm--;
-            if( nprm == 0 ) { break;
-}
+            if (nprm == 0) {
+                break;
+            }
         }
     }
 }
 
-void delete_observation_parameters()
-{
+void delete_observation_parameters() {
     obs_params.clear();
 }
 
-void init_observation_parameters()
-{
+void init_observation_parameters() {
     delete_observation_parameters();
 }
 
-int get_obs_param_count()
-{
-    return numeric_cast<int>( obs_params.size() );
+int get_obs_param_count() {
+    return numeric_cast<int>(obs_params.size());
 }
 
 /// Returns the parameter with the 1-based id \p oprmid, or null if there is none.
 /// The pointer is valid until the next parameter is added.
-static obs_param *get_obs_param( int oprmid )
-{
-    if( oprmid <= 0 || oprmid > get_obs_param_count() ) { return nullptr;
-}
-    return &obs_params[oprmid-1];
+static obs_param* get_obs_param(int oprmid) {
+    if (oprmid <= 0 || oprmid > get_obs_param_count()) {
+        return nullptr;
+    }
+    return &obs_params[oprmid - 1];
 }
 
-double get_obs_param_value( int prmid )
-{
-    obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) { return oprm->value;
-}
+double get_obs_param_value(int prmid) {
+    obs_param* oprm = get_obs_param(prmid);
+    if (oprm) {
+        return oprm->value;
+    }
     return 0.0;
 }
 
-double get_obs_param_covar( int prmid )
-{
-    obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) { return oprm->covar;
-}
+double get_obs_param_covar(int prmid) {
+    obs_param* oprm = get_obs_param(prmid);
+    if (oprm) {
+        return oprm->covar;
+    }
     return 0.0;
 }
 
-const std::string &get_obs_param_name( const int prmid )
-{
+const std::string& get_obs_param_name(const int prmid) {
     static const std::string noName;
-    const obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) { return oprm->prmname();
-}
+    const obs_param* oprm = get_obs_param(prmid);
+    if (oprm) {
+        return oprm->prmname();
+    }
     return noName;
 }
 
-void update_obs_param_value( int prmid, double value, double covar )
-{
-    obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) 
-    {
-        oprm->value=value;
-        oprm->covar=covar;
+void update_obs_param_value(int prmid, double value, double covar) {
+    obs_param* oprm = get_obs_param(prmid);
+    if (oprm) {
+        oprm->value = value;
+        oprm->covar = covar;
     }
 }
 
-int get_obs_param_rowno( int prmid, double *value )
-{
-    obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) 
-    {
-        if( value ) { *value = oprm->value;
-}
+int get_obs_param_rowno(int prmid, double* value) {
+    obs_param* oprm = get_obs_param(prmid);
+    if (oprm) {
+        if (value) {
+            *value = oprm->value;
+        }
         return oprm->rowno;
     }
-    if( value ) { *value=0.0;
-}
+    if (value) {
+        *value = 0.0;
+    }
     return 0;
 }
 
-int get_obs_param_used( int prmid )
-{
-    obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) 
-    {
+int get_obs_param_used(int prmid) {
+    obs_param* oprm = get_obs_param(prmid);
+    if (oprm) {
         return oprm->used;
     }
     return 0;
 }
 
-int get_survdata_obs_param_rowno( survdata *sd, int prmno, double *value )
-{
-    int const oprmid=sd->prmid+prmno;
-    obs_param *oprm = get_obs_param(oprmid);
-    if( oprm ) 
-    {
-        if( value ) { *value = oprm->value;
-}
+int get_survdata_obs_param_rowno(survdata* sd, int prmno, double* value) {
+    const int oprmid = sd->prmid + prmno;
+    obs_param* oprm = get_obs_param(oprmid);
+    if (oprm) {
+        if (value) {
+            *value = oprm->value;
+        }
         return oprm->rowno;
     }
-    if( value ) { *value=0.0;
-}
+    if (value) {
+        *value = 0.0;
+    }
     return 0;
 }
 
@@ -185,71 +173,70 @@ int get_survdata_obs_param_rowno( survdata *sd, int prmno, double *value )
  * (at this stage just setting the count of parameters)
  */
 
-int assign_obs_param_to_stations( int *pnstnobs )
-{
-    int nstnobs=0;
-    int nobsprm=0;
-    if( pnstnobs ) { *pnstnobs = nstnobs;
-}
-    if( get_obs_param_count() <= 0 ) { return nobsprm;
-}
-    int const nstn=number_of_stations(net);
-    for( int istn = 0; istn++ < nstn; )
-    {
-        stnadj(stnptr(istn))->nobsprm=0;
+int assign_obs_param_to_stations(int* pnstnobs) {
+    int nstnobs = 0;
+    int nobsprm = 0;
+    if (pnstnobs) {
+        *pnstnobs = nstnobs;
+    }
+    if (get_obs_param_count() <= 0) {
+        return nobsprm;
+    }
+    const int nstn = number_of_stations(net);
+    for (int istn = 0; istn++ < nstn;) {
+        stnadj(stnptr(istn))->nobsprm = 0;
     }
     bindata b;
     init_get_bindata(0L);
-    while( true )
-    {
-        if( get_bindata( SURVDATA, b ) != OK ) { break;
-}
-        survdata *sd = b.survey_data();
-        int const nprm=sd->nprms;
-        int const prmid=sd->prmid;
-        if( nprm <= 0 || prmid <= 0 ) { continue;
-}
-        if( ! get_obs_param(prmid)->used ) { continue;
-}
-        int istno=0;
-        int istn=sd->from;
-        for( int iobs = -1; iobs < sd->nobs; iobs++ )
-        {
-            if( iobs >= 0 )
-            {
-                trgtdata *tgt=get_trgtdata(sd,iobs);
-                if( tgt->unused ) { continue;
-}
-                istn=tgt->to;
+    while (true) {
+        if (get_bindata(SURVDATA, b) != OK) {
+            break;
+        }
+        survdata* sd = b.survey_data();
+        const int nprm = sd->nprms;
+        const int prmid = sd->prmid;
+        if (nprm <= 0 || prmid <= 0) {
+            continue;
+        }
+        if (!get_obs_param(prmid)->used) {
+            continue;
+        }
+        int istno = 0;
+        int istn = sd->from;
+        for (int iobs = -1; iobs < sd->nobs; iobs++) {
+            if (iobs >= 0) {
+                trgtdata* tgt = get_trgtdata(sd, iobs);
+                if (tgt->unused) {
+                    continue;
+                }
+                istn = tgt->to;
             }
-            station *st=stnptr(istn);
-            if( ! st ) { continue;
-}
-            stn_adjustment *sa=stnadj(st);
-            if( sa->hrowno > 0 || sa->vrowno > 0 )
-            {
+            station* st = stnptr(istn);
+            if (!st) {
+                continue;
+            }
+            stn_adjustment* sa = stnadj(st);
+            if (sa->hrowno > 0 || sa->vrowno > 0) {
                 sa->nobsprm += nprm;
                 nstnobs += nprm;
-                istno=istn;
+                istno = istn;
                 break;
             }
         }
         nobsprm += nprm;
-        int const obsid=get_trgtdata(sd,0)->obsid;
-        for( int iprm=0; iprm < nprm; iprm++ )
-        {
-            obs_param *oprm=get_obs_param(prmid+iprm);
-            if( ! oprm || oprm->obsid != obsid )
-            {
-                handle_error(FATAL_ERROR,"Mismatch in obs param count",
-                        "assign_obs_param_to_stations");
+        const int obsid = get_trgtdata(sd, 0)->obsid;
+        for (int iprm = 0; iprm < nprm; iprm++) {
+            obs_param* oprm = get_obs_param(prmid + iprm);
+            if (!oprm || oprm->obsid != obsid) {
+                handle_error(FATAL_ERROR, "Mismatch in obs param count", "assign_obs_param_to_stations");
                 return 0;
             }
-            oprm->rowno=istno;
+            oprm->rowno = istno;
         }
     }
-    if( pnstnobs ) { *pnstnobs = nstnobs;
-}
+    if (pnstnobs) {
+        *pnstnobs = nstnobs;
+    }
     return nobsprm;
 }
 
@@ -260,72 +247,60 @@ int assign_obs_param_to_stations( int *pnstnobs )
  * not allocated to stations takes the number from the nxtprm value.
  */
 
-void set_obs_prm_row_number( int nxtprm, int endobsprm )
-{
-    if( get_obs_param_count() <= 0 ) { return;
-}
-    int *rownoptr=nullptr;
+void set_obs_prm_row_number(int nxtprm, int endobsprm) {
+    if (get_obs_param_count() <= 0) {
+        return;
+    }
+    int* rownoptr = nullptr;
     std::vector<int> strn;
     std::vector<int> stno;
-    int const nstn=number_of_stations(net);
-    for( obs_param &oprm : obs_params )
-    {
-        if( ! oprm.used ) { continue;
-}
-        int const istn=oprm.rowno;
-        if( istn <= 0 || istn > nstn )
-        {
-            rownoptr=&nxtprm;
+    const int nstn = number_of_stations(net);
+    for (obs_param& oprm : obs_params) {
+        if (!oprm.used) {
+            continue;
         }
-        else 
-        {
-            if( strn.empty() )
-            {
-                strn.assign( nstn+1, 0 );
-                stno.assign( nstn+1, 0 );
-                for( int ist=1; ist<=nstn; ist++ )
-                {
-                    const stn_adjustment *sa=stnadj(stnptr(ist));
-                    int rn = sa->hrowno ? sa->hrowno+2 : 0;
-                    if( sa->vrowno ) { rn=sa->vrowno+1;
-}
-                    strn[ist]=rn;
-                    stno[ist]=sa->nobsprm;
+        const int istn = oprm.rowno;
+        if (istn <= 0 || istn > nstn) {
+            rownoptr = &nxtprm;
+        } else {
+            if (strn.empty()) {
+                strn.assign(nstn + 1, 0);
+                stno.assign(nstn + 1, 0);
+                for (int ist = 1; ist <= nstn; ist++) {
+                    const stn_adjustment* sa = stnadj(stnptr(ist));
+                    int rn = sa->hrowno ? sa->hrowno + 2 : 0;
+                    if (sa->vrowno) {
+                        rn = sa->vrowno + 1;
+                    }
+                    strn[ist] = rn;
+                    stno[ist] = sa->nobsprm;
                 }
             }
-            rownoptr=&strn[istn];
+            rownoptr = &strn[istn];
             stno[istn]--;
         }
-        if( ! *rownoptr )
-        {
-            handle_error(FATAL_ERROR,"Invalid row number setting obs prm",
-                    "set_obs_prm_row_number");
+        if (!*rownoptr) {
+            handle_error(FATAL_ERROR, "Invalid row number setting obs prm", "set_obs_prm_row_number");
             return;
         }
-        oprm.rowno=(*rownoptr)++;
+        oprm.rowno = (*rownoptr)++;
     }
-    if( nxtprm-1 != endobsprm )
-    {
-        handle_error(FATAL_ERROR,"Mismatch in number of obs parameters set",
-                "set_obs_prm_row_number");
+    if (nxtprm - 1 != endobsprm) {
+        handle_error(FATAL_ERROR, "Mismatch in number of obs parameters set", "set_obs_prm_row_number");
     }
 
-    for( int ist = 1; ist <= nstn && ! stno.empty(); ist++ )
-    {
-        if( stno[ist] != 0 )
-        {
-            handle_error(FATAL_ERROR,"Mismatch in number of station obs parameters set",
-                "set_obs_prm_row_number");
+    for (int ist = 1; ist <= nstn && !stno.empty(); ist++) {
+        if (stno[ist] != 0) {
+            handle_error(FATAL_ERROR, "Mismatch in number of station obs parameters set", "set_obs_prm_row_number");
         }
     }
 }
 
-std::optional<std::string> find_obsparam_row( const int row )
-{
-    const auto oprm = std::find_if( obs_params.begin(), obs_params.end(),
-        [row]( const obs_param &candidate ) { return candidate.rowno == row; } );
-    if( oprm == obs_params.end() ) { return std::nullopt;
-}
+std::optional<std::string> find_obsparam_row(const int row) {
+    const auto oprm = std::find_if(obs_params.begin(), obs_params.end(),
+                                   [row](const obs_param& candidate) { return candidate.rowno == row; });
+    if (oprm == obs_params.end()) {
+        return std::nullopt;
+    }
     return oprm->prmname();
 }
-

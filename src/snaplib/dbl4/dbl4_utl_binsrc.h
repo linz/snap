@@ -26,41 +26,42 @@
 /// The byte order of binary values
 enum class Endian { Little, Big };
 
-struct BinSrc
-{
-    hBlob const blob;           ///< The blob object from which to read data
-    long offset;                ///< The offset from which to read the next data
-    const long seek_offset;     ///< Offset used for embedded binsrc objects
+struct BinSrc {
+    const hBlob blob;                    ///< The blob object from which to read data
+    long offset;                         ///< The offset from which to read the next data
+    const long seek_offset;              ///< Offset used for embedded binsrc objects
     Endian src_endian = Endian::Little;  ///< The byte order of the source data
-    const Endian arch_endian;   ///< The byte order of the architecture
+    const Endian arch_endian;            ///< The byte order of the architecture
 
     /// Creates a source reading from the start of a blob, with little endian data
-    explicit BinSrc( hBlob source );  ///< The blob object from which to read data
+    explicit BinSrc(hBlob source);  ///< The blob object from which to read data
 
     /// Creates a source reading from within another one, with the same byte order
-    BinSrc( const BinSrc &parent,    ///< The source being embedded in
-            long embeddedOffset );   ///< The offset in parent from which to read
+    BinSrc(const BinSrc& parent,  ///< The source being embedded in
+           long embeddedOffset);  ///< The offset in parent from which to read
 
     /// True if the byte order of the values read has to be reversed
-    [[nodiscard]] bool swap_bytes() const { return src_endian != arch_endian; }
+    [[nodiscard]] bool swap_bytes() const {
+        return src_endian != arch_endian;
+    }
 };
-using hBinSrc = BinSrc *;
+using hBinSrc = BinSrc*;
 
 /* The offset value to specify to continue reading from the last read
    statement */
 
 #define BINSRC_CONTINUE -1
 
-StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc);
-StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc *embsrc);
-StatusType utlReleaseBinSrc( hBinSrc binsrc);
+StatusType utlCreateBinSrc(hBlob blob, hBinSrc* binsrc);
+StatusType utlCreateEmbeddedBinSrc(hBinSrc binsrc, long offset, hBinSrc* embsrc);
+StatusType utlReleaseBinSrc(hBinSrc binsrc);
 
-StatusType utlBinSrcSetEndian( hBinSrc binsrc, Endian endian );
+StatusType utlBinSrcSetEndian(hBinSrc binsrc, Endian endian);
 
-StatusType utlBinSrcLoad1( hBinSrc binsrc, long offset, int nval, void *data );
-StatusType utlBinSrcLoad2( hBinSrc binsrc, long offset, int nval, void *data );
-StatusType utlBinSrcLoad4( hBinSrc binsrc, long offset, int nval, void *data );
-StatusType utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data );
-StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, std::string &data );
+StatusType utlBinSrcLoad1(hBinSrc binsrc, long offset, int nval, void* data);
+StatusType utlBinSrcLoad2(hBinSrc binsrc, long offset, int nval, void* data);
+StatusType utlBinSrcLoad4(hBinSrc binsrc, long offset, int nval, void* data);
+StatusType utlBinSrcLoad8(hBinSrc binsrc, long offset, int nval, void* data);
+StatusType utlBinSrcLoadString(hBinSrc binsrc, long offset, std::string& data);
 
 #endif /* DBL4_UTL_BINSRC_H not defined */

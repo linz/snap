@@ -12,27 +12,28 @@
 #include "util/recordinputbase.hpp"
 #include "util/datafile.h"
 
-namespace LINZ
-{
+namespace LINZ {
 
-class DatafileInput : public RecordInputBase
-{
-public:
-    DatafileInput( const std::string &filename, const std::string &description = "data file" );
-    DatafileInput( DATAFILE &df, bool (*check_progress)( DATAFILE &df ) = nullptr );
-    bool getNextLine( std::string &line ) override;
+class DatafileInput : public RecordInputBase {
+ public:
+    DatafileInput(const std::string& filename, const std::string& description = "data file");
+    DatafileInput(DATAFILE& df, bool (*check_progress)(DATAFILE& df) = nullptr);
+    bool getNextLine(std::string& line) override;
     // Return true if the error is handled
-    bool handleError( const RecordError &error ) override;
+    bool handleError(const RecordError& error) override;
     int lineNumber() override;
     int errorCount();
-    [[nodiscard]] bool aborted() const { return _aborted; }
-private:
-    std::unique_ptr<DATAFILE> _df_own;                      ///< the data file, if this class opened it
-    std::optional<std::reference_wrapper<DATAFILE>> _df;    ///< the data file being read, set once it is known to be open
-    bool (*_check_progress)( DATAFILE &df );
+    [[nodiscard]] bool aborted() const {
+        return _aborted;
+    }
+
+ private:
+    std::unique_ptr<DATAFILE> _df_own;                    ///< the data file, if this class opened it
+    std::optional<std::reference_wrapper<DATAFILE>> _df;  ///< the data file being read, set once it is known to be open
+    bool (*_check_progress)(DATAFILE& df);
     bool _aborted;
 };
 
-} // End of namespace LINZ
+}  // End of namespace LINZ
 
 #endif

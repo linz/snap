@@ -8,9 +8,9 @@
 
 */
 
-void set_mde_level( double sig, double power );
-double calculate_mde( double sobs, double sres );
-double residual_significance( double sres, int used, int rank );
-double prob_of_maximum( double prob, int rank );
+void set_mde_level(double sig, double power);
+double calculate_mde(double sobs, double sres);
+double residual_significance(double sres, int used, int rank);
+double prob_of_maximum(double prob, int rank);
 
 #endif

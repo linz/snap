@@ -7,7 +7,6 @@
 #endif
 #endif
 
-
 #if defined(UNIX)
 // unix version of functions
 #include "util/snapctype.h"
@@ -20,8 +19,22 @@
 #define _isatty isatty
 #define _hypot hypot
 #define _tempnam tempnam
-#define _strupr(x) {char *c=(x);while(*c){ *c=(char) TOUPPER((int)*c); c++; }}
-#define _strlwr(x) {char *c=(x);while(*c){ *c=(char) TOLOWER((int)*c); c++; }}
+#define _strupr(x)                       \
+    {                                    \
+        char* c = (x);                   \
+        while (*c) {                     \
+            *c = (char)TOUPPER((int)*c); \
+            c++;                         \
+        }                                \
+    }
+#define _strlwr(x)                       \
+    {                                    \
+        char* c = (x);                   \
+        while (*c) {                     \
+            *c = (char)TOLOWER((int)*c); \
+            c++;                         \
+        }                                \
+    }
 #define _set_output_format(x)
 #define _strdup strdup
 #define _putenv putenv
@@ -61,6 +74,8 @@
 #endif
 #endif
 
-#define CONFIGURE_RUNTIME() CONFIGURE_PRINTF(); CONFIGURE_EXPONENT()
+#define CONFIGURE_RUNTIME() \
+    CONFIGURE_PRINTF();     \
+    CONFIGURE_EXPONENT()
 
 #endif

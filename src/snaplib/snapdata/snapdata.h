@@ -12,6 +12,6 @@
 #include "util/datafile.h"
 #endif
 
-int read_snap_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) );
+int read_snap_data(DATAFILE& d, bool (*check_progress)(DATAFILE& d));
 
 #endif

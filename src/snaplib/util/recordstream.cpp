@@ -13,9 +13,7 @@ using namespace LINZ;
 
 using std::string;
 
-RecordStream::RecordStream(const string &fname) : _str(fname),
-                                                  _filename(fname)
-{
+RecordStream::RecordStream(const string& fname) : _str(fname), _filename(fname) {
     _recordLineNo = 0;
     _lineNo = 0;
     _comment = 0;
@@ -24,101 +22,88 @@ RecordStream::RecordStream(const string &fname) : _str(fname),
     _isloaded = true;
 }
 
-RecordStream::~RecordStream()
-= default;
+RecordStream::~RecordStream() = default;
 
-void RecordStream::restart()
-{
+void RecordStream::restart() {
     _str.clear();
     _str.seekg(0);
 };
 
-void RecordStream::setControlChars(char comment, char contchar)
-{
+void RecordStream::setControlChars(char comment, char contchar) {
     _comment = comment;
     _contchar = contchar;
 }
 
-bool RecordStream::_iscomment(const std::string &str) const
-{
+bool RecordStream::_iscomment(const std::string& str) const {
     if (!_leadcomment) {
         return false;
-}
-    auto first = std::find_if(str.begin(), str.end(),
-                              [](unsigned char c) { return !std::isspace(c); });
+    }
+    auto first = std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isspace(c); });
     return first < str.end() && (*first) == _leadcomment;
 }
 
-void RecordStream::_trimcomment(std::string &str) const
-{
+void RecordStream::_trimcomment(std::string& str) const {
     if (!_comment) {
         return;
-}
-    string::size_type const pos = str.find_first_of(_comment);
+    }
+    const string::size_type pos = str.find_first_of(_comment);
     if (pos == string::npos) {
         str.erase(pos);
-}
+    }
 }
 
-bool RecordStream::_trimcontinue(std::string &str) const
-{
+bool RecordStream::_trimcontinue(std::string& str) const {
     boost::trim_right(str);
     if (!_contchar) {
         return false;
-}
-    string::size_type const pos = str.size();
-    if (pos > 1 && str[pos - 1] == _contchar && ::isspace(str[pos - 1]))
-    {
+    }
+    const string::size_type pos = str.size();
+    if (pos > 1 && str[pos - 1] == _contchar && ::isspace(str[pos - 1])) {
         str.resize(pos - 1);
         return true;
     }
     return false;
 }
 
-bool RecordStream::readRecord()
-{
+bool RecordStream::readRecord() {
     if (!_str) {
         return false;
-}
+    }
     _recordstr.clear();
     _isloaded = false;
-    while (true)
-    {
+    while (true) {
         if (!std::getline(_str, _recordstr)) {
             return false;
-}
+        }
         _lineNo++;
         _recordLineNo = _lineNo;
         // If respecting a comment character, then trim everything after it
         if (_iscomment(_recordstr)) {
             continue;
-}
+        }
         _trimcomment(_recordstr);
-        while (_trimcontinue(_recordstr))
-        {
+        while (_trimcontinue(_recordstr)) {
             string extra;
             if (!std::getline(_str, extra)) {
                 break;
-}
+            }
             _lineNo++;
             if (_iscomment(extra)) {
                 break;
-}
+            }
             _trimcomment(extra);
             _recordstr += extra;
         }
         // If string is not empty
         if (!_recordstr.empty()) {
             break;
-}
+        }
     }
     return true;
 }
 
-std::istringstream &RecordStream::record()
-{
-    if (!_isloaded)
-    {
+std::istringstream& RecordStream::record() {
+    if (!_isloaded) {
         _record.str(_recordstr);
         _record.clear();
         _record.seekg(0);

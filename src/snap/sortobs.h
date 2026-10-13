@@ -12,10 +12,10 @@
 
 #include <cstdint>
 
-void save_observation( int from, int to, int type, int64_t loc );
-void sort_observation_list( void );
-void init_get_sorted_obs_loc( void );
-int64_t get_sorted_obs_loc( void );
+void save_observation(int from, int to, int type, int64_t loc);
+void sort_observation_list(void);
+void init_get_sorted_obs_loc(void);
+int64_t get_sorted_obs_loc(void);
 
 #ifdef SORTOBS_C
 int sort_obs = 0;
@@ -23,8 +23,8 @@ int sort_obs = 0;
 extern int sort_obs;
 #endif
 
-#define SORTED_OBS    1
-#define SORT_BY_LINE  2
-#define SORT_BY_TYPE  4
+#define SORTED_OBS 1
+#define SORT_BY_LINE 2
+#define SORT_BY_TYPE 4
 
 #endif

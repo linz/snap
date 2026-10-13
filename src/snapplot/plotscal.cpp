@@ -30,12 +30,11 @@ static char autoscale_hgterr;
 static double ell_autosf;
 static double he_autosf;
 
-void init_plot_scales( void )
-{
-    set_stn_name_size( 1.0, 1 );
-    set_stn_symbol_size( 1.0, 1 );
-    set_errell_exaggeration( 1.0, 1 );
-    set_hgterr_exaggeration( 1.0, 1 );
+void init_plot_scales(void) {
+    set_stn_name_size(1.0, 1);
+    set_stn_symbol_size(1.0, 1);
+    set_errell_exaggeration(1.0, 1);
+    set_hgterr_exaggeration(1.0, 1);
     adjhor_scale = 1.0;
     adjvrt_scale = 1.0;
     /*
@@ -52,146 +51,106 @@ void init_plot_scales( void )
     merge_common_obs = PCONN_DIFFERENT_TYPES;
 }
 
-
-void set_stn_name_size( double size, int autoscl )
-{
-    if( autoscl )
-    {
+void set_stn_name_size(double size, int autoscl) {
+    if (autoscl) {
         txt_autosf = size;
         autoscale_txtsize = 1;
-    }
-    else
-    {
+    } else {
         stn_name_size = size;
         autoscale_txtsize = 0;
     }
 }
 
-void get_stn_name_size( double *size, int *autoscl )
-{
-    if( autoscale_txtsize )
-    {
+void get_stn_name_size(double* size, int* autoscl) {
+    if (autoscale_txtsize) {
         *size = txt_autosf;
         *autoscl = 1;
-    }
-    else
-    {
+    } else {
         *size = stn_name_size;
         *autoscl = 0;
     }
 }
 
-
-void set_stn_symbol_size( double size, int autoscl )
-{
-    if( autoscl )
-    {
+void set_stn_symbol_size(double size, int autoscl) {
+    if (autoscl) {
         stn_autosf = size;
         autoscale_stnsize = 1;
-    }
-    else
-    {
+    } else {
         stn_symbol_size = size;
         autoscale_stnsize = 0;
     }
 }
 
-void get_stn_symbol_size( double *size, int *autoscl )
-{
-    if( autoscale_stnsize )
-    {
+void get_stn_symbol_size(double* size, int* autoscl) {
+    if (autoscale_stnsize) {
         *size = stn_autosf;
         *autoscl = 1;
-    }
-    else
-    {
+    } else {
         *size = stn_symbol_size;
         *autoscl = 0;
     }
 }
 
-void set_errell_exaggeration( double scale, int autoscl )
-{
-    if( autoscl )
-    {
+void set_errell_exaggeration(double scale, int autoscl) {
+    if (autoscl) {
         autoscale_ellipse = 1;
         ell_autosf = scale;
-    }
-    else
-    {
+    } else {
         autoscale_ellipse = 0;
         errell_scale = scale;
     }
 }
 
-void get_errell_exaggeration( double *scale, int *autoscl )
-{
-    if( autoscale_ellipse )
-    {
+void get_errell_exaggeration(double* scale, int* autoscl) {
+    if (autoscale_ellipse) {
         *scale = ell_autosf;
         *autoscl = 1;
-    }
-    else
-    {
+    } else {
         *scale = errell_scale;
         *autoscl = 0;
     }
 }
 
-void set_hgterr_exaggeration( double scale, int autoscl )
-{
-    if( autoscl )
-    {
+void set_hgterr_exaggeration(double scale, int autoscl) {
+    if (autoscl) {
         autoscale_hgterr = 1;
         he_autosf = scale;
-    }
-    else
-    {
+    } else {
         autoscale_hgterr = 0;
         hgterr_scale = scale;
     }
 }
 
-void get_hgterr_exaggeration( double *scale, int *autoscl )
-{
-    if( autoscale_hgterr )
-    {
+void get_hgterr_exaggeration(double* scale, int* autoscl) {
+    if (autoscale_hgterr) {
         *scale = he_autosf;
         *autoscl = 1;
-    }
-    else
-    {
+    } else {
         *scale = hgterr_scale;
         *autoscl = 0;
     }
 }
 
-
-void set_confidence_limit()
-{
+void set_confidence_limit() {
     double prob;
     int dofd;
 
     use_confidence_limit = errconflim;
-    confidence_limit=errconfval;
+    confidence_limit = errconfval;
     aposteriori_errors = apriori ? 0 : 1;
 
-    if( errconflim )
-    {
+    if (errconflim) {
         prob = (100 - confidence_limit) / 100.0;
-        dofd = apriori ? 0 :  dof;
-        hgterr_factor = inv_f_distn( prob, 1, dofd );
+        dofd = apriori ? 0 : dof;
+        hgterr_factor = inv_f_distn(prob, 1, dofd);
         hgterr_factor = hgterr_factor > 0.0 ? sqrt(hgterr_factor) : 0.0;
-        errell_factor = inv_f_distn( prob, 2, dofd );
-        errell_factor = errell_factor > 0.0 ? sqrt(errell_factor*2.0) : 0.0;
-    }
-    else
-    {
+        errell_factor = inv_f_distn(prob, 2, dofd);
+        errell_factor = errell_factor > 0.0 ? sqrt(errell_factor * 2.0) : 0.0;
+    } else {
         errell_factor = hgterr_factor = confidence_limit;
     }
 
-    if( ! apriori )
-    {
+    if (!apriori) {
         errell_factor *= seu;
         hgterr_factor *= seu;
     }
@@ -199,29 +158,31 @@ void set_confidence_limit()
 
 /* Routine to find a "nice" number close to a given value */
 
-static double nice_number( double value )
-{
+static double nice_number(double value) {
     double nice;
-    double *best;
-    static double goodvalues[] = { 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, -1.0 };
-    if ( value < 0.0 ) { value = -value;
-}
+    double* best;
+    static double goodvalues[] = {1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, -1.0};
+    if (value < 0.0) {
+        value = -value;
+    }
     nice = 0.000001;
-    while( nice < value ) { nice *= 10.0;
-}
+    while (nice < value) {
+        nice *= 10.0;
+    }
     nice /= 10.0;
 
-    for( best = goodvalues+1; *best > 0.0; best++ ) {
-        if( nice * *best > value ) { break;
-}
-}
+    for (best = goodvalues + 1; *best > 0.0; best++) {
+        if (nice * *best > value) {
+            break;
+        }
+    }
 
     best--;
 
     return nice * *best;
 }
 
-using component_func = void (*)( double *h, double *v );
+using component_func = void (*)(double* h, double* v);
 
 // Shared by every calc_default_*_scale() function below. componentFunc supplies
 // the raw horizontal/vertical magnitude (max_covariance_component,
@@ -229,85 +190,75 @@ using component_func = void (*)( double *h, double *v );
 // which of the two to scale for; factor is the confidence-interval multiplier to
 // apply (1.0 for adjustment vectors, which have no such concept). The result
 // makes that single magnitude span about 1/20th of the visible plot extent.
-static double component_scale( const component_func componentFunc, const bool useHorizontal, const double factor )
-{
-    if( !got_covariances() ) { return 0.0;
-}
+static double component_scale(const component_func componentFunc, const bool useHorizontal, const double factor) {
+    if (!got_covariances()) {
+        return 0.0;
+    }
     double h;
     double v;
-    componentFunc( &h, &v );
+    componentFunc(&h, &v);
     const double cvrmax = (useHorizontal ? h : v) * factor;
     const double safeCvrmax = cvrmax > 0 ? cvrmax : 1.0;
-    return (plot_emax - plot_emin + plot_nmax - plot_nmin) /
-           (20.0 * safeCvrmax);
+    return (plot_emax - plot_emin + plot_nmax - plot_nmin) / (20.0 * safeCvrmax);
 }
 
-double calc_default_error_scale( void )
-{
-    return component_scale( max_covariance_component, true, errell_factor );
+double calc_default_error_scale(void) {
+    return component_scale(max_covariance_component, true, errell_factor);
 }
 
-double calc_default_relative_ellipse_scale( void )
-{
-    return component_scale( maximum_relative_covariance, true, errell_factor );
+double calc_default_relative_ellipse_scale(void) {
+    return component_scale(maximum_relative_covariance, true, errell_factor);
 }
 
-double calc_default_height_error_scale( void )
-{
-    return component_scale( max_covariance_component, false, hgterr_factor );
+double calc_default_height_error_scale(void) {
+    return component_scale(max_covariance_component, false, hgterr_factor);
 }
 
-double calc_default_relative_height_scale( void )
-{
-    return component_scale( maximum_relative_covariance, false, hgterr_factor );
+double calc_default_relative_height_scale(void) {
+    return component_scale(maximum_relative_covariance, false, hgterr_factor);
 }
 
-double calc_default_hor_adjustment_scale( void )
-{
-    return component_scale( max_adjustment_component, true, 1.0 );
+double calc_default_hor_adjustment_scale(void) {
+    return component_scale(max_adjustment_component, true, 1.0);
 }
 
-double calc_default_vrt_adjustment_scale( void )
-{
-    return component_scale( max_adjustment_component, false, 1.0 );
+double calc_default_vrt_adjustment_scale(void) {
+    return component_scale(max_adjustment_component, false, 1.0);
 }
 
+static void autoscale_errors(void) {
+    if (autoscale_ellipse) {
+        errell_scale = nice_number(calc_default_error_scale() * ell_autosf);
+    }
+    if (autoscale_hgterr) {
+        hgterr_scale = nice_number(calc_default_height_error_scale() * he_autosf);
+    }
 
-static void autoscale_errors( void )
-{
-    if( autoscale_ellipse ) { errell_scale = nice_number( calc_default_error_scale() * ell_autosf );
+    rel_errell_scale = nice_number(calc_default_relative_ellipse_scale() * ell_autosf);
+    rel_hgterr_scale = nice_number(calc_default_relative_height_scale() * he_autosf);
+
+    adjhor_scale = nice_number(calc_default_hor_adjustment_scale() * ell_autosf);
+    adjvrt_scale = nice_number(calc_default_vrt_adjustment_scale() * he_autosf);
 }
-    if( autoscale_hgterr ) { hgterr_scale = nice_number( calc_default_height_error_scale() * he_autosf );
-}
 
-    rel_errell_scale = nice_number( calc_default_relative_ellipse_scale() * ell_autosf );
-    rel_hgterr_scale = nice_number( calc_default_relative_height_scale() * he_autosf );
-
-    adjhor_scale = nice_number( calc_default_hor_adjustment_scale() * ell_autosf );
-    adjvrt_scale = nice_number( calc_default_vrt_adjustment_scale() * he_autosf );
-}
-
-
-double calc_default_stn_size( void )
-{
+double calc_default_stn_size(void) {
     return (plot_emax - plot_emin + plot_nmax - plot_nmin) / 500.0;
 }
 
-static void autoscale_sizes( void )
-{
+static void autoscale_sizes(void) {
     double dfltscale;
 
     dfltscale = calc_default_stn_size();
 
-    if( autoscale_txtsize ) { stn_name_size = nice_number( dfltscale * 2 * txt_autosf);
-}
-    if( autoscale_stnsize ) { stn_symbol_size = nice_number( dfltscale * stn_autosf );
+    if (autoscale_txtsize) {
+        stn_name_size = nice_number(dfltscale * 2 * txt_autosf);
+    }
+    if (autoscale_stnsize) {
+        stn_symbol_size = nice_number(dfltscale * stn_autosf);
+    }
 }
 
-}
-
-void set_plot_range( double emin, double nmin, double emax, double nmax )
-{
+void set_plot_range(double emin, double nmin, double emax, double nmax) {
     plot_emin = emin;
     plot_nmin = nmin;
     plot_emax = emax;
@@ -317,12 +268,10 @@ void set_plot_range( double emin, double nmin, double emax, double nmax )
     autoscale_errors();
 }
 
-double calc_obs_offset( void )
-{
+double calc_obs_offset(void) {
     double offset = offset_spacing;
-    if( autospacing )
-    {
-        offset *= (plot_emax-plot_emin+plot_nmax-plot_nmin)/1000;
+    if (autospacing) {
+        offset *= (plot_emax - plot_emin + plot_nmax - plot_nmin) / 1000;
     }
     return offset;
 }

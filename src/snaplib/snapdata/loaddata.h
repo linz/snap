@@ -57,9 +57,7 @@
 
 */
 
-enum { ID_STATION, ID_PROJCTN, ID_CLASSTYPE, ID_CLASSNAME, ID_COEF,
-       ID_COEFCLASS, ID_SYSERR, ID_NOTE, N_ID_TYPE
-     };
+enum { ID_STATION, ID_PROJCTN, ID_CLASSTYPE, ID_CLASSNAME, ID_COEF, ID_COEFCLASS, ID_SYSERR, ID_NOTE, N_ID_TYPE };
 
 /* These must match the coef_classes array in loaddata.c */
 
@@ -71,118 +69,110 @@ enum { CALC_DISTANCE, CALC_HDIST };
 
 /*  */
 
-struct coef_class_info
-{
+struct coef_class_info {
     std::string_view default_classname;
-    bool datatypedef::*useclass;
+    bool datatypedef::* useclass;
 };
 
-coef_class_info *coef_class( int coeftype );
-void set_coef_class( int coeftype, std::string_view name );
+coef_class_info* coef_class(int coeftype);
+void set_coef_class(int coeftype, std::string_view name);
 
 /* The following two routines are called by the "main" program
    before and after loading a data file */
 
-void init_load_data( void (*usedata_func)( survdata *sd ),
-                     int64_t (*idfunc)( int type, int group_id, std::string_view code ),
-                     std::string (*namefunc)( int type, int group_id, long id ),
-                     double (*calcfunc)( int type, long id1, long id2 ));
-void term_load_data( void );
-
+void init_load_data(void (*usedata_func)(survdata* sd),
+                    int64_t (*idfunc)(int type, int group_id, std::string_view code),
+                    std::string (*namefunc)(int type, int group_id, long id),
+                    double (*calcfunc)(int type, long id1, long id2));
+void term_load_data(void);
 
 /* Station recode function */
 
 /// The outcome of recoding a station code.
-struct recode_result
-{
+struct recode_result {
     std::string_view code;  ///< the recoded station code, empty if reject is set and the whole station is ignored
     bool reject;            ///< true if observations to or from the station are to be rejected
 };
 
 /// Sets the function used to recode station codes read from data files.
 /// The function returns nullopt if the code is not recoded.
-void set_stn_recode_func(
-        std::optional<recode_result> (*recode)( void *recodedata, std::string_view code, double date ),
-        void *recodedata);
+void set_stn_recode_func(std::optional<recode_result> (*recode)(void* recodedata, std::string_view code, double date),
+                         void* recodedata);
 
 /* The following routine can be called to enable handling of GPS covariances.
    Otherwise the request for a covariance array (ldt_covariance)
    returns NULL, and input covariance information should be ignored */
 
-
-void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
-                                    double *mmerr ));
-
+void set_gpscvr_func(void (*func)(survdata* vd, int cvrtype, double* mmerr));
 
 /* The following routines are called by the data file reader.  The load
    data routines assemble these to convert the data to a standard internal
    format */
 
-int64_t ldt_get_id( int type, int group_id, std::string_view code );
-std::string ldt_get_code( int type, int group_id, long id );
-double ldt_calc_value( int calc_type, long id1, long id2 );
+int64_t ldt_get_id(int type, int group_id, std::string_view code);
+std::string ldt_get_code(int type, int group_id, long id);
+double ldt_calc_value(int calc_type, long id1, long id2);
 
 /* Set state - can happen at any time */
 
-void ldt_init_obs_modifications( void *obsmod );
+void ldt_init_obs_modifications(void* obsmod);
 
-void ldt_file( int file );
+void ldt_file(int file);
 
 /* Starts an observation set... */
 
-void ldt_inststn( int stn_id, double ihgt );
+void ldt_inststn(int stn_id, double ihgt);
 
 /* Observation set state info */
 
-void ldt_date( double date );
-void ldt_time( double time );
+void ldt_date(double date);
+void ldt_time(double time);
 
-void ldt_projection( int proj_id );
-void ldt_tgtstn( int stn_id, double ihgt );
+void ldt_projection(int proj_id);
+void ldt_tgtstn(int stn_id, double ihgt);
 
 /* Initialises an observation */
-void ldt_nextdata( int type );
-void ldt_value( const double *value );
-void ldt_error( const double *error );
+void ldt_nextdata(int type);
+void ldt_value(const double* value);
+void ldt_error(const double* error);
 
-void ldt_unused( void );
+void ldt_unused(void);
 
-void ldt_lineno( long lineno );
-void ldt_obs_id( int id );
-void ldt_classification( int class_id, int name_id );
-void ldt_syserr( int syserr_id, double influence );
-void ldt_vecsyserr( int syserr_id, double influence[] );
+void ldt_lineno(long lineno);
+void ldt_obs_id(int id);
+void ldt_classification(int class_id, int name_id);
+void ldt_syserr(int syserr_id, double influence);
+void ldt_vecsyserr(int syserr_id, double influence[]);
 
-void ldt_prefix_note( std::string_view note );
-void ldt_note( std::string_view note );
+void ldt_prefix_note(std::string_view note);
+void ldt_note(std::string_view note);
 
 /* Once all observations in a set are created */
 
-ltmat ldt_covariance( int cvrtype, const double *mmerr );
+ltmat ldt_covariance(int cvrtype, const double* mmerr);
 
-void ldt_cancel_data( void );
-void ldt_cancel_trgt( void );
-void ldt_cancel_inst( void );
-int ldt_data_cancelled( void );
+void ldt_cancel_data(void);
+void ldt_cancel_trgt(void);
+void ldt_cancel_inst(void);
+int ldt_data_cancelled(void);
 
 /* At the end of a set of data */
 
-void ldt_end_data( void );
+void ldt_end_data(void);
 
 /* Covariance types for vecdata_covariance */
 
-#define CVR_DEFAULT      0
-#define CVR_TOPOCENTRIC  1
-#define CVR_DIAGONAL     2
-#define CVR_FULL         3
-#define CVR_CORRELATION  4
+#define CVR_DEFAULT 0
+#define CVR_TOPOCENTRIC 1
+#define CVR_DIAGONAL 2
+#define CVR_FULL 3
+#define CVR_CORRELATION 4
 #define CVR_ENU_CORRELATION 5
 
 /* Default reference frame names */
 
-#define DEFAULT_REFFRM_NAME   "GPS"
-#define DEFAULT_REFCOEF_NAME  "DEFAULT"
-#define DEFAULT_PROJECTION    "NONE"
+#define DEFAULT_REFFRM_NAME "GPS"
+#define DEFAULT_REFCOEF_NAME "DEFAULT"
+#define DEFAULT_PROJECTION "NONE"
 
 #endif
-

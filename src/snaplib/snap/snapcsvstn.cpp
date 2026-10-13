@@ -31,44 +31,42 @@ using namespace SNAP;
 /////////////////////////////////////////////////////////////////
 // CsvClassification
 
-SnapCsvStn::CsvClassification::CsvClassification(network *net, const std::string &name) : CsvValue(name), _classId(0), _net(net)
-{
+SnapCsvStn::CsvClassification::CsvClassification(network* net, const std::string& name)
+    : CsvValue(name), _classId(0), _net(net) {
     _classId = _net->class_id(name, 1);
 }
 
-int SnapCsvStn::CsvClassification::classValue()
-{
+int SnapCsvStn::CsvClassification::classValue() {
     return _net->class_value_id(_classId, value(), 1);
 }
 
 /////////////////////////////////////////////////////////////////
 // CsvClassColumn
 
-SnapCsvStn::CsvClassColumn::CsvClassColumn(network *net, const std::string &classname, const Column *column) : _column(column),
-                                                                                                               _net(net)
-{
+SnapCsvStn::CsvClassColumn::CsvClassColumn(network* net, const std::string& classname, const Column* column)
+    : _column(column), _net(net) {
     _classId = _net->class_id(classname, 1);
 }
 
 /////////////////////////////////////////////////////////////////
 // SnapCsvStn
 
-SnapCsvStn::SnapCsvStn(network *net, const std::string &name, const OptionString &config) : SnapCsvBase(name, config),
-                                                                                            _code("Station code"),
-                                                                                            _name("Station name"),
-                                                                                            _crdlon("Longitude/easting/X"),
-                                                                                            _crdlat("Latitude/northing/Y"),
-                                                                                            _crdhgt("Height/Z"),
-                                                                                            _crdund("Geoid height"),
-                                                                                            _crdxi("Deflection east"),
-                                                                                            _crdeta("Deflection north"),
-                                                                                            _crdsys("Coordinate system"),
-                                                                                            _hgttype("Height type"),
-                                                                                            _net(net),
-                                                                                            _haveGeoid(false),
-                                                                                            _ellipsoidalHeights(false),
-                                                                                            _angleformat(AF_DEGREES)
-{
+SnapCsvStn::SnapCsvStn(network* net, const std::string& name, const OptionString& config)
+    : SnapCsvBase(name, config),
+      _code("Station code"),
+      _name("Station name"),
+      _crdlon("Longitude/easting/X"),
+      _crdlat("Latitude/northing/Y"),
+      _crdhgt("Height/Z"),
+      _crdund("Geoid height"),
+      _crdxi("Deflection east"),
+      _crdeta("Deflection north"),
+      _crdsys("Coordinate system"),
+      _hgttype("Height type"),
+      _net(net),
+      _haveGeoid(false),
+      _ellipsoidalHeights(false),
+      _angleformat(AF_DEGREES) {
     _parts.push_back(&_code);
     _parts.push_back(&_name);
     _parts.push_back(&_crdlon);
@@ -81,43 +79,33 @@ SnapCsvStn::SnapCsvStn(network *net, const std::string &name, const OptionString
     _parts.push_back(&_hgttype);
 }
 
-SnapCsvStn::~SnapCsvStn()
-= default;
+SnapCsvStn::~SnapCsvStn() = default;
 
-void SnapCsvStn::readerAttached()
-{
-    for (auto i = _parts.begin(); i < _parts.end(); i++)
-    {
+void SnapCsvStn::readerAttached() {
+    for (auto i = _parts.begin(); i < _parts.end(); i++) {
         (*i)->attach(reader());
     }
-    for (auto i = _classifications.begin(); i < _classifications.end(); i++)
-    {
+    for (auto i = _classifications.begin(); i < _classifications.end(); i++) {
         (*i)->attach(reader());
     }
     _classCols.clear();
-    if (reader())
-    {
-        for (auto s = _classColNames.begin(); s != _classColNames.end(); s++)
-        {
+    if (reader()) {
+        for (auto s = _classColNames.begin(); s != _classColNames.end(); s++) {
             findClassColumns(reader(), *s);
         }
     }
 }
 
-void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName)
-{
+void SnapCsvStn::findClassColumns(CalcReader* reader, const std::string& colName) {
     int len = colName.size() - 1;
-    if (len < 0) { return;
-}
-    if (colName[len] != '*')
-    {
-        Column *c = reader->findColumn(colName);
-        if (c)
-        {
+    if (len < 0) {
+        return;
+    }
+    if (colName[len] != '*') {
+        Column* c = reader->findColumn(colName);
+        if (c) {
             _classCols.emplace_back(_net, colName, c);
-        }
-        else
-        {
+        } else {
             runtimeError(string("Classification column ") + colName + " is missing in " + reader->streamName());
         }
         return;
@@ -128,171 +116,112 @@ void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName
     // prefix** means the classification does not include the matched prefix in the class name
 
     int offset = 0;
-    if (len > 1 && colName[len] == '*')
-    {
+    if (len > 1 && colName[len] == '*') {
         len--;
         offset = len;
     }
-    string const prefix = colName.substr(0, len);
+    const string prefix = colName.substr(0, len);
 
-    for (int col = 0; col < reader->columnCount(); col++)
-    {
-        const Column *c = &(reader->column(col));
+    for (int col = 0; col < reader->columnCount(); col++) {
+        const Column* c = &(reader->column(col));
         string name = c->name();
-        if (len > 0)
-        {
-            string const colprefix = name.substr(0, len);
-            if (!boost::iequals(prefix, colprefix)) { continue;
-}
-            if (offset) { name = name.substr(offset);
-}
+        if (len > 0) {
+            const string colprefix = name.substr(0, len);
+            if (!boost::iequals(prefix, colprefix)) {
+                continue;
+            }
+            if (offset) {
+                name = name.substr(offset);
+            }
         }
         _classCols.emplace_back(_net, name, c);
     }
 }
 
-SnapCsvStn::CsvClassification *SnapCsvStn::addClassification(const string &classname)
-{
-    CsvClassification *clsf = classification(classname);
-    if (clsf != nullptr)
-    {
+SnapCsvStn::CsvClassification* SnapCsvStn::addClassification(const string& classname) {
+    CsvClassification* clsf = classification(classname);
+    if (clsf != nullptr) {
         definitionError(string("Classification ") + classname + " defined more than once");
-    }
-    else
-    {
+    } else {
         clsf = new CsvClassification(_net, classname);
         _classifications.push_back(std::unique_ptr<CsvClassification>(clsf));
     }
     return clsf;
 }
 
-void SnapCsvStn::addColumnClassification(const string &colname)
-{
+void SnapCsvStn::addColumnClassification(const string& colname) {
     _classColNames.push_back(colname);
 }
 
-SnapCsvStn::CsvClassification *SnapCsvStn::classification(const string &classname)
-{
-    for (auto c = _classifications.begin(); c < _classifications.end(); c++)
-    {
-        if (boost::iequals((*c)->name(), classname))
-        {
+SnapCsvStn::CsvClassification* SnapCsvStn::classification(const string& classname) {
+    for (auto c = _classifications.begin(); c < _classifications.end(); c++) {
+        if (boost::iequals((*c)->name(), classname)) {
             return (*c).get();
         }
     }
     return nullptr;
 }
 
-void SnapCsvStn::loadDefinitionCommand(const string &command, RecordStream &rs)
-{
-
-    if (command == "code")
-    {
+void SnapCsvStn::loadDefinitionCommand(const string& command, RecordStream& rs) {
+    if (command == "code") {
         loadValueDefinition(rs, _code);
-    }
-    else if (command == "name")
-    {
+    } else if (command == "name") {
         loadValueDefinition(rs, _name);
-    }
-    else if (command == "longitude")
-    {
+    } else if (command == "longitude") {
         loadValueDefinition(rs, _crdlon);
-    }
-    else if (command == "easting")
-    {
+    } else if (command == "easting") {
         loadValueDefinition(rs, _crdlon);
-    }
-    else if (command == "x")
-    {
+    } else if (command == "x") {
         loadValueDefinition(rs, _crdlon);
-    }
-    else if (command == "latitude")
-    {
+    } else if (command == "latitude") {
         loadValueDefinition(rs, _crdlat);
-    }
-    else if (command == "northing")
-    {
+    } else if (command == "northing") {
         loadValueDefinition(rs, _crdlat);
-    }
-    else if (command == "y")
-    {
+    } else if (command == "y") {
         loadValueDefinition(rs, _crdlat);
-    }
-    else if (command == "height")
-    {
+    } else if (command == "height") {
         loadValueDefinition(rs, _crdhgt);
-    }
-    else if (command == "z")
-    {
+    } else if (command == "z") {
         loadValueDefinition(rs, _crdhgt);
-    }
-    else if (command == "geoid_undulation")
-    {
+    } else if (command == "geoid_undulation") {
         loadValueDefinition(rs, _crdund);
-    }
-    else if (command == "deflection_east")
-    {
+    } else if (command == "deflection_east") {
         loadValueDefinition(rs, _crdxi);
-    }
-    else if (command == "deflection_north")
-    {
+    } else if (command == "deflection_north") {
         loadValueDefinition(rs, _crdeta);
-    }
-    else if (command == "coordinate_system")
-    {
+    } else if (command == "coordinate_system") {
         loadValueDefinition(rs, _crdsys);
-    }
-    else if (command == "height_type")
-    {
+    } else if (command == "height_type") {
         loadValueDefinition(rs, _hgttype);
-    }
-    else if (command == "classification")
-    {
+    } else if (command == "classification") {
         string classname;
-        if (rs.record() >> classname)
-        {
-            CsvClassification *clsf = addClassification(classname);
+        if (rs.record() >> classname) {
+            CsvClassification* clsf = addClassification(classname);
             loadValueDefinition(rs, *clsf);
+        } else {
         }
-        else
-        {
-        }
-    }
-    else if (command == "classification_columns")
-    {
+    } else if (command == "classification_columns") {
         string column;
-        while (rs.record() >> column)
-        {
+        while (rs.record() >> column) {
             addColumnClassification(column);
         }
-    }
-    else if (command == "angle_format")
-    {
-        string const format = getConfigValue(command, rs);
-        if (!format.empty())
-        {
-            try
-            {
+    } else if (command == "angle_format") {
+        const string format = getConfigValue(command, rs);
+        if (!format.empty()) {
+            try {
                 _angleformat = parseAngleFormat(format);
-            }
-            catch (const ParseAngleException &e)
-            {
+            } catch (const ParseAngleException& e) {
                 definitionError(string("Invalid angle format ") + format);
             }
-        }
-        else
-        {
+        } else {
             definitionError("Angle_format value is missing");
         }
-    }
-    else
-    {
+    } else {
         definitionError(string("Invalid option ") + command + " in CSV station format definition");
     }
 }
 
-void SnapCsvStn::initialiseLoadData()
-{
+void SnapCsvStn::initialiseLoadData() {
     _cscode = "";
     _cs = nullptr;
     _haveGeoid = _crdund.hasValue() || _crdxi.hasValue() || _crdeta.hasValue();
@@ -302,70 +231,60 @@ void SnapCsvStn::initialiseLoadData()
     _heightType = "";
 }
 
-void SnapCsvStn::loadRecord()
-{
-    constexpr std::array<std::string_view,3> llhords = {"Longitude", "Latitude", "Height"};
-    constexpr std::array<std::string_view,3> prjords = {"Easting", "Northing", "Height"};
-    constexpr std::array<std::string_view,3> xyzords = {"X", "Y", "Z"};
-    const std::array<std::string_view,3> *ords;
+void SnapCsvStn::loadRecord() {
+    constexpr std::array<std::string_view, 3> llhords = {"Longitude", "Latitude", "Height"};
+    constexpr std::array<std::string_view, 3> prjords = {"Easting", "Northing", "Height"};
+    constexpr std::array<std::string_view, 3> xyzords = {"X", "Y", "Z"};
+    const std::array<std::string_view, 3>* ords;
 
-    const std::string &cscode = _crdsys.value();
+    const std::string& cscode = _crdsys.value();
 
-
-    if (cscode.empty())
-    {
+    if (cscode.empty()) {
         dataError("Coordinate system not specified");
         return;
     }
-    if (_cscode.empty())
-    {
+    if (_cscode.empty()) {
         _cscode = cscode;
         _cs = load_coordsys(cscode);
-        if (!_cs)
-        {
+        if (!_cs) {
             dataError(string("Invalid coordinate system code ") + cscode);
-        }
-        else
-        {
+        } else {
             std::string ignoredMessage;
             set_network_coordsys(_net, _cs, 0.0, 0, ignoredMessage);
             _projection = (bool)is_projection(_net->crdsys);
             _geocentric = (bool)is_geocentric(_net->crdsys);
         }
     }
-    bool const geodetic = !(_projection || _geocentric);
+    const bool geodetic = !(_projection || _geocentric);
 
-    if (!_cs) { return;
-}
+    if (!_cs) {
+        return;
+    }
 
-    if (cscode != _cscode)
-    {
+    if (cscode != _cscode) {
         dataError(string("Coordinate system code not consistent ") + _cscode + " and " + cscode);
         return;
     }
 
     std::string heightType = _hgttype.value();
     boost::to_lower(heightType);
-    if (heightType.empty()) { heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
-}
+    if (heightType.empty()) {
+        heightType = coordsys_heights_orthometric(_cs) ? "orthometric" : "ellipsoidal";
+    }
 
     ords = _projection ? &prjords : _geocentric ? &xyzords : &llhords;
     _crdlon.setName(std::string((*ords)[0]));
     _crdlat.setName(std::string((*ords)[1]));
     _crdhgt.setName(std::string((*ords)[2]));
 
-    if (heightType != "ellipsoidal" && heightType != "orthometric")
-    {
+    if (heightType != "ellipsoidal" && heightType != "orthometric") {
         dataError(string("Invalid height type  ") + heightType);
         return;
     }
-    if (_heightType.empty())
-    {
+    if (_heightType.empty()) {
         _heightType = heightType;
         _ellipsoidalHeights = heightType == "ellipsoidal";
-    }
-    else if (_heightType != heightType)
-    {
+    } else if (_heightType != heightType) {
         dataError(string("Inconsistent height types ") + heightType + " and " + _heightType);
         return;
     }
@@ -377,83 +296,71 @@ void SnapCsvStn::loadRecord()
     double crdxi = 0.0;
     double crdeta = 0.0;
 
-    if (geodetic)
-    {
-        try
-        {
+    if (geodetic) {
+        try {
             crdlon = parseAngle(_angleformat, _crdlon.value(), "EW");
-        }
-        catch (const ParseAngleException &e)
-        {
+        } catch (const ParseAngleException& e) {
             dataError(string("Badly formatted longitude: " + _crdlon.value()));
         }
-        try
-        {
+        try {
             crdlat = parseAngle(_angleformat, _crdlat.value(), "NS");
-        }
-        catch (const ParseAngleException &e)
-        {
+        } catch (const ParseAngleException& e) {
             dataError(string("Badly formatted latitude: " + _crdlat.value()));
         }
+    } else {
+        if (!(_crdlon >> crdlon)) {
+            dataError(string((*ords)[0]) + " is missing or invalid");
+        }
+        if (!(_crdlat >> crdlat)) {
+            dataError(string((*ords)[1]) + " is missing or invalid");
+        }
     }
-    else
-    {
-        if (!(_crdlon >> crdlon)) { dataError(string((*ords)[0]) + " is missing or invalid");
-}
-        if (!(_crdlat >> crdlat)) { dataError(string((*ords)[1]) + " is missing or invalid");
-}
-    }
-    if (!_geocentric && !_crdhgt.value().empty() && !(_crdhgt >> crdhgt))
-    {
+    if (!_geocentric && !_crdhgt.value().empty() && !(_crdhgt >> crdhgt)) {
         dataError("Invalid height coordinate");
-    }
-    else if (_geocentric && !(_crdhgt >> crdhgt))
-    {
+    } else if (_geocentric && !(_crdhgt >> crdhgt)) {
         dataError(string((*ords)[2]) + " is missing or invalid");
     }
 
-    if (_haveGeoid)
-    {
-        if (!_crdund.value().empty())
-        {
+    if (_haveGeoid) {
+        if (!_crdund.value().empty()) {
             _geoidDefined = true;
-            if (!(_crdund >> crdund)) { dataError("Invalid geoid undulation");
-}
-            if (_ellipsoidalHeights) { crdhgt -= crdund;
-}
+            if (!(_crdund >> crdund)) {
+                dataError("Invalid geoid undulation");
+            }
+            if (_ellipsoidalHeights) {
+                crdhgt -= crdund;
+            }
         }
-        if (!_crdxi.value().empty())
-        {
+        if (!_crdxi.value().empty()) {
             _deflectionDefined = true;
-            if (!(_crdxi >> crdxi)) { dataError("Invalid deflection east");
-}
+            if (!(_crdxi >> crdxi)) {
+                dataError("Invalid deflection east");
+            }
         }
-        if (!_crdeta.value().empty())
-        {
+        if (!_crdeta.value().empty()) {
             _deflectionDefined = true;
-            if (!(_crdeta >> crdeta)) { dataError("Invalid deflection north");
-}
+            if (!(_crdeta >> crdeta)) {
+                dataError("Invalid deflection north");
+            }
         }
     }
 
-    const string &code = _code.value();
-    if (code.empty())
-    {
+    const string& code = _code.value();
+    if (code.empty()) {
         dataError("Missing stations code");
     }
     string name = _name.value();
-    if (name.empty()) { name = code;
-}
-
-    if (_dataError) { return;
-}
-
-    if (_projection)
-    {
-        proj_to_geog(_net->crdsys->prj, crdlon, crdlat, &crdlon, &crdlat);
+    if (name.empty()) {
+        name = code;
     }
-    else if (_geocentric)
-    {
+
+    if (_dataError) {
+        return;
+    }
+
+    if (_projection) {
+        proj_to_geog(_net->crdsys->prj, crdlon, crdlat, &crdlon, &crdlat);
+    } else if (_geocentric) {
         double llh[3];
         llh[0] = crdlon;
         llh[1] = crdlat;
@@ -462,59 +369,53 @@ void SnapCsvStn::loadRecord()
         crdlat = llh[CRD_LAT];
         crdlon = llh[CRD_LON];
         crdhgt = llh[CRD_HGT];
-    }
-    else
-    {
+    } else {
         crdlat *= DTOR;
         crdlon *= DTOR;
     }
 
     crdxi *= STOR;
     crdeta *= STOR;
-    station *st = new_network_station(_net, code, name, crdlat, crdlon, crdhgt, crdxi, crdeta, crdund);
+    station* st = new_network_station(_net, code, name, crdlat, crdlon, crdhgt, crdxi, crdeta, crdund);
 
-    for (auto c = _classifications.begin(); c < _classifications.end(); c++)
-    {
+    for (auto c = _classifications.begin(); c < _classifications.end(); c++) {
         st->set_class((*c)->classId(), (*c)->classValue());
     }
-    for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
-    {
-        string const value = cc->value();
-        if (!value.empty())
-        {
-            int const idclass = cc->classId();
-            int const idvalue = _net->class_value_id(idclass, value, 1);
+    for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++) {
+        const string value = cc->value();
+        if (!value.empty()) {
+            const int idclass = cc->classId();
+            const int idvalue = _net->class_value_id(idclass, value, 1);
             st->set_class(idclass, idvalue);
         }
     }
 }
 
-void SnapCsvStn::dataError(const std::string &message)
-{
+void SnapCsvStn::dataError(const std::string& message) {
     _dataError = true;
     runtimeError(message);
 }
 
-void SnapCsvStn::terminateLoadData()
-{
-    if (_dataError)
-    {
+void SnapCsvStn::terminateLoadData() {
+    if (_dataError) {
         return;
     }
     _net->options = 0;
-    if (_ellipsoidalHeights) { _net->options += NW_ELLIPSOIDAL_HEIGHTS;
-}
-    if (_geoidDefined) { _net->options += NW_GEOID_HEIGHTS | NW_EXPLICIT_GEOID;
-}
-    if (_deflectionDefined) { _net->options += NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
-}
+    if (_ellipsoidalHeights) {
+        _net->options += NW_ELLIPSOIDAL_HEIGHTS;
+    }
+    if (_geoidDefined) {
+        _net->options += NW_GEOID_HEIGHTS | NW_EXPLICIT_GEOID;
+    }
+    if (_deflectionDefined) {
+        _net->options += NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
+    }
     _net->options += NW_DEC_DEGREES;
 
     /* If recalculating geoid info then do so without raising errors */
-    if( coordsys_heights_orthometric(_net->crdsys) )
-    {
-        calculate_network_coordsys_geoid( _net, OK );
-    }    
+    if (coordsys_heights_orthometric(_net->crdsys)) {
+        calculate_network_coordsys_geoid(_net, OK);
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -523,36 +424,31 @@ void SnapCsvStn::terminateLoadData()
 
 #include "snap/stnadj.h"
 
-int load_snap_csv_stations(network *net, const std::string &filename, const std::string &options)
-{
+int load_snap_csv_stations(network* net, const std::string& filename, const std::string& options) {
     int sts = OK;
-    try
-    {
-        OptionString const config(options);
-        std::string const format = config.valueOf("format", "stn");
+    try {
+        const OptionString config(options);
+        const std::string format = config.valueOf("format", "stn");
         auto formatfile = find_file(format, ".dtf", filename, FF_TRYALL, CSVFORMAT_CONFIG);
-        if (!formatfile)
-        {
+        if (!formatfile) {
             std::ostringstream os;
             os << "Undefined delimited text file format " << format;
             handle_error(INVALID_DATA, os.str(), NO_MESSAGE);
             return INVALID_DATA;
         }
-        string const netname = "Read from " + filename;
+        const string netname = "Read from " + filename;
         set_network_name(net, netname);
         SnapCsvStn csvstn(net, *formatfile, config);
         DatafileInput dfi(filename, "station coordinate file");
         csvstn.load(dfi);
-        std::string const deffile = csvstn.definitionFilename();
-        if (!deffile.empty())
-        {
+        const std::string deffile = csvstn.definitionFilename();
+        if (!deffile.empty()) {
             record_filename(deffile, "csv_station_format");
         }
-        if (dfi.errorCount()) { sts = INVALID_DATA;
-}
-    }
-    catch (RecordError &error)
-    {
+        if (dfi.errorCount()) {
+            sts = INVALID_DATA;
+        }
+    } catch (RecordError& error) {
         handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }

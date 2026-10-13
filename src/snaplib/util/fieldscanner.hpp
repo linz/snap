@@ -13,8 +13,7 @@
 /// Kept in the global namespace alongside FieldScanner, not nested inside
 /// it, so callers write QuoteFollowOption::Whitespace rather than the more
 /// verbose FieldScanner::QuoteFollowOption::Whitespace.
-enum class QuoteFollowOption
-{
+enum class QuoteFollowOption {
     Whitespace,  ///< a whitespace character may follow
     End          ///< end of input may follow
 };
@@ -26,11 +25,10 @@ enum class QuoteFollowOption
 ///
 /// Kept in the global namespace (not LINZ::), since its real callers are
 /// C-flavoured legacy files that don't otherwise use the LINZ namespace.
-class FieldScanner
-{
-public:
+class FieldScanner {
+ public:
     /// \param text must outlive the FieldScanner - it is never copied, only viewed.
-    explicit FieldScanner( std::string_view text ) : _text(text), _pos(_text.begin()) {}
+    explicit FieldScanner(std::string_view text) : _text(text), _pos(_text.begin()) {}
 
     /// \name Reading the next field
     /// The functions below differ in what ends a field, and in what they do
@@ -62,7 +60,7 @@ public:
     /// remainder(), whether or not the last delimiter was present.
     /// \return the field, or nullopt if delimiter doesn't occur again before
     ///         the end of the text.
-    std::optional<std::string_view> next( char delimiter );
+    std::optional<std::string_view> next(char delimiter);
 
     /// Returns the next run of characters that are not in delimiters. Any
     /// delimiters before it are skipped, as strtok does, so several delimiters
@@ -71,10 +69,10 @@ public:
     /// the characters given, e.g. " \t\r\n". The position is left at the
     /// delimiter after the field (it is not consumed), or at the end.
     /// \return the field, or nullopt if there is nothing but delimiters left.
-    std::optional<std::string_view> nextToken( std::string_view delimiters );
+    std::optional<std::string_view> nextToken(std::string_view delimiters);
 
     /// Calls nextToken(std::string_view) with delimiter as the only delimiter.
-    std::optional<std::string_view> nextToken( char delimiter );
+    std::optional<std::string_view> nextToken(char delimiter);
 
     /// Returns the text up to the next of any of the terminators, and consumes
     /// that terminator. Nothing is skipped first, so two terminators in a row
@@ -84,7 +82,7 @@ public:
     /// \return the field, or nullopt if the scanner is already at the end.
     std::optional<std::string_view> nextUntil(
         std::string_view terminators,  ///< the characters that end a field
-        char &terminator );            ///< set to the character that ended the field, or 0 if the text ended
+        char& terminator);             ///< set to the character that ended the field, or 0 if the text ended
     /// @}
 
     /// Unconsumed text from the current position to the end, verbatim - for
@@ -97,7 +95,7 @@ public:
     /// Consumes c if it is the next character after any whitespace. Nothing is
     /// consumed if it is not.
     /// \return true if c was consumed.
-    bool skipIfNext( char c );
+    bool skipIfNext(char c);
 
     /// Tests whether nothing but whitespace is left to read, without consuming anything.
     /// \return true if next() would return nullopt.
@@ -117,12 +115,12 @@ public:
     std::optional<std::string_view> quotedValue(
         std::string_view::const_iterator start,  ///< position right after the opening quote
         char quoteChar,                          ///< the quote character to match ('"' or '\'')
-        const std::optional<std::vector<QuoteFollowOption>> &followOptions );
-                                                  ///< what may follow the closing quote for it to
-                                                  ///< count - e.g. {Whitespace,End} to require the
-                                                  ///< closing quote land on a field boundary next()
-                                                  ///< would also recognize, or std::nullopt to
-                                                  ///< require nothing.
+        const std::optional<std::vector<QuoteFollowOption>>& followOptions);
+    ///< what may follow the closing quote for it to
+    ///< count - e.g. {Whitespace,End} to require the
+    ///< closing quote land on a field boundary next()
+    ///< would also recognize, or std::nullopt to
+    ///< require nothing.
 
     /// Reads the next field, whichever comes first: a quote-delimited
     /// segment (see isQuoted()/quotedValue()) if it starts with a quote
@@ -135,9 +133,9 @@ public:
     /// \return the field's value (quotes stripped, if quoted), or nullopt
     ///         at end of input or on a malformed quoted value.
     std::optional<std::string_view> checkAndRecoverQuotedValue(
-        bool onlyDoubleQuote,                     ///< see isQuoted()
-        const std::optional<std::vector<QuoteFollowOption>> &followOptions );
-                                                   ///< see quotedValue()
+        bool onlyDoubleQuote,  ///< see isQuoted()
+        const std::optional<std::vector<QuoteFollowOption>>& followOptions);
+    ///< see quotedValue()
 
     /// A thin wrapper over checkAndRecoverQuotedValue() that additionally
     /// parses the recovered field as a double (see parse_double()) - for
@@ -148,31 +146,26 @@ public:
     /// \return the parsed value, or nullopt at end of input, on a malformed
     ///         quoted value, or if the recovered field isn't a valid double.
     std::optional<double> checkAndRecoverQuotedDoubleValue(
-        bool onlyDoubleQuote,                     ///< see isQuoted()
-        const std::optional<std::vector<QuoteFollowOption>> &followOptions );
-                                                   ///< see quotedValue()
+        bool onlyDoubleQuote,  ///< see isQuoted()
+        const std::optional<std::vector<QuoteFollowOption>>& followOptions);
+    ///< see quotedValue()
 
     /// Checks whether field begins with a quote character - '"'
     /// unconditionally, and also '\'' unless onlyDoubleQuote is set.
     /// \return the position of the opening quote (field.begin()), or
     ///         field.end() if field is empty or doesn't start with a quote.
-    static std::string_view::const_iterator isQuoted(
-        std::string_view field,
-        bool onlyDoubleQuote );
+    static std::string_view::const_iterator isQuoted(std::string_view field, bool onlyDoubleQuote);
 
-private:
+ private:
     /// Exact original text between two positions (both from _pos at some
     /// point in this scanner's history), verbatim - including any interior
     /// whitespace runs (multiple spaces, tabs) untouched. Internal only -
     /// external callers get the same result via two remainder() captures
     /// and .data()/.size() arithmetic, without needing raw iterator access.
-    std::string_view _span(
-        std::string_view::const_iterator start,
-        std::string_view::const_iterator end )
-        const;
+    std::string_view _span(std::string_view::const_iterator start, std::string_view::const_iterator end) const;
 
-    std::string_view _text;                    ///< the text being scanned, owned by the caller
-    std::string_view::const_iterator _pos;      ///< current cursor position within _text
+    std::string_view _text;                 ///< the text being scanned, owned by the caller
+    std::string_view::const_iterator _pos;  ///< current cursor position within _text
 };
 
 /// Parses field as a double, requiring the whole field to be consumed (no
@@ -181,16 +174,14 @@ private:
 /// field without needing it null-terminated.
 /// \return the parsed value, or nullopt if field isn't a valid double or has
 ///         trailing characters after the number.
-std::optional<double> parse_double(
-    std::string_view field );  ///< the field to parse
+std::optional<double> parse_double(std::string_view field);  ///< the field to parse
 
 /// Parses field as an int, requiring the whole field to be consumed (no
 /// trailing characters), as parse_double() does for a double. A leading plus
 /// or minus sign is accepted. This does not treat a quoted value specially.
 /// \return the parsed value, or nullopt if field isn't a valid int, is out of
 ///         range, or has trailing characters after the number.
-std::optional<int> parse_int(
-    std::string_view field );  ///< the field to parse
+std::optional<int> parse_int(std::string_view field);  ///< the field to parse
 
 /// A leading T (int, double, etc.) parsed from the start of a field, plus
 /// where in field the number ended (result.ptr, as std::from_chars leaves
@@ -201,15 +192,13 @@ std::optional<int> parse_int(
 /// instantiated (in fieldscanner.cpp) for the types real callers actually use.
 /// \return nullopt if field doesn't start with a valid T.
 template <typename T>
-struct ParsedField
-{
+struct ParsedField {
     T value;
     std::from_chars_result result;
 };
 
 template <typename T>
-std::optional<ParsedField<T>> parse_leading_field(
-    std::string_view field );  ///< the field to parse
+std::optional<ParsedField<T>> parse_leading_field(std::string_view field);  ///< the field to parse
 
 /// A thin wrapper over parse_leading_field() that discards where the number
 /// ended, tolerating trailing text after it (unlike parse_double(), which
@@ -219,52 +208,45 @@ std::optional<ParsedField<T>> parse_leading_field(
 /// trailing text.
 /// \return the parsed value, or nullopt if field doesn't start with a valid T.
 template <typename T>
-std::optional<T> parse_leading(
-    std::string_view field );  ///< the field to parse
+std::optional<T> parse_leading(std::string_view field);  ///< the field to parse
 
 /// A thin wrapper over parse_double() that additionally requires the value
 /// be strictly positive - a std::from_chars-based replacement for the old
 /// sscanf(field,"%lf%c",&value,&c) != 1 || value <= 0.0 idiom.
 /// \return the parsed value, or nullopt if field isn't a valid positive
 ///         double or has trailing characters after the number.
-std::optional<double> parse_positive_double(
-    std::string_view field );  ///< the field to parse
+std::optional<double> parse_positive_double(std::string_view field);  ///< the field to parse
 
 /// True for '0' to '9'. Digits are the same in every locale, so this needs no
 /// <cctype> call or cast to unsigned char.
-inline constexpr bool is_digit( const char ch )
-{
+inline constexpr bool is_digit(const char ch) {
     return ch >= '0' && ch <= '9';
 }
 
 /// Compares two strings ignoring case, returning -1 if string1 sorts before
 /// string2, 0 if they are equal and 1 if string1 sorts after string2. Each
 /// character is folded to lower case before comparing, matching _stricmp.
-int compare_ignoring_case(
-    std::string_view string1,    ///< the first string
-    std::string_view string2 );  ///< the second string
+int compare_ignoring_case(std::string_view string1,   ///< the first string
+                          std::string_view string2);  ///< the second string
 
 /// Compares at most the first maxLength characters of two strings ignoring
 /// case, matching _strnicmp. A string shorter than maxLength is compared in
 /// full, so it sorts before a longer string that it is a prefix of.
-int compare_ignoring_case(
-    std::string_view string1,    ///< the first string
-    std::string_view string2,    ///< the second string
-    size_t maxLength );          ///< the maximum number of characters to compare
+int compare_ignoring_case(std::string_view string1,  ///< the first string
+                          std::string_view string2,  ///< the second string
+                          size_t maxLength);         ///< the maximum number of characters to compare
 
 /// Tests whether two names are the same, ignoring case and treating spaces,
 /// underscores, control characters and characters outside ASCII as
 /// interchangeable. So "Day Shift", "day_shift" and "DAY_SHIFT" all match.
 /// The names must be the same length to match.
 /// \return true if the names match.
-bool is_name_match(
-    std::string_view string1,    ///< the first name
-    std::string_view string2 );  ///< the second name
+bool is_name_match(std::string_view string1,   ///< the first name
+                   std::string_view string2);  ///< the second name
 
 /// The outcome of reading a field with read_string_field() or
 /// read_double_field().
-enum class FieldResult
-{
+enum class FieldResult {
     Ok,              ///< the field was read
     NoMoreData,      ///< nothing but whitespace is left to read
     MalformedQuote,  ///< the field starts a quoted value that is not closed
@@ -273,58 +255,50 @@ enum class FieldResult
 
 /// Reads the next field from scanner as a string, treating a quoted value as
 /// one field. A field longer than maxlength is cut short without error.
-FieldResult read_string_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    std::string &value,     ///< set to the field when the result is Ok
-    size_t maxlength );     ///< the most characters to keep
+FieldResult read_string_field(FieldScanner& scanner,  ///< the scanner to read from
+                              std::string& value,     ///< set to the field when the result is Ok
+                              size_t maxlength);      ///< the most characters to keep
 
 /// Reads the next field from scanner as a number, treating a quoted value as
 /// one field. The whole field must be the number.
-FieldResult read_double_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    double &value );        ///< set to the number when the result is Ok
+FieldResult read_double_field(FieldScanner& scanner,  ///< the scanner to read from
+                              double& value);         ///< set to the number when the result is Ok
 
 /// Reads all the text left in scanner, without the whitespace before it and
 /// without any carriage return or Ctrl-Z characters in it, and leaves the
 /// scanner at the end. More than maxlength characters are cut short without
 /// error.
-FieldResult read_remaining_text(
-    FieldScanner &scanner,  ///< the scanner to read from
-    std::string &value,     ///< set to the remaining text when the result is Ok
-    size_t maxlength );     ///< the most characters to keep
+FieldResult read_remaining_text(FieldScanner& scanner,  ///< the scanner to read from
+                                std::string& value,     ///< set to the remaining text when the result is Ok
+                                size_t maxlength);      ///< the most characters to keep
 
 /// Reads the next field from scanner as a whole number, treating a quoted
 /// value as one field. The whole field must be the number.
-FieldResult read_int_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    int &value );           ///< set to the number when the result is Ok
+FieldResult read_int_field(FieldScanner& scanner,  ///< the scanner to read from
+                           int& value);            ///< set to the number when the result is Ok
 
 /// Reads the next field from scanner as a whole number, treating a quoted
 /// value as one field. The whole field must be the number.
-FieldResult read_long_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    long &value );          ///< set to the number when the result is Ok
+FieldResult read_long_field(FieldScanner& scanner,  ///< the scanner to read from
+                            long& value);           ///< set to the number when the result is Ok
 
 /// Reads the next field from scanner as an angle in degrees, and converts it
 /// to radians.
-FieldResult read_degree_angle_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    double &radians );      ///< set to the angle when the result is Ok
+FieldResult read_degree_angle_field(FieldScanner& scanner,  ///< the scanner to read from
+                                    double& radians);       ///< set to the angle when the result is Ok
 
 /// Reads the next three fields from scanner as an angle in degrees, minutes
 /// and seconds, and converts it to radians. The degrees and minutes are whole
 /// numbers.
-FieldResult read_dms_angle_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    double &radians );      ///< set to the angle when the result is Ok
+FieldResult read_dms_angle_field(FieldScanner& scanner,  ///< the scanner to read from
+                                 double& radians);       ///< set to the angle when the result is Ok
 
 /// Reads the next field from scanner as an angle in the format commonly used
 /// by Hewlett-Packard calculators, ddd.mmssfff, and converts it to radians.
 /// The degrees can be omitted, the minutes and seconds are two digits each,
 /// and the fraction of a second is any number of digits. The angle cannot be
 /// negative.
-FieldResult read_hp_angle_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    double &radians );      ///< set to the angle when the result is Ok
+FieldResult read_hp_angle_field(FieldScanner& scanner,  ///< the scanner to read from
+                                double& radians);       ///< set to the angle when the result is Ok
 
 #endif

@@ -10,22 +10,21 @@
 
 /* Header file for the Polar Stereographic projection */
 
-struct PSProjection
-{
-    double cm;         /* Central meridian */
-    double sf;         /* Central meridian scale factor */
-    double fe, fn;     /* False origin */
-    char south;        /* TRUE for south pole projection */
-    double k;     /* Not sure what this is yet */
-    double a;          /* Some bits of the ellipsoid */
+struct PSProjection {
+    double cm;     /* Central meridian */
+    double sf;     /* Central meridian scale factor */
+    double fe, fn; /* False origin */
+    char south;    /* TRUE for south pole projection */
+    double k;      /* Not sure what this is yet */
+    double a;      /* Some bits of the ellipsoid */
     double rf;
     double e;
     double e2;
 };
 
-void define_PSProjection( PSProjection *psp, double a, double rf,
-                          double cm, double sf, double fe, double fn, char south );
-void psp_geod( PSProjection *psp, double ce, double cn, double *sphi, double *slam );
-void geod_psp(PSProjection *psp, double sphi, double slam, double *cee, double *cnn);
+void define_PSProjection(PSProjection* psp, double a, double rf, double cm, double sf, double fe, double fn,
+                         char south);
+void psp_geod(PSProjection* psp, double ce, double cn, double* sphi, double* slam);
+void geod_psp(PSProjection* psp, double sphi, double slam, double* cee, double* cnn);
 
 #endif

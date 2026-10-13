@@ -22,32 +22,32 @@
 #include <string>
 #include <string_view>
 
-struct brngProjection
-{
-    std::string name;       /* The name of the reference frame     */
-    int dtmtrans = 0;       /* Apply datum transformation as well as projection */
-    coordsys *prjsys = nullptr;  /* The coordinate system for the projection, owned */
-    coord_conversion prjconv;  /* The conversion from the network geodetic
+struct brngProjection {
+    std::string name;           /* The name of the reference frame     */
+    int dtmtrans = 0;           /* Apply datum transformation as well as projection */
+    coordsys* prjsys = nullptr; /* The coordinate system for the projection, owned */
+    coord_conversion prjconv;   /* The conversion from the network geodetic
                              coordinate system to the bearing projection system */
 
     brngProjection() = default;
-    brngProjection( const brngProjection & ) = delete;
-    brngProjection &operator=( const brngProjection & ) = delete;
-    ~brngProjection() { delete prjsys; }
+    brngProjection(const brngProjection&) = delete;
+    brngProjection& operator=(const brngProjection&) = delete;
+    ~brngProjection() {
+        delete prjsys;
+    }
 };
 
 #define REFFRAMELEN 20
 
-int get_bproj( std::string_view name ) ;
-int bproj_count( void );
-brngProjection *bproj_from_id( int id );
-std::string_view bproj_name( int id );
-void clear_bproj_list( void );
+int get_bproj(std::string_view name);
+int bproj_count(void);
+brngProjection* bproj_from_id(int id);
+std::string_view bproj_name(int id);
+void clear_bproj_list(void);
 
-int calc_prj_azimuth2( int bproj_id,
-                       station *st1, double hgt1, station *st2, double hgt2,
-                       double *angle, vector3 dst1, vector3 dst2 );
+int calc_prj_azimuth2(int bproj_id, station* st1, double hgt1, station* st2, double hgt2, double* angle, vector3 dst1,
+                      vector3 dst2);
 
-void set_bproj_use_datum_transformation( int usedatum );
+void set_bproj_use_datum_transformation(int usedatum);
 
 #endif

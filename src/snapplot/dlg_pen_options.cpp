@@ -13,91 +13,74 @@
 
 const int maxPens = 20;
 
-class PenOptionsDialog : public wxSimpleDialog
-{
-public:
-    PenOptionsDialog( bool isStdRes, wxHelpController *help );
+class PenOptionsDialog : public wxSimpleDialog {
+ public:
+    PenOptionsDialog(bool isStdRes, wxHelpController* help);
 
-protected:
+ protected:
     void ReadData() override;
     void Apply() override;
 
-private:
+ private:
     bool residuals;
     int nGroups;
     int aPosteriori;
-    double  maxSres;
+    double maxSres;
 };
 
-PenOptionsDialog::PenOptionsDialog( bool isStdRes, wxHelpController *help )
-    : wxSimpleDialog( isStdRes ? "Standardised residual colours" : "Redundancy factor colours" ),
-      residuals(isStdRes)
-{
-    if( residuals )
-    {
-        AddRadioBox("Residuals to use", aPosteriori,
-                    "|Ap&riori residuals|&Aposteriori residuals" );
+PenOptionsDialog::PenOptionsDialog(bool isStdRes, wxHelpController* help)
+    : wxSimpleDialog(isStdRes ? "Standardised residual colours" : "Redundancy factor colours"), residuals(isStdRes) {
+    if (residuals) {
+        AddRadioBox("Residuals to use", aPosteriori, "|Ap&riori residuals|&Aposteriori residuals");
         AddSpacer();
-        AddNumberBox( "&Maximum residual class", maxSres );
+        AddNumberBox("&Maximum residual class", maxSres);
         AddSpacer();
     }
-    AddNumberBox( "&Number of classes", nGroups );
+    AddNumberBox("&Number of classes", nGroups);
     AddButtonsAndSize();
-    if( help )
-    {
-        if( isStdRes )
-        {
-            SetupHelp( help, HELPBASE "dlg_stdres_pens.html" );
-        }
-        else
-        {
-            SetupHelp( help, HELPBASE "dlg_redundancy_pens.html" );
+    if (help) {
+        if (isStdRes) {
+            SetupHelp(help, HELPBASE "dlg_stdres_pens.html");
+        } else {
+            SetupHelp(help, HELPBASE "dlg_redundancy_pens.html");
         }
     }
 }
 
-void PenOptionsDialog::ReadData()
-{
+void PenOptionsDialog::ReadData() {
     int aposts;
     int npens;
 
-    if( residuals )
-    {
-        get_sres_pen_options( &maxSres, &aposts, &npens);
+    if (residuals) {
+        get_sres_pen_options(&maxSres, &aposts, &npens);
         aPosteriori = aposts;
         nGroups = npens;
-    }
-    else
-    {
-        get_rfac_pen_options( &npens );
+    } else {
+        get_rfac_pen_options(&npens);
         nGroups = npens;
     }
 }
 
-void PenOptionsDialog::Apply()
-{
-    if( nGroups < 1 ) { nGroups = 2;
-}
-    if( nGroups > maxPens ) { nGroups = maxPens;
-}
-    if( residuals )
-    {
-        setup_sres_pens( maxSres, aPosteriori, nGroups);
+void PenOptionsDialog::Apply() {
+    if (nGroups < 1) {
+        nGroups = 2;
     }
-    else
-    {
-        setup_rfac_pens( nGroups );
+    if (nGroups > maxPens) {
+        nGroups = maxPens;
+    }
+    if (residuals) {
+        setup_sres_pens(maxSres, aPosteriori, nGroups);
+    } else {
+        setup_rfac_pens(nGroups);
     }
 }
 
-bool SetupStandardisedResidualPens( wxHelpController *help )
-{
+bool SetupStandardisedResidualPens(wxHelpController* help) {
     PenOptionsDialog dlg(true, help);
     return dlg.RunDialog();
 }
 
-bool SetupRedundancyFactorPens( wxHelpController *help )
-{
+bool SetupRedundancyFactorPens(wxHelpController* help) {
     PenOptionsDialog dlg(false, help);
     return dlg.RunDialog();
 }

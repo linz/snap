@@ -19,11 +19,11 @@
 #define REPORT_MISSING_UNLISTED 1
 #define REPORT_MISSING_ALL 2
 
-void set_ignore_missing_stations( int option );
-void set_report_missing_stations( int option );
-void set_accept_missing_station( std::string_view code );
-void set_require_obs_date( int option );
-void init_load_snap( void );
-int term_load_snap( void );
+void set_ignore_missing_stations(int option);
+void set_report_missing_stations(int option);
+void set_accept_missing_station(std::string_view code);
+void set_require_obs_date(int option);
+void init_load_snap(void);
+int term_load_snap(void);
 
 #endif

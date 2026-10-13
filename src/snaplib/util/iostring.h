@@ -22,32 +22,30 @@
 /// Called by report_string_error() to report a parse error, with whatever
 /// opaque context input_string_def::source carries (e.g. a DATAFILE*, cast
 /// back to its concrete type by the handler).
-using input_string_errfunc = int (*)( void *source, int status, std::string_view message );
+using input_string_errfunc = int (*)(void* source, int status, std::string_view message);
 
 /// A cursor over one piece of input text being parsed field-by-field, plus
 /// enough context to attribute a parse error back to where the text came
 /// from. Used both by cfgprocs.cpp's still-unconverted config-line parsing
 /// and by the coordsys/ parsers (which read scanner directly for anything
 /// not covered by the functions below).
-struct input_string_def
-{
+struct input_string_def {
     /// \param text must outlive this input_string_def - it is only viewed, never copied.
-    explicit input_string_def( std::string_view text ) : scanner(text) {}
+    explicit input_string_def(std::string_view text) : scanner(text) {}
 
-    FieldScanner scanner;                        ///< the input text and read cursor
-    std::string sourcename;                      ///< name of the source - file name for a file source
-    void *source = nullptr;                      ///< opaque context passed to report_error
-    input_string_errfunc report_error = nullptr; ///< called by report_string_error(), or null for no reporting
+    FieldScanner scanner;                         ///< the input text and read cursor
+    std::string sourcename;                       ///< name of the source - file name for a file source
+    void* source = nullptr;                       ///< opaque context passed to report_error
+    input_string_errfunc report_error = nullptr;  ///< called by report_string_error(), or null for no reporting
 };
 
 /* Output string def - defines a way of sending strings to some form
    of output device */
 
-using output_string_func = int (*)( std::string_view string, void *sink );
+using output_string_func = int (*)(std::string_view string, void* sink);
 
-struct output_string_def
-{
-    void *sink;
+struct output_string_def {
+    void* sink;
     output_string_func write;
 };
 
@@ -62,38 +60,35 @@ struct output_string_def
 /// truncating to maxlength characters without error if it is longer.
 /// \return OK, or NO_MORE_DATA/MISSING_DATA on failure (see errdef.h).
 /// field is only set when OK is returned.
-int next_string_field(
-    FieldScanner &scanner,  ///< the scanner to read from
-    std::string &field,     ///< set to the field when OK is returned
-    size_t maxlength );     ///< the most characters to keep
+int next_string_field(FieldScanner& scanner,  ///< the scanner to read from
+                      std::string& field,     ///< set to the field when OK is returned
+                      size_t maxlength);      ///< the most characters to keep
 
 /// Reads the next field (quote-transparent) from scanner and, if it
 /// case-insensitively equals test, consumes it. Otherwise leaves scanner
 /// unchanged.
 /// \return 1 if the field matched and was consumed, 0 otherwise.
-int test_next_string_field( FieldScanner &scanner, std::string_view test );
+int test_next_string_field(FieldScanner& scanner, std::string_view test);
 
 /// Reads the next field (quote-transparent) from scanner and parses it as a double.
 /// \param value a double* to set on success.
 /// \return OK, or NO_MORE_DATA/MISSING_DATA/INVALID_DATA on failure (see errdef.h).
-int double_from_string( FieldScanner &scanner, void *value );
+int double_from_string(FieldScanner& scanner, void* value);
 
 /// \return the remainder of def's input, unconsumed, verbatim.
-std::string_view unread_string( input_string_def &def );
+std::string_view unread_string(input_string_def& def);
 
-void report_string_error( input_string_def &def, int status, std::string_view message );
+void report_string_error(input_string_def& def, int status, std::string_view message);
 
-int write_output_string( output_string_def *os, std::string_view s );
-int write_output_string2( output_string_def *os, std::string_view s, int options, std::string_view prefix );
-void output_string_to_file( output_string_def *os, FILE *f );
+int write_output_string(output_string_def* os, std::string_view s);
+int write_output_string2(output_string_def* os, std::string_view s, int options, std::string_view prefix);
+void output_string_to_file(output_string_def* os, FILE* f);
 
-#define OSW_TRIMR      1
-#define OSW_TRIML      2
-#define OSW_SKIPBLANK  4
+#define OSW_TRIMR 1
+#define OSW_TRIML 2
+#define OSW_SKIPBLANK 4
 
-#define OSW_TRIM       3
-#define OSW_CLEAN      7
+#define OSW_TRIM 3
+#define OSW_CLEAN 7
 
 #endif
-
-

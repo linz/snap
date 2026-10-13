@@ -16,14 +16,13 @@
 /// The rule filter_line() applies to recognise a comment - bundled
 /// together since both are always sourced from the same CFG_FILE and
 /// passed as one unit.
-struct CommentRule
-{
+struct CommentRule {
     std::optional<char> comment_char;  ///< text from this character onward is a comment, and is
-                                        ///< discarded; nullopt means comments aren't recognised at all
-    bool whole_line_only;               ///< if true, comment_char only starts a comment when it is the
-                                        ///< very first character of the line - it's all-or-nothing, the
-                                        ///< whole line is a comment or none of it is; otherwise a comment
-                                        ///< may start anywhere, trailing real content on the same line
+                                       ///< discarded; nullopt means comments aren't recognised at all
+    bool whole_line_only;              ///< if true, comment_char only starts a comment when it is the
+                                       ///< very first character of the line - it's all-or-nothing, the
+                                       ///< whole line is a comment or none of it is; otherwise a comment
+                                       ///< may start anywhere, trailing real content on the same line
 };
 
 /// Filters line in place into its real content: strips '\r' and '\x1A' (the
@@ -34,7 +33,7 @@ struct CommentRule
 /// comment character may occur anywhere (unless comment.whole_line_only),
 /// and a late comment discards everything from that point on, so a length
 /// limit can't be applied until after this filtering is done.
-void filter_line( std::string &line, const CommentRule &comment );
+void filter_line(std::string& line, const CommentRule& comment);
 
 /// Truncates line in place to at most max_len characters, returning the
 /// count of significant characters discarded past that point - a run of
@@ -44,6 +43,6 @@ void filter_line( std::string &line, const CommentRule &comment );
 /// padding" behaviour, but once a real (non-whitespace) character appears
 /// past max_len, it and everything after it - including further whitespace -
 /// counts toward the returned total.
-int cap_line( std::string &line, std::size_t max_len );
+int cap_line(std::string& line, std::size_t max_len);
 
-#endif  /* _READCFG_INTERNAL_H defined */
+#endif /* _READCFG_INTERNAL_H defined */

@@ -18,16 +18,15 @@
 /* These functions deal with the probability of obtaining a value of
    x greater than that specified */
 
-double normal_distn( double value ) ;
-double inv_normal_distn( double prob ) ;
-double chi2_distn( double value, long dof ) ;
-double inv_chi2_distn( double prob, long dof ) ;
-double students_t_distn( double value, long dof ) ;
-double inv_students_t_distn( double prob, long dof ) ;
-double f_distn( double value, long dofn, long dofd ) ;
-double inv_f_distn( double prob, long dofn, long dofd ) ;
-double tau_distn( double value, long dof );
-double inv_tau_distn( double prob, long dof );
+double normal_distn(double value);
+double inv_normal_distn(double prob);
+double chi2_distn(double value, long dof);
+double inv_chi2_distn(double prob, long dof);
+double students_t_distn(double value, long dof);
+double inv_students_t_distn(double prob, long dof);
+double f_distn(double value, long dofn, long dofd);
+double inv_f_distn(double prob, long dofn, long dofd);
+double tau_distn(double value, long dof);
+double inv_tau_distn(double prob, long dof);
 
 #endif
-

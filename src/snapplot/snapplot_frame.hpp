@@ -17,65 +17,63 @@
 
 // Add miscellaneous functions for testing during building ..
 
-class SnapplotFrame: public wxFrame
-{
-public:
+class SnapplotFrame : public wxFrame {
+ public:
     SnapplotFrame();
     ~SnapplotFrame() override;
 
     // Menu commands
 
     void Quit(wxCommandEvent& event);
-    void OnCmdSaveConfig( wxCommandEvent &event );
-    void OnCmdRestoreConfig( wxCommandEvent &event );
-    void OnCmdExportImage( wxCommandEvent &event );
-    void OnCmdExportDxf( wxCommandEvent &event );
-    void OnCmdPrintMap( wxCommandEvent &event );
-    void OnCmdCopyMap( wxCommandEvent &event );
-    void OnCmdCopyDetails( wxCommandEvent &event );
-    void OnCmdCopyStations( wxCommandEvent &event );
-    void OnCmdCopyObsList( wxCommandEvent &event );
-    void OnCmdViewAll( wxCommandEvent &event );
-    void OnCmdViewZoomOut( wxCommandEvent &event );
-    void OnCmdViewZoomPrev( wxCommandEvent &event );
-    void OnCmdViewStationList( wxCommandEvent &event );
-    void OnCmdViewObsList( wxCommandEvent &event );
-    void OnCmdViewDetails( wxCommandEvent &event );
-    void OnCmdViewAddColour( wxCommandEvent &event );
-    void OnCmdViewMapFont( wxCommandEvent &event );
-    void OnCmdStationHighlight( wxCommandEvent &event );
-    void OnCmdStationHideShow( wxCommandEvent &event );
-    void OnCmdStationIgnoreOffsets( wxCommandEvent &event );
-    void OnCmdStationFindStation( wxCommandEvent &event );
-    void OnCmdColourBy( wxCommandEvent &event );
-    void OnCmdDataColourResetAllOn( wxCommandEvent &event );
-    void OnCmdDataColourResetAllOff( wxCommandEvent &event );
-    void OnCmdStationColourBy( wxCommandEvent &event );
-    void OnCmdStationColourResetAllOn( wxCommandEvent &event );
-    void OnCmdStationColourResetAllOff( wxCommandEvent &event );
-    void OnCmdDataOptions( wxCommandEvent &event );
-    void OnCmdDataHighlight( wxCommandEvent &event );
-    void OnCmdDataListOptions( wxCommandEvent &event );
-    void OnCmdErrorOptions( wxCommandEvent &event );
-    void OnCmdReadConfig( wxCommandEvent &event );
-    void OnCmdHelpHelp( wxCommandEvent &event );
-    void OnCmdHelpAbout( wxCommandEvent &event );
+    void OnCmdSaveConfig(wxCommandEvent& event);
+    void OnCmdRestoreConfig(wxCommandEvent& event);
+    void OnCmdExportImage(wxCommandEvent& event);
+    void OnCmdExportDxf(wxCommandEvent& event);
+    void OnCmdPrintMap(wxCommandEvent& event);
+    void OnCmdCopyMap(wxCommandEvent& event);
+    void OnCmdCopyDetails(wxCommandEvent& event);
+    void OnCmdCopyStations(wxCommandEvent& event);
+    void OnCmdCopyObsList(wxCommandEvent& event);
+    void OnCmdViewAll(wxCommandEvent& event);
+    void OnCmdViewZoomOut(wxCommandEvent& event);
+    void OnCmdViewZoomPrev(wxCommandEvent& event);
+    void OnCmdViewStationList(wxCommandEvent& event);
+    void OnCmdViewObsList(wxCommandEvent& event);
+    void OnCmdViewDetails(wxCommandEvent& event);
+    void OnCmdViewAddColour(wxCommandEvent& event);
+    void OnCmdViewMapFont(wxCommandEvent& event);
+    void OnCmdStationHighlight(wxCommandEvent& event);
+    void OnCmdStationHideShow(wxCommandEvent& event);
+    void OnCmdStationIgnoreOffsets(wxCommandEvent& event);
+    void OnCmdStationFindStation(wxCommandEvent& event);
+    void OnCmdColourBy(wxCommandEvent& event);
+    void OnCmdDataColourResetAllOn(wxCommandEvent& event);
+    void OnCmdDataColourResetAllOff(wxCommandEvent& event);
+    void OnCmdStationColourBy(wxCommandEvent& event);
+    void OnCmdStationColourResetAllOn(wxCommandEvent& event);
+    void OnCmdStationColourResetAllOff(wxCommandEvent& event);
+    void OnCmdDataOptions(wxCommandEvent& event);
+    void OnCmdDataHighlight(wxCommandEvent& event);
+    void OnCmdDataListOptions(wxCommandEvent& event);
+    void OnCmdErrorOptions(wxCommandEvent& event);
+    void OnCmdReadConfig(wxCommandEvent& event);
+    void OnCmdHelpHelp(wxCommandEvent& event);
+    void OnCmdHelpAbout(wxCommandEvent& event);
 
-    void FunctionNotImplemented( wxCommandEvent &event );
+    void FunctionNotImplemented(wxCommandEvent& event);
 
     // Other application events
 
-    void OnMenuOpen( wxMenuEvent &event );
+    void OnMenuOpen(wxMenuEvent& event);
 
-    void OnSymbologyChanged(wxSimpleEvent &event);
-    void OnDisplayCoords( wxCommandEvent &event );
-    void OnSetDetails( wxSnapplotEvent &event );
-    void OnShowDetails( wxSnapplotEvent &event );
-    void OnZoomMapview( wxSnapplotEvent &event );
-    void OnLocateMapview( wxSnapplotEvent &event );
+    void OnSymbologyChanged(wxSimpleEvent& event);
+    void OnDisplayCoords(wxCommandEvent& event);
+    void OnSetDetails(wxSnapplotEvent& event);
+    void OnShowDetails(wxSnapplotEvent& event);
+    void OnZoomMapview(wxSnapplotEvent& event);
+    void OnLocateMapview(wxSnapplotEvent& event);
 
-private:
-
+ private:
     void SetupIcons();
     void CreateMenu();
     void CreateMainWindows();
@@ -83,40 +81,40 @@ private:
     void SetupPrinter();
     void SetupData();
     void SetupSymbology();
-    void SetupDataPens( int dataPenType );
+    void SetupDataPens(int dataPenType);
     // Checks the dataColourMenu item matching the currently active colour-by mode.
     void UpdateColourByMenuCheck();
-    void SetupStationPens( int stationPenType );
+    void SetupStationPens(int stationPenType);
     // Shared by OnCmdDataColourResetAllOn/Off.
-    void ResetDataColourAll( bool is_on );
+    void ResetDataColourAll(bool is_on);
     // Shared by OnCmdStationColourResetAllOn/Off.
-    void ResetStationColourAll( bool is_on );
+    void ResetStationColourAll(bool is_on);
     void AddColourByClassifications();
     void AddStationColourOptions();
     void AddConfigMenuItems();
-    void ReadConfiguration( const std::string &filename );
+    void ReadConfiguration(const std::string& filename);
     void ShowObsList();
     void ShowStationList();
     void SetErrorTypeStatus();
 
-    wxMap *map;
+    wxMap* map;
 
     // The map
-    SnapplotMapView *mapWindow;
+    SnapplotMapView* mapWindow;
     // Window for displaying update information about the map (coordinates)
-    wxStaticText *mapInfoWindow;
+    wxStaticText* mapInfoWindow;
     // Map layers window
-    wxLayerKey *keyWindow;
+    wxLayerKey* keyWindow;
 
     // Textual information
-    wxNotebook *dataView;
+    wxNotebook* dataView;
     int stationListPage;
     int obsListPage;
     int detailsPage;
-    SnapplotStationList *stationListWindow;
-    SnapplotObsList *obsListWindow;
+    SnapplotStationList* stationListWindow;
+    SnapplotObsList* obsListWindow;
     //wxTextCtrl *detailsWindow;
-    SnapplotDetailsView *detailsWindow;
+    SnapplotDetailsView* detailsWindow;
 
     int nextCommandId;
     int classifyCommandFirst;
@@ -126,17 +124,17 @@ private:
     int configMenuCommandFirst;
     int configMenuCommandLast;
 
-    wxMenu *dataColourMenu;
-    wxMenuItem *stationColourMenuItem;
-    wxMenu *stationColourMenu;
+    wxMenu* dataColourMenu;
+    wxMenuItem* stationColourMenuItem;
+    wxMenu* stationColourMenu;
     // "Display" menu bar item; its one real entry opens the Display-by popup.
-    wxMenu *displayMenu;
-    wxMenu *configMenu;
-    wxMenuItem *ignoreOffsetsItem;
-    wxHelpController *help;
+    wxMenu* displayMenu;
+    wxMenu* configMenu;
+    wxMenuItem* ignoreOffsetsItem;
+    wxHelpController* help;
     wxString helpUrl;
-    wxPrintData *printData;
-    wxPageSetupDialogData *pageData;
+    wxPrintData* printData;
+    wxPageSetupDialogData* pageData;
 
     bool zoomOnFind;
 

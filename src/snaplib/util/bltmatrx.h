@@ -23,83 +23,73 @@
 #define _BLTMATRIX_H
 
 #ifndef _SYMMATRX_H
-#include "util/symmatrx.h"   /* For definition of ltmat */
+#include "util/symmatrx.h" /* For definition of ltmat */
 #endif
 
-
-struct bltrow
-{
-    double *address;  /* Address of first element of row */
-    int col;          /* First column for which elements are held */
-    int req;          /* First column for which elements are required */
-    char alloc;       /* Address marks the beginning of an allocated block */
+struct bltrow {
+    double* address; /* Address of first element of row */
+    int col;         /* First column for which elements are held */
+    int req;         /* First column for which elements are required */
+    char alloc;      /* Address marks the beginning of an allocated block */
 };
 
-struct bltmatrix
-{
-    char status;      /* Status of allocation of matrix */
-    int nrow;         /* Number of rows/columns */
-    int nsparse;      /* The number of sparse rows, used for allocation */
-    long nelement;    /* The total number of elements in the matrix */
-    bltrow *row;      /* Pointer to the array of rows */
+struct bltmatrix {
+    char status;   /* Status of allocation of matrix */
+    int nrow;      /* Number of rows/columns */
+    int nsparse;   /* The number of sparse rows, used for allocation */
+    long nelement; /* The total number of elements in the matrix */
+    bltrow* row;   /* Pointer to the array of rows */
 };
 
 #ifdef CHECKBLT
 #include "util/errdef.h"
-#define BLT(b,i,j) \
-   (*( ((i) > (j)) ? b->row[(i)].address + \
-			 ((j) < b->row[i].col ? handle_error(FATAL_ERROR,"Bandwidth error",NO_MESSAGE) \
-					      : (j) - b->row[(i)].col \
-					      ) \
-		     : b->row[(j)].address + \
-			 ((i) < b->row[j].col ? handle_error(FATAL_ERROR,"Bandwidth error",NO_MESSAGE) \
-					      : (i) - b->row[j].col \
-					      ) \
-		     ))
+#define BLT(b, i, j)                                                                                               \
+    (*(((i) > (j))                                                                                                 \
+           ? b->row[(i)].address + ((j) < b->row[i].col ? handle_error(FATAL_ERROR, "Bandwidth error", NO_MESSAGE) \
+                                                        : (j) - b->row[(i)].col)                                   \
+           : b->row[(j)].address + ((i) < b->row[j].col ? handle_error(FATAL_ERROR, "Bandwidth error", NO_MESSAGE) \
+                                                        : (i) - b->row[j].col)))
 
 #else
-#define BLT(b,i,j) \
-   (*( ((i) > (j)) ? b->row[(i)].address + (j) - b->row[(i)].col \
-		     : b->row[(j)].address + (i) - b->row[(j)].col \
-		     ))
+#define BLT(b, i, j) \
+    (*(((i) > (j)) ? b->row[(i)].address + (j) - b->row[(i)].col : b->row[(j)].address + (i) - b->row[(j)].col))
 #endif
 
-#define BLT_JSON_STRUCTURE     0 
-#define BLT_JSON_LOWER         1
-#define BLT_JSON_FULL          3
-#define BLT_JSON_MATRIX_ONLY   4
+#define BLT_JSON_STRUCTURE 0
+#define BLT_JSON_LOWER 1
+#define BLT_JSON_FULL 3
+#define BLT_JSON_MATRIX_ONLY 4
 
-bltmatrix *create_bltmatrix( int nrow );
-void delete_bltmatrix( bltmatrix *blt );
-int copy_bltmatrix_bandwidth( bltmatrix *bltsrc, bltmatrix *bltcopy );
-int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy );
-void blt_nonzero_element( bltmatrix *blt, int row, int col );
-int blt_is_nonzero_element( bltmatrix *blt, int row, int col );
-void blt_set_sparse_rows( bltmatrix *blt, int nsparse );
-void init_bltmatrix( bltmatrix *blt );
-void expand_bltmatrix_to_full( bltmatrix *blt );
-void expand_bltmatrix_to_requested( bltmatrix *blt );
-int blt_nrows( bltmatrix *blt );
-long blt_requested_size( bltmatrix *blt );
-int blt_chol_dec( bltmatrix *blt, int fill );
-void blt_chol_slv( bltmatrix *blt, const double *b, double *r );
-void blt_chol_inv( bltmatrix *blt );
-double blt_get_small( int absolute );
-void blt_set_small( int absolute, double value );
-double *blt_get_row_data( bltmatrix * blt, int irow );
+bltmatrix* create_bltmatrix(int nrow);
+void delete_bltmatrix(bltmatrix* blt);
+int copy_bltmatrix_bandwidth(bltmatrix* bltsrc, bltmatrix* bltcopy);
+int copy_bltmatrix(bltmatrix* bltsrc, bltmatrix* bltcopy);
+void blt_nonzero_element(bltmatrix* blt, int row, int col);
+int blt_is_nonzero_element(bltmatrix* blt, int row, int col);
+void blt_set_sparse_rows(bltmatrix* blt, int nsparse);
+void init_bltmatrix(bltmatrix* blt);
+void expand_bltmatrix_to_full(bltmatrix* blt);
+void expand_bltmatrix_to_requested(bltmatrix* blt);
+int blt_nrows(bltmatrix* blt);
+long blt_requested_size(bltmatrix* blt);
+int blt_chol_dec(bltmatrix* blt, int fill);
+void blt_chol_slv(bltmatrix* blt, const double* b, double* r);
+void blt_chol_inv(bltmatrix* blt);
+double blt_get_small(int absolute);
+void blt_set_small(int absolute, double value);
+double* blt_get_row_data(bltmatrix* blt, int irow);
 /* Only returns rows fully populated to diagonal */
-void dump_bltmatrix( bltmatrix *blt, FILE *b );
-int reload_bltmatrix( bltmatrix **pblt, FILE *b );
+void dump_bltmatrix(bltmatrix* blt, FILE* b);
+int reload_bltmatrix(bltmatrix** pblt, FILE* b);
 /* Dense variant: no per-row column marker, every row starts at column 0.
    This is the encoding snapmain.cpp's dump_covariance_matrix uses for
    FULL_COVARIANCE - it calls dump_bltmatrix_dense_header/_row directly.
    See bltmatrx.cpp for details. */
-void dump_bltmatrix_dense_header( bltmatrix *blt, FILE *b );
-void dump_bltmatrix_dense_row( bltmatrix *blt, int irow, FILE *b );
-void dump_bltmatrix_dense( bltmatrix *blt, FILE *b );
-int reload_bltmatrix_dense( bltmatrix **pblt, FILE *b );
-void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
-void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format );
+void dump_bltmatrix_dense_header(bltmatrix* blt, FILE* b);
+void dump_bltmatrix_dense_row(bltmatrix* blt, int irow, FILE* b);
+void dump_bltmatrix_dense(bltmatrix* blt, FILE* b);
+int reload_bltmatrix_dense(bltmatrix** pblt, FILE* b);
+void print_bltmatrix(FILE* out, bltmatrix* blt, char* format, int indent);
+void print_bltmatrix_json(bltmatrix* blt, FILE* out, int nprefix, int options, const char* format);
 
 #endif
-

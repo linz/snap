@@ -14,7 +14,6 @@
 
 #include <string_view>
 
-
 /* Data types
    GB = GPS baseline
    GX = GPS point obs
@@ -35,58 +34,37 @@
    EP = Ellipsoidal point obs
 */
 
-enum
-{
-    GB,
-    GX,
-    SD,
-    HD,
-    ED,
-    MD,
-    DR,
-    HA,
-    AZ,
-    PB,
-    ZD,
-    LV,
-    OH,
-    EH,
-    LT,
-    LN,
-    EP,
-    NOBSTYPE
-};
+enum { GB, GX, SD, HD, ED, MD, DR, HA, AZ, PB, ZD, LV, OH, EH, LT, LN, EP, NOBSTYPE };
 
-struct datatypedef
-{
-    int    id;
+struct datatypedef {
+    int id;
     std::string_view code; /* Always a view of a string literal, so data() is null terminated */
     std::string_view name; /* Always a view of a string literal, so data() is null terminated */
-    bool   ispoint;    /* True if is a point observation (ie no target station) */
-    bool   isvector;   /* True if multiple components of observation */
-    bool   isangle;    /* True if components are read as angles */
-    bool   reffrm;     /* True if uses a reference frame def */
-    bool   reftrns;    /* True if defines a reference frame translation */
-    bool   projctn;    /* True if uses a projection */
-    bool   refcoef;    /* True if uses a refraction coefficient */
-    bool   isdistance; /* True if this is a distance type */
-    bool   distsf;     /* True if uses a distance scale factor */
-    bool   brngref;    /* True if uses a bearing orientation error */
-    bool   needsgroup; /* True if single observation is meaningless - needs group */
-    bool   joinsgroup; /* True if affected by combining in observation set */
-    bool   isdirectional; /* True if the order if inst/target stations is significant */
-    int    dfltwidth;      /* Default width and no decimal places */
-    int    dflterrwid;
-    int    dfltreswid;
-    int    dfltndp;
+    bool ispoint;          /* True if is a point observation (ie no target station) */
+    bool isvector;         /* True if multiple components of observation */
+    bool isangle;          /* True if components are read as angles */
+    bool reffrm;           /* True if uses a reference frame def */
+    bool reftrns;          /* True if defines a reference frame translation */
+    bool projctn;          /* True if uses a projection */
+    bool refcoef;          /* True if uses a refraction coefficient */
+    bool isdistance;       /* True if this is a distance type */
+    bool distsf;           /* True if uses a distance scale factor */
+    bool brngref;          /* True if uses a bearing orientation error */
+    bool needsgroup;       /* True if single observation is meaningless - needs group */
+    bool joinsgroup;       /* True if affected by combining in observation set */
+    bool isdirectional;    /* True if the order if inst/target stations is significant */
+    int dfltwidth;         /* Default width and no decimal places */
+    int dflterrwid;
+    int dfltreswid;
+    int dfltndp;
 };
 
 extern datatypedef datatype[];
 
 /* Returns NOBSTYPE if code is not valid */
-int datatype_from_code( std::string_view code );
+int datatype_from_code(std::string_view code);
 
-datatypedef* datatypedef_from_code( std::string_view code );
-datatypedef *datatypedef_from_id( int idtype );
+datatypedef* datatypedef_from_code(std::string_view code);
+datatypedef* datatypedef_from_id(int idtype);
 
-#endif  /* DATATYPE_H not defined */
+#endif /* DATATYPE_H not defined */

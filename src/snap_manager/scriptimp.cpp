@@ -11,261 +11,217 @@ using namespace std;
 #define DEBUG_SCRIPTIMP 0
 
 #if DEBUG_SCRIPTIMP
-#define LOG(x) wxPrintf x ;
+#define LOG(x) wxPrintf x;
 #else
 #define LOG(x)
 #endif
 
 const int maxStackDepth = 32;
 
-Token::~Token()
-{
+Token::~Token() {
     // Delete linked tokens avoiding recursive call down list of tokens
 
-    Token *del = next;
-    while( del )
-    {
-        Token *delnext = del->next;
+    Token* del = next;
+    while (del) {
+        Token* delnext = del->next;
         del->next = nullptr;
         delete del;
         del = delnext;
     }
 }
-ostream &Token::Print( const wxString &prefix, ostream &str )
-{
-    for( Token *tok = this; tok != nullptr; tok = tok->Next() )
-    {
-        tok->print( prefix, str );
+ostream& Token::Print(const wxString& prefix, ostream& str) {
+    for (Token* tok = this; tok != nullptr; tok = tok->Next()) {
+        tok->print(prefix, str);
     }
     return str;
 }
 
-ostream &Token::PrintSubtoken( Token *subtoken, const wxString &prefix, ostream &str )
-{
+ostream& Token::PrintSubtoken(Token* subtoken, const wxString& prefix, ostream& str) {
     wxString subprefix("   ");
     subprefix += prefix;
 
-    for( Token *tok = subtoken; tok != nullptr; tok = tok->Next() )
-    {
-        tok->print( subprefix, str );
+    for (Token* tok = subtoken; tok != nullptr; tok = tok->Next()) {
+        tok->print(subprefix, str);
     }
     return str;
 }
 
-int Token::Count()
-{
+int Token::Count() {
     int i = 0;
-    for( Token *t = this; t != nullptr; t = t->Next() )
-    {
+    for (Token* t = this; t != nullptr; t = t->Next()) {
         i++;
     }
     return i;
 }
 
-Value Token::GetValue()
-{
+Value Token::GetValue() {
     return evaluate();
 }
 
-Value Token::GetValueList()
-{
+Value Token::GetValueList() {
     Value v = GetValue();
-    for( Token *pt=this->next; pt; pt=pt->next )
-    {
-        v.SetNext( pt->GetValue() );
+    for (Token* pt = this->next; pt; pt = pt->next) {
+        v.SetNext(pt->GetValue());
     }
     return v;
 }
 
-void Token::SetOwnerValue( const Value & )
-{
+void Token::SetOwnerValue(const Value&) {
     Owner()->error("Cannot set variable for token without variable name");
 }
 
-ostream &operator <<( ostream &str, Token &token ) { return token.Print( wxString(""), str ); }
+ostream& operator<<(ostream& str, Token& token) {
+    return token.Print(wxString(""), str);
+}
 
-Value BooleanToken::evaluate()
-{
+Value BooleanToken::evaluate() {
     Value v;
     v = Value(value);
-    LOG(("Evaluated %s as %s\n","BooleanToken",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "BooleanToken", v.AsString()));
     return v;
 }
 
-
-void BooleanToken::print( const wxString &prefix, ostream &str )
-{
+void BooleanToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "BooleanToken: " << value << endl;
 }
 
-Value StringToken::evaluate()
-{
-    Value const v(text);
-    LOG(("Evaluated %s as %s\n","StringToken",v.AsString()));
+Value StringToken::evaluate() {
+    const Value v(text);
+    LOG(("Evaluated %s as %s\n", "StringToken", v.AsString()));
     return v;
 }
 
-
-void StringToken::print( const wxString &prefix, ostream &str )
-{
+void StringToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "StringToken: \"" << text << "\"" << endl;
 }
 
-
-Value IdToken::evaluate()
-{
+Value IdToken::evaluate() {
     Value v;
     v = Value(id);
-    LOG(("Evaluated %s as %s\n","IdToken",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "IdToken", v.AsString()));
     return v;
 }
 
-void IdToken::print( const wxString &prefix, ostream &str )
-{
+void IdToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "IdToken: \"" << id << "\"" << endl;
 }
 
-
-Value VariableToken::evaluate()
-{
+Value VariableToken::evaluate() {
     Value v;
-    bool const result = Owner()->GetValue( name, v );
-    if( ! result )
-    {
-        Owner()->error("No value defined for variable \"%s\"", (const char *)(name.mb_str()));
+    const bool result = Owner()->GetValue(name, v);
+    if (!result) {
+        Owner()->error("No value defined for variable \"%s\"", (const char*)(name.mb_str()));
     }
-    LOG(("Evaluated %s as %s\n","VariableToken",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "VariableToken", v.AsString()));
     return v;
 }
 
-void VariableToken::SetOwnerValue( const Value &value )
-{
-    VariableToken *pvar = this;
-    const Value *pval=&value;
+void VariableToken::SetOwnerValue(const Value& value) {
+    VariableToken* pvar = this;
+    const Value* pval = &value;
 
-    while( pvar->Next() )
-    {
+    while (pvar->Next()) {
         Value v;
-        if( pval ) { v=Value(*pval,true);
-}
-        Owner()->SetValue( pvar->name, v );
-        pvar=static_cast<VariableToken *> (pvar->Next());
-        if( pval ) { pval=pval->Next();
-}
+        if (pval) {
+            v = Value(*pval, true);
+        }
+        Owner()->SetValue(pvar->name, v);
+        pvar = static_cast<VariableToken*>(pvar->Next());
+        if (pval) {
+            pval = pval->Next();
+        }
     }
-    Owner()->SetValue( pvar->Name(), pval ? *pval : Value() );
+    Owner()->SetValue(pvar->Name(), pval ? *pval : Value());
 }
 
-bool VariableToken::GetValue( Value &value )
-{
-    return Owner()->GetValue( name, value );
+bool VariableToken::GetValue(Value& value) {
+    return Owner()->GetValue(name, value);
 }
 
-void VariableToken::print( const wxString &prefix, ostream &str )
-{
+void VariableToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "VariableToken: " << name << endl;
 }
 
-FunctionToken::~FunctionToken()
-{
+FunctionToken::~FunctionToken() {
     delete params;
 }
 
-Value FunctionToken::evaluate()
-{
+Value FunctionToken::evaluate() {
     Value v(true);
     Value pv;
-    if( params ) { pv = params->GetValueList();
-}
+    if (params) {
+        pv = params->GetValueList();
+    }
 
-    Owner()->EvaluateFunction( name, params ? &pv : nullptr, v );
+    Owner()->EvaluateFunction(name, params ? &pv : nullptr, v);
 
-    LOG(("Evaluated %s as %s\n","FunctionToken",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "FunctionToken", v.AsString()));
     return v;
 }
 
-
-void FunctionToken::print( const wxString &prefix, ostream &str )
-{
+void FunctionToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "FunctionToken: " << name << endl;
-    PrintSubtoken( params, prefix, str );
+    PrintSubtoken(params, prefix, str);
 }
 
-
-ConditionalBranch::~ConditionalBranch()
-{
+ConditionalBranch::~ConditionalBranch() {
     delete condition;
 
     delete actions;
-
 }
 
-Value ConditionalBranch::evaluate()
-{
+Value ConditionalBranch::evaluate() {
     Value v;
     Value vMaxIt;
     // Evaluated by ConditionalStatement token for conditional statement ...
 
     long maxIterations = 100;
-    if( Owner()->GetValue( "$max_while_loop_iterations", vMaxIt ))
-    {
-        vMaxIt.AsString().ToLong( &maxIterations );
+    if (Owner()->GetValue("$max_while_loop_iterations", vMaxIt)) {
+        vMaxIt.AsString().ToLong(&maxIterations);
     }
-    if( iterate )
-    {
-        RunPermission const rp( Owner(), elLoop );
-        while( Owner()->CanRun() && maxIterations-- > 0 && condition->GetValue().AsBool() )
-        {
-            RunPermission const rp1( Owner(), elLoopInner );
+    if (iterate) {
+        const RunPermission rp(Owner(), elLoop);
+        while (Owner()->CanRun() && maxIterations-- > 0 && condition->GetValue().AsBool()) {
+            const RunPermission rp1(Owner(), elLoopInner);
             v = actions->GetValue();
         }
     }
 
-    LOG(("Evaluated %s as %s\n","ConditionalBranch",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "ConditionalBranch", v.AsString()));
     return v;
 }
 
-
-void ConditionalBranch::print( const wxString &prefix, ostream &str )
-{
-    str << prefix << "ConditionalBranch: " << (iterate ? "iterated" : "" ) << endl;
+void ConditionalBranch::print(const wxString& prefix, ostream& str) {
+    str << prefix << "ConditionalBranch: " << (iterate ? "iterated" : "") << endl;
     str << prefix << "...condition" << endl;
-    PrintSubtoken(condition,prefix,str);
+    PrintSubtoken(condition, prefix, str);
     str << prefix << "...actions" << endl;
-    PrintSubtoken(actions,prefix,str);
+    PrintSubtoken(actions, prefix, str);
 }
 
-ConditionalStatement::~ConditionalStatement()
-{
+ConditionalStatement::~ConditionalStatement() {
     delete options;
 }
 
-Value ConditionalStatement::evaluate()
-{
+Value ConditionalStatement::evaluate() {
     Value v;
-    for( Token *t = options; t; t = t->Next() )
-    {
-        ConditionalBranch *branch = static_cast<ConditionalBranch *>(t);
-        if( ! branch->Condition() || branch->Condition()->GetValue().AsBool() )
-        {
+    for (Token* t = options; t; t = t->Next()) {
+        ConditionalBranch* branch = static_cast<ConditionalBranch*>(t);
+        if (!branch->Condition() || branch->Condition()->GetValue().AsBool()) {
             v = branch->Actions()->GetValue();
             break;
         }
     }
-    LOG(("Evaluated %s as %s\n","ConditionalStatement",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "ConditionalStatement", v.AsString()));
     return v;
 }
 
-
-void ConditionalStatement::print( const wxString &prefix, ostream &str )
-{
+void ConditionalStatement::print(const wxString& prefix, ostream& str) {
     str << prefix << "ConditionalStatment: " << endl;
-    PrintSubtoken( options, prefix, str );
+    PrintSubtoken(options, prefix, str);
 }
 
-
-ForeachToken::~ForeachToken()
-{
+ForeachToken::~ForeachToken() {
     delete variable;
 
     delete string;
@@ -273,543 +229,485 @@ ForeachToken::~ForeachToken()
     delete delimiter;
 
     delete actions;
-
 }
 
-Value ForeachToken::evaluate()
-{
-    Value const v;
-    VariableToken *var = static_cast<VariableToken *>( variable );
+Value ForeachToken::evaluate() {
+    const Value v;
+    VariableToken* var = static_cast<VariableToken*>(variable);
 
     wxString del("\n");
     wxRegEx re;
 
     // Use a regular expression if the delimiter is explicitely defined, or if there is just
     // one variable..
-    
-    bool const usere = delimiter || ! (string->Next());
-    if( delimiter ) { del = delimiter->GetValue().AsString();
-}
-    if( usere && ! re.Compile(del,wxRE_ADVANCED) )
-    {
-        Owner()->error("Invalid regular expression %s specified",(const char *)(del.mb_str()) );
+
+    const bool usere = delimiter || !(string->Next());
+    if (delimiter) {
+        del = delimiter->GetValue().AsString();
+    }
+    if (usere && !re.Compile(del, wxRE_ADVANCED)) {
+        Owner()->error("Invalid regular expression %s specified", (const char*)(del.mb_str()));
         return v;
     }
 
-    RunPermission rp(Owner(),elLoop);
+    RunPermission rp(Owner(), elLoop);
 
-    for( Token *strtok=string; strtok; strtok=strtok->Next())
-    {
-        if( ! usere )
-        {
-            if( rp.CanRun() ) 
-            {
-                var->SetOwnerValue( strtok->GetValue() );
+    for (Token* strtok = string; strtok; strtok = strtok->Next()) {
+        if (!usere) {
+            if (rp.CanRun()) {
+                var->SetOwnerValue(strtok->GetValue());
                 RunLoop();
             }
             continue;
         }
 
         int start = 0;
-        wxString const str = strtok->GetValue().AsString();
+        const wxString str = strtok->GetValue().AsString();
 
-        while( rp.CanRun() && re.Matches( str.Mid(start) ) )
-        {
+        while (rp.CanRun() && re.Matches(str.Mid(start))) {
             size_t mstart;
             size_t mlen;
             int nmatch;
-            re.GetMatch( &mstart, &mlen, 0 );
+            re.GetMatch(&mstart, &mlen, 0);
             nmatch = re.GetMatchCount();
-            if( ! isMatch )
-            {
-                var->SetOwnerValue( str.Mid(start,mstart) );
+            if (!isMatch) {
+                var->SetOwnerValue(str.Mid(start, mstart));
                 RunLoop();
             }
 
             // If no bracketed expressions then return the whole match
-            else if( nmatch == 1 )
-            {
-                var->SetOwnerValue( str.Mid(start+mstart, mlen) );
+            else if (nmatch == 1) {
+                var->SetOwnerValue(str.Mid(start + mstart, mlen));
                 RunLoop();
             }
 
             // In either case return explicitly selected groups
 
-            if( nmatch > 1 )
-            {
-                for( int i = 1; rp.CanRun() && i < nmatch; i++ )
-                {
+            if (nmatch > 1) {
+                for (int i = 1; rp.CanRun() && i < nmatch; i++) {
                     size_t sstart;
                     size_t slen;
-                    re.GetMatch( &sstart, &slen, i );
-                    var->SetOwnerValue( str.Mid(start+sstart, slen ) );
+                    re.GetMatch(&sstart, &slen, i);
+                    var->SetOwnerValue(str.Mid(start + sstart, slen));
                     {
                         RunLoop();
                     }
                 }
             }
-            if( mstart + mlen == 0 ) { break;
-}
+            if (mstart + mlen == 0) {
+                break;
+            }
             start += mstart + mlen;
         }
 
-        if( rp.CanRun() && ! isMatch )
-        {
-            var->SetOwnerValue( str.Mid(start) );
+        if (rp.CanRun() && !isMatch) {
+            var->SetOwnerValue(str.Mid(start));
             RunLoop();
         }
     }
 
-    LOG(("Evaluated %s as %s\n","ForeachToken",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "ForeachToken", v.AsString()));
     return v;
 }
 
-void ForeachToken::RunLoop()
-{
-    RunPermission const rp(Owner(),elLoopInner);
+void ForeachToken::RunLoop() {
+    const RunPermission rp(Owner(), elLoopInner);
     actions->GetValue();
 }
 
-void ForeachToken::print( const wxString &prefix, ostream &str )
-{
+void ForeachToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "ForeachToken: " << (isMatch ? "(matches)" : "(delimited)") << endl;
     str << prefix << "... variable" << endl;
-    PrintSubtoken( variable, prefix, str );
+    PrintSubtoken(variable, prefix, str);
     str << prefix << "... string" << endl;
-    PrintSubtoken( string, prefix, str );
+    PrintSubtoken(string, prefix, str);
     str << prefix << "... delimiter" << endl;
-    if( delimiter ) { PrintSubtoken( delimiter, prefix, str );
-}
+    if (delimiter) {
+        PrintSubtoken(delimiter, prefix, str);
+    }
     str << prefix << "... actions" << endl;
-    PrintSubtoken( actions, prefix, str );
+    PrintSubtoken(actions, prefix, str);
 }
 
-
-AssignmentToken::~AssignmentToken()
-{
+AssignmentToken::~AssignmentToken() {
     delete variable;
     delete value;
 }
 
-Value AssignmentToken::evaluate()
-{
-    Value const v = value->GetValueList();
-    variable->SetOwnerValue( v );
+Value AssignmentToken::evaluate() {
+    const Value v = value->GetValueList();
+    variable->SetOwnerValue(v);
     return v;
 }
 
-
-void AssignmentToken::print( const wxString &prefix, ostream &str )
-{
+void AssignmentToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "AssignmentToken: " << endl;
     str << prefix << "...variable" << endl;
-    PrintSubtoken( variable, prefix, str );
+    PrintSubtoken(variable, prefix, str);
     str << prefix << "...value" << endl;
-    PrintSubtoken( value, prefix, str );
+    PrintSubtoken(value, prefix, str);
 }
 
-
-ExitToken::~ExitToken()
-{
-    delete( expression );
-
+ExitToken::~ExitToken() {
+    delete (expression);
 }
 
-Value ExitToken::evaluate()
-{
+Value ExitToken::evaluate() {
     Value v;
     v = Value(true);
-    if( expression )
-    {
+    if (expression) {
         v = expression->GetValueList();
     }
 
-    Owner()->SetExitLevel(level,v);
+    Owner()->SetExitLevel(level, v);
 
-    LOG(("Evaluated %s as %s\n","ExitToken",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "ExitToken", v.AsString()));
     return v;
 }
 
-
-void ExitToken::print( const wxString &prefix, ostream &str )
-{
-    str << prefix << "ExitToken: " << ((int) level) << endl;
-    if( expression )
-    {
+void ExitToken::print(const wxString& prefix, ostream& str) {
+    str << prefix << "ExitToken: " << ((int)level) << endl;
+    if (expression) {
         str << prefix << "... expression" << endl;
-        PrintSubtoken( expression, prefix, str );
+        PrintSubtoken(expression, prefix, str);
     }
 }
 
-int MenuItem::nextId=1;
+int MenuItem::nextId = 1;
 
-MenuItem::Functions::~Functions()
-{
-    delete requirements; 
-    delete actions; 
+MenuItem::Functions::~Functions() {
+    delete requirements;
+    delete actions;
 }
 
-MenuItem::~MenuItem()
-{
+MenuItem::~MenuItem() {
     delete menu_name_expression;
 
     delete description_expression;
 
-    if( functions )
-    {
+    if (functions) {
         functions->refcount--;
-        if( functions->refcount <= 0 ) { delete functions;
-}
+        if (functions->refcount <= 0) {
+            delete functions;
+        }
     }
 }
 
-MenuItem::MenuItem( ScriptImp *owner, Token *menu_name_expression, Token *description_expression )
-    : Token(owner), menu_name_expression(menu_name_expression), description_expression(description_expression)
-{
-    functions=new Functions();
-    id=nextId++;
+MenuItem::MenuItem(ScriptImp* owner, Token* menu_name_expression, Token* description_expression)
+    : Token(owner), menu_name_expression(menu_name_expression), description_expression(description_expression) {
+    functions = new Functions();
+    id = nextId++;
     installed = false;
 }
 
 // Create a copy for installation ...
 
-MenuItem::MenuItem( MenuItem &src ) :
-    Token( src.Owner() )
-{
-    menu_name_expression=nullptr;
-    description_expression=nullptr;
-    id=src.id;
+MenuItem::MenuItem(MenuItem& src) : Token(src.Owner()) {
+    menu_name_expression = nullptr;
+    description_expression = nullptr;
+    id = src.id;
     menu_name = src.menu_name_expression->GetValue().AsString();
     description = src.description_expression->GetValue().AsString();
-    functions=src.functions;
+    functions = src.functions;
     functions->refcount++;
-    }
+}
 
-Value MenuItem::evaluate()
-{
+Value MenuItem::evaluate() {
     Value v;
 
     // Create a copy of this menu item to be owned by the owner...
-    Owner()->AddMenuItem( new MenuItem(*this) );
+    Owner()->AddMenuItem(new MenuItem(*this));
 
     v = Value(true);
-    LOG(("Evaluated %s as %s\n","MenuItem",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "MenuItem", v.AsString()));
     return v;
 }
 
-
-void MenuItem::print( const wxString &prefix, ostream &str )
-{
+void MenuItem::print(const wxString& prefix, ostream& str) {
     str << prefix << "MenuItem: \"" << menu_name << "\" \"" << description << "\"" << endl;
     str << prefix << "...requirements" << endl;
-    PrintSubtoken( functions->requirements, prefix, str );
+    PrintSubtoken(functions->requirements, prefix, str);
     str << prefix << "...actions" << endl;
-    PrintSubtoken( functions->actions, prefix, str );
+    PrintSubtoken(functions->actions, prefix, str);
 }
 
-bool MenuItem::IsValid()
-{
+bool MenuItem::IsValid() {
     Value v(true);
-    if( functions->requirements ) { v = Owner()->Run(functions->requirements);
-}
+    if (functions->requirements) {
+        v = Owner()->Run(functions->requirements);
+    }
     return v.AsBool();
 }
 
-void MenuItem::Execute()
-{
-    if( functions->actions )
-    {
-        Owner()->Run( functions->actions );
+void MenuItem::Execute() {
+    if (functions->actions) {
+        Owner()->Run(functions->actions);
     }
 }
 
-FunctionDef::~FunctionDef()
-{
+FunctionDef::~FunctionDef() {
     delete parameters;
 
     delete actions;
-
 }
 
-Value FunctionDef::evaluate()
-{
+Value FunctionDef::evaluate() {
     Value v;
-    bool const wasinuse = inuse;
+    const bool wasinuse = inuse;
     inuse = true;
     // Strictly should put try ... finally round this ...
     v = actions->GetValue();
     // Set the exit value if not already set by a return statement
     // (Note: SetExitLevel does nothing if the exit level is not increased)
-    Owner()->SetExitLevel( elReturn, v );
+    Owner()->SetExitLevel(elReturn, v);
     inuse = wasinuse;
-    LOG(("Evaluated %s as %s\n","FunctionDef",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "FunctionDef", v.AsString()));
     return Owner()->ExitValue();
 }
 
-void FunctionDef::print( const wxString &prefix, ostream &str )
-{
+void FunctionDef::print(const wxString& prefix, ostream& str) {
     str << prefix << "FunctionDef: " << name << endl;
     str << prefix << "... parameters" << endl;
-    PrintSubtoken( parameters, prefix, str );
+    PrintSubtoken(parameters, prefix, str);
     str << prefix << "... actions" << endl;
-    PrintSubtoken( actions, prefix, str );
+    PrintSubtoken(actions, prefix, str);
 }
 
-StatementBlockToken::~StatementBlockToken()
-{
+StatementBlockToken::~StatementBlockToken() {
     delete statements;
-
 }
 
-Value StatementBlockToken::evaluate()
-{
+Value StatementBlockToken::evaluate() {
     Value v;
-    RunPermission rp( Owner(), elOk );
-    for( Token *s = statements; rp.CanRun() && s != nullptr; s = s->Next() )
-    {
+    RunPermission rp(Owner(), elOk);
+    for (Token* s = statements; rp.CanRun() && s != nullptr; s = s->Next()) {
         v = s->GetValue();
     }
-    LOG(("Evaluated %s as %s\n","StatementBlockToken",v.AsString()));
+    LOG(("Evaluated %s as %s\n", "StatementBlockToken", v.AsString()));
     return v;
 }
 
-
-void StatementBlockToken::print( const wxString &prefix, ostream &str )
-{
+void StatementBlockToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "StatementBlockToken: " << endl;
-    PrintSubtoken( statements, prefix, str );
+    PrintSubtoken(statements, prefix, str);
 }
 
-Operator::~Operator()
-{
+Operator::~Operator() {
     delete operand1;
 
     delete operand2;
-
 }
 
-static int compValue( const Value &value1, const Value &value2 )
-{
-    wxString s1=value1.AsString();
-    wxString s2=value2.AsString();
-    double v1=0.0;
-    double v2=0.0;
-    wxRegEx const reNumber("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)");
-    if( reNumber.Matches(s1) )
-    {
+static int compValue(const Value& value1, const Value& value2) {
+    wxString s1 = value1.AsString();
+    wxString s2 = value2.AsString();
+    double v1 = 0.0;
+    double v2 = 0.0;
+    const wxRegEx reNumber("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)");
+    if (reNumber.Matches(s1)) {
         double v;
-        if( reNumber.GetMatch(s1,1).ToDouble(&v) ) { v1=v;
-}
-        s1=reNumber.GetMatch(s1,2);
+        if (reNumber.GetMatch(s1, 1).ToDouble(&v)) {
+            v1 = v;
+        }
+        s1 = reNumber.GetMatch(s1, 2);
     }
-    if( reNumber.Matches(s2) )
-    {
+    if (reNumber.Matches(s2)) {
         double v;
-        if( reNumber.GetMatch(s2,1).ToDouble(&v) ) { v2=v;
-}
-        s2=reNumber.GetMatch(s2,2);
+        if (reNumber.GetMatch(s2, 1).ToDouble(&v)) {
+            v2 = v;
+        }
+        s2 = reNumber.GetMatch(s2, 2);
     }
-    if( v1 < v2 ) { return -1;
-}
-    if( v1 > v2 ) { return 1;
-}
+    if (v1 < v2) {
+        return -1;
+    }
+    if (v1 > v2) {
+        return 1;
+    }
     return s1.Cmp(s2);
 }
 
-Value Operator::evaluate()
-{
+Value Operator::evaluate() {
     Value result = operand1->GetValue();
 
-    switch( type )
-    {
-    case opEq:
-        result = Value( result.AsString() == operand2->GetValue().AsString() );
-        break;
+    switch (type) {
+        case opEq:
+            result = Value(result.AsString() == operand2->GetValue().AsString());
+            break;
 
-    case opNe:
-        result = Value( result.AsString() != operand2->GetValue().AsString() );
-        break;
+        case opNe:
+            result = Value(result.AsString() != operand2->GetValue().AsString());
+            break;
 
-    case opLt:
-        result = Value( compValue( result, operand2->GetValue() ) < 0 );
-        break;
+        case opLt:
+            result = Value(compValue(result, operand2->GetValue()) < 0);
+            break;
 
-    case opLe:
-        result = Value( compValue( result, operand2->GetValue() ) <= 0 );
-        break;
+        case opLe:
+            result = Value(compValue(result, operand2->GetValue()) <= 0);
+            break;
 
-    case opGe:
-        result = Value( compValue( result, operand2->GetValue() ) >= 0 );
-        break;
+        case opGe:
+            result = Value(compValue(result, operand2->GetValue()) >= 0);
+            break;
 
-    case opGt:
-        result = Value( compValue( result, operand2->GetValue() ) > 0 );
-        break;
+        case opGt:
+            result = Value(compValue(result, operand2->GetValue()) > 0);
+            break;
 
+        case opNot:
+            result = Value(!result.AsBool());
+            break;
 
-    case opNot:
-        result = Value( ! result.AsBool() );
-        break;
-
-    case opAnd:
-        if( result.AsBool() ) { result = operand2->GetValue();
-}
-        break;
-
-    case opOr:
-        if( ! result.AsBool() ) { result = operand2->GetValue();
-}
-        break;
-
-    case opConcat:
-        {
-            wxString concat = result.AsString();
-            concat.append( operand2->GetValue().AsString() );
-            result = Value( concat );
-        }
-        break;
-
-    case opPlus:
-        {
-            double const dval = result.AsDouble() + operand2->GetValue().AsDouble();
-            result = Value( dval );
-        }
-        break;
-
-    case opMinus:
-        {
-            double const dval = result.AsDouble() - operand2->GetValue().AsDouble();
-            result = Value( dval );
-        }
-        break;
-
-    case opMultiply:
-        {
-            double const dval = result.AsDouble() * operand2->GetValue().AsDouble();
-            result = Value( dval );
-        }
-        break;
-
-    case opDivide:
-        {
-            double const dval = result.AsDouble();
-            double const dval2 =  operand2->GetValue().AsDouble();
-            if( dval2 == 0.0 )
-            {
-                Owner()->error("Cannot divide by 0");
-                result=Value(0.0);
+        case opAnd:
+            if (result.AsBool()) {
+                result = operand2->GetValue();
             }
-            else
-            {
-                result=Value(dval/dval2);
+            break;
+
+        case opOr:
+            if (!result.AsBool()) {
+                result = operand2->GetValue();
+            }
+            break;
+
+        case opConcat: {
+            wxString concat = result.AsString();
+            concat.append(operand2->GetValue().AsString());
+            result = Value(concat);
+        } break;
+
+        case opPlus: {
+            const double dval = result.AsDouble() + operand2->GetValue().AsDouble();
+            result = Value(dval);
+        } break;
+
+        case opMinus: {
+            const double dval = result.AsDouble() - operand2->GetValue().AsDouble();
+            result = Value(dval);
+        } break;
+
+        case opMultiply: {
+            const double dval = result.AsDouble() * operand2->GetValue().AsDouble();
+            result = Value(dval);
+        } break;
+
+        case opDivide: {
+            const double dval = result.AsDouble();
+            const double dval2 = operand2->GetValue().AsDouble();
+            if (dval2 == 0.0) {
+                Owner()->error("Cannot divide by 0");
+                result = Value(0.0);
+            } else {
+                result = Value(dval / dval2);
             }
             break;
         }
     }
-    LOG(("Evaluated %s as %s\n","Operator",result.AsString()));
+    LOG(("Evaluated %s as %s\n", "Operator", result.AsString()));
 
     return result;
 }
 
-void Operator::print( const wxString &prefix, ostream &str )
-{
+void Operator::print(const wxString& prefix, ostream& str) {
     bool binary = false;
     str << prefix << "Operator: ";
-    switch( type )
-    {
-    case opNot:
-        str << "not";
-        break;
+    switch (type) {
+        case opNot:
+            str << "not";
+            break;
 
-    case opNe:
-        str << "ne";
-        binary = true;
-        break;
+        case opNe:
+            str << "ne";
+            binary = true;
+            break;
 
-    case opEq:
-        str << "eq";
-        binary = true;
-        break;
+        case opEq:
+            str << "eq";
+            binary = true;
+            break;
 
-    case opAnd:
-        str << "and";
-        binary = true;
-        break;
+        case opAnd:
+            str << "and";
+            binary = true;
+            break;
 
-    case opOr:
-        str << "or";
-        binary = true;
-        break;
+        case opOr:
+            str << "or";
+            binary = true;
+            break;
 
-    case opConcat:
-        str << "concat";
-        binary = true;
-        break;
+        case opConcat:
+            str << "concat";
+            binary = true;
+            break;
 
-    case opPlus:
-        str << "plus";
-        binary = true;
-        break;
+        case opPlus:
+            str << "plus";
+            binary = true;
+            break;
 
-    case opMinus:
-        str << "minus";
-        binary = true;
-        break;
+        case opMinus:
+            str << "minus";
+            binary = true;
+            break;
 
-    case opMultiply:
-        str << "multiply";
-        binary = true;
-        break;
+        case opMultiply:
+            str << "multiply";
+            binary = true;
+            break;
 
-    case opDivide:
-        str << "divide";
-        binary = true;
-        break;
+        case opDivide:
+            str << "divide";
+            binary = true;
+            break;
 
-    case opLt:
-        str << "lt";
-        binary = true;
-        break;
+        case opLt:
+            str << "lt";
+            binary = true;
+            break;
 
-    case opLe:
-        str << "le";
-        binary = true;
-        break;
+        case opLe:
+            str << "le";
+            binary = true;
+            break;
 
-    case opGt:
-        str << "gt";
-        binary = true;
-        break;
+        case opGt:
+            str << "gt";
+            binary = true;
+            break;
 
-    case opGe:
-        str << "ge";
-        binary = true;
-        break;
+        case opGe:
+            str << "ge";
+            binary = true;
+            break;
     }
     str << endl << prefix << "... operand1" << endl;
-    PrintSubtoken( operand1, prefix, str );
-    if( binary )
-    {
+    PrintSubtoken(operand1, prefix, str);
+    if (binary) {
         str << prefix << "... operand2" << endl;
-        PrintSubtoken( operand2, prefix, str );
+        PrintSubtoken(operand2, prefix, str);
     }
 }
 
 // Class instantiated to check that a process has required run level ...
 
-RunPermission::RunPermission( ScriptImp *owner, ExitLevel level ) : owner(owner), level(level) {}
+RunPermission::RunPermission(ScriptImp* owner, ExitLevel level) : owner(owner), level(level) {}
 
-RunPermission::~RunPermission() { if( owner->exitLevel <= level ) { owner->exitLevel = elOk; 
-}}
+RunPermission::~RunPermission() {
+    if (owner->exitLevel <= level) {
+        owner->exitLevel = elOk;
+    }
+}
 
-bool RunPermission::CanRun() { return owner->exitLevel == elOk; }
+bool RunPermission::CanRun() {
+    return owner->exitLevel == elOk;
+}
 
 // ==============================================================================
 // ScriptImp class
 
-ScriptImp::ScriptImp( EnvBase &environment ) :
-    environment( environment)
-{
+ScriptImp::ScriptImp(EnvBase& environment) : environment(environment) {
     frame = nullptr;
     stackDepth = 0;
     exitLevel = elOk;
@@ -818,38 +716,28 @@ ScriptImp::ScriptImp( EnvBase &environment ) :
     sourceFile = wxString("");
 }
 
-ScriptImp::~ScriptImp()
-{
-    while( frame ) { PopStack();
-}
+ScriptImp::~ScriptImp() {
+    while (frame) {
+        PopStack();
+    }
 
-    for( vector<MenuItem *>::iterator it = menuItems.begin();
-            it != menuItems.end();
-            it++ )
-    {
+    for (vector<MenuItem*>::iterator it = menuItems.begin(); it != menuItems.end(); it++) {
         delete (*it);
         (*it) = 0;
     }
 
-    for( map<wxString,FunctionDef *>::iterator it = functions.begin();
-            it != functions.end();
-            it++ )
-    {
-        delete ( it->second);
+    for (map<wxString, FunctionDef*>::iterator it = functions.begin(); it != functions.end(); it++) {
+        delete (it->second);
         it->second = 0;
     }
-
 }
 
-bool ScriptImp::PushStack( const wxString &name )
-{
-
-    if( stackDepth >= maxStackDepth )
-    {
+bool ScriptImp::PushStack(const wxString& name) {
+    if (stackDepth >= maxStackDepth) {
         error("Maximum stack depth exceeded");
         return false;
     }
-    StackFrame *newframe = new StackFrame(name);
+    StackFrame* newframe = new StackFrame(name);
     newframe->next = frame;
     frame = newframe;
     variables = &(frame->variables);
@@ -857,76 +745,62 @@ bool ScriptImp::PushStack( const wxString &name )
     return true;
 }
 
-void ScriptImp::PopStack()
-{
-    if(  frame )
-    {
+void ScriptImp::PopStack() {
+    if (frame) {
         stackDepth--;
-        StackFrame *oldframe = frame;
+        StackFrame* oldframe = frame;
         frame = oldframe->next;
         delete oldframe;
         variables = frame ? &(frame->variables) : nullptr;
     }
 }
 
-bool ScriptImp::ExecuteScript( const std::string &filename )
-{
+bool ScriptImp::ExecuteScript(const std::string& filename) {
     bool result = true;
 
     ifstream scriptFile(filename);
-    if( scriptFile.good() )
-    {
+    if (scriptFile.good()) {
         source = &scriptFile;
         program = nullptr;
         sourceFile = wxString(filename);
-        int const parse_result = parse();
+        const int parse_result = parse();
         sourceFile = wxString("");
-        Token *prog = program;
+        Token* prog = program;
         program = nullptr;
         source = nullptr;
         scriptFile.close();
 
         result = (parse_result && (prog != nullptr));
-        if( result )
-        {
+        if (result) {
             Run(prog);
             PostRunActions();
         }
         delete prog;
 
-    }
-    else
-    {
-        error("Cannot open file %s",filename.c_str());
+    } else {
+        error("Cannot open file %s", filename.c_str());
         result = false;
     }
     return result;
 }
 
-void ScriptImp::RunMenuActions( int id )
-{
-    for( vector<MenuItem *>::iterator it = menuItems.begin(); 
-        it !=menuItems.end();
-        it++ )
-    {
-        MenuItem *mi = (*it);
-        if( mi->Id() == id )
-        {
-        mi->Execute();
-        PostRunActions();
-        break;
+void ScriptImp::RunMenuActions(int id) {
+    for (vector<MenuItem*>::iterator it = menuItems.begin(); it != menuItems.end(); it++) {
+        MenuItem* mi = (*it);
+        if (mi->Id() == id) {
+            mi->Execute();
+            PostRunActions();
+            break;
         }
     }
 }
 
-Value ScriptImp::Run( Token *program )
-{
+Value ScriptImp::Run(Token* program) {
     Value result;
 
-    if( PushStack() )
-    {
+    if (PushStack()) {
         exitLevel = elOk;
-        RunPermission const rp(this, elExit);
+        const RunPermission rp(this, elExit);
         errorMessage.empty();
         result = program->GetValue();
         PopStack();
@@ -934,153 +808,118 @@ Value ScriptImp::Run( Token *program )
     return result;
 }
 
-void ScriptImp::PostRunActions()
-{
+void ScriptImp::PostRunActions() {
     // Post run clean up...
     // Remove deleted menu items
 
-    for( vector<MenuItem *>::iterator it = deleteMenuItems.begin();
-    it != deleteMenuItems.end();
-    it++ )
-    {
-
-			if(*it) { delete (*it);
-}
-			(*it) = 0;
+    for (vector<MenuItem*>::iterator it = deleteMenuItems.begin(); it != deleteMenuItems.end(); it++) {
+        if (*it) {
+            delete (*it);
+        }
+        (*it) = 0;
     }
     deleteMenuItems.clear();
     EnableMenuItems();
 }
 
-void ScriptImp::EnableMenuItems()
-{
+void ScriptImp::EnableMenuItems() {
     // Enable/disable menu items
 
-    for( vector<MenuItem *>::iterator it = menuItems.begin();
-    it != menuItems.end();
-    it++ )
-    {
-        MenuItem *mi=(*it);
-        bool const valid=mi->IsValid();
-        environment.EnableMenuItem( mi->MenuName(), valid );
+    for (vector<MenuItem*>::iterator it = menuItems.begin(); it != menuItems.end(); it++) {
+        MenuItem* mi = (*it);
+        const bool valid = mi->IsValid();
+        environment.EnableMenuItem(mi->MenuName(), valid);
     }
 }
 
-char ScriptImp::getchar()
-{
+char ScriptImp::getchar() {
     // Check what the termination condition is.. assuming char 0 at the moment.
 
     char ch = 0;
-    if( source && source->good() ) { source->get(ch);
-}
+    if (source && source->good()) {
+        source->get(ch);
+    }
     return ch;
 }
 
-void ScriptImp::error( const char *format, ... )
-{
-    char *buf;
+void ScriptImp::error(const char* format, ...) {
+    char* buf;
     buf = new char[1024];
     va_list arglist;
-    va_start( arglist, format );
-    vsprintf( buf, format, arglist );
+    va_start(arglist, format);
+    vsprintf(buf, format, arglist);
     errorMessage = buf;
-    delete [] buf;
+    delete[] buf;
 
-    if( !sourceFile.empty() ) { errorMessage = errorMessage + "\nFile: " + sourceFile;
-}
-    for( StackFrame *f = frame; f; f=f->next )
-    {
-        if( !f->name.empty() )
-        {
+    if (!sourceFile.empty()) {
+        errorMessage = errorMessage + "\nFile: " + sourceFile;
+    }
+    for (StackFrame* f = frame; f; f = f->next) {
+        if (!f->name.empty()) {
             errorMessage = errorMessage + "\nIn function: " + f->name;
             break;
         }
     }
-    environment.ReportError( errorMessage );
-    SetExitLevel( elError );
+    environment.ReportError(errorMessage);
+    SetExitLevel(elError);
 }
 
-MenuItem *ScriptImp::AddMenuItem( MenuItem *item )
-{
-	// If the menu item is already defined, then replace it ... 
-	for( vector<MenuItem *>::iterator it = menuItems.begin();
-        it != menuItems.end();
-        it++ )
-    {
-        MenuItem *mi = (*it);
-		if( mi->MenuName() == item->MenuName() )
-		{
-            item->SetId( mi->Id());
+MenuItem* ScriptImp::AddMenuItem(MenuItem* item) {
+    // If the menu item is already defined, then replace it ...
+    for (vector<MenuItem*>::iterator it = menuItems.begin(); it != menuItems.end(); it++) {
+        MenuItem* mi = (*it);
+        if (mi->MenuName() == item->MenuName()) {
+            item->SetId(mi->Id());
             deleteMenuItems.push_back(mi);
-            (*it)=item;
+            (*it) = item;
             return item;
-		}
+        }
     }
-    if( environment.AddMenuItem( item->MenuName(), item->Description(), item->Id()))
-    {
-        menuItems.push_back( item );
-    }
-    else
-    {
-        delete( item );
-        item=nullptr;
+    if (environment.AddMenuItem(item->MenuName(), item->Description(), item->Id())) {
+        menuItems.push_back(item);
+    } else {
+        delete (item);
+        item = nullptr;
     }
     return item;
 }
 
-void ScriptImp::RemoveMenuItem( const wxString &name )
-{
-    const wxString& itemname=name;
-    wxString match=name;
+void ScriptImp::RemoveMenuItem(const wxString& name) {
+    const wxString& itemname = name;
+    wxString match = name;
     wxString delimiter("|");
     wxArrayString eraseMenus;
-    vector<MenuItem *> eraseItems;
+    vector<MenuItem*> eraseItems;
 
-    if( ! match.EndsWith(delimiter)) 
-    {
+    if (!match.EndsWith(delimiter)) {
         eraseMenus.Add(match);
         match.Append(delimiter);
     }
 
-	for( vector<MenuItem *>::iterator it = menuItems.begin();
-        it != menuItems.end();
-        it++ )
-    {
+    for (vector<MenuItem*>::iterator it = menuItems.begin(); it != menuItems.end(); it++) {
         wxString rest;
-        MenuItem *mi = (*it);
+        MenuItem* mi = (*it);
         bool matched = mi->MenuName() == itemname;
-        if( ! matched && mi->MenuName().StartsWith(match,&rest) )
-        {
-            matched=true;
-            while( rest.Contains(delimiter) )
-            {
-                rest=rest.BeforeLast(delimiter[0]);
-                wxString const menuname=match+rest;
-                if( eraseMenus.Index(menuname) == wxNOT_FOUND )
-                {
+        if (!matched && mi->MenuName().StartsWith(match, &rest)) {
+            matched = true;
+            while (rest.Contains(delimiter)) {
+                rest = rest.BeforeLast(delimiter[0]);
+                const wxString menuname = match + rest;
+                if (eraseMenus.Index(menuname) == wxNOT_FOUND) {
                     eraseMenus.Add(menuname);
                 }
             }
         }
-        if( matched )
-        {
-            eraseItems.push_back( mi );
+        if (matched) {
+            eraseItems.push_back(mi);
         }
     }
 
-	for( vector<MenuItem *>::iterator it = eraseItems.begin();
-        it != eraseItems.end();
-        it++ )
-    {
-        MenuItem *mi =(*it);
-        if( environment.RemoveMenuItem( mi->MenuName()) )
-        {
-            for( vector<MenuItem *>::iterator it2 = menuItems.begin();
-                it2 != menuItems.end();
-                it2++ )
-            {
-                if( (*it2) == mi )
-                {
+    for (vector<MenuItem*>::iterator it = eraseItems.begin(); it != eraseItems.end(); it++) {
+        MenuItem* mi = (*it);
+        if (environment.RemoveMenuItem(mi->MenuName())) {
+            for (vector<MenuItem*>::iterator it2 = menuItems.begin(); it2 != menuItems.end(); it2++) {
+                if ((*it2) == mi) {
                     menuItems.erase(it2);
                     deleteMenuItems.push_back(mi);
                     break;
@@ -1090,215 +929,169 @@ void ScriptImp::RemoveMenuItem( const wxString &name )
     }
 
     eraseMenus.Sort(true);
-    for( int i=0; i < (int) eraseMenus.Count(); i++ )
-    {
-        environment.RemoveMenuItem( eraseMenus[i] + "|" );
+    for (int i = 0; i < (int)eraseMenus.Count(); i++) {
+        environment.RemoveMenuItem(eraseMenus[i] + "|");
     }
 }
 
-bool ScriptImp::AddFunction( FunctionDef *func )
-{
+bool ScriptImp::AddFunction(FunctionDef* func) {
     bool result = false;
-    wxString const name = func->Name();
+    const wxString name = func->Name();
 
     // Is the function already defined ... if so then either delete and
     // replace the function if it is not currently executing, or delete
     // the new definition if it is.  If it is not defined, then just add
     // it...
 
-    map<wxString,FunctionDef *>::iterator const function_ptr = functions.find(name);
-    if( function_ptr != functions.end() )
-    {
-        FunctionDef *f = function_ptr->second;
-        if( f->InUse() )
-        {
+    const map<wxString, FunctionDef*>::iterator function_ptr = functions.find(name);
+    if (function_ptr != functions.end()) {
+        FunctionDef* f = function_ptr->second;
+        if (f->InUse()) {
             delete func;
-        }
-        else
-        {
+        } else {
             delete f;
             function_ptr->second = func;
             result = true;
         }
-    }
-    else
-    {
-        functions.insert( pair<wxString,FunctionDef *>(name, func ) );
+    } else {
+        functions.insert(pair<wxString, FunctionDef*>(name, func));
         result = true;
     }
     return result;
 }
 
-Token *ScriptImp::GetVariable(const wxString &name )
-{
-    if( name == wxString("$script_file"))
-    {
-        return new StringToken(this,sourceFile);
+Token* ScriptImp::GetVariable(const wxString& name) {
+    if (name == wxString("$script_file")) {
+        return new StringToken(this, sourceFile);
     }
-    
-            return new VariableToken(this,name);
-   
+
+    return new VariableToken(this, name);
 }
 
-
-Token *ScriptImp::InterpolateString(const wxString &dtext )
-{
+Token* ScriptImp::InterpolateString(const wxString& dtext) {
     // Remove initial and final quote marks
 
-    bool const interpolate = dtext[0] == '"';
+    const bool interpolate = dtext[0] == '"';
     wxString text;
-    if( dtext[0] == '"' || dtext[0] == '\'' )
-    {
-        text = dtext.substr(1,dtext.size()-2);
-    }
-    else
-    {
+    if (dtext[0] == '"' || dtext[0] == '\'') {
+        text = dtext.substr(1, dtext.size() - 2);
+    } else {
         text = dtext;
     }
-    if( ! interpolate || text.Len() == 0 )
-    {
-        return new StringToken(this,text);
+    if (!interpolate || text.Len() == 0) {
+        return new StringToken(this, text);
     }
-    Token *result = nullptr;
+    Token* result = nullptr;
     wxString value;
     wxString name;
 
-        bool escape = false;
-        bool invariable = false;
-        int const last = text.size();
-        for( int i = 0; i <= last; i++ )
-        {
-            char c = i < last ? text.at(i) : 0;
-            if( invariable )
-            {
-                if( ISALNUM(c) || c == '_' )
-                {
-                    name.append(c);
-                    continue;
-                }
-                if( name.Len() > 0 )
-                {
-                    if( value.Len() > 0 )
-                    {
-                        Token *next = new StringToken( this, value );
-                        value.clear();
-                        if( result )
-                        {
-                            result = new Operator(this,opConcat,result,next);
-                        }
-                        else
-                        {
-                            result = next;
-                        }
-                    }
-                    Token *var = this->GetVariable( name );
-                    if( result )
-                    {
-                        result = new Operator(this,opConcat,result,var);
-                    }
-                    else
-                    {
-                        result = var;
-                    }
-                }
-                else
-                {
-                    value.append('$');
-                }
-                invariable = false;
-				if( c == '$' ) { continue;
-}
-            }
-
-            if( escape && c )
-            {
-                escape = false;
-                switch( c )
-                {
-                case 'n': c = '\n'; break;
-                case 'r': c = '\r'; break;
-                case 't': c = '\t'; break;
-                }
-				value.append(c);
-            }
-            else if( c == '\\' )
-            {
-                escape = true;
-                continue;
-            }
-            else if( c == '$' )
-            {
-                invariable = true;
-                name.clear();
+    bool escape = false;
+    bool invariable = false;
+    const int last = text.size();
+    for (int i = 0; i <= last; i++) {
+        char c = i < last ? text.at(i) : 0;
+        if (invariable) {
+            if (ISALNUM(c) || c == '_') {
                 name.append(c);
                 continue;
             }
-            else if( c )
-            {
-                value.append( c );
+            if (name.Len() > 0) {
+                if (value.Len() > 0) {
+                    Token* next = new StringToken(this, value);
+                    value.clear();
+                    if (result) {
+                        result = new Operator(this, opConcat, result, next);
+                    } else {
+                        result = next;
+                    }
+                }
+                Token* var = this->GetVariable(name);
+                if (result) {
+                    result = new Operator(this, opConcat, result, var);
+                } else {
+                    result = var;
+                }
+            } else {
+                value.append('$');
+            }
+            invariable = false;
+            if (c == '$') {
+                continue;
             }
         }
 
-        if( ! result || value.Len() > 0 )
-                   {
-                        Token *next = new StringToken( this, value );
-                        if( result )
-                        {
-                            result = new Operator(this,opConcat,result,next);
-                        }
-                        else
-                        {
-                            result = next;
-                        }
-                    }
+        if (escape && c) {
+            escape = false;
+            switch (c) {
+                case 'n':
+                    c = '\n';
+                    break;
+                case 'r':
+                    c = '\r';
+                    break;
+                case 't':
+                    c = '\t';
+                    break;
+            }
+            value.append(c);
+        } else if (c == '\\') {
+            escape = true;
+            continue;
+        } else if (c == '$') {
+            invariable = true;
+            name.clear();
+            name.append(c);
+            continue;
+        } else if (c) {
+            value.append(c);
+        }
+    }
+
+    if (!result || value.Len() > 0) {
+        Token* next = new StringToken(this, value);
+        if (result) {
+            result = new Operator(this, opConcat, result, next);
+        } else {
+            result = next;
+        }
+    }
     return result;
 }
 
-void ScriptImp::SetValue( const wxString &name, const Value &value )
-{
+void ScriptImp::SetValue(const wxString& name, const Value& value) {
     Value test;
-    if( environment.GetValue(name,test))
-    {
-        error("Cannot assign a value to system variable %s",(const char *)(name.mb_str()));
-    }
-    else if( name.substr(0,2) == wxString("$_" ) )
-    {
-        global.Add( name, value );
-    }
-    else
-    {
-        variables->Add( name, value );
+    if (environment.GetValue(name, test)) {
+        error("Cannot assign a value to system variable %s", (const char*)(name.mb_str()));
+    } else if (name.substr(0, 2) == wxString("$_")) {
+        global.Add(name, value);
+    } else {
+        variables->Add(name, value);
     }
 }
 
-bool ScriptImp::GetValue( const wxString &name, Value &value )
-{
-    value.SetValue( false );
-    bool result = environment.GetValue(name, value );
-    if( ! result ) { result = variables->Get(name, value );
-}
-    if( ! result ) { result = global.Get(name,value);
-}
+bool ScriptImp::GetValue(const wxString& name, Value& value) {
+    value.SetValue(false);
+    bool result = environment.GetValue(name, value);
+    if (!result) {
+        result = variables->Get(name, value);
+    }
+    if (!result) {
+        result = global.Get(name, value);
+    }
     return result;
 }
 
-
-void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params, Value &result )
-{
+void ScriptImp::EvaluateFunction(const wxString& funcname, const Value* params, Value& result) {
     wxString name(funcname);
 
     FunctionStatus status = fsBadFunction;
 
     // Is this the execute function function..
 
-    while( name.IsSameAs("ExecuteFunction",false) && status == fsBadFunction )
-    {
-        if( ! params  )
-        {
+    while (name.IsSameAs("ExecuteFunction", false) && status == fsBadFunction) {
+        if (!params) {
             status = fsBadParameters;
-        }
-        else
-        {
+        } else {
             name = params->AsString();
             params = params->Next();
         }
@@ -1306,55 +1099,46 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
 
     // Is this the GetValue function
 
-    if( name.IsSameAs("GetValue",false) )
-    {
-        if( ! params )
-        {
+    if (name.IsSameAs("GetValue", false)) {
+        if (!params) {
             status = fsBadParameters;
-        }
-        else
-        {
-            GetValue( params->AsString(), result );
+        } else {
+            GetValue(params->AsString(), result);
             status = fsOk;
         }
     }
 
     // Is this the DeleteMenu function
 
-    if( name.IsSameAs("DeleteMenu",false) )
-    {
-        if( ! params )
-        {
+    if (name.IsSameAs("DeleteMenu", false)) {
+        if (!params) {
             status = fsBadParameters;
-        }
-        else
-        {
-            RemoveMenuItem( params->AsString());
+        } else {
+            RemoveMenuItem(params->AsString());
             status = fsOk;
         }
     }
     // Is the function defined by the environment ...
 
-    if( status == fsBadFunction ) { status = environment.EvaluateFunction( name, params, result );
-}
+    if (status == fsBadFunction) {
+        status = environment.EvaluateFunction(name, params, result);
+    }
 
     // Is this function defined by the script ...
 
-    if( status == fsBadFunction )
-    {
-        map<wxString,FunctionDef *>::iterator const function_ptr = functions.find(name);
-        if( function_ptr != functions.end() )
-        {
+    if (status == fsBadFunction) {
+        const map<wxString, FunctionDef*>::iterator function_ptr = functions.find(name);
+        if (function_ptr != functions.end()) {
             status = fsOk;
 
-            FunctionDef *f = function_ptr->second;
-            if( PushStack(name) )
-            {
+            FunctionDef* f = function_ptr->second;
+            if (PushStack(name)) {
                 // Setup the parameters ..
 
-                if( f->Parameters()) { f->Parameters()->SetOwnerValue( params ? *params : Value() );
-}
-                RunPermission const rp( this, elReturn );
+                if (f->Parameters()) {
+                    f->Parameters()->SetOwnerValue(params ? *params : Value());
+                }
+                const RunPermission rp(this, elReturn);
                 result = f->evaluate();
                 PopStack();
             }
@@ -1363,39 +1147,24 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
 
     // Report errors
 
-    if( status != fsOk )
-    {
-        if( status == fsBadFunction )
-        {
-            error( "Error: Unknown function %s used in script", (const char *)(name.mb_str()) );
-        }
-        else if ( status == fsBadParameters )
-        {
-            error( "Error: Bad parameters passed to function %s in script",(const char *)(name.mb_str()) );
-        }
-        else if( status == fsTerminateScript || status == fsReportedError )
-        {
+    if (status != fsOk) {
+        if (status == fsBadFunction) {
+            error("Error: Unknown function %s used in script", (const char*)(name.mb_str()));
+        } else if (status == fsBadParameters) {
+            error("Error: Bad parameters passed to function %s in script", (const char*)(name.mb_str()));
+        } else if (status == fsTerminateScript || status == fsReportedError) {
             SetExitLevel(elExit);
         }
-
     }
+}
 
-    }
-
-void ScriptImp::Print( ostream &str )
-{
+void ScriptImp::Print(ostream& str) {
     str << "Menu items" << endl;
-    for( vector<MenuItem *>::iterator it = menuItems.begin();
-            it != menuItems.end();
-            it++ )
-    {
-        (*it)->Print( wxString("   "), str );
+    for (vector<MenuItem*>::iterator it = menuItems.begin(); it != menuItems.end(); it++) {
+        (*it)->Print(wxString("   "), str);
     }
     str << "Functions items" << endl;
-    for( map<wxString,FunctionDef *>::iterator it = functions.begin();
-            it != functions.end();
-            it++ )
-    {
-        it->second->Print( wxString("   "), str );
+    for (map<wxString, FunctionDef*>::iterator it = functions.begin(); it != functions.end(); it++) {
+        it->second->Print(wxString("   "), str);
     }
 }

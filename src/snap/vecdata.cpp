@@ -53,32 +53,24 @@
 #include "util/symmatrx.h"
 #include "vecdata.h"
 
-static constexpr std::array<std::string_view,3> gx_trans_params={
-    "X translation",
-    "Y translation",
-    "Z translation"
-    };
+static constexpr std::array<std::string_view, 3> gx_trans_params = {"X translation", "Y translation", "Z translation"};
 
-
-void apply_vecdata_options( survdata *v )
-{
-    trgtdata *trgt=get_trgtdata(v,0);
-    if( trgt->type == GX && v->options & OBS_OPT_CALC_GX_TRANSLATION )
-    {
-        add_survdata_observation_parameters( v, 3, gx_trans_params );
+void apply_vecdata_options(survdata* v) {
+    trgtdata* trgt = get_trgtdata(v, 0);
+    if (trgt->type == GX && v->options & OBS_OPT_CALC_GX_TRANSLATION) {
+        add_survdata_observation_parameters(v, 3, gx_trans_params);
     }
 }
 
-int vecdata_obseq( survdata  *v, void *hA, int nextra )
-{
+int vecdata_obseq(survdata* v, void* hA, int nextra) {
     vector3 dif;
     vector3 dst1[3];
     vector3 dst2[3];
-    station *st1;
-    station *st2;
+    station* st1;
+    station* st2;
     double hgt1;
     double hgt2;
-    vecdata *t;
+    vecdata* t;
     int irow;
     int jrow;
     int nrow;
@@ -96,130 +88,116 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
        ref_frame parameters plus a possible reference frame scale error 
        plus 3 gx translation params */
 
-    init_oe( hA, v->nobs*3, 2*dimension + 11 + nextra, OE_LOWERTRI_CVR );
+    init_oe(hA, v->nobs * 3, 2 * dimension + 11 + nextra, OE_LOWERTRI_CVR);
 
     isvecdif = v->obs.vdata->tgt.type == GB;
 
-    st1 = isvecdif ? stnptr( v->from ) : nullptr;
+    st1 = isvecdif ? stnptr(v->from) : nullptr;
     hgt1 = v->fromhgt;
 
-    if( v-> options )
-    {
-        trgtdata *trgt=get_trgtdata(v,0);
-        if( trgt->type == GX && v->options & OBS_OPT_CALC_GX_TRANSLATION )
-        {
-            addtrans=1;
-            for( int iprm=0; iprm < 3; iprm++ )
-            {
-                gxprmrow[iprm]=get_survdata_obs_param_rowno(v,iprm,&(gxprmval[iprm]));
+    if (v->options) {
+        trgtdata* trgt = get_trgtdata(v, 0);
+        if (trgt->type == GX && v->options & OBS_OPT_CALC_GX_TRANSLATION) {
+            addtrans = 1;
+            for (int iprm = 0; iprm < 3; iprm++) {
+                gxprmrow[iprm] = get_survdata_obs_param_rowno(v, iprm, &(gxprmval[iprm]));
             }
         }
     }
 
     /* Process each observation (vector) in turn */
 
-    for( iobs = 0, t=v->obs.vdata, irow = 1; iobs < v->nobs; iobs++, t++, irow += 3 )
-    {
-
-        st2 = stnptr( t->tgt.to );
+    for (iobs = 0, t = v->obs.vdata, irow = 1; iobs < v->nobs; iobs++, t++, irow += 3) {
+        st2 = stnptr(t->tgt.to);
         hgt2 = t->tgt.tohgt;
         addtrans = 0;
 
-        switch ( t->tgt.type )
-        {
+        switch (t->tgt.type) {
+            case GX: /* Calculate the point vector .. */
 
-        case GX: /* Calculate the point vector .. */
+                calc_xyz(st2, hgt2, dif, dst2);
 
+                /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
 
-            calc_xyz( st2, hgt2, dif, dst2 );
+                vd_rftrans_corr_point(v->reffrm, dif, v->date, dst2, hA, irow);
 
-            /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
+                /* See if an additional translation parameter is required */
 
-            vd_rftrans_corr_point( v->reffrm, dif, v->date, dst2, hA, irow );
+                addtrans = v->options & OBS_OPT_CALC_GX_TRANSLATION && v->prmid > 0;
 
-            /* See if an additional translation parameter is required */
-
-            addtrans=v->options & OBS_OPT_CALC_GX_TRANSLATION && v->prmid > 0;
-
-            /* Apply the global reference frame scale error */
-            /* This is not properly valid for an XYZ position?
+                /* Apply the global reference frame scale error */
+                /* This is not properly valid for an XYZ position?
 
             for( axis = 0; axis < 3; axis++ ) {
                dif[axis] += rf_scale_error( dif[axis], hA, irow+axis );
                }
               */
-            break;
+                break;
 
-        case GB:  /* Calculate the vector difference in the local frame */
+            case GB: /* Calculate the vector difference in the local frame */
 
-            calc_vec_dif( st1, hgt1, st2, hgt2, dif, dst1, dst2 );
+                calc_vec_dif(st1, hgt1, st2, hgt2, dif, dst1, dst2);
 
-            /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
+                /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
 
-            vd_rftrans_corr_vector( v->reffrm, dif, v->date, dst1, dst2, hA, irow );
+                vd_rftrans_corr_vector(v->reffrm, dif, v->date, dst1, dst2, hA, irow);
 
-            /* Apply the global reference frame scale error */
+                /* Apply the global reference frame scale error */
 
-            for( axis = 0; axis < 3; axis++ )
-            {
-                dif[axis] += rf_scale_error( dif[axis], hA, irow+axis );
-            }
-            if( addtrans )
-            {
-                handle_error(FATAL_ERROR,"Mixed vecdata types",NO_MESSAGE);
+                for (axis = 0; axis < 3; axis++) {
+                    dif[axis] += rf_scale_error(dif[axis], hA, irow + axis);
+                }
+                if (addtrans) {
+                    handle_error(FATAL_ERROR, "Mixed vecdata types", NO_MESSAGE);
+                    return FATAL_ERROR;
+                }
+                break;
+
+            default:
+                handle_error(FATAL_ERROR, "Unhandled vecdata type", NO_MESSAGE);
                 return FATAL_ERROR;
-            }
-            break;
-
-        default:
-           handle_error(FATAL_ERROR,"Unhandled vecdata type",NO_MESSAGE);
-           return FATAL_ERROR;
-        
         }
 
         /* Copy the data to the observation equations */
 
-        unused = t->tgt.unused ||
-                 (isvecdif && rejected_station( v->from )) ||
-                 rejected_station( t->tgt.to );
+        unused = t->tgt.unused || (isvecdif && rejected_station(v->from)) || rejected_station(t->tgt.to);
 
-        for( axis = 0; axis < 3; axis++ )
-        {
-            if( addtrans ) 
-            {
+        for (axis = 0; axis < 3; axis++) {
+            if (addtrans) {
                 dif[axis] += gxprmval[axis];
-                if( gxprmrow[axis] ) oe_param( hA, irow+axis, gxprmrow[axis], 1.0 );
+                if (gxprmrow[axis])
+                    oe_param(hA, irow + axis, gxprmrow[axis], 1.0);
             }
-            oe_value( hA, irow+axis, t->vector[axis] - dif[axis] );
+            oe_value(hA, irow + axis, t->vector[axis] - dif[axis]);
             /* set station obseq also applies any station deformation to the
                the observed value */
-            if( isvecdif ) { set_station_obseq( st1, dst1[axis], hA, irow+axis, v->date );
-}
-            set_station_obseq( st2, dst2[axis], hA, irow+axis, v->date );
-            if( unused ) { oe_flag_unused( hA, irow+axis );
-}
+            if (isvecdif) {
+                set_station_obseq(st1, dst1[axis], hA, irow + axis, v->date);
+            }
+            set_station_obseq(st2, dst2[axis], hA, irow + axis, v->date);
+            if (unused) {
+                oe_flag_unused(hA, irow + axis);
+            }
         }
     }
 
     /* Copy the covariance to the observation equation */
 
-    oecvr = oe_covar_ptr( hA );
+    oecvr = oe_covar_ptr(hA);
     veccvr = v->cvr;
     nrow = v->nobs * 3;
 
-    for( irow = 0; irow < nrow; irow ++ ) {
-        for( jrow = 0; jrow <= irow; jrow++ ) {
+    for (irow = 0; irow < nrow; irow++) {
+        for (jrow = 0; jrow <= irow; jrow++) {
             *oecvr++ = *veccvr++;
-}
-}
+        }
+    }
 
     return OK;
 }
 
-
-void list_vecdata( FILE *out, survdata  *v )
-{
-    vecdata *t;
+void list_vecdata(FILE* out, survdata* v) {
+    vecdata* t;
     int iobs;
     int axis;
     int j;
@@ -227,114 +205,90 @@ void list_vecdata( FILE *out, survdata  *v )
 
     fputs("\n", out);
 
-    for(iobs = 0; iobs < v->nobs; iobs++ )
-    {
+    for (iobs = 0; iobs < v->nobs; iobs++) {
         t = &v->obs.vdata[iobs];
         isvecdif = t->tgt.type == GB;
 
-        list_note( out, t->tgt.noteloc );
-        for( axis = 0; axis < 3; axis++ )
-        {
-            if( axis == 0 )
-            {
-                fprintf(out,"%2d:%-4d  ",(int)(v->file+1),(int)(t->tgt.lineno));
-            }
-            else
-            {
-                fprintf(out,"         ");
+        list_note(out, t->tgt.noteloc);
+        for (axis = 0; axis < 3; axis++) {
+            if (axis == 0) {
+                fprintf(out, "%2d:%-4d  ", (int)(v->file + 1), (int)(t->tgt.lineno));
+            } else {
+                fprintf(out, "         ");
             }
 
-            if( isvecdif )
-            {
-                if( axis == 0 && iobs == 0 )
-                {
-                    fprintf( out, "%-*s %5.3lf  ", stn_name_width,
-                             station_code(v->from).c_str(), v->fromhgt );
-                }
-                else
-                {
-                    fprintf( out, "%*s        ",stn_name_width,"");
+            if (isvecdif) {
+                if (axis == 0 && iobs == 0) {
+                    fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(v->from).c_str(), v->fromhgt);
+                } else {
+                    fprintf(out, "%*s        ", stn_name_width, "");
                 }
             }
 
-            if( axis == 0 )
-            {
-                fprintf( out, "%-*s %5.3lf  ", stn_name_width,
-                         station_code(t->tgt.to).c_str(), t->tgt.tohgt );
-            }
-            else
-            {
-                fprintf( out, "%*s        ",stn_name_width,"");
+            if (axis == 0) {
+                fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(t->tgt.to).c_str(), t->tgt.tohgt);
+            } else {
+                fprintf(out, "%*s        ", stn_name_width, "");
             }
 
-            if( ! isvecdif ) { fprintf( out, "%*s        ",stn_name_width,"");
-}
-
-            if( axis == 0 )
-            {
-                fprintf( out, "%2s%c  ",datatype[t->tgt.type].code.data(),
-                         t->tgt.unused ? '*' : ' ');
-            }
-            else
-            {
-                fprintf( out, "     ");
+            if (!isvecdif) {
+                fprintf(out, "%*s        ", stn_name_width, "");
             }
 
-            fprintf(out,"%11.4lf  ",t->vector[axis]);
-
-            if( v->nobs == 1 )
-            {
-                for( j = 0; j<3; j++ ) { fprintf(out,"  %12.8lf",Lij(v->cvr,axis,j));
-}
+            if (axis == 0) {
+                fprintf(out, "%2s%c  ", datatype[t->tgt.type].code.data(), t->tgt.unused ? '*' : ' ');
+            } else {
+                fprintf(out, "     ");
             }
 
-            if( axis == 0 && iobs == 0 ) { fprintf(out,"   %s",
-                                  rftrans_from_id(v->reffrm)->name.c_str());
-}
+            fprintf(out, "%11.4lf  ", t->vector[axis]);
 
-            fputs("\n", out );
+            if (v->nobs == 1) {
+                for (j = 0; j < 3; j++) {
+                    fprintf(out, "  %12.8lf", Lij(v->cvr, axis, j));
+                }
+            }
+
+            if (axis == 0 && iobs == 0) {
+                fprintf(out, "   %s", rftrans_from_id(v->reffrm)->name.c_str());
+            }
+
+            fputs("\n", out);
         }
 
         {
-            classdata *clsf;
+            classdata* clsf;
             int i;
             clsf = v->clsf + t->tgt.iclass;
-            for( i = 0; i< t->tgt.nclass; i++, clsf++ )
-            {
+            for (i = 0; i < t->tgt.nclass; i++, clsf++) {
                 std::string class_name;
                 std::string class_value;
-                class_name = obs_classes.name( clsf->class_id );
-                class_value = obs_classes.value_name( clsf->class_id, clsf->name_id );
-                fprintf(out, "     %s = %s\n",class_name.c_str(),class_value.c_str() );
+                class_name = obs_classes.name(clsf->class_id);
+                class_value = obs_classes.value_name(clsf->class_id, clsf->name_id);
+                fprintf(out, "     %s = %s\n", class_name.c_str(), class_value.c_str());
             }
         }
 
         {
-            syserrdata *sd;
+            syserrdata* sd;
             int i;
             sd = v->syserr + t->tgt.isyserr;
-            for( i = 0; i < t->tgt.nsyserr; i+=3,sd +=3 )
-            {
-                const std::string_view name = syserr_name( sd->prm_id );
-                fprintf(out,"     Systematic error: %s = %lf %lf %lf\n",
-                        name.data(),sd[0].influence,sd[1].influence,sd[2].influence);
+            for (i = 0; i < t->tgt.nsyserr; i += 3, sd += 3) {
+                const std::string_view name = syserr_name(sd->prm_id);
+                fprintf(out, "     Systematic error: %s = %lf %lf %lf\n", name.data(), sd[0].influence, sd[1].influence,
+                        sd[2].influence);
             }
         }
-
     }
 
-
-    if( v->nobs > 1 )
-    {
-        fprintf(out,"\n      Covariance matrix\n");
-        print_ltmat( out, v->cvr, v->nobs*3, "%12.8lf", 6 );
+    if (v->nobs > 1) {
+        fprintf(out, "\n      Covariance matrix\n");
+        print_ltmat(out, v->cvr, v->nobs * 3, "%12.8lf", 6);
     }
 }
 
-
-void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
-{
-    vecdata *t;
+void list_vecdata_residuals(FILE* out, survdata* v, double semult) {
+    vecdata* t;
     int axis;
     int iobs;
     char unused;
@@ -352,188 +306,144 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
     double obslength = 0.0;
     double serlim;
     double mde[3];
-    int const resopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
+    const int resopt = output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
     // char isvecdif;
 
-
-    if( !output_rejected_stations && rejected_station( v->from ) ) { return;
-}
+    if (!output_rejected_stations && rejected_station(v->from)) {
+        return;
+    }
 
     firstobs = 1;
 
-    for(iobs = 0; iobs < v->nobs; iobs++ )
-    {
-
+    for (iobs = 0; iobs < v->nobs; iobs++) {
         t = &v->obs.vdata[iobs];
         // isvecdif = t->tgt.type == GB;
 
-        if( output_rejected_stations || !rejected_station( t->tgt.to ) )
-        {
-
+        if (output_rejected_stations || !rejected_station(t->tgt.to)) {
             /* Set the unused flag bit */
 
-            if( t->tgt.unused & REJECT_OBS_BIT )
-            {
+            if (t->tgt.unused & REJECT_OBS_BIT) {
                 unused = REJECTED_OBS_FLAG;
-            }
-            else if( t->tgt.unused )
-            {
+            } else if (t->tgt.unused) {
                 unused = REJECTED_STN_FLAG;
-            }
-            else
-            {
+            } else {
                 unused = ' ';
             }
 
             /* Now get this lot listed out */
 
-            if( firstobs )
-            {
-                set_residual_listing_data_type( out, t->tgt.type );
-                list_file_location( out, v->file, v->obs.vdata[0].tgt.lineno );
+            if (firstobs) {
+                set_residual_listing_data_type(out, t->tgt.type);
+                list_file_location(out, v->file, v->obs.vdata[0].tgt.lineno);
             }
 
-            fprintf(out,"\n");
-            list_note( out, t->tgt.noteloc );
+            fprintf(out, "\n");
+            list_note(out, t->tgt.noteloc);
 
             /* Determine the parameters to be printed */
 
-            calc_vecdata_vector( v, VD_REF_STN, iobs, VD_OBSVEC | VD_STDERR,
-                                 vec, vecse );
-            calc_vecdata_vector( v, VD_REF_STN, iobs, VD_CALCVEC | VD_STDERR,
-                                 calc, calcse );
-            calc_vecdata_vector( v, VD_REF_STN, iobs,
-                                 VD_RESVEC | VD_STDERR | resopt,
-                                 res, resse );
+            calc_vecdata_vector(v, VD_REF_STN, iobs, VD_OBSVEC | VD_STDERR, vec, vecse);
+            calc_vecdata_vector(v, VD_REF_STN, iobs, VD_CALCVEC | VD_STDERR, calc, calcse);
+            calc_vecdata_vector(v, VD_REF_STN, iobs, VD_RESVEC | VD_STDERR | resopt, res, resse);
 
-            calc_vecdata_vector( v, VD_REF_STN, iobs,
-                                 VD_OBSVEC | VD_STDERR | resopt,
-                                 nullptr, redundancy );
+            calc_vecdata_vector(v, VD_REF_STN, iobs, VD_OBSVEC | VD_STDERR | resopt, nullptr, redundancy);
 
+            serlim = (redundancy[0] + redundancy[1] + redundancy[2]) * 0.3e-4;
 
-            serlim = (redundancy[0]+redundancy[1]+redundancy[2])*0.3e-4;
-
-            for( axis = 0; axis < 3; axis ++ )
-            {
-                mde[axis] = calculate_mde( redundancy[axis], resse[axis] );
-                if( resse[axis] < serlim )
-                {
+            for (axis = 0; axis < 3; axis++) {
+                mde[axis] = calculate_mde(redundancy[axis], resse[axis]);
+                if (resse[axis] < serlim) {
                     sres[axis] = -1.0;
+                } else {
+                    sres[axis] = res[axis] / resse[axis];
+                    if (sres[axis] < 0.0) {
+                        sres[axis] = -sres[axis];
+                    }
                 }
-                else
-                {
-                    sres[axis] = res[axis]/resse[axis];
-                    if( sres[axis] < 0.0 ) { sres[axis] = -sres[axis];
-}
-                }
-                if( unused == ' ' && redundancy[axis] > 0.0 )
-                {
-                    redundancy[axis] = resse[axis]/redundancy[axis];
-                }
-                else
-                {
+                if (unused == ' ' && redundancy[axis] > 0.0) {
+                    redundancy[axis] = resse[axis] / redundancy[axis];
+                } else {
                     redundancy[axis] = -1;
                 }
             }
 
             ndp = 0;
-            for( axis = 0; axis < 3; axis ++ )
-            {
-
-                if( firstobs )
-                {
+            for (axis = 0; axis < 3; axis++) {
+                if (firstobs) {
                     set_survdata_fields(v);
                     firstobs = 0;
                 }
 
-                if( axis == 0 )
-                {
+                if (axis == 0) {
                     ndp = obs_precision[t->tgt.type];
                     obslength = veclen(t->vector);
                     // Don't want to reduce precision for longer lines any more...
                     // Doesn't apply for GX observations.
-                    // if( ndp && obslength > 999999.0 ) ndp--; 
-                    if( obslength <= 0.0 ) { obslength = 1.0;  /* Avoid divide by 0 */
-}
+                    // if( ndp && obslength > 999999.0 ) ndp--;
+                    if (obslength <= 0.0) {
+                        obslength = 1.0; /* Avoid divide by 0 */
+                    }
                     obslength /= 1.0e6;
-                    set_trgtdata_fields(&t->tgt,v);
-                    set_residual_type_field( datatype[t->tgt.type].code, unused );
+                    set_trgtdata_fields(&t->tgt, v);
+                    set_residual_type_field(datatype[t->tgt.type].code, unused);
                 }
 
-                set_residual_field_value( OF_OBS, ndp, vec[axis] );
-                set_residual_field_value( OF_OBSERR, ndp, vecse[axis]*semult);
-                set_residual_field_value( OF_CALC, ndp, calc[axis] );
-                set_residual_field_value( OF_CALCERR, ndp, calcse[axis]*semult);
-                set_residual_field_value( OF_RES, ndp, res[axis] );
-                set_residual_field_value( OF_RESERR, ndp, resse[axis]*semult);
-                set_residual_field_value( OF_ALTRES, 2, res[axis]/obslength);
-                set_residual_field_value( OF_MDE, ndp, mde[axis] );
+                set_residual_field_value(OF_OBS, ndp, vec[axis]);
+                set_residual_field_value(OF_OBSERR, ndp, vecse[axis] * semult);
+                set_residual_field_value(OF_CALC, ndp, calc[axis]);
+                set_residual_field_value(OF_CALCERR, ndp, calcse[axis] * semult);
+                set_residual_field_value(OF_RES, ndp, res[axis]);
+                set_residual_field_value(OF_RESERR, ndp, resse[axis] * semult);
+                set_residual_field_value(OF_ALTRES, 2, res[axis] / obslength);
+                set_residual_field_value(OF_MDE, ndp, mde[axis]);
 
-                if( sres[axis] < 0.0 )
-                {
-                    set_residual_field( OF_SRES, "-  ");
-                }
-                else
-                {
-                    set_residual_field_value( OF_SRES, 2, sres[axis]/semult );
+                if (sres[axis] < 0.0) {
+                    set_residual_field(OF_SRES, "-  ");
+                } else {
+                    set_residual_field_value(OF_SRES, 2, sres[axis] / semult);
                 }
 
-                if( redundancy[axis] < 0.0 )
-                {
-                    set_residual_field( OF_REDUNDANCY, "-  ");
-                }
-                else
-                {
-                    set_residual_field_value( OF_REDUNDANCY,2,redundancy[axis]);
+                if (redundancy[axis] < 0.0) {
+                    set_residual_field(OF_REDUNDANCY, "-  ");
+                } else {
+                    set_residual_field_value(OF_REDUNDANCY, 2, redundancy[axis]);
                 }
 
                 rfunused = unused;
-                if( rfunused == ' ' && redundancy[axis] >= 0.0
-                        && redundancy[axis] < redundancy_flag_level )
-                {
+                if (rfunused == ' ' && redundancy[axis] >= 0.0 && redundancy[axis] < redundancy_flag_level) {
                     rfunused = LOW_REDUNDANCY_FLAG;
                 }
 
-                if( sres[axis] < 0.0 )
-                {
-                    set_residual_field( OF_FLAGS, std::string( 1, rfunused ) );
+                if (sres[axis] < 0.0) {
+                    set_residual_field(OF_FLAGS, std::string(1, rfunused));
+                } else {
+                    set_residual_field(OF_FLAGS,
+                                       std::string(1, rfunused).append(residual_flag(unused == ' ', 1, sres[axis])));
                 }
-                else
-                {
-                    set_residual_field( OF_FLAGS,
-                            std::string( 1, rfunused ).append( residual_flag( unused == ' ', 1, sres[axis] ) ) );
-                }
-                print_residual_line( out );
+                print_residual_line(out);
             }
 
             /* Finally print out the vector standardised residual */
 
-            set_residual_field_value( OF_OBS, ndp, veclen(vec) );
-            set_residual_field_value( OF_CALC, ndp, veclen(calc) );
-            set_residual_field_value( OF_RES, ndp, veclen(res) );
-            set_residual_field_value( OF_ALTRES, 2, veclen(res)/obslength);
-            if( t->rank )
-            {
-                set_residual_field_value( OF_SRES, 2, t->vsres/semult );
-                set_residual_field( OF_FLAGS,
-                        std::string( 1, unused ).append( residual_flag( unused == ' ', t->rank, t->vsres/semult ) ) );
+            set_residual_field_value(OF_OBS, ndp, veclen(vec));
+            set_residual_field_value(OF_CALC, ndp, veclen(calc));
+            set_residual_field_value(OF_RES, ndp, veclen(res));
+            set_residual_field_value(OF_ALTRES, 2, veclen(res) / obslength);
+            if (t->rank) {
+                set_residual_field_value(OF_SRES, 2, t->vsres / semult);
+                set_residual_field(
+                    OF_FLAGS, std::string(1, unused).append(residual_flag(unused == ' ', t->rank, t->vsres / semult)));
+            } else {
+                set_residual_field(OF_SRES, "-  ");
+                set_residual_field(OF_FLAGS, std::string(1, unused));
             }
-            else
-            {
-                set_residual_field(OF_SRES,"-  ");
-                set_residual_field( OF_FLAGS, std::string( 1, unused ) );
-            }
-            print_residual_line( out );
+            print_residual_line(out);
         }
     }
 }
 
-
-
-
-void calc_vecdata_residuals( survdata  *v, lsdata *l )
-{
-    vecdata *t;
+void calc_vecdata_residuals(survdata* v, lsdata* l) {
+    vecdata* t;
     int axis;
     int iobs;
     int iobs3;
@@ -541,7 +451,7 @@ void calc_vecdata_residuals( survdata  *v, lsdata *l )
     ltmat rcvr;
     ltmat sccvr;
     ltmat srcvr;
-    double *lres;
+    double* lres;
     double res[3];
     double rescvr[6];
     int cvrsize;
@@ -556,24 +466,19 @@ void calc_vecdata_residuals( survdata  *v, lsdata *l )
 
     isvecdif = v->obs.vdata->tgt.type == GB;
 
-    unused = isvecdif ? rejected_station( v->from ) : 0;
+    unused = isvecdif ? rejected_station(v->from) : 0;
 
-    for(iobs = 0; iobs < v->nobs; iobs++ )
-    {
-
-
+    for (iobs = 0; iobs < v->nobs; iobs++) {
         t = &v->obs.vdata[iobs];
-        if( unused || rejected_station(t->tgt.to) || t->tgt.unused )
-        {
+        if (unused || rejected_station(t->tgt.to) || t->tgt.unused) {
             t->tgt.unused |= UNUSED_OBS_BIT;
         }
 
-        lres  = l->res  + iobs*3;
+        lres = l->res + iobs * 3;
 
         /* Calculate all the values we want to print out */
 
-        for( axis = 0; axis < 3; axis++, lres++ )
-        {
+        for (axis = 0; axis < 3; axis++, lres++) {
             res[axis] = *lres;
             t->residual[axis] = res[axis];
             t->calc[axis] = t->vector[axis] - res[axis];
@@ -582,52 +487,45 @@ void calc_vecdata_residuals( survdata  *v, lsdata *l )
         /* Work out a standardised residual for the vector */
         /* Note the this corrupts rescvr and the copy of res */
 
-        iobs3 = iobs*3;
-        rescvr[0] = Lij(srcvr,iobs3, iobs3 );
-        rescvr[1] = Lij(srcvr,iobs3+1,iobs3);
-        rescvr[2] = Lij(srcvr,iobs3+1,iobs3+1);
-        rescvr[3] = Lij(srcvr,iobs3+2,iobs3);
-        rescvr[4] = Lij(srcvr,iobs3+2,iobs3+1);
-        rescvr[5] = Lij(srcvr,iobs3+2,iobs3+2);
+        iobs3 = iobs * 3;
+        rescvr[0] = Lij(srcvr, iobs3, iobs3);
+        rescvr[1] = Lij(srcvr, iobs3 + 1, iobs3);
+        rescvr[2] = Lij(srcvr, iobs3 + 1, iobs3 + 1);
+        rescvr[3] = Lij(srcvr, iobs3 + 2, iobs3);
+        rescvr[4] = Lij(srcvr, iobs3 + 2, iobs3 + 1);
+        rescvr[5] = Lij(srcvr, iobs3 + 2, iobs3 + 2);
 
-        t->vsres = vector_standardised_residual( res, rescvr, &t->rank );
-        if( !t->rank ) { t->vsres = -1.0;
-}
+        t->vsres = vector_standardised_residual(res, rescvr, &t->rank);
+        if (!t->rank) {
+            t->vsres = -1.0;
+        }
 
         /* Save the residual ... */
 
-        if( output_rejected_stations ||
-                ((!isvecdif || !rejected_station( v->from )) && !rejected_station( t->tgt.to )) )
-        {
-
+        if (output_rejected_stations || ((!isvecdif || !rejected_station(v->from)) && !rejected_station(t->tgt.to))) {
             /* Set the unused flag bit */
 
-            if( t->tgt.unused & REJECT_OBS_BIT )
-            {
+            if (t->tgt.unused & REJECT_OBS_BIT) {
                 unused_flag = REJECTED_OBS_FLAG;
-            }
-            else if( t->tgt.unused )
-            {
+            } else if (t->tgt.unused) {
                 unused_flag = REJECTED_STN_FLAG;
-            }
-            else
-            {
+            } else {
                 unused_flag = ' ';
             }
 
             /* Save the residual */
 
-            save_residual( v->from, t->tgt.to, t->tgt.id, t->tgt.type,
-                           v->file, t->tgt.lineno, unused_flag, t->rank, t->vsres,
-                           t->tgt.noteloc );
+            save_residual(v->from, t->tgt.to, t->tgt.id, t->tgt.type, v->file, t->tgt.lineno, unused_flag, t->rank,
+                          t->vsres, t->tgt.noteloc);
         }
-
     }
 
     /* Copy across the covariance matrices */
 
-    iobs = v->nobs*3;
-    cvrsize = (iobs * (iobs+1))/2;
-    while( cvrsize-- ) { *ccvr++ = *sccvr++; *rcvr++ = *srcvr++; }
+    iobs = v->nobs * 3;
+    cvrsize = (iobs * (iobs + 1)) / 2;
+    while (cvrsize--) {
+        *ccvr++ = *sccvr++;
+        *rcvr++ = *srcvr++;
+    }
 }
-

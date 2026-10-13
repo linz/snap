@@ -36,8 +36,7 @@
 constexpr std::size_t CFG_MAX_LINE_LENGTH = 1023;
 
 /// One filtered config file line - see CFG_FILE::get_config_line().
-struct ConfigLine
-{
+struct ConfigLine {
     /// Filtered, whitespace-normalised, comment-stripped line content.
     std::string content;
     /// Count of significant characters discarded because content was too
@@ -45,50 +44,49 @@ struct ConfigLine
     int overrun{0};
 
     /// Reserves CFG_MAX_LINE_LENGTH up front, since that's the common-case length limit.
-    ConfigLine() { content.reserve( CFG_MAX_LINE_LENGTH ); }
+    ConfigLine() {
+        content.reserve(CFG_MAX_LINE_LENGTH);
+    }
 };
 
-struct CFG_FILE
-{
+struct CFG_FILE {
     /* Opens name for reading (reporting via handle_error() and leaving f
        closed on failure - check f.is_open() before use), skipping a UTF-8
        BOM if present. */
-    CFG_FILE( const std::string &name, char comment_char );
+    CFG_FILE(const std::string& name, char comment_char);
 
-    std::ifstream f;              /* The file handle */
-    const std::string name;       /* The file name */
-    const std::string dirname;    /* The directory containing the config file (or blank if none)  */
-    int lineno;			/* The current line number */
-    int errcount;                 /* The number of errors encountered */
-    int read_options;             /* Options controlling reading of config file */
-    int command_flag;             /* Flag defining which commands are acceptable */
-    int ignore_flag;             /* Flag defining which commands are to be ignored */
-    const char comment_char;      /* Text after this character is ignored */
+    std::ifstream f;           /* The file handle */
+    const std::string name;    /* The file name */
+    const std::string dirname; /* The directory containing the config file (or blank if none)  */
+    int lineno;                /* The current line number */
+    int errcount;              /* The number of errors encountered */
+    int read_options;          /* Options controlling reading of config file */
+    int command_flag;          /* Flag defining which commands are acceptable */
+    int ignore_flag;           /* Flag defining which commands are to be ignored */
+    const char comment_char;   /* Text after this character is ignored */
     char abort;
 
     /// Reads and filters the next line into line (overwriting its previous
     /// contents) - see readcfg_internal.h's filter_line()/cap_line() for the
     /// exact comment/whitespace/capacity rules. Returns false at end of file
     /// (line is left unchanged in that case), true otherwise.
-    bool get_config_line( ConfigLine &line, std::size_t max_len );
+    bool get_config_line(ConfigLine& line, std::size_t max_len);
 };
-
 
 /* Definition of an item in a configuration file - the user supplies an
    array of items to the read_config_file routine */
 
-using config_store_func = int (*)( CFG_FILE *cfg, std::string_view valst, void *value, int vallen, int code);
+using config_store_func = int (*)(CFG_FILE* cfg, std::string_view valst, void* value, int vallen, int code);
 
-struct config_item
-{
-    const char *option;   /* Address of option name */
-    void *value;    /* Address into which value is to be stored */
-    int offset;     /* Offset from address pointed to */
-    int  vallen;    /* Length allocated to store value for strings..*/
-    config_store_func store;  /* Optional routine to store value */
-    int flags;      /* Flag defining required options  - on exit
+struct config_item {
+    const char* option;      /* Address of option name */
+    void* value;             /* Address into which value is to be stored */
+    int offset;              /* Offset from address pointed to */
+    int vallen;              /* Length allocated to store value for strings..*/
+    config_store_func store; /* Optional routine to store value */
+    int flags;               /* Flag defining required options  - on exit
 			   identifies which options were present */
-    int code;       /* User defined integer code */
+    int code;                /* User defined integer code */
 };
 
 /* Definition of NULL function for storage - default is to store as a
@@ -102,33 +100,30 @@ struct config_item
 
       */
 
-#define STORE_AS_STRING ( (config_store_func) 0 )
+#define STORE_AS_STRING ((config_store_func)0)
 #define CFG_ABSOLUTE (-1)
-
 
 /* Definition of flags for configuration items */
 
-#define CFG_REQUIRED    1   /* The option is required in the configuration file */
-#define CFG_ONEONLY     2   /* Duplicate definitions are invalid */
-#define CFG_PRESENT     4   /* Set by the readcfg routine if the item is present */
-#define CFG_END         8   /* The item will terminate the read_config_file function */
-#define CFG_USERFLAG1   (1*256)
-#define CFG_USERFLAG2   (2*256)
-#define CFG_USERFLAG3   (4*256)
-#define CFG_USERFLAG4   (8*256)
+#define CFG_REQUIRED 1 /* The option is required in the configuration file */
+#define CFG_ONEONLY 2  /* Duplicate definitions are invalid */
+#define CFG_PRESENT 4  /* Set by the readcfg routine if the item is present */
+#define CFG_END 8      /* The item will terminate the read_config_file function */
+#define CFG_USERFLAG1 (1 * 256)
+#define CFG_USERFLAG2 (2 * 256)
+#define CFG_USERFLAG3 (4 * 256)
+#define CFG_USERFLAG4 (8 * 256)
 
-#define CFG_INIT_ITEMS    1 /* Read option flags */
+#define CFG_INIT_ITEMS 1 /* Read option flags */
 #define CFG_CHECK_MISSING 2
-#define CFG_IGNORE_BAD    4
+#define CFG_IGNORE_BAD 4
 #define CFG_IGNORE_COMMENT 8
 #define CFG_POSITIONAL_COMMENT 16
-#define CFG_SET_PATH   32
+#define CFG_SET_PATH 32
 
 #ifndef DEFAULT_ERROR_HANDLER
-#define DEFAULT_ERROR_HANDLER ( (int (*)()) 0 )
+#define DEFAULT_ERROR_HANDLER ((int (*)())0)
 #endif
-
-
 
 /* Macro to define the offset of a member m of structure referenced by
    typedef t (can be called as offsetof( struct s, m) */
@@ -137,37 +132,35 @@ struct config_item
 
 #define FIELD_DELIMS " \t\n="
 
-
 /* Basic routines for reading a configuration file */
 
-CFG_FILE *open_config_file( const std::string &name, char comment_char );
-void close_config_file( CFG_FILE *cfg );
+CFG_FILE* open_config_file(const std::string& name, char comment_char);
+void close_config_file(CFG_FILE* cfg);
 
-int set_config_read_options( CFG_FILE *cfg, int options );
-int set_config_command_flag( CFG_FILE *cfg, int flag );
-int set_config_ignore_flag( CFG_FILE *cfg, int flag );
-void initialise_config_items( config_item item[] );
-int read_config_file( CFG_FILE *cfg, config_item item[] );
-int report_missing_config_items( CFG_FILE *cfg, config_item item[] );
-int send_config_error( CFG_FILE *cfg, int errstat, const std::string &errmsg );
+int set_config_read_options(CFG_FILE* cfg, int options);
+int set_config_command_flag(CFG_FILE* cfg, int flag);
+int set_config_ignore_flag(CFG_FILE* cfg, int flag);
+void initialise_config_items(config_item item[]);
+int read_config_file(CFG_FILE* cfg, config_item item[]);
+int report_missing_config_items(CFG_FILE* cfg, config_item item[]);
+int send_config_error(CFG_FILE* cfg, int errstat, const std::string& errmsg);
 
-std::string get_config_location( CFG_FILE *cfg );
-std::string get_config_filename( CFG_FILE *cfg );
-std::string get_config_directory( CFG_FILE *cfg );
+std::string get_config_location(CFG_FILE* cfg);
+std::string get_config_filename(CFG_FILE* cfg);
+std::string get_config_directory(CFG_FILE* cfg);
 
-void abort_config_file( CFG_FILE *cfg );
-
+void abort_config_file(CFG_FILE* cfg);
 
 /* Items mainly of use in defining configuration file items.  In each
    case the length and code parameters are ignored, except for
    readcfg_boolean, for which the length is a bit mask defining which
    bits of an unsigned char variable are modified. */
 
-int readcfg_int( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
-int readcfg_short( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
-int readcfg_long( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
-int readcfg_float( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
-int readcfg_double( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
-int readcfg_boolean( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
+int readcfg_int(CFG_FILE* cfg, std::string_view str, void* value, int length, int code);
+int readcfg_short(CFG_FILE* cfg, std::string_view str, void* value, int length, int code);
+int readcfg_long(CFG_FILE* cfg, std::string_view str, void* value, int length, int code);
+int readcfg_float(CFG_FILE* cfg, std::string_view str, void* value, int length, int code);
+int readcfg_double(CFG_FILE* cfg, std::string_view str, void* value, int length, int code);
+int readcfg_boolean(CFG_FILE* cfg, std::string_view str, void* value, int length, int code);
 
-#endif  /* READCFG_H defined */
+#endif /* READCFG_H defined */

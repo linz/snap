@@ -23,10 +23,10 @@ std::string get_date();
 
 /// Writes a run date as a GETDATELEN byte field, padded with NUL bytes.
 /// The text is truncated if it is too long.
-void write_run_date_field( FILE *f, const std::string &runDate );
+void write_run_date_field(FILE* f, const std::string& runDate);
 
 /// Reads a run date from a GETDATELEN byte field, up to the first NUL byte.
 /// Returns false, leaving runDate unchanged, if the field cannot be read.
-bool read_run_date_field( FILE *f, std::string &runDate );
+bool read_run_date_field(FILE* f, std::string& runDate);
 
 #endif

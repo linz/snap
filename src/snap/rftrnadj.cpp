@@ -36,145 +36,79 @@
 
 #define MAXPRMNAMELEN 22
 
-#define OUTPUT_GEO  1
+#define OUTPUT_GEO 1
 #define OUTPUT_TOPO 2
 #define OUTPUT_IERS 4
 
-static constexpr std::array<std::string_view,14> geoPrmNames =
-{
-    " X shift (m)",
-    " Y shift (m)",
-    " Z shift (m)",
-    " scale (ppm)",
-    " rotn X (sec)",
-    " rotn Y (sec)",
-    " rotn Z (sec)",
-    " X shift rate (m/yr)",
-    " Y shift rate (m/yr)",
-    " Z shift rate (m/yr)",
-    " scale rate (ppm/yr)",
-    " rotn X rate (sec/yr)",
-    " rotn Y rate (sec/yr)",
-    " rotn Z rate (sec/yr)"
-};
+static constexpr std::array<std::string_view, 14> geoPrmNames = {
+    " X shift (m)",          " Y shift (m)",         " Z shift (m)",         " scale (ppm)",
+    " rotn X (sec)",         " rotn Y (sec)",        " rotn Z (sec)",        " X shift rate (m/yr)",
+    " Y shift rate (m/yr)",  " Z shift rate (m/yr)", " scale rate (ppm/yr)", " rotn X rate (sec/yr)",
+    " rotn Y rate (sec/yr)", " rotn Z rate (sec/yr)"};
 
-static constexpr std::array<std::string_view,14> topoPrmNames =
-{
-    " E shift (m)",
-    " N shift (m)",
-    " U shift (m)",
-    " scale (ppm)",
-    " rotn E (sec)",
-    " rotn N (sec)",
-    " rotn U (sec)",
-    " E shift rate (m)",
-    " N shift rate (m)",
-    " U shift rate (m)",
-    " scale rate (ppm)",
-    " rotn E rate (sec)",
-    " rotn N rate (sec)",
-    " rotn U rate (sec)"
-};
+static constexpr std::array<std::string_view, 14> topoPrmNames = {
+    " E shift (m)",      " N shift (m)",       " U shift (m)",       " scale (ppm)",      " rotn E (sec)",
+    " rotn N (sec)",     " rotn U (sec)",      " E shift rate (m)",  " N shift rate (m)", " U shift rate (m)",
+    " scale rate (ppm)", " rotn E rate (sec)", " rotn N rate (sec)", " rotn U rate (sec)"};
 
-static constexpr std::array<std::string_view,14> grownames =
-{
-    "X translation (m)",
-    "Y translation (m)",
-    "Z translation (m)",
-    "Scale factor (ppm)",
-    "X rotation (arc sec)",
-    "Y rotation (arc sec)",
-    "Z rotation (arc sec)",
-    "X translation rate (m/year)",
-    "Y translation rate (m/year)",
-    "Z translation rate (m/year)",
-    "Scale factor rate (ppm/year)",
-    "X rotation rate (arc sec/year)",
-    "Y rotation rate (arc sec/year)",
-    "Z rotation rate (arc sec/year)"
-};
+static constexpr std::array<std::string_view, 14> grownames = {"X translation (m)",
+                                                               "Y translation (m)",
+                                                               "Z translation (m)",
+                                                               "Scale factor (ppm)",
+                                                               "X rotation (arc sec)",
+                                                               "Y rotation (arc sec)",
+                                                               "Z rotation (arc sec)",
+                                                               "X translation rate (m/year)",
+                                                               "Y translation rate (m/year)",
+                                                               "Z translation rate (m/year)",
+                                                               "Scale factor rate (ppm/year)",
+                                                               "X rotation rate (arc sec/year)",
+                                                               "Y rotation rate (arc sec/year)",
+                                                               "Z rotation rate (arc sec/year)"};
 
-static constexpr std::array<std::string_view,14> irownames =
-{
-    "X translation (mm)",
-    "Y translation (mm)",
-    "Z translation (mm)",
-    "Scale factor (ppb)",
-    "X rotation (mas)",
-    "Y rotation (mas)",
-    "Z rotation (mas)",
-    "X translation rate (mm/year)",
-    "Y translation rate (mm/year)",
-    "Z translation rate (mm/year)",
-    "Scale factor rate (ppb/year)",
-    "X rotation rate (mas/year)",
-    "Y rotation rate (mas/year)",
-    "Z rotation rate (mas/year)"
-};
+static constexpr std::array<std::string_view, 14> irownames = {"X translation (mm)",
+                                                               "Y translation (mm)",
+                                                               "Z translation (mm)",
+                                                               "Scale factor (ppb)",
+                                                               "X rotation (mas)",
+                                                               "Y rotation (mas)",
+                                                               "Z rotation (mas)",
+                                                               "X translation rate (mm/year)",
+                                                               "Y translation rate (mm/year)",
+                                                               "Z translation rate (mm/year)",
+                                                               "Scale factor rate (ppb/year)",
+                                                               "X rotation rate (mas/year)",
+                                                               "Y rotation rate (mas/year)",
+                                                               "Z rotation rate (mas/year)"};
 
-static constexpr std::array<std::string_view,14> trownames =
-{
-    "E translation (m)",
-    "N translation (m)",
-    "U translation (m)",
-    "Scale factor (ppm)",
-    "N-S tilt (arc sec)",
-    "W-E tilt (arc sec)",
-    "Vertical rotation (arc sec)",
-    "E translation rate (m/year)",
-    "N translation rate (m/year)",
-    "U translation rate (m/year)",
-    "Scale factor rate (ppm/year)",
-    "N-S tilt rate (arc sec/year)",
-    "W-E tilt rate (arc sec/year)",
-    "Vertical rotation rate (arc sec/year)"
-};
+static constexpr std::array<std::string_view, 14> trownames = {"E translation (m)",
+                                                               "N translation (m)",
+                                                               "U translation (m)",
+                                                               "Scale factor (ppm)",
+                                                               "N-S tilt (arc sec)",
+                                                               "W-E tilt (arc sec)",
+                                                               "Vertical rotation (arc sec)",
+                                                               "E translation rate (m/year)",
+                                                               "N translation rate (m/year)",
+                                                               "U translation rate (m/year)",
+                                                               "Scale factor rate (ppm/year)",
+                                                               "N-S tilt rate (arc sec/year)",
+                                                               "W-E tilt rate (arc sec/year)",
+                                                               "Vertical rotation rate (arc sec/year)"};
 
-static double iers_mult[14] =
-{ 
-    1000.0,
-    1000.0,
-    1000.0,
-    1000.0,
-    -1000.0,
-    -1000.0,
-    -1000.0,
-    1000.0,
-    1000.0,
-    1000.0,
-    1000.0,
-    -1000.0,
-    -1000.0,
-    -1000.0
-};
+static double iers_mult[14] = {1000.0, 1000.0, 1000.0, 1000.0, -1000.0, -1000.0, -1000.0,
+                               1000.0, 1000.0, 1000.0, 1000.0, -1000.0, -1000.0, -1000.0};
 
+static constexpr std::array<std::string_view, 14> valformat = {
+    "  %10.4lf    ", "  %10.4lf    ", "  %10.4lf    ", "  %13.7lf ", "  %13.7lf ", "  %13.7lf ", "  %13.7lf ",
+    "  %11.5lf   ",  "  %11.5lf   ",  "  %11.5lf   ",  "  %14.8lf",  "  %14.8lf",  "  %14.8lf",  "  %14.8lf"};
 
-static constexpr std::array<std::string_view,14> valformat =
-{
-    "  %10.4lf    ", 
-    "  %10.4lf    ", 
-    "  %10.4lf    ", 
-    "  %13.7lf ",
-    "  %13.7lf ",
-    "  %13.7lf ",
-    "  %13.7lf ",
-    "  %11.5lf   ", 
-    "  %11.5lf   ", 
-    "  %11.5lf   ", 
-    "  %14.8lf",
-    "  %14.8lf",
-    "  %14.8lf",
-    "  %14.8lf"
-};
+static const char* missingstr = "      -        ";
 
-static const char *missingstr = "      -        ";
-
-
-static void init_rftrans_prms( rfTransformation *rf )
-{
+static void init_rftrans_prms(rfTransformation* rf) {
     char prmname[REFFRAMELEN + MAXPRMNAMELEN];
-    char *prmtype;
-    const std::array<std::string_view,14> *prmNames;
+    char* prmtype;
+    const std::array<std::string_view, 14>* prmNames;
     double origin[3];
     int i;
 
@@ -182,39 +116,37 @@ static void init_rftrans_prms( rfTransformation *rf )
 
     /* Define the parameters of the reference frame */
 
-    strncpy( prmname, rf->name.c_str(), REFFRAMELEN );
+    strncpy(prmname, rf->name.c_str(), REFFRAMELEN);
     prmname[REFFRAMELEN] = 0;
     prmtype = prmname + strlen(prmname);
 
     prmNames = rf->istopo ? &topoPrmNames : &geoPrmNames;
 
-    for( i = 0; i < 14; i++ )
-    {
-        if( ! rf->calcPrm[i] && ! rf->prmId[i] ) { continue;
-}
-        if( !rf->prmId[i] )
-        {
-            strcpy( prmtype, (*prmNames)[i].data() );
-            rf->prmId[i] = define_param( prmname, 0.0, 0 );
+    for (i = 0; i < 14; i++) {
+        if (!rf->calcPrm[i] && !rf->prmId[i]) {
+            continue;
+        }
+        if (!rf->prmId[i]) {
+            strcpy(prmtype, (*prmNames)[i].data());
+            rf->prmId[i] = define_param(prmname, 0.0, 0);
             flag_param_listed(rf->prmId[i]);
         }
-        define_param_value( rf->prmId[i], rf->prm[i], rf->calcPrm[i] );
-        if( rf->prmUsed[i] ) { flag_param_used( rf->prmId[i] );
-}
+        define_param_value(rf->prmId[i], rf->prm[i], rf->calcPrm[i]);
+        if (rf->prmUsed[i]) {
+            flag_param_used(rf->prmId[i]);
+        }
     }
 
     /* Set up an origin unless forcing otherwise */
- 
+
     origin[0] = origin[1] = origin[2] = 0.0;
-    if( rf->localoriginok )
-    {
-        get_network_topocentre_xyz( net, origin );
+    if (rf->localoriginok) {
+        get_network_topocentre_xyz(net, origin);
     }
-    rf->setOrigin( origin );
+    rf->setOrigin(origin);
 }
 
-static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
-{
+static void update_rftrans_prms(rfTransformation* rf, int get_covariance) {
     int i;
     int j;
     double cvr[105];
@@ -222,77 +154,68 @@ static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
     int rowidx[14];
     int rowno[14];
     int nprm;
-    double *s;
-    double *d;
+    double* s;
+    double* d;
 
     nprm = 0;
-    for( i = 0; i < 14; i++ )
-    {
+    for (i = 0; i < 14; i++) {
         rowidx[i] = 0;
-        if( rf->prmId[i] )
-        {
+        if (rf->prmId[i]) {
             int rn;
-            rf->prm[i] = param_value( rf->prmId[i] );
-            rn = param_rowno( rf->prmId[i] );
-            if( !rn ) { continue;
-}
+            rf->prm[i] = param_value(rf->prmId[i]);
+            rn = param_rowno(rf->prmId[i]);
+            if (!rn) {
+                continue;
+            }
             rowidx[i] = 1;
-            rowno[nprm] = rn-1;
+            rowno[nprm] = rn - 1;
             nprm++;
         }
     }
 
     /* If any rows are calculated then get the covariance matrix */
 
-    if( nprm && get_covariance ) { lsq_get_params( rowno, nprm, dummy, cvr );
-}
+    if (nprm && get_covariance) {
+        lsq_get_params(rowno, nprm, dummy, cvr);
+    }
 
     /* Copy into the reference frame covariance */
 
-    s = cvr; d = rf->prmCvr;
-    for( i = 0; i < 14; i++ ) { for( j = 0; j <= i; j++, d++ )
-        {
-            if( get_covariance && rowidx[i] && rowidx[j] )
-            {
+    s = cvr;
+    d = rf->prmCvr;
+    for (i = 0; i < 14; i++) {
+        for (j = 0; j <= i; j++, d++) {
+            if (get_covariance && rowidx[i] && rowidx[j]) {
                 *d = *s++;
-            }
-            else
-            {
+            } else {
                 *d = 0.0;
             }
         }
-}
-}
-
-void init_rftrans_prms_list( void )
-{
-    int nrf;
-
-    for( nrf = 1; nrf <= rftrans_count(); nrf++ )
-    {
-        init_rftrans_prms( rftrans_from_id(nrf) );
     }
 }
 
-void update_rftrans_prms_list( int get_covariance )
-{
+void init_rftrans_prms_list(void) {
     int nrf;
 
-    for( nrf = 1; nrf <= rftrans_count(); nrf++ )
-    {
-        rfTransformation *rf;
+    for (nrf = 1; nrf <= rftrans_count(); nrf++) {
+        init_rftrans_prms(rftrans_from_id(nrf));
+    }
+}
+
+void update_rftrans_prms_list(int get_covariance) {
+    int nrf;
+
+    for (nrf = 1; nrf <= rftrans_count(); nrf++) {
+        rfTransformation* rf;
         rf = rftrans_from_id(nrf);
-        update_rftrans_prms( rf, get_covariance );
+        update_rftrans_prms(rf, get_covariance);
         rf->setup();
     }
 }
 
-
-
 /* Transform the covariance matrix C to TCT' */
 
-static void transform_rftrans( double xform[3][3], double *val, double *cvr )
-{
+static void transform_rftrans(double xform[3][3], double* val, double* cvr) {
     double fullcvr[14][14];
     double fullxfm[14][14];
     double temp[14][14];
@@ -304,62 +227,64 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
 
     /* Make a full covariance and rotation matrix */
 
-    for( i = 0, ij=0; i < 14; i++ ) { for( j = 0; j <= i; j++, ij++ )
-    {
-        fullcvr[i][j] = fullcvr[j][i] = cvr[ij];
-        fullxfm[i][j] = fullxfm[j][i] = 0.0;
+    for (i = 0, ij = 0; i < 14; i++) {
+        for (j = 0; j <= i; j++, ij++) {
+            fullcvr[i][j] = fullcvr[j][i] = cvr[ij];
+            fullxfm[i][j] = fullxfm[j][i] = 0.0;
+        }
     }
-}
-    for( i = 0; i < 3; i++ ) { for ( j = 0; j < 3; j++ )
-    {
-            fullxfm[i+rfTx][j+rfTx] = xform[i][j];
-            fullxfm[i+rfRotx][j+rfRotx] = xform[i][j];
-            fullxfm[i+rfTxRate][j+rfTxRate] = xform[i][j];
-            fullxfm[i+rfRotxRate][j+rfRotxRate] = xform[i][j];
+    for (i = 0; i < 3; i++) {
+        for (j = 0; j < 3; j++) {
+            fullxfm[i + rfTx][j + rfTx] = xform[i][j];
+            fullxfm[i + rfRotx][j + rfRotx] = xform[i][j];
+            fullxfm[i + rfTxRate][j + rfTxRate] = xform[i][j];
+            fullxfm[i + rfRotxRate][j + rfRotxRate] = xform[i][j];
+        }
     }
-}
-    fullxfm[rfScale][rfScale]=1.0;
-    fullxfm[rfScaleRate][rfScaleRate]=1.0;
+    fullxfm[rfScale][rfScale] = 1.0;
+    fullxfm[rfScaleRate][rfScaleRate] = 1.0;
 
     /* Premultiply by xform */
 
-    for( i=0; i<14; i++ ) { for( j=0; j<14; j++ )
-    {
-        double sum = 0;
-        for( k = 0; k < 14; k++ ) { sum += fullxfm[i][k]*fullcvr[k][j];
-}
-        temp[i][j] = sum;
+    for (i = 0; i < 14; i++) {
+        for (j = 0; j < 14; j++) {
+            double sum = 0;
+            for (k = 0; k < 14; k++) {
+                sum += fullxfm[i][k] * fullcvr[k][j];
+            }
+            temp[i][j] = sum;
+        }
     }
-}
 
     /* Postmultiply and store back into cvr */
 
-    for( i=0, ij=0; i<14; i++ ) { for( j=0; j<=i; j++, ij++ )
-    {
-        double sum = 0;
-        for( k = 0; k < 14; k++ ) { sum += temp[i][k]*fullxfm[j][k];
-}
-        cvr[ij] = sum;
+    for (i = 0, ij = 0; i < 14; i++) {
+        for (j = 0; j <= i; j++, ij++) {
+            double sum = 0;
+            for (k = 0; k < 14; k++) {
+                sum += temp[i][k] * fullxfm[j][k];
+            }
+            cvr[ij] = sum;
+        }
     }
-}
 
     /* Apply the transformation to the transformation values */
 
-    for( i=0; i<14; i++ ) { vtemp[i] = val[i];
-}
-    for( i=0; i<14; i++ )
-    {
+    for (i = 0; i < 14; i++) {
+        vtemp[i] = val[i];
+    }
+    for (i = 0; i < 14; i++) {
         double sum = 0;
-        for( k = 0; k < 14; k++ ) { sum += fullxfm[i][k] * vtemp[k];
-}
+        for (k = 0; k < 14; k++) {
+            sum += fullxfm[i][k] * vtemp[k];
+        }
         val[i] = sum;
     }
 }
 
-static void print_rftrans_def( const std::array<std::string_view,14> &rownames, const int *row, int *identical,
-                               const double *val, double *cvr, const double *vmult, double semult, const int *display, 
-                               FILE *out )
-{
+static void print_rftrans_def(const std::array<std::string_view, 14>& rownames, const int* row, int* identical,
+                              const double* val, double* cvr, const double* vmult, double semult, const int* display,
+                              FILE* out) {
     int i;
     int j;
     int ii;
@@ -368,83 +293,85 @@ static void print_rftrans_def( const std::array<std::string_view,14> &rownames, 
     int j1;
     double se[14];
     int nval;
-    int gotcvr=0;
+    int gotcvr = 0;
     int dispcvr[14];
 
-    for( i = 0, ii = 0, ij = 0; i < 14; i++, ij = ii+1, ii += i+1 )
-    {
+    for (i = 0, ii = 0, ij = 0; i < 14; i++, ij = ii + 1, ii += i + 1) {
         se[i] = cvr[ii];
-        if( se[i] > 0.0 ) { se[i] = sqrt(se[i]);
-}
-        for( j = 0; j < i; j++, ij++ )
-        {
-            if( se[j] > 0.0 && se[i] > 0.0 ) { cvr[ij] /= (se[i]*se[j]);
-}
+        if (se[i] > 0.0) {
+            se[i] = sqrt(se[i]);
+        }
+        for (j = 0; j < i; j++, ij++) {
+            if (se[j] > 0.0 && se[i] > 0.0) {
+                cvr[ij] /= (se[i] * se[j]);
+            }
         }
         cvr[ii] = 1.0;
     }
-    fprintf(out,"\n      %-30s  %15s  %15s\n","Parameter","Value    ","Error    ");
-    nval=0;
-    gotcvr=0;
-    for( i = 0; i < 14; i++ )
-    {
-        double const factor = vmult ? vmult[i] : 1.0;
-        dispcvr[i]=0;
-        if( ! display[i]) { continue;
-}
-        fprintf(out,"      %-30s",rownames[i].data() );
-        fprintf(out,valformat[i].data(),val[i]*factor);
-        if( row[i] )
-        {
-            fprintf(out,valformat[i].data(),se[i]*semult*fabs(factor));
-            gotcvr++;
-            dispcvr[i]=1;
+    fprintf(out, "\n      %-30s  %15s  %15s\n", "Parameter", "Value    ", "Error    ");
+    nval = 0;
+    gotcvr = 0;
+    for (i = 0; i < 14; i++) {
+        const double factor = vmult ? vmult[i] : 1.0;
+        dispcvr[i] = 0;
+        if (!display[i]) {
+            continue;
         }
-        else { fprintf(out,"%s",missingstr);}
-        if( identical[i] ) { fprintf( out, "  (same as %s)",param_name(identical[i]).data());
-}
-        fprintf(out,"\n");
+        fprintf(out, "      %-30s", rownames[i].data());
+        fprintf(out, valformat[i].data(), val[i] * factor);
+        if (row[i]) {
+            fprintf(out, valformat[i].data(), se[i] * semult * fabs(factor));
+            gotcvr++;
+            dispcvr[i] = 1;
+        } else {
+            fprintf(out, "%s", missingstr);
+        }
+        if (identical[i]) {
+            fprintf(out, "  (same as %s)", param_name(identical[i]).data());
+        }
+        fprintf(out, "\n");
         nval++;
     }
     nval = nval > 8 ? 0 : 7;
-    if( gotcvr > 1)
-    {
-        fprintf(out,"\n      Correlation matrix:\n");
-        for( j0 = 0; j0 < 14; j0 += 7+nval  )
-        {
-            j1=j0+7+nval;
-            if( j0 ) { fprintf(out,"\n");
-}
-            ij=(j0*(j0+1))/2;
-            for( i = j0; i < 14; i++ )
-            {
-                int started=0;
-                if( dispcvr[i]) { fprintf(out,"      ");
-}
-                for( j = 0; j <= i; j++, ij++ )
-                {
-                    if( ! dispcvr[i] || ! dispcvr[j] ) { continue;
-}
-                    if( j < j0 || j >= j1 ) { continue;
-}
-                    if( ! started ) { fprintf(out,"      ");
-}
-                    fprintf(out, "  %8.4lf", cvr[ij] );
-                    started=1;
+    if (gotcvr > 1) {
+        fprintf(out, "\n      Correlation matrix:\n");
+        for (j0 = 0; j0 < 14; j0 += 7 + nval) {
+            j1 = j0 + 7 + nval;
+            if (j0) {
+                fprintf(out, "\n");
+            }
+            ij = (j0 * (j0 + 1)) / 2;
+            for (i = j0; i < 14; i++) {
+                int started = 0;
+                if (dispcvr[i]) {
+                    fprintf(out, "      ");
                 }
-                if( started ) { fprintf(out,"\n" );
-}
+                for (j = 0; j <= i; j++, ij++) {
+                    if (!dispcvr[i] || !dispcvr[j]) {
+                        continue;
+                    }
+                    if (j < j0 || j >= j1) {
+                        continue;
+                    }
+                    if (!started) {
+                        fprintf(out, "      ");
+                    }
+                    fprintf(out, "  %8.4lf", cvr[ij]);
+                    started = 1;
+                }
+                if (started) {
+                    fprintf(out, "\n");
+                }
             }
         }
     }
 }
 
-static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int output_types )
-{
-    double *tval;
-    double *tcvr;
-    double *gval;
-    double *gcvr;
+static void print_rftrans(rfTransformation* rf, double semult, FILE* out, int output_types) {
+    double* tval;
+    double* tcvr;
+    double* gval;
+    double* gcvr;
     int trow[14];
     int tidentical[14];
     int grow[14];
@@ -456,10 +383,10 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
     double dcvr[105];
     double oshift[3];
     double oshiftrate[3];
-    int *srow;
-    int *sidentical;
-    int *drow;
-    int *didentical;
+    int* srow;
+    int* sidentical;
+    int* drow;
+    int* didentical;
     double c1;
     double c2;
     double c3;
@@ -468,100 +395,106 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
     double azmax;
     int i;
     int k;
-    int const userates=rf->userates;
+    const int userates = rf->userates;
     int calced;
-    tmatrix *trot;
+    tmatrix* trot;
 
     /* s is source system, d is destination, t = topocentric, g = geocentric */
     /* Set up the mapping between these systems */
 
-    if( rf->istopo )
-    {
-        tval = sval; tcvr = scvr;
-        gval = dval; gcvr = dcvr;
-        srow = trow; sidentical = tidentical;
-        drow = grow; didentical = gidentical;
+    if (rf->istopo) {
+        tval = sval;
+        tcvr = scvr;
+        gval = dval;
+        gcvr = dcvr;
+        srow = trow;
+        sidentical = tidentical;
+        drow = grow;
+        didentical = gidentical;
         trot = &rf->invtoporot;
-    }
-    else
-    {
-        gval = sval; gcvr = scvr;
-        tval = dval; tcvr = dcvr;
-        srow = grow; sidentical = gidentical;
-        drow = trow; didentical = tidentical;
+    } else {
+        gval = sval;
+        gcvr = scvr;
+        tval = dval;
+        tcvr = dcvr;
+        srow = grow;
+        sidentical = gidentical;
+        drow = trow;
+        didentical = tidentical;
         trot = &rf->toporot;
     }
 
-    calced=0;
-    for( i = 0; i < 14; i++ )
-    {
+    calced = 0;
+    for (i = 0; i < 14; i++) {
         int pn;
         dval[i] = sval[i] = rf->prm[i];
         pn = rf->prmId[i];
         srow[i] = 0;
         sidentical[i] = 0;
-        if( pn ) { srow[i] = param_rowno(pn); calced=1; }
-        if( srow[i] ) { sidentical[i] = identical_param( pn );
-}
+        if (pn) {
+            srow[i] = param_rowno(pn);
+            calced = 1;
+        }
+        if (srow[i]) {
+            sidentical[i] = identical_param(pn);
+        }
         didentical[i] = 0;
         drow[i] = srow[i] ? -1 : 0;
     }
 
-    for( k = 0; k < 105; k++ )
-    {
+    for (k = 0; k < 105; k++) {
         dcvr[k] = scvr[k] = rf->prmCvr[k];
     }
 
     /* Calculate the destination system */
 
-    transform_rftrans( *trot, dval, dcvr );
+    transform_rftrans(*trot, dval, dcvr);
 
     /* Lets find out some interesting things - like the maximum tilt error */
 
     /* Shift at origin */
     oshift[0] = oshift[1] = oshift[2] = 0.0;
     oshiftrate[0] = oshiftrate[1] = oshiftrate[2] = 0.0;
-    if( rf->usetrans && rf->localorigin )
-    {
+    if (rf->usetrans && rf->localorigin) {
         int i;
-        for( i=0; i<3; i++ )
-        {
+        for (i = 0; i < 3; i++) {
             oshift[i] = oshiftrate[i] = rf->origin[i];
         }
-        rftrans_correct_vector( rf->id, oshift, year_as_snapdate( rf->refepoch) );
-        rftrans_correct_vector( rf->id, oshiftrate, year_as_snapdate( rf->refepoch + 10.0) );
-        for( i=0; i<3; i++ )
-        {
-            oshiftrate[i]=gval[7+i] + (oshiftrate[i]-oshift[i])/10.0;
-            oshift[i] = gval[i] + (oshift[i]-rf->origin[i]);
+        rftrans_correct_vector(rf->id, oshift, year_as_snapdate(rf->refepoch));
+        rftrans_correct_vector(rf->id, oshiftrate, year_as_snapdate(rf->refepoch + 10.0));
+        for (i = 0; i < 3; i++) {
+            oshiftrate[i] = gval[7 + i] + (oshiftrate[i] - oshift[i]) / 10.0;
+            oshift[i] = gval[i] + (oshift[i] - rf->origin[i]);
         }
     }
 
     /* Maximum tilt error */
-    c1 = (tcvr[9] + tcvr[14])/2;
-    c2 = (tcvr[9] - tcvr[14])/2;
+    c1 = (tcvr[9] + tcvr[14]) / 2;
+    c2 = (tcvr[9] - tcvr[14]) / 2;
     c3 = tcvr[13];
-    cmax = c2*c2 + c3*c3;
-    if( cmax > 0.0 )
-    {
-        azmax = 0.5 * atan2( c3, -c2 );
-        while( azmax > PI ) { azmax -= PI;
-}
-        while( azmax < 0.0 ) { azmax += PI;
-}
+    cmax = c2 * c2 + c3 * c3;
+    if (cmax > 0.0) {
+        azmax = 0.5 * atan2(c3, -c2);
+        while (azmax > PI) {
+            azmax -= PI;
+        }
+        while (azmax < 0.0) {
+            azmax += PI;
+        }
         cmax = sqrt(cmax);
-        cmin = c1-cmax;
+        cmin = c1 - cmax;
         cmax += c1;
-        if( cmax > 0.0 ) { cmax = sqrt(cmax);
-}
-        if( cmin > 0.0 ) { cmin = sqrt(cmin);
-}
-    }
-    else
-    {
+        if (cmax > 0.0) {
+            cmax = sqrt(cmax);
+        }
+        if (cmin > 0.0) {
+            cmin = sqrt(cmin);
+        }
+    } else {
         cmax = c1;
-        if( cmax > 0.0 ) { cmax = sqrt(cmax);
-}
+        if (cmax > 0.0) {
+            cmax = sqrt(cmax);
+        }
         cmin = cmax;
         azmax = 0.0;
     }
@@ -576,83 +509,66 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
 
     /* OK - now all we need to do is to print out the results... */
 
-    fprintf(out,"\nReference frame: %s\n",rf->name.c_str() );
-    fprintf(out,"\n   %s as a %s reference frame\n",
-            calced ? "Calculated" : "Defined",
-            rf->istopo ? "topocentric" : "geocentric" );
-    if( ! rf->usetrans )
-    {
-        fprintf(out,"   Reference frame translations are not used in this adjustment\n");
+    fprintf(out, "\nReference frame: %s\n", rf->name.c_str());
+    fprintf(out, "\n   %s as a %s reference frame\n", calced ? "Calculated" : "Defined",
+            rf->istopo ? "topocentric" : "geocentric");
+    if (!rf->usetrans) {
+        fprintf(out, "   Reference frame translations are not used in this adjustment\n");
     }
-    if( rf->userates )
-    {
+    if (rf->userates) {
         double epoch_date;
         int y;
         int m;
         int d;
-        epoch_date=year_as_snapdate(rf->refepoch);
-        date_as_ymd( epoch_date, &y, &m, &d );
-        fprintf(out,"   Reference epoch of frame %02d-%02d-%04d\n",d,m,y);
+        epoch_date = year_as_snapdate(rf->refepoch);
+        date_as_ymd(epoch_date, &y, &m, &d);
+        fprintf(out, "   Reference epoch of frame %02d-%02d-%04d\n", d, m, y);
     }
-    if( rf->localorigin )
-    {
-        fprintf(out,"   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n",
-                rf->origin[0], rf->origin[1], rf->origin[2] );
-    }
-
-    if( output_types & OUTPUT_IERS )
-    {
-        fprintf(out,"\n   IERS definition\n");
-        print_rftrans_def( irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, out );
+    if (rf->localorigin) {
+        fprintf(out, "   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n", rf->origin[0],
+                rf->origin[1], rf->origin[2]);
     }
 
-    if( output_types & OUTPUT_GEO )
-    {
-        fprintf(out,"\n   Geocentric definition\n");
-        print_rftrans_def( grownames, grow, gidentical, gval, gcvr, nullptr, semult, display,  out );
+    if (output_types & OUTPUT_IERS) {
+        fprintf(out, "\n   IERS definition\n");
+        print_rftrans_def(irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, out);
     }
 
-    if( rf->localorigin && rf->usetrans && (output_types & (OUTPUT_IERS | OUTPUT_GEO) ))
-    {
-        const char *units="metres";
-        double factor=1.0;
-        if( output_types & OUTPUT_IERS )
-        {
-            units="mm";
-            factor=1000.0;
+    if (output_types & OUTPUT_GEO) {
+        fprintf(out, "\n   Geocentric definition\n");
+        print_rftrans_def(grownames, grow, gidentical, gval, gcvr, nullptr, semult, display, out);
+    }
+
+    if (rf->localorigin && rf->usetrans && (output_types & (OUTPUT_IERS | OUTPUT_GEO))) {
+        const char* units = "metres";
+        double factor = 1.0;
+        if (output_types & OUTPUT_IERS) {
+            units = "mm";
+            factor = 1000.0;
         }
-        fprintf(out,"\n   Translation at origin (%.4lf, %.4lf, %.4lf) %s\n",
-                oshift[0]*factor,oshift[1]*factor,oshift[2]*factor,units);
-        if( rf->userates )
-        {
-            fprintf(out,"\n   Translation rate at origin (%.4lf, %.4lf, %.4lf) %s/yr\n",
-                    oshiftrate[0]*factor,oshiftrate[1]*factor,oshiftrate[2]*factor,units);
+        fprintf(out, "\n   Translation at origin (%.4lf, %.4lf, %.4lf) %s\n", oshift[0] * factor, oshift[1] * factor,
+                oshift[2] * factor, units);
+        if (rf->userates) {
+            fprintf(out, "\n   Translation rate at origin (%.4lf, %.4lf, %.4lf) %s/yr\n", oshiftrate[0] * factor,
+                    oshiftrate[1] * factor, oshiftrate[2] * factor, units);
         }
     }
 
-    if( output_types & OUTPUT_TOPO )
-    {
-        fprintf(out,"\n   Topocentric definition\n");
-        print_rftrans_def( trownames, trow, tidentical, tval, tcvr, nullptr, semult, display,  out );
+    if (output_types & OUTPUT_TOPO) {
+        fprintf(out, "\n   Topocentric definition\n");
+        print_rftrans_def(trownames, trow, tidentical, tval, tcvr, nullptr, semult, display, out);
     }
 
-    if( output_types & OUTPUT_TOPO )
-    {
-        fprintf(out,"\n   Minimum error of horizontal tilt is %.5lf arc sec\n",
-                cmin * semult);
-        fprintf(out,"   Maximum error of horizontal tilt is %.5lf arc sec\n",
-                cmax * semult );
-        fprintf(out,"   Rotation axis of maximum tilt error has azimuth %.0lf degrees\n",
-                azmax * RTOD);
+    if (output_types & OUTPUT_TOPO) {
+        fprintf(out, "\n   Minimum error of horizontal tilt is %.5lf arc sec\n", cmin * semult);
+        fprintf(out, "   Maximum error of horizontal tilt is %.5lf arc sec\n", cmax * semult);
+        fprintf(out, "   Rotation axis of maximum tilt error has azimuth %.0lf degrees\n", azmax * RTOD);
     }
 }
 
+#define DS (double*)
 
-#define DS (double *)
-
-
-void print_rftrans_list( FILE *out )
-{
+void print_rftrans_list(FILE* out) {
     int nrf;
     double semult;
     double topolat;
@@ -660,62 +576,65 @@ void print_rftrans_list( FILE *out )
     int output_types;
     int topo_header;
 
-    if( rftrans_count() <= 0 ) { return;
-}
-    output_types=0;
-    if( output_reffrm_geo ) { output_types |= OUTPUT_GEO;
-}
-    if( output_reffrm_topo ) { output_types |= OUTPUT_TOPO;
-}
-    if( output_reffrm_iers ) { output_types |= OUTPUT_IERS;
-}
+    if (rftrans_count() <= 0) {
+        return;
+    }
+    output_types = 0;
+    if (output_reffrm_geo) {
+        output_types |= OUTPUT_GEO;
+    }
+    if (output_reffrm_topo) {
+        output_types |= OUTPUT_TOPO;
+    }
+    if (output_reffrm_iers) {
+        output_types |= OUTPUT_IERS;
+    }
 
-    topo_header=output_types & OUTPUT_TOPO;
-    if( ! output_types )
-    {
-        for( nrf = 1; nrf <= rftrans_count(); nrf++ )
-        {
-            rfTransformation *rf = rftrans_from_id( nrf );
-            if( rf->istopo ) { topo_header=1; break; }
+    topo_header = output_types & OUTPUT_TOPO;
+    if (!output_types) {
+        for (nrf = 1; nrf <= rftrans_count(); nrf++) {
+            rfTransformation* rf = rftrans_from_id(nrf);
+            if (rf->istopo) {
+                topo_header = 1;
+                break;
+            }
         }
     }
 
-    print_section_header( out, "REFERENCE FRAME PARAMETERS");
+    print_section_header(out, "REFERENCE FRAME PARAMETERS");
 
-    fprintf(lst,"\nThe errors listed for calculated parameters are %s errors\n",
-            apriori ? "apriori" : "aposteriori" );
+    fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
 
-    if( topo_header )
-    {
-        const DmsFormat latitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
-        const DmsFormat longitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
-        get_network_topocentre( net, &topolat, &topolon );
-        fprintf(out,"\nTopocentric axes are east, north, up directions at\n   ");
-        fputs( dms_string( topolat* RTOD, latitudeFormat ).c_str(), out );
-        fputs( "    ", out );
-        fputs( dms_string( topolon* RTOD, longitudeFormat ).c_str(), out );
-        fputs( "\n", out );
+    if (topo_header) {
+        const DmsFormat latitudeFormat(3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S");
+        const DmsFormat longitudeFormat(3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W");
+        get_network_topocentre(net, &topolat, &topolon);
+        fprintf(out, "\nTopocentric axes are east, north, up directions at\n   ");
+        fputs(dms_string(topolat * RTOD, latitudeFormat).c_str(), out);
+        fputs("    ", out);
+        fputs(dms_string(topolon * RTOD, longitudeFormat).c_str(), out);
+        fputs("\n", out);
     }
 
     semult = apriori ? 1.0 : seu;
 
-    for( nrf = 1; nrf <= rftrans_count(); nrf++ )
-    {
-        rfTransformation *rf = rftrans_from_id( nrf );
-        int ot=output_types;
-        if( ! ot )
-        {
-            if( rf->istopo ) { ot = OUTPUT_TOPO;
-            } else if( rf->isiers ) { ot = OUTPUT_IERS;
-            } else { ot = OUTPUT_GEO;
-}
+    for (nrf = 1; nrf <= rftrans_count(); nrf++) {
+        rfTransformation* rf = rftrans_from_id(nrf);
+        int ot = output_types;
+        if (!ot) {
+            if (rf->istopo) {
+                ot = OUTPUT_TOPO;
+            } else if (rf->isiers) {
+                ot = OUTPUT_IERS;
+            } else {
+                ot = OUTPUT_GEO;
+            }
         }
-        print_rftrans( rftrans_from_id(nrf), semult, out, ot );
+        print_rftrans(rftrans_from_id(nrf), semult, out, ot);
     }
 
-    print_section_footer( out );
+    print_section_footer(out);
 }
-
 
 /* Apply the reference frame rotation to a vector difference in the local
    system to get an equivalent difference in the reference frame.  Also
@@ -724,109 +643,87 @@ void print_rftrans_list( FILE *out )
    to the station rows into the observation equations hA, irow (irow is
    the first of the three rows for the vector difference observation) */
 
-void vd_rftrans_corr_vector( int nrf, double vd[3], double date,
-                             double dst1[3][3], double dst2[3][3],
-                             void *hA, int irow )
-{
-
-    rfTransformation *rf;
+void vd_rftrans_corr_vector(int nrf, double vd[3], double date, double dst1[3][3], double dst2[3][3], void* hA,
+                            int irow) {
+    rfTransformation* rf;
     double dvdprm[3];
     double dmult;
     int i;
     int axis;
-    
-    rf = rftrans_from_id( nrf );
 
-    dmult=0.0;
-    if( date != UNDEFINED_DATE && rf->userates )
-    {
-        dmult=date_as_year( date ) - rf->refepoch;
+    rf = rftrans_from_id(nrf);
+
+    dmult = 0.0;
+    if (date != UNDEFINED_DATE && rf->userates) {
+        dmult = date_as_year(date) - rf->refepoch;
     }
 
     /* Before we modify the vector difference, calculate the differential
        effects of rotation for summing into the normal equations.. */
 
-    if( hA )
-    {
-
+    if (hA) {
         /* Scale factor */
 
-        if( rf->calcscale )
-        {
+        if (rf->calcscale) {
             double scl;
-            premult3( (double *) rf->tmat, vd, dvdprm, 1 );
-            scl = 1.0e-6 / ( 1 + rf->prm[rfScale] * 1.0e-6 );
+            premult3((double*)rf->tmat, vd, dvdprm, 1);
+            scl = 1.0e-6 / (1 + rf->prm[rfScale] * 1.0e-6);
 
-            for( i = 0; i < 3; i++ ) {
-                set_param_obseq( rf->prmId[rfScale], hA, irow+i, dvdprm[i]*scl );
-}
+            for (i = 0; i < 3; i++) {
+                set_param_obseq(rf->prmId[rfScale], hA, irow + i, dvdprm[i] * scl);
+            }
         }
 
         /* Now the rotations */
 
-        if( rf->calcrot )
-        {
-            for( axis = 0; axis < 3; axis++ )
-            {
-                premult3( (double *) rf->dtmatdrot[axis], vd, dvdprm, 1 );
-                for( i = 0; i < 3; i++ )
-                {
-                    set_param_obseq( rf->prmId[rfRotx+axis], hA, irow+i, dvdprm[i] );
+        if (rf->calcrot) {
+            for (axis = 0; axis < 3; axis++) {
+                premult3((double*)rf->dtmatdrot[axis], vd, dvdprm, 1);
+                for (i = 0; i < 3; i++) {
+                    set_param_obseq(rf->prmId[rfRotx + axis], hA, irow + i, dvdprm[i]);
                 }
             }
         }
 
-        if( rf->userates && dmult != 0.0 )
-        {
-
+        if (rf->userates && dmult != 0.0) {
             /* Scale factor rate */
 
-            if( rf->calcscalerate )
-            {
+            if (rf->calcscalerate) {
                 double scl;
-                premult3( (double *) rf->tmat, vd, dvdprm, 1 );
-                scl = 1.0e-6 / ( 1 + dmult * rf->prm[rfScaleRate] * 1.0e-6 );
+                premult3((double*)rf->tmat, vd, dvdprm, 1);
+                scl = 1.0e-6 / (1 + dmult * rf->prm[rfScaleRate] * 1.0e-6);
 
-                for( i = 0; i < 3; i++ ) {
-                    set_param_obseq( rf->prmId[rfScaleRate], hA, irow+i, dmult*dvdprm[i]*scl );
-}
+                for (i = 0; i < 3; i++) {
+                    set_param_obseq(rf->prmId[rfScaleRate], hA, irow + i, dmult * dvdprm[i] * scl);
+                }
             }
 
             /* Now the rotation rates */
 
-            if( rf->calcrotrate )
-            {
-                for( axis = 0; axis < 3; axis++ )
-                {
-                    premult3( (double *) rf->dtmatdrot[axis], vd, dvdprm, 1 );
-                    for( i = 0; i < 3; i++ )
-                    {
-                        set_param_obseq( rf->prmId[rfRotxRate+axis], hA, irow+i, dmult*dvdprm[i] );
+            if (rf->calcrotrate) {
+                for (axis = 0; axis < 3; axis++) {
+                    premult3((double*)rf->dtmatdrot[axis], vd, dvdprm, 1);
+                    for (i = 0; i < 3; i++) {
+                        set_param_obseq(rf->prmId[rfRotxRate + axis], hA, irow + i, dmult * dvdprm[i]);
                     }
                 }
             }
-
         }
     }
 
     /* Now modify the vector and the differentials wrt lat, long, hgt */
 
-    if( rf->userates )
-    {
+    if (rf->userates) {
         double vr[3];
-        premult3( DS rf->tmatrate, vd, vr, 1 );
-        premult3( DS rf->tmat, vd, vd, 1 );
-        vecadd2( vd, 1, vr, dmult, vd );
+        premult3(DS rf->tmatrate, vd, vr, 1);
+        premult3(DS rf->tmat, vd, vd, 1);
+        vecadd2(vd, 1, vr, dmult, vd);
+    } else {
+        premult3(DS rf->tmat, vd, vd, 1);
     }
-    else
-    {
-        premult3( DS rf->tmat, vd, vd, 1 );
-    }
-    premult3( DS rf->tmat, DS dst1, DS dst1, 3 );
-    premult3( DS rf->tmat, DS dst2, DS dst2, 3 );
-
+    premult3(DS rf->tmat, DS dst1, DS dst1, 3);
+    premult3(DS rf->tmat, DS dst2, DS dst2, 3);
 }
-
 
 /* Apply the reference frame rotation to an xyz point position in the local
    system to get an equivalent difference in the reference frame.  Also
@@ -835,129 +732,105 @@ void vd_rftrans_corr_vector( int nrf, double vd[3], double date,
    to the station rows into the observation equations hA, irow (irow is
    the first of the three rows for the vector difference observation) */
 
-void vd_rftrans_corr_point( int nrf, double vd[3], double date,
-                            double dst1[3][3], void *hA, int irow )
-{
-
-    rfTransformation *rf;
+void vd_rftrans_corr_point(int nrf, double vd[3], double date, double dst1[3][3], void* hA, int irow) {
+    rfTransformation* rf;
     double dvdprm[3];
     double dmult;
     int i;
     int axis;
 
-    rf = rftrans_from_id( nrf );
+    rf = rftrans_from_id(nrf);
 
-    dmult=0.0;
-    if( date != UNDEFINED_DATE && rf->userates )
-    {
-        dmult=date_as_year( date ) - rf->refepoch;
+    dmult = 0.0;
+    if (date != UNDEFINED_DATE && rf->userates) {
+        dmult = date_as_year(date) - rf->refepoch;
     }
 
     /* Apply the origin shift */
 
-    vecdif( vd, rf->origin, vd );
+    vecdif(vd, rf->origin, vd);
 
     /* Apply the translation */
 
-    vecadd( vd, rf->trans, vd );
-    if( dmult ) 
-    {
-        vecadd2( vd, 1, rf->transrate, dmult, vd );
+    vecadd(vd, rf->trans, vd);
+    if (dmult) {
+        vecadd2(vd, 1, rf->transrate, dmult, vd);
     }
 
     /* Before we modify the position, calculate the differential
        effects of rotation for summing into the normal equations.. */
 
-    if( hA )
-    {
+    if (hA) {
         /* Scale factor */
-        
-        if( rf->calcscale )
-        {
-            premult3( (double *) rf->tmat, vd, dvdprm, 1 );
 
-            for( i = 0; i < 3; i++ ) {
-                set_param_obseq( rf->prmId[rfScale], hA, irow+i, dvdprm[i]*1.0e-6 );
-}
+        if (rf->calcscale) {
+            premult3((double*)rf->tmat, vd, dvdprm, 1);
+
+            for (i = 0; i < 3; i++) {
+                set_param_obseq(rf->prmId[rfScale], hA, irow + i, dvdprm[i] * 1.0e-6);
+            }
         }
 
         /* Each translation component */
 
-        if( rf->calctrans )
-        {
-            for( axis = 0; axis < 3; axis++ )
-            {
+        if (rf->calctrans) {
+            for (axis = 0; axis < 3; axis++) {
                 dvdprm[0] = dvdprm[1] = dvdprm[2] = 0.0;
                 dvdprm[axis] = 1.0;
-                if( rf->istopo )
-                {
-                    premult3( (double *) rf->invtoporot, dvdprm, dvdprm, 1 );
+                if (rf->istopo) {
+                    premult3((double*)rf->invtoporot, dvdprm, dvdprm, 1);
                 }
-                premult3( (double *) rf->tmat, dvdprm, dvdprm, 1 );
-                for( i = 0; i < 3; i++ )
-                {
-                    set_param_obseq( rf->prmId[rfTx+axis], hA, irow+i, dvdprm[i] );
+                premult3((double*)rf->tmat, dvdprm, dvdprm, 1);
+                for (i = 0; i < 3; i++) {
+                    set_param_obseq(rf->prmId[rfTx + axis], hA, irow + i, dvdprm[i]);
                 }
-
             }
         }
 
         /* Now the rotations */
 
-        if( rf->calcrot )
-        {
-            for( axis = 0; axis < 3; axis++ )
-            {
-                premult3( (double *) rf->dtmatdrot[axis], vd, dvdprm, 1 );
-                for( i = 0; i < 3; i++ )
-                {
-                    set_param_obseq( rf->prmId[rfRotx+axis], hA, irow+i, dvdprm[i] );
+        if (rf->calcrot) {
+            for (axis = 0; axis < 3; axis++) {
+                premult3((double*)rf->dtmatdrot[axis], vd, dvdprm, 1);
+                for (i = 0; i < 3; i++) {
+                    set_param_obseq(rf->prmId[rfRotx + axis], hA, irow + i, dvdprm[i]);
                 }
             }
         }
 
-        if( rf->userates && dmult != 0.0 )
-        {
+        if (rf->userates && dmult != 0.0) {
             /* Scale factor */
 
-            if( rf->calcscalerate )
-            {
-                premult3( (double *) rf->tmat, vd, dvdprm, 1 );
-                for( i = 0; i < 3; i++ ) {
-                    set_param_obseq( rf->prmId[rfScaleRate], hA, irow+i, dmult*dvdprm[i]*1.0e-6 );
-}
+            if (rf->calcscalerate) {
+                premult3((double*)rf->tmat, vd, dvdprm, 1);
+                for (i = 0; i < 3; i++) {
+                    set_param_obseq(rf->prmId[rfScaleRate], hA, irow + i, dmult * dvdprm[i] * 1.0e-6);
+                }
             }
 
             /* Each translation component */
 
-            if( rf->calctransrate )
-            {
-                for( axis = 0; axis < 3; axis++ )
-                {
+            if (rf->calctransrate) {
+                for (axis = 0; axis < 3; axis++) {
                     dvdprm[0] = dvdprm[1] = dvdprm[2] = 0.0;
                     dvdprm[axis] = 1.0;
-                    if( rf->istopo )
-                    {
-                        premult3( (double *) rf->invtoporot, dvdprm, dvdprm, 1 );
+                    if (rf->istopo) {
+                        premult3((double*)rf->invtoporot, dvdprm, dvdprm, 1);
                     }
-                    premult3( (double *) rf->tmat, dvdprm, dvdprm, 1 );
-                    for( i = 0; i < 3; i++ )
-                    {
-                        set_param_obseq( rf->prmId[rfTxRate+axis], hA, irow+i, dmult*dvdprm[i] );
+                    premult3((double*)rf->tmat, dvdprm, dvdprm, 1);
+                    for (i = 0; i < 3; i++) {
+                        set_param_obseq(rf->prmId[rfTxRate + axis], hA, irow + i, dmult * dvdprm[i]);
                     }
                 }
             }
 
             /* Now the rotations */
 
-            if( rf->calcrotrate )
-            {
-                for( axis = 0; axis < 3; axis++ )
-                {
-                    premult3( (double *) rf->dtmatdrot[axis], vd, dvdprm, 1 );
-                    for( i = 0; i < 3; i++ )
-                    {
-                        set_param_obseq( rf->prmId[rfRotxRate+axis], hA, irow+i, dmult*dvdprm[i] );
+            if (rf->calcrotrate) {
+                for (axis = 0; axis < 3; axis++) {
+                    premult3((double*)rf->dtmatdrot[axis], vd, dvdprm, 1);
+                    for (i = 0; i < 3; i++) {
+                        set_param_obseq(rf->prmId[rfRotxRate + axis], hA, irow + i, dmult * dvdprm[i]);
                     }
                 }
             }
@@ -966,16 +839,14 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
 
     /* Now modify the vector and the differentials wrt lat, long, hgt */
 
-    premult3( DS rf->tmat, vd, vd, 1 );
-    if( rf->userates )
-    {
+    premult3(DS rf->tmat, vd, vd, 1);
+    if (rf->userates) {
         double vr[3];
-        premult3( DS rf->tmatrate, vd, vr, 1 );
-        vecadd2( vd, 1, vr, dmult, vd );
+        premult3(DS rf->tmatrate, vd, vr, 1);
+        vecadd2(vd, 1, vr, dmult, vd);
     }
 
-    premult3( DS rf->tmat, DS dst1, DS dst1, 3 );
+    premult3(DS rf->tmat, DS dst1, DS dst1, 3);
 
-    vecadd( vd, rf->origin, vd );
+    vecadd(vd, rf->origin, vd);
 }
-

@@ -63,137 +63,121 @@
 #include "util/readcfg_internal.h"
 #include "util/fileutil.h"
 
-CFG_FILE::CFG_FILE( const std::string &name, const char comment_char ) :
-    name(name), dirname(std::filesystem::path(name).parent_path().string()),
-    lineno(0), errcount(0), read_options(CFG_INIT_ITEMS|CFG_CHECK_MISSING),
-    command_flag(0), ignore_flag(0), comment_char(comment_char), abort(0)
-{
-    f.open( name );
-    if( ! f.is_open() )
-    {
-        handle_error(FILE_OPEN_ERROR,"Cannot open configuration file",name);
+CFG_FILE::CFG_FILE(const std::string& name, const char comment_char)
+    : name(name),
+      dirname(std::filesystem::path(name).parent_path().string()),
+      lineno(0),
+      errcount(0),
+      read_options(CFG_INIT_ITEMS | CFG_CHECK_MISSING),
+      command_flag(0),
+      ignore_flag(0),
+      comment_char(comment_char),
+      abort(0) {
+    f.open(name);
+    if (!f.is_open()) {
+        handle_error(FILE_OPEN_ERROR, "Cannot open configuration file", name);
         return;
     }
-    if( ! skip_utf8_bom(f) )
-    {
+    if (!skip_utf8_bom(f)) {
         f.close();
-        handle_error(FILE_OPEN_ERROR,"Cannot handle UTF16 file",name);
+        handle_error(FILE_OPEN_ERROR, "Cannot handle UTF16 file", name);
     }
 }
 
-CFG_FILE *open_config_file( const std::string &name, const char comment_char )
-{
-    CFG_FILE *cfg = new CFG_FILE( name, comment_char );
-    if( ! cfg->f.is_open() )
-    {
+CFG_FILE* open_config_file(const std::string& name, const char comment_char) {
+    CFG_FILE* cfg = new CFG_FILE(name, comment_char);
+    if (!cfg->f.is_open()) {
         delete cfg;
         return nullptr;
     }
     return cfg;
 }
 
-void close_config_file( CFG_FILE *cfg )
-{
+void close_config_file(CFG_FILE* cfg) {
     delete cfg;
 }
 
-
-int set_config_read_options( CFG_FILE *cfg, const int options )
-{
+int set_config_read_options(CFG_FILE* cfg, const int options) {
     const int old_options = cfg->read_options;
     cfg->read_options = options;
     return old_options;
 }
 
-int set_config_command_flag( CFG_FILE *cfg, const int flag )
-{
+int set_config_command_flag(CFG_FILE* cfg, const int flag) {
     const int old_flag = cfg->command_flag;
     cfg->command_flag = flag;
     return old_flag;
 }
 
-int set_config_ignore_flag( CFG_FILE *cfg, const int flag )
-{
+int set_config_ignore_flag(CFG_FILE* cfg, const int flag) {
     const int old_flag = cfg->ignore_flag;
     cfg->ignore_flag = flag;
     return old_flag;
 }
 
-bool CFG_FILE::get_config_line( ConfigLine &line, const std::size_t max_len )
-{
-    if( ! std::getline( f, line.content ) ) { return false;
-}
+bool CFG_FILE::get_config_line(ConfigLine& line, const std::size_t max_len) {
+    if (!std::getline(f, line.content)) {
+        return false;
+    }
 
-    const CommentRule comment{
-        (read_options & CFG_IGNORE_COMMENT) ? std::nullopt : std::optional<char>(comment_char),
-        (read_options & CFG_POSITIONAL_COMMENT) != 0
-    };
-    filter_line( line.content, comment );
-    line.overrun = cap_line( line.content, max_len );
+    const CommentRule comment{(read_options & CFG_IGNORE_COMMENT) ? std::nullopt : std::optional<char>(comment_char),
+                              (read_options & CFG_POSITIONAL_COMMENT) != 0};
+    filter_line(line.content, comment);
+    line.overrun = cap_line(line.content, max_len);
     lineno++;
     return true;
 }
 
-std::string get_config_location( CFG_FILE *cfg )
-{
-    return "Line " + std::to_string(cfg->lineno) + ": File " + cfg->name.substr(0,CFG_FILE_NAME_LEN);
+std::string get_config_location(CFG_FILE* cfg) {
+    return "Line " + std::to_string(cfg->lineno) + ": File " + cfg->name.substr(0, CFG_FILE_NAME_LEN);
 }
 
-std::string get_config_filename( CFG_FILE *cfg )
-{
+std::string get_config_filename(CFG_FILE* cfg) {
     return cfg->name;
 }
 
-std::string get_config_directory( CFG_FILE *cfg )
-{
+std::string get_config_directory(CFG_FILE* cfg) {
     return cfg->dirname;
 }
 
-int send_config_error( CFG_FILE *cfg, const int stat, const std::string &mess1 )
-{
+int send_config_error(CFG_FILE* cfg, const int stat, const std::string& mess1) {
     const std::string mess2 = get_config_location(cfg);
-    handle_error(stat,mess1,mess2);
-    if( WARNING_ERROR_CONDITION(stat)) { cfg->errcount++;
-}
+    handle_error(stat, mess1, mess2);
+    if (WARNING_ERROR_CONDITION(stat)) {
+        cfg->errcount++;
+    }
     return stat;
 }
 
-
-void initialise_config_items( config_item item[] )
-{
-    config_item *it;
-    for( it=item; it->option; it++ ) { it->flags &= ~CFG_PRESENT;
+void initialise_config_items(config_item item[]) {
+    config_item* it;
+    for (it = item; it->option; it++) {
+        it->flags &= ~CFG_PRESENT;
+    }
 }
-}
 
-int report_missing_config_items( CFG_FILE *cfg, config_item item[] )
-{
+int report_missing_config_items(CFG_FILE* cfg, config_item item[]) {
     char errmess[256];
-    config_item *it;
+    config_item* it;
     int errcount;
 
     /* Check that all required parameters were present */
 
     errcount = 0;
-    for( it = item; it->option; it++ )
-    {
-        if( it->flags & CFG_REQUIRED && !(it->flags & CFG_PRESENT) )
-        {
-            sprintf(errmess,"Definition of %.32s is missing",it->option);
-            send_config_error(cfg,MISSING_DATA,errmess);
+    for (it = item; it->option; it++) {
+        if (it->flags & CFG_REQUIRED && !(it->flags & CFG_PRESENT)) {
+            sprintf(errmess, "Definition of %.32s is missing", it->option);
+            send_config_error(cfg, MISSING_DATA, errmess);
             errcount++;
         }
     }
     return errcount;
 }
 
-
-int read_config_file( CFG_FILE *cfg, config_item item[] )
-{
-
+int read_config_file(CFG_FILE* cfg, config_item item[]) {
     char errmess[256];
-    char *address;
-    config_item *it;
+    char* address;
+    config_item* it;
     int errstat;
     ConfigLine line;
 
@@ -201,38 +185,33 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
     const int initcount = cfg->errcount;
 
-    if( cfg->read_options & CFG_SET_PATH )
-    {
-        push_file_context( get_config_directory(cfg) );
+    if (cfg->read_options & CFG_SET_PATH) {
+        push_file_context(get_config_directory(cfg));
     }
 
     /* Do we want to initialise */
 
-    if( cfg->read_options & CFG_INIT_ITEMS )
-    {
-        initialise_config_items( item );
+    if (cfg->read_options & CFG_INIT_ITEMS) {
+        initialise_config_items(item);
     }
 
-    while( !cfg->abort && cfg->get_config_line(line, CFG_MAX_LINE_LENGTH) )
-    {
-
+    while (!cfg->abort && cfg->get_config_line(line, CFG_MAX_LINE_LENGTH)) {
         /* If blank line or comment then skip */
 
-        const std::string_view content( line.content );
-        const size_t opt_start = content.find_first_not_of( FIELD_DELIMS );
-        if( opt_start == std::string_view::npos ) { continue;
-}
-        const size_t opt_end = content.find_first_of( FIELD_DELIMS, opt_start );
-        std::string opt( content.substr( opt_start, opt_end == std::string_view::npos ? opt_end : opt_end - opt_start ) );
+        const std::string_view content(line.content);
+        const size_t opt_start = content.find_first_not_of(FIELD_DELIMS);
+        if (opt_start == std::string_view::npos) {
+            continue;
+        }
+        const size_t opt_end = content.find_first_of(FIELD_DELIMS, opt_start);
+        std::string opt(content.substr(opt_start, opt_end == std::string_view::npos ? opt_end : opt_end - opt_start));
 
         /* Is the record too long?  If so then send error and skip */
 
-        if( line.overrun )
-        {
-            if( !(cfg->read_options & CFG_IGNORE_BAD) )
-            {
-                sprintf(errmess,"Line %d characters too long in configuration file",line.overrun);
-                send_config_error(cfg,INVALID_DATA,errmess);
+        if (line.overrun) {
+            if (!(cfg->read_options & CFG_IGNORE_BAD)) {
+                sprintf(errmess, "Line %d characters too long in configuration file", line.overrun);
+                send_config_error(cfg, INVALID_DATA, errmess);
             }
             continue;
         }
@@ -240,14 +219,14 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         /* Is it a valid option record - if not print warning and
             continue */
 
-        for( char &c : opt ) { c = static_cast<char>( TOLOWER( c ) );
-}
-        for ( it = item; it->option; it++ )
-        {
-            if( ( !cfg->command_flag ) | (cfg->command_flag & it->flags) )
-            {
-                if( opt == it->option ) { break;
-}
+        for (char& c : opt) {
+            c = static_cast<char>(TOLOWER(c));
+        }
+        for (it = item; it->option; it++) {
+            if ((!cfg->command_flag) | (cfg->command_flag & it->flags)) {
+                if (opt == it->option) {
+                    break;
+                }
             }
         }
 
@@ -255,26 +234,23 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
            no match found above, or the command_flag is defined as non
         zero, and is not matched by this command */
 
-
-        if( ! it->option )
-        {
-            if( !(cfg->read_options & CFG_IGNORE_BAD) )
-            {
-                send_config_error(cfg,INVALID_DATA,"Invalid item " + opt.substr(0,32) + " in configuration file");
+        if (!it->option) {
+            if (!(cfg->read_options & CFG_IGNORE_BAD)) {
+                send_config_error(cfg, INVALID_DATA, "Invalid item " + opt.substr(0, 32) + " in configuration file");
             }
             continue;
         }
 
         /* Is this option to be ignored */
 
-        if( it->flags & cfg->ignore_flag ) { continue;
-}
+        if (it->flags & cfg->ignore_flag) {
+            continue;
+        }
 
         /* Is this option illegally duplicated */
 
-        if( it->flags & CFG_ONEONLY && it->flags & CFG_PRESENT )
-        {
-            send_config_error(cfg,INVALID_DATA,"Definition of " + opt.substr(0,32) + " is duplicated");
+        if (it->flags & CFG_ONEONLY && it->flags & CFG_PRESENT) {
+            send_config_error(cfg, INVALID_DATA, "Definition of " + opt.substr(0, 32) + " is duplicated");
             continue;
         }
 
@@ -282,8 +258,9 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         /* Does this item mark the end of a configuration section */
 
-        if( it->flags & CFG_END ) { break;
-}
+        if (it->flags & CFG_END) {
+            break;
+        }
 
         /* Is there a value defined ... */
 
@@ -292,43 +269,37 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
            it is null terminated for the store functions. */
 
         std::string val;
-        if( opt_end != std::string_view::npos )
-        {
-            std::string_view rest = content.substr( opt_end );
-            const size_t val_start = rest.find_first_not_of( FIELD_DELIMS );
-            if( val_start != std::string_view::npos )
-            {
-                rest.remove_prefix( val_start );
-                val = rest.substr( 0, rest.find_last_not_of( " \t" ) + 1 );
+        if (opt_end != std::string_view::npos) {
+            std::string_view rest = content.substr(opt_end);
+            const size_t val_start = rest.find_first_not_of(FIELD_DELIMS);
+            if (val_start != std::string_view::npos) {
+                rest.remove_prefix(val_start);
+                val = rest.substr(0, rest.find_last_not_of(" \t") + 1);
             }
         }
 
         /* Get the address in which the value is to be stored */
 
-        if( it->offset == CFG_ABSOLUTE )
-        {
-            address = (char *) (it->value);
-        }
-        else
-        {
-            address = * (char **) (it->value) + it->offset;
+        if (it->offset == CFG_ABSOLUTE) {
+            address = (char*)(it->value);
+        } else {
+            address = *(char**)(it->value) + it->offset;
         }
 
         /* Offer the command to the user supplied processor */
 
-        if( it->store == STORE_AS_STRING )
-        {
-            strncpy( address, val.c_str(), it->vallen-1 );
-            address[it->vallen-1] = '\0';
-        }
-        else
-        {
-            errstat = (*it->store)( cfg, val, (void *) address, it->vallen, it->code );
-            if( errstat == ABORT_CONFIG_FILE ) { break;
-}
-            if( errstat != OK )
-            {
-                send_config_error(cfg,errstat,"Invalid value " + val.substr(0,32) + " defined for " + opt.substr(0,32) + " in configuration file");
+        if (it->store == STORE_AS_STRING) {
+            strncpy(address, val.c_str(), it->vallen - 1);
+            address[it->vallen - 1] = '\0';
+        } else {
+            errstat = (*it->store)(cfg, val, (void*)address, it->vallen, it->code);
+            if (errstat == ABORT_CONFIG_FILE) {
+                break;
+            }
+            if (errstat != OK) {
+                send_config_error(cfg, errstat,
+                                  "Invalid value " + val.substr(0, 32) + " defined for " + opt.substr(0, 32) +
+                                      " in configuration file");
                 continue;
             }
         }
@@ -336,23 +307,21 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         /* And now go on with the next line */
     }
 
-    if( !cfg->abort && (cfg->read_options & CFG_CHECK_MISSING) )
-    {
-        report_missing_config_items( cfg, item );
+    if (!cfg->abort && (cfg->read_options & CFG_CHECK_MISSING)) {
+        report_missing_config_items(cfg, item);
     }
 
-    if( cfg->read_options & CFG_SET_PATH )
-    {
+    if (cfg->read_options & CFG_SET_PATH) {
         pop_file_context();
     }
 
     return cfg->errcount - initcount;
 }
 
-void abort_config_file( CFG_FILE *cfg )
-{
-    if( cfg ) { cfg->abort = 1;
-}
+void abort_config_file(CFG_FILE* cfg) {
+    if (cfg) {
+        cfg->abort = 1;
+    }
 }
 
 namespace {
@@ -363,65 +332,59 @@ namespace {
 /// neither), and the whole trimmed string must be consumed - no trailing
 /// non-whitespace garbage.
 template <typename T>
-int store_numeric_config_value( std::string_view str, T &value )
-{
-    const auto begin = str.find_first_not_of( " \t" );
-    if( begin == std::string_view::npos ) { return INVALID_DATA;
-}
-    const auto end = str.find_last_not_of( " \t" );
-    str = str.substr( begin, end - begin + 1 );
-    if( str.front() == '+' ) { str.remove_prefix(1);
-}
+int store_numeric_config_value(std::string_view str, T& value) {
+    const auto begin = str.find_first_not_of(" \t");
+    if (begin == std::string_view::npos) {
+        return INVALID_DATA;
+    }
+    const auto end = str.find_last_not_of(" \t");
+    str = str.substr(begin, end - begin + 1);
+    if (str.front() == '+') {
+        str.remove_prefix(1);
+    }
 
-    const auto [ptr,ec] = std::from_chars( str.data(), str.data()+str.size(), value );
-    if( ec != std::errc() || ptr != str.data()+str.size() ) { return INVALID_DATA;
-}
+    const auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), value);
+    if (ec != std::errc() || ptr != str.data() + str.size()) {
+        return INVALID_DATA;
+    }
     return OK;
 }
 
+}  // namespace
+
+int readcfg_int(CFG_FILE*, std::string_view str, void* value, int, int) {
+    return store_numeric_config_value(str, *static_cast<int*>(value));
 }
 
-int readcfg_int( CFG_FILE *, std::string_view str, void *value, int, int )
-{
-    return store_numeric_config_value( str, *static_cast<int*>(value) );
+int readcfg_short(CFG_FILE*, std::string_view str, void* value, int, int) {
+    return store_numeric_config_value(str, *static_cast<short*>(value));
 }
 
-int readcfg_short( CFG_FILE *, std::string_view str, void *value, int, int )
-{
-    return store_numeric_config_value( str, *static_cast<short*>(value) );
+int readcfg_long(CFG_FILE*, std::string_view str, void* value, int, int) {
+    return store_numeric_config_value(str, *static_cast<long*>(value));
 }
 
-int readcfg_long( CFG_FILE *, std::string_view str, void *value, int, int )
-{
-    return store_numeric_config_value( str, *static_cast<long*>(value) );
+int readcfg_float(CFG_FILE*, std::string_view str, void* value, int, int) {
+    return store_numeric_config_value(str, *static_cast<float*>(value));
 }
 
-int readcfg_float( CFG_FILE *, std::string_view str, void *value, int, int )
-{
-    return store_numeric_config_value( str, *static_cast<float*>(value) );
+int readcfg_double(CFG_FILE*, std::string_view str, void* value, int, int) {
+    return store_numeric_config_value(str, *static_cast<double*>(value));
 }
 
-int readcfg_double( CFG_FILE *, std::string_view str, void *value, int, int )
-{
-    return store_numeric_config_value( str, *static_cast<double*>(value) );
-}
-
-int readcfg_boolean( CFG_FILE *, std::string_view str, void *value, int length, int )
-{
+int readcfg_boolean(CFG_FILE*, std::string_view str, void* value, int length, int) {
     const unsigned char flag = length ? static_cast<unsigned char>(length) : 1;
-    if( boost::algorithm::iequals(str,"y") || boost::algorithm::iequals(str,"yes") ||
-            boost::algorithm::iequals(str,"t") || boost::algorithm::iequals(str,"true") ||
-            boost::algorithm::iequals(str,"on") )
-    {
+    if (boost::algorithm::iequals(str, "y") || boost::algorithm::iequals(str, "yes") ||
+        boost::algorithm::iequals(str, "t") || boost::algorithm::iequals(str, "true") ||
+        boost::algorithm::iequals(str, "on")) {
         *static_cast<unsigned char*>(value) |= flag;
         return OK;
     }
-    if( boost::algorithm::iequals(str,"n") || boost::algorithm::iequals(str,"no") ||
-             boost::algorithm::iequals(str,"f") || boost::algorithm::iequals(str,"false") ||
-             boost::algorithm::iequals(str,"off") )
-    {
+    if (boost::algorithm::iequals(str, "n") || boost::algorithm::iequals(str, "no") ||
+        boost::algorithm::iequals(str, "f") || boost::algorithm::iequals(str, "false") ||
+        boost::algorithm::iequals(str, "off")) {
         *static_cast<unsigned char*>(value) &= ~flag;
         return OK;
     }
-            return INVALID_DATA;
+    return INVALID_DATA;
 }

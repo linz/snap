@@ -37,23 +37,20 @@
 #include "snapplot_load.h"
 #include "snapplot_util.h"
 
-
 /* static void print_header( void ); */
 
-static void print_help( void );
+static void print_help(void);
 
 inline constexpr size_t MAXFILES = 20;
 
-int snapplot_load( int argc, char *argv[] )
-{
-
+int snapplot_load(int argc, char* argv[]) {
     int sts;
     int binary_data;
     std::optional<std::string> firstfile;
     std::vector<std::string> filelist;
     std::vector<std::string> cfgfile;
     std::optional<std::string> projection;
-    coordsys *projcs = nullptr;
+    coordsys* projcs = nullptr;
     size_t nbkgfiles = 0;
     int syntax_error = 0;
     int narg;
@@ -62,118 +59,93 @@ int snapplot_load( int argc, char *argv[] )
 
     /* print_header(); */
 
-    for( narg = 1; narg < argc; narg++ )
-    {
+    for (narg = 1; narg < argc; narg++) {
         const std::string arg = argv[narg];
-        if( arg[0] == '-' ) { switch( arg[1] )
-            {
+        if (arg[0] == '-') {
+            switch (arg[1]) {
+                case 'i':
+                case 'I':
+                    use_binary_file = 0;
+                    break;
 
-            case 'i':
-            case 'I': use_binary_file = 0; break;
+                case 'f':
+                case 'F':
+                    use_command_file = 0;
+                    break;
 
-            case 'f':
-            case 'F': use_command_file = 0; break;
+                case 'c':
+                case 'C':
+                    if (cfgfile.size() >= MAXFILES) {
+                        print_log("\nToo many config files in command line\n");
+                    } else if (arg[2]) {
+                        cfgfile.push_back(arg.substr(2));
+                    } else if (++narg < argc) {
+                        cfgfile.emplace_back(argv[narg]);
+                    } else {
+                        print_log("\nMissing name of config file\n");
+                        syntax_error = 1;
+                    }
+                    break;
 
-            case 'c':
-            case 'C': if( cfgfile.size() >= MAXFILES )
-                {
-                    print_log("\nToo many config files in command line\n");
-                }
-                else if( arg[2] )
-                {
-                    cfgfile.push_back( arg.substr(2) );
-                }
-                else if( ++narg < argc )
-                {
-                    cfgfile.emplace_back(argv[narg] );
-                }
-                else
-                {
-                    print_log("\nMissing name of config file\n");
+                case 'b':
+                case 'B':
+                    if (nbkgfiles >= MAXFILES) {
+                        print_log("\nToo many background files in command line\n");
+                    } else if (arg[2]) {
+                        add_background_file(arg.substr(2));
+                        nbkgfiles++;
+                    } else if (++narg < argc) {
+                        add_background_file(argv[narg]);
+                        nbkgfiles++;
+                    } else {
+                        print_log("\nMissing name of background file\n");
+                        syntax_error = 1;
+                    }
+                    break;
+
+                case 'p':
+                case 'P':
+                    if (arg[2]) {
+                        projection = arg.substr(2);
+                    } else if (++narg < argc) {
+                        projection = argv[narg];
+                    } else {
+                        print_log("\nMissing projection name on command line\n");
+                        syntax_error = 1;
+                    }
+                    break;
+
+                default:
+                    print_log("\nInvalid option %s in command line\n", arg.c_str());
                     syntax_error = 1;
-                }
-                break;
-
-            case 'b':
-            case 'B': if( nbkgfiles >= MAXFILES )
-                {
-                    print_log("\nToo many background files in command line\n");
-                }
-                else if( arg[2] )
-                {
-                    add_background_file( arg.substr(2) );
-                    nbkgfiles++;
-                }
-                else if( ++narg < argc )
-                {
-                    add_background_file( argv[narg] );
-                    nbkgfiles++;
-                }
-                else
-                {
-                    print_log("\nMissing name of background file\n");
-                    syntax_error = 1;
-                }
-                break;
-
-            case 'p':
-            case 'P': if( arg[2] )
-                {
-                    projection = arg.substr(2);
-                }
-                else if( ++narg < argc )
-                {
-                    projection = argv[narg];
-                }
-                else
-                {
-                    print_log("\nMissing projection name on command line\n");
-                    syntax_error = 1;
-                }
-                break;
-
-            default:  print_log("\nInvalid option %s in command line\n",arg.c_str());
-                syntax_error = 1;
-                break;
-
-
+                    break;
             }
 
-        } else if( !firstfile )
-        {
+        } else if (!firstfile) {
             firstfile = arg;
         }
 
-        else if( filelist.size() < MAXFILES )
-        {
-            filelist.push_back( arg );
+        else if (filelist.size() < MAXFILES) {
+            filelist.push_back(arg);
         }
 
-        else
-        {
+        else {
             print_log("\nToo many file names in command line\n");
         }
     }
 
-
-    if( !firstfile )
-    {
-        if( argc > 1 )
-        {
-            if( use_command_file )
-            {
+    if (!firstfile) {
+        if (argc > 1) {
+            if (use_command_file) {
                 print_log("\nMissing command file name\n");
-            }
-            else
-            {
+            } else {
                 print_log("\nMissing coordinate file name\n");
             }
         }
         syntax_error = 1;
     }
 
-    if( syntax_error )
-    {
+    if (syntax_error) {
         print_help();
         return 0;
     }
@@ -181,20 +153,16 @@ int snapplot_load( int argc, char *argv[] )
     init_snap_globals();
     init_snap_gps_covariance();
 
-
     install_default_crdsys_file();
 
-    if( projection )
-    {
-        projcs = load_coordsys( *projection );
-        if( !projcs )
-        {
-            print_log("\n%s is not a valid projection code\n",projection->c_str());
+    if (projection) {
+        projcs = load_coordsys(*projection);
+        if (!projcs) {
+            print_log("\n%s is not a valid projection code\n", projection->c_str());
             return 0;
         }
-        if( !is_projection( projcs ) )
-        {
-            print_log("\n%s is not a projection coordinate system\n",projection->c_str());
+        if (!is_projection(projcs)) {
+            print_log("\n%s is not a projection coordinate system\n", projection->c_str());
             return 0;
         }
     }
@@ -202,86 +170,70 @@ int snapplot_load( int argc, char *argv[] )
     /* Note: even if not using a command file we call set_snap_command_file
        as it ensures that default paths etc are defined */
 
-    set_snap_command_file( *firstfile );
+    set_snap_command_file(*firstfile);
 
-    if( use_binary_file )
-    {
+    if (use_binary_file) {
         sts = reload_binary_data();
         binary_data = sts == OK;
-        if( sts == NO_MORE_DATA ) { sts = OK;  /* No binary file */
-}
-        if( sts != OK ) { return 0;
-}
-    }
-    else
-    {
+        if (sts == NO_MORE_DATA) {
+            sts = OK; /* No binary file */
+        }
+        if (sts != OK) {
+            return 0;
+        }
+    } else {
         binary_data = 0;
     }
 
-    set_confidence_limit();  /* Set error type to match binary file */
+    set_confidence_limit(); /* Set error type to match binary file */
 
     add_default_configuration_files();
 
-    if( use_command_file )
-    {
+    if (use_command_file) {
         set_stnadj_init_network();
-        sts = read_plot_command_file( command_file->path, binary_data );
-        if( sts != OK )
-        {
-            print_log("\n%s command file %s\n",
-                      sts == FILE_OPEN_ERROR ? "Cannot open" : "Errors in",
+        sts = read_plot_command_file(command_file->path, binary_data);
+        if (sts != OK) {
+            print_log("\n%s command file %s\n", sts == FILE_OPEN_ERROR ? "Cannot open" : "Errors in",
                       command_file->path.c_str());
             return 0;
         }
-        for( const std::string &file : filelist )
-        {
-            add_configuration_file( file );
+        for (const std::string& file : filelist) {
+            add_configuration_file(file);
         }
-    }
-    else
-    {
-        print_log("\nReading coordinates from file %s\n",firstfile->c_str());
+    } else {
+        print_log("\nReading coordinates from file %s\n", firstfile->c_str());
         /* Adding the following line as init function was removed from read_station_file.
          * Possibly not necessary?
          */
         set_stnadj_init_network();
-        sts = read_station_file( *firstfile, command_file->dir, STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE );
-        if( sts == OK )
-        {
-            print_log("    %d stations read\n",number_of_stations(net));
-        }
-        else
-        {
+        sts = read_station_file(*firstfile, command_file->dir, STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE);
+        if (sts == OK) {
+            print_log("    %d stations read\n", number_of_stations(net));
+        } else {
             print_log("\nErrors encountered reading coordinate file\n");
             return 0;
         }
-        for( const std::string &file : filelist )
-        {
-            add_data_file( file, SNAP_FORMAT, std::nullopt, std::nullopt, nullptr );
+        for (const std::string& file : filelist) {
+            add_data_file(file, SNAP_FORMAT, std::nullopt, std::nullopt, nullptr);
         }
     }
 
-
-    for( const std::string &file : cfgfile )
-    {
-        auto filename = find_file( file, SNAPPLOT_CONFIG_EXT, std::nullopt, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
-        if( filename )
-        {
-            add_configuration_file( *filename );
-        }
-        else
-        {
-            handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Configuration file cannot be found", file );
+    for (const std::string& file : cfgfile) {
+        auto filename = find_file(file, SNAPPLOT_CONFIG_EXT, std::nullopt, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION);
+        if (filename) {
+            add_configuration_file(*filename);
+        } else {
+            handle_error(FILE_OPEN_ERROR | SHOW_DIALOG, "Configuration file cannot be found", file);
         }
     }
 
-    if( projcs ) { set_plot_projection( projcs );
-}
+    if (projcs) {
+        set_plot_projection(projcs);
+    }
 
-    init_plotstns( binary_data );
+    init_plotstns(binary_data);
 
-    if( !binary_data )
-    {
+    if (!binary_data) {
         open_data_source();
         load_connections();
     }
@@ -299,15 +251,14 @@ int snapplot_load( int argc, char *argv[] )
 
     init_displayed_fields();
 
-    setup_data_pens( DPEN_BY_TYPE );
+    setup_data_pens(DPEN_BY_TYPE);
 
     process_configuration_file_list();
 
     return get_error_count() ? 0 : 1;
 }
 
-void snapplot_unload()
-{
+void snapplot_unload() {
     /* NOTE: SNAP wasn't set up for loading/unloading data, so this unload function doesn't undo
        most of allocations incurred by snapplot_load */
 
@@ -328,10 +279,9 @@ static void print_header( void )
 }
 */
 
-static void print_help( void )
-{
+static void print_help(void) {
     print_log("\nSyntax:  SNAPPLOT [options] command_file_name [config_file_name ..]\n");
-    print_log(  "    or   SNAPPLOT [options] -f coord_file [data_file ...]\n");
+    print_log("    or   SNAPPLOT [options] -f coord_file [data_file ...]\n");
     print_log("\nOptions can include: \n");
     print_log("  -c config_file_name     Specifies a configuration file to use\n");
     print_log("  -b background_file      Specifies a background file to use\n");

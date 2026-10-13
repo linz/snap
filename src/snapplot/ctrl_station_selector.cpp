@@ -9,21 +9,20 @@
 #include "plotstns.h"
 #include "snap/stnadj.h"
 //}
-void wxStationSelectorTable::Setup()
-{
+void wxStationSelectorTable::Setup() {
     id = nullptr;
     selected = nullptr;
     nrows = used_station_count();
-    if( nrows <= 0 ) { return;
-}
+    if (nrows <= 0) {
+        return;
+    }
 
     id = new int[nrows];
-    int const nstns = number_of_stations(net);
-    selected = new bool[nstns+1];
+    const int nstns = number_of_stations(net);
+    selected = new bool[nstns + 1];
 
-    for( int i = 0; i < nrows; i++ )
-    {
-        int const istn = sorted_station_number(i);
+    for (int i = 0; i < nrows; i++) {
+        const int istn = sorted_station_number(i);
         id[i] = istn;
         selected[istn] = false;
     }
@@ -32,16 +31,15 @@ void wxStationSelectorTable::Setup()
 
     // TODO: Sort out these colours
     selectedAttr = new wxGridCellAttr();
-    selectedAttr->SetBackgroundColour( wxColour("LIGHT BLUE") );
+    selectedAttr->SetBackgroundColour(wxColour("LIGHT BLUE"));
     unselectedAttr = new wxGridCellAttr();
-    unselectedAttr->SetBackgroundColour( wxColour("WHITE") );
+    unselectedAttr->SetBackgroundColour(wxColour("WHITE"));
 }
 
-void wxStationSelectorTable::CleanUp()
-{
-    delete [] id;
+void wxStationSelectorTable::CleanUp() {
+    delete[] id;
 
-    delete [] selected;
+    delete[] selected;
 
     id = nullptr;
     selected = nullptr;
@@ -49,74 +47,67 @@ void wxStationSelectorTable::CleanUp()
     unselectedAttr->DecRef();
 }
 
-wxString wxStationSelectorTable::GetColLabelValue( int col )
-{
+wxString wxStationSelectorTable::GetColLabelValue(int col) {
     wxString label;
-    if( col == 0 )
-    {
+    if (col == 0) {
         label = wxString("Code");
-    }
-    else
-    {
+    } else {
         label = wxString("Name");
     }
     return label;
 }
 
-int wxStationSelectorTable::GetNumberRows() { return nrows; }
+int wxStationSelectorTable::GetNumberRows() {
+    return nrows;
+}
 
-int wxStationSelectorTable::GetNumberCols() { return 2; }
+int wxStationSelectorTable::GetNumberCols() {
+    return 2;
+}
 
-bool wxStationSelectorTable::IsEmptyCell( int WXUNUSED(row), int WXUNUSED(col) ) { return false; }
+bool wxStationSelectorTable::IsEmptyCell(int WXUNUSED(row), int WXUNUSED(col)) {
+    return false;
+}
 
-wxString wxStationSelectorTable::GetValue( int row, int col )
-{
-    int const istn = id[row];
-    station *stn = stnptr(istn);
+wxString wxStationSelectorTable::GetValue(int row, int col) {
+    const int istn = id[row];
+    station* stn = stnptr(istn);
     return col == 0 ? stn->Code.c_str() : stn->Name.c_str();
 }
 
-void wxStationSelectorTable::SetValue( int WXUNUSED(row), int WXUNUSED(col), const wxString & WXUNUSED(value)  ) {}
+void wxStationSelectorTable::SetValue(int WXUNUSED(row), int WXUNUSED(col), const wxString& WXUNUSED(value)) {}
 
-static int cmp_station_code( const void *istn1, const void *istn2 )
-{
-    return stncodecmp( stnptr(*(int *)istn1)->Code, stnptr(*(int *)istn2)->Code );
+static int cmp_station_code(const void* istn1, const void* istn2) {
+    return stncodecmp(stnptr(*(int*)istn1)->Code, stnptr(*(int*)istn2)->Code);
 }
 
-wxGridCellAttr *wxStationSelectorTable::GetAttr( int row, int WXUNUSED(col),  wxGridCellAttr::wxAttrKind  WXUNUSED(kind)  )
-{
-    wxGridCellAttr *attr = IsSelected(row) ? selectedAttr : unselectedAttr;
+wxGridCellAttr* wxStationSelectorTable::GetAttr(int row, int WXUNUSED(col), wxGridCellAttr::wxAttrKind WXUNUSED(kind)) {
+    wxGridCellAttr* attr = IsSelected(row) ? selectedAttr : unselectedAttr;
     attr->IncRef();
     return attr;
 }
 
-static int cmp_station_name( const void *istn1, const void *istn2 )
-{
-    return _stricmp( stnptr(*(int *)istn1)->Name.c_str(), stnptr(*(int *)istn2)->Name.c_str() );
+static int cmp_station_name(const void* istn1, const void* istn2) {
+    return _stricmp(stnptr(*(int*)istn1)->Name.c_str(), stnptr(*(int*)istn2)->Name.c_str());
 }
 
-void wxStationSelectorTable::SortByCode()
-{
-    qsort( id, nrows, sizeof(int), cmp_station_code );
+void wxStationSelectorTable::SortByCode() {
+    qsort(id, nrows, sizeof(int), cmp_station_code);
 }
 
-void wxStationSelectorTable::SortByName()
-{
-    qsort( id, nrows, sizeof(int), cmp_station_name );
+void wxStationSelectorTable::SortByName() {
+    qsort(id, nrows, sizeof(int), cmp_station_name);
 }
 
-void wxStationSelectorTable::Select( int row, bool select  )
-{
+void wxStationSelectorTable::Select(int row, bool select) {
     selected[id[row]] = select;
 }
 
-bool wxStationSelectorTable::IsSelected( int row )
-{
+bool wxStationSelectorTable::IsSelected(int row) {
     return selected[id[row]];
 }
 
-int wxStationSelectorTable::StationNumber( int row )
-{
+int wxStationSelectorTable::StationNumber(int row) {
     return id[row];
 }
 
@@ -126,80 +117,74 @@ int wxStationSelectorTable::StationNumber( int row )
 // Range select called anyway, so cancels this out?
 //	EVT_GRID_SELECT_CELL( wxStationSelectorGrid::OnGridSelectCell )
 
-BEGIN_EVENT_TABLE( wxStationSelectorGrid, wxGrid )
-    EVT_GRID_RANGE_SELECT( wxStationSelectorGrid::OnGridRangeSelect )
-    EVT_GRID_LABEL_LEFT_CLICK( wxStationSelectorGrid::OnGridLabelLeftClick )
+BEGIN_EVENT_TABLE(wxStationSelectorGrid, wxGrid)
+EVT_GRID_RANGE_SELECT(wxStationSelectorGrid::OnGridRangeSelect)
+EVT_GRID_LABEL_LEFT_CLICK(wxStationSelectorGrid::OnGridLabelLeftClick)
 END_EVENT_TABLE()
 
-wxStationSelectorGrid::wxStationSelectorGrid(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size ) :
-    wxGrid( parent, id, pos, size )
-{
+wxStationSelectorGrid::wxStationSelectorGrid(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size)
+    : wxGrid(parent, id, pos, size) {
     table = new wxStationSelectorTable();
-    SetTable( table, false, wxGrid::wxGridSelectRows );
+    SetTable(table, false, wxGrid::wxGridSelectRows);
 
     // Trying to get this sized right???
-    SetSize( wxSize( GetCharWidth()*40, GetCharHeight()*20) );
-    SetMinSize( wxSize( GetCharWidth()*40, GetCharHeight()*10) );
+    SetSize(wxSize(GetCharWidth() * 40, GetCharHeight() * 20));
+    SetMinSize(wxSize(GetCharWidth() * 40, GetCharHeight() * 10));
 
-    SetGridLineColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
-    SetSelectionBackground( wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT) );
-    SetSelectionForeground( wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT) );
+    SetGridLineColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
+    SetSelectionBackground(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+    SetSelectionForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
     SetCellHighlightPenWidth(0);
     // EnableGridLines( false );
-    EnableEditing( false );
+    EnableEditing(false);
     EnableDragColSize();
     DisableDragRowSize();
 
     // SetSelectionMode(wxGrid::wxGridSelectRows);
     SetRowLabelSize(0);
-    SetColLabelSize( (GetCharHeight()*3)/2 );
+    SetColLabelSize((GetCharHeight() * 3) / 2);
 
-    SetColSize( 0, GetCharWidth()*12 );
-    SetColSize( 1, GetCharWidth()*50 );
+    SetColSize(0, GetCharWidth() * 12);
+    SetColSize(1, GetCharWidth() * 50);
     //SetColLabelSize(0);
 }
 
-wxStationSelectorGrid::~wxStationSelectorGrid()
-{
-    SetTable( nullptr );
+wxStationSelectorGrid::~wxStationSelectorGrid() {
+    SetTable(nullptr);
     delete table;
 }
 
-void wxStationSelectorGrid::SortByCode()
-{
+void wxStationSelectorGrid::SortByCode() {
     table->SortByCode();
     // SetTable( table, false, wxGrid::wxGridSelectRows );
     Refresh();
 }
 
-void wxStationSelectorGrid::SortByName()
-{
+void wxStationSelectorGrid::SortByName() {
     table->SortByName();
     // SetTable( table, false, wxGrid::wxGridSelectRows );
     Refresh();
 }
 
-void wxStationSelectorGrid::OnGridRangeSelect( wxGridRangeSelectEvent &event )
-{
-    if( event.Selecting() )
-    {
+void wxStationSelectorGrid::OnGridRangeSelect(wxGridRangeSelectEvent& event) {
+    if (event.Selecting()) {
         ClearSelection();
-        int const rowMin = event.GetTopRow();
-        int const rowMax = event.GetBottomRow();
-        for( int row = rowMin; row <= rowMax; row++ )
-        {
-            table->Select( row, ! table->IsSelected(row) );
+        const int rowMin = event.GetTopRow();
+        const int rowMax = event.GetBottomRow();
+        for (int row = rowMin; row <= rowMax; row++) {
+            table->Select(row, !table->IsSelected(row));
         }
         // RefreshRect( BlockToDeviceRect(wxGridCellCoords(rowMin,0) , wxGridCellCoords(rowMax,1)) );
         Refresh();
     }
 }
 
-void wxStationSelectorGrid::OnGridLabelLeftClick( wxGridEvent &event )
-{
-    int const col = event.GetCol();
-    if( col == 0 ) { SortByCode();
-}
-    if( col == 1 ) { SortByName();
-}
+void wxStationSelectorGrid::OnGridLabelLeftClick(wxGridEvent& event) {
+    const int col = event.GetCol();
+    if (col == 0) {
+        SortByCode();
+    }
+    if (col == 1) {
+        SortByName();
+    }
 }

@@ -4,6 +4,6 @@
 #include "wx_includes.hpp"
 #include "wxsymbology.hpp"
 
-Symbology *GetSnapplotSymbology();
+Symbology* GetSnapplotSymbology();
 
 #endif

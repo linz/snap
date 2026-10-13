@@ -10,20 +10,18 @@
 #include "plotfunc.h"
 //}
 
-class SnapplotMap : public wxMap
-{
-public:
+class SnapplotMap : public wxMap {
+ public:
     SnapplotMap();
     ~SnapplotMap() override;
-    void GetMapExtents( MapRect &extents ) override;
-    void GetLayer( Symbology &symbology ) override;
-    void *StartDrawing() override;
-    bool DrawSome( wxMapDrawer &drawer, void *state ) override;
-    void EndDrawing( void *state ) override;
-private:
+    void GetMapExtents(MapRect& extents) override;
+    void GetLayer(Symbology& symbology) override;
+    void* StartDrawing() override;
+    bool DrawSome(wxMapDrawer& drawer, void* state) override;
+    void EndDrawing(void* state) override;
 
-    enum
-    {
+ private:
+    enum {
         smBackground,
         smObs,
         smStations,
@@ -46,7 +44,6 @@ private:
     bool startDrawing;
 
     map_plotter plotter;
-
 };
 
 #endif

@@ -5,31 +5,23 @@
 #include <stdexcept>
 #include <string>
 
-namespace LINZ
-{
-    namespace ParseAngle
-    {
+namespace LINZ {
+namespace ParseAngle {
 
-        // Parse angles in DMS format.
+// Parse angles in DMS format.
 
-        class ParseAngleException : public std::runtime_error
-        {
-        public:
-            ParseAngleException(const std::string &message) : std::runtime_error(message) {}
-        };
+class ParseAngleException : public std::runtime_error {
+ public:
+    ParseAngleException(const std::string& message) : std::runtime_error(message) {}
+};
 
-        enum AngleFormat
-        {
-            AF_DEGREES,
-            AF_DMS,
-            AF_HPFORMAT
-        };
+enum AngleFormat { AF_DEGREES, AF_DMS, AF_HPFORMAT };
 
-        AngleFormat parseAngleFormat(const std::string &format);
-        double parseAngle(AngleFormat format, const std::string &value, const std::string &sign = "");
+AngleFormat parseAngleFormat(const std::string& format);
+double parseAngle(AngleFormat format, const std::string& value, const std::string& sign = "");
 
-    } // namespace ParseAngle
+}  // namespace ParseAngle
 
-} // End of namespace LINZ
+}  // End of namespace LINZ
 
 #endif

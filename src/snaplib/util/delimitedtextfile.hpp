@@ -11,11 +11,8 @@
 
 #include "util/recordinputbase.hpp"
 
-
-namespace LINZ
-{
-namespace DelimitedTextFile
-{
+namespace LINZ {
+namespace DelimitedTextFile {
 
 using namespace LINZ;
 
@@ -62,41 +59,54 @@ using namespace LINZ;
  *  ::WhitespaceDelimited), and an Options object
  */
 
-
 class Reader;
 
-
-class Column
-{
+class Column {
     friend class Reader;
-public:
-    [[nodiscard]] const std::string &name() const { return _name; }
-    void setName( const std::string& name ){ _name=name; }
-    [[nodiscard]] const std::string &value() const { return _value; }
-    std::string &value() { return _value; }
-    [[nodiscard]] int index() const { return _index; }
-    template<typename T> bool operator>>( T &tvalue ) const;
-    bool operator>>( std::string &strvalue ) const;
-private:
-    Column( const Reader &dlt, std::string name, int index ) :
-        _dlt(dlt), _name(std::move(name)), _index(index) {}
-    void clear() { _value.clear(); }
+
+ public:
+    [[nodiscard]] const std::string& name() const {
+        return _name;
+    }
+    void setName(const std::string& name) {
+        _name = name;
+    }
+    [[nodiscard]] const std::string& value() const {
+        return _value;
+    }
+    std::string& value() {
+        return _value;
+    }
+    [[nodiscard]] int index() const {
+        return _index;
+    }
+    template <typename T>
+    bool operator>>(T& tvalue) const;
+    bool operator>>(std::string& strvalue) const;
+
+ private:
+    Column(const Reader& dlt, std::string name, int index) : _dlt(dlt), _name(std::move(name)), _index(index) {}
+    void clear() {
+        _value.clear();
+    }
     void handleReadError() const;
-    const Reader &_dlt;
+    const Reader& _dlt;
     std::string _name;
     std::string _value;
     int _index;
 };
 
 // To support the dlt >> value >> value >> .. notation
-class IncrementingColumn
-{
+class IncrementingColumn {
     friend class Reader;
-public:
-    template<typename T> IncrementingColumn operator>>( T &tvalue );
-private:
-    IncrementingColumn( Reader &dlt ) : _dlt(dlt), _index(0) {}
-    Reader &_dlt;
+
+ public:
+    template <typename T>
+    IncrementingColumn operator>>(T& tvalue);
+
+ private:
+    IncrementingColumn(Reader& dlt) : _dlt(dlt), _index(0) {}
+    Reader& _dlt;
     int _index;
 };
 
@@ -111,78 +121,117 @@ class WhitespaceFormat;
 // successive calls getNextValue().  Errors can be reported with runtimeError,
 // which by default throws an exception.
 
-class Format
-{
+class Format {
     friend class Reader;
-public:
+
+ public:
     Format() : _dlt(nullptr) {}
     virtual ~Format() = default;
-    [[nodiscard]] virtual Format *clone() const = 0;
-protected:
+    [[nodiscard]] virtual Format* clone() const = 0;
+
+ protected:
     virtual bool parseRecord() = 0;
     bool getNextLine();
-    std::string &getNextValue();
-    void runtimeError( const std::string& message ) const;
-    std::string &buffer() { return _buffer; }
-private:
-    void setSource( Reader *dlt ) { _dlt = dlt; }
-    Reader *_dlt;
+    std::string& getNextValue();
+    void runtimeError(const std::string& message) const;
+    std::string& buffer() {
+        return _buffer;
+    }
+
+ private:
+    void setSource(Reader* dlt) {
+        _dlt = dlt;
+    }
+    Reader* _dlt;
     std::string _buffer;
-public:
+
+ public:
     static const CsvFormat Csv;
     static const CsvFormat TabDelimited;
     static const CsvFormat PipeDelimited;
     static const WhitespaceFormat WhitespaceDelimited;
 };
 
-class WhitespaceFormat : public Format
-{
-public:
+class WhitespaceFormat : public Format {
+ public:
     WhitespaceFormat() = default;
-    [[nodiscard]] WhitespaceFormat *clone() const override;
-protected:
+    [[nodiscard]] WhitespaceFormat* clone() const override;
+
+ protected:
     bool parseRecord() override;
 };
 
-class CsvFormat : public Format
-{
-public:
-    CsvFormat( char delimiter=',', char escape='"', char quote='"') :
-        _delimiter(delimiter), _escape(escape), _quote(quote) {}
-    [[nodiscard]] CsvFormat *clone() const override;
-    void setDelimiter( char delimiter ) { _delimiter = delimiter; }
-    void setQuote( char quote ) { _quote = quote; }
-    void setEscape( char escape ) { _escape = escape; }
-protected:
+class CsvFormat : public Format {
+ public:
+    CsvFormat(char delimiter = ',', char escape = '"', char quote = '"')
+        : _delimiter(delimiter), _escape(escape), _quote(quote) {}
+    [[nodiscard]] CsvFormat* clone() const override;
+    void setDelimiter(char delimiter) {
+        _delimiter = delimiter;
+    }
+    void setQuote(char quote) {
+        _quote = quote;
+    }
+    void setEscape(char escape) {
+        _escape = escape;
+    }
+
+ protected:
     bool parseRecord() override;
-private:
+
+ private:
     char _delimiter;
     char _escape;
     char _quote;
 };
 
-class Options
-{
+class Options {
     friend class Reader;
-public:
-    Options() :
-        _useHeader(true),
-        _fillMissingColumns(true),
-        _addExtraColumns(true),
-        _ignoreExtraColumns(true),
-        _nSkipLines(0)
-    {}
-    [[nodiscard]] bool useHeader() const { return _useHeader; }
-    [[nodiscard]] bool fillMissingColumns() const { return _fillMissingColumns; }
-    [[nodiscard]] bool addExtraColumns() const { return _addExtraColumns; }
-    [[nodiscard]] bool ignoreExtraColumns() const { return _ignoreExtraColumns; }
-    [[nodiscard]] int nSkipLines() const { return _nSkipLines; }
-    Options &setUseHeader( bool useHeader = true ) { _useHeader = useHeader; return *this; }
-    Options &setFillMissingColumns( bool fillMissingColumns = true ) { _fillMissingColumns = fillMissingColumns; return *this; }
-    Options &setAddExtraColumns( bool addExtraColumns = true ) { _addExtraColumns = addExtraColumns; return *this; }
-    Options &setIgnoreExtraColumns( bool ignoreExtraColumns = true ) { _ignoreExtraColumns = ignoreExtraColumns; return *this; }
-    Options &setNSkipLines( int nSkipLines ) { _nSkipLines = nSkipLines; return *this; }
-private:
+
+ public:
+    Options()
+        : _useHeader(true),
+          _fillMissingColumns(true),
+          _addExtraColumns(true),
+          _ignoreExtraColumns(true),
+          _nSkipLines(0) {}
+    [[nodiscard]] bool useHeader() const {
+        return _useHeader;
+    }
+    [[nodiscard]] bool fillMissingColumns() const {
+        return _fillMissingColumns;
+    }
+    [[nodiscard]] bool addExtraColumns() const {
+        return _addExtraColumns;
+    }
+    [[nodiscard]] bool ignoreExtraColumns() const {
+        return _ignoreExtraColumns;
+    }
+    [[nodiscard]] int nSkipLines() const {
+        return _nSkipLines;
+    }
+    Options& setUseHeader(bool useHeader = true) {
+        _useHeader = useHeader;
+        return *this;
+    }
+    Options& setFillMissingColumns(bool fillMissingColumns = true) {
+        _fillMissingColumns = fillMissingColumns;
+        return *this;
+    }
+    Options& setAddExtraColumns(bool addExtraColumns = true) {
+        _addExtraColumns = addExtraColumns;
+        return *this;
+    }
+    Options& setIgnoreExtraColumns(bool ignoreExtraColumns = true) {
+        _ignoreExtraColumns = ignoreExtraColumns;
+        return *this;
+    }
+    Options& setNSkipLines(int nSkipLines) {
+        _nSkipLines = nSkipLines;
+        return *this;
+    }
+
+ private:
     bool _useHeader;
     bool _fillMissingColumns;
     bool _addExtraColumns;
@@ -191,33 +240,49 @@ private:
 };
 
 // Reader class
-class Reader
-{
+class Reader {
     friend class Format;
     friend class Column;
-public:
-    Reader( RecordInputBase &input, const Format &parser=Format::Csv, const Options &options = Options() );
-    Reader( const std::string& filename, const Format &parser = Format::Csv, const Options &options = Options() );
-    Reader( std::istream &is, const Format &parser = Format::Csv, const Options &options = Options() );
+
+ public:
+    Reader(RecordInputBase& input, const Format& parser = Format::Csv, const Options& options = Options());
+    Reader(const std::string& filename, const Format& parser = Format::Csv, const Options& options = Options());
+    Reader(std::istream& is, const Format& parser = Format::Csv, const Options& options = Options());
     virtual ~Reader();
 
-    const std::string &streamName() { return _input->name(); }
+    const std::string& streamName() {
+        return _input->name();
+    }
 
     // Configuration
 
-    void setNamesCaseSensitive( bool set = true ) { _namesCaseSensitive = set; }
-    void setColumnNames( const std::vector<std::string> &columnNames );
-    void setColumnNames( const std::string &columnNames );
+    void setNamesCaseSensitive(bool set = true) {
+        _namesCaseSensitive = set;
+    }
+    void setColumnNames(const std::vector<std::string>& columnNames);
+    void setColumnNames(const std::string& columnNames);
 
     // Getting column information
 
-    [[nodiscard]] int columnCount() const { return _columns.size(); }
-    [[nodiscard]] const Column &column( int i ) const { if( i >= (int) _columns.size()) { columnIndexError(i); 
-}return *(_columns[i]); }
-    [[nodiscard]] const Column &column( const std::string &name ) const { return columnNamed( name ); }
-    const Column &operator[] ( int i ) const { return column(i); }
-    const Column &operator[] ( const std::string &name ) const { return column(name); }
-    [[nodiscard]] virtual Column *findColumn( const std::string &name ) const;
+    [[nodiscard]] int columnCount() const {
+        return _columns.size();
+    }
+    [[nodiscard]] const Column& column(int i) const {
+        if (i >= (int)_columns.size()) {
+            columnIndexError(i);
+        }
+        return *(_columns[i]);
+    }
+    [[nodiscard]] const Column& column(const std::string& name) const {
+        return columnNamed(name);
+    }
+    const Column& operator[](int i) const {
+        return column(i);
+    }
+    const Column& operator[](const std::string& name) const {
+        return column(name);
+    }
+    [[nodiscard]] virtual Column* findColumn(const std::string& name) const;
 
     // Reading records
 
@@ -225,77 +290,87 @@ public:
 
     // Current information
 
-    [[nodiscard]] int lineNo() const { return _lineno; }
-    [[nodiscard]] int recordNo() const { return _recordno; }
-    void runtimeError( const std::string &message ) const;
-    void warning( const std::string &message ) const;
+    [[nodiscard]] int lineNo() const {
+        return _lineno;
+    }
+    [[nodiscard]] int recordNo() const {
+        return _recordno;
+    }
+    void runtimeError(const std::string& message) const;
+    void warning(const std::string& message) const;
 
     // Reader >> value >> value ... syntax
 
-    template<typename T> IncrementingColumn operator>>( T &tvalue );
+    template <typename T>
+    IncrementingColumn operator>>(T& tvalue);
 
-protected:
-    Column *newColumn( const std::string &name );
-    [[nodiscard]] bool namesMatch( const std::string &name1, const std::string &name2 ) const;
+ protected:
+    Column* newColumn(const std::string& name);
+    [[nodiscard]] bool namesMatch(const std::string& name1, const std::string& name2) const;
 
-private:
-    void setup( const Format &parser );
+ private:
+    void setup(const Format& parser);
     void readHeader();
-    void columnIndexError( int string ) const;
-    void handleError( const RecordError &error ) const;
-    [[nodiscard]] Column &columnNamed( const std::string &name ) const;
+    void columnIndexError(int string) const;
+    void handleError(const RecordError& error) const;
+    [[nodiscard]] Column& columnNamed(const std::string& name) const;
     // Field parser functions
-    bool getNextLine( std::string &buffer );
-    std::string &getNextValue();
+    bool getNextLine(std::string& buffer);
+    std::string& getNextValue();
 
     // Data members
-    std::vector<Column *> _columns;
-    RecordInputBase *_input;
+    std::vector<Column*> _columns;
+    RecordInputBase* _input;
     bool _ownInput;
     std::string _dummyValue;
     bool _columnsSet;
     bool _namesCaseSensitive;
-    Format *_parser;
+    Format* _parser;
     Options _options;
     int _recordno;
     int _lineno;
     int _colno;
-    Column *_badColumn;
+    Column* _badColumn;
 };
 
 // Inline functions and non-trivial template functions
 
-inline bool Format::getNextLine() { return _dlt ? _dlt->getNextLine(_buffer) : false; }
-inline std::string &Format::getNextValue() { return _dlt->getNextValue(); }
+inline bool Format::getNextLine() {
+    return _dlt ? _dlt->getNextLine(_buffer) : false;
+}
+inline std::string& Format::getNextValue() {
+    return _dlt->getNextValue();
+}
 
-
-template<typename T> bool Column::operator>>( T &tvalue ) const
-{
+template <typename T>
+bool Column::operator>>(T& tvalue) const {
     std::istringstream is(value());
     is >> tvalue;
-    if( is.fail() || ! is.eof() ) { handleReadError(); return false; }
+    if (is.fail() || !is.eof()) {
+        handleReadError();
+        return false;
+    }
     return true;
 }
 
-inline bool Column::operator>>( std::string &strvalue ) const
-{
+inline bool Column::operator>>(std::string& strvalue) const {
     strvalue = value();
     return true;
 }
 
-template<typename T> IncrementingColumn IncrementingColumn::operator>>( T &tvalue )
-{
+template <typename T>
+IncrementingColumn IncrementingColumn::operator>>(T& tvalue) {
     _dlt.column(_index) >> tvalue;
     _index++;
     return *this;
 }
 
-template<typename T> IncrementingColumn Reader::operator>>( T &tvalue )
-{
+template <typename T>
+IncrementingColumn Reader::operator>>(T& tvalue) {
     return IncrementingColumn(*this) >> tvalue;
 }
 
-} // end of DelimitedTextFile namespace
-} // end of LINZ namespace
+}  // namespace DelimitedTextFile
+}  // namespace LINZ
 
-#endif // End of #ifdef _LINZ_DELIMITEDTEXTFILE_HPP
+#endif  // End of #ifdef _LINZ_DELIMITEDTEXTFILE_HPP

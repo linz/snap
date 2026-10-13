@@ -16,74 +16,66 @@
 
 #include "util/textformat.hpp"
 
-
-struct SelectionData
-{
-    const char *label;
+struct SelectionData {
+    const char* label;
     unsigned char mask;
     unsigned char incompatible;
 };
 
-enum { flgAll=1, flgRej=2, flgHFix=4, flgVFix=8,
-       flgHFlt=16, flgVFlt=32, flgHAdj=64, flgVAdj=128
-     };
+enum { flgAll = 1, flgRej = 2, flgHFix = 4, flgVFix = 8, flgHFlt = 16, flgVFlt = 32, flgHAdj = 64, flgVAdj = 128 };
 
 const int nStationSelectionOptions = 7;
 
 // TODO: Sort out accelerator keys
 
-const SelectionData stationSelectionOption[nStationSelectionOptions] =
-{
-    {"F&ixed horizontally",flgHFix, flgAll | flgRej | flgHFlt | flgHAdj },
-    {"&Floated horizontally",flgHFlt,flgAll | flgRej | flgHFix | flgHAdj },
-    {"Adjust &horizontally",flgHAdj,flgAll | flgRej | flgHFix | flgHFlt },
-    {"Fi&xed vertically",flgVFix,flgAll | flgRej | flgVFlt | flgVAdj },
-    {"Fl&oated vertically",flgVFlt,flgAll | flgRej | flgVFix | flgVAdj },
-    {"Adjust &vertically",flgVAdj,flgAll | flgRej | flgVFix | flgVFlt },
-    {"Re&jected",flgRej,flgAll | flgHFix | flgVFix | flgHFlt | flgVFlt | flgHAdj | flgVAdj }
-};
+const SelectionData stationSelectionOption[nStationSelectionOptions] = {
+    {"F&ixed horizontally", flgHFix, flgAll | flgRej | flgHFlt | flgHAdj},
+    {"&Floated horizontally", flgHFlt, flgAll | flgRej | flgHFix | flgHAdj},
+    {"Adjust &horizontally", flgHAdj, flgAll | flgRej | flgHFix | flgHFlt},
+    {"Fi&xed vertically", flgVFix, flgAll | flgRej | flgVFlt | flgVAdj},
+    {"Fl&oated vertically", flgVFlt, flgAll | flgRej | flgVFix | flgVAdj},
+    {"Adjust &vertically", flgVAdj, flgAll | flgRej | flgVFix | flgVFlt},
+    {"Re&jected", flgRej, flgAll | flgHFix | flgVFix | flgHFlt | flgVFlt | flgHAdj | flgVAdj}};
 
 enum { scAll, scStatus, scHorAdj, scHorErr, scVrtAdj, scVrtErr, scOrder };
 
 // The horizontal and vertical error labels depend on the error options, so the
 // dialog constructor fills them in.
 
-static std::vector<ListControlOption> stnCriteria =
-{
-    {"All stations", scAll},
-    {"By status (select on right ->)", scStatus},
-    {"Horizontal adjustment > threshold", scHorAdj},
-    {"", scHorErr},
-    {"Vertical adjustment > threshold", scVrtAdj},
-    {"", scVrtErr},
-    {"Station order = threshold", scOrder }
-};
+static std::vector<ListControlOption> stnCriteria = {{"All stations", scAll},
+                                                     {"By status (select on right ->)", scStatus},
+                                                     {"Horizontal adjustment > threshold", scHorAdj},
+                                                     {"", scHorErr},
+                                                     {"Vertical adjustment > threshold", scVrtAdj},
+                                                     {"", scVrtErr},
+                                                     {"Station order = threshold", scOrder}};
 
-static const std::vector<ListControlOption> obsHighlightOptions =
-{
-    {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE },
-    {"&Between highlighted stations", PCONN_HIGHLIGHT_IF_BOTH },
-    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER }
-};
+static const std::vector<ListControlOption> obsHighlightOptions = {
+    {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE},
+    {"&Between highlighted stations", PCONN_HIGHLIGHT_IF_BOTH},
+    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER}};
 
-class StationHighlightDialog : public wxSimpleDialog
-{
-public:
-    StationHighlightDialog( bool hideShow, wxHelpController *help );
+class StationHighlightDialog : public wxSimpleDialog {
+ public:
+    StationHighlightDialog(bool hideShow, wxHelpController* help);
     void ApplyChanges();
-protected:
 
+ protected:
     void ReadData() override;
 
-private:
-    void OnAddStations( wxCommandEvent & WXUNUSED(event) ) { SelectStations( true ); }
-    void OnRemoveStations( wxCommandEvent & WXUNUSED(event) ) { SelectStations( false ); }
-    void OnClearStations( wxCommandEvent &event );
-    void SelectStations( bool select );
-    void OnIdle( wxIdleEvent &event );
+ private:
+    void OnAddStations(wxCommandEvent& WXUNUSED(event)) {
+        SelectStations(true);
+    }
+    void OnRemoveStations(wxCommandEvent& WXUNUSED(event)) {
+        SelectStations(false);
+    }
+    void OnClearStations(wxCommandEvent& event);
+    void SelectStations(bool select);
+    void OnIdle(wxIdleEvent& event);
 
     bool hideShow;
-    wxStationSelectorGrid *stationSelector;
+    wxStationSelectorGrid* stationSelector;
     bool falseOption;
     bool showHiddenStnObs;
     int obsHighlightOption;
@@ -91,22 +83,20 @@ private:
     int nSelected;
 
     wxString stnSelValue;
-    wxRadioBox *rbSelOpt;
-    wxTextCtrl *txtSelValue;
-    wxCheckBox *cbOption[ nStationSelectionOptions ];
-    wxStaticText *lbStationCount;
+    wxRadioBox* rbSelOpt;
+    wxTextCtrl* txtSelValue;
+    wxCheckBox* cbOption[nStationSelectionOptions];
+    wxStaticText* lbStationCount;
 
     DECLARE_EVENT_TABLE()
 };
 
-BEGIN_EVENT_TABLE( StationHighlightDialog, wxSimpleDialog )
-    EVT_IDLE( StationHighlightDialog::OnIdle )
+BEGIN_EVENT_TABLE(StationHighlightDialog, wxSimpleDialog)
+EVT_IDLE(StationHighlightDialog::OnIdle)
 END_EVENT_TABLE()
 
-StationHighlightDialog::StationHighlightDialog( bool hideShow, wxHelpController *help ) :
-    wxSimpleDialog( hideShow ? "Hide stations" : "Highlight stations", 0),
-    hideShow( hideShow )
-{
+StationHighlightDialog::StationHighlightDialog(bool hideShow, wxHelpController* help)
+    : wxSimpleDialog(hideShow ? "Hide stations" : "Highlight stations", 0), hideShow(hideShow) {
     // MakeSizeable();
     falseOption = false;
     stnSelOpt = scAll;
@@ -114,178 +104,155 @@ StationHighlightDialog::StationHighlightDialog( bool hideShow, wxHelpController 
     nSelected = -1;
 
     const std::string errorType = aposteriori_errors ? "A posteriori" : "A priori";
-    const auto errorLabel = [&]( const std::string &direction )
-    {
+    const auto errorLabel = [&](const std::string& direction) {
         return use_confidence_limit
-               ? errorType + " " + format_fixed( confidence_limit, 1 ) + "% " + direction + " conf lim > threshold"
-               : errorType + " " + direction + " error > threshold";
+                   ? errorType + " " + format_fixed(confidence_limit, 1) + "% " + direction + " conf lim > threshold"
+                   : errorType + " " + direction + " error > threshold";
     };
-    stnCriteria[3].name = errorLabel( "horizontal" );   // the scHorErr entry
-    stnCriteria[5].name = errorLabel( "vertical" );     // the scVrtErr entry
+    stnCriteria[3].name = errorLabel("horizontal");  // the scHorErr entry
+    stnCriteria[5].name = errorLabel("vertical");    // the scVrtErr entry
 
-    wxBoxSizer *box1 = new wxBoxSizer( wxHORIZONTAL );
-    wxBoxSizer *bxCol1 = new wxBoxSizer( wxVERTICAL );
-    stationSelector = new wxStationSelectorGrid( this );
-    stationSelector->SetSize( wxSize( GetCharWidth()*40, GetCharHeight()*30) );
-    stationSelector->SetMinSize( wxSize( GetCharWidth()*40, GetCharHeight()*30) );
+    wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* bxCol1 = new wxBoxSizer(wxVERTICAL);
+    stationSelector = new wxStationSelectorGrid(this);
+    stationSelector->SetSize(wxSize(GetCharWidth() * 40, GetCharHeight() * 30));
+    stationSelector->SetMinSize(wxSize(GetCharWidth() * 40, GetCharHeight() * 30));
 
-    bxCol1->Add( stationSelector, wxSizerFlags().Expand().Proportion(1)  );
-    bxCol1->AddSpacer( GetCharHeight() );
+    bxCol1->Add(stationSelector, wxSizerFlags().Expand().Proportion(1));
+    bxCol1->AddSpacer(GetCharHeight());
     lbStationCount = Label("   ");
-    bxCol1->Add( lbStationCount );
-    box1->Add( bxCol1, wxSizerFlags().Expand().Proportion(1) );
-    box1->AddSpacer( GetCharWidth()*2 );
+    bxCol1->Add(lbStationCount);
+    box1->Add(bxCol1, wxSizerFlags().Expand().Proportion(1));
+    box1->AddSpacer(GetCharWidth() * 2);
 
-    wxBoxSizer *box2 = new wxBoxSizer( wxVERTICAL );
-    box2->Add( Label("Stations to change") );
-    wxBoxSizer *bxStn1 = new wxBoxSizer( wxHORIZONTAL );
-    rbSelOpt = RadioBox( stnSelOpt, stnCriteria );
-    bxStn1->Add( rbSelOpt );
-    bxStn1->AddSpacer( GetCharWidth()*2 );
+    wxBoxSizer* box2 = new wxBoxSizer(wxVERTICAL);
+    box2->Add(Label("Stations to change"));
+    wxBoxSizer* bxStn1 = new wxBoxSizer(wxHORIZONTAL);
+    rbSelOpt = RadioBox(stnSelOpt, stnCriteria);
+    bxStn1->Add(rbSelOpt);
+    bxStn1->AddSpacer(GetCharWidth() * 2);
 
-    wxBoxSizer *bxStn2 = new wxBoxSizer( wxVERTICAL );
-    bxStn2->AddSpacer( GetCharHeight() );
-    bxStn2->Add( Label( "Status options" ) );
+    wxBoxSizer* bxStn2 = new wxBoxSizer(wxVERTICAL);
+    bxStn2->AddSpacer(GetCharHeight());
+    bxStn2->Add(Label("Status options"));
 
-    for( int i = 0; i < nStationSelectionOptions; i++ )
-    {
-        cbOption[i] = CheckBox( stationSelectionOption[i].label, falseOption );
-        cbOption[i]->SetValue( false );
-        bxStn2->Add( cbOption[i] );
+    for (int i = 0; i < nStationSelectionOptions; i++) {
+        cbOption[i] = CheckBox(stationSelectionOption[i].label, falseOption);
+        cbOption[i]->SetValue(false);
+        bxStn2->Add(cbOption[i]);
     }
-    bxStn2->AddSpacer( GetCharHeight() );
-    wxBoxSizer *bxStn3 = new wxBoxSizer( wxHORIZONTAL );
-    bxStn3->Add( Label("Threshold: ") );
-    txtSelValue = TextBox( stnSelValue, 10 );
-    bxStn3->Add( txtSelValue );
-    bxStn2->Add( bxStn3 );
+    bxStn2->AddSpacer(GetCharHeight());
+    wxBoxSizer* bxStn3 = new wxBoxSizer(wxHORIZONTAL);
+    bxStn3->Add(Label("Threshold: "));
+    txtSelValue = TextBox(stnSelValue, 10);
+    bxStn3->Add(txtSelValue);
+    bxStn2->Add(bxStn3);
 
-    bxStn1->Add( bxStn2 );
-    box2->Add( bxStn1 );
+    bxStn1->Add(bxStn2);
+    box2->Add(bxStn1);
 
-    box2->AddSpacer( GetCharHeight() );
+    box2->AddSpacer(GetCharHeight());
 
-    wxBoxSizer *box3 = new wxBoxSizer( wxHORIZONTAL );
-    int const buttonSpace = GetCharWidth();
-    wxButton *defaultButton = Button( "&Add", wxCommandEventHandler( StationHighlightDialog::OnAddStations ));
-    box3->Add( defaultButton );
+    wxBoxSizer* box3 = new wxBoxSizer(wxHORIZONTAL);
+    const int buttonSpace = GetCharWidth();
+    wxButton* defaultButton = Button("&Add", wxCommandEventHandler(StationHighlightDialog::OnAddStations));
+    box3->Add(defaultButton);
     box3->AddSpacer(buttonSpace);
-    box3->Add( Button( "&Remove", wxCommandEventHandler( StationHighlightDialog::OnRemoveStations )) );
+    box3->Add(Button("&Remove", wxCommandEventHandler(StationHighlightDialog::OnRemoveStations)));
     box3->AddSpacer(buttonSpace);
-    box3->Add( Button( "&Clear all", wxCommandEventHandler( StationHighlightDialog::OnClearStations )) );
+    box3->Add(Button("&Clear all", wxCommandEventHandler(StationHighlightDialog::OnClearStations)));
     defaultButton->SetDefault();
-    box2->Add( box3 );
+    box2->Add(box3);
 
-    box2->AddSpacer( GetCharHeight() );
+    box2->AddSpacer(GetCharHeight());
 
-    if( ! hideShow )
-    {
-        box2->Add(
-            RadioBox( obsHighlightOption, obsHighlightOptions, "Highlight observations" )
-        );
+    if (!hideShow) {
+        box2->Add(RadioBox(obsHighlightOption, obsHighlightOptions, "Highlight observations"));
+    } else {
+        box2->Add(CheckBox("Show observations to hidden stations", showHiddenStnObs));
     }
-    else
-    {
-        box2->Add( CheckBox( "Show observations to hidden stations", showHiddenStnObs ) );
-    }
-
 
     box2->AddStretchSpacer();
-    wxBoxSizer *box4 = new wxBoxSizer( wxHORIZONTAL );
-    box4->Add( new wxButton(this, wxID_CANCEL, "&OK" ));
+    wxBoxSizer* box4 = new wxBoxSizer(wxHORIZONTAL);
+    box4->Add(new wxButton(this, wxID_CANCEL, "&OK"));
 
-    if( help )
-    {
+    if (help) {
         box4->AddSpacer(buttonSpace);
-        box4->Add( new wxButton(this, wxID_HELP ));
-        if( hideShow )
-        {
-            SetupHelp( help, HELPBASE "dlg_hideshow_stations.html");
-        }
-        else
-        {
-            SetupHelp( help, HELPBASE "dlg_highlight_stations.html");
+        box4->Add(new wxButton(this, wxID_HELP));
+        if (hideShow) {
+            SetupHelp(help, HELPBASE "dlg_hideshow_stations.html");
+        } else {
+            SetupHelp(help, HELPBASE "dlg_highlight_stations.html");
         }
     }
     box4->AddSpacer(buttonSpace);
 
-    box2->Add( box4, wxSizerFlags().Right() );
+    box2->Add(box4, wxSizerFlags().Right());
 
-    box1->Add( box2, wxSizerFlags().Expand() );
+    box1->Add(box2, wxSizerFlags().Expand());
 
-    AddSizer( box1, wxSizerFlags().Border().Expand().Proportion(1) );
+    AddSizer(box1, wxSizerFlags().Border().Expand().Proportion(1));
     // AddSpacer();
 
     AddButtonsAndSize();
 }
 
-void StationHighlightDialog::ReadData()
-{
-    if( ! hideShow )
-    {
+void StationHighlightDialog::ReadData() {
+    if (!hideShow) {
         int hltOpt;
         double threshold;
-        get_obs_highlight_option( &hltOpt, &threshold );
+        get_obs_highlight_option(&hltOpt, &threshold);
         obsHighlightOption = hltOpt;
-    }
-    else
-    {
+    } else {
         showHiddenStnObs = (show_hidden_stn_obs != 0);
     }
 
-    for( int i = 0; i < stationSelector->StationCount(); i++ )
-    {
-        int const istn = stationSelector->StationNumber( i );
-        bool const select = hideShow ? (station_hidden(istn) != 0) : (station_highlighted( istn ) != 0);
-        stationSelector->Select( i, select  );
+    for (int i = 0; i < stationSelector->StationCount(); i++) {
+        const int istn = stationSelector->StationNumber(i);
+        const bool select = hideShow ? (station_hidden(istn) != 0) : (station_highlighted(istn) != 0);
+        stationSelector->Select(i, select);
     }
-
 }
 
 // Changes are always applied once the user exits the dialog ..
 
-void StationHighlightDialog::ApplyChanges()
-{
+void StationHighlightDialog::ApplyChanges() {
     TransferDataFromWindow();
-    if( ! hideShow )
-    {
+    if (!hideShow) {
         int hltOpt;
         double threshold;
-        get_obs_highlight_option( &hltOpt, &threshold );
-        set_obs_highlight_option( obsHighlightOption, threshold );
-    }
-    else
-    {
+        get_obs_highlight_option(&hltOpt, &threshold);
+        set_obs_highlight_option(obsHighlightOption, threshold);
+    } else {
         show_hidden_stn_obs = showHiddenStnObs ? 1 : 0;
     }
 
-    for( int i = 0; i < stationSelector->StationCount(); i++ )
-    {
-        int const istn = stationSelector->StationNumber( i );
-        if( stationSelector->IsSelected(i) )
-        {
-            if( hideShow ) { hide_station(istn); }
-            else { highlight_station( istn ); }
-        }
-        else
-        {
-            if( hideShow ) { unhide_station(istn); }
-            else { unhighlight_station( istn ); }
+    for (int i = 0; i < stationSelector->StationCount(); i++) {
+        const int istn = stationSelector->StationNumber(i);
+        if (stationSelector->IsSelected(i)) {
+            if (hideShow) {
+                hide_station(istn);
+            } else {
+                highlight_station(istn);
+            }
+        } else {
+            if (hideShow) {
+                unhide_station(istn);
+            } else {
+                unhighlight_station(istn);
+            }
         }
     }
 }
 
-void StationHighlightDialog::OnClearStations( wxCommandEvent & WXUNUSED(event) )
-{
-    for( int i= 0; i < stationSelector->StationCount(); i++ )
-    {
-        stationSelector->Select( i, false );
+void StationHighlightDialog::OnClearStations(wxCommandEvent& WXUNUSED(event)) {
+    for (int i = 0; i < stationSelector->StationCount(); i++) {
+        stationSelector->Select(i, false);
     }
     stationSelector->Refresh();
 }
 
-void StationHighlightDialog::SelectStations( bool select )
-{
+void StationHighlightDialog::SelectStations(bool select) {
     unsigned char mask = 0;
     int i;
     int iorder = 0;
@@ -294,141 +261,134 @@ void StationHighlightDialog::SelectStations( bool select )
     stnSelOpt = stnCriteria[rbSelOpt->GetSelection()].value;
     // rbSelOpt->SetSelection(0);
 
-    if( stnSelOpt == scAll )
-    {
-    }
-    else if( stnSelOpt == scStatus )
-    {
-        for( i = 0; i < nStationSelectionOptions; i++ )
-        {
-            if( cbOption[i]->IsChecked() )
-            {
+    if (stnSelOpt == scAll) {
+    } else if (stnSelOpt == scStatus) {
+        for (i = 0; i < nStationSelectionOptions; i++) {
+            if (cbOption[i]->IsChecked()) {
                 mask |= stationSelectionOption[i].mask;
             }
         }
-        if( ! mask ) { return;
-}
-    }
-    else if( stnSelOpt == scOrder )
-    {
-        wxString const strOrder = txtSelValue->GetValue().Trim().Trim(false);
-        iorder = net->order_id( strOrder.ToStdString(), 0 );
-        if( iorder <= 0 ) { return;
-}
-    }
-    else
-    {
-        wxString const strValue = txtSelValue->GetValue();
-        if( ! strValue.ToDouble( & value ) )
-        {
-            wxMessageBox("Threshold value must be a number","Error",wxOK | wxICON_EXCLAMATION );
+        if (!mask) {
             return;
         }
-        if( stnSelOpt == scHorErr && errell_factor > 0.0 ) { value /= errell_factor;
-}
-        if( stnSelOpt == scVrtErr && hgterr_factor > 0.0 ) { value /= hgterr_factor;
-}
+    } else if (stnSelOpt == scOrder) {
+        const wxString strOrder = txtSelValue->GetValue().Trim().Trim(false);
+        iorder = net->order_id(strOrder.ToStdString(), 0);
+        if (iorder <= 0) {
+            return;
+        }
+    } else {
+        const wxString strValue = txtSelValue->GetValue();
+        if (!strValue.ToDouble(&value)) {
+            wxMessageBox("Threshold value must be a number", "Error", wxOK | wxICON_EXCLAMATION);
+            return;
+        }
+        if (stnSelOpt == scHorErr && errell_factor > 0.0) {
+            value /= errell_factor;
+        }
+        if (stnSelOpt == scVrtErr && hgterr_factor > 0.0) {
+            value /= hgterr_factor;
+        }
     }
 
-    for( i= 0; i < stationSelector->StationCount(); i++ )
-    {
+    for (i = 0; i < stationSelector->StationCount(); i++) {
         // No point testing station if status won't be changed..
-        bool const selected = stationSelector->IsSelected(i);
-        if( selected == select ) { continue;
-}
+        const bool selected = stationSelector->IsSelected(i);
+        if (selected == select) {
+            continue;
+        }
 
-        station *st = nullptr;
-        stn_adjustment *sa = nullptr;
-        int const istn = stationSelector->StationNumber( i );
-        st = stnptr( istn );
+        station* st = nullptr;
+        stn_adjustment* sa = nullptr;
+        const int istn = stationSelector->StationNumber(i);
+        st = stnptr(istn);
 
-        if( ! st ) { continue;
-}
-        sa = stnadj( st );
+        if (!st) {
+            continue;
+        }
+        sa = stnadj(st);
 
         // For each criteria type apply the tests, and continue
         // loop if not met...
 
-        if( stnSelOpt == scAll )
-        {
-        }
-        else if( stnSelOpt == scStatus )
-        {
-            if( ! sa ) { continue;
-}
+        if (stnSelOpt == scAll) {
+        } else if (stnSelOpt == scStatus) {
+            if (!sa) {
+                continue;
+            }
             unsigned char stnMask = flgAll;
-            if( sa->flag.rejected )
-            {
+            if (sa->flag.rejected) {
                 stnMask |= flgRej;
-            }
-            else
-            {
-                if( sa->flag.adj_h )
-                {
-                    if( sa->flag.float_h ) { stnMask |= flgHFlt; } else { stnMask |= flgHAdj;
-}
+            } else {
+                if (sa->flag.adj_h) {
+                    if (sa->flag.float_h) {
+                        stnMask |= flgHFlt;
+                    } else {
+                        stnMask |= flgHAdj;
+                    }
+                } else {
+                    stnMask |= flgHFix;
                 }
-                else { stnMask |= flgHFix;
-}
-                if( sa->flag.adj_v )
-                {
-                    if( sa->flag.float_v ) { stnMask |= flgVFlt; } else { stnMask |= flgVAdj;
-}
+                if (sa->flag.adj_v) {
+                    if (sa->flag.float_v) {
+                        stnMask |= flgVFlt;
+                    } else {
+                        stnMask |= flgVAdj;
+                    }
+                } else {
+                    stnMask |= flgVFix;
                 }
-                else { stnMask |= flgVFix;
-}
             }
-            if( ! ((mask & stnMask) == mask) ) { continue;
-}
-        }
-        else if( stnSelOpt == scOrder )
-        {
-            int const orderid = st->get_class( net->orderclsid );
-            if( orderid != iorder ) { continue;
-}
-        }
-        else
-        {
+            if (!((mask & stnMask) == mask)) {
+                continue;
+            }
+        } else if (stnSelOpt == scOrder) {
+            const int orderid = st->get_class(net->orderclsid);
+            if (orderid != iorder) {
+                continue;
+            }
+        } else {
             double emax;
             double emin;
             double b1;
             double dxyz[3];
 
-            if( ! sa ) { continue;
-}
-            double testValue = 0.0;
-            switch( stnSelOpt )
-            {
-            case scHorErr:
-                get_error_ellipse( istn, &emax, &emin, &b1 );
-                testValue = emax;
-                break;
-
-            case scHorAdj:
-                get_station_adjustment( istn, dxyz );
-                testValue = _hypot(dxyz[0],dxyz[1]);
-                break;
-
-            case scVrtErr:
-                get_height_error( istn, &testValue );
-                break;
-
-            case scVrtAdj:
-                get_station_adjustment( istn, dxyz );
-                testValue = fabs(dxyz[2]);
-                break;
-
-            default:
+            if (!sa) {
                 continue;
-                break;
+            }
+            double testValue = 0.0;
+            switch (stnSelOpt) {
+                case scHorErr:
+                    get_error_ellipse(istn, &emax, &emin, &b1);
+                    testValue = emax;
+                    break;
+
+                case scHorAdj:
+                    get_station_adjustment(istn, dxyz);
+                    testValue = _hypot(dxyz[0], dxyz[1]);
+                    break;
+
+                case scVrtErr:
+                    get_height_error(istn, &testValue);
+                    break;
+
+                case scVrtAdj:
+                    get_station_adjustment(istn, dxyz);
+                    testValue = fabs(dxyz[2]);
+                    break;
+
+                default:
+                    continue;
+                    break;
             }
 
-            if( testValue <= value ) { continue;
-}
+            if (testValue <= value) {
+                continue;
+            }
         }
 
         // If got this far then apply the new selection option
-        stationSelector->Select( i, select );
+        stationSelector->Select(i, select);
     }
     stationSelector->Refresh();
 }
@@ -436,20 +396,20 @@ void StationHighlightDialog::SelectStations( bool select )
 // Unnecessary overhead as seems to be continuous idle events, but
 // easiest way to ensure selections on list directly are counted.
 
-void StationHighlightDialog::OnIdle( wxIdleEvent & WXUNUSED(event) )
-{
+void StationHighlightDialog::OnIdle(wxIdleEvent& WXUNUSED(event)) {
     int nSel = 0;
-    for( int i = 0; i < stationSelector->StationCount(); i++ )
-    {
-        if( stationSelector->IsSelected(i) ) { nSel++; }
+    for (int i = 0; i < stationSelector->StationCount(); i++) {
+        if (stationSelector->IsSelected(i)) {
+            nSel++;
+        }
     }
-    if( nSel == nSelected ) { return;
-}
+    if (nSel == nSelected) {
+        return;
+    }
     nSelected = nSel;
-    wxString const labelStr = wxString::Format("%d/%d stations %s",
-                                         nSelected, stationSelector->StationCount(),
-                                         hideShow ? " are hidden" : " are highlighted" );
-    lbStationCount->SetLabel( labelStr );
+    const wxString labelStr = wxString::Format("%d/%d stations %s", nSelected, stationSelector->StationCount(),
+                                               hideShow ? " are hidden" : " are highlighted");
+    lbStationCount->SetLabel(labelStr);
 }
 
 // TODO: see if I can fix this
@@ -470,9 +430,8 @@ void StationHighlightDialog::HandleSelectionButton( void *p ) {
 
    */
 
-bool SetupStationHighlights( bool hideShow, wxHelpController *help )
-{
-    StationHighlightDialog dlg( hideShow, help );
+bool SetupStationHighlights(bool hideShow, wxHelpController* help) {
+    StationHighlightDialog dlg(hideShow, help);
     dlg.RunDialog();
     dlg.ApplyChanges();
     return true;

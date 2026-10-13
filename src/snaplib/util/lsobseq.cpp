@@ -20,17 +20,13 @@
 
 #include "util/lsobseq.h"
 
-
 #define ROW_INC 5
 #define COL_INC 5
 
-
 /*================================================================*/
 
-
-void *create_oe( int nprm )
-{
-    obseqn *A = new obseqn;
+void* create_oe(int nprm) {
+    obseqn* A = new obseqn;
     A->nrow = A->maxrow = A->maxcol = 0;
     A->maxelt = 0;
     A->obs = nullptr;
@@ -39,64 +35,57 @@ void *create_oe( int nprm )
     return A;
 }
 
-
-void delete_oe( void *hA )
-{
-    obseqn *A = static_cast<obseqn *>( hA );
-    for( int i = 0; i<A->maxrow; i++ )
-    {
-        delete [] A->obs[i]->col;
-        delete [] A->obs[i]->val;
+void delete_oe(void* hA) {
+    obseqn* A = static_cast<obseqn*>(hA);
+    for (int i = 0; i < A->maxrow; i++) {
+        delete[] A->obs[i]->col;
+        delete[] A->obs[i]->val;
         delete A->obs[i];
     }
-    delete [] A->obs;
-    delete [] A->cvr;
+    delete[] A->obs;
+    delete[] A->cvr;
     delete A;
 }
 
-
-void init_oe( void *hA, int nrow, int ncol, char options )
-{
+void init_oe(void* hA, int nrow, int ncol, char options) {
     int i;
     long nelt;
     int maxrow;
     int addcol;
-    obsrow **obs;
-    obseqn *A;
+    obsrow** obs;
+    obseqn* A;
 
-    A = (obseqn *) hA;
+    A = (obseqn*)hA;
 
     /* Free up rows that are too int */
 
     obs = A->obs;
     addcol = A->maxrow;
-    if( ncol <= 0 ) { ncol = 1;
-}
-    if( nrow <= 0 ) { nrow = 1;
-}
+    if (ncol <= 0) {
+        ncol = 1;
+    }
+    if (nrow <= 0) {
+        nrow = 1;
+    }
 
-    if(ncol>A->maxcol)
-    {
-        for( i=0; i<A->maxrow; i++ )
-        {
-            delete [] obs[i]->col;
-            delete [] obs[i]->val;
+    if (ncol > A->maxcol) {
+        for (i = 0; i < A->maxrow; i++) {
+            delete[] obs[i]->col;
+            delete[] obs[i]->val;
         }
-        A->maxcol = ncol+COL_INC;
+        A->maxcol = ncol + COL_INC;
         addcol = 0;
     }
 
     /* Ensure that the array of rows is sufficiently large */
 
-    if(nrow>A->maxrow)
-    {
+    if (nrow > A->maxrow) {
         maxrow = nrow + ROW_INC;
-        obsrow **newobs = new obsrow *[maxrow];
-        std::copy( obs, obs + A->maxrow, newobs );
-        delete [] obs;
+        obsrow** newobs = new obsrow*[maxrow];
+        std::copy(obs, obs + A->maxrow, newobs);
+        delete[] obs;
         obs = newobs;
-        for ( i=maxrow; --i>=A->maxrow; )
-        {
+        for (i = maxrow; --i >= A->maxrow;) {
             obs[i] = new obsrow;
         }
         A->maxrow = maxrow;
@@ -105,8 +94,7 @@ void init_oe( void *hA, int nrow, int ncol, char options )
 
     /* Allocate memory for the rows of observations and implicit parameters */
 
-    for (i=addcol; i<A->maxrow; i++ )
-    {
+    for (i = addcol; i < A->maxrow; i++) {
         obs[i]->col = new int[A->maxcol];
         obs[i]->val = new double[A->maxcol];
     }
@@ -115,8 +103,7 @@ void init_oe( void *hA, int nrow, int ncol, char options )
 
     A->nrow = nrow;
     A->flag = options;
-    for (i=0; i<nrow; i++)
-    {
+    for (i = 0; i < nrow; i++) {
         obs[i]->ncol = 0;
         obs[i]->flag = 0;
         obs[i]->schv = 0.0;
@@ -125,180 +112,163 @@ void init_oe( void *hA, int nrow, int ncol, char options )
 
     /* Allocate memory for the weight matrix, and clear the matrix */
 
-    nelt = options & OE_DIAGONAL_CVR ? nrow : ((long)nrow * (nrow+1))/2;
-    if (nelt>A->maxelt)
-    {
-        delete [] A->cvr;
-        A->cvr = new double[nelt*2];
+    nelt = options & OE_DIAGONAL_CVR ? nrow : ((long)nrow * (nrow + 1)) / 2;
+    if (nelt > A->maxelt) {
+        delete[] A->cvr;
+        A->cvr = new double[nelt * 2];
         A->maxelt = nelt;
     }
     A->wgt = A->cvr + nelt;
-    for( ; nelt--; ) { A->cvr[nelt] = 0.0;
+    for (; nelt--;) {
+        A->cvr[nelt] = 0.0;
+    }
 }
-}
-
 
 /* All other initialisations defined as macros */
 
-void oe_add_param( obseqn *A, int irow, int c, double v )
-{
-    obsrow *obsr;
+void oe_add_param(obseqn* A, int irow, int c, double v) {
+    obsrow* obsr;
     int i;
-    int *cl;
-    obsr = A->obs[irow-1];
+    int* cl;
+    obsr = A->obs[irow - 1];
     cl = obsr->col;
-    c = c-1;
-    for( i=0; i<obsr->ncol; i++, cl++) { if (*cl==c) { obsr->val[i]+=v; return;}
-}
-    *cl=c; obsr->val[i]=v; obsr->ncol = ++i;
+    c = c - 1;
+    for (i = 0; i < obsr->ncol; i++, cl++) {
+        if (*cl == c) {
+            obsr->val[i] += v;
+            return;
+        }
+    }
+    *cl = c;
+    obsr->val[i] = v;
+    obsr->ncol = ++i;
 }
 
-
-void oe_covar( void *hA, int irow, int icol, double v )
-{
-    obseqn *A;
+void oe_covar(void* hA, int irow, int icol, double v) {
+    obseqn* A;
     long ielt;
 
-    A = (obseqn *) hA;
+    A = (obseqn*)hA;
     irow--;
     icol--;
-    if( A->flag & OE_DIAGONAL_CVR )
-    {
-        if( irow == icol ) { A->cvr[irow] = v;
-}
-    }
-    else
-    {
-        if( irow > icol )
-        {
-            ielt = ((long)irow * (irow+1))/2 + icol;
+    if (A->flag & OE_DIAGONAL_CVR) {
+        if (irow == icol) {
+            A->cvr[irow] = v;
         }
-        else
-        {
-            ielt = ((long)icol * (icol+1))/2 + irow;
+    } else {
+        if (irow > icol) {
+            ielt = ((long)irow * (irow + 1)) / 2 + icol;
+        } else {
+            ielt = ((long)icol * (icol + 1)) / 2 + irow;
         }
         A->cvr[ielt] = v;
     }
 }
 
-void print_obseqn( FILE *out, void *hA )
-{
-    obseqn *A;
+void print_obseqn(FILE* out, void* hA) {
+    obseqn* A;
     int i;
     int j;
-    obsrow *obs;
+    obsrow* obs;
     ltmat wgt;
     double w;
 
-    A = (obseqn *) hA;
+    A = (obseqn*)hA;
 
     wgt = A->cvr;
-    for( i = 0; i++<A->nrow; )
-    {
-        obs = A->obs[i-1];
-        if( obs->flag & OE_UNUSED ) { fputs("*",out); } else { fputs(" ",out);
-}
-        fprintf(out,"%-2d ",(int) i);
-        fprintf(out,"%12.5le ",obs->obsv);
-        if( A->flag & OE_SCHREIBER )
-        {
-            fprintf(out,"%12s ","SCH");
+    for (i = 0; i++ < A->nrow;) {
+        obs = A->obs[i - 1];
+        if (obs->flag & OE_UNUSED) {
+            fputs("*", out);
+        } else {
+            fputs(" ", out);
         }
-        for( j = 0; j< obs->ncol; j++ )
-        {
-            fprintf(out,"%12d ",(int) (obs->col[j]+1));
+        fprintf(out, "%-2d ", (int)i);
+        fprintf(out, "%12.5le ", obs->obsv);
+        if (A->flag & OE_SCHREIBER) {
+            fprintf(out, "%12s ", "SCH");
         }
-        fprintf(out,"\n    ");
+        for (j = 0; j < obs->ncol; j++) {
+            fprintf(out, "%12d ", (int)(obs->col[j] + 1));
+        }
+        fprintf(out, "\n    ");
         w = *wgt;
-        if( w > 0.0 ) { w = sqrt(w);
-}
-        fprintf(out,"%12.5le ",w);
+        if (w > 0.0) {
+            w = sqrt(w);
+        }
+        fprintf(out, "%12.5le ", w);
         wgt += A->flag & OE_DIAGONAL_CVR ? 1 : i;
-        if( A->flag & OE_SCHREIBER )
-        {
-            fprintf(out,"%12.5le ",obs->schv);
+        if (A->flag & OE_SCHREIBER) {
+            fprintf(out, "%12.5le ", obs->schv);
         }
-        for( j = 0; j < obs->ncol; j++ )
-        {
-            fprintf(out,"%12.5le ",obs->val[j]);
+        for (j = 0; j < obs->ncol; j++) {
+            fprintf(out, "%12.5le ", obs->val[j]);
         }
-        fprintf(out,"\n\n");
+        fprintf(out, "\n\n");
     }
 
-    if( !(A->flag & OE_DIAGONAL_CVR ) )
-    {
-        print_ltmat( out, A->cvr, A->nrow, "%12.5le", 0 );
-        fprintf(out,"\n");
+    if (!(A->flag & OE_DIAGONAL_CVR)) {
+        print_ltmat(out, A->cvr, A->nrow, "%12.5le", 0);
+        fprintf(out, "\n");
     }
 }
 
-void print_obseqn_json( FILE *out, void *hA, const std::optional<std::string_view> source, const int nprefix )
-{
-    obseqn *A;
+void print_obseqn_json(FILE* out, void* hA, const std::optional<std::string_view> source, const int nprefix) {
+    obseqn* A;
     int i;
     int j;
-    obsrow *obs;
+    obsrow* obs;
     ltmat cvr;
 
-    A = (obseqn *) hA;
+    A = (obseqn*)hA;
     cvr = A->cvr;
 
-    fprintf( out, "{\n%*s",nprefix,"" );
-    if( source )
-    {
-        fprintf( out, "  \"source\": %.*s,\n%*s",boost::numeric_cast<int>(source->size()),source->data(),nprefix,"" );
+    fprintf(out, "{\n%*s", nprefix, "");
+    if (source) {
+        fprintf(out, "  \"source\": %.*s,\n%*s", boost::numeric_cast<int>(source->size()), source->data(), nprefix, "");
     }
-    fprintf( out, "  \"nobs\": %d,\n%*s", A->nrow,nprefix,"" );
-    fprintf( out, "  \"obs\": [\n%*s",nprefix,"");
-    for( i = 0; i++<A->nrow; )
-    {
-        obs = A->obs[i-1];
-        fprintf( out, "   {\n%*s",nprefix,"");
-        fprintf(out,"    \"value\": %15.8le,\n%*s",obs->obsv,nprefix,"");
-        if( A->flag & OE_SCHREIBER )
-        {
-            fprintf(out,"    \"schreiber\": %15.8le,\n%*s",obs->schv,nprefix,"");
+    fprintf(out, "  \"nobs\": %d,\n%*s", A->nrow, nprefix, "");
+    fprintf(out, "  \"obs\": [\n%*s", nprefix, "");
+    for (i = 0; i++ < A->nrow;) {
+        obs = A->obs[i - 1];
+        fprintf(out, "   {\n%*s", nprefix, "");
+        fprintf(out, "    \"value\": %15.8le,\n%*s", obs->obsv, nprefix, "");
+        if (A->flag & OE_SCHREIBER) {
+            fprintf(out, "    \"schreiber\": %15.8le,\n%*s", obs->schv, nprefix, "");
         }
-        fprintf(out,"    \"useobs\": %s,\n%*s",obs->flag & OE_UNUSED ? "false" : "true",nprefix,"" );
-        fprintf(out,"    \"ncolumns\": %d,\n%*s",obs->ncol,nprefix,"");
-        fprintf(out,"    \"columns\": [");
-        for( j = 0; j< obs->ncol; j++ )
-        {
-            fprintf(out,"%s%d",j ? ", " : "",(int) (obs->col[j]+1));
+        fprintf(out, "    \"useobs\": %s,\n%*s", obs->flag & OE_UNUSED ? "false" : "true", nprefix, "");
+        fprintf(out, "    \"ncolumns\": %d,\n%*s", obs->ncol, nprefix, "");
+        fprintf(out, "    \"columns\": [");
+        for (j = 0; j < obs->ncol; j++) {
+            fprintf(out, "%s%d", j ? ", " : "", (int)(obs->col[j] + 1));
         }
-        fprintf(out,"],\n%*s",nprefix,"");
-        fprintf(out,"    \"values\": [");
-        for( j = 0; j< obs->ncol; j++ )
-        {
-            fprintf(out,"%s%15.8le",j ? ", " : "",(obs->val[j]));
+        fprintf(out, "],\n%*s", nprefix, "");
+        fprintf(out, "    \"values\": [");
+        for (j = 0; j < obs->ncol; j++) {
+            fprintf(out, "%s%15.8le", j ? ", " : "", (obs->val[j]));
         }
-        fprintf(out,"]\n%*s",nprefix,"");
-        fprintf( out, "   }%s\n%*s", i < A->nrow ? "," : "",nprefix,"");
+        fprintf(out, "]\n%*s", nprefix, "");
+        fprintf(out, "   }%s\n%*s", i < A->nrow ? "," : "", nprefix, "");
     }
-    fprintf( out, "  ],\n%*s",nprefix,"");
-    if (A->flag & OE_DIAGONAL_CVR )
-    {
+    fprintf(out, "  ],\n%*s", nprefix, "");
+    if (A->flag & OE_DIAGONAL_CVR) {
         int ir;
-        fprintf( out, "  \"cvrdiag\": [\n%*s",nprefix,"" );
-        for( ir=0; ir < A->nrow; ir++ )
-        {
-            if( ir )
-            {
-                if( ir )
-                {
-                    fprintf(out,",");
-                    if( ir % 10 == 0 ) { fprintf(out,"\n%*s  ",nprefix,"");
-}
+        fprintf(out, "  \"cvrdiag\": [\n%*s", nprefix, "");
+        for (ir = 0; ir < A->nrow; ir++) {
+            if (ir) {
+                if (ir) {
+                    fprintf(out, ",");
+                    if (ir % 10 == 0) {
+                        fprintf(out, "\n%*s  ", nprefix, "");
+                    }
                 }
             }
-            fprintf( out, "%15.8le", cvr[ir] );
+            fprintf(out, "%15.8le", cvr[ir]);
         }
-        fprintf( out, "\n%*s  ]\n%*s",nprefix,"",nprefix,"");
+        fprintf(out, "\n%*s  ]\n%*s", nprefix, "", nprefix, "");
+    } else {
+        fprintf(out, "  \"cvr\": ");
+        print_ltmat_json(out, cvr, A->nrow, "%15.8le", nprefix);
     }
-    else
-    {
-        fprintf( out, "  \"cvr\": " );
-        print_ltmat_json(out,cvr,A->nrow,"%15.8le",nprefix);
-    }
-    fprintf( out, "}" );
+    fprintf(out, "}");
 }

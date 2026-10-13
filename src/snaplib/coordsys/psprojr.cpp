@@ -19,118 +19,85 @@
 #include "coordsys/psproj.h"
 #include "coordsys/psprojr.h"
 
-static int read_north_south( FieldScanner &scanner, void *address );
-static int print_north_south( output_string_def *os, void *address );
+static int read_north_south(FieldScanner& scanner, void* address);
+static int print_north_south(output_string_def* os, void* address);
 
-static param_def psparams[]  =
-{
-    {
-        "Pole","POLE",OFFSET_OF(south,PSProjection),
-        read_north_south, print_north_south, print_north_south
-    },
-    {
-        "Central meridian","CM",OFFSET_OF(cm,PSProjection),
-        read_radians, print_radians, print_longitude
-    },
-    {
-        "Scale factor","SF", OFFSET_OF(sf,PSProjection),
-        double_from_string, print_double3, print_double3
-    },
-    {
-        "False easting","FE", OFFSET_OF(fe,PSProjection),
-        double_from_string, print_double3, print_double3
-    },
-    {
-        "False northing", "FN", OFFSET_OF(fn,PSProjection),
-        double_from_string, print_double3, print_double3
-    },
+static param_def psparams[] = {
+    {"Pole", "POLE", OFFSET_OF(south, PSProjection), read_north_south, print_north_south, print_north_south},
+    {"Central meridian", "CM", OFFSET_OF(cm, PSProjection), read_radians, print_radians, print_longitude},
+    {"Scale factor", "SF", OFFSET_OF(sf, PSProjection), double_from_string, print_double3, print_double3},
+    {"False easting", "FE", OFFSET_OF(fe, PSProjection), double_from_string, print_double3, print_double3},
+    {"False northing", "FN", OFFSET_OF(fn, PSProjection), double_from_string, print_double3, print_double3},
 };
 
-static projection_type *ps_type = nullptr;
+static projection_type* ps_type = nullptr;
 
-
-static int ps_bind_ellipsoid( void *data, ellipsoid *el )
-{
-    PSProjection *ps;
-    ps = (PSProjection *) data;
-    define_PSProjection( ps, el->a, el->rf,
-                         ps->cm, ps->sf, ps->fe, ps->fn, ps->south );
+static int ps_bind_ellipsoid(void* data, ellipsoid* el) {
+    PSProjection* ps;
+    ps = (PSProjection*)data;
+    define_PSProjection(ps, el->a, el->rf, ps->cm, ps->sf, ps->fe, ps->fn, ps->south);
     return OK;
 }
 
-static int ps_proj_to_geog( void *data, double e, double n, double *ln, double *lt )
-{
-    psp_geod( (PSProjection *) data, e, n, ln, lt );
+static int ps_proj_to_geog(void* data, double e, double n, double* ln, double* lt) {
+    psp_geod((PSProjection*)data, e, n, ln, lt);
     return OK;
 }
 
-static int ps_geog_to_proj( void *data, double ln, double lt, double *e, double *n )
-{
-    geod_psp( (PSProjection *) data, ln, lt, e, n );
+static int ps_geog_to_proj(void* data, double ln, double lt, double* e, double* n) {
+    geod_psp((PSProjection*)data, ln, lt, e, n);
     return OK;
 }
 
-void register_ps_projection( void )
-{
-    if( ps_type ) { return;
+void register_ps_projection(void) {
+    if (ps_type) {
+        return;
+    }
+
+    ps_type = register_projection_type(
+        new projection_type("PS", "Polar Stereographic", sizeof(PSProjection), psparams, COUNT_OF(psparams), nullptr,
+                            nullptr, nullptr, ps_bind_ellipsoid, nullptr, ps_geog_to_proj, ps_proj_to_geog, nullptr));
 }
 
-    ps_type = register_projection_type( new projection_type(
-        "PS", "Polar Stereographic", sizeof(PSProjection), psparams, COUNT_OF(psparams),
-        nullptr, nullptr, nullptr, ps_bind_ellipsoid, nullptr,
-        ps_geog_to_proj, ps_proj_to_geog, nullptr ) );
-}
+projection* create_ps_projection(double cm, double sf, double fe, double fn, char south) {
+    projection* prj;
 
-projection *create_ps_projection(  double cm, double sf,
-                                   double fe, double fn, char south )
-{
-    projection *prj;
+    if (!ps_type) {
+        register_ps_projection();
+    }
+    if (!ps_type) {
+        return nullptr;
+    }
 
-    if( !ps_type ) { register_ps_projection();
-}
-    if( !ps_type ) { return nullptr;
-}
+    prj = new projection(*ps_type);
 
-    prj = new projection( *ps_type );
-
-    define_PSProjection( (PSProjection *) prj->data, 6378388.0, 297.0,
-                         cm, sf, fe, fn, south);
+    define_PSProjection((PSProjection*)prj->data, 6378388.0, 297.0, cm, sf, fe, fn, south);
 
     return prj;
 }
 
-static int read_north_south( FieldScanner &scanner, void *address )
-{
+static int read_north_south(FieldScanner& scanner, void* address) {
     std::string def;
-    int sts = next_string_field( scanner, def, 10 );
-    if( sts != OK ) { return sts;
-}
-    if( boost::algorithm::iequals(def,"north") )
-    {
-        *(char *)address = 0;
+    int sts = next_string_field(scanner, def, 10);
+    if (sts != OK) {
+        return sts;
     }
-    else if( boost::algorithm::iequals(def,"south") )
-    {
-        *(char *) address = 1;
-    }
-    else
-    {
+    if (boost::algorithm::iequals(def, "north")) {
+        *(char*)address = 0;
+    } else if (boost::algorithm::iequals(def, "south")) {
+        *(char*)address = 1;
+    } else {
         sts = INVALID_DATA;
     }
     return sts;
 }
 
-static int print_north_south( output_string_def *os, void *address )
-{
+static int print_north_south(output_string_def* os, void* address) {
     int sts;
-    if( *(char *)address )
-    {
-        sts = write_output_string( os, "South" );
-    }
-    else
-    {
-        sts = write_output_string( os, "North" );
+    if (*(char*)address) {
+        sts = write_output_string(os, "South");
+    } else {
+        sts = write_output_string(os, "North");
     }
     return sts;
 }
-

@@ -3,9 +3,8 @@
 
 #include "wx_includes.hpp"
 
-class SnapplotApp: public wxApp
-{
-public:
+class SnapplotApp : public wxApp {
+ public:
     SnapplotApp() = default;
 
     bool OnInit() override;

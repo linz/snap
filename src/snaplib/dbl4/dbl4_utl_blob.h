@@ -24,26 +24,24 @@
    to the implementation.
 */
 
-StatusType utlReadBlobDB( void *pvBlob, long lngOffset,
-                          long lngBufSize, void *pvBuffer );
+StatusType utlReadBlobDB(void* pvBlob, long lngOffset, long lngBufSize, void* pvBuffer);
 
-void utlReleaseBlobDB( void *pvBlob );
+void utlReleaseBlobDB(void* pvBlob);
 
-StatusType utlSeekBlobDB( void *pvBlob, long position, int whence );
+StatusType utlSeekBlobDB(void* pvBlob, long position, int whence);
 
-StatusType utlTellBlobDB( void *pvBlob, long *position );
+StatusType utlTellBlobDB(void* pvBlob, long* position);
 
-StatusType utlWriteBlobDB( void *blob, long lngBufSize, void *pvBuffer );
+StatusType utlWriteBlobDB(void* blob, long lngBufSize, void* pvBuffer);
 
-struct BlobType
-{
-    void *pvBlob = nullptr;      ///< Data blob read/write functions
+struct BlobType {
+    void* pvBlob = nullptr;  ///< Data blob read/write functions
 };
-using hBlob = BlobType *;
+using hBlob = BlobType*;
 
-#define BLOB_SEEK_SET    0
-#define BLOB_SEEK_CUR    1
-#define BLOB_SEEK_END    2
+#define BLOB_SEEK_SET 0
+#define BLOB_SEEK_CUR 1
+#define BLOB_SEEK_END 2
 
 /* Generic functions using the BlobType object.  The utlCreateHandle function
    allocates the BlobType object, but doesn't set any useful information within
@@ -51,17 +49,16 @@ using hBlob = BlobType *;
    constructor functions.
 */
 
-StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob );
+StatusType utlCreateBlobHandle(DBHandle conn, hBlob* blob);
 
-StatusType utlBlobClose( hBlob blob);
+StatusType utlBlobClose(hBlob blob);
 
-StatusType utlBlobReadAt( hBlob blob, long lngOffset, long lngBufSize,
-                          void * pvBuffer);
+StatusType utlBlobReadAt(hBlob blob, long lngOffset, long lngBufSize, void* pvBuffer);
 
-StatusType utlBlobWrite( hBlob blob, long lngBufSize, void *buffer );
+StatusType utlBlobWrite(hBlob blob, long lngBufSize, void* buffer);
 
-StatusType utlBlobSeek( hBlob blob, long position, int whence );
+StatusType utlBlobSeek(hBlob blob, long position, int whence);
 
-StatusType utlBlobTell( hBlob blob, long *position );
+StatusType utlBlobTell(hBlob blob, long* position);
 
 #endif /* DBL4_UTL_BLOB_H not defined */

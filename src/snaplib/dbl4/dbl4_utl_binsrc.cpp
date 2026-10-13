@@ -31,7 +31,6 @@
 #include "dbl4_utl_error.h"
 #include "dbl4_utl_blob.h"
 
-
 /*************************************************************************
 ** Function name: swap2
 **//**
@@ -44,15 +43,12 @@
 **************************************************************************
 */
 
-static void swap2( unsigned char *b )
-{
+static void swap2(unsigned char* b) {
     unsigned char tmp;
     tmp = b[0];
     b[0] = b[1];
     b[1] = tmp;
 }
-
-
 
 /*************************************************************************
 ** Function name: swap4
@@ -66,8 +62,7 @@ static void swap2( unsigned char *b )
 **************************************************************************
 */
 
-static void swap4( unsigned char *b )
-{
+static void swap4(unsigned char* b) {
     unsigned char tmp;
     tmp = b[0];
     b[0] = b[3];
@@ -76,8 +71,6 @@ static void swap4( unsigned char *b )
     b[1] = b[2];
     b[2] = tmp;
 }
-
-
 
 /*************************************************************************
 ** Function name: swap8
@@ -91,8 +84,7 @@ static void swap4( unsigned char *b )
 **************************************************************************
 */
 
-static void swap8( unsigned char *b )
-{
+static void swap8(unsigned char* b) {
     unsigned char tmp;
     tmp = b[0];
     b[0] = b[7];
@@ -108,8 +100,6 @@ static void swap8( unsigned char *b )
     b[4] = tmp;
 }
 
-
-
 /*************************************************************************
 ** Function name: architecture_endian
 **//**
@@ -123,29 +113,20 @@ static void swap8( unsigned char *b )
 **************************************************************************
 */
 
-static Endian architecture_endian()
-{
+static Endian architecture_endian() {
     const unsigned short test = 0x01;
     /* If little endian then the first byte is 1, else it is 0 */
-    return *reinterpret_cast<const unsigned char *>( &test ) == 1 ? Endian::Little : Endian::Big;
+    return *reinterpret_cast<const unsigned char*>(&test) == 1 ? Endian::Little : Endian::Big;
 }
 
-BinSrc::BinSrc( const hBlob source )
-    : blob( source ),
-      offset( 0 ),
-      seek_offset( 0 ),
-      arch_endian( architecture_endian() )
-{
-}
+BinSrc::BinSrc(const hBlob source) : blob(source), offset(0), seek_offset(0), arch_endian(architecture_endian()) {}
 
-BinSrc::BinSrc( const BinSrc &parent, const long embeddedOffset )
-    : blob( parent.blob ),
-      offset( parent.seek_offset + embeddedOffset ),
-      seek_offset( parent.seek_offset + embeddedOffset ),
-      src_endian( parent.src_endian ),
-      arch_endian( parent.arch_endian )
-{
-}
+BinSrc::BinSrc(const BinSrc& parent, const long embeddedOffset)
+    : blob(parent.blob),
+      offset(parent.seek_offset + embeddedOffset),
+      seek_offset(parent.seek_offset + embeddedOffset),
+      src_endian(parent.src_endian),
+      arch_endian(parent.arch_endian) {}
 
 /*************************************************************************
 ** Function name: utlCreateBinSrc
@@ -161,24 +142,21 @@ BinSrc::BinSrc( const BinSrc &parent, const long embeddedOffset )
 **************************************************************************
 */
 
-StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
-{
+StatusType utlCreateBinSrc(hBlob blob, hBinSrc* binsrc) {
     (*binsrc) = nullptr;
 
-    /* Was coded with ASSERT(), but this crashed CC optimizer?! */
-    #ifndef NDEBUG
-    if( sizeof(INT4) != 4 || sizeof(INT2) != 2 || sizeof(INT1) != 1 )
-    {
+/* Was coded with ASSERT(), but this crashed CC optimizer?! */
+#ifndef NDEBUG
+    if (sizeof(INT4) != 4 || sizeof(INT2) != 2 || sizeof(INT1) != 1) {
         THROW_EXCEPTION("Binary data compilation error: sizeof INT4, INT2, INT1 not correct");
         RETURN_STATUS(STS_INVALID_DATA);
     }
-    #endif
+#endif
 
-    (*binsrc) = new BinSrc( blob );
+    (*binsrc) = new BinSrc(blob);
 
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: utlCreateEmbeddedBinSrc
@@ -197,20 +175,17 @@ StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
 **************************************************************************
 */
 
-StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc * embsrc )
-{
+StatusType utlCreateEmbeddedBinSrc(hBinSrc binsrc, long offset, hBinSrc* embsrc) {
     (*embsrc) = nullptr;
 
-    if( ! binsrc )
-    {
+    if (!binsrc) {
         RETURN_STATUS(STS_INVALID_DATA)
     };
 
-    (*embsrc) = new BinSrc( *binsrc, offset );
+    (*embsrc) = new BinSrc(*binsrc, offset);
 
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: utlReleaseBinSrc
@@ -225,8 +200,7 @@ StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc * embsr
 **************************************************************************
 */
 
-StatusType utlReleaseBinSrc( hBinSrc binsrc)
-{
+StatusType utlReleaseBinSrc(hBinSrc binsrc) {
     delete binsrc;
     return STS_OK;
 }
@@ -246,14 +220,10 @@ StatusType utlReleaseBinSrc( hBinSrc binsrc)
 **************************************************************************
 */
 
-static long utlSetOffset( hBinSrc binsrc, long offset )
-{
-    if( offset == BINSRC_CONTINUE )
-    {
+static long utlSetOffset(hBinSrc binsrc, long offset) {
+    if (offset == BINSRC_CONTINUE) {
         offset = binsrc->offset;
-    }
-    else
-    {
+    } else {
         offset += binsrc->seek_offset;
     }
     return offset;
@@ -275,8 +245,7 @@ static long utlSetOffset( hBinSrc binsrc, long offset )
 **************************************************************************
 */
 
-StatusType utlBinSrcSetEndian( hBinSrc binsrc, const Endian endian)
-{
+StatusType utlBinSrcSetEndian(hBinSrc binsrc, const Endian endian) {
     binsrc->src_endian = endian;
     return STS_OK;
 }
@@ -297,14 +266,14 @@ StatusType utlBinSrcSetEndian( hBinSrc binsrc, const Endian endian)
 **************************************************************************
 */
 
-int utlBinSrcLoad1( hBinSrc binsrc, long offset, int nval, void *data)
-{
+int utlBinSrcLoad1(hBinSrc binsrc, long offset, int nval, void* data) {
     StatusType sts;
-    int const size = nval;
-    offset = utlSetOffset( binsrc, offset );
-    sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) { return sts;
-}
+    const int size = nval;
+    offset = utlSetOffset(binsrc, offset);
+    sts = utlBlobReadAt(binsrc->blob, offset, size, data);
+    if (sts != STS_OK) {
+        return sts;
+    }
     binsrc->offset = offset + size;
     return sts;
 }
@@ -325,21 +294,19 @@ int utlBinSrcLoad1( hBinSrc binsrc, long offset, int nval, void *data)
 **************************************************************************
 */
 
-int utlBinSrcLoad2( hBinSrc binsrc, long offset, int nval, void *data)
-{
+int utlBinSrcLoad2(hBinSrc binsrc, long offset, int nval, void* data) {
     StatusType sts;
-    unsigned char *b;
-    int const size = 2*nval;
-    offset = utlSetOffset( binsrc, offset );
-    sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) { return sts;
-}
+    unsigned char* b;
+    const int size = 2 * nval;
+    offset = utlSetOffset(binsrc, offset);
+    sts = utlBlobReadAt(binsrc->blob, offset, size, data);
+    if (sts != STS_OK) {
+        return sts;
+    }
     binsrc->offset = offset + size;
-    if( binsrc->swap_bytes() )
-    {
-        b = (unsigned char *) data;
-        while(nval--)
-        {
+    if (binsrc->swap_bytes()) {
+        b = (unsigned char*)data;
+        while (nval--) {
             swap2(b);
             b += 2;
         }
@@ -363,21 +330,19 @@ int utlBinSrcLoad2( hBinSrc binsrc, long offset, int nval, void *data)
 **************************************************************************
 */
 
-int utlBinSrcLoad4( hBinSrc binsrc, long offset, int nval, void *data)
-{
+int utlBinSrcLoad4(hBinSrc binsrc, long offset, int nval, void* data) {
     StatusType sts;
-    unsigned char *b;
-    int const size = 4*nval;
-    offset = utlSetOffset( binsrc, offset );
-    sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) { return sts;
-}
+    unsigned char* b;
+    const int size = 4 * nval;
+    offset = utlSetOffset(binsrc, offset);
+    sts = utlBlobReadAt(binsrc->blob, offset, size, data);
+    if (sts != STS_OK) {
+        return sts;
+    }
     binsrc->offset = offset + size;
-    if( binsrc->swap_bytes() )
-    {
-        b = (unsigned char *) data;
-        while(nval--)
-        {
+    if (binsrc->swap_bytes()) {
+        b = (unsigned char*)data;
+        while (nval--) {
             swap4(b);
             b += 4;
         }
@@ -401,21 +366,19 @@ int utlBinSrcLoad4( hBinSrc binsrc, long offset, int nval, void *data)
 **************************************************************************
 */
 
-int utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data)
-{
+int utlBinSrcLoad8(hBinSrc binsrc, long offset, int nval, void* data) {
     StatusType sts;
-    unsigned char *b;
-    int const size = 8*nval;
-    offset = utlSetOffset( binsrc, offset );
-    sts = utlBlobReadAt( binsrc->blob, offset, size, data );
-    if( sts != STS_OK ) { return sts;
-}
+    unsigned char* b;
+    const int size = 8 * nval;
+    offset = utlSetOffset(binsrc, offset);
+    sts = utlBlobReadAt(binsrc->blob, offset, size, data);
+    if (sts != STS_OK) {
+        return sts;
+    }
     binsrc->offset = offset + size;
-    if( binsrc->swap_bytes() )
-    {
-        b = (unsigned char *) data;
-        while(nval--)
-        {
+    if (binsrc->swap_bytes()) {
+        b = (unsigned char*)data;
+        while (nval--) {
             swap8(b);
             b += 8;
         }
@@ -440,19 +403,22 @@ int utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data)
 **************************************************************************
 */
 
-StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, std::string &data )
-{
+StatusType utlBinSrcLoadString(hBinSrc binsrc, long offset, std::string& data) {
     INT2 len;
     data.clear();
-    StatusType sts = utlBinSrcLoad2( binsrc, offset, 1, (void *) (&len) );
-    if( sts != STS_OK ) RETURN_STATUS(sts);
-    if( len < 0 ) RETURN_STATUS(STS_INVALID_DATA);
+    StatusType sts = utlBinSrcLoad2(binsrc, offset, 1, (void*)(&len));
+    if (sts != STS_OK)
+        RETURN_STATUS(sts);
+    if (len < 0)
+        RETURN_STATUS(STS_INVALID_DATA);
 
-    std::string text( len, '\0' );
-    if( len > 0 ) { sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, text.data() );
-}
-    if( sts != STS_OK ) RETURN_STATUS(sts);
-    text.resize( std::min( text.find( '\0' ), text.size() ) );
-    data = std::move( text );
+    std::string text(len, '\0');
+    if (len > 0) {
+        sts = utlBinSrcLoad1(binsrc, BINSRC_CONTINUE, len, text.data());
+    }
+    if (sts != STS_OK)
+        RETURN_STATUS(sts);
+    text.resize(std::min(text.find('\0'), text.size()));
+    data = std::move(text);
     return STS_OK;
 }

@@ -45,24 +45,38 @@
 // Uses DiskField (util/binfile.h) and has external linkage via the
 // `extern` declarations in rftrans.h - see the comment there.
 constexpr DiskField RFTRANS_DISK_FIELDS[] = {
-    { FieldKind::Float64, offsetof(RfTransformationData, refepoch),   1 },
-    { FieldKind::Float64, offsetof(RfTransformationData, prm),        sizeof(RfTransformationData::prm) / sizeof(RfTransformationData::prm[0]) },
-    { FieldKind::Float64, offsetof(RfTransformationData, prmCvr),     sizeof(RfTransformationData::prmCvr) / sizeof(RfTransformationData::prmCvr[0]) },
-    { FieldKind::Int8,    offsetof(RfTransformationData, calcPrm),    sizeof(RfTransformationData::calcPrm) / sizeof(RfTransformationData::calcPrm[0]) },
-    { FieldKind::Int32,   offsetof(RfTransformationData, usage),      1 },
-    { FieldKind::Int32,   offsetof(RfTransformationData, prmId),      sizeof(RfTransformationData::prmId) / sizeof(RfTransformationData::prmId[0]) },
-    { FieldKind::Int32,   offsetof(RfTransformationData, origintype), 1 },
-    { FieldKind::Int8,    offsetof(RfTransformationData, prmUsed),    sizeof(RfTransformationData::prmUsed) / sizeof(RfTransformationData::prmUsed[0]) },
-    { FieldKind::Float64, offsetof(RfTransformationData, origin),     sizeof(RfTransformationData::origin) / sizeof(RfTransformationData::origin[0]) },
-    { FieldKind::Float64, offsetof(RfTransformationData, trans),      sizeof(RfTransformationData::trans) / sizeof(RfTransformationData::trans[0]) },
-    { FieldKind::Float64, offsetof(RfTransformationData, transrate),  sizeof(RfTransformationData::transrate) / sizeof(RfTransformationData::transrate[0]) },
-    { FieldKind::Float64, offsetof(RfTransformationData, tmat),        sizeof(RfTransformationData::tmat) / sizeof(double) },
-    { FieldKind::Float64, offsetof(RfTransformationData, invtmat),     sizeof(RfTransformationData::invtmat) / sizeof(double) },
-    { FieldKind::Float64, offsetof(RfTransformationData, tmatrate),    sizeof(RfTransformationData::tmatrate) / sizeof(double) },
-    { FieldKind::Float64, offsetof(RfTransformationData, invtmatrate), sizeof(RfTransformationData::invtmatrate) / sizeof(double) },
-    { FieldKind::Float64, offsetof(RfTransformationData, dtmatdrot),   sizeof(RfTransformationData::dtmatdrot) / sizeof(double) },
-    { FieldKind::Float64, offsetof(RfTransformationData, toporot),     sizeof(RfTransformationData::toporot) / sizeof(double) },
-    { FieldKind::Float64, offsetof(RfTransformationData, invtoporot),  sizeof(RfTransformationData::invtoporot) / sizeof(double) },
+    {FieldKind::Float64, offsetof(RfTransformationData, refepoch), 1},
+    {FieldKind::Float64, offsetof(RfTransformationData, prm),
+     sizeof(RfTransformationData::prm) / sizeof(RfTransformationData::prm[0])},
+    {FieldKind::Float64, offsetof(RfTransformationData, prmCvr),
+     sizeof(RfTransformationData::prmCvr) / sizeof(RfTransformationData::prmCvr[0])},
+    {FieldKind::Int8, offsetof(RfTransformationData, calcPrm),
+     sizeof(RfTransformationData::calcPrm) / sizeof(RfTransformationData::calcPrm[0])},
+    {FieldKind::Int32, offsetof(RfTransformationData, usage), 1},
+    {FieldKind::Int32, offsetof(RfTransformationData, prmId),
+     sizeof(RfTransformationData::prmId) / sizeof(RfTransformationData::prmId[0])},
+    {FieldKind::Int32, offsetof(RfTransformationData, origintype), 1},
+    {FieldKind::Int8, offsetof(RfTransformationData, prmUsed),
+     sizeof(RfTransformationData::prmUsed) / sizeof(RfTransformationData::prmUsed[0])},
+    {FieldKind::Float64, offsetof(RfTransformationData, origin),
+     sizeof(RfTransformationData::origin) / sizeof(RfTransformationData::origin[0])},
+    {FieldKind::Float64, offsetof(RfTransformationData, trans),
+     sizeof(RfTransformationData::trans) / sizeof(RfTransformationData::trans[0])},
+    {FieldKind::Float64, offsetof(RfTransformationData, transrate),
+     sizeof(RfTransformationData::transrate) / sizeof(RfTransformationData::transrate[0])},
+    {FieldKind::Float64, offsetof(RfTransformationData, tmat), sizeof(RfTransformationData::tmat) / sizeof(double)},
+    {FieldKind::Float64, offsetof(RfTransformationData, invtmat),
+     sizeof(RfTransformationData::invtmat) / sizeof(double)},
+    {FieldKind::Float64, offsetof(RfTransformationData, tmatrate),
+     sizeof(RfTransformationData::tmatrate) / sizeof(double)},
+    {FieldKind::Float64, offsetof(RfTransformationData, invtmatrate),
+     sizeof(RfTransformationData::invtmatrate) / sizeof(double)},
+    {FieldKind::Float64, offsetof(RfTransformationData, dtmatdrot),
+     sizeof(RfTransformationData::dtmatdrot) / sizeof(double)},
+    {FieldKind::Float64, offsetof(RfTransformationData, toporot),
+     sizeof(RfTransformationData::toporot) / sizeof(double)},
+    {FieldKind::Float64, offsetof(RfTransformationData, invtoporot),
+     sizeof(RfTransformationData::invtoporot) / sizeof(double)},
 };
 constexpr size_t RFTRANS_DISK_FIELD_COUNT = sizeof(RFTRANS_DISK_FIELDS) / sizeof(RFTRANS_DISK_FIELDS[0]);
 
@@ -73,31 +87,32 @@ constexpr size_t RFTRANS_DISK_FIELD_COUNT = sizeof(RFTRANS_DISK_FIELDS) / sizeof
 // the 12 bitfields). Those two adjacent pairs are deliberately not checked; every
 // other pair is, and the last tracked field (invtoporot) must, by the same rule,
 // reach exactly the end of the struct (there's nothing tracked after it).
-static constexpr bool rftrans_disk_fields_contiguous()
-{
-    if( RFTRANS_DISK_FIELDS[0].offset != 0 ) { return false;
-}
-    for( size_t i = 0; i + 1 < RFTRANS_DISK_FIELD_COUNT; ++i )
-    {
-        const DiskField &field = RFTRANS_DISK_FIELDS[i];
-        if( field.offset == offsetof(RfTransformationData, prmId) ) { continue;
-}
+static constexpr bool rftrans_disk_fields_contiguous() {
+    if (RFTRANS_DISK_FIELDS[0].offset != 0) {
+        return false;
+    }
+    for (size_t i = 0; i + 1 < RFTRANS_DISK_FIELD_COUNT; ++i) {
+        const DiskField& field = RFTRANS_DISK_FIELDS[i];
+        if (field.offset == offsetof(RfTransformationData, prmId)) {
+            continue;
+        }
 
         const size_t end = field.offset + field_in_memory_size(field.kind) * field.count;
-        const size_t expected_next = round_up(end, field_in_memory_alignment(RFTRANS_DISK_FIELDS[i+1].kind));
-        if( expected_next != RFTRANS_DISK_FIELDS[i+1].offset ) { return false;
-}
+        const size_t expected_next = round_up(end, field_in_memory_alignment(RFTRANS_DISK_FIELDS[i + 1].kind));
+        if (expected_next != RFTRANS_DISK_FIELDS[i + 1].offset) {
+            return false;
+        }
     }
-    const DiskField &last = RFTRANS_DISK_FIELDS[RFTRANS_DISK_FIELD_COUNT-1];
+    const DiskField& last = RFTRANS_DISK_FIELDS[RFTRANS_DISK_FIELD_COUNT - 1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind) * last.count;
     return round_up(last_end, alignof(RfTransformationData)) == sizeof(RfTransformationData);
 }
 // Runs entirely at compile time, same as survdata_disk_fields_contiguous() in
 // bindata.cpp - costs nothing in the compiled binary either way.
 static_assert(rftrans_disk_fields_contiguous(),
-    "RFTRANS_DISK_FIELDS has a gap relative to RfTransformationData's actual layout, other "
-    "than the known/deliberate exclusion for the bitfields - a field "
-    "was likely added, removed, or reordered in rftrans.h without updating this table");
+              "RFTRANS_DISK_FIELDS has a gap relative to RfTransformationData's actual layout, other "
+              "than the known/deliberate exclusion for the bitfields - a field "
+              "was likely added, removed, or reordered in rftrans.h without updating this table");
 
 // Packs/unpacks the 12 bitfields into a single uint16_t disk representation, in
 // declared order (istopo = bit 0 through calcscalerate = bit 11). This is the one
@@ -105,29 +120,24 @@ static_assert(rftrans_disk_fields_contiguous(),
 // above the table and at the bitfield declarations in rftrans.h: adding a 13th
 // bitfield there gives no compiler error if only one side (pack/unpack) is updated
 // to match.
-static uint16_t pack_rftrans_flags( const RfTransformationData &rf )
-{
-    return static_cast<uint16_t>(
-               (rf.istopo         << 0)  | (rf.isiers         << 1)  |
-               (rf.userates       << 2)  | (rf.usetrans       << 3)  |
-               (rf.localoriginok  << 4)  | (rf.localorigin    << 5)  |
-               (rf.calctrans      << 6)  | (rf.calcrot        << 7)  |
-               (rf.calcscale      << 8)  | (rf.calctransrate  << 9)  |
-               (rf.calcrotrate    << 10) | (rf.calcscalerate  << 11) );
+static uint16_t pack_rftrans_flags(const RfTransformationData& rf) {
+    return static_cast<uint16_t>((rf.istopo << 0) | (rf.isiers << 1) | (rf.userates << 2) | (rf.usetrans << 3) |
+                                 (rf.localoriginok << 4) | (rf.localorigin << 5) | (rf.calctrans << 6) |
+                                 (rf.calcrot << 7) | (rf.calcscale << 8) | (rf.calctransrate << 9) |
+                                 (rf.calcrotrate << 10) | (rf.calcscalerate << 11));
 }
-static void unpack_rftrans_flags( const uint16_t flags, RfTransformationData &rf )
-{
-    rf.istopo        = (flags >> 0)  & 1;
-    rf.isiers        = (flags >> 1)  & 1;
-    rf.userates      = (flags >> 2)  & 1;
-    rf.usetrans      = (flags >> 3)  & 1;
-    rf.localoriginok = (flags >> 4)  & 1;
-    rf.localorigin   = (flags >> 5)  & 1;
-    rf.calctrans     = (flags >> 6)  & 1;
-    rf.calcrot       = (flags >> 7)  & 1;
-    rf.calcscale     = (flags >> 8)  & 1;
-    rf.calctransrate = (flags >> 9)  & 1;
-    rf.calcrotrate   = (flags >> 10) & 1;
+static void unpack_rftrans_flags(const uint16_t flags, RfTransformationData& rf) {
+    rf.istopo = (flags >> 0) & 1;
+    rf.isiers = (flags >> 1) & 1;
+    rf.userates = (flags >> 2) & 1;
+    rf.usetrans = (flags >> 3) & 1;
+    rf.localoriginok = (flags >> 4) & 1;
+    rf.localorigin = (flags >> 5) & 1;
+    rf.calctrans = (flags >> 6) & 1;
+    rf.calcrot = (flags >> 7) & 1;
+    rf.calcscale = (flags >> 8) & 1;
+    rf.calctransrate = (flags >> 9) & 1;
+    rf.calcrotrate = (flags >> 10) & 1;
     rf.calcscalerate = (flags >> 11) & 1;
 }
 
@@ -136,68 +146,61 @@ static void unpack_rftrans_flags( const uint16_t flags, RfTransformationData &rf
 // dump_string(rf->name, ...) (kept as a separate call at the existing call site,
 // since name is a variable-length std::string and out of scope for this
 // fixed-width table), this covers every field of rfTransformation.
-static void write_rftrans_fixed_width( const RfTransformationData &rf, FILE *f )
-{
-    for_each_disk_field( rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
-        [f]( FieldKind kind, auto value ) { write_disk_field( f, kind, value ); } );
+static void write_rftrans_fixed_width(const RfTransformationData& rf, FILE* f) {
+    for_each_disk_field(rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
+                        [f](FieldKind kind, auto value) { write_disk_field(f, kind, value); });
     write_raw(f, pack_rftrans_flags(rf));
 }
 
 // Mirrors write_rftrans_fixed_width: same table, same iteration order, reading
 // into each field in place instead of writing, then unpacking the trailing
 // uint16_t back into the 12 named bitfields.
-static void read_rftrans_fixed_width( FILE *f, RfTransformationData &rf )
-{
-    for_each_disk_field_mutable( rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
-        [f]( FieldKind kind, auto &value ) { read_disk_field( f, kind, value ); } );
+static void read_rftrans_fixed_width(FILE* f, RfTransformationData& rf) {
+    for_each_disk_field_mutable(rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
+                                [f](FieldKind kind, auto& value) { read_disk_field(f, kind, value); });
     uint16_t flags;
     read_raw(f, flags);
     unpack_rftrans_flags(flags, rf);
 }
 
-
-void dump_rftransformations( BINARY_FILE *b )
-{
+void dump_rftransformations(BINARY_FILE* b) {
     int nrf;
-    rfTransformation *rf;
+    rfTransformation* rf;
     int irf;
 
-    create_section(b,"RFTRANSFORMATIONS");
+    create_section(b, "RFTRANSFORMATIONS");
     nrf = rftrans_count();
 
-    fwrite( &nrf, sizeof(nrf), 1, b->f );
+    fwrite(&nrf, sizeof(nrf), 1, b->f);
 
     /* Dump the reference frame definitions */
 
-    for( irf = 0; irf++ < nrf; )
-    {
-        rf = rftrans_from_id( irf );
-        write_disk_field( b->f, FieldKind::Int32, rf->id );
-        write_rftrans_fixed_width( *rf, b->f );
-        dump_string( rf->name, b->f );
+    for (irf = 0; irf++ < nrf;) {
+        rf = rftrans_from_id(irf);
+        write_disk_field(b->f, FieldKind::Int32, rf->id);
+        write_rftrans_fixed_width(*rf, b->f);
+        dump_string(rf->name, b->f);
     }
 
-    end_section( b );
+    end_section(b);
 }
 
-
-
-int reload_rftransformations( BINARY_FILE *b )
-{
+int reload_rftransformations(BINARY_FILE* b) {
     int nrf;
     int irf;
 
-    if(find_section(b,"RFTRANSFORMATIONS") != OK ) { return MISSING_DATA;
-}
+    if (find_section(b, "RFTRANSFORMATIONS") != OK) {
+        return MISSING_DATA;
+    }
 
     /* Dump the station definitions */
 
-    if( fread(&nrf, sizeof(nrf), 1, b->f ) != 1 || nrf < 0 ) { return INVALID_DATA;
-}
+    if (fread(&nrf, sizeof(nrf), 1, b->f) != 1 || nrf < 0) {
+        return INVALID_DATA;
+    }
 
     clear_rftrans_list();
-    for( irf = 0; irf++ < nrf;  )
-    {
+    for (irf = 0; irf++ < nrf;) {
         // The id and name of an rfTransformation are const, so it can only be
         // constructed once both are known. The name follows the fixed-width
         // data in the file, so that data is read into an RfTransformationData
@@ -205,13 +208,15 @@ int reload_rftransformations( BINARY_FILE *b )
 
         int id = 0;
         RfTransformationData data{};
-        read_disk_field( b->f, FieldKind::Int32, id );
-        read_rftrans_fixed_width( b->f, data );
-        std::string name = reload_string( b->f );
-        if( name.empty() ) { return INVALID_DATA;
-}
-        if( ! add_rftrans( id, std::move( name ), data ) ) { return INVALID_DATA;
-}
+        read_disk_field(b->f, FieldKind::Int32, id);
+        read_rftrans_fixed_width(b->f, data);
+        std::string name = reload_string(b->f);
+        if (name.empty()) {
+            return INVALID_DATA;
+        }
+        if (!add_rftrans(id, std::move(name), data)) {
+            return INVALID_DATA;
+        }
     }
-    return check_end_section( b );
+    return check_end_section(b);
 }

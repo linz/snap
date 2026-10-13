@@ -6,111 +6,109 @@
 #include "plotconn.h"
 //}
 
-SnapplotMapDragger::SnapplotMapDragger( int pickTolerance )
-    : pickTolerance(pickTolerance)
-{
+SnapplotMapDragger::SnapplotMapDragger(int pickTolerance) : pickTolerance(pickTolerance) {
     connections = nullptr;
     radius = 10;
     shiftStation = false;
     SetAutoZoomPanMode();
-
 }
 
-SnapplotMapDragger::~SnapplotMapDragger()
-{
+SnapplotMapDragger::~SnapplotMapDragger() {
     DeleteConnections();
 }
 
-bool SnapplotMapDragger::InitDrag( const wxMouseEvent &event )
-{
+bool SnapplotMapDragger::InitDrag(const wxMouseEvent& event) {
     shiftStation = event.ShiftDown() && event.ControlDown();
-    if( ! shiftStation ) { return wxMapScaleDragger::InitDrag( event );
-}
+    if (!shiftStation) {
+        return wxMapScaleDragger::InitDrag(event);
+    }
 
-    if( ! mapWindow ) { return false;
-}
-    wxMapScale  const&scale = mapWindow->GetScale();
-    if( ! scale.IsValid() ) { return false;
-}
+    if (!mapWindow) {
+        return false;
+    }
+    const wxMapScale& scale = mapWindow->GetScale();
+    if (!scale.IsValid()) {
+        return false;
+    }
 
     MapPoint refpt;
-    scale.PlotToWorld( dragStartPoint, refpt );
+    scale.PlotToWorld(dragStartPoint, refpt);
 
-    double const tolerance = pickTolerance * scale.GetScale();
+    const double tolerance = pickTolerance * scale.GetScale();
 
-    istn = nearest_station( refpt.x, refpt.y, tolerance );
-    if( ! istn ) { return false;
-}
+    istn = nearest_station(refpt.x, refpt.y, tolerance);
+    if (!istn) {
+        return false;
+    }
 
     // Ok, we have liftoff!!!
 
     // Make a list of connected points
 
-    int nc = get_connection_count( istn );
+    int nc = get_connection_count(istn);
     nConnections = 0;
-    if( nc )
-    {
+    if (nc) {
         DeleteConnections();
         connections = new MapPoint[nc];
-        while( nc-- )
-        {
+        while (nc--) {
             char visible;
-            int const to = get_connected_station( istn, nc, &visible );
-            if( !to || !visible ) { continue;
-}
-            MapPoint &pt = connections[nConnections++];
-            get_station_coordinates( to, &pt.x, &pt.y );
+            const int to = get_connected_station(istn, nc, &visible);
+            if (!to || !visible) {
+                continue;
+            }
+            MapPoint& pt = connections[nConnections++];
+            get_station_coordinates(to, &pt.x, &pt.y);
         }
     }
     return true;
 }
 
-void SnapplotMapDragger::EndDrag()
-{
-    if( ! shiftStation ) { wxMapScaleDragger::EndDrag(); return; }
+void SnapplotMapDragger::EndDrag() {
+    if (!shiftStation) {
+        wxMapScaleDragger::EndDrag();
+        return;
+    }
 
     DeleteConnections();
     MapPoint newLoc;
-    mapWindow->GetScale().PlotToWorld( dragEndPoint, newLoc );
+    mapWindow->GetScale().PlotToWorld(dragEndPoint, newLoc);
     double x;
     double y;
-    get_station_coordinates( istn, &x, &y );
+    get_station_coordinates(istn, &x, &y);
     x = newLoc.x - x;
     y = newLoc.y - y;
-    if( using_station_offsets() )
-    {
+    if (using_station_offsets()) {
         double dx;
         double dy;
-        get_station_offset( istn, &dx, &dy );
+        get_station_offset(istn, &dx, &dy);
         x += dx;
         y += dy;
     }
-    set_station_offset( istn, x, y );
-    use_station_offsets( 1 );
+    set_station_offset(istn, x, y);
+    use_station_offsets(1);
     mapWindow->RedrawMap();
 }
 
-void SnapplotMapDragger::DrawDragger( wxDC &dc )
-{
-    if( ! shiftStation ) { wxMapScaleDragger::DrawDragger(dc); return; }
+void SnapplotMapDragger::DrawDragger(wxDC& dc) {
+    if (!shiftStation) {
+        wxMapScaleDragger::DrawDragger(dc);
+        return;
+    }
 
-    dc.DrawCircle( dragEndPoint, radius );
+    dc.DrawCircle(dragEndPoint, radius);
     MapPoint pt;
-    mapWindow->GetScale().PlotToWorld( dragEndPoint, pt );
-    for( int i = 0; i < nConnections; i++ )
-    {
+    mapWindow->GetScale().PlotToWorld(dragEndPoint, pt);
+    for (int i = 0; i < nConnections; i++) {
         wxPoint from;
         wxPoint to;
-        if( mapWindow->GetScale().TrimLine( pt, connections[i], from, to ) )
-        {
-            dc.DrawLine( from, to );
+        if (mapWindow->GetScale().TrimLine(pt, connections[i], from, to)) {
+            dc.DrawLine(from, to);
         }
     }
 }
 
-void SnapplotMapDragger::DeleteConnections()
-{
-    delete [] connections;
+void SnapplotMapDragger::DeleteConnections() {
+    delete[] connections;
 
     connections = nullptr;
     nConnections = 0;

@@ -26,14 +26,14 @@
 #define TRGDAT_FILE_HEADER_1 "SNAP trig binary v2.0 \r\n\x1A"
 #define TRGDAT_FILE_HEADER_2 "CRS trig binary v2.0  \r\n\x1A"
 
-using hTrig = void *;
+using hTrig = void*;
 
-StatusType utlCreateTrig( hBinSrc blob, hTrig * trig);
+StatusType utlCreateTrig(hBinSrc blob, hTrig* trig);
 
-StatusType utlReleaseTrig( hTrig trig);
+StatusType utlReleaseTrig(hTrig trig);
 
-StatusType utlTrigVectorDimension( hTrig trig, int *dimension );
+StatusType utlTrigVectorDimension(hTrig trig, int* dimension);
 
-StatusType utlCalcTrig( hTrig trig, double x, double y, double * value);
+StatusType utlCalcTrig(hTrig trig, double x, double y, double* value);
 
 #endif /* DBL4_UTL_TRIG_H not defined */

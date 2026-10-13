@@ -63,21 +63,19 @@
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_error.h"
 
-
 std::string spec_run_time;
 static double test_confidence = 95.0;
 static int test_apriori = 1;
 static double varmult = 1.0;
-static int min_order=0;
-static OrderCode dfltOrder( "NONE" );
+static int min_order = 0;
+static OrderCode dfltOrder("NONE");
 static double vrtHorRatio = 1.0;
-static const char *default_output_filename="-";
+static const char* default_output_filename = "-";
 
 #define RELACC_BLOCK_SIZE 4196
 #define MAX_ORDER 20
 
-struct stn_relacc
-{
+struct stn_relacc {
     double verr2;
     double emax2;
     /*   float verr2; */
@@ -86,15 +84,14 @@ struct stn_relacc
 #define SRA_LOGLEVEL_OUTPUT 2048 /* Output log to stdout as well as file */
 
 #define SRA_HVMODE_AUTO 0
-#define SRA_HVMODE_VRT  1
-#define SRA_HVMODE_HOR  2
-#define SRA_HVMODE_3D   3
+#define SRA_HVMODE_VRT 1
+#define SRA_HVMODE_HOR 2
+#define SRA_HVMODE_3D 3
 
-struct stn_relacc_array
-{
-    FILE *logfile = nullptr;
-    FILE *dbgfile = nullptr;
-    SDCTest *hsdc = nullptr;  ///< The tests, owned by the caller of create_test
+struct stn_relacc_array {
+    FILE* logfile = nullptr;
+    FILE* dbgfile = nullptr;
+    SDCTest* hsdc = nullptr;  ///< The tests, owned by the caller of create_test
     std::string csvoutput;
     std::string crdoutput;
     std::string cvrcachefile;
@@ -104,14 +101,14 @@ struct stn_relacc_array
     int hvmode = SRA_HVMODE_AUTO;
     int splitcrdfile = 0;
     int usecache = 0;
-    short *src_orderid = nullptr;
-    short *role = nullptr;
-    short *order = nullptr;
-    short *priority = nullptr;
-    double *horvar = nullptr;
-    double *vrtvar = nullptr;
-    char *alloc = nullptr;
-    stn_relacc **cols = nullptr;
+    short* src_orderid = nullptr;
+    short* role = nullptr;
+    short* order = nullptr;
+    short* priority = nullptr;
+    double* horvar = nullptr;
+    double* vrtvar = nullptr;
+    char* alloc = nullptr;
+    stn_relacc** cols = nullptr;
     std::string binfn;
     /* bltreq and blt are the same allocation at different lifecycle stages:
      * bltreq is loaded with the Cholesky factor at creation, its bandwidth is
@@ -120,9 +117,9 @@ struct stn_relacc_array
      * from the previous order's blt (if non-NULL, its bandwidth (col array only)
      * is saved to re-apply after load) before blt is deleted in
      * relacc_calc_requested_covar. */
-    bltmatrix *bltreq = nullptr;  /* Requested non-zero rows (pre-inversion) */
-    bltmatrix *blt = nullptr;     /* Calculated covariance (post-inversion) */
-    int bltupdated = 0;     /* True if covar has been calc'd (used for caching) */
+    bltmatrix* bltreq = nullptr; /* Requested non-zero rows (pre-inversion) */
+    bltmatrix* blt = nullptr;    /* Calculated covariance (post-inversion) */
+    int bltupdated = 0;          /* True if covar has been calc'd (used for caching) */
     char testhor = 0;
     char testvrt = 0;
     int loglevel = 0;
@@ -131,13 +128,12 @@ struct stn_relacc_array
     int ignoreconstrained = 0;
 };
 
-struct cfg_stack
-{
-    CFG_FILE *cfg;
-    struct cfg_stack *next;
+struct cfg_stack {
+    CFG_FILE* cfg;
+    struct cfg_stack* next;
 };
 
-cfg_stack *cfgs = nullptr;
+cfg_stack* cfgs = nullptr;
 
 #define CACHE_COVARIANCE_EXT ".scc"
 #define CACHE_COVARIANCE_SIG "SNAPSPEC_CACHED_COVARIANCE"
@@ -148,32 +144,32 @@ cfg_stack *cfgs = nullptr;
 
 /*============================================================*/
 
-
-static double calc_error_ellipse_semimajor2( const double cvr[] )
-{
+static double calc_error_ellipse_semimajor2(const double cvr[]) {
     double v1;
     double v2;
     double v3;
     double v4;
 
-    v1 = (cvr[2]+cvr[0])/2.0;
-    v2 = (cvr[2]-cvr[0])/2.0;
+    v1 = (cvr[2] + cvr[0]) / 2.0;
+    v2 = (cvr[2] - cvr[0]) / 2.0;
     v3 = cvr[1];
-    v4 = v2*v2+v3*v3;
-    if( v4 > 0.0 )  { v4 = sqrt(v4); v1 += v4; }
+    v4 = v2 * v2 + v3 * v3;
+    if (v4 > 0.0) {
+        v4 = sqrt(v4);
+        v1 += v4;
+    }
     return v1;
 }
 
 /*============================================================*/
 
-static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn );
+static double relacc_get_covar(stn_relacc_array* ra, int istn, int jstn);
 
-static stn_relacc_array *create_relacc()
-{
+static stn_relacc_array* create_relacc() {
     const int haveorders = net->order_count() > 0;
-    const int nstns = number_of_stations( net );
+    const int nstns = number_of_stations(net);
 
-    stn_relacc_array * const ra = new stn_relacc_array();
+    stn_relacc_array* const ra = new stn_relacc_array();
     ra->nstn = nstns;
     ra->have_srcorders = haveorders;
     ra->src_orderid = new short[nstns];
@@ -183,13 +179,11 @@ static stn_relacc_array *create_relacc()
     ra->horvar = new double[nstns];
     ra->vrtvar = new double[nstns];
 
-    for( int i = 0; i < nstns; i++ )
-    {
+    for (int i = 0; i < nstns; i++) {
         ra->src_orderid[i] = 0;
-        if( haveorders )
-        {
-            station *st=stnptr(i+1);
-            ra->src_orderid[i] = (short) net->station_order(st);
+        if (haveorders) {
+            station* st = stnptr(i + 1);
+            ra->src_orderid[i] = (short)net->station_order(st);
         }
         ra->role[i] = 0;
         ra->order[i] = 0;
@@ -201,229 +195,223 @@ static stn_relacc_array *create_relacc()
     return ra;
 }
 
-static void delete_relacc( stn_relacc_array *ra )
-{
+static void delete_relacc(stn_relacc_array* ra) {
     delete[] ra->src_orderid;
     delete[] ra->role;
     delete[] ra->order;
     delete[] ra->priority;
     delete[] ra->horvar;
     delete[] ra->vrtvar;
-    if( ra->cols )
-    {
-        for( int i = 0; i < ra->nstn; i++ )
-        {
-            if( ra->alloc[i] ) { delete[] ra->cols[i]; }
+    if (ra->cols) {
+        for (int i = 0; i < ra->nstn; i++) {
+            if (ra->alloc[i]) {
+                delete[] ra->cols[i];
+            }
         }
         delete[] ra->cols;
         delete[] ra->alloc;
     }
-    if( ra->bltreq ) { delete_bltmatrix( ra->bltreq );
-}
-    if( ra->blt ) { delete_bltmatrix( ra->blt );
-}
+    if (ra->bltreq) {
+        delete_bltmatrix(ra->bltreq);
+    }
+    if (ra->blt) {
+        delete_bltmatrix(ra->blt);
+    }
     delete ra;
 }
 
-static void relacc_alloc_cache( stn_relacc_array *ra )
-{
+static void relacc_alloc_cache(stn_relacc_array* ra) {
     int istn;
     int istn0;
     int i;
-    char *alloc;
-    stn_relacc **cols;
+    char* alloc;
+    stn_relacc** cols;
     const int nstns = ra->nstn;
 
-    if( ra->cols ) { return;
-}
+    if (ra->cols) {
+        return;
+    }
 
     ra->alloc = alloc = new char[nstns];
-    ra->cols = cols = new stn_relacc *[nstns];
+    ra->cols = cols = new stn_relacc*[nstns];
 
     istn = 1;
-    istn0 =  1;
-    while( istn <= nstns )
-    {
-        stn_relacc *r;
+    istn0 = 1;
+    while (istn <= nstns) {
+        stn_relacc* r;
         int nblk = 0;
-        do
-        {
+        do {
             nblk += istn;
             istn++;
-        }
-        while ( istn <= nstns && nblk < RELACC_BLOCK_SIZE );
+        } while (istn <= nstns && nblk < RELACC_BLOCK_SIZE);
 
         r = new stn_relacc[nblk];
-        for( i = 0; i < nblk; i++ )
-        {
+        for (i = 0; i < nblk; i++) {
             r[i].emax2 = SDC_COVAR_UNAVAILABLE;
             r[i].verr2 = SDC_COVAR_UNAVAILABLE;
         }
-        for( nblk = 0; istn0 < istn; nblk += istn0, istn0++ )
-        {
-            alloc[istn0-1] = nblk == 0 ? 1 : 0;
-            cols[istn0-1] = r + nblk;
+        for (nblk = 0; istn0 < istn; nblk += istn0, istn0++) {
+            alloc[istn0 - 1] = nblk == 0 ? 1 : 0;
+            cols[istn0 - 1] = r + nblk;
         }
     }
 }
 
-static stn_relacc *get_relacc( stn_relacc_array *ra, int istn, int jstn )
-{
-    if( ra->cols == nullptr || istn < 1 || jstn < 1 || istn > ra->nstn || jstn > ra->nstn ) { return nullptr;
-}
-    if( istn < jstn ) { int const itmp = istn; istn = jstn; jstn = itmp; }
-    return ra->cols[istn-1] + jstn-1;
+static stn_relacc* get_relacc(stn_relacc_array* ra, int istn, int jstn) {
+    if (ra->cols == nullptr || istn < 1 || jstn < 1 || istn > ra->nstn || jstn > ra->nstn) {
+        return nullptr;
+    }
+    if (istn < jstn) {
+        const int itmp = istn;
+        istn = jstn;
+        jstn = itmp;
+    }
+    return ra->cols[istn - 1] + jstn - 1;
 }
 
-static void add_relacc( stn_relacc_array *ra, int istn, int jstn, double emax2, double verr2 )
-{
-    if( istn == jstn )
-    {
-        ra->horvar[istn-1] = emax2;
-        ra->vrtvar[istn-1] = verr2;
+static void add_relacc(stn_relacc_array* ra, int istn, int jstn, double emax2, double verr2) {
+    if (istn == jstn) {
+        ra->horvar[istn - 1] = emax2;
+        ra->vrtvar[istn - 1] = verr2;
         return;
     }
-    
-            stn_relacc *r = get_relacc( ra, istn, jstn );
-        if( r )
-        {
-            r->emax2 = emax2;
-            r->verr2 = verr2;
-        }
-   
+
+    stn_relacc* r = get_relacc(ra, istn, jstn);
+    if (r) {
+        r->emax2 = emax2;
+        r->verr2 = verr2;
+    }
 }
 
-static int relacc_create_blt_req( stn_relacc_array *ra )
-{
-    if( ! ra->bltreq )
-    {
+static int relacc_create_blt_req(stn_relacc_array* ra) {
+    if (!ra->bltreq) {
         /* Save and free blt before reloading to avoid holding both simultaneously. */
         std::vector<int> saved_col;
         int nrow_saved = 0;
-        if( ra->blt )
-        {
-            nrow_saved = blt_nrows( ra->blt );
-            saved_col.resize( boost::numeric_cast<size_t>( nrow_saved ) );
-            for( int i = 0; i < nrow_saved; i++ ) {
+        if (ra->blt) {
+            nrow_saved = blt_nrows(ra->blt);
+            saved_col.resize(boost::numeric_cast<size_t>(nrow_saved));
+            for (int i = 0; i < nrow_saved; i++) {
                 saved_col[i] = ra->blt->row[i].col;
-}
-            delete_bltmatrix( ra->blt );
+            }
+            delete_bltmatrix(ra->blt);
             ra->blt = nullptr;
         }
 
-        BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE ).file;
-        if( !b ) { return 0;
-}
-        if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK )
-        {
+        BINARY_FILE* b = open_binary_file(ra->binfn, BINFILE_SIGNATURE).file;
+        if (!b) {
+            return 0;
+        }
+        if (find_section(b, "CHOLESKI_DECOMPOSITION") != OK) {
             close_binary_file(b);
             return 0;
         }
-        int const sts = reload_bltmatrix( &(ra->bltreq), b->f );
+        const int sts = reload_bltmatrix(&(ra->bltreq), b->f);
         close_binary_file(b);
-        if( sts != OK || !ra->bltreq ) { return 0;
-}
+        if (sts != OK || !ra->bltreq) {
+            return 0;
+        }
 
-        if( !saved_col.empty() )
-        {
-            int const nrow = blt_nrows( ra->bltreq );
-            if( nrow == nrow_saved )
-            {
-                for( int i = 0; i < nrow; i++ ) {
-                    blt_nonzero_element( ra->bltreq, i, saved_col[i] );
-}
-                blt_set_sparse_rows( ra->bltreq, nrow );
+        if (!saved_col.empty()) {
+            const int nrow = blt_nrows(ra->bltreq);
+            if (nrow == nrow_saved) {
+                for (int i = 0; i < nrow; i++) {
+                    blt_nonzero_element(ra->bltreq, i, saved_col[i]);
+                }
+                blt_set_sparse_rows(ra->bltreq, nrow);
             }
         }
     }
     return 1;
 }
 
-static void cache_covariance_matrix( stn_relacc_array *ra, const std::string &cfn )
-{
-    if( ! ra->blt ) { return;
-}
-    if( ! ra->bltupdated ) { return;
-}
-    BINARY_FILE *c;
-    c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
-    if( ! c ) { return;
-}
-    create_section(c,CACHE_COVARIANCE_SECTION);
-    write_run_date_field(c->f,run_time);
-    dump_bltmatrix(ra->blt,c->f);
+static void cache_covariance_matrix(stn_relacc_array* ra, const std::string& cfn) {
+    if (!ra->blt) {
+        return;
+    }
+    if (!ra->bltupdated) {
+        return;
+    }
+    BINARY_FILE* c;
+    c = create_binary_file(cfn, CACHE_COVARIANCE_SIG);
+    if (!c) {
+        return;
+    }
+    create_section(c, CACHE_COVARIANCE_SECTION);
+    write_run_date_field(c->f, run_time);
+    dump_bltmatrix(ra->blt, c->f);
     end_section(c);
     close_binary_file(c);
-    printf("Created covariance cache file %s\n",cfn.c_str());
+    printf("Created covariance cache file %s\n", cfn.c_str());
 }
 
-static int relacc_calc_requested_covar( stn_relacc_array *ra )
-{
-    if( ! ra->bltreq ) { return 0;
-}
-
-    if( ra->blt )
-    {
-        delete_bltmatrix( ra->blt );
-        ra->blt=nullptr;
+static int relacc_calc_requested_covar(stn_relacc_array* ra) {
+    if (!ra->bltreq) {
+        return 0;
     }
 
-    if( ra->loglevel & SDC_LOG_STEPS )
-    {
-        fprintf(ra->logfile,"   Calculating covariances from decomposition\n");
-        long const nrow=blt_nrows( ra->bltreq );
-        long const nelement=blt_requested_size( ra->bltreq );
-        double const pcntfull=100.0*((double) nelement)/(((double) nrow) * (((double) nrow)+1)/2.0);
-        fprintf(ra->logfile,"   Matrix size %ld rows %ld elements %.2lf%% full\n",
-                nrow, nelement, pcntfull );
+    if (ra->blt) {
+        delete_bltmatrix(ra->blt);
+        ra->blt = nullptr;
     }
 
-    expand_bltmatrix_to_requested( ra->bltreq );
-    blt_chol_inv_mt( ra->bltreq );
+    if (ra->loglevel & SDC_LOG_STEPS) {
+        fprintf(ra->logfile, "   Calculating covariances from decomposition\n");
+        const long nrow = blt_nrows(ra->bltreq);
+        const long nelement = blt_requested_size(ra->bltreq);
+        const double pcntfull = 100.0 * ((double)nelement) / (((double)nrow) * (((double)nrow) + 1) / 2.0);
+        fprintf(ra->logfile, "   Matrix size %ld rows %ld elements %.2lf%% full\n", nrow, nelement, pcntfull);
+    }
 
-    ra->blt=ra->bltreq;
-    ra->bltupdated=1;
-    ra->bltreq=nullptr;
+    expand_bltmatrix_to_requested(ra->bltreq);
+    blt_chol_inv_mt(ra->bltreq);
 
-    if( ! ra->cvrcachefile.empty() ) { cache_covariance_matrix( ra, ra->cvrcachefile );
-}
+    ra->blt = ra->bltreq;
+    ra->bltupdated = 1;
+    ra->bltreq = nullptr;
+
+    if (!ra->cvrcachefile.empty()) {
+        cache_covariance_matrix(ra, ra->cvrcachefile);
+    }
 
     return 1;
 }
 
-static void relacc_record_missing_covar( stn_relacc_array *ra, int istn, int jstn )
-{
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
+static void relacc_record_missing_covar(stn_relacc_array* ra, int istn, int jstn) {
+    stn_adjustment* isa;
+    stn_adjustment* jsa;
 
     isa = stnadj(stnptr(istn));
     jsa = stnadj(stnptr(jstn));
 
     /* If the matrix for requests is not created yet, then create it */
 
-    if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
-    if( ! ra->bltreq ) { return;
-}
+    if (!ra->bltreq) {
+        relacc_create_blt_req(ra);
+    }
+    if (!ra->bltreq) {
+        return;
+    }
 
-    int const irow = isa->hrowno-1;
-    int const jrow = jsa->hrowno-1;
-    int const minrow = irow < jrow ? irow : jrow;
-    if( irow < 0 || jrow < 0 ) { return;
-}
+    const int irow = isa->hrowno - 1;
+    const int jrow = jsa->hrowno - 1;
+    const int minrow = irow < jrow ? irow : jrow;
+    if (irow < 0 || jrow < 0) {
+        return;
+    }
 
     /* Record the elements required in the covariance matrix */
 
-    blt_nonzero_element( ra->bltreq, irow, minrow );
-    blt_nonzero_element( ra->bltreq, irow+1, minrow );
-    blt_nonzero_element( ra->bltreq, jrow, minrow );
-    blt_nonzero_element( ra->bltreq, jrow+1, minrow );
+    blt_nonzero_element(ra->bltreq, irow, minrow);
+    blt_nonzero_element(ra->bltreq, irow + 1, minrow);
+    blt_nonzero_element(ra->bltreq, jrow, minrow);
+    blt_nonzero_element(ra->bltreq, jrow + 1, minrow);
 }
 
-static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jstn )
-{
-    bltmatrix *blt;
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
+static double relacc_calc_missing_covar(stn_relacc_array* ra, int istn, int jstn) {
+    bltmatrix* blt;
+    stn_adjustment* isa;
+    stn_adjustment* jsa;
     double cvr[3];
     int irx;
     int iry;
@@ -438,123 +426,112 @@ static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jst
     /* Note: assume that we only get here if both stations are having
        horizontal coordinates calculated */
 
-    if( ! isa->hrowno || ! jsa->hrowno )
-    {
+    if (!isa->hrowno || !jsa->hrowno) {
         return SDC_COVAR_UNAVAILABLE;
     }
 
-    irx = iry = isa->hrowno-1;
-    jrx = jry = jsa->hrowno-1;
+    irx = iry = isa->hrowno - 1;
+    jrx = jry = jsa->hrowno - 1;
 
-    for( i = 0; i < 3; i++ )
-    {
-        if( i == 1 ) { iry++; jry++; }
-        else if( i == 2 ) { irx++; jrx++; }
+    for (i = 0; i < 3; i++) {
+        if (i == 1) {
+            iry++;
+            jry++;
+        } else if (i == 2) {
+            irx++;
+            jrx++;
+        }
 
-        cvr[i] = BLT(blt,irx,iry) - BLT(blt,irx,jry) - BLT(blt,jrx,iry) + BLT(blt,jrx,jry);
+        cvr[i] = BLT(blt, irx, iry) - BLT(blt, irx, jry) - BLT(blt, jrx, iry) + BLT(blt, jrx, jry);
     }
 
     return calc_error_ellipse_semimajor2(cvr);
 }
 
-static double relacc_try_calc_missing_covar( stn_relacc_array *ra, int istn, int jstn )
-{
-    stn_adjustment *isa = stnadj(stnptr(istn));
-    stn_adjustment *jsa = stnadj(stnptr(jstn));
+static double relacc_try_calc_missing_covar(stn_relacc_array* ra, int istn, int jstn) {
+    stn_adjustment* isa = stnadj(stnptr(istn));
+    stn_adjustment* jsa = stnadj(stnptr(jstn));
 
-    int const irow = isa->hrowno-1;
-    int const jrow = jsa->hrowno-1;
-    int const minrow = irow < jrow ? irow : jrow;
+    const int irow = isa->hrowno - 1;
+    const int jrow = jsa->hrowno - 1;
+    const int minrow = irow < jrow ? irow : jrow;
 
     /* Check the elements required in the covariance matrix */
 
-    if (blt_is_nonzero_element( ra->blt, irow, minrow ) &&
-            blt_is_nonzero_element( ra->blt, irow+1, minrow ) &&
-            blt_is_nonzero_element( ra->blt, jrow, minrow ) &&
-            blt_is_nonzero_element( ra->blt, jrow+1, minrow ) )
-    {
-        return relacc_calc_missing_covar( ra, istn, jstn );
+    if (blt_is_nonzero_element(ra->blt, irow, minrow) && blt_is_nonzero_element(ra->blt, irow + 1, minrow) &&
+        blt_is_nonzero_element(ra->blt, jrow, minrow) && blt_is_nonzero_element(ra->blt, jrow + 1, minrow)) {
+        return relacc_calc_missing_covar(ra, istn, jstn);
     }
 
     return SDC_COVAR_UNAVAILABLE;
 }
 
-static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn )
-{
-
-    if( istn == jstn )
-    {
-        return ra->horvar[istn-1];
+static double relacc_get_covar(stn_relacc_array* ra, int istn, int jstn) {
+    if (istn == jstn) {
+        return ra->horvar[istn - 1];
     }
-    
-            stn_relacc *rac = get_relacc( ra, istn, jstn );
-        double emax2;
 
-        if( rac )
-        {
-            emax2 = rac->emax2;
-        }
+    stn_relacc* rac = get_relacc(ra, istn, jstn);
+    double emax2;
 
-        else
-        {
-            stn_adjustment *isa = stnadj(stnptr(istn));
-            stn_adjustment *jsa = stnadj(stnptr(jstn));
+    if (rac) {
+        emax2 = rac->emax2;
+    }
 
-            /* If one or other station is not adjusted horizontally, then just need to use
+    else {
+        stn_adjustment* isa = stnadj(stnptr(istn));
+        stn_adjustment* jsa = stnadj(stnptr(jstn));
+
+        /* If one or other station is not adjusted horizontally, then just need to use
                the variance of the other  */
 
-            if( ! isa->hrowno  )
-            {
-                emax2 = ra->horvar[jstn-1];
-            }
-            else if( ! jsa->hrowno )
-            {
-                emax2 = ra->horvar[istn-1];
-            }
+        if (!isa->hrowno) {
+            emax2 = ra->horvar[jstn - 1];
+        } else if (!jsa->hrowno) {
+            emax2 = ra->horvar[istn - 1];
+        }
 
-            /* Else if we've already calculated a covariance matrix,
+        /* Else if we've already calculated a covariance matrix,
                then try using it */
 
-            else if( ra->blt )
-            {
-                emax2 = relacc_try_calc_missing_covar( ra, istn, jstn );
-            }
-            else
-            {
-                emax2 = SDC_COVAR_UNAVAILABLE;
-            }
+        else if (ra->blt) {
+            emax2 = relacc_try_calc_missing_covar(ra, istn, jstn);
+        } else {
+            emax2 = SDC_COVAR_UNAVAILABLE;
         }
-        return emax2;
-   
+    }
+    return emax2;
 }
 
-static void relacc_record_missing_verr( stn_relacc_array *ra, int istn, int jstn )
-{
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
+static void relacc_record_missing_verr(stn_relacc_array* ra, int istn, int jstn) {
+    stn_adjustment* isa;
+    stn_adjustment* jsa;
 
     isa = stnadj(stnptr(istn));
     jsa = stnadj(stnptr(jstn));
 
-    int const irow = isa->vrowno-1;
-    int const jrow = jsa->vrowno-1;
-    if( irow < 0 || jrow < 0 ) { return;
-}
+    const int irow = isa->vrowno - 1;
+    const int jrow = jsa->vrowno - 1;
+    if (irow < 0 || jrow < 0) {
+        return;
+    }
 
     /* If the matrix for requests is not created yet, then create it */
 
-    if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
-    if( ! ra->bltreq ) { return;
+    if (!ra->bltreq) {
+        relacc_create_blt_req(ra);
+    }
+    if (!ra->bltreq) {
+        return;
+    }
+
+    blt_nonzero_element(ra->bltreq, irow, jrow);
 }
 
-    blt_nonzero_element( ra->bltreq, irow, jrow );
-}
-
-static double relacc_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn )
-{
-    bltmatrix *blt;
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
+static double relacc_calc_missing_verr(stn_relacc_array* ra, int istn, int jstn) {
+    bltmatrix* blt;
+    stn_adjustment* isa;
+    stn_adjustment* jsa;
     int irow;
     int jrow;
 
@@ -565,100 +542,83 @@ static double relacc_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn
     /* Note: assume that we only get here if both stations are having
        vertical coordinates calculated */
 
-    if( ! isa->vrowno || ! jsa->vrowno )
-    {
+    if (!isa->vrowno || !jsa->vrowno) {
         return SDC_COVAR_UNAVAILABLE;
     }
 
-    irow = isa->vrowno-1;
-    jrow = jsa->vrowno-1;
+    irow = isa->vrowno - 1;
+    jrow = jsa->vrowno - 1;
 
-    return BLT(blt,irow,irow) - BLT(blt,irow,jrow) - BLT(blt,jrow,irow) + BLT(blt,jrow,jrow);
+    return BLT(blt, irow, irow) - BLT(blt, irow, jrow) - BLT(blt, jrow, irow) + BLT(blt, jrow, jrow);
 }
 
-static double relacc_try_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn )
-{
-    stn_adjustment *isa = stnadj(stnptr(istn));
-    stn_adjustment *jsa = stnadj(stnptr(jstn));
+static double relacc_try_calc_missing_verr(stn_relacc_array* ra, int istn, int jstn) {
+    stn_adjustment* isa = stnadj(stnptr(istn));
+    stn_adjustment* jsa = stnadj(stnptr(jstn));
 
-    int const irow = isa->vrowno-1;
-    int const jrow = jsa->vrowno-1;
+    const int irow = isa->vrowno - 1;
+    const int jrow = jsa->vrowno - 1;
 
     /* Check the elements required in the covariance matrix */
 
-    if (blt_is_nonzero_element( ra->blt, irow, jrow ))
-    {
-        return relacc_calc_missing_verr( ra, istn, jstn );
+    if (blt_is_nonzero_element(ra->blt, irow, jrow)) {
+        return relacc_calc_missing_verr(ra, istn, jstn);
     }
 
     return SDC_COVAR_UNAVAILABLE;
 }
 
-static double relacc_get_verr( stn_relacc_array *ra, int istn, int jstn )
-{
-
-    if( istn == jstn )
-    {
-        return ra->vrtvar[istn-1];
+static double relacc_get_verr(stn_relacc_array* ra, int istn, int jstn) {
+    if (istn == jstn) {
+        return ra->vrtvar[istn - 1];
     }
-    
-            double verr;
 
-        stn_relacc *rac = get_relacc( ra, istn, jstn );
-        if( rac )
-        {
-            verr = rac->verr2;
-        }
-        else
-        {
-            /* If in second pass, then covariance should be available */
+    double verr;
 
-            stn_adjustment *isa = stnadj(stnptr(istn));
-            stn_adjustment *jsa = stnadj(stnptr(jstn));
+    stn_relacc* rac = get_relacc(ra, istn, jstn);
+    if (rac) {
+        verr = rac->verr2;
+    } else {
+        /* If in second pass, then covariance should be available */
 
-            /* If one or other station is not adjusted horizontally, then just need to use
+        stn_adjustment* isa = stnadj(stnptr(istn));
+        stn_adjustment* jsa = stnadj(stnptr(jstn));
+
+        /* If one or other station is not adjusted horizontally, then just need to use
                the variance of the other  */
 
-            if( ! isa->vrowno  )
-            {
-                verr = ra->vrtvar[jstn-1];
-            }
-            else if( ! jsa->vrowno )
-            {
-                verr = ra->vrtvar[istn-1];
-            }
+        if (!isa->vrowno) {
+            verr = ra->vrtvar[jstn - 1];
+        } else if (!jsa->vrowno) {
+            verr = ra->vrtvar[istn - 1];
+        }
 
-            /* Else if we've already calculated a covariance matrix,
+        /* Else if we've already calculated a covariance matrix,
                then try using it */
 
-            else if( ra->blt )
-            {
-                verr = relacc_try_calc_missing_verr( ra, istn, jstn );
-            }
-            else
-            {
-                verr = SDC_COVAR_UNAVAILABLE;
-            }
+        else if (ra->blt) {
+            verr = relacc_try_calc_missing_verr(ra, istn, jstn);
+        } else {
+            verr = SDC_COVAR_UNAVAILABLE;
         }
-        return verr;
-   
+    }
+    return verr;
 }
 
-static int check_relacc_complete( stn_relacc_array *ra )
-{
+static int check_relacc_complete(stn_relacc_array* ra) {
     int istn;
     int jstn;
 
-    if( ! ra->cols ) { return MISSING_DATA;
-}
+    if (!ra->cols) {
+        return MISSING_DATA;
+    }
 
-    for( istn = 2; istn <= ra->nstn; istn++ )
-    {
-        for( jstn = 1; jstn < istn; jstn++ )
-        {
-            stn_relacc *r = get_relacc( ra, istn, jstn );
-            if( r->emax2 == SDC_COVAR_UNAVAILABLE ) { return MISSING_DATA;
-}
+    for (istn = 2; istn <= ra->nstn; istn++) {
+        for (jstn = 1; jstn < istn; jstn++) {
+            stn_relacc* r = get_relacc(ra, istn, jstn);
+            if (r->emax2 == SDC_COVAR_UNAVAILABLE) {
+                return MISSING_DATA;
+            }
         }
     }
     return OK;
@@ -777,97 +737,89 @@ static void calc_covar( int istn1, int istn2, double *relcvr )
 
 /*======================================================================*/
 
-
-
-static int reload_covariances( BINARY_FILE *b, stn_relacc_array *ra )
-{
+static int reload_covariances(BINARY_FILE* b, stn_relacc_array* ra) {
     int istn;
     double cvr[6];
     double emax2;
     int nstns;
 
-    if( find_section( b, "STATION_COVARIANCES" ) != OK ) { return MISSING_DATA;
-}
-
-    nstns = number_of_stations( net );
-
-    for( istn = 0; istn++ < nstns; )
-    {
-        fread( cvr, sizeof(cvr), 1, b->f );
-        emax2 = calc_error_ellipse_semimajor2( cvr );
-        add_relacc( ra, istn, istn, emax2, cvr[5] );
+    if (find_section(b, "STATION_COVARIANCES") != OK) {
+        return MISSING_DATA;
     }
 
-    return check_end_section( b );
+    nstns = number_of_stations(net);
+
+    for (istn = 0; istn++ < nstns;) {
+        fread(cvr, sizeof(cvr), 1, b->f);
+        emax2 = calc_error_ellipse_semimajor2(cvr);
+        add_relacc(ra, istn, istn, emax2, cvr[5]);
+    }
+
+    return check_end_section(b);
 }
 
-
-static int reload_relative_covariances( BINARY_FILE *b, stn_relacc_array *ra )
-{
+static int reload_relative_covariances(BINARY_FILE* b, stn_relacc_array* ra) {
     int from;
     int to;
     double cvr[6];
     double emax2;
 
-    if( find_section( b, "STATION_RELATIVE_COVARIANCES" ) != OK ) { return MISSING_DATA;
-}
+    if (find_section(b, "STATION_RELATIVE_COVARIANCES") != OK) {
+        return MISSING_DATA;
+    }
 
     relacc_alloc_cache(ra);
 
-    for(;;)
-    {
-        if( fread( &from, sizeof(from), 1, b->f ) != 1 ) { break;
-}
-        if( from < 0 ) { break;
-}
-        fread( &to, sizeof(to), 1, b->f );
-        fread( cvr, sizeof(cvr), 1, b->f );
+    for (;;) {
+        if (fread(&from, sizeof(from), 1, b->f) != 1) {
+            break;
+        }
+        if (from < 0) {
+            break;
+        }
+        fread(&to, sizeof(to), 1, b->f);
+        fread(cvr, sizeof(cvr), 1, b->f);
 
-        emax2 = calc_error_ellipse_semimajor2( cvr );
-        add_relacc( ra, from, to, emax2, cvr[5] );
+        emax2 = calc_error_ellipse_semimajor2(cvr);
+        add_relacc(ra, from, to, emax2, cvr[5]);
     }
 
-    return check_end_section( b );
+    return check_end_section(b);
 }
 
-static std::string cache_covariance_filename( const std::string &bfn )
-{
-    return std::filesystem::path( native_path(bfn) ).replace_extension().string() + CACHE_COVARIANCE_EXT;
+static std::string cache_covariance_filename(const std::string& bfn) {
+    return std::filesystem::path(native_path(bfn)).replace_extension().string() + CACHE_COVARIANCE_EXT;
 }
 
-static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string &cfn )
-{
-    BINARY_FILE *c;
+static int try_reload_cached_covariance(stn_relacc_array* ra, const std::string& cfn) {
+    BINARY_FILE* c;
     std::string cruntime;
-    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG).file;
-    if( ! c ) { return 0;
-}
-    if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
-    {
+    c = open_binary_file(cfn, CACHE_COVARIANCE_SIG).file;
+    if (!c) {
+        return 0;
+    }
+    if (find_section(c, CACHE_COVARIANCE_SECTION) != OK) {
         close_binary_file(c);
         return 0;
     }
-    read_run_date_field( c->f, cruntime );
-    if( compare_ignoring_case( cruntime, run_time ) != 0 )
-    {
-        printf("Covariance cache file out of date - deleting %s\n",cfn.c_str());
+    read_run_date_field(c->f, cruntime);
+    if (compare_ignoring_case(cruntime, run_time) != 0) {
+        printf("Covariance cache file out of date - deleting %s\n", cfn.c_str());
         close_binary_file(c);
         _unlink(cfn.c_str());
         return 0;
     }
 
-    if( ra->blt )
-    {
+    if (ra->blt) {
         delete_bltmatrix(ra->blt);
-        ra->blt=nullptr;
+        ra->blt = nullptr;
     }
-    if( reload_bltmatrix( &(ra->blt), c->f ) !=  OK )
-    {
+    if (reload_bltmatrix(&(ra->blt), c->f) != OK) {
         return 0;
     }
     close_binary_file(c);
-    ra->bltupdated=0;
-    printf("Using covariance from cache file %s\n",cfn.c_str());
+    ra->bltupdated = 0;
+    printf("Using covariance from cache file %s\n", cfn.c_str());
     return 1;
 }
 
@@ -876,99 +828,85 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string
 
 // #pragma warning ( disable : 4100 )
 
-static long f_station_id( void *, int stn )
-{
-    return stn+1;
+static long f_station_id(void*, int stn) {
+    return stn + 1;
 }
 
-static int f_station_role ( void *env, int stn )
-{
-    station *st;
-    stn_adjustment *sa;
+static int f_station_role(void* env, int stn) {
+    station* st;
+    stn_adjustment* sa;
     int role;
-    int const istn = f_station_id( env, stn );
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    const int istn = f_station_id(env, stn);
+    stn_relacc_array* ra = (stn_relacc_array*)env;
     role = ra->role[stn];
-    if( role == SDC_IGNORE_MARK || role == SDC_CONTROL_MARK ) { return role;
-}
+    if (role == SDC_IGNORE_MARK || role == SDC_CONTROL_MARK) {
+        return role;
+    }
 
     st = stnptr(istn);
-    sa = stnadj( st );
-    
+    sa = stnadj(st);
+
     // Identify ignored stations (for testing) and control stations
 
-    if( ignored_station(istn) || rejected_station(istn) ) 
-    {
-        role = SDC_IGNORE_MARK; 
+    if (ignored_station(istn) || rejected_station(istn)) {
+        role = SDC_IGNORE_MARK;
     }
     // If testing 3d
-    else if( ra->testhor && ra->testvrt )
-    {
+    else if (ra->testhor && ra->testvrt) {
         role = ra->role[stn];
         // If not calculated (and not ignored) then it is a control mark
-        if( ! (sa->hrowno || sa->vrowno) ) 
-        {
-            role=SDC_CONTROL_MARK;
+        if (!(sa->hrowno || sa->vrowno)) {
+            role = SDC_CONTROL_MARK;
         }
         // If only one ordindate calced, then ignore if ignore constrained
         // option is selected
-        else if( ra->ignoreconstrained && ! (sa->hrowno && sa->vrowno ) )
-        {
-            role=SDC_IGNORE_MARK;
+        else if (ra->ignoreconstrained && !(sa->hrowno && sa->vrowno)) {
+            role = SDC_IGNORE_MARK;
         }
     }
     // If only testing horizontally
-    else if( ra->testhor )
-    {
-        if( ! sa->hrowno )
-        {
-            // Assume if in 3d adjustment (vertical calculated) 
-            // then not calculated because of lack of data, not because 
+    else if (ra->testhor) {
+        if (!sa->hrowno) {
+            // Assume if in 3d adjustment (vertical calculated)
+            // then not calculated because of lack of data, not because
             // it is a control mark.
             role = sa->vrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
         }
     }
     // If only testing vertically
-    else if( ra->testvrt )
-    {
-        if( ! sa->vrowno )
-        {
+    else if (ra->testvrt) {
+        if (!sa->vrowno) {
             // As per above but for vertical
             role = sa->hrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
         }
     }
-    ra->role[stn]=role;
+    ra->role[stn] = role;
     return role;
 }
 
-static int f_station_priority ( void *env, int stn )
-{
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+static int f_station_priority(void* env, int stn) {
+    stn_relacc_array* ra = (stn_relacc_array*)env;
     return ra->priority[stn];
 }
 
-static double f_distance2( void *env, int stn1, int stn2 )
-{
+static double f_distance2(void* env, int stn1, int stn2) {
     double dist2 = -1.0;
     int istn1;
     int istn2;
-    if( stn1 == stn2 ) { return 0.0;
-}
-    istn1 = f_station_id( env, stn1 );
-    istn2 = f_station_id( env, stn2 );
-    if( dist2 < 0 )
-    {
-        station *stf;
-        station *stt;
-        stf = station_ptr( net, istn1 );
-        stt = station_ptr( net, istn2 );
-        if( stf && stt )
-        {
-            dist2 = calc_distance( stf, 0.0, stt, 0.0, nullptr, nullptr );
+    if (stn1 == stn2) {
+        return 0.0;
+    }
+    istn1 = f_station_id(env, stn1);
+    istn2 = f_station_id(env, stn2);
+    if (dist2 < 0) {
+        station* stf;
+        station* stt;
+        stf = station_ptr(net, istn1);
+        stt = station_ptr(net, istn2);
+        if (stf && stt) {
+            dist2 = calc_distance(stf, 0.0, stt, 0.0, nullptr, nullptr);
             dist2 *= dist2;
-        }
-        else
-        {
+        } else {
             /* Should really be assertion error. */
             dist2 = 0.0;
         }
@@ -976,75 +914,76 @@ static double f_distance2( void *env, int stn1, int stn2 )
     return dist2;
 }
 
-static double f_error2( void *env, int stn1, int stn2 )
-{
+static double f_error2(void* env, int stn1, int stn2) {
     int istn1;
     int istn2;
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    stn_relacc_array* ra = (stn_relacc_array*)env;
     double emax2 = 0.0;
 
-    istn1 = f_station_id( env, stn1 );
-    istn2 = f_station_id( env, stn2 );
-    emax2 = relacc_get_covar( ra, istn1, istn2 );
-    if( emax2 > 0.0 ) { emax2 *= varmult;
-}
+    istn1 = f_station_id(env, stn1);
+    istn2 = f_station_id(env, stn2);
+    emax2 = relacc_get_covar(ra, istn1, istn2);
+    if (emax2 > 0.0) {
+        emax2 *= varmult;
+    }
     return emax2;
 }
 
-static double f_vrterror2( void *env, int stn1, int stn2 )
-{
+static double f_vrterror2(void* env, int stn1, int stn2) {
     int istn1;
     int istn2;
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    stn_relacc_array* ra = (stn_relacc_array*)env;
     double verr = 0.0;
 
-    istn1 = f_station_id( env, stn1 );
-    istn2 = f_station_id( env, stn2 );
-    verr = relacc_get_verr( ra, istn1, istn2 );
-    if( verr > 0.0 ) { verr *= varmult;
-}
+    istn1 = f_station_id(env, stn1);
+    istn2 = f_station_id(env, stn2);
+    verr = relacc_get_verr(ra, istn1, istn2);
+    if (verr > 0.0) {
+        verr *= varmult;
+    }
     return verr;
 }
 
-static void f_request_covar( void *env, int stn1, int stn2 )
-{
+static void f_request_covar(void* env, int stn1, int stn2) {
     int istn1;
     int istn2;
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    istn1 = f_station_id( env, stn1 );
-    istn2 = f_station_id( env, stn2 );
-    relacc_record_missing_covar( ra, istn1, istn2 );
-    relacc_record_missing_verr( ra, istn1, istn2 );
+    stn_relacc_array* ra = (stn_relacc_array*)env;
+    istn1 = f_station_id(env, stn1);
+    istn2 = f_station_id(env, stn2);
+    relacc_record_missing_covar(ra, istn1, istn2);
+    relacc_record_missing_verr(ra, istn1, istn2);
 }
 
-static int f_calc_requested( void *env )
-{
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    return relacc_calc_requested_covar( ra );
+static int f_calc_requested(void* env) {
+    stn_relacc_array* ra = (stn_relacc_array*)env;
+    return relacc_calc_requested_covar(ra);
 }
 
-static void f_set_order( void *env, int stn, int order )
-{
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    ra->order[stn] = (short) (order+1);
+static void f_set_order(void* env, int stn, int order) {
+    stn_relacc_array* ra = (stn_relacc_array*)env;
+    ra->order[stn] = (short)(order + 1);
 }
 
-static void f_write_log( void *env, const std::string_view text )
-{
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    if( ra->logfile ) { fwrite( text.data(), 1, text.size(), ra->logfile ); }
-    if( ra->outputlog ) { fwrite( text.data(), 1, text.size(), stdout ); putchar( '\n' ); }
+static void f_write_log(void* env, const std::string_view text) {
+    stn_relacc_array* ra = (stn_relacc_array*)env;
+    if (ra->logfile) {
+        fwrite(text.data(), 1, text.size(), ra->logfile);
+    }
+    if (ra->outputlog) {
+        fwrite(text.data(), 1, text.size(), stdout);
+        putchar('\n');
+    }
 }
 
-static void f_write_debug( void *env, const std::string_view text )
-{
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    if( ra->dbgfile ) { fwrite( text.data(), 1, text.size(), ra->dbgfile ); }
+static void f_write_debug(void* env, const std::string_view text) {
+    stn_relacc_array* ra = (stn_relacc_array*)env;
+    if (ra->dbgfile) {
+        fwrite(text.data(), 1, text.size(), ra->dbgfile);
+    }
 }
 
-static std::unique_ptr<SDCTest> create_test( const int maxorder )
-{
-    auto hsdc = std::make_unique<SDCTest>( maxorder );
+static std::unique_ptr<SDCTest> create_test(const int maxorder) {
+    auto hsdc = std::make_unique<SDCTest>(maxorder);
     hsdc->pfStationId = f_station_id;
     hsdc->pfStationRole = f_station_role;
     hsdc->pfStationPriority = f_station_priority;
@@ -1060,375 +999,325 @@ static std::unique_ptr<SDCTest> create_test( const int maxorder )
     return hsdc;
 }
 
-static int run_tests( SDCTest &hsdc )
-{
-    return sdcCalcSDCOrders2( &hsdc, min_order );
+static int run_tests(SDCTest& hsdc) {
+    return sdcCalcSDCOrders2(&hsdc, min_order);
 }
 
-static void write_results( const SDCTest &hsdc, stn_relacc_array *ra )
-{
-    FILE *out = ra->logfile;
-    int const nstns = ra->nstn;
+static void write_results(const SDCTest& hsdc, stn_relacc_array* ra) {
+    FILE* out = ra->logfile;
+    const int nstns = ra->nstn;
     int order;
     char header[80];
 
-    if( ! out ) { return;
-}
+    if (!out) {
+        return;
+    }
 
-    fprintf(out,"Results of order calculations\n");
+    fprintf(out, "Results of order calculations\n");
 
-    for( order = -2; order <= hsdc.norder(); order++ )
-    {
+    for (order = -2; order <= hsdc.norder(); order++) {
         int headed = 0;
-        if( order == -2 )
-        {
-            sprintf(header,"Control stations");
+        if (order == -2) {
+            sprintf(header, "Control stations");
+        } else if (order == -1) {
+            sprintf(header, "Rejected stations");
+        } else if (order == 0) {
+            sprintf(header, "Stations assigned order %s", dfltOrder.c_str());
+        } else if (order > 0) {
+            sprintf(header, "Stations achieving order %s", hsdc.tests[order - 1].scOrder.c_str());
         }
-        else if (order == -1 )
-        {
-            sprintf(header,"Rejected stations");
-        }
-        else if (order == 0 )
-        {
-            sprintf(header,"Stations assigned order %s", dfltOrder.c_str());
-        }
-        else if (order > 0 )
-        {
-            sprintf(header,"Stations achieving order %s",hsdc.tests[order-1].scOrder.c_str());
-        }
-        for( int istn = 1; istn <= nstns; istn++ )
-        {
-            if( ra->order[istn-1] != order ) { continue;
-}
-            if( ! headed )
-            {
-                fprintf(out,"\n%s\n",header);
+        for (int istn = 1; istn <= nstns; istn++) {
+            if (ra->order[istn - 1] != order) {
+                continue;
+            }
+            if (!headed) {
+                fprintf(out, "\n%s\n", header);
                 headed = 1;
             }
-            fprintf(out,"%s\n",stnptr(istn)->Code.c_str());
+            fprintf(out, "%s\n", stnptr(istn)->Code.c_str());
         }
     }
 }
 
-
-static void write_station_index( stn_relacc_array *ra )
-{
-    FILE *out = ra->logfile;
+static void write_station_index(stn_relacc_array* ra) {
+    FILE* out = ra->logfile;
     int i;
 
     fprintf(out, "\nStation lookup for SDC test module\n");
-    fprintf(out,"    id %-*s role prty\n",stn_name_width,"code");
-    for( i = 0; i < ra->nstn; i++ )
-    {
-        int const ist0 = i+1;
-        fprintf(out,"  %4d %-*s %4d %4d\n",
-                ist0,stn_name_width,stnptr(ist0)->Code.c_str(),
-                f_station_role(ra,i), f_station_priority(ra,i));
+    fprintf(out, "    id %-*s role prty\n", stn_name_width, "code");
+    for (i = 0; i < ra->nstn; i++) {
+        const int ist0 = i + 1;
+        fprintf(out, "  %4d %-*s %4d %4d\n", ist0, stn_name_width, stnptr(ist0)->Code.c_str(), f_station_role(ra, i),
+                f_station_priority(ra, i));
     }
-    fprintf(out,"\n");
+    fprintf(out, "\n");
 }
 
+static std::string_view relacc_order_string(stn_relacc_array* ra, short order) {
+    if (order == SDC_CONTROL_MARK) {
+        return "C";
+    }
+    if (order == SDC_IGNORE_MARK) {
+        return "I";
+    }
+    if (order == 0) {
+        return dfltOrder;
+    }
+    return ra->hsdc->tests[order - 1].scOrder;
+}
 
-static std::string_view relacc_order_string( stn_relacc_array *ra, short order )
-{
-    if( order == SDC_CONTROL_MARK ) { return "C";
-}
-    if( order == SDC_IGNORE_MARK ) { return "I";
-}
-    if( order == 0 ) { return dfltOrder;
-}
-    return ra->hsdc->tests[order-1].scOrder;
-}
-
-static std::string_view relacc_role_string( stn_relacc_array *ra, short role )
-{
-    if( role == SDC_CONTROL_MARK ) { return "C";
-}
-    if( role == SDC_IGNORE_MARK ) { return "I";
-}
-    if( role >= 0 && role < ra->hsdc->norder() ) { return ra->hsdc->tests[role].scOrder;
-}
+static std::string_view relacc_role_string(stn_relacc_array* ra, short role) {
+    if (role == SDC_CONTROL_MARK) {
+        return "C";
+    }
+    if (role == SDC_IGNORE_MARK) {
+        return "I";
+    }
+    if (role >= 0 && role < ra->hsdc->norder()) {
+        return ra->hsdc->tests[role].scOrder;
+    }
     return "";
 }
 
-static std::string output_filename( std::string_view filename, const std::string &basename, std::string_view ext )
-{
-    if( ! filename.empty() && filename.front() == '+' )
-    {
-        ext = filename.substr( 1 );
+static std::string output_filename(std::string_view filename, const std::string& basename, std::string_view ext) {
+    if (!filename.empty() && filename.front() == '+') {
+        ext = filename.substr(1);
+    } else if (!boost::algorithm::iequals(filename, default_output_filename)) {
+        return std::string(filename);
     }
-    else if( ! boost::algorithm::iequals( filename, default_output_filename ) )
-    {
-        return std::string( filename );
-    }
-    return std::filesystem::path( native_path(basename) ).replace_extension().string() + std::string( ext );
+    return std::filesystem::path(native_path(basename)).replace_extension().string() + std::string(ext);
 }
 
-static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
-{
-    const std::unique_ptr<output_csv> csv = output_csv::open(csvname,false);
-    if( ! csv )
-    {
-        printf("\nCannot open results csv file %s\n",csvname.c_str());
+static void write_output_csv(const std::string& csvname, stn_relacc_array* ra) {
+    const std::unique_ptr<output_csv> csv = output_csv::open(csvname, false);
+    if (!csv) {
+        printf("\nCannot open results csv file %s\n", csvname.c_str());
         return;
-    } 
+    }
 
-    int const haveorders = ra->have_srcorders;
-    int const geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
-    int const projection_coords = is_projection( net->crdsys ) ? 1 : 0;
+    const int haveorders = ra->have_srcorders;
+    const int geocentric_coords = is_geocentric(net->crdsys) ? 1 : 0;
+    const int projection_coords = is_projection(net->crdsys) ? 1 : 0;
     int ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
-    projection *prj = net->crdsys->prj;
-    ellipsoid *elp = net->crdsys->rf->el;
+    projection* prj = net->crdsys->prj;
+    ellipsoid* elp = net->crdsys->rf->el;
 
-    csv->writeHeader( "code" );
-    csv->writeHeader( "crdsys" );
-    if( geocentric_coords )
-    {
+    csv->writeHeader("code");
+    csv->writeHeader("crdsys");
+    if (geocentric_coords) {
         /* Set ellipsoidal as true so that ellipsoidal height is calced */
-        ellipsoidal=1;
+        ellipsoidal = 1;
         csv->writeHeader("X");
         csv->writeHeader("Y");
         csv->writeHeader("Z");
-    }
-    else
-    {
-        if( projection_coords )
-        {
+    } else {
+        if (projection_coords) {
             csv->writeHeader("easting");
             csv->writeHeader("northing");
-        }
-        else
-        {
+        } else {
             csv->writeHeader("longitude");
             csv->writeHeader("latitude");
         }
-        csv->writeHeader( ellipsoidal ? "ellheight" : "height" );
+        csv->writeHeader(ellipsoidal ? "ellheight" : "height");
     }
-    if( haveorders ) { csv->writeHeader("src_order");
-}
+    if (haveorders) {
+        csv->writeHeader("src_order");
+    }
     csv->writeHeader("mode");
-    csv->writeHeader( "adj_e" );
-    csv->writeHeader( "adj_n" );
-    csv->writeHeader( "adj_h" );
-    csv->writeHeader( "errhor" );
-    csv->writeHeader( "errhgt" );
-    csv->writeHeader( "limit_order" );
-    csv->writeHeader( "priority" );
-    csv->writeHeader( "calc_order" );
+    csv->writeHeader("adj_e");
+    csv->writeHeader("adj_n");
+    csv->writeHeader("adj_h");
+    csv->writeHeader("errhor");
+    csv->writeHeader("errhgt");
+    csv->writeHeader("limit_order");
+    csv->writeHeader("priority");
+    csv->writeHeader("calc_order");
     csv->endRecord();
 
-    station *st;
-    for( reset_station_list(net,0); nullptr != (st = next_station(net)); )
-    {
-        int const idra=st->id-1;
-        stn_adjustment *sa = stnadj(st);
-        if( sa->flag.ignored ) { continue;
-}
+    station* st;
+    for (reset_station_list(net, 0); nullptr != (st = next_station(net));) {
+        const int idra = st->id - 1;
+        stn_adjustment* sa = stnadj(st);
+        if (sa->flag.ignored) {
+            continue;
+        }
         double height = st->OHgt;
-        if( ellipsoidal ) { height += st->GUnd;
-}
+        if (ellipsoidal) {
+            height += st->GUnd;
+        }
 
-        int const adjusted = sa->hrowno || sa->vrowno;
+        const int adjusted = sa->hrowno || sa->vrowno;
 
-        csv->writeString( st->Code );
+        csv->writeString(st->Code);
         csv->writeString(net->crdsys->code);
 
-        if( geocentric_coords )
-        {
+        if (geocentric_coords) {
             double llh[3];
             double xyz[3];
-            llh[CRD_LON]=st->ELon;
-            llh[CRD_LAT]=st->ELat;
-            llh[CRD_HGT]=height;
-            llh_to_xyz( elp, llh, xyz, nullptr, nullptr);
-            csv->writeDouble( xyz[CRD_X], coord_precision );
-            csv->writeDouble( xyz[CRD_Y], coord_precision );
-            csv->writeDouble( xyz[CRD_Z], coord_precision );
-        }
-        else
-        {
-            if( projection_coords )
-            {
+            llh[CRD_LON] = st->ELon;
+            llh[CRD_LAT] = st->ELat;
+            llh[CRD_HGT] = height;
+            llh_to_xyz(elp, llh, xyz, nullptr, nullptr);
+            csv->writeDouble(xyz[CRD_X], coord_precision);
+            csv->writeDouble(xyz[CRD_Y], coord_precision);
+            csv->writeDouble(xyz[CRD_Z], coord_precision);
+        } else {
+            if (projection_coords) {
                 double easting;
                 double northing;
-                geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
-                csv->writeDouble( easting, coord_precision );
-                csv->writeDouble( northing, coord_precision );
-            }
-            else
-            {
-                csv->writeDouble( st->ELon*RTOD, coord_precision+5 );
-                csv->writeDouble( st->ELat*RTOD, coord_precision+5 );
+                geog_to_proj(prj, st->ELon, st->ELat, &easting, &northing);
+                csv->writeDouble(easting, coord_precision);
+                csv->writeDouble(northing, coord_precision);
+            } else {
+                csv->writeDouble(st->ELon * RTOD, coord_precision + 5);
+                csv->writeDouble(st->ELat * RTOD, coord_precision + 5);
             }
 
-            csv->writeDouble( height, coord_precision );
+            csv->writeDouble(height, coord_precision);
         }
 
-        if( haveorders )
-        {
-            csv->writeString( net->order(ra->src_orderid[idra]) );
+        if (haveorders) {
+            csv->writeString(net->order(ra->src_orderid[idra]));
         }
 
-        if( adjusted )
-        {
+        if (adjusted) {
             double de;
             double dn;
             double dh;
             std::string mode = "--";
-            if( sa->flag.float_h ) { mode[0] = 'h';
-            } else if( sa->flag.adj_h ) { mode[0] = 'H';
-}
-            if( sa->flag.float_v ) { mode[1] = 'v';
-            } else if( sa->flag.adj_v ) { mode[1] = 'V';
-}
+            if (sa->flag.float_h) {
+                mode[0] = 'h';
+            } else if (sa->flag.adj_h) {
+                mode[0] = 'H';
+            }
+            if (sa->flag.float_v) {
+                mode[1] = 'v';
+            } else if (sa->flag.adj_v) {
+                mode[1] = 'V';
+            }
 
-            dn = ( st->ELat - sa->initELat ) * st->dNdLt;
-            de = ( st->ELon - sa->initELon ) * st->dEdLn;
+            dn = (st->ELat - sa->initELat) * st->dNdLt;
+            de = (st->ELon - sa->initELon) * st->dEdLn;
             dh = st->OHgt - sa->initOHgt;
 
             csv->writeString(mode);
-            csv->writeDouble( de, coord_precision );
-            csv->writeDouble( dn, coord_precision );
-            csv->writeDouble( dh, coord_precision );
+            csv->writeDouble(de, coord_precision);
+            csv->writeDouble(dn, coord_precision);
+            csv->writeDouble(dh, coord_precision);
 
-            if( ra->horvar[idra] >= 0.0 )
-            {
-                csv->writeDouble( sqrt(ra->horvar[idra]), coord_precision );
-            }
-            else
-            {
+            if (ra->horvar[idra] >= 0.0) {
+                csv->writeDouble(sqrt(ra->horvar[idra]), coord_precision);
+            } else {
                 csv->writeNullField();
             }
 
-            if( ra->vrtvar[idra] >= 0.0 )
-            {
-                csv->writeDouble( sqrt(ra->vrtvar[idra]), coord_precision );
-            }
-            else
-            {
+            if (ra->vrtvar[idra] >= 0.0) {
+                csv->writeDouble(sqrt(ra->vrtvar[idra]), coord_precision);
+            } else {
                 csv->writeNullField();
             }
 
-        }
-        else
-        {
+        } else {
             csv->writeNullFields(6);
         }
 
-        csv->writeString( relacc_role_string( ra, ra->role[st->id-1]) );
-        if( ra->priority[st->id-1] == SDC_NO_PRIORITY )
-        {
+        csv->writeString(relacc_role_string(ra, ra->role[st->id - 1]));
+        if (ra->priority[st->id - 1] == SDC_NO_PRIORITY) {
             csv->writeNullField();
+        } else {
+            csv->writeInt(static_cast<int>(ra->priority[st->id - 1]));
         }
-        else
-        {
-            csv->writeInt(static_cast<int>(ra->priority[st->id-1]));
-        }
-        csv->writeString( relacc_order_string( ra, ra->order[st->id-1]) );
+        csv->writeString(relacc_order_string(ra, ra->order[st->id - 1]));
 
         csv->endRecord();
     }
 }
 
-
 static int station_order;
 
-static int stations_of_order( station *st )
-{
-    stn_adjustment *sa = stnadj( st );
+static int stations_of_order(station* st) {
+    stn_adjustment* sa = stnadj(st);
     return sa->obscount == station_order;
 }
 
-static void write_coord_files( const SDCTest &hsdc, stn_relacc_array *ra, const std::string &fname )
-{
+static void write_coord_files(const SDCTest& hsdc, stn_relacc_array* ra, const std::string& fname) {
     int i;
     int iorder;
     char comment[80];
 
     /* Copy the order to the stnadjustment obscount element */
 
-    for( i = 0; i < ra->nstn; i++ )
-    {
-        int const istn = i+1;
-        station * st = stnptr(istn);
-        stn_adjustment *sa = stnadj( st );
+    for (i = 0; i < ra->nstn; i++) {
+        const int istn = i + 1;
+        station* st = stnptr(istn);
+        stn_adjustment* sa = stnadj(st);
         sa->obscount = ra->order[i];
     }
 
     /* For each order check that there is a station achieving that order, and if
        so create a station file */
 
-    for( iorder = 0; iorder <= hsdc.norder(); iorder++ )
-    {
-        for( i = 0; i < ra->nstn; i++ )
-        {
-            if( ra->order[i] != iorder ) { continue;
-}
-            const std::string order = ( iorder ? hsdc.tests[iorder-1].scOrder : dfltOrder ).str();
+    for (iorder = 0; iorder <= hsdc.norder(); iorder++) {
+        for (i = 0; i < ra->nstn; i++) {
+            if (ra->order[i] != iorder) {
+                continue;
+            }
+            const std::string order = (iorder ? hsdc.tests[iorder - 1].scOrder : dfltOrder).str();
             const std::string crdfile = fname + "_" + order + ".crd";
-            sprintf(comment,"Stations assigned order %s by snapspec - run at %s",
-                    order.c_str(),spec_run_time.c_str());
+            sprintf(comment, "Stations assigned order %s by snapspec - run at %s", order.c_str(),
+                    spec_run_time.c_str());
             station_order = iorder;
-            write_network(net,crdfile,comment,coord_precision,stations_of_order);
+            write_network(net, crdfile, comment, coord_precision, stations_of_order);
             break;
         }
     }
 }
 
-static void copy_unused_roles_to_orders( stn_relacc_array *ra )
-{
-    for( int istn = 0; istn < number_of_stations(net); istn++ )
-    {
-        if( ra->role[istn] == SDC_CONTROL_MARK || ra->role[istn] == SDC_IGNORE_MARK )
-        {
-            ra->order[istn]=ra->role[istn];
+static void copy_unused_roles_to_orders(stn_relacc_array* ra) {
+    for (int istn = 0; istn < number_of_stations(net); istn++) {
+        if (ra->role[istn] == SDC_CONTROL_MARK || ra->role[istn] == SDC_IGNORE_MARK) {
+            ra->order[istn] = ra->role[istn];
         }
     }
 }
 
-static void update_station_orders( const SDCTest &hsdc, stn_relacc_array *ra )
-{
+static void update_station_orders(const SDCTest& hsdc, stn_relacc_array* ra) {
     int istn;
 
     /* Force station orders onto network here - alternative is to raise error
        if they are not already included. */
 
-    int const order_class = net->add_orders();
+    const int order_class = net->add_orders();
 
-    for( istn = 0; istn++ < number_of_stations(net); )
-    {
-        station *stn = station_ptr(net,istn);
+    for (istn = 0; istn++ < number_of_stations(net);) {
+        station* stn = station_ptr(net, istn);
 
-        const int iorder = ra->order[istn-1];
-        if( iorder < 0 || iorder > hsdc.norder() ) { continue;
-}
+        const int iorder = ra->order[istn - 1];
+        if (iorder < 0 || iorder > hsdc.norder()) {
+            continue;
+        }
 
-        const std::string order = ( iorder ? hsdc.tests[iorder-1].scOrder : dfltOrder ).str();
+        const std::string order = (iorder ? hsdc.tests[iorder - 1].scOrder : dfltOrder).str();
 
-        stn->set_class( order_class, net->order_id( order, 1 ));
+        stn->set_class(order_class, net->order_id(order, 1));
     }
-
 }
 
-
-static void update_crdfile( const std::string &fname )
-{
-    write_network( net, fname, "Coordinate orders updated by snapspec",coord_precision,nullptr);
-    printf("Updated station orders in %s\n",fname.c_str());
+static void update_crdfile(const std::string& fname) {
+    write_network(net, fname, "Coordinate orders updated by snapspec", coord_precision, nullptr);
+    printf("Updated station orders in %s\n", fname.c_str());
 }
 
-struct MaxControlOrder
-{
+struct MaxControlOrder {
     /// Result of get_max_control_order
-    MaxControlOrder( const int order, const std::optional<std::string> &orderName = std::nullopt )
-        : order( order ), orderName( orderName ) {}
+    MaxControlOrder(const int order, const std::optional<std::string>& orderName = std::nullopt)
+        : order(order), orderName(orderName) {}
 
-    const int order;                            ///< Control order found, or a negative value if it could not be determined
-    const std::optional<std::string> orderName; ///< Name of the order, if one was found
+    const int order;  ///< Control order found, or a negative value if it could not be determined
+    const std::optional<std::string> orderName;  ///< Name of the order, if one was found
 };
 
-static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_array *ra )
-{
+static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_array* ra) {
     std::optional<std::string> max_order_str;
     int nnetorder;
     int nbadorder;
@@ -1439,32 +1328,30 @@ static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_ar
     int istn;
     int sorted;
 
-    if( ! net->order_count() )
-    {
-        if( ra->logfile )
-        {
-            fprintf(ra->logfile,
-                    "Cannot determine control station orders as network doesn't have order information\n"
-                   );
+    if (!net->order_count()) {
+        if (ra->logfile) {
+            fprintf(ra->logfile, "Cannot determine control station orders as network doesn't have order information\n");
         }
         printf("Cannot determine control station orders as network doesn't have order information\n");
-        return MaxControlOrder( -1 );
+        return MaxControlOrder(-1);
     }
 
     /* See if the orders are sorted */
 
     sorted = 1;
-    for( i = 0; i < hsdc.norder(); i++ )
-    {
-        const std::string_view next( i == hsdc.norder() - 1 ? dfltOrder : hsdc.tests[i+1].scOrder );
-        if( stncodecmp(next,hsdc.tests[i].scOrder) <= 0 ) { sorted = 0; break; }
+    for (i = 0; i < hsdc.norder(); i++) {
+        const std::string_view next(i == hsdc.norder() - 1 ? dfltOrder : hsdc.tests[i + 1].scOrder);
+        if (stncodecmp(next, hsdc.tests[i].scOrder) <= 0) {
+            sorted = 0;
+            break;
+        }
     }
 
     /* Set up the order_lookup array which converts from the network station orders
        to the SDC test orders */
 
     nnetorder = net->order_count();
-    std::vector<int> order_lookup( boost::numeric_cast<size_t>( nnetorder + 1 ) );
+    std::vector<int> order_lookup(boost::numeric_cast<size_t>(nnetorder + 1));
 
     /* Orders will be defined as -2: undefined, -1 less than lowest test, >=0 control order */
     /* Note that network order 0 is the default "undefined" order, ie "-", and so is always
@@ -1473,20 +1360,21 @@ static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_ar
 
     order_lookup[0] = -2;
 
-    for( i = 1; i < nnetorder; i++ )
-    {
-        std::string const order = net->order(i);
+    for (i = 1; i < nnetorder; i++) {
+        const std::string order = net->order(i);
         order_lookup[i] = sorted ? -1 : -2;
 
-        for( j = 0; j <= hsdc.norder(); j++ )
-        {
-            const std::string_view testorder( j < hsdc.norder() ? hsdc.tests[j].scOrder : dfltOrder );
-            int const cmp = stncodecmp(testorder,order);
-            if( cmp == 0 ) { order_lookup[i] = j; break; }
-            if( sorted )
-            {
-                if( cmp > 0 ) { break;
-}
+        for (j = 0; j <= hsdc.norder(); j++) {
+            const std::string_view testorder(j < hsdc.norder() ? hsdc.tests[j].scOrder : dfltOrder);
+            const int cmp = stncodecmp(testorder, order);
+            if (cmp == 0) {
+                order_lookup[i] = j;
+                break;
+            }
+            if (sorted) {
+                if (cmp > 0) {
+                    break;
+                }
                 order_lookup[i] = j;
             }
         }
@@ -1494,73 +1382,59 @@ static MaxControlOrder get_max_control_order( const SDCTest &hsdc, stn_relacc_ar
 
     nbadorder = 0;
 
-    for( istn = 0; istn++ < number_of_stations( net ); )
-    {
-        station *st;
-        stn_adjustment *sa;
+    for (istn = 0; istn++ < number_of_stations(net);) {
+        station* st;
+        stn_adjustment* sa;
         int iorder;
 
-        st = station_ptr(net,istn);
-        sa = stnadj( st );
+        st = station_ptr(net, istn);
+        sa = stnadj(st);
 
-        if( ignored_station(istn) || rejected_station(istn) ) { continue;
-}
+        if (ignored_station(istn) || rejected_station(istn)) {
+            continue;
+        }
 
-        if( (ra->testhor && sa->hrowno) || (ra->testvrt && sa->vrowno) ) { continue;
-}
+        if ((ra->testhor && sa->hrowno) || (ra->testvrt && sa->vrowno)) {
+            continue;
+        }
 
         orderid = net->station_order(st);
         iorder = order_lookup[orderid];
-        if( iorder == -2 )
-        {
-            if( ra->logfile )
-            {
-                fprintf(ra->logfile,"Control station %s has unrecognised order %s\n",
-                        st->Code.c_str(), net->order( orderid ).c_str() );
+        if (iorder == -2) {
+            if (ra->logfile) {
+                fprintf(ra->logfile, "Control station %s has unrecognised order %s\n", st->Code.c_str(),
+                        net->order(orderid).c_str());
             }
             nbadorder++;
             order_lookup[orderid] = -3;
-        }
-        else if( iorder > max_order )
-        {
+        } else if (iorder > max_order) {
             max_order = iorder;
             max_order_str = net->order(orderid);
-        }
-        else if( sorted && orderid > 0)
-        {
-            std::string orderstr = net->order( orderid );
-            if( ! max_order_str || orderstr.compare(*max_order_str) < 0 )
-            {
+        } else if (sorted && orderid > 0) {
+            std::string orderstr = net->order(orderid);
+            if (!max_order_str || orderstr.compare(*max_order_str) < 0) {
                 max_order_str = std::move(orderstr);
             }
         }
     }
 
-    if( nbadorder )
-    {
-        for( i = 0; i <= nnetorder; i++ )
-        {
-            if( order_lookup[i] == -3 )
-            {
-                if( i == 0 )
-                {
+    if (nbadorder) {
+        for (i = 0; i <= nnetorder; i++) {
+            if (order_lookup[i] == -3) {
+                if (i == 0) {
                     printf("Control stations have undefined orders\n");
-                }
-                else
-                {
-                    printf("Control stations order %s not defined in snapspec configuration\n",
-                           net->order(i).c_str() );
+                } else {
+                    printf("Control stations order %s not defined in snapspec configuration\n", net->order(i).c_str());
                 }
             }
         }
         max_order = -2;
     }
 
-    return MaxControlOrder( max_order, max_order_str );
+    return MaxControlOrder(max_order, max_order_str);
 }
 
-static int setup_hv_mode( int hvmode, SDCTest &hsdc, stn_relacc_array *ra )
-{
+static int setup_hv_mode(int hvmode, SDCTest& hsdc, stn_relacc_array* ra) {
     int adjhor;
     int adjvrt;
     int adj3d;
@@ -1568,264 +1442,233 @@ static int setup_hv_mode( int hvmode, SDCTest &hsdc, stn_relacc_array *ra )
     int testvrt;
     int i;
     int nstns;
-    FILE *out = ra->logfile;
+    FILE* out = ra->logfile;
 
-    if( hvmode == SRA_HVMODE_AUTO ) { hvmode=ra->hvmode;
-}
+    if (hvmode == SRA_HVMODE_AUTO) {
+        hvmode = ra->hvmode;
+    }
 
     adjhor = adjvrt = adj3d = 0;
     nstns = number_of_stations(net);
-    for( i = 1; i <= nstns; i++ )
-    {
-        stn_adjustment *isa = stnadj(stnptr(i));
-        if( isa->hrowno ) { adjhor++;
-}
-        if( isa->vrowno ) { adjvrt++;
-}
-        if( isa->hrowno && isa->vrowno ) { adj3d++;
-}
+    for (i = 1; i <= nstns; i++) {
+        stn_adjustment* isa = stnadj(stnptr(i));
+        if (isa->hrowno) {
+            adjhor++;
+        }
+        if (isa->vrowno) {
+            adjvrt++;
+        }
+        if (isa->hrowno && isa->vrowno) {
+            adj3d++;
+        }
     }
 
     testhor = 0;
     testvrt = 0;
-    for( const SDCOrderTest &test : hsdc.tests )
-    {
-        if( test.blnTestHor ) { testhor=1;
-}
-        if( test.blnTestVrt ) { testvrt=1;
-}
+    for (const SDCOrderTest& test : hsdc.tests) {
+        if (test.blnTestHor) {
+            testhor = 1;
+        }
+        if (test.blnTestVrt) {
+            testvrt = 1;
+        }
     }
 
-    if( hvmode == SRA_HVMODE_HOR ) { testvrt = 0;
-}
-    if( hvmode == SRA_HVMODE_VRT ) { testhor = 0;
-}
+    if (hvmode == SRA_HVMODE_HOR) {
+        testvrt = 0;
+    }
+    if (hvmode == SRA_HVMODE_VRT) {
+        testhor = 0;
+    }
 
-    if( hvmode == SRA_HVMODE_HOR && testhor == 0 )
-    {
+    if (hvmode == SRA_HVMODE_HOR && testhor == 0) {
         printf("snapspec: Requested horizontal testing but configuration doesn't have horizontal tests\n");
-        fprintf(out,"Requested horizontal testing but configuration doesn't have horizontal tests\n");
+        fprintf(out, "Requested horizontal testing but configuration doesn't have horizontal tests\n");
         return INCONSISTENT_DATA;
     }
 
-    if( hvmode == SRA_HVMODE_VRT && testvrt == 0 )
-    {
+    if (hvmode == SRA_HVMODE_VRT && testvrt == 0) {
         printf("snapspec: Requested vertical testing but configuration doesn't have vertical tests\n");
-        fprintf(out,"Requested vertical testing but configuration doesn't have vertical tests\n");
+        fprintf(out, "Requested vertical testing but configuration doesn't have vertical tests\n");
         return INCONSISTENT_DATA;
     }
 
-    if( hvmode == SRA_HVMODE_3D && (testvrt == 0 || testhor == 0) )
-    {
+    if (hvmode == SRA_HVMODE_3D && (testvrt == 0 || testhor == 0)) {
         printf("snapspec: Requested 3d testing but configuration doesn't have 3d tests\n");
-        fprintf(out,"Requested 3d testing but configuration doesn't have 3d tests\n");
+        fprintf(out, "Requested 3d testing but configuration doesn't have 3d tests\n");
         return INCONSISTENT_DATA;
     }
 
-    if( hvmode == SRA_HVMODE_HOR && adjhor == 0 )
-    {
+    if (hvmode == SRA_HVMODE_HOR && adjhor == 0) {
         printf("snapspec: Requested horizontal testing but no stations are adjusted horizontally\n");
-        fprintf(out,"Requested horizontal testing but no stations are adjusted horizontally\n");
+        fprintf(out, "Requested horizontal testing but no stations are adjusted horizontally\n");
         return INCONSISTENT_DATA;
     }
 
-    if( hvmode == SRA_HVMODE_VRT && adjvrt == 0 )
-    {
+    if (hvmode == SRA_HVMODE_VRT && adjvrt == 0) {
         printf("snapspec: Requested vertical testing but no stations are adjusted vertically\n");
-        fprintf(out,"Requested vertical testing but no stations are adjusted vertically\n");
+        fprintf(out, "Requested vertical testing but no stations are adjusted vertically\n");
         return INCONSISTENT_DATA;
     }
 
-    if( hvmode == SRA_HVMODE_3D && adj3d == 0 )
-    {
+    if (hvmode == SRA_HVMODE_3D && adj3d == 0) {
         printf("snapspec: Requested 3d testing but no stations are adjusted in three dimensions\n");
-        fprintf(out,"Requested 3d testing but no stations are adjusted in three dimensions\n");
+        fprintf(out, "Requested 3d testing but no stations are adjusted in three dimensions\n");
         return INCONSISTENT_DATA;
     }
 
-    if( hvmode == SRA_HVMODE_AUTO )
-    {
-        if( testhor && ! adjhor )
-        {
-            fprintf(out,"Horizontal tests will not be applied as no stations are adjusted horizontally\n");
+    if (hvmode == SRA_HVMODE_AUTO) {
+        if (testhor && !adjhor) {
+            fprintf(out, "Horizontal tests will not be applied as no stations are adjusted horizontally\n");
             testhor = 0;
         }
-        if( testvrt && ! adjvrt )
-        {
-            fprintf(out,"Vertical tests will not be applied as no stations are adjusted vertically\n");
+        if (testvrt && !adjvrt) {
+            fprintf(out, "Vertical tests will not be applied as no stations are adjusted vertically\n");
             testvrt = 0;
         }
-        if( ! testhor && ! testvrt )
-        {
+        if (!testhor && !testvrt) {
             printf("snapspec: Requested testing is inconsistent with adjustment\n");
-            fprintf(out,"Requested testing is inconsistent with adjustment\n");
+            fprintf(out, "Requested testing is inconsistent with adjustment\n");
             return INCONSISTENT_DATA;
         }
     }
 
-    ra->testhor=testhor;
-    ra->testvrt=testvrt;
+    ra->testhor = testhor;
+    ra->testvrt = testvrt;
 
-    for( SDCOrderTest &test : hsdc.tests )
-    {
-        if( ! testhor ) { test.blnTestHor = false;
-}
-        if( ! testvrt ) { test.blnTestVrt = false;
-}
+    for (SDCOrderTest& test : hsdc.tests) {
+        if (!testhor) {
+            test.blnTestHor = false;
+        }
+        if (!testvrt) {
+            test.blnTestVrt = false;
+        }
     }
 
-    if( testhor && testvrt && (adjhor != adj3d || adjvrt != adj3d) )
-    {
+    if (testhor && testvrt && (adjhor != adj3d || adjvrt != adj3d)) {
         printf("Warning: testing 3d adjustment but some stations are adjusted hor/vrt only\n");
-        fprintf(out,"Warning: testing 3d adjustment but some stations are adjusted hor/vrt only\n");
+        fprintf(out, "Warning: testing 3d adjustment but some stations are adjusted hor/vrt only\n");
     }
     return OK;
 }
 
 /*======================================================================*/
 
-
-
-static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
+static int read_test_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
     int notest;
     int errdirflg;
     int errdirflgv;
-    SDCTest &hsdc = ** static_cast<SDCTest **>( value );
+    SDCTest& hsdc = **static_cast<SDCTest**>(value);
 
     FieldScanner scanner(string);
     auto nameField = scanner.next();
-    if( ! nameField || scanner.remainder().empty() )
-    {
-        send_config_error( cfg, INVALID_DATA, "Missing data in specification command" );
+    if (!nameField || scanner.remainder().empty()) {
+        send_config_error(cfg, INVALID_DATA, "Missing data in specification command");
         return OK;
     }
 
-    if( nameField->size() > ORDER_CODE_LEN )
-    {
-        send_config_error( cfg, INVALID_DATA, "Order name too long in test command");
+    if (nameField->size() > ORDER_CODE_LEN) {
+        send_config_error(cfg, INVALID_DATA, "Order name too long in test command");
         return OK;
     }
 
-    if( hsdc.norder() >= hsdc.maxorder )
-    {
-        send_config_error( cfg, INVALID_DATA, "Too many specification commands" );
+    if (hsdc.norder() >= hsdc.maxorder) {
+        send_config_error(cfg, INVALID_DATA, "Too many specification commands");
         return OK;
     }
 
-    SDCOrderTest &test = hsdc.tests.emplace_back( hsdc.norder() + 1, *nameField );
+    SDCOrderTest& test = hsdc.tests.emplace_back(hsdc.norder() + 1, *nameField);
 
     errdirflg = 0;
     errdirflgv = 0;
-    notest=0;
+    notest = 0;
 
-    while( true )
-    {
+    while (true) {
         int errtypflg = 0;
         int errdir = 0;
         int vflag = 0;
         int haveppm = 0;
 
         auto typeField = scanner.next();
-        if( ! typeField ) { break;
-}
+        if (!typeField) {
+            break;
+        }
         const std::string_view type = *typeField;
 
-        if( boost::algorithm::iequals(type,"no_test") )
-        {
-            notest=1;
+        if (boost::algorithm::iequals(type, "no_test")) {
+            notest = 1;
             continue;
         }
 
-        if( boost::algorithm::iequals(type,"autorange") )
-        {
+        if (boost::algorithm::iequals(type, "autorange")) {
             test.blnAutoRange = true;
             continue;
         }
-        if( boost::algorithm::iequals(type,"range") )
-        {
+        if (boost::algorithm::iequals(type, "range")) {
             auto valField = scanner.next();
             auto parsedRange = valField ? parse_leading_field<double>(*valField) : std::nullopt;
-            if( ! parsedRange )
-            {
-                send_config_error(cfg,INVALID_DATA, "Invalid range in specification");
+            if (!parsedRange) {
+                send_config_error(cfg, INVALID_DATA, "Invalid range in specification");
                 return OK;
             }
-            std::string_view rangeSuffix = valField->substr( parsedRange->result.ptr - valField->data() );
-            if( rangeSuffix.empty() )
-            {
+            std::string_view rangeSuffix = valField->substr(parsedRange->result.ptr - valField->data());
+            if (rangeSuffix.empty()) {
                 // The unit may be a separate whitespace-delimited token
                 // ("300 m"), not just glued onto the number ("300m").
                 auto unitField = scanner.next();
                 rangeSuffix = unitField ? *unitField : std::string_view();
             }
-            if( rangeSuffix != "m" )
-            {
-                send_config_error(cfg,INVALID_DATA, "Invalid range in specification");
+            if (rangeSuffix != "m") {
+                send_config_error(cfg, INVALID_DATA, "Invalid range in specification");
                 return OK;
             }
             test.dblRange = parsedRange->value;
             continue;
         }
-        if( boost::algorithm::iequals(type,"min_rel_acc") )
-        {
+        if (boost::algorithm::iequals(type, "min_rel_acc")) {
             auto valField = scanner.next();
             auto minrel = valField ? parse_leading<int>(*valField) : std::nullopt;
-            if( ! minrel )
-            {
-                send_config_error(cfg,INVALID_DATA, "Invalid minimum number of relative accuracy tests in specification");
+            if (!minrel) {
+                send_config_error(cfg, INVALID_DATA,
+                                  "Invalid minimum number of relative accuracy tests in specification");
                 return OK;
             }
             test.iMinRelAcc = *minrel;
             continue;
         }
 
-        if( type[0] == 'h' || type[0] == 'v' )
-        {
+        if (type[0] == 'h' || type[0] == 'v') {
             vflag = type[0] == 'v' ? 64 : 0;
             const std::string_view dir = type.substr(1);
 
-            if( boost::algorithm::iequals(dir, "_abs_max") )
-            {
+            if (boost::algorithm::iequals(dir, "_abs_max")) {
                 errdir = 1;
-            }
-            else if( boost::algorithm::iequals(dir, "_rel_to_control") )
-            {
+            } else if (boost::algorithm::iequals(dir, "_rel_to_control")) {
                 errdir = 2;
                 haveppm = 1;
-            }
-            else if( boost::algorithm::iequals(dir, "_rel") )
-            {
+            } else if (boost::algorithm::iequals(dir, "_rel")) {
                 errdir = 4;
                 haveppm = 1;
-            }
-            else if( boost::algorithm::iequals(dir, "_rel_min_abs") )
-            {
+            } else if (boost::algorithm::iequals(dir, "_rel_min_abs")) {
                 errdir = 8;
             }
         }
 
-        if( vflag )
-        {
-            if( ! errdir || errdir & errdirflgv )
-            {
-                send_config_error( cfg, INVALID_DATA, "Invalid accuracy specification");
+        if (vflag) {
+            if (!errdir || errdir & errdirflgv) {
+                send_config_error(cfg, INVALID_DATA, "Invalid accuracy specification");
                 return OK;
             }
             errdirflgv |= errdir;
-        }
-        else
-        {
-            if( ! errdir || errdir & errdirflg )
-            {
-                send_config_error( cfg, INVALID_DATA, "Invalid accuracy specification");
+        } else {
+            if (!errdir || errdir & errdirflg) {
+                send_config_error(cfg, INVALID_DATA, "Invalid accuracy specification");
                 return OK;
             }
             errdirflg |= errdir;
         }
 
-        while( true )
-        {
+        while (true) {
             int errtyp = haveppm ? 0 : 32;
 
             // A non-numeric token here isn't an error - it's the next
@@ -1834,254 +1677,251 @@ static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value
             // it (matches the fix in control.cpp's read_specification_command).
             const std::string_view checkpoint = scanner.remainder();
             auto valField = scanner.next();
-            if( ! valField ) { break;
-}
+            if (!valField) {
+                break;
+            }
             auto parsedErr = parse_leading_field<double>(*valField);
-            if( ! parsedErr )
-            {
+            if (!parsedErr) {
                 scanner = FieldScanner(checkpoint);
                 break;
             }
-            std::string_view errSuffix = valField->substr( parsedErr->result.ptr - valField->data() );
+            std::string_view errSuffix = valField->substr(parsedErr->result.ptr - valField->data());
             const double err = parsedErr->value;
-            if( errSuffix.empty() )
-            {
+            if (errSuffix.empty()) {
                 // The unit may be a separate whitespace-delimited token
                 // ("300 mm"), not just glued onto the number ("300mm").
                 auto unitField = scanner.next();
-                if( ! unitField )
-                {
-                    send_config_error(cfg,INVALID_DATA, "Invalid accuracy in specification");
+                if (!unitField) {
+                    send_config_error(cfg, INVALID_DATA, "Invalid accuracy in specification");
                     return OK;
                 }
                 errSuffix = *unitField;
             }
-            if( boost::algorithm::iequals(errSuffix,"MM") )
-            {
+            if (boost::algorithm::iequals(errSuffix, "MM")) {
                 errtyp = 16;
-            }
-            else if( haveppm && boost::algorithm::iequals(errSuffix,"PPM") )
-            {
+            } else if (haveppm && boost::algorithm::iequals(errSuffix, "PPM")) {
                 errtyp = 32;
             }
-            if( ! errtyp || errtyp & errtypflg )
-            {
-                send_config_error(cfg,INVALID_DATA,
-                                  "Invalid error type in specification -  must be mm or ppm");
+            if (!errtyp || errtyp & errtypflg) {
+                send_config_error(cfg, INVALID_DATA, "Invalid error type in specification -  must be mm or ppm");
                 return OK;
             }
-            switch( errtyp + errdir + vflag)
-            {
-            case 17: test.dblAbsTestAbsMax = err/1000; break;
-            case 18: test.dblAbsTestDFMax = err/1000; break;
-            case 34: test.dblAbsTestDDMax = err/10000; break;
-            case 24: test.dblRelTestAbsMin = err/1000; break;
-            case 20: test.dblRelTestDFMax = err/1000; break;
-            case 36: test.dblRelTestDDMax = err/10000; break;
+            switch (errtyp + errdir + vflag) {
+                case 17:
+                    test.dblAbsTestAbsMax = err / 1000;
+                    break;
+                case 18:
+                    test.dblAbsTestDFMax = err / 1000;
+                    break;
+                case 34:
+                    test.dblAbsTestDDMax = err / 10000;
+                    break;
+                case 24:
+                    test.dblRelTestAbsMin = err / 1000;
+                    break;
+                case 20:
+                    test.dblRelTestDFMax = err / 1000;
+                    break;
+                case 36:
+                    test.dblRelTestDDMax = err / 10000;
+                    break;
 
-            case 81: test.dblAbsTestAbsMaxV = err/1000; break;
-            case 82: test.dblAbsTestDFMaxV = err/1000; break;
-            case 98: test.dblAbsTestDDMaxV = err/10000; break;
-            case 88: test.dblRelTestAbsMinV = err/1000; break;
-            case 84: test.dblRelTestDFMaxV = err/1000; break;
-            case 100: test.dblRelTestDDMaxV = err/10000; break;
+                case 81:
+                    test.dblAbsTestAbsMaxV = err / 1000;
+                    break;
+                case 82:
+                    test.dblAbsTestDFMaxV = err / 1000;
+                    break;
+                case 98:
+                    test.dblAbsTestDDMaxV = err / 10000;
+                    break;
+                case 88:
+                    test.dblRelTestAbsMinV = err / 1000;
+                    break;
+                case 84:
+                    test.dblRelTestDFMaxV = err / 1000;
+                    break;
+                case 100:
+                    test.dblRelTestDDMaxV = err / 10000;
+                    break;
             }
 
             errtypflg |= errtyp;
-            if( errtypflg == 48 ) { break;
-}
+            if (errtypflg == 48) {
+                break;
+            }
         }
-        if( errtypflg == 0 )
-        {
-            send_config_error( cfg, INVALID_DATA, "Missing error values in specification");
+        if (errtypflg == 0) {
+            send_config_error(cfg, INVALID_DATA, "Missing error values in specification");
             return OK;
         }
 
-        if( errdirflg == 15 && errdirflgv == 15) { break;
-}
+        if (errdirflg == 15 && errdirflgv == 15) {
+            break;
+        }
     }
 
-    if( errdirflg ) { test.blnTestHor = true;
-}
-    if( errdirflgv ) { test.blnTestVrt = true;
-}
-    if( notest && (test.blnTestHor || test.blnTestVrt) )
-    {
-        send_config_error( cfg, INVALID_DATA, "Test includes tolerances and \"no_test\"");
+    if (errdirflg) {
+        test.blnTestHor = true;
+    }
+    if (errdirflgv) {
+        test.blnTestVrt = true;
+    }
+    if (notest && (test.blnTestHor || test.blnTestVrt)) {
+        send_config_error(cfg, INVALID_DATA, "Test includes tolerances and \"no_test\"");
         return OK;
     }
 
-    if( ! notest && ! errdirflg && ! errdirflgv )
-    {
-        send_config_error( cfg, INVALID_DATA, "Specification doesn't include any tolerances");
+    if (!notest && !errdirflg && !errdirflgv) {
+        send_config_error(cfg, INVALID_DATA, "Specification doesn't include any tolerances");
         return OK;
     }
 
     return OK;
 }
 
-static int find_order( const SDCTest &hsdc, const std::string_view order )
-{
-    for( int i = 0; i < hsdc.norder(); i++ )
-    {
-        if( boost::algorithm::iequals( order, std::string_view( hsdc.tests[i].scOrder ) ) )
-        {
+static int find_order(const SDCTest& hsdc, const std::string_view order) {
+    for (int i = 0; i < hsdc.norder(); i++) {
+        if (boost::algorithm::iequals(order, std::string_view(hsdc.tests[i].scOrder))) {
             return i;
         }
     }
     return -1;
 }
 
-struct limit_order_params
-{
+struct limit_order_params {
     short order;
-    stn_relacc_array *ra;
+    stn_relacc_array* ra;
 };
 
-static void set_max_order( station *st, void *data )
-{
-    limit_order_params *p = (limit_order_params *)data;
-    int const istn = st->id;
-    if( istn > 0 ) { p->ra->role[istn-1] = p->order;
-}
-}
-
-static void set_priority( station *st, void *data )
-{
-    limit_order_params *p = (limit_order_params *)data;
-    int const istn = st->id;
-    if( istn > 0 ) { p->ra->priority[istn-1] = p->order;
-}
+static void set_max_order(station* st, void* data) {
+    limit_order_params* p = (limit_order_params*)data;
+    const int istn = st->id;
+    if (istn > 0) {
+        p->ra->role[istn - 1] = p->order;
+    }
 }
 
-static int read_limit_order_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
+static void set_priority(station* st, void* data) {
+    limit_order_params* p = (limit_order_params*)data;
+    const int istn = st->id;
+    if (istn > 0) {
+        p->ra->priority[istn - 1] = p->order;
+    }
+}
+
+static int read_limit_order_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
     limit_order_params p;
     int nerr;
 
     FieldScanner scanner(string);
     auto nameField = scanner.next();
-    if( ! nameField || scanner.remainder().empty() )
-    {
-        send_config_error( cfg, INVALID_DATA, "Missing order or station list in limit_order command" );
+    if (!nameField || scanner.remainder().empty()) {
+        send_config_error(cfg, INVALID_DATA, "Missing order or station list in limit_order command");
         return OK;
     }
 
-    if( nameField->size() > ORDER_CODE_LEN )
-    {
-        send_config_error( cfg, INVALID_DATA, "Order name too long in limit_order command");
+    if (nameField->size() > ORDER_CODE_LEN) {
+        send_config_error(cfg, INVALID_DATA, "Order name too long in limit_order command");
         return OK;
     }
 
-    p.ra = * (stn_relacc_array **) value;
-    p.order = find_order(*p.ra->hsdc,*nameField);
-    if( p.order == -1 )
-    {
-        send_config_error( cfg, INVALID_DATA, "Unrecognised order in limit_order command");
+    p.ra = *(stn_relacc_array**)value;
+    p.order = find_order(*p.ra->hsdc, *nameField);
+    if (p.order == -1) {
+        send_config_error(cfg, INVALID_DATA, "Unrecognised order in limit_order command");
         return OK;
     }
 
-    const std::string data( scanner.remainder() );
+    const std::string data(scanner.remainder());
 
-    set_error_location( get_config_location(cfg) );
+    set_error_location(get_config_location(cfg));
     nerr = get_error_count();
 
-    process_selected_stations( net,data,cfg->name,&p,set_max_order);
+    process_selected_stations(net, data, cfg->name, &p, set_max_order);
 
     set_error_location(NO_MESSAGE);
-    cfg->errcount += (get_error_count()-nerr);
+    cfg->errcount += (get_error_count() - nerr);
 
     return OK;
 }
 
-static int read_ignore_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
+static int read_ignore_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
     limit_order_params p;
     int nerr;
 
-    p.ra = * (stn_relacc_array **) value;
+    p.ra = *(stn_relacc_array**)value;
     p.order = SDC_IGNORE_MARK;
 
-    set_error_location( get_config_location(cfg) );
+    set_error_location(get_config_location(cfg));
     nerr = get_error_count();
 
-    const std::string data( string );
-    process_selected_stations( net,data,cfg->name,&p,set_max_order);
+    const std::string data(string);
+    process_selected_stations(net, data, cfg->name, &p, set_max_order);
 
     set_error_location(NO_MESSAGE);
-    cfg->errcount += (get_error_count()-nerr);
+    cfg->errcount += (get_error_count() - nerr);
 
     return OK;
 }
 
-static int read_set_priority_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
+static int read_set_priority_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
     limit_order_params p;
     int nerr;
 
     FieldScanner scanner(string);
     auto priorityField = scanner.next();
-    if( ! priorityField || scanner.remainder().empty() )
-    {
-        send_config_error( cfg, INVALID_DATA, "Missing priority or station_list in set_priority command" );
+    if (!priorityField || scanner.remainder().empty()) {
+        send_config_error(cfg, INVALID_DATA, "Missing priority or station_list in set_priority command");
         return OK;
     }
 
     auto parsedPriority = parse_leading_field<int>(*priorityField);
-    const bool fullyConsumed = parsedPriority &&
-        parsedPriority->result.ptr == priorityField->data() + priorityField->size();
-    if( ! fullyConsumed || parsedPriority->value < 0 )
-    {
-        send_config_error( cfg, INVALID_DATA, "Invalid priority in set_priority command - must be a positive number");
+    const bool fullyConsumed =
+        parsedPriority && parsedPriority->result.ptr == priorityField->data() + priorityField->size();
+    if (!fullyConsumed || parsedPriority->value < 0) {
+        send_config_error(cfg, INVALID_DATA, "Invalid priority in set_priority command - must be a positive number");
         return OK;
     }
 
-    p.ra = * (stn_relacc_array **) value;
+    p.ra = *(stn_relacc_array**)value;
     p.order = parsedPriority->value;
 
-    const std::string data( scanner.remainder() );
+    const std::string data(scanner.remainder());
 
-    set_error_location( get_config_location(cfg) );
+    set_error_location(get_config_location(cfg));
     nerr = get_error_count();
 
-    process_selected_stations( net,data,cfg->name,&p,set_priority);
+    process_selected_stations(net, data, cfg->name, &p, set_priority);
 
     set_error_location(NO_MESSAGE);
-    cfg->errcount += (get_error_count()-nerr);
+    cfg->errcount += (get_error_count() - nerr);
 
     return OK;
 }
 
-static int read_confidence(CFG_FILE *cfg, std::string_view string, void *, int, int )
-{
+static int read_confidence(CFG_FILE* cfg, std::string_view string, void*, int, int) {
     FieldScanner scanner(string);
     auto field = scanner.next();
     auto confidence = field ? parse_leading<double>(*field) : std::nullopt;
-    if( confidence ) { test_confidence = *confidence;
-}
-    if( ! confidence || test_confidence <= 0 || test_confidence >= 100 )
-    {
-        send_config_error( cfg, INVALID_DATA, "Invalid confidence in specification");
+    if (confidence) {
+        test_confidence = *confidence;
+    }
+    if (!confidence || test_confidence <= 0 || test_confidence >= 100) {
+        send_config_error(cfg, INVALID_DATA, "Invalid confidence in specification");
     }
     return OK;
 }
 
-
-static int read_error_type(CFG_FILE *cfg, std::string_view string, void *, int, int )
-{
+static int read_error_type(CFG_FILE* cfg, std::string_view string, void*, int, int) {
     FieldScanner scanner(string);
     auto field = scanner.next();
-    if( field && boost::algorithm::iequals(*field,"apriori") )
-    {
+    if (field && boost::algorithm::iequals(*field, "apriori")) {
         test_apriori = 1;
-    }
-    else if( field && boost::algorithm::iequals(*field,"aposteriori") )
-    {
+    } else if (field && boost::algorithm::iequals(*field, "aposteriori")) {
         test_apriori = 0;
-    }
-    else
-    {
-        send_config_error( cfg, INVALID_DATA, "Invalid error_type in specification");
+    } else {
+        send_config_error(cfg, INVALID_DATA, "Invalid error_type in specification");
     }
     return OK;
 }
@@ -2094,263 +1934,237 @@ static int read_error_type(CFG_FILE *cfg, std::string_view string, void *, int, 
 
 #define STN_CONFIG_BUFSIZE 127
 
-static int read_station_config_file( const std::string &filename, stn_relacc_array *ra, int csv )
-{
-    char record[STN_CONFIG_BUFSIZE+1];
-    std::array<std::optional<std::string>,3> field;
-    int codefield=-1;
-    int orderfield=-1;
-    int priorityfield=-1;
-    int sts=OK;
-    int nbadstn=0;
+static int read_station_config_file(const std::string& filename, stn_relacc_array* ra, int csv) {
+    char record[STN_CONFIG_BUFSIZE + 1];
+    std::array<std::optional<std::string>, 3> field;
+    int codefield = -1;
+    int orderfield = -1;
+    int priorityfield = -1;
+    int sts = OK;
+    int nbadstn = 0;
     limit_order_params p;
-    FILE *f = fopen(filename.c_str(),"r");
-    if( ! f ) { return FILE_OPEN_ERROR;
-}
-    p.ra=ra;
+    FILE* f = fopen(filename.c_str(), "r");
+    if (!f) {
+        return FILE_OPEN_ERROR;
+    }
+    p.ra = ra;
 
     constexpr char csvDelimiter = ',';
-    int first=1;
-    int nrec=0;
-    while( ! feof(f) )
-    {
-        if( ! fgets(record,STN_CONFIG_BUFSIZE,f) ) { break;
-}
+    int first = 1;
+    int nrec = 0;
+    while (!feof(f)) {
+        if (!fgets(record, STN_CONFIG_BUFSIZE, f)) {
+            break;
+        }
         nrec++;
         std::string line(record);
         /* Split into fields */
-        bool const haveEol = line.find('\n') != std::string::npos;
-        std::array<std::string,3> parts;
-        int nfield=0;
-        if( csv )
-        {
-            std::replace( line.begin(), line.end(), '"', ' ' );
-            std::array<std::string,3> rawparts;
+        const bool haveEol = line.find('\n') != std::string::npos;
+        std::array<std::string, 3> parts;
+        int nfield = 0;
+        if (csv) {
+            std::replace(line.begin(), line.end(), '"', ' ');
+            std::array<std::string, 3> rawparts;
             FieldScanner splitter(line);
             auto f0 = splitter.next(csvDelimiter);
-            if( f0 )
-            {
+            if (f0) {
                 rawparts[0] = std::string(*f0);
                 auto f1 = splitter.next(csvDelimiter);
-                if( f1 )
-                {
+                if (f1) {
                     rawparts[1] = std::string(*f1);
                     rawparts[2] = std::string(splitter.remainder());
                     nfield = 3;
-                }
-                else
-                {
+                } else {
                     rawparts[1] = std::string(splitter.remainder());
                     nfield = 2;
                 }
-            }
-            else
-            {
+            } else {
                 rawparts[0] = std::string(splitter.remainder());
                 nfield = 1;
             }
-            for( int ifld=0; ifld < nfield; ifld++ )
-            {
+            for (int ifld = 0; ifld < nfield; ifld++) {
                 FieldScanner trimmer(rawparts[ifld]);
                 auto tok = trimmer.next();
                 parts[ifld] = tok ? std::string(*tok) : std::string();
             }
-        }
-        else
-        {
-            size_t pos=0;
-            while( nfield < 3 )
-            {
-                while( pos<line.size() && (line[pos]==' '||line[pos]=='\n'||line[pos]=='\t') ) { pos++;
-}
-                if( pos>=line.size() ) { break;
-}
-                size_t const start=pos;
-                while( pos<line.size() && line[pos]!=' '&&line[pos]!='\n'&&line[pos]!='\t' ) { pos++;
-}
-                parts[nfield++] = line.substr(start,pos-start);
+        } else {
+            size_t pos = 0;
+            while (nfield < 3) {
+                while (pos < line.size() && (line[pos] == ' ' || line[pos] == '\n' || line[pos] == '\t')) {
+                    pos++;
+                }
+                if (pos >= line.size()) {
+                    break;
+                }
+                const size_t start = pos;
+                while (pos < line.size() && line[pos] != ' ' && line[pos] != '\n' && line[pos] != '\t') {
+                    pos++;
+                }
+                parts[nfield++] = line.substr(start, pos - start);
             }
         }
-        for( int ifld=0; ifld < 3; ifld++ )
-        {
+        for (int ifld = 0; ifld < 3; ifld++) {
             field[ifld] = ifld < nfield ? std::optional<std::string>(parts[ifld]) : std::nullopt;
         }
-        if( first )
-        {
-            first=0;
-            for( int ifld=0; ifld < nfield; ifld++ )
-            {
-                if( boost::algorithm::iequals(*field[ifld],"code") ) { codefield=ifld;
-                } else if( boost::algorithm::iequals(*field[ifld],"order") ) { orderfield=ifld;
-                } else if( boost::algorithm::iequals(*field[ifld],"limit_order") ) { orderfield=ifld;
-                } else if( boost::algorithm::iequals(*field[ifld],"priority") ) { priorityfield=ifld;
-}
+        if (first) {
+            first = 0;
+            for (int ifld = 0; ifld < nfield; ifld++) {
+                if (boost::algorithm::iequals(*field[ifld], "code")) {
+                    codefield = ifld;
+                } else if (boost::algorithm::iequals(*field[ifld], "order")) {
+                    orderfield = ifld;
+                } else if (boost::algorithm::iequals(*field[ifld], "limit_order")) {
+                    orderfield = ifld;
+                } else if (boost::algorithm::iequals(*field[ifld], "priority")) {
+                    priorityfield = ifld;
+                }
             }
-            if( codefield < 0 )
-            {
-                sts=MISSING_DATA;
-                handle_error(sts,"Station configuration file does not include a \"code\" field",
-                        filename);
+            if (codefield < 0) {
+                sts = MISSING_DATA;
+                handle_error(sts, "Station configuration file does not include a \"code\" field", filename);
                 break;
             }
-            if( orderfield < 0 && priorityfield < 0 )
-            {
-                handle_error(sts,"Station configuration file does not include a \"order\" or \"priority\" field\n",
-                        filename);
+            if (orderfield < 0 && priorityfield < 0) {
+                handle_error(sts, "Station configuration file does not include a \"order\" or \"priority\" field\n",
+                             filename);
             }
-        }
-        else
-        {
+        } else {
             const int istn = field[codefield] ? find_station(net, *field[codefield]) : 0;
-            if( istn <= 0 ) { nbadstn++;
-}
-            if( istn > 0 && orderfield > 0 && field[orderfield] && ! field[orderfield]->empty() )
-            {
-                if( *field[orderfield] != "-" && !(*field[orderfield]).empty() )
-                {
-                    int order=SDC_IGNORE_MARK;
-                    if( *field[orderfield] != "*" )
-                    {
-                        order = find_order(*p.ra->hsdc,*field[orderfield]);
-                        if( order >= 0 )
-                        {
-                            ra->role[istn-1]=order;
-                        }
-                        else
-                        {
+            if (istn <= 0) {
+                nbadstn++;
+            }
+            if (istn > 0 && orderfield > 0 && field[orderfield] && !field[orderfield]->empty()) {
+                if (*field[orderfield] != "-" && !(*field[orderfield]).empty()) {
+                    int order = SDC_IGNORE_MARK;
+                    if (*field[orderfield] != "*") {
+                        order = find_order(*p.ra->hsdc, *field[orderfield]);
+                        if (order >= 0) {
+                            ra->role[istn - 1] = order;
+                        } else {
                             char errmsg1[80];
-                            char errmsg2[MAX_FILENAME_LEN+80];
-                            sprintf(errmsg1,"Invalid order %.10s in station configuration file",
+                            char errmsg2[MAX_FILENAME_LEN + 80];
+                            sprintf(errmsg1, "Invalid order %.10s in station configuration file",
                                     field[orderfield]->c_str());
-                            sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename.c_str());
-                            handle_error(INVALID_DATA,errmsg1,errmsg2);
-                            sts=INVALID_DATA;
+                            sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
+                            handle_error(INVALID_DATA, errmsg1, errmsg2);
+                            sts = INVALID_DATA;
                         }
-                    }
-                    else
-                    {
-                        ra->role[istn-1]=order;
+                    } else {
+                        ra->role[istn - 1] = order;
                     }
                 }
             }
-            if( istn > 0 && priorityfield > 0 && field[priorityfield] && ! field[priorityfield]->empty() )
-            {
-                if( *field[priorityfield] != "-" && !(*field[priorityfield]).empty() )
-                {
+            if (istn > 0 && priorityfield > 0 && field[priorityfield] && !field[priorityfield]->empty()) {
+                if (*field[priorityfield] != "-" && !(*field[priorityfield]).empty()) {
                     int priority;
                     char check;
-                    if( *field[priorityfield] == "*" )
-                    {
-                        ra->role[istn-1]=SDC_IGNORE_MARK;
-                    }
-                    else if( sscanf(field[priorityfield]->c_str(),"%d%c",&priority,&check) == 1 )
-                    {
-                        ra->priority[istn-1]=priority;
-                    }
-                    else
-                    {
+                    if (*field[priorityfield] == "*") {
+                        ra->role[istn - 1] = SDC_IGNORE_MARK;
+                    } else if (sscanf(field[priorityfield]->c_str(), "%d%c", &priority, &check) == 1) {
+                        ra->priority[istn - 1] = priority;
+                    } else {
                         char errmsg1[80];
-                        char errmsg2[MAX_FILENAME_LEN+80];
-                        sprintf(errmsg1,"Invalid priority %.10s in station configuration file",
+                        char errmsg2[MAX_FILENAME_LEN + 80];
+                        sprintf(errmsg1, "Invalid priority %.10s in station configuration file",
                                 field[priorityfield]->c_str());
-                        sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename.c_str());
-                        handle_error(INVALID_DATA,errmsg1,errmsg2);
-                        sts=INVALID_DATA;
+                        sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
+                        handle_error(INVALID_DATA, errmsg1, errmsg2);
+                        sts = INVALID_DATA;
                     }
                 }
             }
         }
-        if( ! haveEol ){ while( true ) { int const c=fgetc(f); if( c == '\n' || c == EOF ) { break; 
-}} }
+        if (!haveEol) {
+            while (true) {
+                const int c = fgetc(f);
+                if (c == '\n' || c == EOF) {
+                    break;
+                }
+            }
+        }
     }
     fclose(f);
-    if( nbadstn > 0 )
-    {
+    if (nbadstn > 0) {
         char errmsg1[80];
-        char errmsg2[MAX_FILENAME_LEN+80];
-        sprintf(errmsg1,"%d unrecognised stations in station configuration file",
-                nbadstn);
-        sprintf(errmsg2,"File %*s",MAX_FILENAME_LEN,filename.c_str());
-        handle_error(INFO_ERROR,errmsg1,errmsg2);
+        char errmsg2[MAX_FILENAME_LEN + 80];
+        sprintf(errmsg1, "%d unrecognised stations in station configuration file", nbadstn);
+        sprintf(errmsg2, "File %*s", MAX_FILENAME_LEN, filename.c_str());
+        handle_error(INFO_ERROR, errmsg1, errmsg2);
     }
     return sts;
 }
 
-static int read_station_config_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
-static int read_configuration_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
-static int read_options_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
-static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
-static int read_output_file_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
-static int read_test_config_options_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
-static int read_default_order_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_station_config_command(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
+static int read_configuration_command(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
+static int read_options_command(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
+static int read_log_level_command(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
+static int read_output_file_command(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
+static int read_test_config_options_command(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
+static int read_default_order_command(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
 
-static config_item cfg_commands[] =
-{
-    {"configuration",nullptr,CFG_ABSOLUTE,0,read_configuration_command,0,1},
-    {"test",nullptr,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
-    {"log_level",nullptr,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
-    {"test_config_options",nullptr,CFG_ABSOLUTE,0,read_test_config_options_command,CFG_ONEONLY,1},
-    {"output_log",nullptr,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
-    {"output_csv",nullptr,OFFSETOF(stn_relacc_array,csvoutput),0,read_output_file_command,CFG_ONEONLY,2},
-    {"output_crd",nullptr,OFFSETOF(stn_relacc_array,crdoutput),0,read_output_file_command,CFG_ONEONLY,2},
-    {"min_relative_accuracy_tests",nullptr,OFFSETOF(stn_relacc_array,dfltminrelacc),0,readcfg_int,CFG_ONEONLY,2},
-    {"confidence",nullptr,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
-    {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
-    {"error_type",nullptr,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
-    {"default_order",nullptr,CFG_ABSOLUTE,0,read_default_order_command,CFG_ONEONLY,0},
-    {"limit_order",nullptr,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
-    {"ignore",nullptr,CFG_ABSOLUTE,0,read_ignore_command,0,2},
-    {"station_configuration_file",nullptr,CFG_ABSOLUTE,0,read_station_config_command,0,2},
-    {"set_priority",nullptr,CFG_ABSOLUTE,0,read_set_priority_command,0,2},
-    {"options",nullptr,CFG_ABSOLUTE,0,read_options_command,0,2},
-    {nullptr}
-};
+static config_item cfg_commands[] = {
+    {"configuration", nullptr, CFG_ABSOLUTE, 0, read_configuration_command, 0, 1},
+    {"test", nullptr, CFG_ABSOLUTE, 0, read_test_command, CFG_REQUIRED, 1},
+    {"log_level", nullptr, CFG_ABSOLUTE, 0, read_log_level_command, CFG_ONEONLY, 1},
+    {"test_config_options", nullptr, CFG_ABSOLUTE, 0, read_test_config_options_command, CFG_ONEONLY, 1},
+    {"output_log", nullptr, OFFSETOF(stn_relacc_array, outputlog), 0, readcfg_boolean, CFG_ONEONLY, 2},
+    {"output_csv", nullptr, OFFSETOF(stn_relacc_array, csvoutput), 0, read_output_file_command, CFG_ONEONLY, 2},
+    {"output_crd", nullptr, OFFSETOF(stn_relacc_array, crdoutput), 0, read_output_file_command, CFG_ONEONLY, 2},
+    {"min_relative_accuracy_tests", nullptr, OFFSETOF(stn_relacc_array, dfltminrelacc), 0, readcfg_int, CFG_ONEONLY, 2},
+    {"confidence", nullptr, CFG_ABSOLUTE, 0, read_confidence, CFG_ONEONLY, 0},
+    {"vertical_error_factor", &vrtHorRatio, CFG_ABSOLUTE, 0, readcfg_double, CFG_ONEONLY, 0},
+    {"error_type", nullptr, CFG_ABSOLUTE, 0, read_error_type, CFG_ONEONLY, 0},
+    {"default_order", nullptr, CFG_ABSOLUTE, 0, read_default_order_command, CFG_ONEONLY, 0},
+    {"limit_order", nullptr, CFG_ABSOLUTE, 0, read_limit_order_command, 0, 2},
+    {"ignore", nullptr, CFG_ABSOLUTE, 0, read_ignore_command, 0, 2},
+    {"station_configuration_file", nullptr, CFG_ABSOLUTE, 0, read_station_config_command, 0, 2},
+    {"set_priority", nullptr, CFG_ABSOLUTE, 0, read_set_priority_command, 0, 2},
+    {"options", nullptr, CFG_ABSOLUTE, 0, read_options_command, 0, 2},
+    {nullptr}};
 
 // #pragma warning ( default : 4305 )
 
-static int read_configuration_command(CFG_FILE *cfg, std::string_view string, void *, int, int )
-{
+static int read_configuration_command(CFG_FILE* cfg, std::string_view string, void*, int, int) {
     std::optional<std::string> cfn;
-    CFG_FILE *cfg2;
-    cfg_stack *stack;
+    CFG_FILE* cfg2;
+    cfg_stack* stack;
     int nerr;
 
     FieldScanner scanner(string);
     auto basecfnField = scanner.next();
-    if( ! basecfnField )
-    {
-        send_config_error( cfg, INVALID_DATA, "Configuration file name missing");
+    if (!basecfnField) {
+        send_config_error(cfg, INVALID_DATA, "Configuration file name missing");
         return OK;
     }
     const std::string basecfn(*basecfnField);
-    cfn = find_file( basecfn, ".cfg", std::optional<std::string>(cfg->name), FF_TRYALL, "snapspec" );
+    cfn = find_file(basecfn, ".cfg", std::optional<std::string>(cfg->name), FF_TRYALL, "snapspec");
 
-    if( cfn )
-    {
+    if (cfn) {
         int recurse = 0;
-        if( *cfn == cfg->name ) { recurse = 1;
-}
-        for( stack = cfgs; stack && ! recurse; stack = stack->next )
-        {
-            if( stack->cfg->name == *cfn ) { recurse = 1;
-}
+        if (*cfn == cfg->name) {
+            recurse = 1;
         }
-        if( recurse )
-        {
+        for (stack = cfgs; stack && !recurse; stack = stack->next) {
+            if (stack->cfg->name == *cfn) {
+                recurse = 1;
+            }
+        }
+        if (recurse) {
             char buf[120];
-            sprintf(buf,"Error - recursive load of configuration %.60s",basecfn.c_str());
-            send_config_error(cfg, INVALID_DATA,buf);
+            sprintf(buf, "Error - recursive load of configuration %.60s", basecfn.c_str());
+            send_config_error(cfg, INVALID_DATA, buf);
             return OK;
         }
     }
 
     cfg2 = nullptr;
-    if( cfn ) { cfg2 = open_config_file( *cfn, '!' );}
-    if( !cfg2 )
-    {
+    if (cfn) {
+        cfg2 = open_config_file(*cfn, '!');
+    }
+    if (!cfg2) {
         char buf[120];
-        sprintf(buf,"Cannot open configuration file %.60s",basecfn.c_str());
-        send_config_error( cfg, INVALID_DATA, buf);
+        sprintf(buf, "Cannot open configuration file %.60s", basecfn.c_str());
+        send_config_error(cfg, INVALID_DATA, buf);
         return OK;
     }
 
@@ -2361,34 +2175,31 @@ static int read_configuration_command(CFG_FILE *cfg, std::string_view string, vo
         stack_entry.next = stack;
         cfgs = &stack_entry;
 
-        nerr = read_config_file( cfg2, cfg_commands );
+        nerr = read_config_file(cfg2, cfg_commands);
 
         cfgs = stack;
     }
 
-    close_config_file( cfg2 );
+    close_config_file(cfg2);
 
-    if( nerr > 0 )
-    {
+    if (nerr > 0) {
         char buf[120];
-        sprintf(buf,"Errors processing configuration file %.60s",basecfn.c_str());
-        send_config_error( cfg, INVALID_DATA, buf);
+        sprintf(buf, "Errors processing configuration file %.60s", basecfn.c_str());
+        send_config_error(cfg, INVALID_DATA, buf);
         return OK;
     }
 
     return OK;
 }
 
-static int read_station_config_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
+static int read_station_config_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
     std::optional<std::string> cfn;
-    int csv=0;
+    int csv = 0;
 
     FieldScanner scanner(string);
     auto fileField = scanner.next();
-    if( ! fileField )
-    {
-        send_config_error( cfg, INVALID_DATA, "Station configuration file name missing");
+    if (!fileField) {
+        send_config_error(cfg, INVALID_DATA, "Station configuration file name missing");
         return OK;
     }
     const std::string stcfgfn(*fileField);
@@ -2396,178 +2207,120 @@ static int read_station_config_command(CFG_FILE *cfg, std::string_view string, v
     auto formatField = scanner.next();
     auto extraField = scanner.next();
     std::optional<std::string_view> invalidField;
-    if( formatField )
-    {
-        if( boost::algorithm::iequals(*formatField,"csv") )
-        {
-            csv=1;
+    if (formatField) {
+        if (boost::algorithm::iequals(*formatField, "csv")) {
+            csv = 1;
             invalidField = extraField;
-        }
-        else
-        {
+        } else {
             invalidField = formatField;
         }
     }
-    if( invalidField )
-    {
+    if (invalidField) {
         const std::string bad(*invalidField);
         char buf[150];
-        sprintf(buf,"Error - invalid format %.60s in station_configuration_file command",
-                bad.c_str());
-        send_config_error(cfg, INVALID_DATA, buf );
+        sprintf(buf, "Error - invalid format %.60s in station_configuration_file command", bad.c_str());
+        send_config_error(cfg, INVALID_DATA, buf);
         return OK;
     }
 
-    cfn = find_file( stcfgfn, csv ? ".csv" : ".dat", std::optional<std::string>(cfg->name), FF_TRYALL, "" );
+    cfn = find_file(stcfgfn, csv ? ".csv" : ".dat", std::optional<std::string>(cfg->name), FF_TRYALL, "");
 
-    if( cfn )
-    {
-        int const sts=read_station_config_file( *cfn,* (stn_relacc_array **) value, csv );
-        if( sts  != OK )
-        {
-            char buf[100+MAX_FILENAME_LEN];
-            sprintf(buf,"Errors encountered reading station configuration file %.*s",
-                    MAX_FILENAME_LEN,cfn->c_str());
-            send_config_error( cfg, INVALID_DATA, buf);
+    if (cfn) {
+        const int sts = read_station_config_file(*cfn, *(stn_relacc_array**)value, csv);
+        if (sts != OK) {
+            char buf[100 + MAX_FILENAME_LEN];
+            sprintf(buf, "Errors encountered reading station configuration file %.*s", MAX_FILENAME_LEN, cfn->c_str());
+            send_config_error(cfg, INVALID_DATA, buf);
         }
-    }
-    else
-    {
-        char buf[100+MAX_FILENAME_LEN];
-        sprintf(buf,"Cannot open station configuration file %.*s",MAX_FILENAME_LEN,stcfgfn.c_str());
-        send_config_error( cfg, INVALID_DATA, buf);
+    } else {
+        char buf[100 + MAX_FILENAME_LEN];
+        sprintf(buf, "Cannot open station configuration file %.*s", MAX_FILENAME_LEN, stcfgfn.c_str());
+        send_config_error(cfg, INVALID_DATA, buf);
     }
     return OK;
 }
 
-static int read_options_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
-    stn_relacc_array *ra = * (stn_relacc_array **) value;
+static int read_options_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
+    stn_relacc_array* ra = *(stn_relacc_array**)value;
     FieldScanner scanner(string);
-    for( auto option = scanner.next(); option; option = scanner.next() )
-    {
-        if( boost::algorithm::iequals(*option,"limit_orders_by_control")
-                || boost::algorithm::iequals(*option,"auto_min_order") )
-        {
-            ra->autominorder=1;
-        }
-        else if( boost::algorithm::iequals(*option,"no_rel_acc_by_abs_optimisation") )
-        {
+    for (auto option = scanner.next(); option; option = scanner.next()) {
+        if (boost::algorithm::iequals(*option, "limit_orders_by_control") ||
+            boost::algorithm::iequals(*option, "auto_min_order")) {
+            ra->autominorder = 1;
+        } else if (boost::algorithm::iequals(*option, "no_rel_acc_by_abs_optimisation")) {
             ra->hsdc->options |= SDC_OPT_NO_SHORTCIRCUIT_CVR;
-        }
-        else if( boost::algorithm::iequals(*option,"strict_rel_acc_by_abs_optimisation") )
-        {
+        } else if (boost::algorithm::iequals(*option, "strict_rel_acc_by_abs_optimisation")) {
             ra->hsdc->options |= SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
-        }
-        else if( boost::algorithm::iequals(*option,"ignore_constrained_stations") )
-        {
-            ra->ignoreconstrained=1;
-        }
-        else if( boost::algorithm::iequals(*option,"test_horizontal") )
-        {
-            ra->hvmode=SRA_HVMODE_HOR;
-        }
-        else if( boost::algorithm::iequals(*option,"test_vertical") )
-        {
-            ra->hvmode=SRA_HVMODE_VRT;
-        }
-        else if( boost::algorithm::iequals(*option,"test_3d") )
-        {
-            ra->hvmode=SRA_HVMODE_3D;
-        }
-        else if( boost::algorithm::iequals(*option,"split_output_crd_by_order") )
-        {
-            ra->splitcrdfile=1;
-        }
-        else if( boost::algorithm::iequals(*option,"use_covariance_cache") )
-        {
-            ra->usecache=1;
-        }
-        else
-        {
+        } else if (boost::algorithm::iequals(*option, "ignore_constrained_stations")) {
+            ra->ignoreconstrained = 1;
+        } else if (boost::algorithm::iequals(*option, "test_horizontal")) {
+            ra->hvmode = SRA_HVMODE_HOR;
+        } else if (boost::algorithm::iequals(*option, "test_vertical")) {
+            ra->hvmode = SRA_HVMODE_VRT;
+        } else if (boost::algorithm::iequals(*option, "test_3d")) {
+            ra->hvmode = SRA_HVMODE_3D;
+        } else if (boost::algorithm::iequals(*option, "split_output_crd_by_order")) {
+            ra->splitcrdfile = 1;
+        } else if (boost::algorithm::iequals(*option, "use_covariance_cache")) {
+            ra->usecache = 1;
+        } else {
             const std::string opt(*option);
             char errmsg[100];
-            sprintf(errmsg,"Invalid value %.40s in option command",
-                    opt.c_str());
-            send_config_error(cfg, INVALID_DATA, errmsg );
+            sprintf(errmsg, "Invalid value %.40s in option command", opt.c_str());
+            send_config_error(cfg, INVALID_DATA, errmsg);
         }
     }
     return OK;
 }
 
-static int read_output_file_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
+static int read_output_file_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
     FieldScanner scanner(string);
     auto optionField = scanner.next();
-    *(std::string *) value = ( ! optionField || optionField->empty() ) ?
-        std::string(default_output_filename) : std::string(*optionField);
+    *(std::string*)value =
+        (!optionField || optionField->empty()) ? std::string(default_output_filename) : std::string(*optionField);
     return OK;
 }
 
-
-static int read_test_config_options_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
-    SDCTest &sdc = ** static_cast<SDCTest **>( value );
-    return readcfg_int( cfg, string, &sdc.options, sizeof(int), 0 );
+static int read_test_config_options_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
+    SDCTest& sdc = **static_cast<SDCTest**>(value);
+    return readcfg_int(cfg, string, &sdc.options, sizeof(int), 0);
 }
 
 /// Longer values are truncated to ORDER_CODE_LEN characters, as the string
 /// store they replace did.
-static int read_default_order_command(CFG_FILE *, std::string_view string, void *, int, int )
-{
-    dfltOrder.assign( string );
+static int read_default_order_command(CFG_FILE*, std::string_view string, void*, int, int) {
+    dfltOrder.assign(string);
     return OK;
 }
 
-static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
-{
-    SDCTest &sdc = ** static_cast<SDCTest **>( value );
+static int read_log_level_command(CFG_FILE* cfg, std::string_view string, void* value, int, int) {
+    SDCTest& sdc = **static_cast<SDCTest**>(value);
     int level;
-    if( readcfg_int(cfg,string,&level,sizeof(int),0) == OK )
-    {
+    if (readcfg_int(cfg, string, &level, sizeof(int), 0) == OK) {
         sdc.loglevel |= level;
-    }
-    else
-    {
+    } else {
         FieldScanner scanner(string);
-        for( auto option = scanner.next(); option; option = scanner.next() )
-        {
-            level=0;
-            if( boost::algorithm::iequals(*option,"steps") )
-            {
-                level=SDC_LOG_STEPS;
-            }
-            else if( boost::algorithm::iequals(*option,"test_details") )
-            {
-                level=SDC_LOG_TESTS;
-            }
-            else if( boost::algorithm::iequals(*option,"accuracy_calcs") )
-            {
-                level=SDC_LOG_CALCS;
-            }
-            else if( boost::algorithm::iequals(*option,"distance_calcs") )
-            {
-                level=SDC_LOG_DISTS;
-            }
-            else if( boost::algorithm::iequals(*option,"rel_acc_calcs") )
-            {
-                level=SDC_LOG_CALCS2;
-            }
-            else if( boost::algorithm::iequals(*option,"debug") )
-            {
-                level=SDC_LOG_ALL;
-            }
-            else if( boost::algorithm::iequals(*option,"timing") )
-            {
-                level=SDC_LOG_TIMESTAMP;
-            }
-            else
-            {
+        for (auto option = scanner.next(); option; option = scanner.next()) {
+            level = 0;
+            if (boost::algorithm::iequals(*option, "steps")) {
+                level = SDC_LOG_STEPS;
+            } else if (boost::algorithm::iequals(*option, "test_details")) {
+                level = SDC_LOG_TESTS;
+            } else if (boost::algorithm::iequals(*option, "accuracy_calcs")) {
+                level = SDC_LOG_CALCS;
+            } else if (boost::algorithm::iequals(*option, "distance_calcs")) {
+                level = SDC_LOG_DISTS;
+            } else if (boost::algorithm::iequals(*option, "rel_acc_calcs")) {
+                level = SDC_LOG_CALCS2;
+            } else if (boost::algorithm::iequals(*option, "debug")) {
+                level = SDC_LOG_ALL;
+            } else if (boost::algorithm::iequals(*option, "timing")) {
+                level = SDC_LOG_TIMESTAMP;
+            } else {
                 const std::string opt(*option);
                 char errmsg[100];
-                sprintf(errmsg,"Invalid value %.40s in option command",
-                        opt.c_str());
-                send_config_error(cfg, INVALID_DATA, errmsg );
+                sprintf(errmsg, "Invalid value %.40s in option command", opt.c_str());
+                send_config_error(cfg, INVALID_DATA, errmsg);
                 continue;
             }
             sdc.loglevel |= level;
@@ -2576,120 +2329,107 @@ static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *
     return OK;
 }
 
-static void set_sdctest_pointer( SDCTest **phsdc )
-{
-    config_item *ci;
-    for( ci = cfg_commands; ci->option; ci++ )
-    {
-        if( ci->code & 1 ) { ci->value = phsdc;
-}
+static void set_sdctest_pointer(SDCTest** phsdc) {
+    config_item* ci;
+    for (ci = cfg_commands; ci->option; ci++) {
+        if (ci->code & 1) {
+            ci->value = phsdc;
+        }
     }
 }
 
-static void set_relacc_pointer( stn_relacc_array **ra )
-{
-    config_item *ci;
-    for( ci = cfg_commands; ci->option; ci++ )
-    {
-        if( ci->code & 2 ) { ci->value = ra;
-}
+static void set_relacc_pointer(stn_relacc_array** ra) {
+    config_item* ci;
+    for (ci = cfg_commands; ci->option; ci++) {
+        if (ci->code & 2) {
+            ci->value = ra;
+        }
     }
 }
 
-static int read_configuration( CFG_FILE *cfg, SDCTest &hsdc, int skip_rel_acc )
-{
+static int read_configuration(CFG_FILE* cfg, SDCTest& hsdc, int skip_rel_acc) {
     int nerr;
-    stn_relacc_array *ra = static_cast<stn_relacc_array *>( hsdc.env );
-    SDCTest *hsdcPointer = &hsdc;
-    set_sdctest_pointer( &hsdcPointer );
-    set_relacc_pointer( &ra );
-    nerr = read_config_file( cfg, cfg_commands );
+    stn_relacc_array* ra = static_cast<stn_relacc_array*>(hsdc.env);
+    SDCTest* hsdcPointer = &hsdc;
+    set_sdctest_pointer(&hsdcPointer);
+    set_relacc_pointer(&ra);
+    nerr = read_config_file(cfg, cfg_commands);
     ra->loglevel = hsdc.loglevel;
-    if( hsdc.norder() < 1 )
-    {
-        send_config_error( cfg, MISSING_DATA, "No tests are defined in the configuration");
+    if (hsdc.norder() < 1) {
+        send_config_error(cfg, MISSING_DATA, "No tests are defined in the configuration");
         nerr++;
     }
     ra->testhor = 0;
     ra->testvrt = 0;
-    for( SDCOrderTest &test : hsdc.tests )
-    {
+    for (SDCOrderTest& test : hsdc.tests) {
         test.dblVertHorRatio = vrtHorRatio;
-        if( test.blnTestHor ) { ra->testhor = 1;
-}
-        if( test.blnTestVrt ) { ra->testvrt = 1;
-}
-        if( test.iMinRelAcc < ra->dfltminrelacc )
-        {
+        if (test.blnTestHor) {
+            ra->testhor = 1;
+        }
+        if (test.blnTestVrt) {
+            ra->testvrt = 1;
+        }
+        if (test.iMinRelAcc < ra->dfltminrelacc) {
             test.iMinRelAcc = ra->dfltminrelacc;
         }
-        if( skip_rel_acc )
-        {
+        if (skip_rel_acc) {
             /* Crudely reset test values to disable relative accuracy tests */
             test.iMinRelAcc = 0;
             test.dblRange = 1.0;
             test.dblRelTestAbsMin = 0.0;
-            test.dblRelTestDFMax  = 1000.0;
-            test.dblRelTestDDMax  = 0.0;
+            test.dblRelTestDFMax = 1000.0;
+            test.dblRelTestDDMax = 0.0;
             test.dblRelTestAbsMinV = 0.0;
-            test.dblRelTestDFMaxV  = 1000.0;
-            test.dblRelTestDDMaxV  = 0.0;
+            test.dblRelTestDFMaxV = 1000.0;
+            test.dblRelTestDDMaxV = 0.0;
         }
     }
     return nerr;
 }
 
-static void set_test_confidence( SDCTest &hsdc )
-{
+static void set_test_confidence(SDCTest& hsdc) {
     double prob;
     double htolfactor;
     // double vtolfactor;
 
-    prob = 1-test_confidence/100.0;
+    prob = 1 - test_confidence / 100.0;
 
     /* Fix up specification scale factors for confidence and
        degrees of freedom */
 
-    if( test_apriori )
-    {
+    if (test_apriori) {
         // vtolfactor = sqrt(fabs(inv_chi2_distn( prob, 1 )));
-        htolfactor = sqrt(fabs(inv_chi2_distn( prob, 2 )));
-    }
-    else
-    {
+        htolfactor = sqrt(fabs(inv_chi2_distn(prob, 2)));
+    } else {
         // vtolfactor = sqrt(fabs(inv_f_distn( prob, 1, dof )));
-        htolfactor = sqrt(fabs(inv_f_distn( prob, 2, dof )*2));
+        htolfactor = sqrt(fabs(inv_f_distn(prob, 2, dof) * 2));
     }
 
     hsdc.dblErrFactor = htolfactor;
     // At the moment vertical tolerance not implemented properly ...
 }
 
-
 /*======================================================================*/
 
+static const char* default_cfg_name = "snapspec";
 
-
-static const char *default_cfg_name = "snapspec";
-
-int main( int argc, char *argv[] )
-{
-    CFG_FILE *cfg = nullptr;
+int main(int argc, char* argv[]) {
+    CFG_FILE* cfg = nullptr;
     std::optional<std::string> cfn;
-    const char *basecfn;
-    const char *ofn;
+    const char* basecfn;
+    const char* ofn;
     int nerr;
     std::unique_ptr<SDCTest> hsdc;
-    BINARY_FILE *b;
-    FILE *debugfile;
-    FILE *out;
-    stn_relacc_array *ra;
+    BINARY_FILE* b;
+    FILE* debugfile;
+    FILE* out;
+    stn_relacc_array* ra;
     std::optional<std::string> min_order_str;
-    char *modestr = nullptr;
+    char* modestr = nullptr;
     std::optional<std::string> max_control_str;
-    char *outputcsvname = nullptr;
-    char *debugcsvname = nullptr;
-    char *updatecrdfile = nullptr;
+    char* outputcsvname = nullptr;
+    char* debugcsvname = nullptr;
+    char* updatecrdfile = nullptr;
     int splitcrdfile = 0;
     int use_cache = 0;
     std::string cvrcachefile;
@@ -2705,131 +2445,127 @@ int main( int argc, char *argv[] )
 
     blt_set_number_of_threads(1);
 
-    printf( "snapspec %s: Tests adjustments against relative accuracy specifications\n"
-            "            and calculates orders of coordinates\n",PROGRAM_VERSION);
+    printf(
+        "snapspec %s: Tests adjustments against relative accuracy specifications\n"
+        "            and calculates orders of coordinates\n",
+        PROGRAM_VERSION);
 
-
-    while( argc >= 3 && argv[1][0] == '-' )
-    {
+    while (argc >= 3 && argv[1][0] == '-') {
         int narg = 1;
         int narg2 = 2;
-        char *arg2=argv[2];
-        if( argv[1][2] )
-        {
+        char* arg2 = argv[2];
+        if (argv[1][2]) {
             narg2 = 1;
-            arg2 = argv[1]+2;
+            arg2 = argv[1] + 2;
         }
 
-        switch( argv[1][1] )
-        {
-        case 'o':
-        case 'O':
-            min_order_str = arg2;
-            narg=narg2;
-            break;
+        switch (argv[1][1]) {
+            case 'o':
+            case 'O':
+                min_order_str = arg2;
+                narg = narg2;
+                break;
 
-        case 'f': /* For backwards compatibility */
-        case 'F':
-        case 's':
-        case 'S':
-            splitcrdfile = 1;
-            updatecrdfile=arg2;
-            narg=narg2;
-            break;
+            case 'f': /* For backwards compatibility */
+            case 'F':
+            case 's':
+            case 'S':
+                splitcrdfile = 1;
+                updatecrdfile = arg2;
+                narg = narg2;
+                break;
 
-        case 'c':
-        case 'C':
-            outputcsvname=arg2;
-            narg=narg2;
-            break;
+            case 'c':
+            case 'C':
+                outputcsvname = arg2;
+                narg = narg2;
+                break;
 
-        case 'd':
-        case 'D':
-            debugcsvname=arg2;
-            narg=narg2;
-            break;
+            case 'd':
+            case 'D':
+                debugcsvname = arg2;
+                narg = narg2;
+                break;
 
-        case 'u':
-        case 'U':
-            updatecrdfile = arg2;
-            narg=narg2;
-            break;
+            case 'u':
+            case 'U':
+                updatecrdfile = arg2;
+                narg = narg2;
+                break;
 
-        case 'm':
-        case 'M':
-            modestr = arg2;
-            narg=narg2;
-            break;
+            case 'm':
+            case 'M':
+                modestr = arg2;
+                narg = narg2;
+                break;
 
-        case 'a':
-        case 'A':
-            autominorder = 1;
-            break;
+            case 'a':
+            case 'A':
+                autominorder = 1;
+                break;
 
-        case 'v':
-        case 'V':
-            use_cache=1;
-            break;
+            case 'v':
+            case 'V':
+                use_cache = 1;
+                break;
 
-        case 'k':
-        case 'K':
-            use_kdtree=1;
-            break;
+            case 'k':
+            case 'K':
+                use_kdtree = 1;
+                break;
 
-        case 'x':
-        case 'X':
-            skip_rel_acc=1;
-            break;
+            case 'x':
+            case 'X':
+                skip_rel_acc = 1;
+                break;
 
-        case 't':
-        case 'T': {
-            int nthread;
-            if( _stricmp(arg2,"auto") == 0 )
-            {
-                nthread=BLT_DEFAULT_NTHREAD;
+            case 't':
+            case 'T': {
+                int nthread;
+                if (_stricmp(arg2, "auto") == 0) {
+                    nthread = BLT_DEFAULT_NTHREAD;
+                } else if (sscanf(arg2, "%d", &nthread) != 1 || nthread <= 0) {
+                    printf("snapspec: Invalid value %s for number of threads", arg2);
+                    return 0;
+                }
+                blt_set_number_of_threads(nthread);
             }
-            else if( sscanf(arg2,"%d",&nthread) != 1 || nthread <= 0 )
-            {
-                printf("snapspec: Invalid value %s for number of threads",arg2);
+                narg = narg2;
+                break;
+
+            default:
+                printf("snapspec: Invalid option %s\n", argv[1]);
                 return 0;
-            }
-            blt_set_number_of_threads(nthread);
-            }
-            narg=narg2;
-            break;
-
-        default:
-            printf("snapspec: Invalid option %s\n",argv[1]);
-            return 0;
         }
-        argv+=narg;
-        argc-=narg;
+        argv += narg;
+        argc -= narg;
     }
 
-    if( modestr )
-    {
-        switch( modestr[0] )
-        {
-        case 'a':
-        case 'A':
-            hvmode = SRA_HVMODE_AUTO; break;
-        case 'h':
-        case 'H':
-        case '2':
-            hvmode = SRA_HVMODE_HOR; break;
-        case 'v':
-        case 'V':
-        case '1':
-            hvmode = SRA_HVMODE_VRT; break;
-        case '3':
-            hvmode = SRA_HVMODE_3D; break;
-        default:
-            printf("snapspec: Invalid mode string %s\n",modestr);
+    if (modestr) {
+        switch (modestr[0]) {
+            case 'a':
+            case 'A':
+                hvmode = SRA_HVMODE_AUTO;
+                break;
+            case 'h':
+            case 'H':
+            case '2':
+                hvmode = SRA_HVMODE_HOR;
+                break;
+            case 'v':
+            case 'V':
+            case '1':
+                hvmode = SRA_HVMODE_VRT;
+                break;
+            case '3':
+                hvmode = SRA_HVMODE_3D;
+                break;
+            default:
+                printf("snapspec: Invalid mode string %s\n", modestr);
         }
     }
 
-    if( argc != 3 && argc != 4 )
-    {
+    if (argc != 3 && argc != 4) {
         printf("\nSyntax: snapspec [options]] binary_file_name [config_file_name] listing_file_name\n");
         printf("\nOptions are:\n");
         printf("   -o order      Specifies the highest order to test\n");
@@ -2839,7 +2575,8 @@ int main( int argc, char *argv[] )
         printf("   -s filename   Base name for separate coordinate files for each order (no extension)\n");
         printf("   -c filename   Output results in a csv file\n");
         /* printf("   -d filename   Output calculation debug csv file\n"); - hidden option */
-        printf("   -k            Use KD-tree spatial index to potentially accelerate inter-station distance calculations (requires range limits in config file)\n");
+        printf(
+            "   -k            Use KD-tree spatial index to potentially accelerate inter-station distance calculations (requires range limits in config file)\n");
         printf("   -v            Use covariance cache (.ssc file) if calculating covariances\n");
         printf("   -t #|auto     Specifies the number of threads to use\n");
         /* printf("   -x            Disable relative accuracy tests\n\n"); - hidden option */
@@ -2849,155 +2586,134 @@ int main( int argc, char *argv[] )
 
     const std::string bfn = argv[1];
 
-    if( argc == 3 )
-    {
+    if (argc == 3) {
         basecfn = default_cfg_name;
         ofn = argv[2];
-    }
-    else
-    {
+    } else {
         basecfn = argv[2];
         ofn = argv[3];
     }
 
-    out = fopen( ofn, "w" );
-    if( !out )
-    {
-        printf("Cannot open output file %s\n",ofn );
+    out = fopen(ofn, "w");
+    if (!out) {
+        printf("Cannot open output file %s\n", ofn);
         return 0;
     }
-    set_error_file( out );
+    set_error_file(out);
 
     init_snap_globals();
     install_default_projections();
     install_default_crdsys_file();
-    cfn = find_file( basecfn, ".cfg", std::optional<std::string>(bfn), FF_TRYALL, "snapspec" );
+    cfn = find_file(basecfn, ".cfg", std::optional<std::string>(bfn), FF_TRYALL, "snapspec");
 
-    if( skip_rel_acc )
-    {
-        fprintf(out,"NOTE: Relative accuracy tests have not been run\n");
+    if (skip_rel_acc) {
+        fprintf(out, "NOTE: Relative accuracy tests have not been run\n");
     }
-    fprintf(out,"snapspec version %s: Calculation of station orders\n",PROGRAM_VERSION);
-    fprintf(out,"Run at %s\n",spec_run_time.c_str());
-    fprintf(out,"SNAP binary file: %s\n",bfn.c_str());
-    fprintf(out,"Spec configuration file: %s\n",cfn?cfn->c_str():nullptr);
+    fprintf(out, "snapspec version %s: Calculation of station orders\n", PROGRAM_VERSION);
+    fprintf(out, "Run at %s\n", spec_run_time.c_str());
+    fprintf(out, "SNAP binary file: %s\n", bfn.c_str());
+    fprintf(out, "Spec configuration file: %s\n", cfn ? cfn->c_str() : nullptr);
 
-    if( cfn ) { cfg = open_config_file( *cfn, '!' );}
-    if( !cfn || !cfg )
-    {
-        fprintf(out,"Cannot open configuration file %s\n",basecfn);
-        printf("snapspec: Cannot open configuration file %s\n",basecfn);
+    if (cfn) {
+        cfg = open_config_file(*cfn, '!');
+    }
+    if (!cfn || !cfg) {
+        fprintf(out, "Cannot open configuration file %s\n", basecfn);
+        printf("snapspec: Cannot open configuration file %s\n", basecfn);
         return 0;
     }
 
-    b = open_binary_file( bfn, BINFILE_SIGNATURE ).file;
+    b = open_binary_file(bfn, BINFILE_SIGNATURE).file;
 
-    if( !b ||
-            reload_snap_globals( b ) != OK ||
-            reload_stations( b ) != OK )
-    {
-
-        fprintf(out,"Cannot reload data from binary file %s\n", bfn.c_str());
-        printf( "snapspec: Cannot reload data from binary file %s\n", bfn.c_str());
+    if (!b || reload_snap_globals(b) != OK || reload_stations(b) != OK) {
+        fprintf(out, "Cannot reload data from binary file %s\n", bfn.c_str());
+        printf("snapspec: Cannot reload data from binary file %s\n", bfn.c_str());
         return 0;
     }
 
     ra = create_relacc();
 
-    hsdc = create_test( MAX_ORDER );
+    hsdc = create_test(MAX_ORDER);
     hsdc->useKDTree = use_kdtree;
     hsdc->nmark = ra->nstn;
     hsdc->env = ra;
     ra->hsdc = hsdc.get();
 
     ra->logfile = out;
-    if( skip_rel_acc )
-    {
+    if (skip_rel_acc) {
         printf("NOTE: snapspec is not applying relative accuracy tests\n");
     }
-    printf("\nUsing configuration file %s\n",cfn->c_str());
+    printf("\nUsing configuration file %s\n", cfn->c_str());
 
-    nerr = read_configuration( cfg, *hsdc, skip_rel_acc );
-    close_config_file( cfg );
+    nerr = read_configuration(cfg, *hsdc, skip_rel_acc);
+    close_config_file(cfg);
 
-    if( nerr > 0 )
-    {
-        printf("\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn->c_str());
-        fprintf(out,"\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn->c_str());
+    if (nerr > 0) {
+        printf("\n%d errors in configuration file %s\nTest aborted\n", nerr, cfn->c_str());
+        fprintf(out, "\n%d errors in configuration file %s\nTest aborted\n", nerr, cfn->c_str());
         return 1;
     }
 
-    if( setup_hv_mode( hvmode, *hsdc, ra ) != OK )
-    {
+    if (setup_hv_mode(hvmode, *hsdc, ra) != OK) {
         exit(1);
     }
 
     ra->binfn = bfn;
 
-    if(  reload_covariances( b, ra ) != OK ||
-            (!relacc_create_blt_req( ra ) &&
-             (reload_relative_covariances( b, ra ) != OK ||
-              check_relacc_complete( ra ) != OK )))
-    {
-        fprintf(out,"Cannot reload covariance data from binary file %s\n"
+    if (reload_covariances(b, ra) != OK ||
+        (!relacc_create_blt_req(ra) && (reload_relative_covariances(b, ra) != OK || check_relacc_complete(ra) != OK))) {
+        fprintf(out,
+                "Cannot reload covariance data from binary file %s\n"
                 "Make sure that the SNAP command file includes \"output all_relative_covariances\"\n"
                 "or \"output decomposition\"\n",
-                bfn.c_str() );
-        printf( "snapspec: Cannot reload covariance data from binary file %s\n"
-                "Make sure the SNAP command file includes\n"
-                "   output all_relative_covariances or\n"
-                "   output decomposition\n", bfn.c_str());
+                bfn.c_str());
+        printf(
+            "snapspec: Cannot reload covariance data from binary file %s\n"
+            "Make sure the SNAP command file includes\n"
+            "   output all_relative_covariances or\n"
+            "   output decomposition\n",
+            bfn.c_str());
         return 1;
     }
 
-    if( use_cache || ra->usecache )
-    {
-        cvrcachefile=cache_covariance_filename( bfn );
-        try_reload_cached_covariance( ra, cvrcachefile );
+    if (use_cache || ra->usecache) {
+        cvrcachefile = cache_covariance_filename(bfn);
+        try_reload_cached_covariance(ra, cvrcachefile);
         close_binary_file(b);
-        ra->cvrcachefile=cvrcachefile;
+        ra->cvrcachefile = cvrcachefile;
     }
 
-    if( ra->bltreq )
-    {
-        hsdc->options|= SDC_OPT_TWOPASS_CVR;
+    if (ra->bltreq) {
+        hsdc->options |= SDC_OPT_TWOPASS_CVR;
     }
 
-    set_test_confidence( *hsdc );
+    set_test_confidence(*hsdc);
 
-    if( min_order_str )
-    {
-        const int iorder = find_order( *hsdc, *min_order_str );
-        if( iorder < 0 )
-        {
-            printf("snapspec: Invalid order parameter %s supplied to program\n",min_order_str->c_str());
-            fprintf(out,"Invalid order parameter %s supplied to program\n",min_order_str->c_str());
+    if (min_order_str) {
+        const int iorder = find_order(*hsdc, *min_order_str);
+        if (iorder < 0) {
+            printf("snapspec: Invalid order parameter %s supplied to program\n", min_order_str->c_str());
+            fprintf(out, "Invalid order parameter %s supplied to program\n", min_order_str->c_str());
             exit(1);
         }
         min_order = iorder;
     }
 
-    if( autominorder || ra->autominorder )
-    {
-        const MaxControlOrder control = get_max_control_order( *hsdc, ra );
+    if (autominorder || ra->autominorder) {
+        const MaxControlOrder control = get_max_control_order(*hsdc, ra);
         const int max_control_order = control.order;
         max_control_str = control.orderName;
-        if( max_control_order < -1 )
-        {
+        if (max_control_order < -1) {
             printf("snapspec: Unable to determine order of control stations\n");
             fprintf(out, "Unable to determine order of control stations\n");
             return 1;
         }
 
-        if( max_control_order >= min_order )
-        {
+        if (max_control_order >= min_order) {
             min_order = max_control_order + 1;
-            if( min_order < hsdc->norder() )
-            {
+            if (min_order < hsdc->norder()) {
                 min_order_str = hsdc->tests[min_order].scOrder.str();
-            }
-            else
-            {
+            } else {
                 // TODO: Check this is the right default order ...
                 min_order = hsdc->norder();
                 min_order_str = dfltOrder.str();
@@ -3005,103 +2721,88 @@ int main( int argc, char *argv[] )
         }
     }
 
-    fprintf(out,"SNAP run time: %s\n",run_time.c_str());
+    fprintf(out, "SNAP run time: %s\n", run_time.c_str());
 
-    if( max_control_str )
-    {
-        fprintf(out,"Lowest order of control stations: %s\n",max_control_str->c_str());
+    if (max_control_str) {
+        fprintf(out, "Lowest order of control stations: %s\n", max_control_str->c_str());
     }
-    if( min_order_str )
-    {
-        fprintf(out,"Best order permitted: %s\n",min_order_str->c_str());
+    if (min_order_str) {
+        fprintf(out, "Best order permitted: %s\n", min_order_str->c_str());
     }
-    if(test_apriori )
-    {
-        fprintf(out,"Running apriori tests\n");
+    if (test_apriori) {
+        fprintf(out, "Running apriori tests\n");
         varmult = 1.0;
+    } else {
+        fprintf(out, "Running aposteriori tests with SEU = %.4lf\n", seu);
+        varmult = seu * seu;
     }
-    else
-    {
-        fprintf(out,"Running aposteriori tests with SEU = %.4lf\n", seu);
-        varmult = seu*seu;
-    }
-    fprintf(out,"\n");
+    fprintf(out, "\n");
 
-    debugfile=nullptr;
-    if( debugcsvname )
-    {
-        const std::string csvfile=output_filename(debugcsvname,bfn,SNAPSPEC_CSV_EXT);
-        debugfile=fopen(csvfile.c_str(),"w");
-        if( ! debugfile )
-        {
-            printf("Cannot create debug output file %s\n",csvfile.c_str());
+    debugfile = nullptr;
+    if (debugcsvname) {
+        const std::string csvfile = output_filename(debugcsvname, bfn, SNAPSPEC_CSV_EXT);
+        debugfile = fopen(csvfile.c_str(), "w");
+        if (!debugfile) {
+            printf("Cannot create debug output file %s\n", csvfile.c_str());
             return 1;
         }
-        ra->dbgfile=debugfile;
+        ra->dbgfile = debugfile;
         hsdc->loglevel |= SDC_LOG_COMPACT;
     }
 
-    if( hsdc->loglevel > 1 ) { write_station_index( ra );
-}
+    if (hsdc->loglevel > 1) {
+        write_station_index(ra);
+    }
 
-    sts = run_tests( *hsdc );
+    sts = run_tests(*hsdc);
 
-    if( debugfile )
-    {
-        ra->dbgfile=nullptr;
+    if (debugfile) {
+        ra->dbgfile = nullptr;
         fclose(debugfile);
     }
 
-    copy_unused_roles_to_orders( ra );
+    copy_unused_roles_to_orders(ra);
 
-    if( sts == STS_OK )
-    {
-        update_station_orders(*hsdc,ra);
-        if( ! outputcsvname && ! ra->csvoutput.empty() ) { outputcsvname=ra->csvoutput.data();
-}
-        if( outputcsvname )
-        {
-            const std::string csvfile=output_filename(outputcsvname,bfn,SNAPSPEC_CSV_EXT);
-            write_output_csv( csvfile, ra );
-            fprintf(out,"\nResults written to CSV file %s\n",csvfile.c_str());
-            printf("Results written to CSV file %s\n",csvfile.c_str());
+    if (sts == STS_OK) {
+        update_station_orders(*hsdc, ra);
+        if (!outputcsvname && !ra->csvoutput.empty()) {
+            outputcsvname = ra->csvoutput.data();
         }
-        else
-        {
-            write_results( *hsdc, ra );
+        if (outputcsvname) {
+            const std::string csvfile = output_filename(outputcsvname, bfn, SNAPSPEC_CSV_EXT);
+            write_output_csv(csvfile, ra);
+            fprintf(out, "\nResults written to CSV file %s\n", csvfile.c_str());
+            printf("Results written to CSV file %s\n", csvfile.c_str());
+        } else {
+            write_results(*hsdc, ra);
         }
 
-        if( ! updatecrdfile && ! ra->crdoutput.empty() ) { updatecrdfile=ra->crdoutput.data();
-}
-        if( updatecrdfile )
-        {
-            if( splitcrdfile || ra->splitcrdfile ) 
-            {
-                const std::string crdfile=output_filename(updatecrdfile,bfn,"");
-                write_coord_files( *hsdc, ra, crdfile );
-                fprintf(out,"\nSplit coordinate files written to %s...\n",crdfile.c_str());
-                printf("Split coordinate files written to %s...\n",crdfile.c_str());
-            }
-            else
-            {
-                const std::string crdfile=output_filename(updatecrdfile,bfn,SNAPSPEC_CRD_EXT);
-                update_crdfile( crdfile );
-                fprintf(out,"\nUpdated coordinate file written to %s\n",crdfile.c_str());
-                printf("Updated coordinate file written to %s\n",crdfile.c_str());
+        if (!updatecrdfile && !ra->crdoutput.empty()) {
+            updatecrdfile = ra->crdoutput.data();
+        }
+        if (updatecrdfile) {
+            if (splitcrdfile || ra->splitcrdfile) {
+                const std::string crdfile = output_filename(updatecrdfile, bfn, "");
+                write_coord_files(*hsdc, ra, crdfile);
+                fprintf(out, "\nSplit coordinate files written to %s...\n", crdfile.c_str());
+                printf("Split coordinate files written to %s...\n", crdfile.c_str());
+            } else {
+                const std::string crdfile = output_filename(updatecrdfile, bfn, SNAPSPEC_CRD_EXT);
+                update_crdfile(crdfile);
+                fprintf(out, "\nUpdated coordinate file written to %s\n", crdfile.c_str());
+                printf("Updated coordinate file written to %s\n", crdfile.c_str());
             }
         }
-    }
-    else
-    {
-        fprintf(out,"\nsnapspec aborted with errors\n");
+    } else {
+        fprintf(out, "\nsnapspec aborted with errors\n");
         printf("\nsnapspec aborted with errors\n");
-        printf("\nSee %s for details\n",ofn);
+        printf("\nSee %s for details\n", ofn);
     }
 
     ra->logfile = nullptr;
     fclose(out);
 
-    delete_relacc( ra );
+    delete_relacc(ra);
 
     return 0;
 }

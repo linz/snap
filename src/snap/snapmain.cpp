@@ -102,23 +102,20 @@
 #include "util/progress.h"
 #include "util/xprintf.h"
 
-static void print_help( void );
-static void print_command_file( void );
-static int read_parameters( int argc, char *argv[] );
-static void update_station_file( const std::string &filename );
-static BINARY_FILE *open_dump_file( void );
-static void dump_binary_data( BINARY_FILE *b );
-static void dump_cholesky_decomposition( BINARY_FILE *b );
-static void dump_covariance_matrix( BINARY_FILE *b );
+static void print_help(void);
+static void print_command_file(void);
+static int read_parameters(int argc, char* argv[]);
+static void update_station_file(const std::string& filename);
+static BINARY_FILE* open_dump_file(void);
+static void dump_binary_data(BINARY_FILE* b);
+static void dump_cholesky_decomposition(BINARY_FILE* b);
+static void dump_covariance_matrix(BINARY_FILE* b);
 static void write_metadata_csv();
 static void write_filelist_csv();
 
-static int force_zero_inverse=0;
+static int force_zero_inverse = 0;
 
-int snap_main( int argc, char *argv[] )
-try
-{
-
+int snap_main(int argc, char* argv[]) try {
     int show_iterations;
     int sts;
     int maxstn;
@@ -126,7 +123,7 @@ try
     int read_errors;
     double maxadj;
     char errmess[256];
-    BINARY_FILE *dump;
+    BINARY_FILE* dump;
 
     CONFIGURE_RUNTIME();
 
@@ -138,15 +135,14 @@ try
 
     blt_set_number_of_threads(1);
 
-    if( read_parameters( argc, argv ) != OK )
-    {
+    if (read_parameters(argc, argv) != OK) {
         print_help();
         return DEFAULT_RETURN_STATUS;
     }
 
     /* Record names of files used */
 
-    set_record_filenames( 1 );
+    set_record_filenames(1);
 
     /* Load the coordinate system definition file */
 
@@ -154,15 +150,13 @@ try
 
     /* Check that the command file exists */
 
-    if( config_file && !path_exists(*config_file) )
-    {
-        xprintf("\nCannot open configuration file %s\n", config_file->c_str() );
+    if (config_file && !path_exists(*config_file)) {
+        xprintf("\nCannot open configuration file %s\n", config_file->c_str());
         return DEFAULT_RETURN_STATUS;
     }
 
-    if( !path_exists(command_file->path) )
-    {
-        xprintf("\nCannot open command file %s\n", command_file->path.c_str() );
+    if (!path_exists(command_file->path)) {
+        xprintf("\nCannot open command file %s\n", command_file->path.c_str());
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -170,8 +164,7 @@ try
 
     xprintf("\nInitialising the program\n");
     init_output_options();
-    if( ! open_output_files( ) )
-    {
+    if (!open_output_files()) {
         xprintf("\nUnable to create output files\n");
         return DEFAULT_RETURN_STATUS;
     }
@@ -180,115 +173,100 @@ try
 
     process_default_configuration();
 
-    if( config_file )
-    {
+    if (config_file) {
         xprintf("\nReading the configuration file %s\n", config_file->c_str());
-        if( read_configuration_file( *config_file ) != OK )
-        {
-            xprintf("\nErrors loading configuration file %s\n", config_file->c_str() );
-            handle_error( INVALID_DATA, "The configuration file is not correct", NO_MESSAGE );
-            close_output_files(NO_MESSAGE,NO_MESSAGE);
+        if (read_configuration_file(*config_file) != OK) {
+            xprintf("\nErrors loading configuration file %s\n", config_file->c_str());
+            handle_error(INVALID_DATA, "The configuration file is not correct", NO_MESSAGE);
+            close_output_files(NO_MESSAGE, NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
     }
 
     /* Read the command file */
 
-    xprintf("\nReading the command file %s\n", command_file->path.c_str() );
+    xprintf("\nReading the command file %s\n", command_file->path.c_str());
 
     /* Set station initialisation for reading the station file before it is loaded by read_command_file */
     set_stnadj_init_network();
 
-    if( read_command_file( command_file->path ) != OK )
-    {
-        xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
-        handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
-        close_output_files(NO_MESSAGE,NO_MESSAGE);
+    if (read_command_file(command_file->path) != OK) {
+        xprintf("\nErrors loading command file %s\n", command_file->path.c_str());
+        handle_error(INVALID_DATA, "The command file is not correct", NO_MESSAGE);
+        close_output_files(NO_MESSAGE, NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
     /* Tidy up selected options */
 
     eliminate_inconsistent_outputs();
-    if( output_all_covariances )
-    {
+    if (output_all_covariances) {
         output_relative_covariances = true;
     }
 
     /* If the command file is to be echoed to the output - do it now */
 
-    if( output_command_file )
-    {
+    if (output_command_file) {
         print_command_file();
-        if( output_file_summary ) { print_section_header( lst, "SUMMARY OF INPUT FILES" );
-}
+        if (output_file_summary) {
+            print_section_header(lst, "SUMMARY OF INPUT FILES");
+        }
     }
 
     /* If the coordinate system has a deformation model, install it now */
 
-    if( has_deformation_model( net->crdsys ) )
-    {
-        if( deformation )
-        {
+    if (has_deformation_model(net->crdsys)) {
+        if (deformation) {
             /*
             handle_error( WARNING_ERROR,
                           "The adjustment is using deformation model which overrides that of the coordinate system",
                           NO_MESSAGE);
             */
-        }
-        else if( ignore_deformation )
-        {
+        } else if (ignore_deformation) {
             /*
             handle_error( WARNING_ERROR,
                           "The adjustment is not using the deformation model of the coordinate system",
                           NO_MESSAGE);
             */
-        }
-        else
-        {
-            create_crdsys_deformation( &deformation );
+        } else {
+            create_crdsys_deformation(&deformation);
         }
     }
 
     /* Print out summary of input options */
 
-    print_control_options( lst );
+    print_control_options(lst);
 
     /* Open the binary dump file ready to hold the data */
 
     dump = nullptr;
-    if( output_binary_file )
-    {
+    if (output_binary_file) {
         dump = open_dump_file();
-        if( dump == nullptr )
-        {
+        if (dump == nullptr) {
             xprintf("\nUnable to create binary file\n");
-            close_output_files(NO_MESSAGE,NO_MESSAGE);
+            close_output_files(NO_MESSAGE, NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
-        create_section( dump, "OBSERVATIONS" );
+        create_section(dump, "OBSERVATIONS");
     }
 
-    init_bindata( dump ? dump->f : nullptr);
+    init_bindata(dump ? dump->f : nullptr);
 
     /* Read the data defined in the control file into the binary data file */
 
-    if( output_file_summary )
-    {
-        fprintf(lst,"\n\nCoordinates file %s\n    %4d stations read\n",
-                station_file->filename.c_str(), number_of_stations( net ));
+    if (output_file_summary) {
+        fprintf(lst, "\n\nCoordinates file %s\n    %4d stations read\n", station_file->filename.c_str(),
+                number_of_stations(net));
     }
 
-    if( geoid_file )
-    {
-        if( !(net->options & NW_GEOID_HEIGHTS) || overwrite_geoid )
-        {
-            sts = set_network_geoid( net, geoid_file,NW_HGTFIXEDOPT_DEFAULT, geoid_error_level );
-            if( sts == INFO_ERROR ) { sts=OK;
-}
-            if( sts != OK ) 
-            {
-                close_output_files(NO_MESSAGE,NO_MESSAGE);
+    if (geoid_file) {
+        if (!(net->options & NW_GEOID_HEIGHTS) || overwrite_geoid) {
+            sts = set_network_geoid(net, geoid_file, NW_HGTFIXEDOPT_DEFAULT, geoid_error_level);
+            if (sts == INFO_ERROR) {
+                sts = OK;
+            }
+            if (sts != OK) {
+                close_output_files(NO_MESSAGE, NO_MESSAGE);
                 return DEFAULT_RETURN_STATUS;
             }
             reset_stnadj_initial_coords();
@@ -296,22 +274,24 @@ try
     }
 
     xprintf("\nReading the data files...\n");
-    init_connections( number_of_stations( net ));
+    init_connections(number_of_stations(net));
     {
         double lt;
         double ln;
-        get_network_topocentre( net, &lt, &ln );
-        setup_rftrans_list( lt, ln );
+        get_network_topocentre(net, &lt, &ln);
+        setup_rftrans_list(lt, ln);
     }
 
     init_load_snap();
-    read_errors = read_data_files( output_file_summary ? lst : nullptr );
+    read_errors = read_data_files(output_file_summary ? lst : nullptr);
     sts = term_load_snap();
     end_bindata();
-    if( dump ) { end_section( dump );
-}
-    if( output_file_summary ) { print_section_footer( lst );
-}
+    if (dump) {
+        end_section(dump);
+    }
+    if (output_file_summary) {
+        print_section_footer(lst);
+    }
 
     /* Add elements requested for covariance output */
     add_requested_covariance_connections();
@@ -324,44 +304,45 @@ try
        observations that will have error factors applied, or are being
        rejected or ignored */
 
-    summarize_obs_modifications( snap_obs_modifications(false), lst, "" );
-    if( output_input_data ) { print_input_data( lst );
-}
-    if( output_file_summary ) { print_section_footer( lst );
-}
+    summarize_obs_modifications(snap_obs_modifications(false), lst, "");
+    if (output_input_data) {
+        print_input_data(lst);
+    }
+    if (output_file_summary) {
+        print_section_footer(lst);
+    }
 
-    if( read_errors )
-    {
-        xprintf( "\n%d errors reported reading the data files\n", (int) read_errors);
-        sprintf( errmess, "%d errors reported reading the data files", (int) read_errors);
-        handle_error(INVALID_DATA, errmess, NO_MESSAGE );
-        close_output_files(NO_MESSAGE,NO_MESSAGE);
+    if (read_errors) {
+        xprintf("\n%d errors reported reading the data files\n", (int)read_errors);
+        sprintf(errmess, "%d errors reported reading the data files", (int)read_errors);
+        handle_error(INVALID_DATA, errmess, NO_MESSAGE);
+        close_output_files(NO_MESSAGE, NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
-    if ( sts != OK )
-    {
+    if (sts != OK) {
         xprintf("\nErrors encountered reading the data files\n");
-        handle_error( INVALID_DATA, "Errors encountered reading the data files", NO_MESSAGE );
-        close_output_files(NO_MESSAGE,NO_MESSAGE);
+        handle_error(INVALID_DATA, "Errors encountered reading the data files", NO_MESSAGE);
+        close_output_files(NO_MESSAGE, NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
     /* Echo the input data if required */
 
-    if( output_stn_recode ) { print_station_recoding( lst );
-}
+    if (output_stn_recode) {
+        print_station_recoding(lst);
+    }
 
-    if( sort_obs ) { sort_observation_list();
-}
+    if (sort_obs) {
+        sort_observation_list();
+    }
 
     /* Check for station co-location constraints */
     /* Assumes have a count of observations for each station */
 
-    if( add_station_colocation_constraints() != OK )
-    {
+    if (add_station_colocation_constraints() != OK) {
         xprintf("\nErrors defining colocation constraints\n");
-        handle_error(INVALID_DATA, "Errors defining colocation constraints",NO_MESSAGE);
-        close_output_files(NO_MESSAGE,NO_MESSAGE);
+        handle_error(INVALID_DATA, "Errors defining colocation constraints", NO_MESSAGE);
+        close_output_files(NO_MESSAGE, NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -373,12 +354,11 @@ try
 
     /* Now add the constraints from the command file */
 
-    xprintf("\nReading the station constraint commands %s\n", command_file->path.c_str() );
-    if( read_command_file_constraints( command_file->path ) != OK )
-    {
-        xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
-        handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
-        close_output_files(NO_MESSAGE,NO_MESSAGE);
+    xprintf("\nReading the station constraint commands %s\n", command_file->path.c_str());
+    if (read_command_file_constraints(command_file->path) != OK) {
+        xprintf("\nErrors loading command file %s\n", command_file->path.c_str());
+        handle_error(INVALID_DATA, "The command file is not correct", NO_MESSAGE);
+        close_output_files(NO_MESSAGE, NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -387,70 +367,62 @@ try
        and allocates the least squares matrices */
 
     init_rftrans_prms_list();
-    nprm = setup_parameters( lst );
-    free_station_autofix_data();  
+    nprm = setup_parameters(lst);
+    free_station_autofix_data();
 
-    if( deformation && init_deformation( deformation ) != OK )
-    {
+    if (deformation && init_deformation(deformation) != OK) {
         xprintf("\nUnable to initialise the deformation model\n");
-        handle_error( INVALID_DATA, "Unable to initialised deformation model", NO_MESSAGE );
-        close_output_files(NO_MESSAGE,NO_MESSAGE);
+        handle_error(INVALID_DATA, "Unable to initialised deformation model", NO_MESSAGE);
+        close_output_files(NO_MESSAGE, NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
-    if( output_problem_definition ) { print_problem_summary( lst );
-}
+    if (output_problem_definition) {
+        print_problem_summary(lst);
+    }
 
     /* Main adjustment loop */
 
     iterations = 0;
     show_iterations = program_mode == ADJUST || program_mode == DATA_CONSISTENCY;
 
-    if( force_zero_inverse || lsq_using_zero_inverse() )
-    {
+    if (force_zero_inverse || lsq_using_zero_inverse()) {
         lsq_set_use_zero_inverse(1);
-        handle_error( INFO_ERROR,
-           "The inverse of the normal equations is not being calculated",
-           "Calculated error values set to zero and statistics incomplete"
-           );
+        handle_error(INFO_ERROR, "The inverse of the normal equations is not being calculated",
+                     "Calculated error values set to zero and statistics incomplete");
     }
 
-    converged=0;
-    for(;;)
-    {
-
+    converged = 0;
+    for (;;) {
         iterations++;
 
         /* Initialise the least squares equations */
 
         lsq_init();
-        if( iterations==1 && nprm )
-        {
-            long const nfull = ((long) nprm * (nprm+1))/2;
-            long const nsave = nfull - lsq_normal_matrix()->nelement;
-            if( nsave > 0 )
-            {
-                xprintf("\nStation reordering has reduced the matrix size by %.1lf%%\n",(nsave*100.0)/nfull);
+        if (iterations == 1 && nprm) {
+            const long nfull = ((long)nprm * (nprm + 1)) / 2;
+            const long nsave = nfull - lsq_normal_matrix()->nelement;
+            if (nsave > 0) {
+                xprintf("\nStation reordering has reduced the matrix size by %.1lf%%\n", (nsave * 100.0) / nfull);
             }
         }
 
-        if( show_iterations )
-        {
-            xprintf("\nIteration %d\n",(int)iterations);
-            if( iterations > 1 ) { print_iteration_footer();
-}
-            print_iteration_header( iterations );
+        if (show_iterations) {
+            xprintf("\nIteration %d\n", (int)iterations);
+            if (iterations > 1) {
+                print_iteration_footer();
+            }
+            print_iteration_header(iterations);
         }
 
         /* Sum the observations */
 
         xprintf("   Summing the data\n");
 
-        sts=sum_bindata( iterations );
-        if( sts != OK )
-        {
+        sts = sum_bindata(iterations);
+        if (sts != OK) {
             xprintf("\nThe adjustment cannot be solved - observations cannot be summed\n");
-            close_output_files(NO_MESSAGE,NO_MESSAGE);
+            close_output_files(NO_MESSAGE, NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
 
@@ -460,67 +432,57 @@ try
         ignore any information from the input observations - we are
          only interested in the covariance of the derived parameters */
 
-        if( output_normal_equations )
-        {
+        if (output_normal_equations) {
             const std::string header = "normal_equations_" + std::to_string(iterations);
-            print_section_header( lst, "NORMAL EQUATIONS" );
-            print_json_start(lst,header);
-            fprintf(lst,"{\n");
-            print_json_params(lst,2);
-            fprintf(lst,",\n\"normal_equations\": ");
-            lsq_print_normal_equations_json( lst, 2 );
-            fprintf(lst,"\n}");
-            print_json_end(lst,header);
-            print_section_footer( lst );
+            print_section_header(lst, "NORMAL EQUATIONS");
+            print_json_start(lst, header);
+            fprintf(lst, "{\n");
+            print_json_params(lst, 2);
+            fprintf(lst, ",\n\"normal_equations\": ");
+            lsq_print_normal_equations_json(lst, 2);
+            fprintf(lst, "\n}");
+            print_json_end(lst, header);
+            print_section_footer(lst);
         }
 
         xprintf("   Solving the equations\n");
 
-        if( program_mode == PREANALYSIS ) { lsq_zero_b_vector();
-}
+        if (program_mode == PREANALYSIS) {
+            lsq_zero_b_vector();
+        }
 
-        if( program_mode == DATA_CONSISTENCY )
-        {
+        if (program_mode == DATA_CONSISTENCY) {
             ncon = lsq_solve_equations(1);
             sts = 0;
-        }
-        else
-        {
+        } else {
             ncon = 0;
             sts = lsq_solve_equations(0);
         }
-        if( sts != 0 )
-        {
-            handle_singularity( sts );
+        if (sts != 0) {
+            handle_singularity(sts);
             xprintf("\nThe adjustment cannot be solved - equations are singular\n");
-            close_output_files(NO_MESSAGE,NO_MESSAGE);
+            close_output_files(NO_MESSAGE, NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
 
-        if( output_normal_equations )
-        {
+        if (output_normal_equations) {
             const std::string header = "solution_vector_" + std::to_string(iterations);
-            print_json_start(lst,header);
-            lsq_print_solution_vector_json( lst, 0, 0 );
-            print_json_end(lst,header);
+            print_json_start(lst, header);
+            lsq_print_solution_vector_json(lst, 0, 0);
+            print_json_end(lst, header);
         }
 
         /* Find the maximum adjustment and document the iterations */
 
-        max_station_adjustment( convergence_tol, &maxstn, &maxadj, &nstnadj );
-        last_iteration_max_adjustment=maxadj;
-        if( maxstn && show_iterations )
-        {
-
-            xprintf("   Maximum adjustment is %.4lf at station %s\n",
-                    maxadj,station_code(maxstn).c_str());
-            xprintf("   %d station adjustments exceed convergence criteria\n",
-                    nstnadj );
+        max_station_adjustment(convergence_tol, &maxstn, &maxadj, &nstnadj);
+        last_iteration_max_adjustment = maxadj;
+        if (maxstn && show_iterations) {
+            xprintf("   Maximum adjustment is %.4lf at station %s\n", maxadj, station_code(maxstn).c_str());
+            xprintf("   %d station adjustments exceed convergence criteria\n", nstnadj);
         }
 
-        if( maxstn && show_iterations )
-        {
-            print_iteration_update( iterations, maxadj, maxstn, nstnadj );
+        if (maxstn && show_iterations) {
+            print_iteration_update(iterations, maxadj, maxstn, nstnadj);
         }
 
         /* Update station coordinates and parameters, but do not
@@ -528,51 +490,46 @@ try
            matrix yet */
 
         update_station_coords();
-        update_params( 0 );
-        update_rftrans_prms_list( 0 );
+        update_params(0);
+        update_rftrans_prms_list(0);
 
         /* Check whether we have converged or run out of iterations */
 
-        if( iterations >= min_iterations && maxadj < convergence_tol ) 
-        {
-            converged=1;
+        if (iterations >= min_iterations && maxadj < convergence_tol) {
+            converged = 1;
             break;
         }
 
-        if( iterations >= max_iterations  )
-        {
-            sprintf(errmess,"The adjustment has not converged after %d iterations",
-                    (int)iterations);
-            handle_error(WARNING_ERROR,errmess,NO_MESSAGE);
+        if (iterations >= max_iterations) {
+            sprintf(errmess, "The adjustment has not converged after %d iterations", (int)iterations);
+            handle_error(WARNING_ERROR, errmess, NO_MESSAGE);
             break;
         }
 
-        if( maxadj > max_adjustment )
-        {
-            sprintf(errmess,"Adjustment %.4lf at station %s greater than allowable maximum",
-                    maxadj, station_code(maxstn).c_str() );
-            handle_error( WARNING_ERROR, errmess, NO_MESSAGE );
+        if (maxadj > max_adjustment) {
+            sprintf(errmess, "Adjustment %.4lf at station %s greater than allowable maximum", maxadj,
+                    station_code(maxstn).c_str());
+            handle_error(WARNING_ERROR, errmess, NO_MESSAGE);
             break;
         }
     }
-    
-    if( show_iterations )
-    {
+
+    if (show_iterations) {
         print_iteration_footer();
     }
 
     /* Grab the least squares statistics */
 
-    lsq_get_stats( &nobs, &nprm, &nschp, &dof, &ssr, &seu );
+    lsq_get_stats(&nobs, &nprm, &nschp, &dof, &ssr, &seu);
 
-    if( program_mode != PREANALYSIS ) { xprint_ls_summary();
-}
+    if (program_mode != PREANALYSIS) {
+        xprint_ls_summary();
+    }
 
     /* Dump the Cholesky decomposition if required */
 
-    if( output_decomposition && dump )
-    {
-        dump_cholesky_decomposition( dump );
+    if (output_decomposition && dump) {
+        dump_cholesky_decomposition(dump);
     }
 
     /* Zero the b vector... we have already applied any updates, so we
@@ -582,22 +539,15 @@ try
 
     /* Expand the matrix to a full matrix if required */
 
-    if( ! lsq_using_zero_inverse() && (do_accuracy_tests || 
-            output_covariance ||
-            output_covariance_json ||
-            output_sinex ||
-            output_all_covariances || 
-            (dump && output_full_covariance) 
-            ))
-    {
+    if (!lsq_using_zero_inverse() && (do_accuracy_tests || output_covariance || output_covariance_json ||
+                                      output_sinex || output_all_covariances || (dump && output_full_covariance))) {
         expand_bltmatrix_to_full(lsq_normal_matrix());
     }
 
     /* Dump the covariance matrix if required */
 
-    if( ! lsq_using_zero_inverse() && dump && output_full_covariance )
-    {
-        dump_covariance_matrix( dump );
+    if (!lsq_using_zero_inverse() && dump && output_full_covariance) {
+        dump_covariance_matrix(dump);
     }
 
     /* Invert the normal equations and calculate the residuals */
@@ -607,8 +557,8 @@ try
 
     /* Now get parameter covariances */
 
-    update_params( 1 );
-    update_rftrans_prms_list( 1 );
+    update_params(1);
+    update_rftrans_prms_list(1);
 
     xprintf("Calculating observations residuals\n");
     calc_residuals();
@@ -617,147 +567,132 @@ try
 
     xprintf("\n\nWriting the results...\n");
 
-    if( output_ls_summary ) { print_solution_summary( lst );
-}
+    if (output_ls_summary) {
+        print_solution_summary(lst);
+    }
 
-    if( output_station_coordinates )
-    {
+    if (output_station_coordinates) {
         xprintf("   Listing coordinates\n");
-        print_adjusted_coordinates( lst );
+        print_adjusted_coordinates(lst);
     }
 
-    if( output_floated_stations )
-    {
-        print_floated_stations( lst );
+    if (output_floated_stations) {
+        print_floated_stations(lst);
     }
 
-    if( output_station_offsets )
-    {
+    if (output_station_offsets) {
         xprintf("   Listing station offsets\n");
-        print_station_offsets( lst );
+        print_station_offsets(lst);
     }
 
-    if( output_reference_frames )
-    {
+    if (output_reference_frames) {
         xprintf("   Listing reference frames\n");
-        print_rftrans_list( lst );
+        print_rftrans_list(lst);
     }
 
-    if( output_parameters )
-    {
+    if (output_parameters) {
         xprintf("   Listing other parameters\n");
-        print_adjusted_parameters( lst );
+        print_adjusted_parameters(lst);
     }
 
-    if( output_residuals )
-    {
+    if (output_residuals) {
         xprintf("   Listing residuals\n");
-        print_residuals( lst );
+        print_residuals(lst);
     }
 
-
-    if( output_error_summary )
-    {
+    if (output_error_summary) {
         xprintf("   Listing error summary\n");
-        print_error_summary( lst );
+        print_error_summary(lst);
     }
 
-    if( do_accuracy_tests )
-    {
+    if (do_accuracy_tests) {
         xprintf("\n\nTesting accuracy specifications\n");
         test_specifications();
     }
 
-    if( output_worst_residuals ) { print_worst_residuals( lst );
-}
+    if (output_worst_residuals) {
+        print_worst_residuals(lst);
+    }
 
     /* CSV outputs */
 
-    if( output_csv_stations || output_csv_allfiles )
-    {
+    if (output_csv_stations || output_csv_allfiles) {
         xprintf("   Writing station csv file\n");
         write_station_csv();
     }
 
-    if( output_csv_obs || output_csv_allfiles )
-    {
+    if (output_csv_obs || output_csv_allfiles) {
         xprintf("   Writing observation csv file\n");
         write_observation_csv();
     }
 
-    if( output_csv_metadata || output_csv_allfiles )
-    {
+    if (output_csv_metadata || output_csv_allfiles) {
         xprintf("   Writing metadata csv file\n");
         write_metadata_csv();
     }
 
     /* Update the station file */
 
-    if( output_coordinate_file ) { update_station_file( output_station_filespec );
-}
+    if (output_coordinate_file) {
+        update_station_file(output_station_filespec);
+    }
 
-    if( dump )
-    {
-        dump_binary_data( dump );
-        close_binary_file( dump );
+    if (dump) {
+        dump_binary_data(dump);
+        close_binary_file(dump);
     }
 
     /* Output covariance products if required */
 
-    if( ! lsq_using_zero_inverse() )
-    {
-        if( output_covariance ) { print_coord_covariance();
-}
-        if( output_covariance_json ) { print_coord_covariance_json();
-}
-        if( output_solution_json ) { print_solution_json_file();
-}
-        if( output_sinex ) { print_coord_sinex();
-}
+    if (!lsq_using_zero_inverse()) {
+        if (output_covariance) {
+            print_coord_covariance();
+        }
+        if (output_covariance_json) {
+            print_coord_covariance_json();
+        }
+        if (output_solution_json) {
+            print_solution_json_file();
+        }
+        if (output_sinex) {
+            print_coord_sinex();
+        }
     }
 
-    close_output_files( NO_MESSAGE, NO_MESSAGE );
-
+    close_output_files(NO_MESSAGE, NO_MESSAGE);
 
     /* CSV flelist (after all other files) */
 
-    if( output_csv_filelist || output_csv_allfiles )
-    {
+    if (output_csv_filelist || output_csv_allfiles) {
         write_filelist_csv();
     }
 
     /* Delete allocated objects */
 
-    if( deformation ) { delete_deformation( deformation );
-}
+    if (deformation) {
+        delete_deformation(deformation);
+    }
 
     delete_recorded_filenames();
 
-    if( ! converged )
-    {
-        xprintf( "\nWARNING: Adjustment has not converged - results may be misleading\n" );
-        xprintf( "Final iteration maximum adjustment is %.4lf.\n",last_iteration_max_adjustment );
+    if (!converged) {
+        xprintf("\nWARNING: Adjustment has not converged - results may be misleading\n");
+        xprintf("Final iteration maximum adjustment is %.4lf.\n", last_iteration_max_adjustment);
     }
     return get_error_count() > 0 ? DEFAULT_RETURN_STATUS : OK;
-}
-catch( const std::exception &e )
-{
+} catch (const std::exception& e) {
     char errmess[256];
-    snprintf( errmess, sizeof(errmess), "Unexpected internal error: %s", e.what() );
-    handle_error( INVALID_DATA, errmess, NO_MESSAGE );
-    close_output_files(NO_MESSAGE,NO_MESSAGE);
+    snprintf(errmess, sizeof(errmess), "Unexpected internal error: %s", e.what());
+    handle_error(INVALID_DATA, errmess, NO_MESSAGE);
+    close_output_files(NO_MESSAGE, NO_MESSAGE);
     return DEFAULT_RETURN_STATUS;
-}
-catch( ... )
-{
-    handle_error( INVALID_DATA, "Unexpected internal error of unknown type", NO_MESSAGE );
-    close_output_files(NO_MESSAGE,NO_MESSAGE);
+} catch (...) {
+    handle_error(INVALID_DATA, "Unexpected internal error of unknown type", NO_MESSAGE);
+    close_output_files(NO_MESSAGE, NO_MESSAGE);
     return DEFAULT_RETURN_STATUS;
 }
 
-
-static int read_parameters( int argc, char *argv[] )
-{
+static int read_parameters(int argc, char* argv[]) {
     int sts;
     std::optional<std::string> cfg_file;
     std::optional<std::string> cmd_file;
@@ -766,107 +701,90 @@ static int read_parameters( int argc, char *argv[] )
 
     output_noruntime = false;
 
-    for( argc--, argv++; sts==OK && argc; argc--, argv++ )
-    {
+    for (argc--, argv++; sts == OK && argc; argc--, argv++) {
         const std::string arg = argv[0];
-        if( arg[0] == '-' )
-        {
-            switch( arg[1] )
-            {
-            case 'c':
-            case 'C': if( arg.size() > 2 )
-                {
-                    cfg_file = arg.substr(2);
-                }
-                else if( argc > 1 )
-                {
-                    cfg_file = *++argv;
-                    argc--;
-                }
-                else
-                {
-                    xprintf("\nConfiguration file name missing after -c switch\n");
-                    sts = MISSING_DATA;
-                }
-                break;
+        if (arg[0] == '-') {
+            switch (arg[1]) {
+                case 'c':
+                case 'C':
+                    if (arg.size() > 2) {
+                        cfg_file = arg.substr(2);
+                    } else if (argc > 1) {
+                        cfg_file = *++argv;
+                        argc--;
+                    } else {
+                        xprintf("\nConfiguration file name missing after -c switch\n");
+                        sts = MISSING_DATA;
+                    }
+                    break;
 
+                case 't':
+                case 'T': {
+                    int nthread;
+                    std::string topt = arg.substr(2);
+                    if (topt.empty() && argc > 1) {
+                        argc--;
+                        argv++;
+                        topt = argv[0];
+                    }
+                    if (boost::algorithm::iequals(topt, "auto")) {
+                        blt_set_number_of_threads(BLT_DEFAULT_NTHREAD);
+                    } else if (sscanf(topt.c_str(), "%d", &nthread) != 1) {
+                        xprintf("\nInvalid value %s for number of threads (-t switch)", topt.c_str());
+                        sts = INVALID_DATA;
+                    } else {
+                        blt_set_number_of_threads(nthread);
+                    }
+                } break;
 
-            case 't':
-            case 'T': {
-                int nthread;
-                std::string topt = arg.substr(2);
-                if( topt.empty() && argc > 1 ){ argc--; argv++; topt=argv[0]; }
-                if( boost::algorithm::iequals( topt, "auto" ) )
-                {
-                    blt_set_number_of_threads(BLT_DEFAULT_NTHREAD);
-                }
-                else if( sscanf(topt.c_str(),"%d",&nthread) != 1 )
-                {
-                    xprintf("\nInvalid value %s for number of threads (-t switch)",topt.c_str());
-                    sts=INVALID_DATA;
-                }
-                else
-                {
-                    blt_set_number_of_threads(nthread);
-                }
-                }
-                break;
+                    /* Option for testing so that output doesn't contain run time specific info */
 
-                /* Option for testing so that output doesn't contain run time specific info */
+                case 'q':
+                case 'Q':
+                    output_noruntime = true;
+                    break;
 
-            case 'q':
-            case 'Q':
-                output_noruntime = true;
-                break;
+                case 'z':
+                case 'Z':
+                    force_zero_inverse = 1;
+                    break;
 
-            case 'z':
-            case 'Z':
-                force_zero_inverse=1;
-                break;
-
-            default: xprintf("\nInvalid switch %c on command line\n",arg[1]);
-                sts = INVALID_DATA;
-                break;
-
+                default:
+                    xprintf("\nInvalid switch %c on command line\n", arg[1]);
+                    sts = INVALID_DATA;
+                    break;
             }
-        }
-        else if( !cmd_file )
-        {
+        } else if (!cmd_file) {
             cmd_file = arg;
-        }
-        else
-        {
-            xprintf("\nCommand line option %s is not understood\n",arg.c_str());
+        } else {
+            xprintf("\nCommand line option %s is not understood\n", arg.c_str());
             sts = INVALID_DATA;
         }
     }
 
-    if( !cmd_file )
-    {
+    if (!cmd_file) {
         xprintf("\nCommand file must be specified on the command line\n");
         sts = MISSING_DATA;
     }
 
-    if( sts != OK ) { return sts;
-}
+    if (sts != OK) {
+        return sts;
+    }
 
-    set_snap_command_file( *cmd_file );
+    set_snap_command_file(*cmd_file);
 
-    if( cfg_file )
-    {
-        auto cf = find_configuration_file( *cfg_file );
-        if( cf )
-        {
-            set_snap_config_file( *cf );
+    if (cfg_file) {
+        auto cf = find_configuration_file(*cfg_file);
+        if (cf) {
+            set_snap_config_file(*cf);
         }
     }
 
     return sts;
 }
 
-static void print_help( void )
-{
-    xprintf("\nSyntax: %s [options] snap_job_name\n\n",PROGRAM);
+static void print_help(void) {
+    xprintf("\nSyntax: %s [options] snap_job_name\n\n", PROGRAM);
     xprintf("snap_job_name is the name of the snap command file. snap will look for\n");
     xprintf("files with extension .cmd, .snp, and .snap\n\n");
     xprintf("Options can include:\n");
@@ -877,90 +795,91 @@ static void print_help( void )
     xprintf("\n");
 }
 
-static void print_command_file( void )
-{
-    FILE *cmd;
+static void print_command_file(void) {
+    FILE* cmd;
     char inrec[256];
-    cmd = fopen( command_file->path.c_str(), "r" );
-    if( !cmd ) { return;
-}
-    if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
-    fprintf(lst,"\nThe command file %s contains:\n", std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
-    while( fgets(inrec,256,cmd)) 
-    {
-        if (strlen(inrec) == 0) { continue;
-}
-        char *p=inrec+strlen(inrec)-1;
-        while( p >= inrec && ISSPACE(*p) ) { *p--=0;
-}
-        fprintf(lst,"     %s\n",inrec);
+    cmd = fopen(command_file->path.c_str(), "r");
+    if (!cmd) {
+        return;
     }
-    fprintf(lst,"\n");
-    fclose( cmd );
+    if (!skip_utf8_bom(cmd)) {
+        fclose(cmd);
+        return;
+    }
+    fprintf(lst, "\nThe command file %s contains:\n",
+            std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
+    while (fgets(inrec, 256, cmd)) {
+        if (strlen(inrec) == 0) {
+            continue;
+        }
+        char* p = inrec + strlen(inrec) - 1;
+        while (p >= inrec && ISSPACE(*p)) {
+            *p-- = 0;
+        }
+        fprintf(lst, "     %s\n", inrec);
+    }
+    fprintf(lst, "\n");
+    fclose(cmd);
 
-    if( !config_file ) {  return;
+    if (!config_file) {
+        return;
+    }
+
+    cmd = fopen(config_file->c_str(), "r");
+    if (!cmd) {
+        return;
+    }
+    if (!skip_utf8_bom(cmd)) {
+        fclose(cmd);
+        return;
+    }
+    fprintf(lst, "\nAdditional configuration commands were read from %s\n", config_file->c_str());
+    while (fgets(inrec, 256, cmd)) {
+        fprintf(lst, "     %s", inrec);
+    }
+    fprintf(lst, "\n");
+    fclose(cmd);
 }
 
-    cmd = fopen( config_file->c_str(), "r" );
-    if( !cmd ) { return;
-}
-    if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
-    fprintf(lst,"\nAdditional configuration commands were read from %s\n",
-            config_file->c_str());
-    while( fgets(inrec,256,cmd)) { fprintf(lst,"     %s",inrec);
-}
-    fprintf(lst,"\n");
-    fclose( cmd );
-
-}
-
-static void write_filelist_csv()
-{
+static void write_filelist_csv() {
     const std::unique_ptr<output_csv> csv = open_snap_output_csv("filelist");
-    if( ! csv ) { return;
-}
+    if (!csv) {
+        return;
+    }
     csv->writeHeader("id");
     csv->writeHeader("filename");
     csv->writeHeader("filetype");
     csv->writeHeader("filedate");
     csv->writeHeader("filesize");
     csv->endRecord();
-    for( int i=0; i<recorded_filename_count(); i++ )
-    {
+    for (int i = 0; i < recorded_filename_count(); i++) {
         std::string filename;
         std::string filetype;
-        recorded_filename(i,filename,filetype);
+        recorded_filename(i, filename, filetype);
         csv->writeInt(i);
         csv->writeString(filename);
         csv->writeString(filetype);
-        time_t const modtime=file_modtime(filename);
-        if( modtime != 0 )
-        {
-            const struct tm *ltime=localtime(&(modtime));
+        const time_t modtime = file_modtime(filename);
+        if (modtime != 0) {
+            const struct tm* ltime = localtime(&(modtime));
             std::ostringstream modified;
-            modified << std::setfill('0')
-                     << std::setw(4) << ltime->tm_year+1900 << '-'
-                     << std::setw(2) << ltime->tm_mon+1 << '-'
-                     << std::setw(2) << ltime->tm_mday << ' '
-                     << std::setw(2) << ltime->tm_hour << ':'
-                     << std::setw(2) << ltime->tm_min << ':'
-                     << std::setw(2) << ltime->tm_sec;
+            modified << std::setfill('0') << std::setw(4) << ltime->tm_year + 1900 << '-' << std::setw(2)
+                     << ltime->tm_mon + 1 << '-' << std::setw(2) << ltime->tm_mday << ' ' << std::setw(2)
+                     << ltime->tm_hour << ':' << std::setw(2) << ltime->tm_min << ':' << std::setw(2) << ltime->tm_sec;
             csv->writeString(modified.str());
             csv->writeInt(file_size(filename));
-        }
-        else
-        {
+        } else {
             csv->writeNullFields(2);
         }
         csv->endRecord();
     }
 }
 
-static void write_metadata_csv()
-{
+static void write_metadata_csv() {
     const std::unique_ptr<output_csv> csv = open_snap_output_csv("metadata");
-    if( ! csv ) { return;
-}
+    if (!csv) {
+        return;
+    }
     csv->writeHeader("code");
     csv->writeHeader("value");
     csv->writeHeader("comment");
@@ -986,16 +905,15 @@ static void write_metadata_csv()
     csv->writeString(net->crdsys->name);
     csv->endRecord();
 
-    if( has_deformation_model(net->crdsys) && deformation_model_epoch(net->crdsys) > 0 )
-    {
+    if (has_deformation_model(net->crdsys) && deformation_model_epoch(net->crdsys) > 0) {
         csv->writeString("CRDSYSEPOCH");
-        csv->writeDouble(deformation_model_epoch(net->crdsys),1);
+        csv->writeDouble(deformation_model_epoch(net->crdsys), 1);
         csv->writeString("Coordinate system epoch");
         csv->endRecord();
     }
 
     csv->writeString("NOBS");
-    csv->writeInt(nobs+nschp);
+    csv->writeInt(nobs + nschp);
     csv->writeString("Number of observations");
     csv->endRecord();
 
@@ -1020,12 +938,12 @@ static void write_metadata_csv()
     csv->endRecord();
 
     csv->writeString("SSR");
-    csv->writeDouble(ssr,-1);
+    csv->writeDouble(ssr, -1);
     csv->writeString("Sum of squared residuals");
     csv->endRecord();
 
     csv->writeString("SEU");
-    csv->writeDouble(seu,5);
+    csv->writeDouble(seu, 5);
     csv->writeString("Standard error of unit weight");
     csv->endRecord();
 
@@ -1044,29 +962,28 @@ static void write_metadata_csv()
     csv->writeString("Errors presented as apriori or aposteriori");
     csv->endRecord();
 
-    if( got_vector_data() )
-    {
+    if (got_vector_data()) {
         std::string vecformat;
-        const auto addVecFormat = [&vecformat]( const bool selected, const std::string_view name )
-        {
-            if( ! selected ) { return;
-}
+        const auto addVecFormat = [&vecformat](const bool selected, const std::string_view name) {
+            if (!selected) {
+                return;
+            }
             // Skips the first hyphen
-            if( ! vecformat.empty() ) { vecformat += '-';
-}
+            if (!vecformat.empty()) {
+                vecformat += '-';
+            }
             vecformat += name;
         };
-        addVecFormat( output_csv_veccomp, "components" );
-        addVecFormat( output_csv_vecsum, "summary" );
-        addVecFormat( output_csv_vecinline, "inline" );
-        addVecFormat( output_csv_correlations, "correlations" );
+        addVecFormat(output_csv_veccomp, "components");
+        addVecFormat(output_csv_vecsum, "summary");
+        addVecFormat(output_csv_vecinline, "inline");
+        addVecFormat(output_csv_correlations, "correlations");
         csv->writeString("VECFORMAT");
         csv->writeString(vecformat);
         csv->writeString("Vector format");
         csv->endRecord();
 
-        if( output_csv_veccomp )
-        {
+        if (output_csv_veccomp) {
             csv->writeString("VECERRTYPE");
             csv->writeString(output_csv_vecenu ? "ENU" : "XYZ");
             csv->writeString("Vector errors/residual components");
@@ -1075,91 +992,76 @@ static void write_metadata_csv()
     }
 }
 
-static void update_station_file( const std::string &filename)
-{
-    if( filename.empty() ) { return;
-}
-    if( write_station_file( PROGRAM, filename, PROGRAM_VERSION, run_time,
-                            coord_precision, output_rejected_coordinates ) == OK )
-    {
-        xprintf("\nNew station coordinates have been written to %s\n",filename.c_str());
+static void update_station_file(const std::string& filename) {
+    if (filename.empty()) {
+        return;
     }
-    else
-    {
-        handle_error( FILE_OPEN_ERROR, "Unable to create updated station coordinate file",
-                      filename);
+    if (write_station_file(PROGRAM, filename, PROGRAM_VERSION, run_time, coord_precision,
+                           output_rejected_coordinates) == OK) {
+        xprintf("\nNew station coordinates have been written to %s\n", filename.c_str());
+    } else {
+        handle_error(FILE_OPEN_ERROR, "Unable to create updated station coordinate file", filename);
     }
 }
 
-
-
-BINARY_FILE *open_dump_file( void )
-{
-    BINARY_FILE *b;
+BINARY_FILE* open_dump_file(void) {
+    BINARY_FILE* b;
 
     const std::string bfn = command_file->root + BINFILE_EXT;
 
-    record_filename( bfn, "snap_binary" );
+    record_filename(bfn, "snap_binary");
 
-    b = create_binary_file( bfn, BINFILE_SIGNATURE );
-    if( !b )
-    {
-        handle_error( FILE_OPEN_ERROR, "Unable to open binary file", bfn );
+    b = create_binary_file(bfn, BINFILE_SIGNATURE);
+    if (!b) {
+        handle_error(FILE_OPEN_ERROR, "Unable to open binary file", bfn);
     }
 
     return b;
 }
 
-
-void dump_covariance_matrix( BINARY_FILE *b )
-{
+void dump_covariance_matrix(BINARY_FILE* b) {
     int i;
     int nprm;
-    bltmatrix *blt = lsq_get_covariance_matrix();
-    if( ! blt ) { return;
-}
-    create_section( b, "FULL_COVARIANCE");
+    bltmatrix* blt = lsq_get_covariance_matrix();
+    if (!blt) {
+        return;
+    }
+    create_section(b, "FULL_COVARIANCE");
     nprm = blt->nrow;
-    dump_bltmatrix_dense_header( blt, b->f );
+    dump_bltmatrix_dense_header(blt, b->f);
     xprintf("\nDumping full covariance matrix to binary file..\n");
-    init_progress_meter( nprm );
-    for( i = 0; i < nprm; i++ )
-    {
-        update_progress_meter( i );
-        dump_bltmatrix_dense_row( blt, i, b->f );
+    init_progress_meter(nprm);
+    for (i = 0; i < nprm; i++) {
+        update_progress_meter(i);
+        dump_bltmatrix_dense_row(blt, i, b->f);
     }
     end_progress_meter();
     end_section(b);
 }
 
-void dump_cholesky_decomposition( BINARY_FILE *b )
-{
-    bltmatrix *blt = lsq_get_decomposition();
-    if( blt == nullptr ) { return;
-}
-    create_section( b, "CHOLESKI_DECOMPOSITION" );
-    dump_bltmatrix(blt,b->f);
+void dump_cholesky_decomposition(BINARY_FILE* b) {
+    bltmatrix* blt = lsq_get_decomposition();
+    if (blt == nullptr) {
+        return;
+    }
+    create_section(b, "CHOLESKI_DECOMPOSITION");
+    dump_bltmatrix(blt, b->f);
     end_section(b);
 }
 
-
-void dump_binary_data( BINARY_FILE *b )
-{
-
+void dump_binary_data(BINARY_FILE* b) {
     xprintf("\nCreating a binary dump file...\n");
 
     dump_snap_globals(b);
     dump_stations(b);
-    if( program_mode != DATA_CHECK )
-    {
+    if (program_mode != DATA_CHECK) {
         dump_station_covariances(b);
-        if( output_relative_covariances ) {
-            dump_relative_covariances(b,output_all_covariances);
-}
+        if (output_relative_covariances) {
+            dump_relative_covariances(b, output_all_covariances);
+        }
     }
-    dump_filenames( b );
-    dump_obs_classes( b );
-    dump_rftransformations( b );
-    dump_parameters( b );
+    dump_filenames(b);
+    dump_obs_classes(b);
+    dump_rftransformations(b);
+    dump_parameters(b);
 }
-

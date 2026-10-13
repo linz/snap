@@ -31,83 +31,68 @@
 /* Minimum distance squared on which azimuths are calculated */
 
 #define DIST_TOL 1.0e-5
-#define DIST_TOL_2 (DIST_TOL*DIST_TOL)
+#define DIST_TOL_2 (DIST_TOL * DIST_TOL)
 
 /* Single station observations - latitude, longitude, orthometric height */
 /* And X, Y, Z                                                           */
 
-double calc_lat( station *st, vector3 dst )
-{
-    if( dst )
-    {
+double calc_lat(station* st, vector3 dst) {
+    if (dst) {
         dst[0] = 0.0;
-        dst[1] = 1.0/st->dNdLt;
+        dst[1] = 1.0 / st->dNdLt;
         dst[2] = 0.0;
     }
     return st->ELat;
 }
 
-double calc_lon( station *st, vector3 dst )
-{
-    if( dst )
-    {
-        dst[0] = 1.0/st->dEdLn;
+double calc_lon(station* st, vector3 dst) {
+    if (dst) {
+        dst[0] = 1.0 / st->dEdLn;
         dst[1] = 0.0;
         dst[2] = 0.0;
     }
     return st->ELon;
 }
 
-double calc_ohgt( station *st, double hgt, vector3 dst )
-{
-    if( dst )
-    {
+double calc_ohgt(station* st, double hgt, vector3 dst) {
+    if (dst) {
         dst[0] = dst[1] = 0.0;
         dst[2] = 1.0;
     }
-    return st->OHgt+hgt;
+    return st->OHgt + hgt;
 }
 
-double calc_ehgt( station *st, double hgt, vector3 dst )
-{
-    if( dst )
-    {
+double calc_ehgt(station* st, double hgt, vector3 dst) {
+    if (dst) {
         dst[0] = dst[1] = 0.0;
         dst[2] = 1.0;
     }
-    return st->OHgt+st->GUnd+hgt;
+    return st->OHgt + st->GUnd + hgt;
 }
 
-
-double calc_x( station *st, vector3 dst )
-{
-    if( dst )
-    {
+double calc_x(station* st, vector3 dst) {
+    if (dst) {
         dst[0] = 1.0;
         dst[1] = dst[2] = 0.0;
-        st->rTopo.rotvec( dst, dst );
+        st->rTopo.rotvec(dst, dst);
     }
     return st->XYZ[0];
 }
 
-double calc_y( station *st, vector3 dst )
-{
-    if( dst )
-    {
+double calc_y(station* st, vector3 dst) {
+    if (dst) {
         dst[1] = 1.0;
         dst[0] = dst[2] = 0.0;
-        st->rTopo.rotvec( dst, dst );
+        st->rTopo.rotvec(dst, dst);
     }
     return st->XYZ[1];
 }
 
-double calc_z( station *st, vector3 dst )
-{
-    if( dst )
-    {
+double calc_z(station* st, vector3 dst) {
+    if (dst) {
         dst[2] = 1.0;
         dst[0] = dst[1] = 0.0;
-        st->rTopo.rotvec( dst, dst );
+        st->rTopo.rotvec(dst, dst);
     }
     return st->XYZ[2];
 }
@@ -121,51 +106,38 @@ double calc_z( station *st, vector3 dst )
    by setting the station heights to half way between the stations, and
    sea level distances to half way between the stations. */
 
-
-static void calc_inst_xyz( station *st, double hgt, vector3 xyz )
-{
+static void calc_inst_xyz(station* st, double hgt, vector3 xyz) {
     vector3 vrt;
 
-    st->rTopo.rot_vertical( vrt );         /* Get the vertical vector */
-    vecadd2( st->XYZ, 1.0, vrt, hgt, xyz );  /* Add to the geocentric coords */
+    st->rTopo.rot_vertical(vrt);          /* Get the vertical vector */
+    vecadd2(st->XYZ, 1.0, vrt, hgt, xyz); /* Add to the geocentric coords */
 }
 
-
-static void calc_inst_dif( station *st1, double hgt1, station *st2, double hgt2,
-                           vector3 dif )
-{
+static void calc_inst_dif(station* st1, double hgt1, station* st2, double hgt2, vector3 dif) {
     vector3 inst1;
     vector3 inst2;
 
-    calc_inst_xyz( st1, hgt1, inst1 );
-    calc_inst_xyz( st2, hgt2, inst2 );
+    calc_inst_xyz(st1, hgt1, inst1);
+    calc_inst_xyz(st2, hgt2, inst2);
 
-    vecdif( inst2, inst1, dif );
+    vecdif(inst2, inst1, dif);
 }
 
-
-
-double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
-                      vector3 dst1, vector3 dst2 )
-{
+double calc_distance(station* st1, double hgt1, station* st2, double hgt2, vector3 dst1, vector3 dst2) {
     double dist;
     vector3 dif;
 
-    calc_inst_dif( st1, hgt1, st2, hgt2, dif );
+    calc_inst_dif(st1, hgt1, st2, hgt2, dif);
 
-    dist = veclen( dif );
+    dist = veclen(dif);
 
-    if( dst1 )
-    {
-        if( dist > DIST_TOL )
-        {
-            scalevec( dif, -1.0/dist );
-            st1->rTopo.rotvec( dif, dst1 );
-            scalevec( dif, -1.0 );
-            st2->rTopo.rotvec( dif, dst2 );
-        }
-        else
-        {
+    if (dst1) {
+        if (dist > DIST_TOL) {
+            scalevec(dif, -1.0 / dist);
+            st1->rTopo.rotvec(dif, dst1);
+            scalevec(dif, -1.0);
+            st2->rTopo.rotvec(dif, dst2);
+        } else {
             dst1[0] = dst1[1] = dst1[2] = 0.0;
             dst2[0] = dst2[1] = dst2[2] = 0.0;
         }
@@ -174,31 +146,26 @@ double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
     return dist;
 }
 
-double calc_horizontal_distance( station *st1, station *st2, vector3 dst1, vector3 dst2 )
-{
+double calc_horizontal_distance(station* st1, station* st2, vector3 dst1, vector3 dst2) {
     double dist;
     double h1;
     double h2;
     vector3 dif;
 
-    h1 = st1->OHgt+st1->GUnd;
-    h2 = st2->OHgt+st2->GUnd;
+    h1 = st1->OHgt + st1->GUnd;
+    h2 = st2->OHgt + st2->GUnd;
 
-    calc_inst_dif( st1, (h2-h1)/2.0, st2, (h1-h2)/2.0, dif );
+    calc_inst_dif(st1, (h2 - h1) / 2.0, st2, (h1 - h2) / 2.0, dif);
 
-    dist = veclen( dif );
+    dist = veclen(dif);
 
-    if( dst1 )
-    {
-        if( dist > DIST_TOL )
-        {
-            scalevec( dif, -1.0/dist );
-            st1->rTopo.rotvec( dif, dst1 );
-            scalevec( dif, -1.0 );
-            st2->rTopo.rotvec( dif, dst2 );
-        }
-        else
-        {
+    if (dst1) {
+        if (dist > DIST_TOL) {
+            scalevec(dif, -1.0 / dist);
+            st1->rTopo.rotvec(dif, dst1);
+            scalevec(dif, -1.0);
+            st2->rTopo.rotvec(dif, dst2);
+        } else {
             dst1[0] = dst1[1] = dst1[2] = 0.0;
             dst2[0] = dst2[1] = dst2[2] = 0.0;
         }
@@ -207,99 +174,79 @@ double calc_horizontal_distance( station *st1, station *st2, vector3 dst1, vecto
     return dist;
 }
 
-double calc_ellipsoidal_distance( station *st1, station *st2,
-                                  vector3 dst1, vector3 dst2 )
-{
+double calc_ellipsoidal_distance(station* st1, station* st2, vector3 dst1, vector3 dst2) {
     double edist;
 
-    edist = calc_distance( st1, -st1->OHgt-st1->GUnd, st2, -st2->OHgt-st2->GUnd, dst1, dst2 );
-    edist *= ellipsoidal_distance_correction( st1, st2 );
+    edist = calc_distance(st1, -st1->OHgt - st1->GUnd, st2, -st2->OHgt - st2->GUnd, dst1, dst2);
+    edist *= ellipsoidal_distance_correction(st1, st2);
 
-    if( dst1 )
-    {
+    if (dst1) {
         dst1[2] = dst2[2] = 0.0;
     }
 
     return edist;
 }
 
-double calc_msl_distance( station *st1, station *st2,
-                          vector3 dst1, vector3 dst2 )
-{
+double calc_msl_distance(station* st1, station* st2, vector3 dst1, vector3 dst2) {
     double edist;
-    double const gdiff = (st1->GUnd - st2->GUnd)/2.0;
+    const double gdiff = (st1->GUnd - st2->GUnd) / 2.0;
 
-    edist = calc_distance( st1, -st1->OHgt-gdiff, st2, -st2->OHgt+gdiff, dst1, dst2 );
-    edist *= ellipsoidal_distance_correction( st1, st2 );
+    edist = calc_distance(st1, -st1->OHgt - gdiff, st2, -st2->OHgt + gdiff, dst1, dst2);
+    edist *= ellipsoidal_distance_correction(st1, st2);
 
-    if( dst1 )
-    {
+    if (dst1) {
         dst1[2] = dst2[2] = 0.0;
     }
 
     return edist;
 }
 
-double calc_azimuth( station *st1, double hgt1, station *st2, double hgt2,
-                     int usegrav, vector3 dst1, vector3 dst2 )
-{
+double calc_azimuth(station* st1, double hgt1, station* st2, double hgt2, int usegrav, vector3 dst1, vector3 dst2) {
     vector3 dif;
     double angle;
     double dist2;
     double tmp;
 
-    calc_inst_dif( st1, hgt1, st2, hgt2, dif );
+    calc_inst_dif(st1, hgt1, st2, hgt2, dif);
 
     /* Convert the vector to the topocentric reference frame */
 
-    if( usegrav )
-    {
-        st1->rGrav.rotvec( dif, dif );
-    }
-    else
-    {
-        st1->rTopo.rotvec( dif, dif );
+    if (usegrav) {
+        st1->rGrav.rotvec(dif, dif);
+    } else {
+        st1->rTopo.rotvec(dif, dif);
     }
     dif[2] = 0.0;
-    dist2 = vecdot(dif,dif);
+    dist2 = vecdot(dif, dif);
 
-    if( dist2 > DIST_TOL_2 )
-    {
-        angle = atan2( dif[0], dif[1] );
-    }
-    else
-    {
+    if (dist2 > DIST_TOL_2) {
+        angle = atan2(dif[0], dif[1]);
+    } else {
         angle = 0.0;
     }
 
-    if( dst1 )
-    {
-
+    if (dst1) {
         /* Reduce dif to a horizontal vector, scale down by distance
         squared, and rotate 90 degrees, and return to XYZ system
          to get differential vector */
 
-        if( dist2 > DIST_TOL_2 )
-        {
-            scalevec( dif, 1.0/dist2 );
-            tmp = dif[0]; dif[0] = -dif[1]; dif[1] = tmp;
-            if( usegrav )
-            {
-                st1->rGrav.unrotvec( dif, dif );
-            }
-            else
-            {
-                st1->rTopo.unrotvec( dif, dif );
+        if (dist2 > DIST_TOL_2) {
+            scalevec(dif, 1.0 / dist2);
+            tmp = dif[0];
+            dif[0] = -dif[1];
+            dif[1] = tmp;
+            if (usegrav) {
+                st1->rGrav.unrotvec(dif, dif);
+            } else {
+                st1->rTopo.unrotvec(dif, dif);
             }
 
             /* Convert to the the topocentric systems at the two stations */
 
-            st1->rTopo.rotvec( dif, dst1 );
-            scalevec( dif, -1.0 );
-            st2->rTopo.rotvec( dif, dst2 );
-        }
-        else
-        {
+            st1->rTopo.rotvec(dif, dst1);
+            scalevec(dif, -1.0);
+            st2->rTopo.rotvec(dif, dst2);
+        } else {
             dst1[0] = dst1[1] = dst1[2] = 0.0;
             dst1[0] = dst1[1] = dst1[2] = 0.0;
         }
@@ -308,11 +255,8 @@ double calc_azimuth( station *st1, double hgt1, station *st2, double hgt2,
     return angle;
 }
 
-
-
-double calc_prj_azimuth( network *net, station *st1, double hgt1, station *st2, double hgt2,
-                         vector3 dst1, vector3 dst2 )
-{
+double calc_prj_azimuth(network* net, station* st1, double hgt1, station* st2, double hgt2, vector3 dst1,
+                        vector3 dst2) {
     double angle;
     double e1;
     double n1;
@@ -321,97 +265,75 @@ double calc_prj_azimuth( network *net, station *st1, double hgt1, station *st2, 
     double de;
     double dn;
 
-    if( !is_projection(net->crdsys) || dst1 || dst2 )
-    {
-        angle = calc_azimuth(st1, hgt1, st2, hgt2, 0, dst1, dst2 );
-        if( !is_projection(net->crdsys ) ) { return angle;
-}
+    if (!is_projection(net->crdsys) || dst1 || dst2) {
+        angle = calc_azimuth(st1, hgt1, st2, hgt2, 0, dst1, dst2);
+        if (!is_projection(net->crdsys)) {
+            return angle;
+        }
     }
 
+    geog_to_proj(net->crdsys->prj, st1->ELon, st1->ELat, &e1, &n1);
+    geog_to_proj(net->crdsys->prj, st2->ELon, st2->ELat, &e2, &n2);
 
-    geog_to_proj( net->crdsys->prj, st1->ELon, st1->ELat, &e1, &n1 );
-    geog_to_proj( net->crdsys->prj, st2->ELon, st2->ELat, &e2, &n2 );
-
-    de = e2-e1;
-    dn = n2-n1;
-    if( de*de + dn*dn < DIST_TOL_2 )
-    {
+    de = e2 - e1;
+    dn = n2 - n1;
+    if (de * de + dn * dn < DIST_TOL_2) {
         angle = 0.0;
-    }
-    else
-    {
-        angle = atan2( e2-e1, n2-n1 );
+    } else {
+        angle = atan2(e2 - e1, n2 - n1);
     }
 
     return angle;
 }
 
-
-double calc_zenith_dist( station *st1, double hgt1, station *st2, double hgt2,
-                         vector3 dst1, vector3 dst2 )
-{
-
+double calc_zenith_dist(station* st1, double hgt1, station* st2, double hgt2, vector3 dst1, vector3 dst2) {
     vector3 dif;
     double angle;
     double dist;
     double tmp;
 
-    calc_inst_dif( st1, hgt1, st2, hgt2, dif );
+    calc_inst_dif(st1, hgt1, st2, hgt2, dif);
 
-    st1->rGrav.rotvec( dif, dif );   /* Convert to the gravitational frame */
+    st1->rGrav.rotvec(dif, dif); /* Convert to the gravitational frame */
 
-    dist = veclen( dif );
-    if( dist > DIST_TOL )
-    {
-        angle = acos( dif[2]/dist );
-    }
-    else
-    {
+    dist = veclen(dif);
+    if (dist > DIST_TOL) {
+        angle = acos(dif[2] / dist);
+    } else {
         angle = 0.0;
     }
 
-    if( dst1 )
-    {
-
-        if( dist > DIST_TOL )
-        {
-            scalevec( dif, 1.0/(dist*dist) );
+    if (dst1) {
+        if (dist > DIST_TOL) {
+            scalevec(dif, 1.0 / (dist * dist));
 
             tmp = -dif[2];
-            dif[2] = sqrt(dif[0]*dif[0]+dif[1]*dif[1]);
+            dif[2] = sqrt(dif[0] * dif[0] + dif[1] * dif[1]);
             tmp /= dif[2];
             dif[0] *= tmp;
             dif[1] *= tmp;
-            st1->rGrav.unrotvec( dif, dif );
+            st1->rGrav.unrotvec(dif, dif);
 
             /* Convert to the the topocentric systems at the two stations */
 
-            st1->rTopo.rotvec( dif, dst1 );
-            scalevec( dif, -1.0 );
-            st2->rTopo.rotvec( dif, dst2 );
-        }
-        else
-        {
+            st1->rTopo.rotvec(dif, dst1);
+            scalevec(dif, -1.0);
+            st2->rTopo.rotvec(dif, dst2);
+        } else {
             dst1[0] = dst1[1] = dst1[2] = 0.0;
             dst1[0] = dst1[1] = dst1[2] = 0.0;
         }
     }
 
     return angle;
-
 }
 
-
-double calc_hgt_diff( station *st1, double hgt1, station *st2, double hgt2,
-                      vector3 dst1, vector3 dst2 )
-{
-
+double calc_hgt_diff(station* st1, double hgt1, station* st2, double hgt2, vector3 dst1, vector3 dst2) {
     double diff;
 
     diff = st2->OHgt + hgt2 - st1->OHgt - hgt1;
 
-    if( dst1 )
-    {
+    if (dst1) {
         dst1[0] = dst1[1] = dst2[0] = dst2[1] = 0.0;
         dst1[2] = -1.0;
         dst2[2] = 1.0;
@@ -420,65 +342,51 @@ double calc_hgt_diff( station *st1, double hgt1, station *st2, double hgt2,
     return diff;
 }
 
-
-void calc_vec_dif( station *st1, double hgt1, station *st2, double hgt2 ,
-                   vector3 dif, vector3 dst1[3], vector3 dst2[3] )
-{
-
+void calc_vec_dif(station* st1, double hgt1, station* st2, double hgt2, vector3 dif, vector3 dst1[3], vector3 dst2[3]) {
     vector3 unit;
     int i;
 
-    calc_inst_dif( st1, hgt1, st2, hgt2, dif );
+    calc_inst_dif(st1, hgt1, st2, hgt2, dif);
 
-    if( dst1 )
-    {
+    if (dst1) {
         unit[0] = unit[1] = unit[2] = 0.0;
 
-        for( i = 0; i<3; i++ )
-        {
+        for (i = 0; i < 3; i++) {
             unit[i] = -1.0;
-            st1->rTopo.rotvec( unit, dst1[i] );
+            st1->rTopo.rotvec(unit, dst1[i]);
             unit[i] = 1.0;
-            st2->rTopo.rotvec( unit, dst2[i] );
+            st2->rTopo.rotvec(unit, dst2[i]);
             unit[i] = 0.0;
         }
     }
 }
 
-
-void calc_xyz( station *st1, double hgt1, vector3 xyz, vector3 dst1[3] )
-{
-
+void calc_xyz(station* st1, double hgt1, vector3 xyz, vector3 dst1[3]) {
     vector3 unit;
     int i;
 
-    calc_inst_xyz( st1, hgt1, xyz );
+    calc_inst_xyz(st1, hgt1, xyz);
 
-    if( dst1 )
-    {
+    if (dst1) {
         unit[0] = unit[1] = unit[2] = 0.0;
 
-        for( i = 0; i<3; i++ )
-        {
+        for (i = 0; i < 3; i++) {
             unit[i] = 1.0;
-            st1->rTopo.rotvec( unit, dst1[i] );
+            st1->rTopo.rotvec(unit, dst1[i]);
             unit[i] = 0.0;
         }
     }
 }
 
-
-double ellipsoidal_distance_correction( station *st1, station *st2 )
-{
+double ellipsoidal_distance_correction(station* st1, station* st2) {
     vector3 v1;
     vector3 v2;
     double corr;
 
-    st1->rTopo.rot_vertical( v1 );
-    st2->rTopo.rot_vertical( v2 );
-    corr = vecdot( v1, v2 );
-    corr = 1.0 + (1.0 - corr)/12.0;
+    st1->rTopo.rot_vertical(v1);
+    st2->rTopo.rot_vertical(v2);
+    corr = vecdot(v1, v2);
+    corr = 1.0 + (1.0 - corr) / 12.0;
 
     return corr;
 }
-

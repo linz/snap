@@ -9,190 +9,199 @@
 
 using namespace std;
 
-class wktRing
-{
-    public:
-        wktRing( bool islatlon=true ) : islatlon( islatlon ) {}
-        bool isValid();
-        void addPoint( double lon, double lat );
-        bool contains( double lon, double lat );
-    private:
-        struct point 
-        { 
-            point( double lon, double lat ) : lon(lon), lat(lat) {}
-            double lon;
-            double lat;
-        };
-        bool islatlon;
-        double minLon;
-        double maxLon;
-        double minLat;
-        double maxLat;
-        vector<wktRing::point> points;
+class wktRing {
+ public:
+    wktRing(bool islatlon = true) : islatlon(islatlon) {}
+    bool isValid();
+    void addPoint(double lon, double lat);
+    bool contains(double lon, double lat);
+
+ private:
+    struct point {
+        point(double lon, double lat) : lon(lon), lat(lat) {}
+        double lon;
+        double lat;
+    };
+    bool islatlon;
+    double minLon;
+    double maxLon;
+    double minLat;
+    double maxLat;
+    vector<wktRing::point> points;
 };
 
-bool wktRing::isValid()
-{
-    int const npt=points.size();
-    if( npt < 3 ) { return false;
-}
-    if( points[0].lon != points[npt-1].lon || points[0].lat != points[npt-1].lat ) { return false;
-}
+bool wktRing::isValid() {
+    const int npt = points.size();
+    if (npt < 3) {
+        return false;
+    }
+    if (points[0].lon != points[npt - 1].lon || points[0].lat != points[npt - 1].lat) {
+        return false;
+    }
     return true;
 }
 
-void wktRing::addPoint( double lon, double lat )
-{
-    if( points.empty() ) { minLon=maxLon=lon; minLat=maxLat=lat; }
-    if( lon < minLon ) { minLon=lon; } else if( lon > maxLon ) { maxLon=lon;
-}
-    if( lat < minLat ) { minLat=lat; } else if( lat > maxLat ) { maxLat=lat;
-}
-    points.emplace_back( lon, lat );
+void wktRing::addPoint(double lon, double lat) {
+    if (points.empty()) {
+        minLon = maxLon = lon;
+        minLat = maxLat = lat;
+    }
+    if (lon < minLon) {
+        minLon = lon;
+    } else if (lon > maxLon) {
+        maxLon = lon;
+    }
+    if (lat < minLat) {
+        minLat = lat;
+    } else if (lat > maxLat) {
+        maxLat = lat;
+    }
+    points.emplace_back(lon, lat);
 }
 
 /* Calc inside by number of crossings of hypothetical line from
  * (-infinity,lat) to (lon,lat)
  */
 
-bool wktRing::contains( double lon, double lat )
-{
-    int const npt=points.size();
-    if( npt < 3 ) { return false;
-}
-    if( islatlon )
-    {
-        while( lon < minLon ) { lon +=360.0;
-}
-        while( lon > maxLon ) { lon -= 360.0;
-}
+bool wktRing::contains(double lon, double lat) {
+    const int npt = points.size();
+    if (npt < 3) {
+        return false;
     }
-    if( lon < minLon || lon > maxLon ) { return false;
-}
-    if( lat < minLat || lat > maxLat ) { return false;
-}
-    bool inside=false;
-    double lon1=points[0].lon-lon;
-    double lat1=points[0].lat-lat;
-    for( int i=1; i<npt; i++ )
-    {
-        double const lon0=lon1;
-        double const lat0=lat1;
-        lon1=points[i].lon-lon;
-        lat1=points[i].lat-lat;
-        if( lat0 >= 0.0 && lat1 >= 0.0 ) { continue;
-}
-        if( lat0 < 0.0 && lat1 < 0.0 ) { continue;
-}
-        double const lonc=(lat1*lon0-lat0*lon1)/(lat1-lat0);
-        if( lonc < 0.0 ) { inside = ! inside;
-}
+    if (islatlon) {
+        while (lon < minLon) {
+            lon += 360.0;
+        }
+        while (lon > maxLon) {
+            lon -= 360.0;
+        }
+    }
+    if (lon < minLon || lon > maxLon) {
+        return false;
+    }
+    if (lat < minLat || lat > maxLat) {
+        return false;
+    }
+    bool inside = false;
+    double lon1 = points[0].lon - lon;
+    double lat1 = points[0].lat - lat;
+    for (int i = 1; i < npt; i++) {
+        const double lon0 = lon1;
+        const double lat0 = lat1;
+        lon1 = points[i].lon - lon;
+        lat1 = points[i].lat - lat;
+        if (lat0 >= 0.0 && lat1 >= 0.0) {
+            continue;
+        }
+        if (lat0 < 0.0 && lat1 < 0.0) {
+            continue;
+        }
+        const double lonc = (lat1 * lon0 - lat0 * lon1) / (lat1 - lat0);
+        if (lonc < 0.0) {
+            inside = !inside;
+        }
     }
     return inside;
 }
 
-class wktPolygon
-{
-    public:
-        wktPolygon( bool islatlon=true );
-        ~wktPolygon();
-        int readFile( const std::string &file );
-        bool contains( double lon, double lat );
-    private:
-        bool islatlon;
-        vector<wktRing *> rings;
+class wktPolygon {
+ public:
+    wktPolygon(bool islatlon = true);
+    ~wktPolygon();
+    int readFile(const std::string& file);
+    bool contains(double lon, double lat);
+
+ private:
+    bool islatlon;
+    vector<wktRing*> rings;
 };
-        
-wktPolygon::wktPolygon( bool islatlon ) : islatlon(islatlon)
-{
-}
 
-wktPolygon::~wktPolygon()
-{
-    int const nrings=rings.size();
-    for( int i=0; i<nrings; i++ )
-    {
+wktPolygon::wktPolygon(bool islatlon) : islatlon(islatlon) {}
+
+wktPolygon::~wktPolygon() {
+    const int nrings = rings.size();
+    for (int i = 0; i < nrings; i++) {
         delete rings[i];
-        rings[i]=nullptr;
+        rings[i] = nullptr;
     }
 }
 
-bool wktPolygon::contains( double lon, double lat )
-{
-    bool inside=false;
-    int const nrings=rings.size();
-    for( int i=0; i<nrings; i++ )
-    {
-        if( rings[i]->contains(lon,lat)) { inside=!inside;
-}
+bool wktPolygon::contains(double lon, double lat) {
+    bool inside = false;
+    const int nrings = rings.size();
+    for (int i = 0; i < nrings; i++) {
+        if (rings[i]->contains(lon, lat)) {
+            inside = !inside;
+        }
     }
     return inside;
 }
 
-int wktPolygon::readFile( const std::string &file )
-{
+int wktPolygon::readFile(const std::string& file) {
     ifstream f(file);
-    if( ! f )
-    {
+    if (!f) {
         return 0;
     }
 
     // Very crude loop to extract rings from WKT and toggle contents.
     // Assumes anything after a '(' is potentially a WKT ring.
 
-    
-    while( f )
-    {
+    while (f) {
         char c;
-        while(f.get(c)) { if( c == '(' ) { break; 
-}}
-        if( ! f ) { break;
-}
-        wktRing *ring = nullptr;
-        while( f )
-        {
+        while (f.get(c)) {
+            if (c == '(') {
+                break;
+            }
+        }
+        if (!f) {
+            break;
+        }
+        wktRing* ring = nullptr;
+        while (f) {
             double lon;
             double lat;
             f >> lon >> lat;
-            if (! f ) { if( ! f.eof() ) { f.clear();  
-}break; }
-            while( f.get(c)) { if( c == ')' || c == ',' ) { break; 
-}}
-            if( ! ring )
-            {
-                ring = new wktRing( islatlon );
+            if (!f) {
+                if (!f.eof()) {
+                    f.clear();
+                }
+                break;
+            }
+            while (f.get(c)) {
+                if (c == ')' || c == ',') {
+                    break;
+                }
+            }
+            if (!ring) {
+                ring = new wktRing(islatlon);
                 rings.push_back(ring);
             }
-            ring->addPoint(lon,lat);
+            ring->addPoint(lon, lat);
         }
     }
-    int isOk=1;
-    for( vector<wktRing *>::const_iterator ri=rings.begin(); ri != rings.end(); ri++ )
-    {
-        if( ! (*ri)->isValid()){ isOk=0; }
+    int isOk = 1;
+    for (vector<wktRing*>::const_iterator ri = rings.begin(); ri != rings.end(); ri++) {
+        if (!(*ri)->isValid()) {
+            isOk = 0;
+        }
     }
     return isOk;
 }
 
-void *read_polygon_wkt( const std::string &filename, const int islonlat )
-{
-    wktPolygon *pgn = new wktPolygon( islonlat != 0 );
-    if( ! pgn->readFile( filename ) )
-    {
+void* read_polygon_wkt(const std::string& filename, const int islonlat) {
+    wktPolygon* pgn = new wktPolygon(islonlat != 0);
+    if (!pgn->readFile(filename)) {
         delete pgn;
         return nullptr;
     }
-    return static_cast<void *>( pgn );
+    return static_cast<void*>(pgn);
 }
 
-void delete_polygon( void *pgn)
-{
-    wktPolygon *ppgn = (wktPolygon *) pgn;
+void delete_polygon(void* pgn) {
+    wktPolygon* ppgn = (wktPolygon*)pgn;
     delete ppgn;
-
 }
 
-int polygon_contains_point( void *pgn, double lon, double lat )
-{
-    return pgn && ((wktPolygon *)pgn)->contains(lon,lat);
+int polygon_contains_point(void* pgn, double lon, double lat) {
+    return pgn && ((wktPolygon*)pgn)->contains(lon, lat);
 }

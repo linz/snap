@@ -14,22 +14,19 @@
 #include "snapplot_util.h"
 #include "snapplot_load.h"
 
-
 IMPLEMENT_APP(SnapplotApp)
 
-bool SnapplotApp::OnInit()
-{
-
+bool SnapplotApp::OnInit() {
     CONFIGURE_RUNTIME();
 
     // Needed for zipped help file
     wxFileSystem::AddHandler(new wxZipFSHandler);
-    
+
     // Turn of progress meter as default meter writes to standard output stream
     uninstall_progress_meter();
 
     // Trap printf output from library routines ..
-    set_printf_target( print_log_args );
+    set_printf_target(print_log_args);
 
     // Get rid of timestamps on the log file ..
     wxLog::SetTimestamp("");
@@ -40,34 +37,28 @@ bool SnapplotApp::OnInit()
     // Load the SNAP data ...
     // If it fails then display the errors and exit...
 
-    SnapplotLoadLog *loadlog = new SnapplotLoadLog();
+    SnapplotLoadLog* loadlog = new SnapplotLoadLog();
     loadlog->StartLogging();
     loadlog->Show();
 
-
-    bool const success = (snapplot_load( argc, argv ) != 0);
+    const bool success = (snapplot_load(argc, argv) != 0);
     loadlog->EndLogging();
 
-    if( success )
-    {
+    if (success) {
         delete loadlog;
-        wxImage::AddHandler( new wxPNGHandler() );
+        wxImage::AddHandler(new wxPNGHandler());
         SnapplotFrame* frame = new SnapplotFrame;
         frame->Show(true);
-        SetTopWindow( frame );
+        SetTopWindow(frame);
+    } else {
+        ::wxMessageBox("Failed to load data", "Snapplot load errors", wxOK | wxICON_HAND, loadlog);
+        SetTopWindow(loadlog);
     }
-    else
-    {
-        ::wxMessageBox( "Failed to load data", "Snapplot load errors", wxOK | wxICON_HAND, loadlog );
-        SetTopWindow( loadlog );
-    }
-
 
     return true;
 }
 
-int SnapplotApp::OnExit()
-{
+int SnapplotApp::OnExit() {
     snapplot_unload();
     return wxApp::OnExit();
 }

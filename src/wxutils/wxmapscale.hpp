@@ -6,23 +6,21 @@
 #include "wx_includes.hpp"
 #include "mapdefs.hpp"
 
-
 DECLARE_EVENT_TYPE(WX_MAPWINDOW_SCALE_CHANGED, -1)
 
 // Class for managing a stack of zoom scales.
 
-class ZoomStack
-{
-public:
-    ZoomStack( int size = 0 );
+class ZoomStack {
+ public:
+    ZoomStack(int size = 0);
     ~ZoomStack();
-    void SetStackSize( int nStack );
+    void SetStackSize(int nStack);
     void ClearStack();
-    void PushZoomRect( const MapRect &rect );
-    bool PopZoomRect( MapRect &rect );
+    void PushZoomRect(const MapRect& rect);
+    bool PopZoomRect(MapRect& rect);
 
-private:
-    MapRect *zoomStack;
+ private:
+    MapRect* zoomStack;
     int stackSize;
     int stackTop;
     int stackBottom;
@@ -32,16 +30,15 @@ private:
 // wxMapScale: Manages scaling between window and world coordinates (in a
 // cartesian system) and also trimming lines to the plot rectangle
 
-class wxMapScale
-{
-public:
-    wxMapScale( int windowId = wxID_ANY );
+class wxMapScale {
+ public:
+    wxMapScale(int windowId = wxID_ANY);
 
     // Copy constructor and = operator.  These simply copy the extents into the
     // modified scale.  They do not set the zoom stack, or copy any other information.
 
-    wxMapScale( const wxMapScale &scale );
-    const wxMapScale& operator = (const wxMapScale & scale);
+    wxMapScale(const wxMapScale& scale);
+    const wxMapScale& operator=(const wxMapScale& scale);
 
     // Setup extents..  Aspect ratio is xpixel_size/ypixel_size
 
@@ -52,12 +49,18 @@ public:
     // Note: ZoomTo and SetWorldExtents perform virtually the same function, but SetWorldExtents doesn't
     // push the current extents onto the zoom stack.
 
-    void SetWindowExtents( const wxRect &extents, double aspect = 1.0 );
-    void SetWorldExtents( const MapRect &extents );
-    void SetMapExtents( const MapRect &extents );
-    [[nodiscard]] wxRect GetWindowExtents() const { return plotRect; }
-    [[nodiscard]] MapRect GetWorldExtents() const { return mapWindow; }
-    [[nodiscard]] MapRect GetMapExtents() const { return mapSize; }
+    void SetWindowExtents(const wxRect& extents, double aspect = 1.0);
+    void SetWorldExtents(const MapRect& extents);
+    void SetMapExtents(const MapRect& extents);
+    [[nodiscard]] wxRect GetWindowExtents() const {
+        return plotRect;
+    }
+    [[nodiscard]] MapRect GetWorldExtents() const {
+        return mapWindow;
+    }
+    [[nodiscard]] MapRect GetMapExtents() const {
+        return mapSize;
+    }
 
     // GetScale returns the scale factor by which map coordinates (double) are multiplied to
     // get to plot coordinates (integer).  This is an average of the values used in the x and y
@@ -66,48 +69,55 @@ public:
     [[nodiscard]] double GetScale() const;
 
     void ZoomAll();
-    void ZoomTo( const MapRect &extents );
-    void ZoomOut() { ZoomOut( zoomOutFactor ); }
-    void ZoomOut( double factor );
+    void ZoomTo(const MapRect& extents);
+    void ZoomOut() {
+        ZoomOut(zoomOutFactor);
+    }
+    void ZoomOut(double factor);
     void ZoomPrev();
-    void Pan( double xShift, double yShift );
+    void Pan(double xShift, double yShift);
 
-    void SetZoomOutFactor( double newFactor ) { zoomOutFactor = newFactor; }
+    void SetZoomOutFactor(double newFactor) {
+        zoomOutFactor = newFactor;
+    }
 
-    void SetZoomStackSize( int nStack );
+    void SetZoomStackSize(int nStack);
 
     // Coordinate conversion routines
-    void WorldToPlot( const MapPoint &data, wxPoint &plot ) const;
-    void PlotToWorld( const wxPoint &plot, MapPoint &data ) const;
+    void WorldToPlot(const MapPoint& data, wxPoint& plot) const;
+    void PlotToWorld(const wxPoint& plot, MapPoint& data) const;
 
     // Line trimming routines
-    bool TrimLine( const MapPoint &mpfrom, const MapPoint &mpTo,
-                   wxPoint &ptFrom, wxPoint &ptTo );
-    bool AddPoint( const MapPoint &pt, bool start );
-    bool GetPoint( wxPoint &pt, bool &start );
+    bool TrimLine(const MapPoint& mpfrom, const MapPoint& mpTo, wxPoint& ptFrom, wxPoint& ptTo);
+    bool AddPoint(const MapPoint& pt, bool start);
+    bool GetPoint(wxPoint& pt, bool& start);
 
     //
-    [[nodiscard]] bool IsValid() const { return scaleValid; }
+    [[nodiscard]] bool IsValid() const {
+        return scaleValid;
+    }
 
-    void SetNotifyWindowId( int id ) { windowId = id; }
+    void SetNotifyWindowId(int id) {
+        windowId = id;
+    }
 
-private:
+ private:
     void CalcScale();
-    [[nodiscard]] char PointFlags( const MapPoint &pt ) const;
-    char ShiftIntoRange( MapPoint &p0, char flag0, const MapPoint p1, char flag1 );
-    bool NextPoint( wxPoint &pt, bool &start );
+    [[nodiscard]] char PointFlags(const MapPoint& pt) const;
+    char ShiftIntoRange(MapPoint& p0, char flag0, const MapPoint p1, char flag1);
+    bool NextPoint(wxPoint& pt, bool& start);
     void NotifyWindow() const;
 
-    MapRect mapExtents;    // Requested extents
-    MapRect mapWindow;  // Actual window plotted
+    MapRect mapExtents;  // Requested extents
+    MapRect mapWindow;   // Actual window plotted
     MapRect mapSize;     // Total size of the map
-    wxRect plotRect;      // Window rectangle in window coords
+    wxRect plotRect;     // Window rectangle in window coords
     double aspectRatio;
 
-    bool scaleValid;   // Scale cannot be used
+    bool scaleValid;  // Scale cannot be used
     double wxorg, wdxscale;
     double wyorg, wdyscale;
-    int    dxorg, dyorg;
+    int dxorg, dyorg;
 
     double zoomOutFactor;
 
@@ -121,13 +131,11 @@ private:
     ZoomStack zoomStack;
 };
 
-inline
-bool wxMapScale::GetPoint( wxPoint &pt, bool &start )
-{
-    if( !npt ) { return false;
-}
-    return NextPoint( pt, start );
+inline bool wxMapScale::GetPoint(wxPoint& pt, bool& start) {
+    if (!npt) {
+        return false;
+    }
+    return NextPoint(pt, start);
 }
 
 #endif
-

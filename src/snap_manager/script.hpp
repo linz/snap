@@ -4,98 +4,101 @@
 #include "wx_includes.hpp"
 #include <map>
 
-namespace Scripter
-{
+namespace Scripter {
 
 using namespace std;
 
-class Value
-{
-public:
+class Value {
+ public:
     Value();
-    Value( const wxString& value );
+    Value(const wxString& value);
     // Deleted so that a string literal is an error, not a silent conversion to bool
-    Value( const char *value ) = delete;
-    Value( bool value);
-    Value( double value );
-    Value( const Value &variable, bool valueOnly=false );
+    Value(const char* value) = delete;
+    Value(bool value);
+    Value(double value);
+    Value(const Value& variable, bool valueOnly = false);
     ~Value();
-    Value & operator= (const Value &value );
-    Value & operator= (const wxString &value ) { SetValue(value); return *this; }
-    Value & operator= (const char *value ) = delete;
-    Value & operator= (bool value) { SetValue(value); return *this; }
-    Value & operator= (double value) { SetValue(value); return *this; }
-    void SetValue( const wxString &value );
-    void SetValue( double );
-    void SetValue( bool value );
-    [[nodiscard]] wxString AsString(int index=0) const;
-    [[nodiscard]] double AsDouble(int index=0) const;
-    [[nodiscard]] bool AsBool(int index=0) const;
+    Value& operator=(const Value& value);
+    Value& operator=(const wxString& value) {
+        SetValue(value);
+        return *this;
+    }
+    Value& operator=(const char* value) = delete;
+    Value& operator=(bool value) {
+        SetValue(value);
+        return *this;
+    }
+    Value& operator=(double value) {
+        SetValue(value);
+        return *this;
+    }
+    void SetValue(const wxString& value);
+    void SetValue(double);
+    void SetValue(bool value);
+    [[nodiscard]] wxString AsString(int index = 0) const;
+    [[nodiscard]] double AsDouble(int index = 0) const;
+    [[nodiscard]] bool AsBool(int index = 0) const;
     [[nodiscard]] int Count() const;
-    void SetNext( const Value &value );
-    void SetNext( Value *pvalue );
-    [[nodiscard]] Value *Next() const;
+    void SetNext(const Value& value);
+    void SetNext(Value* pvalue);
+    [[nodiscard]] Value* Next() const;
 
-private:
+ private:
     bool boolValue;
     double doubleValue;
     wxString stringValue;
-    Value *next;
+    Value* next;
 };
 
-class VariableList : public map<wxString,Value>
-{
-public:
+class VariableList : public map<wxString, Value> {
+ public:
     VariableList();
     ~VariableList();
-    void Add( const wxString& name, const Value& var );
-    bool Get( const wxString& name, Value &var );
-private:
-};
+    void Add(const wxString& name, const Value& var);
+    bool Get(const wxString& name, Value& var);
 
+ private:
+};
 
 // Abstract base class for a script running environment..
 
-enum FunctionStatus
-{
-    fsOk,                  // All ok
-    fsTerminateScript,     // All ok but exit script
-    fsReportedError,       // Error already reported - exit script
-    fsBadFunction,         // Unreported error ... function not known
-    fsBadParameters        // Unreported error ... bad parameters in function call
+enum FunctionStatus {
+    fsOk,               // All ok
+    fsTerminateScript,  // All ok but exit script
+    fsReportedError,    // Error already reported - exit script
+    fsBadFunction,      // Unreported error ... function not known
+    fsBadParameters     // Unreported error ... bad parameters in function call
 };
 
-class EnvBase
-{
-public:
+class EnvBase {
+ public:
     EnvBase() = default;
     virtual ~EnvBase() = default;
-    virtual bool GetValue( const wxString &name, Value &value ) = 0;
-    virtual bool AddMenuItem( const wxString &name, const wxString &description, int id ) = 0;
-    virtual bool RemoveMenuItem( const wxString &name ) = 0;
-    virtual void EnableMenuItem( const wxString &name, bool enabled ) = 0;
-    virtual FunctionStatus EvaluateFunction( const wxString &name, const Value *params, Value &result ) = 0;
-    virtual void ReportError( const wxString &error ) = 0;
-private:
+    virtual bool GetValue(const wxString& name, Value& value) = 0;
+    virtual bool AddMenuItem(const wxString& name, const wxString& description, int id) = 0;
+    virtual bool RemoveMenuItem(const wxString& name) = 0;
+    virtual void EnableMenuItem(const wxString& name, bool enabled) = 0;
+    virtual FunctionStatus EvaluateFunction(const wxString& name, const Value* params, Value& result) = 0;
+    virtual void ReportError(const wxString& error) = 0;
+
+ private:
 };
 
 class ScriptImp;
 
-class Script
-{
-public:
-    Script( EnvBase &environment );
+class Script {
+ public:
+    Script(EnvBase& environment);
     ~Script();
 
-    bool ExecuteScript( const std::string &filename );
-    void RunMenuActions( int id );
+    bool ExecuteScript(const std::string& filename);
+    void RunMenuActions(int id);
     void EnableMenuItems();
-private:
-    ScriptImp *implementation;
+
+ private:
+    ScriptImp* implementation;
 };
 
-};
-
-
+};  // namespace Scripter
 
 #endif

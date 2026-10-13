@@ -15,40 +15,40 @@
 
 DECLARE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED, -1)
 
-class wxLayerKey : public wxGrid
-{
-public:
+class wxLayerKey : public wxGrid {
+ public:
     wxLayerKey();
-    wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize );
+    wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
+               const wxSize& size = wxDefaultSize);
 
     ~wxLayerKey() override;
 
-    void SetSymbology( Symbology *newSymbologyKey );
-    void OnLeftClick( wxGridEvent &event );
-    void OnSelectCell( wxGridEvent &event );
+    void SetSymbology(Symbology* newSymbologyKey);
+    void OnLeftClick(wxGridEvent& event);
+    void OnSelectCell(wxGridEvent& event);
 
-    Symbology *GetSymbologyKey();
+    Symbology* GetSymbologyKey();
 
     // True if the layer at layerIndex is a control checkbox whose range has
     // exactly one child - the checkbox is then redundant, since it can only
     // ever match that one child's own status.
-    [[nodiscard]] bool IsSingleChildMasterRow( int layerIndex ) const;
+    [[nodiscard]] bool IsSingleChildMasterRow(int layerIndex) const;
 
     // Maps a grid row to the underlying layer index it currently displays, or
     // -1 if row is out of range. Every layer has its own row today, so this is
     // the identity mapping - it will diverge once a collapsed range hides some
     // layers from the grid.
-    [[nodiscard]] int RowToLayerIndex( int row ) const;
+    [[nodiscard]] int RowToLayerIndex(int row) const;
     // Maps a layer index to the grid row currently displaying it, or -1 if
     // that layer is hidden (e.g. inside a collapsed range).
-    [[nodiscard]] int LayerIndexToRow( int layerIndex ) const;
+    [[nodiscard]] int LayerIndexToRow(int layerIndex) const;
 
     // True if the master row at layerIndex owns a currently-collapsed range.
     // False if layerIndex isn't a master row.
-    [[nodiscard]] bool IsRangeCollapsed( int layerIndex ) const;
+    [[nodiscard]] bool IsRangeCollapsed(int layerIndex) const;
 
-private:
-    Symbology *symbologyKey;
+ private:
+    Symbology* symbologyKey;
     void FireSymbologyChangedEvent();
 
     // A control checkbox layer and the range of ordinary status layers below it
@@ -57,8 +57,7 @@ private:
     // can both show a header at once), so every one found is kept, not just the
     // first. A spacer/title row never qualifies as a child (see AddSpacer()),
     // so collapsing a range can never hide the separator that follows it.
-    struct MasterRange
-    {
+    struct MasterRange {
         int master;
         int lastChild;
         bool collapsed;
@@ -86,21 +85,19 @@ private:
 
     // Flips whether the range owned by the master at layerIndex is collapsed,
     // and rebuilds the grid to match. No-op if layerIndex isn't a master.
-    void ToggleRangeCollapsed( int layerIndex );
+    void ToggleRangeCollapsed(int layerIndex);
 
     // Result of looking up which masterRanges entry a layer index belongs to,
     // as either the master itself or one of its children. rangeIndex is -1 if
     // the layer is not part of any range, in which case isMaster is meaningless.
-    struct MasterLookup
-    {
+    struct MasterLookup {
         int rangeIndex;
         bool isMaster;
     };
-    [[nodiscard]] MasterLookup FindMasterRange( int layerIndex ) const;
+    [[nodiscard]] MasterLookup FindMasterRange(int layerIndex) const;
 
-    DECLARE_DYNAMIC_CLASS( wxLayerKey );
+    DECLARE_DYNAMIC_CLASS(wxLayerKey);
     DECLARE_EVENT_TABLE();
-
 };
 
 #endif

@@ -13,9 +13,8 @@
 
 // Abstract base class for a tabbed text data source ..
 
-class wxTabbedTextSource
-{
-public:
+class wxTabbedTextSource {
+ public:
     wxTabbedTextSource() = default;
     virtual ~wxTabbedTextSource() = default;
 
@@ -28,86 +27,81 @@ public:
     virtual int GetRowCount() = 0;
 
     // Get a tab delimited text string representing the data for the i'th row of the table.
-    virtual std::string GetRow( int i ) = 0;
+    virtual std::string GetRow(int i) = 0;
 
     // Return the entire contents of the data source as a tab/new line delimited string
     wxString GetText();
 };
 
-
 // wxGridTableBase object used to interface between data source and the grid
 //
 
-class wxTabbedTextTable : public wxGridTableBase
-{
-public:
+class wxTabbedTextTable : public wxGridTableBase {
+ public:
     wxTabbedTextTable();
     ~wxTabbedTextTable() override;
     int GetNumberRows() override;
     int GetNumberCols() override;
 
-    int GetColWidth( int col );
-    bool GetColRightJustify( int col );
-    wxString GetColLabelValue( int col ) override;
-    wxString GetValue( int row, int col ) override;
-    void SetValue( int , int , const wxString&  ) override;
-    bool IsEmptyCell( int row, int col ) override;
-    void SetSource( wxTabbedTextSource *source );
+    int GetColWidth(int col);
+    bool GetColRightJustify(int col);
+    wxString GetColLabelValue(int col) override;
+    wxString GetValue(int row, int col) override;
+    void SetValue(int, int, const wxString&) override;
+    bool IsEmptyCell(int row, int col) override;
+    void SetSource(wxTabbedTextSource* source);
 
     // Return the entire list as text ..
     wxString GetText();
 
-private:
+ private:
     /// Splits a tab delimited line into its columns, which still have their blanks.
-    static std::vector<std::string_view> _splitColumns( std::string_view line ///< Tab delimited text
+    static std::vector<std::string_view> _splitColumns(std::string_view line  ///< Tab delimited text
     );
     /// Removes the blanks from both ends of a column.
-    static std::string_view _trimBlanks( std::string_view column ///< Column text
+    static std::string_view _trimBlanks(std::string_view column  ///< Column text
     );
     void ClearSource();
-    void GetRow( int row );
+    void GetRow(int row);
 
     int nrow;
     int ncol;
     int currow;
-    int *colWidth;
-    bool *rightJustify;
-    wxString *colName;
+    int* colWidth;
+    bool* rightJustify;
+    wxString* colName;
     std::vector<std::string> rowData;
 
-    wxTabbedTextSource *ttsource;
+    wxTabbedTextSource* ttsource;
 };
 
-DECLARE_EVENT_TYPE( WX_TTGRID_ROW_SELECTED, -1 )
+DECLARE_EVENT_TYPE(WX_TTGRID_ROW_SELECTED, -1)
 
 #define WX_TTGRID_SHIFTDOWN 1
 #define WX_TTGRID_CTRLDOWN 2
 #define WX_TTGRID_ALTDOWN 4
 
-class wxTabbedTextGrid : public wxGrid
-{
-public:
+class wxTabbedTextGrid : public wxGrid {
+ public:
     wxTabbedTextGrid();
 
-    wxTabbedTextGrid(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize );
+    wxTabbedTextGrid(wxWindow* parent, wxWindowID id, const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxDefaultSize);
 
     ~wxTabbedTextGrid() override;
 
-    void SetTabbedTextSource( wxTabbedTextSource *source );
+    void SetTabbedTextSource(wxTabbedTextSource* source);
 
     wxString GetText();
 
+ private:
+    wxTabbedTextTable* table;
+    void OnCellSelect(wxGridEvent& event);
+    void OnRangeSelect(wxGridRangeSelectEvent& event);
+    void SendRowSelectedEvent(int row, long keystate);
 
-
-private:
-    wxTabbedTextTable * table;
-    void OnCellSelect( wxGridEvent &event );
-    void OnRangeSelect( wxGridRangeSelectEvent &event );
-    void SendRowSelectedEvent( int row, long keystate );
-
-    DECLARE_DYNAMIC_CLASS( wxTabbedTextGrid );
+    DECLARE_DYNAMIC_CLASS(wxTabbedTextGrid);
     DECLARE_EVENT_TABLE();
-
 };
 
 #endif

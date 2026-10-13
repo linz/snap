@@ -20,119 +20,103 @@
 #include "snap/obsparam.h"
 #include "adjparam.h"
 
-void set_param_obseq( int pid, void *hA, int irow, double v )
-{
+void set_param_obseq(int pid, void* hA, int irow, double v) {
     int rowno;
 
-    rowno = param_rowno( pid );
-    if( rowno ) oe_param( hA, irow, rowno, v );
+    rowno = param_rowno(pid);
+    if (rowno)
+        oe_param(hA, irow, rowno, v);
 }
 
-void update_params( int get_covariance )
-{
+void update_params(int get_covariance) {
     double delta;
     int np;
     int nparam;
 
     nparam = param_count();
 
-    if( nparam ) 
-    {
-        for( np = 0; np++ < nparam;  )
-        {
+    if (nparam) {
+        for (np = 0; np++ < nparam;) {
             int rn;
             double covar = 0.0;
-            rn = param_rowno( np );
-            if( rn )
-            {
-                rn--;   /* Convert to 0 based numbers */
-                lsq_get_params( &rn, 1, &delta, get_covariance ? &covar : nullptr );
-                update_param_value( np, param_value(np) + delta, covar );
+            rn = param_rowno(np);
+            if (rn) {
+                rn--; /* Convert to 0 based numbers */
+                lsq_get_params(&rn, 1, &delta, get_covariance ? &covar : nullptr);
+                update_param_value(np, param_value(np) + delta, covar);
             }
         }
     }
 
     nparam = get_obs_param_count();
-    if( nparam )
-    {
-        for( np=0; np++ < nparam; )
-        {
+    if (nparam) {
+        for (np = 0; np++ < nparam;) {
             int rn;
             double covar = 0.0;
             double value = 0.0;
-            rn = get_obs_param_rowno( np, &value );
-            if( rn )
-            {
-                rn--;   /* Convert to 0 based numbers */
-                lsq_get_params( &rn, 1, &delta, get_covariance ? &covar : nullptr );
-                update_obs_param_value( np, value + delta, covar );
+            rn = get_obs_param_rowno(np, &value);
+            if (rn) {
+                rn--; /* Convert to 0 based numbers */
+                lsq_get_params(&rn, 1, &delta, get_covariance ? &covar : nullptr);
+                update_obs_param_value(np, value + delta, covar);
             }
         }
     }
-    
 }
 
-
-void list_calculated_parameters( FILE *out )
-{
+void list_calculated_parameters(FILE* out) {
     int np;
     int first;
     int nparam;
-    param *p;
-    const char *header="\n\nThe following parameters are also being calculated\n\n";
+    param* p;
+    const char* header = "\n\nThe following parameters are also being calculated\n\n";
 
     nparam = param_count();
     first = 1;
 
-    if( nparam ) 
-    {
-        for( np = 0; np++ < nparam;  )
-        {
+    if (nparam) {
+        for (np = 0; np++ < nparam;) {
             p = param_from_id(sorted_param_id(np));
-            if( !(p->flags & PRM_ADJUST) ) { continue;
-}
-            if( first )
-            {
-                fputs(header,out);
+            if (!(p->flags & PRM_ADJUST)) {
+                continue;
+            }
+            if (first) {
+                fputs(header, out);
                 first = 0;
             }
 
-            fputs( p->name.c_str(), out );
-            if( p->identical ) { fprintf(out,"  (same as %s)", param_name(p->identical).data() );
-}
-            fputs( "\n", out );
+            fputs(p->name.c_str(), out);
+            if (p->identical) {
+                fprintf(out, "  (same as %s)", param_name(p->identical).data());
+            }
+            fputs("\n", out);
         }
     }
 
     nparam = get_obs_param_count();
-    if( nparam ) 
-    {
-        if( first )
-        {
-            fputs(header,out);
+    if (nparam) {
+        if (first) {
+            fputs(header, out);
             first = 0;
         }
-        for( np = 0; np++ < nparam;  )
-        {
-            if( ! get_obs_param_used(np) ) { continue;
-}
-            fputs( get_obs_param_name(np).c_str(), out );
-            fputs( "\n", out );
+        for (np = 0; np++ < nparam;) {
+            if (!get_obs_param_used(np)) {
+                continue;
+            }
+            fputs(get_obs_param_name(np).c_str(), out);
+            fputs("\n", out);
         }
     }
 }
 
-static void print_adjusted_parameters_header( FILE *out )
-{
-    print_section_header( out, "OTHER PARAMETERS");
-    fprintf(lst,"\nThe errors listed for calculated parameters are %s errors\n",
-            apriori ? "apriori" : "aposteriori" );
-    fprintf(out,"\nParameter                          value         +/-\n");
+static void print_adjusted_parameters_header(FILE* out) {
+    print_section_header(out, "OTHER PARAMETERS");
+    fprintf(lst, "\nThe errors listed for calculated parameters are %s errors\n", apriori ? "apriori" : "aposteriori");
+    fprintf(out, "\nParameter                          value         +/-\n");
 }
 
-void print_adjusted_parameters( FILE *out )
-{
-    param *p;
+void print_adjusted_parameters(FILE* out) {
+    param* p;
     int np;
     int nparam;
     double semult;
@@ -140,66 +124,53 @@ void print_adjusted_parameters( FILE *out )
 
     semult = apriori ? 1.0 : seu;
     nparam = param_count();
-    if( nparam ) 
-    {
-        for( np = 0; np++ < nparam;  )
-        {
+    if (nparam) {
+        for (np = 0; np++ < nparam;) {
             int pid;
-            pid = sorted_param_id( np );
-            p = param_from_id( pid );
-            if( p->flags & PRM_LISTED ) { continue;
-}
+            pid = sorted_param_id(np);
+            p = param_from_id(pid);
+            if (p->flags & PRM_LISTED) {
+                continue;
+            }
 
-            if( first )
-            {
+            if (first) {
                 print_adjusted_parameters_header(out);
                 first = 0;
             }
 
-            fprintf(out,"%-30.30s   %11.5lf  ",p->name.c_str(),p->value);
-            if( param_rowno(pid) )
-            {
-                fprintf(out,"%11.5lf",p->covar > 0.0 ? sqrt(p->covar)*semult : 0.0 );
+            fprintf(out, "%-30.30s   %11.5lf  ", p->name.c_str(), p->value);
+            if (param_rowno(pid)) {
+                fprintf(out, "%11.5lf", p->covar > 0.0 ? sqrt(p->covar) * semult : 0.0);
+            } else {
+                fprintf(out, "     -     ");
             }
-            else
-            {
-                fprintf(out,"     -     ");
+            if (p->identical) {
+                fprintf(out, "  = %s", param_name(p->identical).data());
             }
-            if( p->identical )
-            {
-                fprintf(out,"  = %s",param_name( p->identical ).data());
-            }
-            fprintf(out,"\n");
+            fprintf(out, "\n");
         }
     }
 
     nparam = get_obs_param_count();
-    if( nparam ) 
-    {
-        if( first )
-        {
+    if (nparam) {
+        if (first) {
             print_adjusted_parameters_header(out);
             first = 0;
         }
-        for( np = 0; np++ < nparam;  )
-        {
-            const std::string &name=get_obs_param_name(np);
-            double const value=get_obs_param_value(np);
-            fprintf(out,"%-30.30s   %11.5lf  ",name.c_str(),value);
-            if( get_obs_param_rowno(np,nullptr) ) 
-            {
-                double const covar=sqrt(get_obs_param_covar(np))*semult;
-                fprintf(out,"%11.5lf\n",covar);
-            }
-            else
-            {
-                fprintf(out,"     -\n");
+        for (np = 0; np++ < nparam;) {
+            const std::string& name = get_obs_param_name(np);
+            const double value = get_obs_param_value(np);
+            fprintf(out, "%-30.30s   %11.5lf  ", name.c_str(), value);
+            if (get_obs_param_rowno(np, nullptr)) {
+                const double covar = sqrt(get_obs_param_covar(np)) * semult;
+                fprintf(out, "%11.5lf\n", covar);
+            } else {
+                fprintf(out, "     -\n");
             }
         }
     }
 
-    if( ! first ) { print_section_footer( out );
+    if (!first) {
+        print_section_footer(out);
+    }
 }
-
-}
-

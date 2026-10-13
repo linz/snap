@@ -22,28 +22,22 @@ const int HistorySize = 20;
 //////////////////////////////////////////////////////////
 // Class to convert PutTextInfo address to and from string
 
-PutTextInfoWriter::PutTextInfoWriter( char type, int from, int to, int obs_id )
-{
+PutTextInfoWriter::PutTextInfoWriter(char type, int from, int to, int obs_id) {
     this->type = type;
     this->from = from;
     this->to = to;
     this->obs_id = obs_id;
 }
 
-PutTextInfoWriter::PutTextInfoWriter( const PutTextInfo &info ) :
-    PutTextInfo( info )
-{
-}
+PutTextInfoWriter::PutTextInfoWriter(const PutTextInfo& info) : PutTextInfo(info) {}
 
-PutTextInfoWriter::PutTextInfoWriter( const wxString &string )
-{
+PutTextInfoWriter::PutTextInfoWriter(const wxString& string) {
     int itype;
     int ifrom;
     int ito;
     int iobs_id;
     type = ptfNone;
-    if( sscanf( string.mb_str(),"PTI:%d:%d:%d:%d",&itype,&ifrom,&ito,&iobs_id ) != EOF )
-    {
+    if (sscanf(string.mb_str(), "PTI:%d:%d:%d:%d", &itype, &ifrom, &ito, &iobs_id) != EOF) {
         type = itype;
         from = ifrom;
         to = ito;
@@ -51,209 +45,182 @@ PutTextInfoWriter::PutTextInfoWriter( const wxString &string )
     }
 }
 
-wxString PutTextInfoWriter::ToString()
-{
+wxString PutTextInfoWriter::ToString() {
     wxString s;
-    s.Printf("PTI:%d:%d:%d:%d",((int) type),((int) from),((int) to),((int) obs_id));
+    s.Printf("PTI:%d:%d:%d:%d", ((int)type), ((int)from), ((int)to), ((int)obs_id));
     return s;
 }
 
 BEGIN_EVENT_TABLE(SnapplotDetailsView, wxHtmlWindow)
-    EVT_HTML_LINK_CLICKED(wxID_ANY, SnapplotDetailsView::OnHtmlLinkClicked )
-    EVT_RIGHT_DOWN(SnapplotDetailsView::OnRightMouse )
+EVT_HTML_LINK_CLICKED(wxID_ANY, SnapplotDetailsView::OnHtmlLinkClicked)
+EVT_RIGHT_DOWN(SnapplotDetailsView::OnRightMouse)
 END_EVENT_TABLE()
 
-SnapplotDetailsView::SnapplotDetailsView( wxWindow *parent ) :
-    wxHtmlWindow(parent, -1, wxDefaultPosition, wxDefaultSize, wxHW_NO_SELECTION)
-{
+SnapplotDetailsView::SnapplotDetailsView(wxWindow* parent)
+    : wxHtmlWindow(parent, -1, wxDefaultPosition, wxDefaultSize, wxHW_NO_SELECTION) {
     newText.Alloc(2048);
     history = new PutTextInfoWriter[HistorySize];
     historyCount = 0;
     historyNext = 0;
 }
 
-SnapplotDetailsView::~SnapplotDetailsView()
-{
-    delete [] history;
+SnapplotDetailsView::~SnapplotDetailsView() {
+    delete[] history;
 }
 
-void SnapplotDetailsView::ClearText()
-{
+void SnapplotDetailsView::ClearText() {
     newText.Empty();
     newText.Append("<html><body><pre>");
 }
 
-void SnapplotDetailsView::AddString( const std::string &text, const bool newLine )
-{
-    newText.Append(text );
-    if( newLine ) { AddNewLine();
-}
+void SnapplotDetailsView::AddString(const std::string& text, const bool newLine) {
+    newText.Append(text);
+    if (newLine) {
+        AddNewLine();
+    }
 }
 
-void SnapplotDetailsView::AddInfoText( PutTextInfo *jump, const std::string &text, const bool addNewLine )
-{
+void SnapplotDetailsView::AddInfoText(PutTextInfo* jump, const std::string& text, const bool addNewLine) {
     wxString s(text);
-    s.Replace("&","&amp;");
-    s.Replace("<","&lt;");
-    s.Replace(">","&gt;");
-    if( jump && jump->type != ptfNone )
-    {
+    s.Replace("&", "&amp;");
+    s.Replace("<", "&lt;");
+    s.Replace(">", "&gt;");
+    if (jump && jump->type != ptfNone) {
         PutTextInfoWriter pti(*jump);
         newText.Append("<a href=\"");
         newText.Append(pti.ToString());
         newText.Append("\">");
         newText.Append(s);
         newText.Append("</a>");
-    }
-    else
-    {
+    } else {
         newText.Append(s);
     }
-    if( addNewLine ) { AddNewLine();
-}
+    if (addNewLine) {
+        AddNewLine();
+    }
 }
 
-void SnapplotDetailsView::AddNewLine()
-{
+void SnapplotDetailsView::AddNewLine() {
     newText.Append("\n");
 }
 
-
-void SnapplotDetailsView::DisplayText()
-{
+void SnapplotDetailsView::DisplayText() {
     newText.Append("</pre></body></html>");
-    SetPage( newText );
+    SetPage(newText);
     newText.Empty();
 }
 
-
-void SnapplotDetailsView::AddInfoText( void *win, PutTextInfo *jump, const std::string &text )
-{
-    SnapplotDetailsView *dv = static_cast<SnapplotDetailsView *>(win);
-    dv->AddInfoText( jump, text, true );
+void SnapplotDetailsView::AddInfoText(void* win, PutTextInfo* jump, const std::string& text) {
+    SnapplotDetailsView* dv = static_cast<SnapplotDetailsView*>(win);
+    dv->AddInfoText(jump, text, true);
 }
 
+void SnapplotDetailsView::OnHtmlLinkClicked(wxHtmlLinkEvent& event) {
+    const PutTextInfoWriter pti(event.GetLinkInfo().GetHref());
+    if (pti.type != ptfNone) {
+        const wxMouseEvent* me = event.GetLinkInfo().GetEvent();
+        if (me->LeftUp()) {
+            Show(pti);
 
-void SnapplotDetailsView::OnHtmlLinkClicked( wxHtmlLinkEvent &event )
-{
-    PutTextInfoWriter const pti( event.GetLinkInfo().GetHref() );
-    if( pti.type != ptfNone )
-    {
-        const wxMouseEvent *me = event.GetLinkInfo().GetEvent();
-        if( me->LeftUp())
-        {
-            Show( pti );
-
-            bool const zoom = me && me->ShiftDown();
-            JumpTo( pti, zoom );
+            const bool zoom = me && me->ShiftDown();
+            JumpTo(pti, zoom);
         }
     }
 }
 
-void SnapplotDetailsView::JumpTo( const PutTextInfo &jump, bool zoomMap )
-{
-
+void SnapplotDetailsView::JumpTo(const PutTextInfo& jump, bool zoomMap) {
     // Zoom to the selected observation if shift was pressed
 
-    if( zoomMap )
-    {
-        wxSnapplotEvent e2( wxEVT_ZOOM_MAPVIEW, GetId() );
-        e2.SetEventObject( this );
-        e2.SetInfo( jump );
-        AddPendingEvent( e2 );
+    if (zoomMap) {
+        wxSnapplotEvent e2(wxEVT_ZOOM_MAPVIEW, GetId());
+        e2.SetEventObject(this);
+        e2.SetInfo(jump);
+        AddPendingEvent(e2);
     }
 
     // Highlight on the map
 
-    wxSnapplotEvent e3( wxEVT_LOCATE_MAPVIEW, GetId() );
-    e3.SetEventObject( this );
-    e3.SetInfo( jump );
-    AddPendingEvent( e3 );
+    wxSnapplotEvent e3(wxEVT_LOCATE_MAPVIEW, GetId());
+    e3.SetEventObject(this);
+    e3.SetInfo(jump);
+    AddPendingEvent(e3);
 }
 
-void SnapplotDetailsView::OnRightMouse( wxMouseEvent &event )
-{
+void SnapplotDetailsView::OnRightMouse(wxMouseEvent& event) {
     PutTextInfo jump;
-    if( RevertHistory() )
-    {
-        GetCurrentView( jump );
-        JumpTo( jump, event.ShiftDown() );
+    if (RevertHistory()) {
+        GetCurrentView(jump);
+        JumpTo(jump, event.ShiftDown());
     }
 }
 
-void SnapplotDetailsView::Show( const PutTextInfo &info )
-{
-    AddToHistory( info );
+void SnapplotDetailsView::Show(const PutTextInfo& info) {
+    AddToHistory(info);
 }
 
-void SnapplotDetailsView::AddToHistory( const PutTextInfo &jump )
-{
+void SnapplotDetailsView::AddToHistory(const PutTextInfo& jump) {
     history[historyNext] = jump;
     historyNext++;
-    if( historyNext >= HistorySize ) { historyNext = 0;
-}
-    if( historyCount < HistorySize ) { historyCount++;
-}
+    if (historyNext >= HistorySize) {
+        historyNext = 0;
+    }
+    if (historyCount < HistorySize) {
+        historyCount++;
+    }
     RefreshText();
 }
 
-void SnapplotDetailsView::GetCurrentView( PutTextInfo &jump )
-{
-    if( historyCount > 0 )
-    {
-        int current = historyNext-1;
-        if( current < 0 ) { current += HistorySize;
-}
+void SnapplotDetailsView::GetCurrentView(PutTextInfo& jump) {
+    if (historyCount > 0) {
+        int current = historyNext - 1;
+        if (current < 0) {
+            current += HistorySize;
+        }
         jump = history[current];
-    }
-    else
-    {
+    } else {
         jump.type = ptfTitleBlock;
     }
 }
 
-bool SnapplotDetailsView::RevertHistory(  )
-{
-    if( historyCount < 1 ) { return false;
-}
+bool SnapplotDetailsView::RevertHistory() {
+    if (historyCount < 1) {
+        return false;
+    }
     historyNext -= 1;
     historyCount -= 1;
-    if( historyNext < 0 ) { historyNext += HistorySize;
-}
+    if (historyNext < 0) {
+        historyNext += HistorySize;
+    }
     RefreshText();
     return true;
 }
 
-void SnapplotDetailsView::RefreshText()
-{
+void SnapplotDetailsView::RefreshText() {
     PutTextInfo info;
-    GetCurrentView( info );
-    switch( info.type )
-    {
-    case ptfTitleBlock:
-        ShowTitleInfo();
-        break;
+    GetCurrentView(info);
+    switch (info.type) {
+        case ptfTitleBlock:
+            ShowTitleInfo();
+            break;
 
-    case ptfStation:
-        ShowStationInfo( info.from );
-        break;
+        case ptfStation:
+            ShowStationInfo(info.from);
+            break;
 
-    case ptfLine:
-        ShowLineInfo( info.from, info.to );
-        break;
+        case ptfLine:
+            ShowLineInfo(info.from, info.to);
+            break;
 
-    case ptfObs:
-        ShowObsInfo( info.from, info.to, info.obs_id );
-        break;
+        case ptfObs:
+            ShowObsInfo(info.from, info.to, info.obs_id);
+            break;
     }
     Refresh();
 }
 
-
 ///////////////////////////////////////////////////////////////////////
 
-void SnapplotDetailsView::ShowTitleInfo()
-{
+void SnapplotDetailsView::ShowTitleInfo() {
     int opt;
     double threshold;
 
@@ -268,77 +235,75 @@ void SnapplotDetailsView::ShowTitleInfo()
     */
 
     ClearText();
-    AddString( job_title );
+    AddString(job_title);
     AddNewLine();
-    AddString( "Coordinate system: ",false);
-    AddString( plot_crdsys_name() );
+    AddString("Coordinate system: ", false);
+    AddString(plot_crdsys_name());
 
-    if( got_covariances() )
-    {
-        AddString( std::string( "Displaying " ) + ( aposteriori_errors ? "aposteriori" : "apriori" ) + " errors" );
-        if( use_confidence_limit )
-        {
-            AddString( "Error ellipses and height errors are " + format_fixed( confidence_limit, 2 ) + "% confidence limits" );
-        }
-        else if( confidence_limit != 1.0 )
-        {
-            AddString( "Error ellipses and height errors are " + format_fixed( confidence_limit, 1 ) + " times standard error" );
+    if (got_covariances()) {
+        AddString(std::string("Displaying ") + (aposteriori_errors ? "aposteriori" : "apriori") + " errors");
+        if (use_confidence_limit) {
+            AddString("Error ellipses and height errors are " + format_fixed(confidence_limit, 2) +
+                      "% confidence limits");
+        } else if (confidence_limit != 1.0) {
+            AddString("Error ellipses and height errors are " + format_fixed(confidence_limit, 1) +
+                      " times standard error");
         }
 
-        if( dimension != 1 )
-        {
-            AddString( "Ellipses exaggerated " + format_fixed( errell_scale, 0 ) + " times" );
+        if (dimension != 1) {
+            AddString("Ellipses exaggerated " + format_fixed(errell_scale, 0) + " times");
         }
-        if( dimension != 2 )
-        {
-            AddString( "Height errors exaggerated " + format_fixed( hgterr_scale, 0 ) + " times" );
+        if (dimension != 2) {
+            AddString("Height errors exaggerated " + format_fixed(hgterr_scale, 0) + " times");
         }
     }
 
     std::string highlightText;
-    get_obs_highlight_option( &opt, &threshold );
-    switch(opt)
-    {
-    case PCONN_HIGHLIGHT_REJECTED:
-        highlightText = "Rejected observations are highlighted"; break;
-    case PCONN_HIGHLIGHT_SRES:
-        highlightText = "Apriori standardised residuals greater than " + format_fixed( threshold, 2 ) + " are highlighted"; break;
-    case PCONN_HIGHLIGHT_APOST_SRES:
-        highlightText = "Aposteriori standardised residuals greater than " + format_fixed( threshold, 2 ) + " are highlighted"; break;
-    case PCONN_HIGHLIGHT_RFAC:
-        highlightText = "Observations with redundancy less than " + format_fixed( threshold, 2 ) + " are highlighted"; break;
+    get_obs_highlight_option(&opt, &threshold);
+    switch (opt) {
+        case PCONN_HIGHLIGHT_REJECTED:
+            highlightText = "Rejected observations are highlighted";
+            break;
+        case PCONN_HIGHLIGHT_SRES:
+            highlightText =
+                "Apriori standardised residuals greater than " + format_fixed(threshold, 2) + " are highlighted";
+            break;
+        case PCONN_HIGHLIGHT_APOST_SRES:
+            highlightText =
+                "Aposteriori standardised residuals greater than " + format_fixed(threshold, 2) + " are highlighted";
+            break;
+        case PCONN_HIGHLIGHT_RFAC:
+            highlightText = "Observations with redundancy less than " + format_fixed(threshold, 2) + " are highlighted";
+            break;
     }
-    if( !highlightText.empty() ) { AddString( highlightText ); }
+    if (!highlightText.empty()) {
+        AddString(highlightText);
+    }
 
-    if( have_binary_data() )
-    {
+    if (have_binary_data()) {
         AddNewLine();
         AddString("Adjustment statistics");
 
-        AddString( "Number of observations:           " + pad_left( std::to_string( nobs + nschp ), 5 ) );
-        AddString( "Number of parameters:             " + pad_left( std::to_string( nprm ), 5 ) );
-        if(nschp)
-        {
-            AddString( "Number of implicit parameters:    " + pad_left( std::to_string( nschp ), 5 ) );
+        AddString("Number of observations:           " + pad_left(std::to_string(nobs + nschp), 5));
+        AddString("Number of parameters:             " + pad_left(std::to_string(nprm), 5));
+        if (nschp) {
+            AddString("Number of implicit parameters:    " + pad_left(std::to_string(nschp), 5));
         }
-        if(ncon)
-        {
-            AddString( "Number of arbitrary constraints:  " + pad_left( std::to_string( ncon ), 5 ) );
+        if (ncon) {
+            AddString("Number of arbitrary constraints:  " + pad_left(std::to_string(ncon), 5));
         }
-        AddString( "Degrees of freedom:               " + pad_left( std::to_string( dof ), 5 ) );
-        AddString( "Sum of squared residuals:         " + format_fixed( ssr, 5, 11 ) );
-        AddString( "Standard error of unit weight:    " + format_fixed( seu, 5, 11 ) );
+        AddString("Degrees of freedom:               " + pad_left(std::to_string(dof), 5));
+        AddString("Sum of squared residuals:         " + format_fixed(ssr, 5, 11));
+        AddString("Standard error of unit weight:    " + format_fixed(seu, 5, 11));
     }
 
     AddNewLine();
-    list_station_summary( this, AddInfoText );
+    list_station_summary(this, AddInfoText);
 
     DisplayText();
 }
 
-void SnapplotDetailsView::ShowStationInfo( int istn )
-{
-
+void SnapplotDetailsView::ShowStationInfo(int istn) {
     /*
     SaveInfoLocation();
 
@@ -350,20 +315,16 @@ void SnapplotDetailsView::ShowStationInfo( int istn )
     mode = DefaultMode;
     */
 
-    if( ! istn ) { return;
-}
+    if (!istn) {
+        return;
+    }
     ClearText();
-    list_station_details( this, AddInfoText, istn );
-    list_connections( this, AddInfoText, istn );
+    list_station_details(this, AddInfoText, istn);
+    list_connections(this, AddInfoText, istn);
     DisplayText();
-
-
 }
 
-
-void SnapplotDetailsView::ShowLineInfo( int from, int to )
-{
-
+void SnapplotDetailsView::ShowLineInfo(int from, int to) {
     /*
     SaveInfoLocation();
 
@@ -375,19 +336,18 @@ void SnapplotDetailsView::ShowLineInfo( int from, int to )
     mode = DefaultMode;
     */
 
-    if( ! from || ! to ) { return;
-}
+    if (!from || !to) {
+        return;
+    }
 
     ClearText();
 
-    list_observations( this, AddInfoText, from, to );
+    list_observations(this, AddInfoText, from, to);
 
     DisplayText();
 }
 
-void SnapplotDetailsView::ShowObsInfo( int from, int to, int obs_id )
-{
-
+void SnapplotDetailsView::ShowObsInfo(int from, int to, int obs_id) {
     /*
     SaveInfoLocation();
 
@@ -401,6 +361,6 @@ void SnapplotDetailsView::ShowObsInfo( int from, int to, int obs_id )
     */
 
     ClearText();
-    list_single_observation( this, AddInfoText, from, to, obs_id );
+    list_single_observation(this, AddInfoText, from, to, obs_id);
     DisplayText();
 }

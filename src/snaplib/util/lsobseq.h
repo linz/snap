@@ -49,87 +49,75 @@
 /*                                                            */
 /*------------------------------------------------------------*/
 
-struct obsrow
-{
-    int    *col;    /* Column no of non-zero element */
-    double *val;    /* Value of non-zero element */
-    int     ncol;   /* Number of non-zero elts */
-    double  obsv;   /* The value of the observation */
-    double  schv;   /* Implicitly solved parameter */
-    char    flag;   /* Flag for observations */
+struct obsrow {
+    int* col;    /* Column no of non-zero element */
+    double* val; /* Value of non-zero element */
+    int ncol;    /* Number of non-zero elts */
+    double obsv; /* The value of the observation */
+    double schv; /* Implicitly solved parameter */
+    char flag;   /* Flag for observations */
 };
 
-#define OE_UNUSED  1
+#define OE_UNUSED 1
 
-struct obseqn
-{
-    int     nprm;   /* Number of parameters */
-    int     nrow;   /* Number of rows in equns */
-    int     maxrow; /* Maximum number of rows allocated */
-    int     maxcol; /* Maximum non-zero parameters */
-    obsrow **obs;   /* Array of pointers to rows of A */
-    ltmat   wgt;    /* Weight matrix, lt or diagonal storage */
-    ltmat   cvr;    /* Covariance matrix */
-    char    flag;   /* TRUE if weight matrix is diagonal */
-    long    maxelt; /* Size currently allocated to the matrix*/
+struct obseqn {
+    int nprm;     /* Number of parameters */
+    int nrow;     /* Number of rows in equns */
+    int maxrow;   /* Maximum number of rows allocated */
+    int maxcol;   /* Maximum non-zero parameters */
+    obsrow** obs; /* Array of pointers to rows of A */
+    ltmat wgt;    /* Weight matrix, lt or diagonal storage */
+    ltmat cvr;    /* Covariance matrix */
+    char flag;    /* TRUE if weight matrix is diagonal */
+    long maxelt;  /* Size currently allocated to the matrix*/
 };
 
-#define OE_LOWERTRI_CVR 0    /* Covariance is lower triangle storage */
-#define OE_DIAGONAL_CVR 1    /* Covariance matrix is diagonal */
-#define OE_SCHREIBER    2    /* Observation equations include Schreiber param */
+#define OE_LOWERTRI_CVR 0 /* Covariance is lower triangle storage */
+#define OE_DIAGONAL_CVR 1 /* Covariance matrix is diagonal */
+#define OE_SCHREIBER 2    /* Observation equations include Schreiber param */
 
-void *create_oe( int nprm );
-void delete_oe( void *A );
-void init_oe( void *A, int nrow, int ncol, char options );
-
+void* create_oe(int nprm);
+void delete_oe(void* A);
+void init_oe(void* A, int nrow, int ncol, char options);
 
 /* Routines for initialising observation equations - mainly defined as
    macros for efficiency */
 
-#define oe_value( A, irow, v ) \
-		  ((obseqn *)A)->obs[(irow)-1]->obsv = v
+#define oe_value(A, irow, v) ((obseqn*)A)->obs[(irow) - 1]->obsv = v
 
-#define oe_add_value( A, irow, v ) \
-		  ((obseqn *)A)->obs[(irow)-1]->obsv += v
+#define oe_add_value(A, irow, v) ((obseqn*)A)->obs[(irow) - 1]->obsv += v
 
-#define oe_get_value( A, irow ) \
-		  (((obseqn *)A)->obs[(irow)-1]->obsv+0.0)
+#define oe_get_value(A, irow) (((obseqn*)A)->obs[(irow) - 1]->obsv + 0.0)
 
+#define oe_param(A, irow, icol, v)           \
+    {                                        \
+        obsrow* obs;                         \
+        obs = ((obseqn*)A)->obs[(irow) - 1]; \
+        obs->col[obs->ncol] = (icol) - 1;    \
+        obs->val[obs->ncol] = v;             \
+        obs->ncol++;                         \
+    }
 
-#define oe_param( A, irow, icol, v ) \
-		  { obsrow *obs;                 \
-		    obs = ((obseqn *)A)->obs[(irow)-1];          \
-		    obs->col[obs->ncol] = (icol)-1;  \
-		    obs->val[obs->ncol] = v;     \
-		    obs->ncol++;                 \
-		    }
+#define oe_schreiber(A, irow, v)               \
+    {                                          \
+        ((obseqn*)A)->obs[irow - 1]->schv = v; \
+        ((obseqn*)A)->flag |= OE_SCHREIBER;    \
+    }
 
-#define oe_schreiber( A, irow, v ) \
-		  { ((obseqn *)A)->obs[irow-1]->schv = v; \
-		    ((obseqn *)A)->flag |= OE_SCHREIBER;  \
-		    }
+#define oe_flag_unused(A, irow) ((obseqn*)A)->obs[irow - 1]->flag |= OE_UNUSED
 
+#define oe_covar_ptr(A) (((obseqn*)A)->cvr)
 
-#define oe_flag_unused( A, irow ) \
-		  ((obseqn *)A)->obs[irow-1]->flag |= OE_UNUSED
+void oe_covar(void* A, int irow, int jrow, double v);
 
-#define oe_covar_ptr( A ) \
-		  (((obseqn *)A)->cvr)
+void oe_add_param(obseqn* A, int irow, int c, double v);
 
-
-void oe_covar( void *A, int irow, int jrow, double v );
-
-void oe_add_param( obseqn *A, int irow, int c, double v );
-
-void print_obseqn( FILE *out, void *hA );
+void print_obseqn(FILE* out, void* hA);
 
 /// Writes the observation equation as JSON. The source, if given, is JSON text describing where the observation came from.
-void print_obseqn_json( FILE *out, void *hA, std::optional<std::string_view> source, int nprefix );
+void print_obseqn_json(FILE* out, void* hA, std::optional<std::string_view> source, int nprefix);
 
-#define obseqn_rows(hA) (((obseqn *)hA)->nrow)
-#define obseqn_cvr_diagonal(hA) (((obseqn *)hA)->flag & OE_DIAGONAL_CVR)
-
+#define obseqn_rows(hA) (((obseqn*)hA)->nrow)
+#define obseqn_cvr_diagonal(hA) (((obseqn*)hA)->flag & OE_DIAGONAL_CVR)
 
 #endif
-
-

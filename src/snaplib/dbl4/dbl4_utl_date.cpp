@@ -36,11 +36,9 @@
 **************************************************************************
 */
 
-void utlSetDate( DateTimeType *dt, int year, int month, int day)
-{
-    utlSetDateTime( dt, year, month, day, 0, 0, 0.0 );
+void utlSetDate(DateTimeType* dt, int year, int month, int day) {
+    utlSetDateTime(dt, year, month, day, 0, 0, 0.0);
 }
-
 
 /*************************************************************************
 ** Function name: utlSetDateTime
@@ -60,9 +58,7 @@ void utlSetDate( DateTimeType *dt, int year, int month, int day)
 **************************************************************************
 */
 
-void utlSetDateTime( DateTimeType *dt, int year, int month, int day, int hour,
-                     int min, float sec)
-{
+void utlSetDateTime(DateTimeType* dt, int year, int month, int day, int hour, int min, float sec) {
     dt->dtYear = year;
     dt->dtMon = month;
     dt->dtDay = day;
@@ -71,7 +67,6 @@ void utlSetDateTime( DateTimeType *dt, int year, int month, int day, int hour,
     dt->dtSec = sec;
     dt->years = 0.0;
 }
-
 
 /*************************************************************************
 ** Function name: utlCopyDate
@@ -86,18 +81,15 @@ void utlSetDateTime( DateTimeType *dt, int year, int month, int day, int hour,
 **************************************************************************
 */
 
-void utlCopyDate( DateTimeType *tgt, DateTimeType *src)
-{
+void utlCopyDate(DateTimeType* tgt, DateTimeType* src) {
     tgt->dtYear = src->dtYear;
-    tgt->dtMon  = src->dtMon;
-    tgt->dtDay  = src->dtDay;
+    tgt->dtMon = src->dtMon;
+    tgt->dtDay = src->dtDay;
     tgt->dtHour = src->dtHour;
-    tgt->dtMin  = src->dtMin;
-    tgt->dtSec  = src->dtSec;
+    tgt->dtMin = src->dtMin;
+    tgt->dtSec = src->dtSec;
     tgt->years = src->years;
 }
-
-
 
 /*************************************************************************
 ** Function name: utlCompareDate
@@ -113,66 +105,51 @@ void utlCopyDate( DateTimeType *tgt, DateTimeType *src)
 **************************************************************************
 */
 
-int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 )
-{
-    if( dt1->dtYear > dt2->dtYear )
-    {
+int utlCompareDate(DateTimeType* dt1, DateTimeType* dt2) {
+    if (dt1->dtYear > dt2->dtYear) {
         return 1;
     }
-    if( dt1->dtYear < dt2->dtYear )
-    {
+    if (dt1->dtYear < dt2->dtYear) {
         return -1;
     }
 
-    if( dt1->dtMon > dt2->dtMon )
-    {
+    if (dt1->dtMon > dt2->dtMon) {
         return 1;
     }
-    if( dt1->dtMon < dt2->dtMon )
-    {
+    if (dt1->dtMon < dt2->dtMon) {
         return -1;
     }
 
-    if( dt1->dtDay > dt2->dtDay )
-    {
+    if (dt1->dtDay > dt2->dtDay) {
         return 1;
     }
-    if( dt1->dtDay < dt2->dtDay )
-    {
+    if (dt1->dtDay < dt2->dtDay) {
         return -1;
     }
 
-    if( dt1->dtHour > dt2->dtHour )
-    {
+    if (dt1->dtHour > dt2->dtHour) {
         return 1;
     }
-    if( dt1->dtHour < dt2->dtHour )
-    {
+    if (dt1->dtHour < dt2->dtHour) {
         return -1;
     }
 
-    if( dt1->dtMin > dt2->dtMin )
-    {
+    if (dt1->dtMin > dt2->dtMin) {
         return 1;
     }
-    if( dt1->dtMin < dt2->dtMin )
-    {
+    if (dt1->dtMin < dt2->dtMin) {
         return -1;
     }
 
-    if( dt1->dtSec > dt2->dtSec )
-    {
+    if (dt1->dtSec > dt2->dtSec) {
         return 1;
     }
-    if( dt1->dtSec < dt2->dtSec )
-    {
+    if (dt1->dtSec < dt2->dtSec) {
         return -1;
     }
 
     return 0;
 }
-
-
 
 /*************************************************************************
 ** Function name: utlIsLeapYear
@@ -186,17 +163,18 @@ int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 )
 **************************************************************************
 */
 
-int utlIsLeapYear( int year )
-{
-    if( year % 4 != 0 ) { return 0;
-}
-    if( year % 100 != 0 ) { return 1;
-}
-    if( year % 400 != 0 ) { return 0;
-}
+int utlIsLeapYear(int year) {
+    if (year % 4 != 0) {
+        return 0;
+    }
+    if (year % 100 != 0) {
+        return 1;
+    }
+    if (year % 400 != 0) {
+        return 0;
+    }
     return 1;
 }
-
 
 /*************************************************************************
 ** Function name: utlDateAsYear
@@ -211,44 +189,40 @@ int utlIsLeapYear( int year )
 **************************************************************************
 */
 
-
-double utlDateAsYear( DateTimeType *date )
-{
-    static int const monthday[] = {0,31,59,90,120,151,181,212,243,273,304,334};
+double utlDateAsYear(DateTimeType* date) {
+    static const int monthday[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
     int mon = date->dtMon;
     double days;
     double ndays = 365.0;
 
-    if( date->years > 0.0 )
-    {
+    if (date->years > 0.0) {
         return date->years;
     }
 
     /* Make sure the date is in range ... could put in an assertion, but
        for present just ignore errors */
 
-    if( mon < 1 || mon > 12 ) { mon = 1;
-}
+    if (mon < 1 || mon > 12) {
+        mon = 1;
+    }
 
     /* Calculate the number of days if this isn't a leap year */
 
-    days = monthday[mon-1] + date->dtDay - 1
-           + (date->dtHour+date->dtMin/60.0+date->dtSec/3600.0)/24.0;
+    days = monthday[mon - 1] + date->dtDay - 1 + (date->dtHour + date->dtMin / 60.0 + date->dtSec / 3600.0) / 24.0;
 
     /* Account for leap years - day number is incremented if the month is
        after February, and number of days in the year in incremented */
 
-    if( utlIsLeapYear( date->dtYear ) )
-    {
-        if( mon > 2 ) { days++;
-}
+    if (utlIsLeapYear(date->dtYear)) {
+        if (mon > 2) {
+            days++;
+        }
         ndays++;
     }
 
     /* Calculate the year number by dividing the day number by the number of
        days */
 
-    date->years = date->dtYear+(days/ndays);
+    date->years = date->dtYear + (days / ndays);
     return date->years;
 }
-

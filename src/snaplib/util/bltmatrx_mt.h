@@ -3,7 +3,7 @@
 
 #define BLT_DEFAULT_NTHREAD -1
 
-void blt_set_number_of_threads( int threadcount );
-void blt_chol_inv_mt( bltmatrix *blt );
+void blt_set_number_of_threads(int threadcount);
+void blt_chol_inv_mt(bltmatrix* blt);
 
 #endif

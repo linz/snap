@@ -41,30 +41,31 @@
 
 #include <wx/popupwin.h>
 
-class wxPalettePopup : public wxPopupTransientWindow
-{
-public:
-    wxPalettePopup( ColourPalette *palette, wxWindow* parent, wxWindowID id = wxID_ANY );
+class wxPalettePopup : public wxPopupTransientWindow {
+ public:
+    wxPalettePopup(ColourPalette* palette, wxWindow* parent, wxWindowID id = wxID_ANY);
     ~wxPalettePopup() override;
 
-    void SetPalette( ColourPalette *newPalette );
-    ColourPalette *Palette() { return palette; }
+    void SetPalette(ColourPalette* newPalette);
+    ColourPalette* Palette() {
+        return palette;
+    }
 
-    bool SelectColour( int &colourId );
+    bool SelectColour(int& colourId);
 
-private:
-    [[nodiscard]] wxPoint GetBitmapPosition( int colourId, bool centre ) const;
-    void GetHighlightRect( int colourId, wxRect &rect );
-    int ColourIdFromPosition( const wxPoint &position );
-    void LayoutPalette( int rows = 0 );
+ private:
+    [[nodiscard]] wxPoint GetBitmapPosition(int colourId, bool centre) const;
+    void GetHighlightRect(int colourId, wxRect& rect);
+    int ColourIdFromPosition(const wxPoint& position);
+    void LayoutPalette(int rows = 0);
     void PositionWindow();
-    void SetSelectedColour( int colourId );
+    void SetSelectedColour(int colourId);
     bool IgnoreAsOpeningClick();
 
-    void OnPaint( wxPaintEvent &event );
-    void OnMouseEvent( wxMouseEvent &event );
-    void OnKeyDownEvent( wxKeyEvent &event );
-    void OnCaptureLost( wxMouseCaptureLostEvent &event );
+    void OnPaint(wxPaintEvent& event);
+    void OnMouseEvent(wxMouseEvent& event);
+    void OnKeyDownEvent(wxKeyEvent& event);
+    void OnCaptureLost(wxMouseCaptureLostEvent& event);
     void OnDismiss() wxOVERRIDE;
 
     int nrow;
@@ -78,7 +79,7 @@ private:
 
     wxColour highlightColour;
 
-    ColourPalette *palette;
+    ColourPalette* palette;
 
     DECLARE_EVENT_TABLE();
 };

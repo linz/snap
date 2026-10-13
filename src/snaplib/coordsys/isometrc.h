@@ -8,7 +8,7 @@
 
 */
 
-double isometric_from_geodetic( double lat, double e );
-double geodetic_from_isometric( double q, double e );
+double isometric_from_geodetic(double lat, double e);
+double geodetic_from_isometric(double q, double e);
 
 #endif

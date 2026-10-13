@@ -22,58 +22,54 @@
 #include "util/classify.h"
 #include "util/errdef.h"
 
-namespace
-{
+namespace {
 
 /// The data files known to the test, by name.
-const std::map<std::string,int> file_ids{ { "a.dat", 1 }, { "b.dat", 2 }, { "c.dat", 3 } };
+const std::map<std::string, int> file_ids{{"a.dat", 1}, {"b.dat", 2}, {"c.dat", 3}};
 
-int test_file_id( std::string_view name, file_context * )
-{
-    const auto found=file_ids.find( std::string( name ) );
+int test_file_id(std::string_view name, file_context*) {
+    const auto found = file_ids.find(std::string(name));
     return found == file_ids.end() ? -1 : found->second;
 }
 
-std::string test_file_name( int file_id )
-{
-    for( const auto &file : file_ids ) { if( file.second == file_id ) { return file.first;
-}
-}
+std::string test_file_name(int file_id) {
+    for (const auto& file : file_ids) {
+        if (file.second == file_id) {
+            return file.first;
+        }
+    }
     return "";
 }
 
 /// The observations for one data file. Observation i has the id
 /// 10*file+i, a classification "equip" and "obsr" with the given values, and
 /// the data type GB for even i and SD for odd i.
-struct TestSurvey
-{
-    TestSurvey( int file, classifications &classes, const std::vector<std::pair<std::string,std::string>> &values )
-    {
-        std::memset( &sd, 0, sizeof( sd ) );
-        const int equip=classes.id( "equip", 1 );
-        const int obsr=classes.id( "obsr", 1 );
-        sd.format=SD_OBSDATA;
-        sd.file=file;
-        sd.nobs=static_cast<int>( values.size() );
-        odata.resize( values.size() );
-        clsf.resize( 2*values.size() );
-        for( size_t i=0; i<values.size(); ++i )
-        {
-            clsf[2*i].class_id=equip;
-            clsf[2*i].name_id=classes.value_id( equip, values[i].first, 1 );
-            clsf[2*i+1].class_id=obsr;
-            clsf[2*i+1].name_id=classes.value_id( obsr, values[i].second, 1 );
-            obsdata &od=odata[i];
-            std::memset( &od, 0, sizeof( od ) );
-            od.tgt.type= i%2 == 0 ? GB : SD;
-            od.tgt.id=10*file+static_cast<int>( i );
-            od.tgt.nclass=2;
-            od.tgt.iclass=static_cast<int>( 2*i );
-            od.tgt.errfct=1.0;
-            od.error=1.0;
+struct TestSurvey {
+    TestSurvey(int file, classifications& classes, const std::vector<std::pair<std::string, std::string>>& values) {
+        std::memset(&sd, 0, sizeof(sd));
+        const int equip = classes.id("equip", 1);
+        const int obsr = classes.id("obsr", 1);
+        sd.format = SD_OBSDATA;
+        sd.file = file;
+        sd.nobs = static_cast<int>(values.size());
+        odata.resize(values.size());
+        clsf.resize(2 * values.size());
+        for (size_t i = 0; i < values.size(); ++i) {
+            clsf[2 * i].class_id = equip;
+            clsf[2 * i].name_id = classes.value_id(equip, values[i].first, 1);
+            clsf[2 * i + 1].class_id = obsr;
+            clsf[2 * i + 1].name_id = classes.value_id(obsr, values[i].second, 1);
+            obsdata& od = odata[i];
+            std::memset(&od, 0, sizeof(od));
+            od.tgt.type = i % 2 == 0 ? GB : SD;
+            od.tgt.id = 10 * file + static_cast<int>(i);
+            od.tgt.nclass = 2;
+            od.tgt.iclass = static_cast<int>(2 * i);
+            od.tgt.errfct = 1.0;
+            od.error = 1.0;
         }
-        sd.obs.odata=odata.data();
-        sd.clsf=clsf.data();
+        sd.obs.odata = odata.data();
+        sd.clsf = clsf.data();
     }
 
     survdata sd;
@@ -81,73 +77,70 @@ struct TestSurvey
     std::vector<classdata> clsf;
 };
 
-int add( void *obsmod, const std::string &criteria, int action, double err1=1.0, double err2=0.0 )
-{
-    return add_obs_modifications( nullptr, obsmod, criteria, action, err1, err2 );
+int add(void* obsmod, const std::string& criteria, int action, double err1 = 1.0, double err2 = 0.0) {
+    return add_obs_modifications(nullptr, obsmod, criteria, action, err1, err2);
 }
 
 /// Applies the modifications to the observations, and describes them.
-std::string describe_results()
-{
+std::string describe_results() {
     classifications classes;
-    void *obsmod=new_obs_modifications( nullptr, &classes );
-    set_obs_modifications_file_func( obsmod, test_file_id, test_file_name );
+    void* obsmod = new_obs_modifications(nullptr, &classes);
+    set_obs_modifications_file_func(obsmod, test_file_id, test_file_name);
 
     // The criteria are in the order they are added, and several share a
     // key test (equip=GPS1, or the file a.dat) or have none.
-    add( obsmod, "equip=GPS1", OBS_MOD_REWEIGHT, 2.0 );
-    add( obsmod, "equip=TS5", OBS_MOD_REWEIGHT, 3.0 );
-    add( obsmod, "equip=GPS1 obsr=Bob", OBS_MOD_REWEIGHT, 5.0 );
-    add( obsmod, "obsr=Ann", OBS_MOD_REJECT );
-    add( obsmod, "data_type=GB id=22", OBS_MOD_IGNORE );
-    add( obsmod, "data_file=a.dat", OBS_MOD_REWEIGHT_SET, 1.5 );
-    add( obsmod, "data_file=*b.dat", OBS_MOD_REWEIGHT, 7.0 );
-    add_obs_option_modification( nullptr, obsmod, "obsr=Bob", 1, 4 );
-    add( obsmod, "data_file=b.dat", OBS_MOD_OFFSET_ERROR, 0.1, 0.2 );
-    add( obsmod, "equip=TS5", OBS_MOD_ANTENNA_OFFSET, 0.5 );
-    add( obsmod, "equip=TS5 obsr=Ann", OBS_MOD_CENTROID_ERROR, 0.3, 0.4 );
-    add_obs_modifications_classification( nullptr, obsmod, "obsr", "Cat/Dan", OBS_MOD_REWEIGHT, 11.0, OK );
-    add_obs_modifications_classification( nullptr, obsmod, "equip", "G*", OBS_MOD_REWEIGHT, 13.0, OK );
-    add_obs_modifications_datafile_factor( nullptr, obsmod, 3, "c.dat", 17.0 );
-    add_obs_modifications_classification( nullptr, obsmod, "data_file", "c.dat", OBS_MOD_REJECT, 1.0, OK );
+    add(obsmod, "equip=GPS1", OBS_MOD_REWEIGHT, 2.0);
+    add(obsmod, "equip=TS5", OBS_MOD_REWEIGHT, 3.0);
+    add(obsmod, "equip=GPS1 obsr=Bob", OBS_MOD_REWEIGHT, 5.0);
+    add(obsmod, "obsr=Ann", OBS_MOD_REJECT);
+    add(obsmod, "data_type=GB id=22", OBS_MOD_IGNORE);
+    add(obsmod, "data_file=a.dat", OBS_MOD_REWEIGHT_SET, 1.5);
+    add(obsmod, "data_file=*b.dat", OBS_MOD_REWEIGHT, 7.0);
+    add_obs_option_modification(nullptr, obsmod, "obsr=Bob", 1, 4);
+    add(obsmod, "data_file=b.dat", OBS_MOD_OFFSET_ERROR, 0.1, 0.2);
+    add(obsmod, "equip=TS5", OBS_MOD_ANTENNA_OFFSET, 0.5);
+    add(obsmod, "equip=TS5 obsr=Ann", OBS_MOD_CENTROID_ERROR, 0.3, 0.4);
+    add_obs_modifications_classification(nullptr, obsmod, "obsr", "Cat/Dan", OBS_MOD_REWEIGHT, 11.0, OK);
+    add_obs_modifications_classification(nullptr, obsmod, "equip", "G*", OBS_MOD_REWEIGHT, 13.0, OK);
+    add_obs_modifications_datafile_factor(nullptr, obsmod, 3, "c.dat", 17.0);
+    add_obs_modifications_classification(nullptr, obsmod, "data_file", "c.dat", OBS_MOD_REJECT, 1.0, OK);
 
     std::vector<TestSurvey> surveys;
-    const std::vector<std::pair<std::string,std::string>> values{
-        { "GPS1", "Ann" }, { "GPS1", "Bob" }, { "TS5", "Ann" }, { "TS5", "Bob" },
-        { "GPS2", "Cat" }, { "GPS1", "Dan" }, { "TS5", "Cat" }, { "TS6", "Dan" } };
-    for( const auto &file : file_ids ) { surveys.emplace_back( file.second, classes, values );
-}
+    const std::vector<std::pair<std::string, std::string>> values{{"GPS1", "Ann"}, {"GPS1", "Bob"}, {"TS5", "Ann"},
+                                                                  {"TS5", "Bob"},  {"GPS2", "Cat"}, {"GPS1", "Dan"},
+                                                                  {"TS5", "Cat"},  {"TS6", "Dan"}};
+    for (const auto& file : file_ids) {
+        surveys.emplace_back(file.second, classes, values);
+    }
 
     std::ostringstream result;
-    for( TestSurvey &survey : surveys )
-    {
-        const int nignored=apply_obs_modifications( obsmod, &survey.sd );
-        result << "file " << survey.sd.file << " ignored " << nignored
-               << " fromhgt " << survey.sd.fromhgt << " options " << survey.sd.options << "\n";
-        for( const obsdata &od : survey.odata )
-        {
-            result << "  obs " << od.tgt.id << " unused " << static_cast<int>( od.tgt.unused )
-                   << " error " << od.error << " errfct " << od.tgt.errfct
-                   << " tohgt " << od.tgt.tohgt << "\n";
+    for (TestSurvey& survey : surveys) {
+        const int nignored = apply_obs_modifications(obsmod, &survey.sd);
+        result << "file " << survey.sd.file << " ignored " << nignored << " fromhgt " << survey.sd.fromhgt
+               << " options " << survey.sd.options << "\n";
+        for (const obsdata& od : survey.odata) {
+            result << "  obs " << od.tgt.id << " unused " << static_cast<int>(od.tgt.unused) << " error " << od.error
+                   << " errfct " << od.tgt.errfct << " tohgt " << od.tgt.tohgt << "\n";
         }
-        result << "  ignore file " << survey.sd.file << " " << obsmod_ignore_datafile( obsmod, survey.sd.file ) << "\n";
+        result << "  ignore file " << survey.sd.file << " " << obsmod_ignore_datafile(obsmod, survey.sd.file) << "\n";
     }
 
     // The summary of the modifications
-    FILE *summary=std::tmpfile();
-    summarize_obs_modifications( obsmod, summary, "> " );
-    std::rewind( summary );
+    FILE* summary = std::tmpfile();
+    summarize_obs_modifications(obsmod, summary, "> ");
+    std::rewind(summary);
     char line[512];
-    while( std::fgets( line, sizeof( line ), summary ) ) { result << line;
-}
-    std::fclose( summary );
+    while (std::fgets(line, sizeof(line), summary)) {
+        result << line;
+    }
+    std::fclose(summary);
 
-    delete_obs_modifications( obsmod );
+    delete_obs_modifications(obsmod);
     return result.str();
 }
 
 /// The result the previous implementation gave.
-const char *const expected_results = R"EXPECTED(file 1 ignored 0 fromhgt 0.5 options 4
+const char* const expected_results = R"EXPECTED(file 1 ignored 0 fromhgt 0.5 options 4
   obs 10 unused 1 error 3 errfct 3 tohgt 0
   obs 11 unused 0 error 15 errfct 15 tohgt 0
   obs 12 unused 1 error 4.5 errfct 4.5 tohgt 0.5
@@ -339,18 +332,15 @@ file 3 ignored 0 fromhgt 0.5 options 4
 >   Observations where equip classification is "TS5"
 )EXPECTED";
 
-}
+}  // namespace
 
-int main( int argc, char *argv[] )
-{
-    const std::string actual=describe_results();
-    if( argc > 1 && std::string( argv[1] ) == "--print" )
-    {
+int main(int argc, char* argv[]) {
+    const std::string actual = describe_results();
+    if (argc > 1 && std::string(argv[1]) == "--print") {
         std::cout << actual;
         return EXIT_SUCCESS;
     }
-    if( actual == expected_results )
-    {
+    if (actual == expected_results) {
         std::cout << "All obsmod tests passed\n";
         return EXIT_SUCCESS;
     }

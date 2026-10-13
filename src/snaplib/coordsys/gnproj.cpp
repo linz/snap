@@ -15,25 +15,21 @@
 #include "coordsys/isometrc.h"
 #include "util/pi.h"
 
-
 // #pragma warning (disable : 4100)
 
-void define_gnomic_projection( GnomicProjection *gp, double a, double,
-                               double orglat, double orglon, double fe, double fn )
-{
+void define_gnomic_projection(GnomicProjection* gp, double a, double, double orglat, double orglon, double fe,
+                              double fn) {
     gp->orglat = orglat;
     gp->orglon = orglon;
     gp->fe = fe;
     gp->fn = fn;
     gp->a = a;
 
-    gp->csolt = cos( orglat );
-    gp->snolt = sin( orglat );
+    gp->csolt = cos(orglat);
+    gp->snolt = sin(orglat);
 }
 
-void gnomic_geod( GnomicProjection *gp, double ce, double cn, double *lon, double *lat)
-{
-
+void gnomic_geod(GnomicProjection* gp, double ce, double cn, double* lon, double* lat) {
     double psi;
     double u;
     double a1;
@@ -48,64 +44,56 @@ void gnomic_geod( GnomicProjection *gp, double ce, double cn, double *lon, doubl
     ce -= gp->fe;
     cn -= gp->fn;
 
-    if( ce == 0.0 && cn == 0.0 )
-    {
+    if (ce == 0.0 && cn == 0.0) {
         *lat = gp->orglat;
         *lon = gp->orglon;
         return;
     }
 
-    csth=_hypot(cn,ce);
-    snth=cn/csth;
-    csth=ce/csth;
+    csth = _hypot(cn, ce);
+    snth = cn / csth;
+    csth = ce / csth;
 
-    if( ce == 0.0 )
-    {
-        psi=atan(cn/(gp->a*snth));
-    }
-    else
-    {
-        psi=atan(ce/(gp->a*csth));
+    if (ce == 0.0) {
+        psi = atan(cn / (gp->a * snth));
+    } else {
+        psi = atan(ce / (gp->a * csth));
     }
 
-    u=sin(psi);
-    a4=cos(psi);
+    u = sin(psi);
+    a4 = cos(psi);
 
-    a1 = a4*a4;
+    a1 = a4 * a4;
 
-    a2=gp->csolt*gp->csolt * (csth*csth * u*u  -  1.0);
+    a2 = gp->csolt * gp->csolt * (csth * csth * u * u - 1.0);
 
-    a3 = gp->snolt*gp->snolt*a1;
+    a3 = gp->snolt * gp->snolt * a1;
 
     a4 *= gp->snolt;
 
     u *= csth;
 
-    root=sqrt(a3-a2-a1);
+    root = sqrt(a3 - a2 - a1);
 
-    if( cn > 0.0 )
-    {
-        *lat = asin( a4 + root );
-    }
-    else
-    {
-        *lat = asin( a4 - root );
+    if (cn > 0.0) {
+        *lat = asin(a4 + root);
+    } else {
+        *lat = asin(a4 - root);
     }
 
-    dlam = asin(u/cos(*lat));
+    dlam = asin(u / cos(*lat));
     dlam += gp->orglon;
-    while( dlam > PI ) { dlam -= TWOPI;
-}
-    while( dlam < -PI ) { dlam += TWOPI;
-}
+    while (dlam > PI) {
+        dlam -= TWOPI;
+    }
+    while (dlam < -PI) {
+        dlam += TWOPI;
+    }
 
     *lon = dlam;
 }
 
-
-void geod_gnomic( GnomicProjection *gp, double lon, double lat, double *ce, double *cn )
-{
-
+void geod_gnomic(GnomicProjection* gp, double lon, double lat, double* ce, double* cn) {
     double snp;
     double snpo;
     double csp;
@@ -115,15 +103,14 @@ void geod_gnomic( GnomicProjection *gp, double lon, double lat, double *ce, doub
     double bot;
 
     snp = sin(lat);
-    snpo= gp->snolt;
+    snpo = gp->snolt;
     csp = cos(lat);
-    cspo= gp->csolt;
+    cspo = gp->csolt;
     lon -= gp->orglon;
     snl = sin(lon);
     csl = cos(lon);
-    bot = snpo*snp + cspo*csp*csl;
+    bot = snpo * snp + cspo * csp * csl;
 
     *ce = gp->a * csp * snl / bot + gp->fe;
-    *cn = gp->a *(cspo*snp - snpo*csp*csl)/bot + gp->fn;
+    *cn = gp->a * (cspo * snp - snpo * csp * csl) / bot + gp->fn;
 }
-
