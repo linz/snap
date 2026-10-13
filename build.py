@@ -242,9 +242,9 @@ def mingw_build(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     run(["cmake", "--preset", preset])
-    build_cmd = ["cmake", "--build", "--preset", preset]
+    build_cmd = ["cmake", "--build", "--preset", preset, "--parallel"]
     if args.jobs:
-        build_cmd += ["--parallel", str(args.jobs)]
+        build_cmd.append(str(args.jobs))
     run(build_cmd)
 
     if args.target == "package":
