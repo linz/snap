@@ -5,6 +5,7 @@
 
 #include "util/errdef.h"
 
+#include <cstdarg>
 #include <ctime>
 #include <vector>
 

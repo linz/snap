@@ -252,17 +252,17 @@ Value ForeachToken::evaluate() {
 
     RunPermission rp(Owner(), elLoop);
 
-    for (Token* std::strtok = string; std::strtok; std::strtok = std::strtok->Next()) {
+    for (Token* token = string; token; token = token->Next()) {
         if (!usere) {
             if (rp.CanRun()) {
-                var->SetOwnerValue(std::strtok->GetValue());
+                var->SetOwnerValue(token->GetValue());
                 RunLoop();
             }
             continue;
         }
 
         int start = 0;
-        const wxString str = std::strtok->GetValue().AsString();
+        const wxString str = token->GetValue().AsString();
 
         while (rp.CanRun() && re.Matches(str.Mid(start))) {
             size_t mstart;

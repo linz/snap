@@ -1176,7 +1176,7 @@ static void update_fix_info(stn* from, stn* newfix) {
                 quality = 0.0;
                 FOR_ALL_CONNECTIONS(from, cn) {
                     double dst;
-                    double cos;
+                    double cos_value;
                     if (cn->to == newfix || !(cn->to->fixed & ST_FIXH) || !(cn->flag & CN_DS)) {
                         continue;
                     }
@@ -1186,17 +1186,17 @@ static void update_fix_info(stn* from, stn* newfix) {
                         nhdst++;
                     }
                     dst = ds_calc_arc_distance(newfix, cn->to);
-                    cos = (newcn->ds.ds * newcn->ds.ds + cn->ds.ds * cn->ds.ds - dst * dst) /
-                          (2.0 * newcn->ds.ds * cn->ds.ds);
-                    cos = 1.0 - cos * cos;
-                    if (cos < 0.0) {
+                    cos_value = (newcn->ds.ds * newcn->ds.ds + cn->ds.ds * cn->ds.ds - dst * dst) /
+                                (2.0 * newcn->ds.ds * cn->ds.ds);
+                    cos_value = 1.0 - cos_value * cos_value;
+                    if (cos_value < 0.0) {
                         continue;
                     }
                     if (newcn->ds.type == DS_SLP || cn->ds.type == DS_SLP) {
-                        cos *= SLP_DIST_FACTOR;
+                        cos_value *= SLP_DIST_FACTOR;
                     }
-                    if (cos > quality) {
-                        quality = cos;
+                    if (cos_value > quality) {
+                        quality = cos_value;
                     }
                 }
                 if (nsdst + nhdst <= 1) {
