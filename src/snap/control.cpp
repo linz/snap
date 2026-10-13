@@ -518,8 +518,8 @@ static void set_station_mode(station* st, void* modep) {
         case FLOAT_STATIONS:
             if (sa->idcol) {
                 char errmsg[80 + STNCODELEN * 2];
-                sprintf(errmsg, "Cannot float station %s - already co-located with %s", st->Code.c_str(),
-                        stnptr(sa->idcol)->Code.c_str());
+                std::sprintf(errmsg, "Cannot float station %s - already co-located with %s", st->Code.c_str(),
+                             stnptr(sa->idcol)->Code.c_str());
                 handle_error(INFO_ERROR, errmsg, NO_MESSAGE);
             } else {
                 if (fixhor) {
@@ -908,14 +908,14 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
         } else if (boost::algorithm::iequals(*prmname, "epoch")) {
             prmname = scanner.next();
             if (!prmname) {
-                sprintf(errmess, "Missing epoch date for reference frame %.20s", rfnameStr.c_str());
+                std::sprintf(errmess, "Missing epoch date for reference frame %.20s", rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
             date = snap_datetime_parse(*prmname);
             if (date == UNDEFINED_DATE) {
-                sprintf(errmess, "Invalid epoch date %.20s for reference frame %.20s", std::string(*prmname).c_str(),
-                        rfnameStr.c_str());
+                std::sprintf(errmess, "Invalid epoch date %.20s for reference frame %.20s",
+                             std::string(*prmname).c_str(), rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
@@ -930,8 +930,8 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
             } else if (prmname && boost::algorithm::iequals(*prmname, "default")) {
                 origintype = REFFRM_ORIGIN_DEFAULT;
             } else {
-                sprintf(errmess, "Invalid origin type %.20s for reference frame %.20s",
-                        prmname ? std::string(*prmname).c_str() : "", rfnameStr.c_str());
+                std::sprintf(errmess, "Invalid origin type %.20s for reference frame %.20s",
+                             prmname ? std::string(*prmname).c_str() : "", rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
@@ -960,14 +960,14 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
         } else if (boost::algorithm::iequals(*prmname, "iers_etsr")) {
             prmname = scanner.next();
             if (!prmname) {
-                sprintf(errmess, "Missing IERS_ETSR epoch date for reference frame %.20s", rfnameStr.c_str());
+                std::sprintf(errmess, "Missing IERS_ETSR epoch date for reference frame %.20s", rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
             date = snap_datetime_parse(*prmname);
             if (date == UNDEFINED_DATE) {
-                sprintf(errmess, "Invalid IERS_ETSR epoch date %.20s for reference frame %.20s",
-                        std::string(*prmname).c_str(), rfnameStr.c_str());
+                std::sprintf(errmess, "Invalid IERS_ETSR epoch date %.20s for reference frame %.20s",
+                             std::string(*prmname).c_str(), rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
@@ -975,8 +975,8 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
             nval = 14;
             iers = 1;
         } else {
-            sprintf(errmess, "Invalid parameter %.20s for reference frame %.20s command", std::string(*prmname).c_str(),
-                    rfnameStr.c_str());
+            std::sprintf(errmess, "Invalid parameter %.20s for reference frame %.20s command",
+                         std::string(*prmname).c_str(), rfnameStr.c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             return OK;
         }
@@ -991,8 +991,8 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
                     }
                     break;
                 }
-                sprintf(errmess, "Missing %.20s value for reference frame %.20s command",
-                        std::string(*valuetype).c_str(), rfnameStr.c_str());
+                std::sprintf(errmess, "Missing %.20s value for reference frame %.20s command",
+                             std::string(*valuetype).c_str(), rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
@@ -1007,8 +1007,8 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
                     pending = prmname;
                     break;
                 }
-                sprintf(errmess, "Invalid %.20s value %.20s for reference frame %.20s command",
-                        std::string(*valuetype).c_str(), std::string(*prmname).c_str(), rfnameStr.c_str());
+                std::sprintf(errmess, "Invalid %.20s value %.20s for reference frame %.20s command",
+                             std::string(*valuetype).c_str(), std::string(*prmname).c_str(), rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
@@ -1017,8 +1017,8 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
                 if (suffix == "?") {
                     calcval[ival] = 1;
                 } else {
-                    sprintf(errmess, "Invalid %.20s value %.20s for reference frame %.20s command",
-                            std::string(*valuetype).c_str(), std::string(*prmname).c_str(), rfnameStr.c_str());
+                    std::sprintf(errmess, "Invalid %.20s value %.20s for reference frame %.20s command",
+                                 std::string(*valuetype).c_str(), std::string(*prmname).c_str(), rfnameStr.c_str());
                     send_config_error(cfg, INVALID_DATA, errmess);
                     return OK;
                 }
@@ -1031,8 +1031,8 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
                 }
             }
             if (defined[ival]) {
-                sprintf(errmess, "Duplicated %.20s value definition for reference frame %.20s command",
-                        std::string(*valuetype).c_str(), rfnameStr.c_str());
+                std::sprintf(errmess, "Duplicated %.20s value definition for reference frame %.20s command",
+                             std::string(*valuetype).c_str(), rfnameStr.c_str());
                 send_config_error(cfg, INVALID_DATA, errmess);
                 return OK;
             }
@@ -1043,7 +1043,8 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
 
     if (iers) {
         if (topocentric) {
-            sprintf(errmess, "Ref frame %s cannot be defined with IERS parameters and topocentric", rfnameStr.c_str());
+            std::sprintf(errmess, "Ref frame %s cannot be defined with IERS parameters and topocentric",
+                         rfnameStr.c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             return OK;
         }
@@ -1060,7 +1061,7 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
         rfid = get_rftrans_id(rfnameStr, REFFRM_TOPOCENTRIC);
         rf = rftrans_from_id(rfid);
         if (!rf->istopo) {
-            sprintf(errmess, "Ref frame %s defined as both topocentric and geocentric", rfnameStr.c_str());
+            std::sprintf(errmess, "Ref frame %s defined as both topocentric and geocentric", rfnameStr.c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             return OK;
         }
@@ -1068,7 +1069,7 @@ static int read_rftrans(CFG_FILE* cfg, std::string_view string, void*, int, int)
         rfid = get_rftrans_id(rfnameStr, iers ? REFFRM_IERS : REFFRM_GEOCENTRIC);
         rf = rftrans_from_id(rfid);
         if (rf->istopo && iers) {
-            sprintf(errmess, "Topocentric ref frame %s cannot be defined with IERS parameters", rfnameStr.c_str());
+            std::sprintf(errmess, "Topocentric ref frame %s cannot be defined with IERS parameters", rfnameStr.c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             return OK;
         }
@@ -1201,7 +1202,7 @@ static int read_residual_format(CFG_FILE* cfg, std::string_view string, void*, i
         }
         if (!valid) {
             char errmess[100];
-            sprintf(errmess, "Invalid column definition %.40s", std::string(column).c_str());
+            std::sprintf(errmess, "Invalid column definition %.40s", std::string(column).c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
         }
     }
@@ -1224,11 +1225,11 @@ static int read_output_precision(CFG_FILE* cfg, std::string_view string, void*, 
         }
         if (type == NOBSTYPE) {
             char errmess[80];
-            sprintf(errmess, "Invalid type code %.20s in output_precision command", std::string(*st).c_str());
+            std::sprintf(errmess, "Invalid type code %.20s in output_precision command", std::string(*st).c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
         } else if (ndp_str->size() != 1 || !is_digit((*ndp_str)[0])) {
             char errmess[80];
-            sprintf(errmess, "Invalid precision %.20s in output_precision command", std::string(*ndp_str).c_str());
+            std::sprintf(errmess, "Invalid precision %.20s in output_precision command", std::string(*ndp_str).c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
         } else {
             obs_precision[type] = (*ndp_str)[0] - '0';
@@ -1425,7 +1426,7 @@ static int read_error_summary(CFG_FILE* cfg, std::string_view string, void*, int
         sts = define_error_summary(std::string(*str));
         if (sts != OK) {
             char errmsg[100];
-            sprintf(errmsg, "Invalid error summary definition %.50s", std::string(*str).c_str());
+            std::sprintf(errmsg, "Invalid error summary definition %.50s", std::string(*str).c_str());
             send_config_error(cfg, INVALID_DATA, errmsg);
         }
     }
@@ -1770,11 +1771,11 @@ static int read_configuration_command(CFG_FILE* cfg, std::string_view string, vo
             const int status =
                 constraint ? read_command_file_constraints(*resolved) : process_configuration_file(*resolved, cfg_only);
             if (status != OK) {
-                sprintf(errmsg, "Invalid data in configuration file %.*s", MAX_FILENAME_LEN, firstFile->c_str());
+                std::sprintf(errmsg, "Invalid data in configuration file %.*s", MAX_FILENAME_LEN, firstFile->c_str());
                 send_config_error(cfg, INVALID_DATA, errmsg);
             }
         } else {
-            sprintf(errmsg, "Cannot find configuration file %.*s", MAX_FILENAME_LEN, firstFile->c_str());
+            std::sprintf(errmsg, "Cannot find configuration file %.*s", MAX_FILENAME_LEN, firstFile->c_str());
             send_config_error(cfg, INVALID_DATA, errmsg);
         }
     }

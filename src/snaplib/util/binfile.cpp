@@ -67,7 +67,7 @@ constexpr size_t sig_trailer_length = sizeof(SIG_TRAILER) - 1;
 constexpr size_t end_section_length = sizeof(ENDSECTION) - 1;
 
 BINARY_FILE* create_binary_file(const std::string& fname, const std::string& signature) {
-    FILE* f = nullptr;
+    std::FILE* f = nullptr;
     BINARY_FILE* b;
     char zero = 0;
 
@@ -89,7 +89,7 @@ BINARY_FILE* create_binary_file(const std::string& fname, const std::string& sig
         }
     }
 #else
-    f = fopen(fname.c_str(), "w+b");
+    f = std::fopen(fname.c_str(), "w+b");
 #endif
 
     if (!f) {
@@ -97,8 +97,8 @@ BINARY_FILE* create_binary_file(const std::string& fname, const std::string& sig
     }
 
     b = new BINARY_FILE;
-    fwrite(signature.data(), signature.size(), 1, f);
-    fwrite(SIG_TRAILER, sig_trailer_length, 1, f); /* DOS eof character */
+    std::fwrite(signature.data(), signature.size(), 1, f);
+    std::fwrite(SIG_TRAILER, sig_trailer_length, 1, f); /* DOS eof character */
 
     b->f = f;
     b->start = ftell64(f);
@@ -108,7 +108,7 @@ BINARY_FILE* create_binary_file(const std::string& fname, const std::string& sig
 
     b->sigchar = signature[0];
     fseek64(b->f, 0, SEEK_SET);
-    fwrite(&zero, sizeof(char), 1, b->f);
+    std::fwrite(&zero, sizeof(char), 1, b->f);
     fseek64(b->f, b->start, SEEK_SET);
     b->section_start = 0L;
     b->section_version = 0L;
@@ -121,7 +121,7 @@ BINARY_FILE* create_binary_file(const std::string& fname, const std::string& sig
 }
 
 BinFileOpenOutcome open_binary_file(const std::string& fname, const std::string& signature) {
-    FILE* f = nullptr;
+    std::FILE* f = nullptr;
     BINARY_FILE* b;
 
     /* Note: this implementation has
@@ -148,7 +148,7 @@ BinFileOpenOutcome open_binary_file(const std::string& fname, const std::string&
         }
     }
 #else
-    f = fopen(fname.c_str(), "rb");
+    f = std::fopen(fname.c_str(), "rb");
 #endif
     if (!f) {
         return {nullptr, BinFileOpenResult::NotFound};
@@ -156,8 +156,8 @@ BinFileOpenOutcome open_binary_file(const std::string& fname, const std::string&
 
     const std::string expectedSignature = signature + SIG_TRAILER;
     std::string sig(expectedSignature.size(), '\0');
-    if (fread(sig.data(), sig.size(), 1, f) != 1 || sig != expectedSignature) {
-        fclose(f);
+    if (std::fread(sig.data(), sig.size(), 1, f) != 1 || sig != expectedSignature) {
+        std::fclose(f);
         return {nullptr, BinFileOpenResult::InvalidVersion};
     }
 
@@ -177,13 +177,13 @@ BinFileOpenOutcome open_binary_file(const std::string& fname, const std::string&
 }
 
 void end_section(BINARY_FILE* b) {
-    int64_t end;
+    std::int64_t end;
     if (b->section_start) {
         fseek64(b->f, 0L, SEEK_END);
-        fwrite(ENDSECTION, end_section_length + 1, 1, b->f);
+        std::fwrite(ENDSECTION, end_section_length + 1, 1, b->f);
         end = ftell64(b->f);
         fseek64(b->f, b->section_start, SEEK_SET);
-        fwrite(&end, sizeof(end), 1, b->f);
+        std::fwrite(&end, sizeof(end), 1, b->f);
         fseek64(b->f, 0L, SEEK_END);
         b->section_start = 0L;
     }
@@ -194,9 +194,9 @@ void close_binary_file(BINARY_FILE* b) {
     /* Complete the signature of the file if properly closed */
     if (b->sigchar) {
         fseek64(b->f, 0, SEEK_SET);
-        fwrite(&(b->sigchar), sizeof(char), 1, b->f);
+        std::fwrite(&(b->sigchar), sizeof(char), 1, b->f);
     }
-    fclose(b->f);
+    std::fclose(b->f);
     delete b;
 }
 
@@ -205,22 +205,22 @@ void create_section(BINARY_FILE* b, const std::string& section) {
 }
 
 void create_section_ex(BINARY_FILE* b, const std::string& section, long version) {
-    int64_t end;
+    std::int64_t end;
     end = 0L;
     end_section(b);
     fseek64(b->f, 0L, SEEK_END);
     b->section_start = ftell64(b->f);
     b->section_version = 0;
-    fwrite(&end, sizeof(end), 1, b->f);
-    fwrite(section.c_str(), section.size() + 1, 1, b->f);
+    std::fwrite(&end, sizeof(end), 1, b->f);
+    std::fwrite(section.c_str(), section.size() + 1, 1, b->f);
     if (b->bf_version > 0) {
         b->section_version = version;
-        fwrite(&(b->section_version), sizeof(b->section_version), 1, b->f);
+        std::fwrite(&(b->section_version), sizeof(b->section_version), 1, b->f);
     }
 }
 
 int find_section(BINARY_FILE* b, const std::string& section) {
-    int64_t next;
+    std::int64_t next;
     int sts;
 
     const size_t nch = section.size() + 1;
@@ -232,10 +232,10 @@ int find_section(BINARY_FILE* b, const std::string& section) {
 
     while (next) {
         fseek64(b->f, next, SEEK_SET);
-        if (fread(&next, sizeof(next), 1, b->f) != 1) {
+        if (std::fread(&next, sizeof(next), 1, b->f) != 1) {
             break;
         }
-        if (fread(match.data(), nch, 1, b->f) != 1) {
+        if (std::fread(match.data(), nch, 1, b->f) != 1) {
             break;
         }
         // match is always nch = section.size()+1 bytes long regardless of
@@ -252,7 +252,7 @@ int find_section(BINARY_FILE* b, const std::string& section) {
                                         for reading only */
             b->section_version = 0;
             if (b->bf_version > 0) {
-                fread(&(b->section_version), sizeof(b->section_version), 1, b->f);
+                std::fread(&(b->section_version), sizeof(b->section_version), 1, b->f);
             }
             sts = OK;
 
@@ -264,11 +264,11 @@ int find_section(BINARY_FILE* b, const std::string& section) {
 }
 
 int check_end_section(BINARY_FILE* bin) {
-    int64_t loc;
+    std::int64_t loc;
 
     loc = ftell64(bin->f);
     std::string endsec(end_section_length + 1, '\0');
-    if (fread(endsec.data(), end_section_length + 1, 1, bin->f) == 1 &&
+    if (std::fread(endsec.data(), end_section_length + 1, 1, bin->f) == 1 &&
         std::string_view(endsec.c_str()) == ENDSECTION) {
         return OK;
     }

@@ -18,11 +18,12 @@
 /*                                                                */
 /*----------------------------------------------------------------*/
 
-rotmat::rotmat(const double Lat, const double Lon) : cslt(cos(Lat)), snlt(sin(Lat)), csln(cos(Lon)), snln(sin(Lon)) {}
+rotmat::rotmat(const double Lat, const double Lon)
+    : cslt(std::cos(Lat)), snlt(std::sin(Lat)), csln(std::cos(Lon)), snln(std::sin(Lon)) {}
 
 rotmat rotmat::gravimetric(const double Lat, const double Lon, const double Xi, const double Eta) {
     const double gravLat = Lat + Xi;
-    const double gravLon = Lon + Eta / cos(gravLat);
+    const double gravLon = Lon + Eta / std::cos(gravLat);
     return rotmat(gravLat, gravLon);
 }
 
@@ -68,7 +69,7 @@ double vecdot(const vector3 vec1, const vector3 vec2) {
 }
 
 double veclen(vector3 vec) {
-    return sqrt(vecdot(vec, vec));
+    return std::sqrt(vecdot(vec, vec));
 }
 
 void veccopy(const vector3 vec, vector3 copy) {

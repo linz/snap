@@ -180,18 +180,18 @@ static void program_error(const std::string_view msg, const std::string_view rou
     handle_error(INTERNAL_ERROR, msg1, msg2);
 }
 
-static void list_datatypes_used(FILE* out) {
+static void list_datatypes_used(std::FILE* out) {
     int type;
 
-    fprintf(out, "\nThe following codes are used to identify data types\n");
+    std::fprintf(out, "\nThe following codes are used to identify data types\n");
     for (type = 0; type < NOBSTYPE; type++) {
         if (obstypecount[type]) {
-            fprintf(out, "   %-2s  %ss\n", datatype[type].code.data(), datatype[type].name.data());
+            std::fprintf(out, "   %-2s  %ss\n", datatype[type].code.data(), datatype[type].name.data());
         }
     }
 }
 
-void print_input_data(FILE* out) {
+void print_input_data(std::FILE* out) {
     print_section_header(out, "INPUT DATA");
     print_json_start(out, "observations_types");
     print_json_observation_types(out);
@@ -202,13 +202,13 @@ void print_input_data(FILE* out) {
     print_section_footer(out);
 }
 
-void print_station_recoding(FILE* out) {
+void print_station_recoding(std::FILE* out) {
     if (output_stn_recode && stnrecode && recodes_used(stnrecode)) {
         /* Note: for the moment print all recoding.  Ultimately may only want those used. */
         print_section_header(out, "RECODED STATIONS");
-        fprintf(out, "\nThe following stations are being recoded as they are read from data files\n\n");
+        std::fprintf(out, "\nThe following stations are being recoded as they are read from data files\n\n");
         print_stn_recode_list(out, stnrecode, true, stn_name_width, "     ");
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
         print_section_footer(out);
     }
 }
@@ -318,9 +318,9 @@ int sum_bindata(int iteration) {
     if (output_observation_equations) {
         print_section_header(lst, "OBSERVATION EQUATIONS");
         print_json_start(lst, header);
-        fprintf(lst, "{\n");
+        std::fprintf(lst, "{\n");
         print_json_params(lst, 2);
-        fprintf(lst, ",\n  \"obs_equations\": [\n");
+        std::fprintf(lst, ",\n  \"obs_equations\": [\n");
     }
 
     maxrow = maxlt = 0;
@@ -347,7 +347,7 @@ int sum_bindata(int iteration) {
                    << (tgt->to ? stnptr(tgt->to)->Code.c_str() : "") << "\", \"obsid\": " << tgt->obsid
                    << ", \"type\": \"" << datatype[tgt->type].code << "\",\"nobs\": " << sd->nobs << "}";
             if (nbin > 1) {
-                fprintf(lst, ",\n");
+                std::fprintf(lst, ",\n");
             }
             print_obseqn_json(lst, hA, source.str(), 0);
         }
@@ -356,8 +356,8 @@ int sum_bindata(int iteration) {
             char location[200];
             survdata* sd = b.survey_data();
             trgtdata* tgt = get_trgtdata(sd, 0);
-            sprintf(location, "Cannot sum observation from %.80s line %d\n", survey_data_file_name(sd->file).c_str(),
-                    (int)(tgt->lineno));
+            std::sprintf(location, "Cannot sum observation from %.80s line %d\n",
+                         survey_data_file_name(sd->file).c_str(), (int)(tgt->lineno));
             handle_error(INVALID_DATA, "Observation error", location);
             sts = stsobs;
         }
@@ -374,7 +374,7 @@ int sum_bindata(int iteration) {
     delete_oe(hA);
 
     if (output_observation_equations) {
-        fprintf(lst, "\n]}\n");
+        std::fprintf(lst, "\n]}\n");
         print_json_end(lst, header);
         print_section_footer(lst);
     }
@@ -466,7 +466,7 @@ void calc_residuals(void) {
 /* Print residual title is the same as print residual line, except that
    fields which are not left justified are centred */
 
-static void print_title(FILE* out) {
+static void print_title(std::FILE* out) {
     constexpr std::string_view blank = "";
     constexpr std::string_view lftjst = "%-*s";
     constexpr std::string_view centrejst = "%-*s%-*s";
@@ -475,7 +475,7 @@ static void print_title(FILE* out) {
     int need_space;
     int ipass;
     int justify;
-    fputc('\n', out);
+    std::fputc('\n', out);
     for (ipass = 0; ipass < 2; ipass++) {
         int needpass2 = 0;
         need_space = 0;
@@ -489,11 +489,11 @@ static void print_title(FILE* out) {
             }
             const std::string_view source = titleOpt.value_or(blank);
             if (column->column == SPACE_FIELD) {
-                fprintf(out, "%-*s", width, " ");
+                std::fprintf(out, "%-*s", width, " ");
                 need_space = 0;
             }
             if (column->column == NEWLINE_FIELD) {
-                fputc('\n', out);
+                std::fputc('\n', out);
             }
             if (column->column == SPACE_FIELD || column->column == NEWLINE_FIELD) {
                 need_space = 0;
@@ -508,14 +508,14 @@ static void print_title(FILE* out) {
                     continue;
                 }
                 if (need_space) {
-                    fputc(' ', out);
+                    std::fputc(' ', out);
                 }
                 need_space = 1;
                 justify = fld->justify;
             }
 
             if (justify == LEFT_JUST) {
-                fprintf(out, lftjst.data(), width, source.data());
+                std::fprintf(out, lftjst.data(), width, source.data());
             } else {
                 int len1;
                 int len2;
@@ -527,10 +527,10 @@ static void print_title(FILE* out) {
                     len1 = 0;
                 }
                 len2 = width - len1;
-                fprintf(out, centrejst.data(), len1, blank.data(), len2, source.data());
+                std::fprintf(out, centrejst.data(), len1, blank.data(), len2, source.data());
             }
         }
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
         if (!needpass2) {
             break;
         }
@@ -622,7 +622,7 @@ int define_residual_formats(const std::string_view typelist, const int add_colum
     return status;
 }
 
-int set_residual_listing_data_type(FILE* out, int newtype) {
+int set_residual_listing_data_type(std::FILE* out, int newtype) {
     if (listing_format != &data_format[newtype]) {
         listing_format = &data_format[newtype];
         if (title_id[newtype] != listing_title) {
@@ -799,7 +799,7 @@ static void merge_residual_titles(void) {
     }
 }
 
-void print_residual_line(FILE* out) {
+void print_residual_line(std::FILE* out) {
     constexpr std::string_view lftjst = "%-*s";
     constexpr std::string_view rgtjst = "%*s";
     listing_column* col;
@@ -808,16 +808,16 @@ void print_residual_line(FILE* out) {
     int i;
     for (i = 0, col = listing_format->col; i < ncolumn; i++, col++) {
         if (col->column == SPACE_FIELD) {
-            fprintf(out, "%-*s", col->width, " ");
+            std::fprintf(out, "%-*s", col->width, " ");
             need_space = 0;
         } else if (col->column == NEWLINE_FIELD) {
             if (need_space) {
-                fputc(' ', out);
+                std::fputc(' ', out);
             }
-            fprintf(out, "%-*s", col->width + 1, "\n");
+            std::fprintf(out, "%-*s", col->width + 1, "\n");
             need_space = 0;
         } else if (col->column & CLASSIFICATION_FIELD) {
-            fprintf(out, "%-*s", col->width, col->data.c_str());
+            std::fprintf(out, "%-*s", col->width, col->data.c_str());
             need_space = 1;
         } else {
             const listing_field_def& fld = fields[col->column];
@@ -825,13 +825,13 @@ void print_residual_line(FILE* out) {
                 continue;
             }
             if (need_space) {
-                fputc(' ', out);
+                std::fputc(' ', out);
             }
-            fprintf(out, (fld.justify == LEFT_JUST ? lftjst : rgtjst).data(), col->width, fld.value.c_str());
+            std::fprintf(out, (fld.justify == LEFT_JUST ? lftjst : rgtjst).data(), col->width, fld.value.c_str());
             need_space = 1;
         }
     }
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
     clear_residual_fields();
 }
 
@@ -1157,7 +1157,7 @@ int got_vector_data() {
     return 0;
 }
 
-void print_residuals(FILE* out) {
+void print_residuals(std::FILE* out) {
     double semult;
     long nbin;
     survdata* sd;
@@ -1173,46 +1173,47 @@ void print_residuals(FILE* out) {
     print_convergence_warning(out);
 
     if (WANT(OF_OBSERR) || WANT(OF_RESERR) || WANT(OF_CALCERR)) {
-        fprintf(out, "\nThis table lists %s errors\n", apriori ? "apriori" : "aposteriori");
+        std::fprintf(out, "\nThis table lists %s errors\n", apriori ? "apriori" : "aposteriori");
     }
     semult = apriori ? 1.0 : seu;
 
     if (WANT(OF_FLAGS)) {
-        fprintf(out, "Residuals outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[0],
-                taumax[0] ? "for the maximum " : "", FLAG1);
+        std::fprintf(out, "Residuals outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[0],
+                     taumax[0] ? "for the maximum " : "", FLAG1);
         if (taumax[0]) {
             double prob = (100 - flag_level[0]) / 100.0;
             prob = prob_of_maximum(prob, 1);
             prob = 100 * (1 - prob);
-            fprintf(out, "(Corresponds to %6.4lf%% confidence limit)\n", prob);
+            std::fprintf(out, "(Corresponds to %6.4lf%% confidence limit)\n", prob);
         }
 
-        fprintf(out, "Residuals outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[1],
-                taumax[1] ? "for the maximum " : "", FLAG2);
+        std::fprintf(out, "Residuals outside the %6.3lf%% confidence limit %sare flagged %s\n", flag_level[1],
+                     taumax[1] ? "for the maximum " : "", FLAG2);
         if (taumax[1]) {
             double prob = (100 - flag_level[1]) / 100.0;
             prob = prob_of_maximum(prob, 1);
             prob = 100 * (1 - prob);
-            fprintf(out, "(Corresponds to %6.4lf%% confidence limit)\n", prob);
+            std::fprintf(out, "(Corresponds to %6.4lf%% confidence limit)\n", prob);
         }
 
         if (apriori) {
-            fprintf(out, "\nSignificance is based on the Normal distribution function\n");
+            std::fprintf(out, "\nSignificance is based on the Normal distribution function\n");
         } else if (dof < 1) {
-            fprintf(out, "The a posteriori significance of residuals cannot be calculated\n");
+            std::fprintf(out, "The a posteriori significance of residuals cannot be calculated\n");
         } else {
-            fprintf(out, "\nSignificance is based on the Tau distribution with %ld degrees of freedom\n", (long)dof);
-            fprintf(out, "(the Students t distribution is used for rejected observations)\n");
+            std::fprintf(out, "\nSignificance is based on the Tau distribution with %ld degrees of freedom\n",
+                         (long)dof);
+            std::fprintf(out, "(the Students t distribution is used for rejected observations)\n");
         }
 
-        fprintf(out, "\nRejected observations are flagged %c\n", REJECTED_OBS_FLAG);
+        std::fprintf(out, "\nRejected observations are flagged %c\n", REJECTED_OBS_FLAG);
         if (output_rejected_stations) {
-            fprintf(out, "Observations to or from rejected stations are flagged %c\n", REJECTED_STN_FLAG);
+            std::fprintf(out, "Observations to or from rejected stations are flagged %c\n", REJECTED_STN_FLAG);
         } else {
-            fprintf(out, "Observations to or from rejected stations are not listed\n");
+            std::fprintf(out, "Observations to or from rejected stations are not listed\n");
         }
-        fprintf(out, "Observations with redundancy less than %.2lf are flagged %c\n", redundancy_flag_level,
-                LOW_REDUNDANCY_FLAG);
+        std::fprintf(out, "Observations with redundancy less than %.2lf are flagged %c\n", redundancy_flag_level,
+                     LOW_REDUNDANCY_FLAG);
     }
 
     if (WANT(OF_MDE)) {
@@ -1223,8 +1224,8 @@ void print_residuals(FILE* out) {
             prob = prob_of_maximum(prob, 1);
             prob = 100 * (1 - prob);
         }
-        fprintf(out, "\nThe marginal detectable error (MDE) is calculated for \n");
-        fprintf(out, "significance %6.3lf%% and power %6.1lf%%\n", prob, mde_power);
+        std::fprintf(out, "\nThe marginal detectable error (MDE) is calculated for \n");
+        std::fprintf(out, "significance %6.3lf%% and power %6.1lf%%\n", prob, mde_power);
         set_mde_level(prob, mde_power);
     }
 
@@ -1235,13 +1236,13 @@ void print_residuals(FILE* out) {
             const DmsFormat latitudeFormat(3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S");
             const DmsFormat longitudeFormat(3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W");
             get_network_topocentre(net, &topolat, &topolon);
-            fprintf(out, "\nVector residual east, north, up directions are calculated at\n   ");
-            fputs(dms_string(topolat * RTOD, latitudeFormat).c_str(), out);
-            fputs("    ", out);
-            fputs(dms_string(topolon * RTOD, longitudeFormat).c_str(), out);
-            fputs("\n", out);
+            std::fprintf(out, "\nVector residual east, north, up directions are calculated at\n   ");
+            std::fputs(dms_string(topolat * RTOD, latitudeFormat).c_str(), out);
+            std::fputs("    ", out);
+            std::fputs(dms_string(topolon * RTOD, longitudeFormat).c_str(), out);
+            std::fputs("\n", out);
         } else {
-            fprintf(out, "\nVector residual east, north, up directions are calculated at baseline midpoint\n");
+            std::fprintf(out, "\nVector residual east, north, up directions are calculated at baseline midpoint\n");
         }
     }
 
@@ -1252,33 +1253,33 @@ void print_residuals(FILE* out) {
     if (WANT(OF_CALC)) {
         int first = 1;
         if (obstypecount[SD] || obstypecount[DR]) {
-            fputs(first ? "Note: " : "      ", out);
+            std::fputs(first ? "Note: " : "      ", out);
             first = 0;
-            fprintf(out, "Calculated values for slope distances include equipment heights\n");
+            std::fprintf(out, "Calculated values for slope distances include equipment heights\n");
         }
         if (obstypecount[ZD]) {
-            fputs(first ? "Note: " : "      ", out);
+            std::fputs(first ? "Note: " : "      ", out);
             first = 0;
-            fprintf(out, "Calculated values for zenith distances include equipment heights\n");
+            std::fprintf(out, "Calculated values for zenith distances include equipment heights\n");
         }
     }
 
     if (WANT(OF_ALTRES)) {
-        fprintf(out, "\nThe column headed Res* lists the residuals in an alternative form.\n");
+        std::fprintf(out, "\nThe column headed Res* lists the residuals in an alternative form.\n");
         if (obstypecount[SD] || obstypecount[ED] || obstypecount[MD] || obstypecount[HD] || obstypecount[DR]) {
-            fputs("   For distances the residual is expressed in ppm\n", out);
+            std::fputs("   For distances the residual is expressed in ppm\n", out);
         }
         if (obstypecount[HA] || obstypecount[AZ] || obstypecount[PB]) {
-            fputs("   For horizontal angles, azimuths, and bearings the residual is in metres\n", out);
+            std::fputs("   For horizontal angles, azimuths, and bearings the residual is in metres\n", out);
         }
         if (obstypecount[ZD]) {
-            fputs("   For zenith distances the residual is in metres\n", out);
+            std::fputs("   For zenith distances the residual is in metres\n", out);
         }
         if (obstypecount[LV]) {
-            fputs("   For height differences the residual is in ppm\n", out);
+            std::fputs("   For height differences the residual is in ppm\n", out);
         }
         if (obstypecount[GB]) {
-            fputs("   For GPS baselines the residual is in ppm of baseline length\n", out);
+            std::fputs("   For GPS baselines the residual is in ppm of baseline length\n", out);
         }
     }
 
@@ -1303,7 +1304,7 @@ void print_residuals(FILE* out) {
 
     while (true) {
         if (sort_obs) {
-            const int64_t loc = get_sorted_obs_loc();
+            const std::int64_t loc = get_sorted_obs_loc();
             if (loc < 0) {
                 break;
             }
@@ -1341,7 +1342,7 @@ void print_residuals(FILE* out) {
     print_section_footer(out);
 }
 
-void list_file_location(FILE* out, int file, int lineno) {
+void list_file_location(std::FILE* out, int file, int lineno) {
     static int nwait;
     if (!output_file_locations) {
         return;
@@ -1356,7 +1357,7 @@ void list_file_location(FILE* out, int file, int lineno) {
     if (--nwait) {
         return;
     }
-    fprintf(out, "\nFile %s: line %d\n", survey_data_file_name(file).c_str(), (int)lineno);
+    std::fprintf(out, "\nFile %s: line %d\n", survey_data_file_name(file).c_str(), (int)lineno);
     nwait = file_location_frequency;
 }
 
@@ -1550,9 +1551,9 @@ void write_pntdata_csv(output_csv& csv, survdata* sd, pntdata* p, double semult)
 }
 
 static void convert_cvr_to_secorr(double cvr[6]) {
-    cvr[0] = cvr[0] > 0.0 ? sqrt(cvr[0]) : 0.0;
-    cvr[2] = cvr[2] > 0.0 ? sqrt(cvr[2]) : 0.0;
-    cvr[5] = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
+    cvr[0] = cvr[0] > 0.0 ? std::sqrt(cvr[0]) : 0.0;
+    cvr[2] = cvr[2] > 0.0 ? std::sqrt(cvr[2]) : 0.0;
+    cvr[5] = cvr[5] > 0.0 ? std::sqrt(cvr[5]) : 0.0;
     if (cvr[0] > 0) {
         cvr[1] /= cvr[0];
         cvr[3] /= cvr[0];
@@ -1616,12 +1617,12 @@ void write_vecdata_csv_components(output_csv& csv, survdata* sd, int iobs, doubl
     if (output_csv_vecsum) {
         double length = 0.0;
         if (!datatype[t->type].ispoint) {
-            length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+            length = std::sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
         }
         write_observation_csv_common_start(csv, sd, t, {});
         csv.writeDouble(length, ndp);
         csv.writeNullField();
-        length = sqrt(res[0] * res[0] + res[1] * res[1] + res[2] * res[2]);
+        length = std::sqrt(res[0] * res[0] + res[1] * res[1] + res[2] * res[2]);
         csv.writeDouble(length, ndp);
         csv.writeNullField();
 
@@ -1655,7 +1656,7 @@ void write_vecdata_csv_inline(output_csv& csv, survdata* sd, int iobs, double se
 
     write_observation_csv_common_start(csv, sd, t, {});
     if (output_csv_vecsum) {
-        const double length = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+        const double length = std::sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
         csv.writeDouble(length, ndp);
     }
     csv.writeDouble(vec[0], ndp);
@@ -1674,7 +1675,7 @@ void write_vecdata_csv_inline(output_csv& csv, survdata* sd, int iobs, double se
         csv.writeDouble(veccvr[4], 4);
     }
     if (output_csv_vecsum) {
-        const double length = sqrt(res[0] * res[0] + res[1] * res[1] + res[2] * res[2]);
+        const double length = std::sqrt(res[0] * res[0] + res[1] * res[1] + res[2] * res[2]);
         csv.writeDouble(length, ndp);
     }
     csv.writeDouble(res[0], ndp);

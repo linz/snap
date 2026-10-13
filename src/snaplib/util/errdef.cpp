@@ -30,7 +30,7 @@
 #include "util/errdef.h" /* Error code definitions */
 
 static errhandler_type user_error_handler = (errhandler_type) nullptr;
-static FILE* error_file = nullptr;
+static std::FILE* error_file = nullptr;
 static int error_level = 0;
 static int use_prefix = 1;
 static int error_count = 0;
@@ -38,19 +38,19 @@ static int error_count = 0;
 static std::string location;
 
 int default_error_handler(const int sts, const std::string_view mess1, const error_message mess2) {
-    FILE* out = error_file ? error_file : stderr;
+    std::FILE* out = error_file ? error_file : stderr;
     if (use_prefix) {
         if (FATAL_ERROR_CONDITION(sts)) {
-            fprintf(out, "\nFatal error: ");
+            std::fprintf(out, "\nFatal error: ");
         } else if (WARNING_ERROR_CONDITION(sts)) {
-            fprintf(out, "\nWarning: ");
+            std::fprintf(out, "\nWarning: ");
         } else {
-            fprintf(out, "\nInformation: ");
+            std::fprintf(out, "\nInformation: ");
         }
     }
-    fprintf(out, "%.*s\n", boost::numeric_cast<int>(mess1.size()), mess1.data());
+    std::fprintf(out, "%.*s\n", boost::numeric_cast<int>(mess1.size()), mess1.data());
     if (mess2) {
-        fprintf(out, "%.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
+        std::fprintf(out, "%.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
     }
     return sts;
 }
@@ -112,13 +112,13 @@ int handle_error(const int sts, const error_message mess1, error_message mess2) 
         }
     }
     if (FATAL_ERROR_CONDITION(sts)) {
-        exit(sts);
+        std::exit(sts);
     }
     return sts;
 }
 
-FILE* set_error_file(FILE* err) {
-    FILE* oldfile = error_file;
+std::FILE* set_error_file(std::FILE* err) {
+    std::FILE* oldfile = error_file;
     error_file = err;
     return oldfile;
 }

@@ -165,15 +165,15 @@ ref_deformation* rfdef_parse_bw14def(input_string_def& is) {
         return nullptr;
     }
 
-    sprintf(description, "14 parameter Bursa-Wolf transformation referenced to epoch %.1lf\n", refepoch);
+    std::sprintf(description, "14 parameter Bursa-Wolf transformation referenced to epoch %.1lf\n", refepoch);
     if (tx != 0.0 || ty != 0.0 || tz != 0.0) {
-        sprintf(description + strlen(description), "    translation %.3lf %.3lf %.3lf mm/year\n", tx, ty, tz);
+        std::sprintf(description + std::strlen(description), "    translation %.3lf %.3lf %.3lf mm/year\n", tx, ty, tz);
     }
     if (rx != 0.0 || ry != 0.0 || rz != 0.0) {
-        sprintf(description + strlen(description), "    rotation %.3lf %.3lf %.3lf msec/year\n", rx, ry, rz);
+        std::sprintf(description + std::strlen(description), "    rotation %.3lf %.3lf %.3lf msec/year\n", rx, ry, rz);
     }
     if (sf != 0.0) {
-        sprintf(description + strlen(description), "    scale change %.3lf ppb/year\n", sf);
+        std::sprintf(description + std::strlen(description), "    scale change %.3lf ppb/year\n", sf);
     }
 
     dxyz = rf_xyz_create(description, refepoch);
@@ -222,16 +222,16 @@ ref_deformation* rfdef_parse_eulerdef(input_string_def& is) {
         return nullptr;
     }
 
-    sprintf(description, "Euler rotation referenced to epoch %.1lf\n", refepoch);
-    sprintf(description + strlen(description), "    Pole of rotation lon %.1lf lat %.1lf\n", lon, lat);
-    sprintf(description + strlen(description), "    Rotation rate %.3lf msec/year\n", rate);
+    std::sprintf(description, "Euler rotation referenced to epoch %.1lf\n", refepoch);
+    std::sprintf(description + std::strlen(description), "    Pole of rotation lon %.1lf lat %.1lf\n", lon, lat);
+    std::sprintf(description + std::strlen(description), "    Rotation rate %.3lf msec/year\n", rate);
     rate *= STOR * 0.001;
     lat *= DTOR;
     lon *= DTOR;
-    clt = cos(lat);
-    slt = sin(lat);
-    cln = cos(lon);
-    sln = sin(lon);
+    clt = std::cos(lat);
+    slt = std::sin(lat);
+    cln = std::cos(lon);
+    sln = std::sin(lon);
 
     dxyz = rf_xyz_create(description, refepoch);
     dxyz->tmat[0][0] = dxyz->tmat[1][1] = dxyz->tmat[2][2] = 1.0;

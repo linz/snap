@@ -168,7 +168,7 @@ static short find_nearest(hTrigDef trig, double ptx, double pty) {
     */
 
     im = i0;
-    offset = (ptx - x0) + fabs(xy[i0 * 2 + 1] - pty);
+    offset = (ptx - x0) + std::fabs(xy[i0 * 2 + 1] - pty);
     i0--;
 
     while (i0 >= 0 || i1 < npts) {
@@ -177,7 +177,7 @@ static short find_nearest(hTrigDef trig, double ptx, double pty) {
             if (o > offset) {
                 i0 = 0;
             } else {
-                o += fabs(pty - xy[i0 * 2 + 1]);
+                o += std::fabs(pty - xy[i0 * 2 + 1]);
                 if (o < offset) {
                     im = i0;
                     offset = o;
@@ -191,7 +191,7 @@ static short find_nearest(hTrigDef trig, double ptx, double pty) {
             if (o > offset) {
                 i1 = npts;
             } else {
-                o += fabs(pty - xy[i1 * 2 + 1]);
+                o += std::fabs(pty - xy[i1 * 2 + 1]);
                 if (o < offset) {
                     im = i1;
                     offset = o;
@@ -499,15 +499,15 @@ static int check_header(hBinSrc binsrc) {
     int version;
     Endian endian = Endian::Little;
     version = 0;
-    len = strlen(TRGDAT_FILE_HEADER_1);
+    len = std::strlen(TRGDAT_FILE_HEADER_1);
     if (utlBinSrcLoad1(binsrc, 0, len, buf) != STS_OK) {
         return 0;
     }
 
-    if (memcmp(buf, TRGDAT_FILE_HEADER_1, len) == 0) {
+    if (std::memcmp(buf, TRGDAT_FILE_HEADER_1, len) == 0) {
         version = 1;
         endian = Endian::Little;
-    } else if (memcmp(buf, TRGDAT_FILE_HEADER_2, len) == 0) {
+    } else if (std::memcmp(buf, TRGDAT_FILE_HEADER_2, len) == 0) {
         version = 1;
         endian = Endian::Big;
     }

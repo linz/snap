@@ -74,14 +74,14 @@ static int init_griddef(void*) {
     const std::string vcsdef = velgrid->crdsys.value_or("");
     coordsys* const vcs = load_coordsys(vcsdef);
     if (!vcs) {
-        sprintf(buf, "Cannot load velocity model coordinate system %-20s", vcsdef.c_str());
+        std::sprintf(buf, "Cannot load velocity model coordinate system %-20s", vcsdef.c_str());
         handle_error(WARNING_ERROR, buf, NO_MESSAGE);
         return INVALID_DATA;
     }
     tovcs = coord_conversion(net->geosys, vcs);
     if (!tovcs.valid) {
-        sprintf(buf, "Cannot convert station coordinates to coordinate system %-20s of velocity model",
-                vcs->code.c_str());
+        std::sprintf(buf, "Cannot convert station coordinates to coordinate system %-20s of velocity model",
+                     vcs->code.c_str());
         handle_error(WARNING_ERROR, buf, NO_MESSAGE);
         return INVALID_DATA;
     }
@@ -101,8 +101,8 @@ static int init_griddef(void*) {
         xyz[CRD_LON] = st->ELon;
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
         if (convert_coords(&tovcs, xyz, nullptr, xyz, nullptr) != OK) {
-            sprintf(buf, "Cannot convert coordinates of %-20s to velocity coordinate system %-20s", st->Code.c_str(),
-                    vcs->code.c_str());
+            std::sprintf(buf, "Cannot convert coordinates of %-20s to velocity coordinate system %-20s",
+                         st->Code.c_str(), vcs->code.c_str());
             handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -134,20 +134,20 @@ static int calc_griddef(void*, station* st, double date, double denu[3]) {
 
 /* Describe the deformation model in an output file */
 
-static int print_griddef_model(void*, FILE* out, const std::string_view prefix) {
-    const auto writePrefix = [&]() { fwrite(prefix.data(), 1, prefix.size(), out); };
+static int print_griddef_model(void*, std::FILE* out, const std::string_view prefix) {
+    const auto writePrefix = [&]() { std::fwrite(prefix.data(), 1, prefix.size(), out); };
     writePrefix();
-    fputs("Model type: velocity\n", out);
+    std::fputs("Model type: velocity\n", out);
     writePrefix();
-    fprintf(out, "Model name: %s\n", model.c_str());
+    std::fprintf(out, "Model name: %s\n", model.c_str());
     for (const std::string* desc : {&desc1, &desc2, &desc3}) {
         if (!desc->empty()) {
             writePrefix();
-            fprintf(out, "%s\n", desc->c_str());
+            std::fprintf(out, "%s\n", desc->c_str());
         }
     }
     writePrefix();
-    fprintf(out, "Reference epoch: %.1lf\n", epoch);
+    std::fprintf(out, "Reference epoch: %.1lf\n", epoch);
     return OK;
 }
 

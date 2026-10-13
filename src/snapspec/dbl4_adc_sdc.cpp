@@ -174,8 +174,8 @@ struct SDCTestImp {
     int twopass;                  /**< Non zero if using two pass calculation */
     int needphase2;               /**< Set to true if not all required data found in phase1*/
     char logbuffer[1024];         /**< Buffer used for writing log messages */
-    clock_t reftime;              /**< Reference time for timestamps */
-    clock_t lasttime;             /**< Time of last timestamp */
+    std::clock_t reftime;         /**< Reference time for timestamps */
+    std::clock_t lasttime;        /**< Time of last timestamp */
     std::unique_ptr<SDC_KDTreeBundle> kdtree;       /**< All stations — pair-loop range filter */
     std::unique_ptr<SDC_CtlKDTreeBundle> ctlkdtree; /**< Control stations — nearest-control */
 
@@ -354,7 +354,7 @@ StatusType sdcCalcSDCOrders2(SDCTest* sdc, int minorder) {
 
     sdcInitTestImp(&sdci, sdc);
     sdci.sdc = sdc;
-    sdci.reftime = sdci.lasttime = clock();
+    sdci.reftime = sdci.lasttime = std::clock();
 
     sdcWriteLog(&sdci, SDC_LOG_STEPS, "Initialising SDC tests\n");
     sdcTimeStamp(&sdci, "Initialising SDC tests");
@@ -445,12 +445,12 @@ StatusType sdcCalcSDCOrders2(SDCTest* sdc, int minorder) {
 
             {
                 char buf[80];
-                sprintf(buf, "SDC tests for order %.4s", test->scOrder.c_str());
+                std::sprintf(buf, "SDC tests for order %.4s", test->scOrder.c_str());
                 sts = utlShowProgress(buf, PROG_NO_BAR);
                 if (sts != STS_OK) {
                     break;
                 }
-                sprintf(buf, "Commencing tests for order %.4s", test->scOrder.c_str());
+                std::sprintf(buf, "Commencing tests for order %.4s", test->scOrder.c_str());
                 sdcTimeStamp(&sdci, buf);
             }
 
@@ -703,7 +703,7 @@ static unsigned char* sdcRAAllocRow(SDCTestImp* sdci, int row, int col0) {
     unsigned char* rowstatus = alloc.data.get() + alloc.alloc;
     alloc.alloc += nalloc;
     /* Nibble-pack two SDC_STS_SKIP values into every element of rowstatus. */
-    memset(rowstatus, (SDC_STS_SKIP | (SDC_STS_SKIP << 4)), nalloc);
+    std::memset(rowstatus, (SDC_STS_SKIP | (SDC_STS_SKIP << 4)), nalloc);
     sdci->relstatus[row] = rowstatus;
     sdci->relcol0[row] = col0;
     return rowstatus;
@@ -1625,7 +1625,7 @@ static unsigned char sdcTestPairAccuracy(SDCTestImp* sdci, SDCTest* sdc, SDCStat
             if (cfg->shortcircuit) {
                 error = stni->error2 + stnj->error2;
                 if (cfg->strictcovar) {
-                    error += 2 * sqrt(stni->error2 * stnj->error2);
+                    error += 2 * std::sqrt(stni->error2 * stnj->error2);
                 }
                 if (error < tolij) {
                     stsij = SDC_STS_PASS;
@@ -1637,7 +1637,8 @@ static unsigned char sdcTestPairAccuracy(SDCTestImp* sdci, SDCTest* sdc, SDCStat
                     if (cfg->logcompact) {
                         sdcWriteCompactLog(sdci, sdcstni, sdcstnj, SDC_TEST_HRAS, "P", error, tolij, "");
                     }
-                } else if ((error = (stni->error2 + stnj->error2 - 2 * sqrt(stni->error2 * stnj->error2))) > tolij) {
+                } else if ((error = (stni->error2 + stnj->error2 - 2 * std::sqrt(stni->error2 * stnj->error2))) >
+                           tolij) {
                     stsij = SDC_STS_FAIL;
                     if (cfg->logcalcs2) {
                         sdcWriteLog(sdci, SDC_LOG_CALCS2,
@@ -1716,7 +1717,7 @@ static unsigned char sdcTestPairAccuracy(SDCTestImp* sdci, SDCTest* sdc, SDCStat
             if (cfg->shortcircuit) {
                 error = stni->verror2 + stnj->verror2;
                 if (cfg->strictcovar) {
-                    error += 2 * sqrt(stni->verror2 * stnj->verror2);
+                    error += 2 * std::sqrt(stni->verror2 * stnj->verror2);
                 }
                 if (error < tolij) {
                     stsij = SDC_STS_PASS;
@@ -1728,7 +1729,7 @@ static unsigned char sdcTestPairAccuracy(SDCTestImp* sdci, SDCTest* sdc, SDCStat
                     if (cfg->logcompact) {
                         sdcWriteCompactLog(sdci, sdcstni, sdcstnj, SDC_TEST_VRAS, "P", error, tolij, "");
                     }
-                } else if ((error = (stni->verror2 + stnj->verror2 - 2 * sqrt(stni->verror2 * stnj->verror2))) >
+                } else if ((error = (stni->verror2 + stnj->verror2 - 2 * std::sqrt(stni->verror2 * stnj->verror2))) >
                            tolij) {
                     stsij = SDC_STS_FAIL;
                     if (cfg->logcalcs2) {
@@ -1886,7 +1887,7 @@ static StatusType sdcSetupRelAccuracyStatus(SDCTestImp* sdci, SDCOrderTest* test
 
     if (shortcircuit && testhor && dtol > 0.0) {
         double maxerror = sdci->maxerror2;
-        maxerror *= strictcovar ? 2 : sqrt(2.0);
+        maxerror *= strictcovar ? 2 : std::sqrt(2.0);
         maxtestdist = (maxerror - ftol) / dtol;
         if (maxtestdist < 0.0) {
             maxtestdist = 0.0;
@@ -1894,21 +1895,23 @@ static StatusType sdcSetupRelAccuracyStatus(SDCTestImp* sdci, SDCOrderTest* test
         usemaxdistance = 1;
         if (logcalcs) {
             sdcWriteLog(sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                        "  Relative hor accuracy assumed achieved for lines longer than %.2lf m\n", sqrt(maxtestdist));
+                        "  Relative hor accuracy assumed achieved for lines longer than %.2lf m\n",
+                        std::sqrt(maxtestdist));
         }
     }
     if (shortcircuit && testvrt && dtolv > 0.0) {
         double maxerror = sdci->maxverror2;
         double factor = 2.0;
         if (strictcovar) {
-            factor = sqrt(factor);
+            factor = std::sqrt(factor);
         }
         maxerror *= factor;
         maxtestdistv = (maxerror - ftolv) / dtolv;
         usemaxdistancev = 1;
         if (logcalcs) {
             sdcWriteLog(sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                        "  Relative vrt accuracy assumed achieved for lines longer than %.2lf m\n", sqrt(maxtestdistv));
+                        "  Relative vrt accuracy assumed achieved for lines longer than %.2lf m\n",
+                        std::sqrt(maxtestdistv));
         }
     }
 
@@ -2354,7 +2357,7 @@ static StatusType sdcApplyDefaultOrder(SDCTestImp* sdci) {
 */
 
 static void sdcWriteLog(SDCTestImp* sdci, int level, const char* fmt, ...) {
-    va_list ap;
+    std::va_list ap;
 
     /*> Check that the log level is appropriate */
 
@@ -2366,7 +2369,7 @@ static void sdcWriteLog(SDCTestImp* sdci, int level, const char* fmt, ...) {
         which truncates a message that is too long for the buffer */
 
     va_start(ap, fmt);
-    vsnprintf(sdci->logbuffer, sizeof(sdci->logbuffer), fmt, ap);
+    std::vsnprintf(sdci->logbuffer, sizeof(sdci->logbuffer), fmt, ap);
     va_end(ap);
 
     /*> Use the function pointer in the sdc object to write the log */
@@ -2435,20 +2438,20 @@ static void sdcWriteCompactLog(SDCTestImp* sdci, long stn1, long stn2, const cha
 
     cstn1[0] = cstn2[0] = cv1[0] = cv2[0] = 0;
     if (stn1 >= 0) {
-        sprintf(cstn1, "%ld", stn1);
+        std::sprintf(cstn1, "%ld", stn1);
     }
     if (stn2 >= 0) {
-        sprintf(cstn2, "%ld", stn2);
+        std::sprintf(cstn2, "%ld", stn2);
     }
     if (v1 >= 0) {
-        sprintf(cv1, "%.8lf", v1);
+        std::sprintf(cv1, "%.8lf", v1);
     }
     if (v2 >= 0) {
-        sprintf(cv2, "%.8lf", v2);
+        std::sprintf(cv2, "%.8lf", v2);
     }
 
-    snprintf(sdci->logbuffer, sizeof(sdci->logbuffer), "%d,%d,%s,%s,%s,%s,%s,%s,%s\n", sdci->phase, sdci->order, cstn1,
-             cstn2, test, status, cv1, cv2, comment);
+    std::snprintf(sdci->logbuffer, sizeof(sdci->logbuffer), "%d,%d,%s,%s,%s,%s,%s,%s,%s\n", sdci->phase, sdci->order,
+                  cstn1, cstn2, test, status, cv1, cv2, comment);
 
     /*> Use the function pointer in the sdc object to write the log */
 
@@ -2495,17 +2498,17 @@ static long sdcStationId(SDCTestImp* sdci, int istn) {
 static void sdcTimeStamp(SDCTestImp* sdci, const std::string_view status) {
     double ttotal;
     double tlast;
-    clock_t now;
+    std::clock_t now;
 
     if (!(sdci->loglevel & SDC_LOG_TIMESTAMP)) {
         return;
     }
-    now = clock();
+    now = std::clock();
     ttotal = (double)(now - sdci->reftime) / CLOCKS_PER_SEC;
     tlast = (double)(now - sdci->lasttime) / CLOCKS_PER_SEC;
     sdci->lasttime = now;
 
-    snprintf(sdci->logbuffer, sizeof(sdci->logbuffer), "   .. %.*s took %.2lf seconds (total %.2lf seconds)\n",
-             boost::numeric_cast<int>(status.size()), status.data(), tlast, ttotal);
+    std::snprintf(sdci->logbuffer, sizeof(sdci->logbuffer), "   .. %.*s took %.2lf seconds (total %.2lf seconds)\n",
+                  boost::numeric_cast<int>(status.size()), status.data(), tlast, ttotal);
     (sdci->sdc->pfWriteLog)(sdci->sdc->env, sdci->logbuffer);
 }

@@ -15,7 +15,7 @@
 #include "snap/survfile.h"
 #endif
 
-long read_data_files(FILE* lst);
+long read_data_files(std::FILE* lst);
 void count_obs(int type, int ifile, double date, char unused);
 
 #endif

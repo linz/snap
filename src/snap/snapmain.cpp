@@ -255,8 +255,8 @@ int snap_main(int argc, char* argv[]) try {
     /* Read the data defined in the control file into the binary data file */
 
     if (output_file_summary) {
-        fprintf(lst, "\n\nCoordinates file %s\n    %4d stations read\n", station_file->filename.c_str(),
-                number_of_stations(net));
+        std::fprintf(lst, "\n\nCoordinates file %s\n    %4d stations read\n", station_file->filename.c_str(),
+                     number_of_stations(net));
     }
 
     if (geoid_file) {
@@ -314,7 +314,7 @@ int snap_main(int argc, char* argv[]) try {
 
     if (read_errors) {
         xprintf("\n%d errors reported reading the data files\n", (int)read_errors);
-        sprintf(errmess, "%d errors reported reading the data files", (int)read_errors);
+        std::sprintf(errmess, "%d errors reported reading the data files", (int)read_errors);
         handle_error(INVALID_DATA, errmess, NO_MESSAGE);
         close_output_files(NO_MESSAGE, NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
@@ -436,11 +436,11 @@ int snap_main(int argc, char* argv[]) try {
             const std::string header = "normal_equations_" + std::to_string(iterations);
             print_section_header(lst, "NORMAL EQUATIONS");
             print_json_start(lst, header);
-            fprintf(lst, "{\n");
+            std::fprintf(lst, "{\n");
             print_json_params(lst, 2);
-            fprintf(lst, ",\n\"normal_equations\": ");
+            std::fprintf(lst, ",\n\"normal_equations\": ");
             lsq_print_normal_equations_json(lst, 2);
-            fprintf(lst, "\n}");
+            std::fprintf(lst, "\n}");
             print_json_end(lst, header);
             print_section_footer(lst);
         }
@@ -501,14 +501,14 @@ int snap_main(int argc, char* argv[]) try {
         }
 
         if (iterations >= max_iterations) {
-            sprintf(errmess, "The adjustment has not converged after %d iterations", (int)iterations);
+            std::sprintf(errmess, "The adjustment has not converged after %d iterations", (int)iterations);
             handle_error(WARNING_ERROR, errmess, NO_MESSAGE);
             break;
         }
 
         if (maxadj > max_adjustment) {
-            sprintf(errmess, "Adjustment %.4lf at station %s greater than allowable maximum", maxadj,
-                    station_code(maxstn).c_str());
+            std::sprintf(errmess, "Adjustment %.4lf at station %s greater than allowable maximum", maxadj,
+                         station_code(maxstn).c_str());
             handle_error(WARNING_ERROR, errmess, NO_MESSAGE);
             break;
         }
@@ -682,7 +682,7 @@ int snap_main(int argc, char* argv[]) try {
     return get_error_count() > 0 ? DEFAULT_RETURN_STATUS : OK;
 } catch (const std::exception& e) {
     char errmess[256];
-    snprintf(errmess, sizeof(errmess), "Unexpected internal error: %s", e.what());
+    std::snprintf(errmess, sizeof(errmess), "Unexpected internal error: %s", e.what());
     handle_error(INVALID_DATA, errmess, NO_MESSAGE);
     close_output_files(NO_MESSAGE, NO_MESSAGE);
     return DEFAULT_RETURN_STATUS;
@@ -729,7 +729,7 @@ static int read_parameters(int argc, char* argv[]) {
                     }
                     if (boost::algorithm::iequals(topt, "auto")) {
                         blt_set_number_of_threads(BLT_DEFAULT_NTHREAD);
-                    } else if (sscanf(topt.c_str(), "%d", &nthread) != 1) {
+                    } else if (std::sscanf(topt.c_str(), "%d", &nthread) != 1) {
                         xprintf("\nInvalid value %s for number of threads (-t switch)", topt.c_str());
                         sts = INVALID_DATA;
                     } else {
@@ -796,49 +796,49 @@ static void print_help(void) {
 }
 
 static void print_command_file(void) {
-    FILE* cmd;
+    std::FILE* cmd;
     char inrec[256];
-    cmd = fopen(command_file->path.c_str(), "r");
+    cmd = std::fopen(command_file->path.c_str(), "r");
     if (!cmd) {
         return;
     }
     if (!skip_utf8_bom(cmd)) {
-        fclose(cmd);
+        std::fclose(cmd);
         return;
     }
-    fprintf(lst, "\nThe command file %s contains:\n",
-            std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
-    while (fgets(inrec, 256, cmd)) {
-        if (strlen(inrec) == 0) {
+    std::fprintf(lst, "\nThe command file %s contains:\n",
+                 std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
+    while (std::fgets(inrec, 256, cmd)) {
+        if (std::strlen(inrec) == 0) {
             continue;
         }
-        char* p = inrec + strlen(inrec) - 1;
+        char* p = inrec + std::strlen(inrec) - 1;
         while (p >= inrec && ISSPACE(*p)) {
             *p-- = 0;
         }
-        fprintf(lst, "     %s\n", inrec);
+        std::fprintf(lst, "     %s\n", inrec);
     }
-    fprintf(lst, "\n");
-    fclose(cmd);
+    std::fprintf(lst, "\n");
+    std::fclose(cmd);
 
     if (!config_file) {
         return;
     }
 
-    cmd = fopen(config_file->c_str(), "r");
+    cmd = std::fopen(config_file->c_str(), "r");
     if (!cmd) {
         return;
     }
     if (!skip_utf8_bom(cmd)) {
-        fclose(cmd);
+        std::fclose(cmd);
         return;
     }
-    fprintf(lst, "\nAdditional configuration commands were read from %s\n", config_file->c_str());
-    while (fgets(inrec, 256, cmd)) {
-        fprintf(lst, "     %s", inrec);
+    std::fprintf(lst, "\nAdditional configuration commands were read from %s\n", config_file->c_str());
+    while (std::fgets(inrec, 256, cmd)) {
+        std::fprintf(lst, "     %s", inrec);
     }
-    fprintf(lst, "\n");
-    fclose(cmd);
+    std::fprintf(lst, "\n");
+    std::fclose(cmd);
 }
 
 static void write_filelist_csv() {
@@ -859,9 +859,9 @@ static void write_filelist_csv() {
         csv->writeInt(i);
         csv->writeString(filename);
         csv->writeString(filetype);
-        const time_t modtime = file_modtime(filename);
+        const std::time_t modtime = file_modtime(filename);
         if (modtime != 0) {
-            const struct tm* ltime = localtime(&(modtime));
+            const struct tm* ltime = std::localtime(&(modtime));
             std::ostringstream modified;
             modified << std::setfill('0') << std::setw(4) << ltime->tm_year + 1900 << '-' << std::setw(2)
                      << ltime->tm_mon + 1 << '-' << std::setw(2) << ltime->tm_mday << ' ' << std::setw(2)

@@ -37,7 +37,7 @@ StatusType utlShowProgress(const std::string_view state, int percent) {
            }
     */
     if (state != laststate) {
-        printf("%s\n", std::string(state).c_str());
+        std::printf("%s\n", std::string(state).c_str());
     }
     laststate = state;
     lastpercent = percent;
@@ -47,48 +47,48 @@ StatusType utlShowProgress(const std::string_view state, int percent) {
 
 void utlAbort(const std::string_view message) {
     std::cerr << message << '\n';
-    exit(1);
+    std::exit(1);
 }
 
 // #pragma warning (disable : 4100)
 
 void start_trace(const char* c, long l) {
     if (tracing < 0) {
-        tracing = getenv("XATRACE") ? 1 : 0;
+        tracing = std::getenv("XATRACE") ? 1 : 0;
     }
     if (tracing) {
-        printf("Trace %s %ld: ", c, l);
+        std::printf("Trace %s %ld: ", c, l);
     }
 }
 
 void add_trace(const char* fmt, ...) {
     if (tracing) {
-        va_list argptr;
+        std::va_list argptr;
         va_start(argptr, fmt);
-        vprintf(fmt, argptr);
+        std::vprintf(fmt, argptr);
         va_end(argptr);
     }
 }
 
 void end_trace(void) {
     if (tracing) {
-        printf("\n");
+        std::printf("\n");
     }
 }
 
 StatusType utlReadBlobDB(void* blob, long lngOffset, long lngBufSize, void* pvBuffer) {
-    FILE* f;
+    std::FILE* f;
 
-    f = (FILE*)blob;
-    if (fseek(f, lngOffset, SEEK_SET) != 0)
+    f = (std::FILE*)blob;
+    if (std::fseek(f, lngOffset, SEEK_SET) != 0)
         RETURN_STATUS(STS_INVALID_DATA);
-    if (fread(pvBuffer, lngBufSize, 1, f) != 1)
+    if (std::fread(pvBuffer, lngBufSize, 1, f) != 1)
         RETURN_STATUS(STS_INVALID_DATA);
     return STS_OK;
 }
 
 StatusType utlWriteBlobDB(void* blob, long lngBufSize, void* pvBuffer) {
-    if (!fwrite(pvBuffer, (size_t)lngBufSize, 1, (FILE*)blob))
+    if (!std::fwrite(pvBuffer, (size_t)lngBufSize, 1, (std::FILE*)blob))
         RETURN_STATUS(STS_INVALID_DATA);
     return STS_OK;
 }
@@ -106,25 +106,25 @@ StatusType utlSeekBlobDB(void* blob, long lngOffset, int whence) {
             w = SEEK_SET;
             break;
     }
-    if (fseek((FILE*)blob, lngOffset, w) != 0)
+    if (std::fseek((std::FILE*)blob, lngOffset, w) != 0)
         RETURN_STATUS(STS_INVALID_DATA);
     return STS_OK;
 }
 
 StatusType utlTellBlobDB(void* blob, long* lngOffset) {
-    (*lngOffset) = (long)ftell((FILE*)blob);
+    (*lngOffset) = (long)std::ftell((std::FILE*)blob);
     return STS_OK;
 }
 
 void utlReleaseBlobDB(void* blob) {
-    fclose((FILE*)blob);
+    std::fclose((std::FILE*)blob);
 }
 
 int utlCreateReadonlyFileBlob(const std::string& filename, hBlob* blob) {
-    FILE* f;
+    std::FILE* f;
     StatusType sts;
     *blob = nullptr;
-    f = fopen(filename.c_str(), "rb");
+    f = std::fopen(filename.c_str(), "rb");
     if (!f) {
         return FILE_OPEN_ERROR;
     }

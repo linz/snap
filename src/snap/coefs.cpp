@@ -43,7 +43,7 @@ double zd_ref_correction(int p, station* st1, station* st2, void* hA, int irow) 
     angle = vecdot(vrt1, vrt2);
     angle = 1.0 - angle * angle;
     if (angle > 0.0) {
-        angle = sqrt(angle);
+        angle = std::sqrt(angle);
     }
 
     /* Effect on zenith distance is negative */

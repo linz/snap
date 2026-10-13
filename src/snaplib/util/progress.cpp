@@ -43,7 +43,7 @@ static int meter_drawn;
 static int npts;
 static int newline = 0;
 static int showmeter = 1;
-static FILE* infile = nullptr;
+static std::FILE* infile = nullptr;
 
 static void default_init_progress_meter(long total_size);
 static void default_update_progress_meter(long progress);
@@ -74,20 +74,20 @@ static long elapsed_time(long ref_time) {
 static void draw_meter(int ntick) {
     int nch = 0;
     if (!newline) {
-        putchar('\r');
+        std::putchar('\r');
     }
-    fputs(HEADER_STRING, stdout);
+    std::fputs(HEADER_STRING, stdout);
     for (nch = 0; nch < METER_LEN; nch++) {
-        putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
+        std::putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
     }
-    fputs(TAIL_STRING, stdout);
+    std::fputs(TAIL_STRING, stdout);
     if (newline) {
-        putchar('\n');
+        std::putchar('\n');
     } else {
-        putchar('\r');
-        fputs(HEADER_STRING, stdout);
+        std::putchar('\r');
+        std::fputs(HEADER_STRING, stdout);
     }
-    fflush(stdout);
+    std::fflush(stdout);
     npts = METER_LEN;
     meter_drawn = 1;
 }
@@ -123,7 +123,7 @@ static void default_update_progress_meter(long progress) {
     if (redraw) {
         draw_meter((int)(lasttick / increment) - 1);
     }
-    fflush(stdout);
+    std::fflush(stdout);
 }
 
 static void default_end_progress_meter(void) {
@@ -131,29 +131,29 @@ static void default_end_progress_meter(void) {
         return;
     }
     if (!newline) {
-        putchar('\r');
+        std::putchar('\r');
         for (npts = TOTAL_LEN; npts--;) {
-            putchar(' ');
+            std::putchar(' ');
         }
-        putchar('\r');
+        std::putchar('\r');
     }
-    fflush(stdout);
+    std::fflush(stdout);
 }
 
-void init_file_display(FILE* file) {
+void init_file_display(std::FILE* file) {
     long fpos;
     infile = file;
-    fpos = ftell(infile);
-    fseek(infile, 0L, SEEK_END);
-    init_progress_meter(ftell(infile));
-    fseek(infile, fpos, SEEK_SET);
+    fpos = std::ftell(infile);
+    std::fseek(infile, 0L, SEEK_END);
+    init_progress_meter(std::ftell(infile));
+    std::fseek(infile, fpos, SEEK_SET);
 }
 
 void update_file_display(void) {
     if (!infile) {
         return;
     }
-    update_progress_meter(ftell(infile));
+    update_progress_meter(std::ftell(infile));
 }
 
 void end_file_display(void) {
@@ -183,7 +183,7 @@ void reinstall_default_progress_meter(void) {
 }
 
 void init_progress_meter(long total_size) {
-    const char* progressopt = getenv("SNAP_PROGRESS_METER");
+    const char* progressopt = std::getenv("SNAP_PROGRESS_METER");
     if (progressopt) {
         if (_stricmp(progressopt, "newline") == 0) {
             newline = 1;

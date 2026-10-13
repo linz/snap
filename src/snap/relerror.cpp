@@ -120,9 +120,9 @@ void dump_relative_covariances(BINARY_FILE* b, int dumpall) {
 
                 calc_covar(istn, jstn, relcvr);
 
-                fwrite(&istn, sizeof(istn), 1, b->f);
-                fwrite(&jstn, sizeof(jstn), 1, b->f);
-                fwrite(relcvr, sizeof(relcvr), 1, b->f);
+                std::fwrite(&istn, sizeof(istn), 1, b->f);
+                std::fwrite(&jstn, sizeof(jstn), 1, b->f);
+                std::fwrite(relcvr, sizeof(relcvr), 1, b->f);
             }
         }
         end_progress_meter();
@@ -141,9 +141,9 @@ void dump_relative_covariances(BINARY_FILE* b, int dumpall) {
 
                 calc_covar(istn, jstn, relcvr);
 
-                fwrite(&istn, sizeof(istn), 1, b->f);
-                fwrite(&jstn, sizeof(jstn), 1, b->f);
-                fwrite(relcvr, sizeof(relcvr), 1, b->f);
+                std::fwrite(&istn, sizeof(istn), 1, b->f);
+                std::fwrite(&jstn, sizeof(jstn), 1, b->f);
+                std::fwrite(relcvr, sizeof(relcvr), 1, b->f);
             }
         }
         end_progress_meter();
@@ -151,7 +151,7 @@ void dump_relative_covariances(BINARY_FILE* b, int dumpall) {
 
     /* Mark the end with a station code -1 */
     istn = -1;
-    fwrite(&istn, sizeof(istn), 1, b->f);
+    std::fwrite(&istn, sizeof(istn), 1, b->f);
 
     end_section(b);
 
@@ -198,7 +198,7 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
 
     init_calc_covar();
 
-    fprintf(lst, "\n------------------------\nRelative (local) accuracy tests\n");
+    std::fprintf(lst, "\n------------------------\nRelative (local) accuracy tests\n");
 
     nstns = number_of_stations(net);
 
@@ -260,7 +260,7 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
             }
 
             if (gotvtol) {
-                verr = sqrt(fabs(covar[5]));
+                verr = std::sqrt(std::fabs(covar[5]));
                 verr *= spec->vtolfactor;
                 if (!apriori) {
                     verr *= seu;
@@ -290,34 +290,34 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
                     if (gotvtol) {
                         width += 12;
                     }
-                    fprintf(lst, "\nRatio of calculated error to tolerance\n\n     ");
+                    std::fprintf(lst, "\nRatio of calculated error to tolerance\n\n     ");
                     for (w = 0; w < width; w++) {
-                        fprintf(lst, "=");
+                        std::fprintf(lst, "=");
                     }
-                    fprintf(lst, "\n     %-*s  %-*s   Length  ", stn_name_width, "From", stn_name_width, "To");
+                    std::fprintf(lst, "\n     %-*s  %-*s   Length  ", stn_name_width, "From", stn_name_width, "To");
                     if (gothtol) {
-                        fprintf(lst, "  Horizontal");
+                        std::fprintf(lst, "  Horizontal");
                     }
                     if (gotvtol) {
-                        fprintf(lst, "   Vertical ");
+                        std::fprintf(lst, "   Vertical ");
                     }
-                    fprintf(lst, "\n     ");
+                    std::fprintf(lst, "\n     ");
                     for (w = 0; w < width; w++) {
-                        fprintf(lst, "=");
+                        std::fprintf(lst, "=");
                     }
-                    fprintf(lst, "\n\n");
+                    std::fprintf(lst, "\n\n");
                     headed = 1;
                 }
 
-                fprintf(lst, "     %-*s  %-*s  %7.0lf ", stn_name_width, stnptr(istn)->Code.c_str(), stn_name_width,
-                        stnptr(jstn)->Code.c_str(), veclen);
+                std::fprintf(lst, "     %-*s  %-*s  %7.0lf ", stn_name_width, stnptr(istn)->Code.c_str(),
+                             stn_name_width, stnptr(jstn)->Code.c_str(), veclen);
                 if (gothtol) {
-                    fprintf(lst, "    %8.2lf", hratio);
+                    std::fprintf(lst, "    %8.2lf", hratio);
                 }
                 if (gotvtol) {
-                    fprintf(lst, "    %8.2lf", vratio);
+                    std::fprintf(lst, "    %8.2lf", vratio);
                 }
-                fprintf(lst, "\n");
+                std::fprintf(lst, "\n");
             }
         }
     }
@@ -327,24 +327,24 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
     /* Summarise tests for this specification */
 
     if (gothtol) {
-        fprintf(lst, "\nHorizontal tolerance:\n");
-        fprintf(lst, "    Stations tested:             %10ld\n", nstntest);
-        fprintf(lst, "    Vectors tested:              %10ld\n", ntest);
-        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailh);
+        std::fprintf(lst, "\nHorizontal tolerance:\n");
+        std::fprintf(lst, "    Stations tested:             %10ld\n", nstntest);
+        std::fprintf(lst, "    Vectors tested:              %10ld\n", ntest);
+        std::fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailh);
         if (istnmaxh) {
-            fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxhratio,
-                    stnptr(istnmaxh)->Code.c_str(), stnptr(jstnmaxh)->Code.c_str());
+            std::fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxhratio,
+                         stnptr(istnmaxh)->Code.c_str(), stnptr(jstnmaxh)->Code.c_str());
         }
     }
 
     if (gotvtol) {
-        fprintf(lst, "\nVertical tolerance:\n");
-        fprintf(lst, "    Stations tested:             %10ld\n", nstntest);
-        fprintf(lst, "    Vectors tested:              %10ld\n", ntest);
-        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailv);
+        std::fprintf(lst, "\nVertical tolerance:\n");
+        std::fprintf(lst, "    Stations tested:             %10ld\n", nstntest);
+        std::fprintf(lst, "    Vectors tested:              %10ld\n", ntest);
+        std::fprintf(lst, "    Vectors exceeding tolerance: %10ld\n", nfailv);
         if (istnmaxv) {
-            fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxvratio,
-                    stnptr(istnmaxv)->Code.c_str(), stnptr(jstnmaxv)->Code.c_str());
+            std::fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n", maxvratio,
+                         stnptr(istnmaxv)->Code.c_str(), stnptr(jstnmaxv)->Code.c_str());
         }
     }
 

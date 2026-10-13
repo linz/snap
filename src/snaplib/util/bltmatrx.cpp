@@ -395,7 +395,7 @@ int copy_bltmatrix(bltmatrix* bltsrc, bltmatrix* bltcopy) {
             *ac++ = 0.0;
         }
         /* while( cc <= i ){ cc++; *ac++ = *as++; } */
-        memcpy(ac, as, sizeof(double) * (i + 1 - cs));
+        std::memcpy(ac, as, sizeof(double) * (i + 1 - cs));
     }
 
     return OK;
@@ -449,7 +449,7 @@ int blt_chol_dec(bltmatrix* blt, int fill) {
                     nfill++;
                     sum = 1.0;
                 }
-                *r1 = sqrt(sum);
+                *r1 = std::sqrt(sum);
             } else {
                 *r1 = sum / *r2;
             }
@@ -680,7 +680,7 @@ void blt_chol_inv(bltmatrix* blt) {
     delete[] dosum;
 }
 
-void print_bltmatrix(FILE* out, bltmatrix* blt, char* format, int indent) {
+void print_bltmatrix(std::FILE* out, bltmatrix* blt, char* format, int indent) {
     int i;
     int j;
     int k;
@@ -692,7 +692,7 @@ void print_bltmatrix(FILE* out, bltmatrix* blt, char* format, int indent) {
         ;
     }
     if (*f) {
-        sscanf(f, "%d", &wid);
+        std::sscanf(f, "%d", &wid);
     } else {
         wid = 10;
     }
@@ -703,22 +703,22 @@ void print_bltmatrix(FILE* out, bltmatrix* blt, char* format, int indent) {
     }
 
     for (k = 0; k < blt->nrow; k += cols) {
-        fprintf(out, "\n%.*s      ", indent, "");
+        std::fprintf(out, "\n%.*s      ", indent, "");
         for (j = k; j < blt->nrow && j < k + cols; j++) {
-            fprintf(out, "%*d ", wid, j + 1);
+            std::fprintf(out, "%*d ", wid, j + 1);
         }
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
         for (i = k; i < blt->nrow; i++) {
-            fprintf(out, "%.*s%6d%s", indent, "", i + 1, blt->row[i].alloc ? "*" : " ");
+            std::fprintf(out, "%.*s%6d%s", indent, "", i + 1, blt->row[i].alloc ? "*" : " ");
             for (j = k; j <= i && j < k + cols; j++) {
                 if (j >= blt->row[i].col) {
-                    fprintf(out, format, BLT(blt, i, j));
+                    std::fprintf(out, format, BLT(blt, i, j));
                 } else {
-                    fprintf(out, "%*s", wid, "-");
+                    std::fprintf(out, "%*s", wid, "-");
                 }
-                fputs(" ", out);
+                std::fputs(" ", out);
             }
-            fprintf(out, "\n");
+            std::fprintf(out, "\n");
         }
     }
 }
@@ -731,29 +731,29 @@ double* blt_get_row_data(bltmatrix* blt, int irow) {
     return blt->row[irow].address;
 }
 
-void dump_bltmatrix(bltmatrix* blt, FILE* b) {
+void dump_bltmatrix(bltmatrix* blt, std::FILE* b) {
     int i;
     if (blt->status != BLT_READY) {
         return;
     }
-    fwrite(&(blt->nrow), sizeof(blt->nrow), 1, b);
+    std::fwrite(&(blt->nrow), sizeof(blt->nrow), 1, b);
     for (i = 0; i < blt->nrow; i++) {
-        fwrite(&(blt->row[i].col), sizeof(blt->row[i].col), 1, b);
+        std::fwrite(&(blt->row[i].col), sizeof(blt->row[i].col), 1, b);
     }
     for (i = 0; i < blt->nrow; i++) {
         bltrow* r = &(blt->row[i]);
         const int len = i + 1 - r->col;
-        fwrite(r->address, sizeof(double), len, b);
+        std::fwrite(r->address, sizeof(double), len, b);
     }
 }
 
-int reload_bltmatrix(bltmatrix** pblt, FILE* b) {
+int reload_bltmatrix(bltmatrix** pblt, std::FILE* b) {
     int i;
     int nrow;
     bltmatrix* blt = nullptr;
 
     *pblt = nullptr;
-    if (fread(&nrow, sizeof(nrow), 1, b) != 1) {
+    if (std::fread(&nrow, sizeof(nrow), 1, b) != 1) {
         return FILE_READ_ERROR;
     }
     if (nrow <= 0) {
@@ -764,7 +764,7 @@ int reload_bltmatrix(bltmatrix** pblt, FILE* b) {
     *pblt = blt;
     for (i = 0; i < blt->nrow; i++) {
         int icol;
-        if (fread(&icol, sizeof(icol), 1, b) != 1) {
+        if (std::fread(&icol, sizeof(icol), 1, b) != 1) {
             return FILE_READ_ERROR;
         }
         if (icol < 0 || icol > i) {
@@ -777,7 +777,7 @@ int reload_bltmatrix(bltmatrix** pblt, FILE* b) {
     for (i = 0; i < blt->nrow; i++) {
         bltrow* r = &(blt->row[i]);
         const int len = i + 1 - r->col;
-        if (fread(r->address, sizeof(double), len, b) != (unsigned int)len) {
+        if (std::fread(r->address, sizeof(double), len, b) != (unsigned int)len) {
             return FILE_READ_ERROR;
         }
     }
@@ -800,18 +800,18 @@ int reload_bltmatrix(bltmatrix** pblt, FILE* b) {
 // the actual byte layout with dump_bltmatrix_dense - a plain convenience
 // wrapper over the same two pieces, with no progress meter, for callers
 // that don't need one.
-void dump_bltmatrix_dense_header(bltmatrix* blt, FILE* b) {
-    fwrite(&(blt->nrow), sizeof(blt->nrow), 1, b);
+void dump_bltmatrix_dense_header(bltmatrix* blt, std::FILE* b) {
+    std::fwrite(&(blt->nrow), sizeof(blt->nrow), 1, b);
 }
 
-void dump_bltmatrix_dense_row(bltmatrix* blt, int irow, FILE* b) {
+void dump_bltmatrix_dense_row(bltmatrix* blt, int irow, std::FILE* b) {
     double* row = blt_get_row_data(blt, irow);
     if (row) {
-        fwrite(row, sizeof(double), irow + 1, b);
+        std::fwrite(row, sizeof(double), irow + 1, b);
     }
 }
 
-void dump_bltmatrix_dense(bltmatrix* blt, FILE* b) {
+void dump_bltmatrix_dense(bltmatrix* blt, std::FILE* b) {
     int i;
     if (blt->status != BLT_READY) {
         return;
@@ -828,13 +828,13 @@ void dump_bltmatrix_dense(bltmatrix* blt, FILE* b) {
 // without going through snap_main's own live adjustment state -
 // lsq_get_covariance_matrix() only has a meaningful answer during a
 // real snap run.
-int reload_bltmatrix_dense(bltmatrix** pblt, FILE* b) {
+int reload_bltmatrix_dense(bltmatrix** pblt, std::FILE* b) {
     int i;
     int nrow;
     bltmatrix* blt = nullptr;
 
     *pblt = nullptr;
-    if (fread(&nrow, sizeof(nrow), 1, b) != 1) {
+    if (std::fread(&nrow, sizeof(nrow), 1, b) != 1) {
         return FILE_READ_ERROR;
     }
     if (nrow <= 0) {
@@ -851,14 +851,14 @@ int reload_bltmatrix_dense(bltmatrix** pblt, FILE* b) {
     for (i = 0; i < blt->nrow; i++) {
         bltrow* r = &(blt->row[i]);
         const int len = i + 1 - r->col;
-        if (fread(r->address, sizeof(double), len, b) != (unsigned int)len) {
+        if (std::fread(r->address, sizeof(double), len, b) != (unsigned int)len) {
             return FILE_READ_ERROR;
         }
     }
     return OK;
 }
 
-void print_bltmatrix_json(bltmatrix* blt, FILE* out, int nprefix, int options, const char* format) {
+void print_bltmatrix_json(bltmatrix* blt, std::FILE* out, int nprefix, int options, const char* format) {
     int ir;
     int ic;
     int ir0;
@@ -877,26 +877,26 @@ void print_bltmatrix_json(bltmatrix* blt, FILE* out, int nprefix, int options, c
     }
 
     if (!matonly) {
-        fprintf(out, "{\n%*s\"nrows\": %d,\n%*s\"nsparse\": %d,\n%*s\"col0\": [", nprefix, "", nrows, nprefix, "",
-                blt->nsparse, nprefix, "");
+        std::fprintf(out, "{\n%*s\"nrows\": %d,\n%*s\"nsparse\": %d,\n%*s\"col0\": [", nprefix, "", nrows, nprefix, "",
+                     blt->nsparse, nprefix, "");
         for (ir = 0; ir < nrows; ir++) {
             if (ir) {
                 if (ir % 20 == 0) {
-                    fprintf(out, ",\n%*s", nprefix, "");
+                    std::fprintf(out, ",\n%*s", nprefix, "");
                 } else {
-                    fprintf(out, ",");
+                    std::fprintf(out, ",");
                 }
             }
-            fprintf(out, "%d", blt->row[ir].col);
+            std::fprintf(out, "%d", blt->row[ir].col);
         }
-        fprintf(out, "],\n");
-        fprintf(out, "%*s\"matrix\": ", nprefix, "");
+        std::fprintf(out, "],\n");
+        std::fprintf(out, "%*s\"matrix\": ", nprefix, "");
         nprefix += 2;
     }
 
-    fprintf(out, "[");
+    std::fprintf(out, "[");
     for (ir = 0; ir < nrows; ir++) {
-        fprintf(out, "%s\n%*s  [", ir ? "," : "", nprefix, "");
+        std::fprintf(out, "%s\n%*s  [", ir ? "," : "", nprefix, "");
         for (ic = 0; ic < nrows; ic++) {
             double val = 0.0;
             if (ic > ir) {
@@ -918,20 +918,20 @@ void print_bltmatrix_json(bltmatrix* blt, FILE* out, int nprefix, int options, c
                 val = blt->row[ir0].address[ic0 - col0];
             }
             if (ic) {
-                fprintf(out, ",");
+                std::fprintf(out, ",");
                 if (ic % 10 == 0) {
-                    fprintf(out, "\n%*s  ", nprefix, "");
+                    std::fprintf(out, "\n%*s  ", nprefix, "");
                 }
             }
-            fprintf(out, format, val);
+            std::fprintf(out, format, val);
         }
-        fprintf(out, "]");
+        std::fprintf(out, "]");
     }
-    fprintf(out, "]");
+    std::fprintf(out, "]");
 
     if (!matonly) {
         nprefix -= 2;
-        fprintf(out, "\n%*s}", nprefix, "");
+        std::fprintf(out, "\n%*s}", nprefix, "");
     }
 }
 
@@ -965,7 +965,7 @@ plus as many zero based non-zero row/columns as required
 */
 
 int main(int argc, char* argv[]) {
-    FILE *in, *out;
+    std::FILE *in, *out;
     double *N, *b, *tmp, *N1, *b1, *p;
     bltmatrix *blt, *bltc;
     int* col;
@@ -974,18 +974,18 @@ int main(int argc, char* argv[]) {
     double v;
     int expanded = 0;
 
-    if (argc < 2 || NULL == (in = fopen(argv[1], "r"))) {
+    if (argc < 2 || NULL == (in = std::fopen(argv[1], "r"))) {
         xprintf("Need input file as parameter\n");
         return;
     }
 
     out = stdout;
-    if (argc > 2 && NULL == (out = fopen(argv[2], "w"))) {
+    if (argc > 2 && NULL == (out = std::fopen(argv[2], "w"))) {
         xprintf("Cannot open output file\n");
         return;
     }
 
-    fscanf(in, "%d%d%d", &nprm, &nes, &minrowsize);
+    std::fscanf(in, "%d%d%d", &nprm, &nes, &minrowsize);
     if (nprm <= 0) {
         xprintf("Invalid number of parameters\n");
         return;
@@ -1003,7 +1003,7 @@ int main(int argc, char* argv[]) {
     tmp = b1 + nmem;
 
     for (i = 0; i < nmem; i++) {
-        fscanf(in, "%lf", &v);
+        std::fscanf(in, "%lf", &v);
         b[i] = b1[i] = v;
     }
     for (i = 0; i < nprm; i++)
@@ -1021,89 +1021,89 @@ int main(int argc, char* argv[]) {
             }
         }
 
-    fprintf(out, "Matrix as read\n\n");
+    std::fprintf(out, "Matrix as read\n\n");
     print_ltmat(out, N, nprm, "%10.4lf", 0);
 
-    fprintf(out, "\nInput matrix\n");
+    std::fprintf(out, "\nInput matrix\n");
     print_bltmatrix(out, blt, "%10.4lf", 0);
-    fprintf(out, "\nInput vector\n");
+    std::fprintf(out, "\nInput vector\n");
     for (i = 0; i < nprm; i++)
-        fprintf(out, "%3d  %10.4lf\n", i + 1, b[i]);
+        std::fprintf(out, "%3d  %10.4lf\n", i + 1, b[i]);
 
-    fprintf(out, "\n\nFULL SYMMETRIC SOLUTION\n");
+    std::fprintf(out, "\n\nFULL SYMMETRIC SOLUTION\n");
 
-    fprintf(out, "\nCholesky decomposition status = %d\n", (int)chol_dec(N, nprm));
+    std::fprintf(out, "\nCholesky decomposition status = %d\n", (int)chol_dec(N, nprm));
     chol_slv(N, b1, b1, nprm);
 
-    fprintf(out, "\nDecomposed matrix\n\n");
+    std::fprintf(out, "\nDecomposed matrix\n\n");
     print_ltmat(out, N, nprm, "%10.4lf", 0);
-    fprintf(out, "\nSolution vector\n");
+    std::fprintf(out, "\nSolution vector\n");
     for (i = 0; i < nprm; i++)
-        fprintf(out, "%3d  %10.4lf\n", i + 1, b1[i]);
+        std::fprintf(out, "%3d  %10.4lf\n", i + 1, b1[i]);
 
     chol_inv(N, tmp, nprm);
-    fprintf(out, "\nInverted matrix\n\n");
+    std::fprintf(out, "\nInverted matrix\n\n");
     print_ltmat(out, N, nprm, "%10.4lf", 0);
 
-    fprintf(out, "\n\nBANDED SOLUTION\n");
+    std::fprintf(out, "\n\nBANDED SOLUTION\n");
 
-    fprintf(out, "\nCholesky decomposition status = %d\n", (int)blt_chol_dec(blt, 0));
+    std::fprintf(out, "\nCholesky decomposition status = %d\n", (int)blt_chol_dec(blt, 0));
 
-    fprintf(out, "\nDecomposed matrix\n");
+    std::fprintf(out, "\nDecomposed matrix\n");
     print_bltmatrix(out, blt, "%10.4lf", 0);
     blt_chol_slv(blt, b, b1);
-    fprintf(out, "\nSolution vector\n");
+    std::fprintf(out, "\nSolution vector\n");
     for (i = 0; i < nprm; i++)
-        fprintf(out, "%3d  %10.4lf\n", i + 1, b1[i]);
+        std::fprintf(out, "%3d  %10.4lf\n", i + 1, b1[i]);
 
     copy_bltmatrix(blt, bltc);
 
-    if (fscanf(in, "%d", &nes) == 1) {
+    if (std::fscanf(in, "%d", &nes) == 1) {
         blt_set_sparse_rows(blt, nes);
 
-        while (fscanf(in, "%d%d", &i, &j) == 2) {
+        while (std::fscanf(in, "%d%d", &i, &j) == 2) {
             blt_nonzero_element(blt, i, j);
         }
         expand_bltmatrix_to_requested(blt);
 
-        fprintf(out, "\nExpanded Cholesky matrix\n");
+        std::fprintf(out, "\nExpanded Cholesky matrix\n");
         print_bltmatrix(out, blt, "%10.4lf", 0);
         expanded = 1;
     }
 
     blt_chol_inv(blt);
-    fprintf(out, "\nInverted matrix\n\n");
+    std::fprintf(out, "\nInverted matrix\n\n");
     print_bltmatrix(out, blt, "%10.4lf", 0);
 
-    fprintf(out, "\nCopy of decomposed matrix\n");
+    std::fprintf(out, "\nCopy of decomposed matrix\n");
     print_bltmatrix(out, bltc, "%10.4lf", 0);
 
     if (expanded) {
         copy_bltmatrix(bltc, blt);
-        fprintf(out, "\nDecomposition copied back\n");
+        std::fprintf(out, "\nDecomposition copied back\n");
         print_bltmatrix(out, blt, "%10.4lf", 0);
     }
 
     // Test dump and restore of file
 
     {
-        FILE* bin;
+        std::FILE* bin;
         char* binfile = "blt.bin";
-        fprintf(out, "\nTesting dump and reload using %s\n", binfile);
-        bin = fopen(binfile, "w+b");
+        std::fprintf(out, "\nTesting dump and reload using %s\n", binfile);
+        bin = std::fopen(binfile, "w+b");
         if (bin) {
             bltmatrix* blt2;
             dump_bltmatrix(blt, bin);
-            fclose(bin);
-            bin = fopen(binfile, "r+b");
+            std::fclose(bin);
+            bin = std::fopen(binfile, "r+b");
             if (bin && reload_bltmatrix(&blt2, bin) == OK) {
-                fprintf(out, "Reloaded matrix\n");
+                std::fprintf(out, "Reloaded matrix\n");
                 print_bltmatrix(out, blt, "%10.4lf", 0);
             } else {
-                fprintf(out, "Reload failed\n");
+                std::fprintf(out, "Reload failed\n");
             }
             if (bin)
-                fclose(bin);
+                std::fclose(bin);
         }
     }
 }

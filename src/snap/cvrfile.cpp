@@ -45,7 +45,7 @@ using boost::numeric_cast;
 using tmatrix = double[3][3]; /* Vector transformation matrix */
 
 void print_coord_covariance(void) {
-    FILE* f;
+    std::FILE* f;
     int maxstn;
     int istn;
     int ncrd;
@@ -61,7 +61,7 @@ void print_coord_covariance(void) {
 
     const std::string bfn = command_file->root + CVRFILE_EXT;
 
-    f = fopen(bfn.c_str(), "w");
+    f = std::fopen(bfn.c_str(), "w");
     if (!f) {
         handle_error(FILE_OPEN_ERROR, "Unable to open covariance_file", bfn);
     } else {
@@ -80,25 +80,25 @@ void print_coord_covariance(void) {
     const DmsFormat latitudeFormat(3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S");
     const DmsFormat longitudeFormat(3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W");
 
-    fprintf(f, "! Lower triangle of coordinate covariance matrix\n");
-    fprintf(f, "! Number of stations, number of coords per station\n");
-    fprintf(f, "%d\n%d\n", (int)maxstn, 3);
-    fprintf(f, "! List of stations\n");
+    std::fprintf(f, "! Lower triangle of coordinate covariance matrix\n");
+    std::fprintf(f, "! Number of stations, number of coords per station\n");
+    std::fprintf(f, "%d\n%d\n", (int)maxstn, 3);
+    std::fprintf(f, "! List of stations\n");
     for (istn = 0, ir = 0; istn++ < maxstn; ir += 3) {
         st = stnptr(istn);
         sa = stnadj(st);
-        fprintf(f, "%*s ", stn_name_width, st->Code.c_str());
+        std::fprintf(f, "%*s ", stn_name_width, st->Code.c_str());
         if (projection_coords) {
             double northing;
             double easting;
             geog_to_proj(net->crdsys->prj, st->ELon, st->ELat, &easting, &northing);
-            fprintf(f, "%13.*lf ", (int)coord_precision, easting);
-            fprintf(f, "%13.*lf ", (int)coord_precision, northing);
+            std::fprintf(f, "%13.*lf ", (int)coord_precision, easting);
+            std::fprintf(f, "%13.*lf ", (int)coord_precision, northing);
         } else {
-            fprintf(f, "%s ", dms_string(st->ELat * RTOD, latitudeFormat).c_str());
-            fprintf(f, "%s ", dms_string(st->ELon * RTOD, longitudeFormat).c_str());
+            std::fprintf(f, "%s ", dms_string(st->ELat * RTOD, latitudeFormat).c_str());
+            std::fprintf(f, "%s ", dms_string(st->ELon * RTOD, longitudeFormat).c_str());
         }
-        fprintf(f, "%13.*lf\n", (int)coord_precision, st->OHgt);
+        std::fprintf(f, "%13.*lf\n", (int)coord_precision, st->OHgt);
         if (sa->hrowno) {
             rownos[ir] = sa->hrowno - 1;
             rownos[ir + 1] = sa->hrowno;
@@ -108,7 +108,7 @@ void print_coord_covariance(void) {
         }
     }
 
-    fprintf(f, "! Lower triangle of coordinate covariance matrix\n");
+    std::fprintf(f, "! Lower triangle of coordinate covariance matrix\n");
 
     ncvr = ncrd;
     ncvr = (ncvr * (ncvr - 1)) / 2;
@@ -120,7 +120,7 @@ void print_coord_covariance(void) {
         for (ic = 0; ic <= ir; ic++) {
             ncvr++;
             if (nline++ >= 5) {
-                fprintf(f, "\n");
+                std::fprintf(f, "\n");
                 update_progress_meter(ncvr);
                 nline = 1;
             }
@@ -128,15 +128,15 @@ void print_coord_covariance(void) {
             if (rownos[ir] >= 0 && rownos[ic] >= 0) {
                 value = BLT(invnorm, rownos[ir], rownos[ic]);
             }
-            fprintf(f, " %15.9lE", value);
+            std::fprintf(f, " %15.9lE", value);
         }
     }
     end_progress_meter();
-    fclose(f);
+    std::fclose(f);
 }
 
 void print_coord_covariance_json(void) {
-    FILE* f;
+    std::FILE* f;
     int maxstn;
     int istn;
     int ncrd;
@@ -155,7 +155,7 @@ void print_coord_covariance_json(void) {
 
     const std::string bfn = command_file->root + CVRFILE_EXT + JSONFILE_EXT;
 
-    f = fopen(bfn.c_str(), "w");
+    f = std::fopen(bfn.c_str(), "w");
     if (!f) {
         handle_error(FILE_OPEN_ERROR, "Unable to open JSON covariance_file", bfn);
     } else {
@@ -179,18 +179,18 @@ void print_coord_covariance_json(void) {
 
     elp = net->crdsys->rf->el;
 
-    fprintf(f, "{\n");
-    fprintf(f, "  \"coordsys\": \"%s\",\n", net->crdsys->code.c_str());
-    fprintf(f, "  \"stations\": [");
+    std::fprintf(f, "{\n");
+    std::fprintf(f, "  \"coordsys\": \"%s\",\n", net->crdsys->code.c_str());
+    std::fprintf(f, "  \"stations\": [");
     for (istn = 0, ir = 0; istn++ < maxstn; ir += 3) {
         double height;
         st = stnptr(istn);
         sa = stnadj(st);
         if (istn > 1) {
-            fprintf(f, ",");
+            std::fprintf(f, ",");
         }
-        fprintf(f, "\n    {\n      \"code\": \"%s\",\n", st->Code.c_str());
-        fprintf(f, "      \"coord\": [");
+        std::fprintf(f, "\n    {\n      \"code\": \"%s\",\n", st->Code.c_str());
+        std::fprintf(f, "      \"coord\": [");
         height = st->OHgt;
         if (ellipsoidal) {
             height = st->OHgt + st->GUnd;
@@ -199,8 +199,8 @@ void print_coord_covariance_json(void) {
             double northing;
             double easting;
             geog_to_proj(net->crdsys->prj, st->ELon, st->ELat, &easting, &northing);
-            fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision, easting, (int)coord_precision, northing,
-                    (int)coord_precision, height);
+            std::fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision, easting, (int)coord_precision, northing,
+                         (int)coord_precision, height);
         } else if (geocentric_coords) {
             double llh[3];
             double xyz[3];
@@ -208,13 +208,13 @@ void print_coord_covariance_json(void) {
             llh[CRD_LAT] = st->ELat;
             llh[CRD_HGT] = height;
             llh_to_xyz(elp, llh, xyz, nullptr, nullptr);
-            fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision, xyz[0], (int)coord_precision, xyz[1],
-                    (int)coord_precision, xyz[2]);
+            std::fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision, xyz[0], (int)coord_precision, xyz[1],
+                         (int)coord_precision, xyz[2]);
         } else {
-            fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision + 6, st->ELon * RTOD, (int)coord_precision + 6,
-                    st->ELat * RTOD, (int)coord_precision, height);
+            std::fprintf(f, "%.*lf,%.*lf,%.*lf]\n", (int)coord_precision + 6, st->ELon * RTOD, (int)coord_precision + 6,
+                         st->ELat * RTOD, (int)coord_precision, height);
         }
-        fprintf(f, "    }");
+        std::fprintf(f, "    }");
 
         if (sa->hrowno) {
             rownos[ir] = sa->hrowno - 1;
@@ -224,10 +224,10 @@ void print_coord_covariance_json(void) {
             rownos[ir + 2] = sa->vrowno - 1;
         }
     }
-    fprintf(f, "\n  ],\n");
-    fprintf(f, "  \"seu\": %.6lf,\n", seu);
-    fprintf(f, "  \"dof\": %d,\n", (int)dof);
-    fprintf(f, "  \"enu_covariance\":\n  [");
+    std::fprintf(f, "\n  ],\n");
+    std::fprintf(f, "  \"seu\": %.6lf,\n", seu);
+    std::fprintf(f, "  \"dof\": %d,\n", (int)dof);
+    std::fprintf(f, "  \"enu_covariance\":\n  [");
 
     ncvr = ncrd * ncrd;
     init_progress_meter(ncvr);
@@ -235,17 +235,17 @@ void print_coord_covariance_json(void) {
     invnorm = lsq_normal_matrix();
     for (ir = 0; ir < ncrd; ir++) {
         if (ir) {
-            fprintf(f, ",");
+            std::fprintf(f, ",");
         }
-        fprintf(f, "\n    [");
+        std::fprintf(f, "\n    [");
         nline = 0;
         for (ic = 0; ic < ncrd; ic++) {
             ncvr++;
             if (ic) {
-                fprintf(f, ",");
+                std::fprintf(f, ",");
             }
             if (nline++ >= 6) {
-                fprintf(f, "\n    ");
+                std::fprintf(f, "\n    ");
                 update_progress_meter(ncvr);
                 nline = 1;
             }
@@ -253,16 +253,16 @@ void print_coord_covariance_json(void) {
             if (rownos[ir] >= 0 && rownos[ic] >= 0) {
                 value = BLT(invnorm, rownos[ir], rownos[ic]);
             }
-            fprintf(f, " %15.9lE", value);
+            std::fprintf(f, " %15.9lE", value);
         }
-        fprintf(f, "    ]");
+        std::fprintf(f, "    ]");
     }
-    fprintf(f, "\n  ]\n}\n");
-    fclose(f);
+    std::fprintf(f, "\n  ]\n}\n");
+    std::fclose(f);
     end_progress_meter();
 }
 
-static void print_sinex_date(FILE* f, double date) {
+static void print_sinex_date(std::FILE* f, double date) {
     int year = 0;
     int dayno = 0;
     int secs = 0;
@@ -270,7 +270,7 @@ static void print_sinex_date(FILE* f, double date) {
         date_as_yds(date, &year, &dayno, &secs);
     }
     year = year % 100;
-    fprintf(f, "%02d:%03d:%05d", year, dayno, secs);
+    std::fprintf(f, "%02d:%03d:%05d", year, dayno, secs);
 }
 
 static void station_cvr(bltmatrix* invnorm, station* st1, station* st2, tmatrix cvr) {
@@ -307,7 +307,7 @@ static void station_cvr(bltmatrix* invnorm, station* st1, station* st2, tmatrix 
 }
 
 void print_coord_sinex(void) {
-    FILE* f;
+    std::FILE* f;
     int maxstn;
     int istn;
     ellipsoid* elp;
@@ -323,7 +323,7 @@ void print_coord_sinex(void) {
 
     const std::string bfn = command_file->root + SINEX_EXT;
 
-    f = fopen(bfn.c_str(), "w");
+    f = std::fopen(bfn.c_str(), "w");
     if (!f) {
         handle_error(FILE_OPEN_ERROR, "Unable to open SINEX output file", bfn);
     } else {
@@ -371,45 +371,45 @@ void print_coord_sinex(void) {
         }
 
         /* SNP = agency creating file */
-        fprintf(f, "%%=SNX 2.01 SNP ");
+        std::fprintf(f, "%%=SNX 2.01 SNP ");
         if (output_noruntime) {
             print_sinex_date(f, snap_date(2000, 1, 1));
         } else {
             print_sinex_date(f, snap_datetime_now());
         }
         /* SNP = agency providing data */
-        fprintf(f, " SNP ");
+        std::fprintf(f, " SNP ");
         print_sinex_date(f, mindate);
-        fprintf(f, " ");
+        std::fprintf(f, " ");
         print_sinex_date(f, maxdate);
-        fprintf(f, " C %05d %1d S\n", nsnxprm, constraint);
+        std::fprintf(f, " C %05d %1d S\n", nsnxprm, constraint);
 
-        fprintf(f, "+FILE/REFERENCE\n");
-        fprintf(f, " %-18s %s\n", "OUTPUT", "Coordinate calculation results");
-        fprintf(f, " %-18s %s\n", "SOFTWARE", "SNAP survey network adjustment package");
-        fprintf(f, " %-18s SNAP version %s date %s\n", "SOFTWARE", PROGRAM_VERSION, PROGRAM_DATE);
-        fprintf(f, "-FILE/REFERENCE\n");
+        std::fprintf(f, "+FILE/REFERENCE\n");
+        std::fprintf(f, " %-18s %s\n", "OUTPUT", "Coordinate calculation results");
+        std::fprintf(f, " %-18s %s\n", "SOFTWARE", "SNAP survey network adjustment package");
+        std::fprintf(f, " %-18s SNAP version %s date %s\n", "SOFTWARE", PROGRAM_VERSION, PROGRAM_DATE);
+        std::fprintf(f, "-FILE/REFERENCE\n");
 
         if (badcvr || maxcodlen > 4) {
-            fprintf(f, "+FILE/COMMENT\n");
+            std::fprintf(f, "+FILE/COMMENT\n");
             if (badcvr) {
-                fprintf(
+                std::fprintf(
                     f,
                     " Some stations adjusted horizontally or vertically only - covariance/constraints may be misleading\n");
                 xprintf("  SINEX file may be incorrect as some stations adjusted horizontally or vertically only\n");
             }
 
             if (maxcodlen > 4) {
-                fprintf(f, " SNAP station codes > 4 characters - may not be unique in SINEX\n");
+                std::fprintf(f, " SNAP station codes > 4 characters - may not be unique in SINEX\n");
                 xprintf("  SNAP station codes > 4 characters - may not be unique in SINEX\n");
             }
 
             if (deformation) {
-                fprintf(f, "\n The following deformation model was used in this solution\n");
+                std::fprintf(f, "\n The following deformation model was used in this solution\n");
                 print_deformation_model(deformation, f, "   ");
             }
 
-            fprintf(f, "-FILE/COMMENT\n");
+            std::fprintf(f, "-FILE/COMMENT\n");
         }
     }
 
@@ -420,8 +420,8 @@ void print_coord_sinex(void) {
         const DmsFormat longitudeFormat(3, 1, DMSF_FMT_PREFIX_HEM, std::nullopt, std::nullopt, std::nullopt,
                                         std::nullopt, "-");
 
-        fprintf(f, "+SITE/ID\n");
-        fprintf(f, "*CODE PT __DOMES__ T _STATION DESCRIPTION__ APPROX_LON_ APPROX_LAT_ _APP_H_\n");
+        std::fprintf(f, "+SITE/ID\n");
+        std::fprintf(f, "*CODE PT __DOMES__ T _STATION DESCRIPTION__ APPROX_LON_ APPROX_LAT_ _APP_H_\n");
         for (istn = 0; istn++ < maxstn;) {
             double lat;
             double lon;
@@ -441,11 +441,11 @@ void print_coord_sinex(void) {
             const std::string latitudeText = dms_string(lat, latitudeFormat);
             const std::string longitudeText = dms_string(lon, longitudeFormat);
 
-            fprintf(f, " %-4.4s %-2.2s %-9.9s P %-22.22s %11.11s %11.11s %7.1lf\n", st->Code.c_str(), mark,
-                    st->Code.c_str(), st->Name.c_str(), longitudeText.c_str(), latitudeText.c_str(),
-                    st->OHgt + st->GUnd);
+            std::fprintf(f, " %-4.4s %-2.2s %-9.9s P %-22.22s %11.11s %11.11s %7.1lf\n", st->Code.c_str(), mark,
+                         st->Code.c_str(), st->Name.c_str(), longitudeText.c_str(), latitudeText.c_str(),
+                         st->OHgt + st->GUnd);
         }
-        fprintf(f, "-SITE/ID\n");
+        std::fprintf(f, "-SITE/ID\n");
     }
     /*
     fprintf(f,"+SITE/ECCENTRICITY\n");
@@ -454,17 +454,17 @@ void print_coord_sinex(void) {
     fprintf(f,"-SOLUTION/EPOCHS\n");
     */
     {
-        fprintf(f, "+SOLUTION/STATISTICS\n");
+        std::fprintf(f, "+SOLUTION/STATISTICS\n");
         if (badcvr || nsnxprm != nprm) {
-            fprintf(f, "* This SINEX file does not include all parameters in the adjustment\n");
+            std::fprintf(f, "* This SINEX file does not include all parameters in the adjustment\n");
         }
 
-        fprintf(f, " NUMBER OF OBSERVATIONS                %15d\n", (int)(nobs + nschp));
-        fprintf(f, " NUMBER OF UNKNOWNS                    %15d\n", (int)nprm);
-        fprintf(f, " NUMBER OF DEGREES OF FREEDOM          %15d\n", (int)dof);
-        fprintf(f, " VARIANCE FACTOR                       %15.6lf\n", seu * seu);
+        std::fprintf(f, " NUMBER OF OBSERVATIONS                %15d\n", (int)(nobs + nschp));
+        std::fprintf(f, " NUMBER OF UNKNOWNS                    %15d\n", (int)nprm);
+        std::fprintf(f, " NUMBER OF DEGREES OF FREEDOM          %15d\n", (int)dof);
+        std::fprintf(f, " VARIANCE FACTOR                       %15.6lf\n", seu * seu);
 
-        fprintf(f, "-SOLUTION/STATISTICS\n");
+        std::fprintf(f, "-SOLUTION/STATISTICS\n");
     }
 
     {
@@ -472,8 +472,8 @@ void print_coord_sinex(void) {
         const double epoch = (maxdate + mindate) / 2;
         int nprm = 0;
 
-        fprintf(f, "+SOLUTION/ESTIMATE\n");
-        fprintf(f, "*INDEX TYPE__ CODE PT SOLN _REF_EPOCH__ UNIT S __ESTIMATED VALUE____ _STD_DEV___\n");
+        std::fprintf(f, "+SOLUTION/ESTIMATE\n");
+        std::fprintf(f, "*INDEX TYPE__ CODE PT SOLN _REF_EPOCH__ UNIT S __ESTIMATED VALUE____ _STD_DEV___\n");
         for (istn = 0; istn++ < maxstn;) {
             const char* mark;
             double llh[3];
@@ -504,12 +504,12 @@ void print_coord_sinex(void) {
 
             for (int i = 0; i < 3; i++) {
                 nprm++;
-                fprintf(f, " %5d %-6.6s %-4.4s %-2.2s 0001 ", nprm, params[i].data(), st->Code.c_str(), mark);
+                std::fprintf(f, " %5d %-6.6s %-4.4s %-2.2s 0001 ", nprm, params[i].data(), st->Code.c_str(), mark);
                 print_sinex_date(f, epoch);
-                fprintf(f, " m    %d %21.14lE %11.5lE\n", stnconstraint, xyz[i], sqrt(cvr[i][i]) * seu);
+                std::fprintf(f, " m    %d %21.14lE %11.5lE\n", stnconstraint, xyz[i], std::sqrt(cvr[i][i]) * seu);
             }
         }
-        fprintf(f, "-SOLUTION/ESTIMATE\n");
+        std::fprintf(f, "-SOLUTION/ESTIMATE\n");
     }
     /*
     fprintf(f,"+SOLUTION/APRIORI\n");
@@ -518,8 +518,8 @@ void print_coord_sinex(void) {
     {
         int nprmi;
         int nprmj;
-        fprintf(f, "+SOLUTION/MATRIX_ESTIMATE L COVA\n");
-        fprintf(f, "*PARA1 PARA2 ____PARA2+0__________ ____PARA2+1__________ ____PARA2+2__________\n");
+        std::fprintf(f, "+SOLUTION/MATRIX_ESTIMATE L COVA\n");
+        std::fprintf(f, "*PARA1 PARA2 ____PARA2+0__________ ____PARA2+1__________ ____PARA2+2__________\n");
 
         nprmi = 1;
         for (istn = 0; istn++ < maxstn;) {
@@ -548,19 +548,19 @@ void print_coord_sinex(void) {
 
                 for (row = 0; row < 3; row++) {
                     const int ncol = istn == jstn ? row : 2;
-                    fprintf(f, " %5d %5d", nprmi + row, nprmj);
+                    std::fprintf(f, " %5d %5d", nprmi + row, nprmj);
                     for (col = 0; col <= ncol; col++) {
-                        fprintf(f, " %21.14lE", cvr[row][col] * seu * seu);
+                        std::fprintf(f, " %21.14lE", cvr[row][col] * seu * seu);
                     }
-                    fprintf(f, "\n");
+                    std::fprintf(f, "\n");
                 }
                 nprmj += 3;
             }
             nprmi += 3;
         }
-        fprintf(f, "-SOLUTION/MATRIX_ESTIMATE L COVA\n");
+        std::fprintf(f, "-SOLUTION/MATRIX_ESTIMATE L COVA\n");
     }
 
-    fprintf(f, "%%ENDSNX\n");
-    fclose(f);
+    std::fprintf(f, "%%ENDSNX\n");
+    std::fclose(f);
 }

@@ -26,8 +26,8 @@
 
 void apply_pntdata_options(survdata* p);
 int pntdata_obseq(survdata* p, void* hA, int nextra);
-void list_pntdata(FILE* out, survdata* p);
-void list_pntdata_residuals(FILE* out, survdata* o, double semult);
+void list_pntdata(std::FILE* out, survdata* p);
+void list_pntdata_residuals(std::FILE* out, survdata* o, double semult);
 void calc_pntdata_residuals(survdata* o, lsdata* l);
 
 #endif

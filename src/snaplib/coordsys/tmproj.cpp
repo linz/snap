@@ -75,7 +75,7 @@ static double meridian_arc(tmprojection* tm, double lt) {
     A4 = (15.0 / 256.0) * (e4 + 3.0 * e6 / 4.0);
     A6 = 35.0 * e6 / 3072.0;
 
-    return a * (A0 * lt - A2 * sin(2 * lt) + A4 * sin(4 * lt) - A6 * sin(6 * lt));
+    return a * (A0 * lt - A2 * std::sin(2 * lt) + A4 * std::sin(4 * lt) - A6 * std::sin(6 * lt));
 }
 
 /*************************************************************************/
@@ -112,9 +112,9 @@ static double foot_point_lat(tmprojection* tm, double m) {
     g = a * (1.0 - n) * (1.0 - n2) * (1 + 9.0 * n2 / 4.0 + 225.0 * n4 / 64.0);
     sig = m / g;
 
-    phio = sig + (3.0 * n / 2.0 - 27.0 * n3 / 32.0) * sin(2.0 * sig) +
-           (21.0 * n2 / 16.0 - 55.0 * n4 / 32.0) * sin(4.0 * sig) + (151.0 * n3 / 96.0) * sin(6.0 * sig) +
-           (1097.0 * n4 / 512.0) * sin(8.0 * sig);
+    phio = sig + (3.0 * n / 2.0 - 27.0 * n3 / 32.0) * std::sin(2.0 * sig) +
+           (21.0 * n2 / 16.0 - 55.0 * n4 / 32.0) * std::sin(4.0 * sig) + (151.0 * n3 / 96.0) * std::sin(6.0 * sig) +
+           (1097.0 * n4 / 512.0) * std::sin(8.0 * sig);
 
     return phio;
 }
@@ -165,11 +165,11 @@ void tm_geod(tmprojection* tm, double ce, double cn, double* ln, double* lt) {
 
     cn1 = (cn - fn) * utom / sf + om;
     fphi = foot_point_lat(tm, cn1);
-    slt = sin(fphi);
-    clt = cos(fphi);
+    slt = std::sin(fphi);
+    clt = std::cos(fphi);
 
     eslt = (1.0 - e2 * slt * slt);
-    eta = a / sqrt(eslt);
+    eta = a / std::sqrt(eslt);
     rho = eta * (1.0 - e2) / eslt;
     psi = eta / rho;
 
@@ -266,14 +266,14 @@ void geod_tm(tmprojection* tm, double ln, double lt, double* ce, double* cn) {
 
     m = meridian_arc(tm, lt);
 
-    slt = sin(lt);
+    slt = std::sin(lt);
 
     eslt = (1.0 - e2 * slt * slt);
-    eta = a / sqrt(eslt);
+    eta = a / std::sqrt(eslt);
     rho = eta * (1.0 - e2) / eslt;
     psi = eta / rho;
 
-    clt = cos(lt);
+    clt = std::cos(lt);
     w = dlon;
 
     wc = clt * w;

@@ -92,11 +92,11 @@ static int cmp_station_name(const void* istn1, const void* istn2) {
 }
 
 void wxStationSelectorTable::SortByCode() {
-    qsort(id, nrows, sizeof(int), cmp_station_code);
+    std::qsort(id, nrows, sizeof(int), cmp_station_code);
 }
 
 void wxStationSelectorTable::SortByName() {
-    qsort(id, nrows, sizeof(int), cmp_station_name);
+    std::qsort(id, nrows, sizeof(int), cmp_station_name);
 }
 
 void wxStationSelectorTable::Select(int row, bool select) {

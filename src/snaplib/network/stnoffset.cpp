@@ -233,13 +233,13 @@ void calc_station_offset(station* st, double date, vector3 denu) {
     }
 }
 
-void print_station_offset(FILE* lst, station* st) {
+void print_station_offset(std::FILE* lst, station* st) {
     stn_offset* sto = static_cast<stn_offset*>(st->ts);
 
     if (!sto) {
         return;
     }
-    fprintf(lst, "%s %s\n", st->Code.c_str(), sto->isdeformation ? "deformation" : "offset");
+    std::fprintf(lst, "%s %s\n", st->Code.c_str(), sto->isdeformation ? "deformation" : "offset");
     for (stn_offset_comp& comp : sto->components) {
         stn_tspoint* tsp = &(comp.basepoint);
         for (int i = -1; i < numeric_cast<int>(comp.tspoints.size()); i++) {
@@ -253,18 +253,18 @@ void print_station_offset(FILE* lst, station* st) {
                 int m;
                 int d;
                 date_as_ymd(tsp->date, &y, &m, &d);
-                sprintf(datestr, "%02d-%02d-%04d", d, m, y);
+                std::sprintf(datestr, "%02d-%02d-%04d", d, m, y);
             }
-            fprintf(lst, "    %3s %-11s  %10s  %10.*lf %10.*lf %10.*lf\n",
-                    i >= 0       ? ""
-                    : comp.isxyz ? "XYZ"
-                                 : "ENU",
-                    i >= 0                         ? ""
-                    : comp.mode == STN_TS_SERIES   ? "time series"
-                    : comp.mode == STN_TS_VELOCITY ? "velocity"
-                    : comp.mode == STN_TS_STEP     ? "offset"
-                                                   : "undefined",
-                    datestr, ndp, tsp->denu[0], ndp, tsp->denu[1], ndp, tsp->denu[2]);
+            std::fprintf(lst, "    %3s %-11s  %10s  %10.*lf %10.*lf %10.*lf\n",
+                         i >= 0       ? ""
+                         : comp.isxyz ? "XYZ"
+                                      : "ENU",
+                         i >= 0                         ? ""
+                         : comp.mode == STN_TS_SERIES   ? "time series"
+                         : comp.mode == STN_TS_VELOCITY ? "velocity"
+                         : comp.mode == STN_TS_STEP     ? "offset"
+                                                        : "undefined",
+                         datestr, ndp, tsp->denu[0], ndp, tsp->denu[1], ndp, tsp->denu[2]);
         }
     }
 }

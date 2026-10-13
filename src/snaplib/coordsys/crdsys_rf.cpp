@@ -27,8 +27,8 @@ void init_ref_frame(ref_frame* rf, double convepoch) {
         double rot;
         rf->trans[i] = rf->txyz[i] + dfactor * rf->dtxyz[i];
         rot = (rf->rxyz[i] + dfactor * rf->drxyz[i]) * STOR;
-        rf->csrot[i] = cos(rot);
-        rf->snrot[i] = sin(rot);
+        rf->csrot[i] = std::cos(rot);
+        rf->snrot[i] = std::sin(rot);
     }
     rf->sclfct = 1.0 + (rf->scale + dfactor * rf->dscale) * 0.000001;
     rf->calcdate = convepoch;

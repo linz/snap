@@ -147,10 +147,10 @@ int write_output_string2(output_string_def* os, std::string_view s, int options,
 }
 
 static int sfputs(std::string_view s, void* f) {
-    return fwrite(s.data(), 1, s.size(), static_cast<FILE*>(f)) == s.size() ? 0 : FILE_WRITE_ERROR;
+    return std::fwrite(s.data(), 1, s.size(), static_cast<std::FILE*>(f)) == s.size() ? 0 : FILE_WRITE_ERROR;
 }
 
-void output_string_to_file(output_string_def* os, FILE* f) {
+void output_string_to_file(output_string_def* os, std::FILE* f) {
     os->sink = f;
     os->write = sfputs;
 }

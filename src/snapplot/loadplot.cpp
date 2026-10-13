@@ -110,8 +110,8 @@ static void list_missing_stations(void) {
     }
 }
 
-static int64_t snap_id(int type, int group_id, std::string_view code) {
-    int64_t id;
+static std::int64_t snap_id(int type, int group_id, std::string_view code) {
+    std::int64_t id;
     id = 0;
     switch (type) {
         case ID_STATION:

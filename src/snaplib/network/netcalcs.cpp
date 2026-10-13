@@ -220,7 +220,7 @@ double calc_azimuth(station* st1, double hgt1, station* st2, double hgt2, int us
     dist2 = vecdot(dif, dif);
 
     if (dist2 > DIST_TOL_2) {
-        angle = atan2(dif[0], dif[1]);
+        angle = std::atan2(dif[0], dif[1]);
     } else {
         angle = 0.0;
     }
@@ -280,7 +280,7 @@ double calc_prj_azimuth(network* net, station* st1, double hgt1, station* st2, d
     if (de * de + dn * dn < DIST_TOL_2) {
         angle = 0.0;
     } else {
-        angle = atan2(e2 - e1, n2 - n1);
+        angle = std::atan2(e2 - e1, n2 - n1);
     }
 
     return angle;
@@ -298,7 +298,7 @@ double calc_zenith_dist(station* st1, double hgt1, station* st2, double hgt2, ve
 
     dist = veclen(dif);
     if (dist > DIST_TOL) {
-        angle = acos(dif[2] / dist);
+        angle = std::acos(dif[2] / dist);
     } else {
         angle = 0.0;
     }
@@ -308,7 +308,7 @@ double calc_zenith_dist(station* st1, double hgt1, station* st2, double hgt2, ve
             scalevec(dif, 1.0 / (dist * dist));
 
             tmp = -dif[2];
-            dif[2] = sqrt(dif[0] * dif[0] + dif[1] * dif[1]);
+            dif[2] = std::sqrt(dif[0] * dif[0] + dif[1] * dif[1]);
             tmp /= dif[2];
             dif[0] *= tmp;
             dif[1] *= tmp;

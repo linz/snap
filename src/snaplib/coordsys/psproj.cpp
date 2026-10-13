@@ -26,11 +26,12 @@ void define_PSProjection(PSProjection* psp, double a, double rf, double cm, doub
     if (rf != 0.0) {
         const double f = 1.0 / rf;
         psp->e2 = 2.0 * f - f * f;
-        psp->e = sqrt(psp->e2);
+        psp->e = std::sqrt(psp->e2);
     } else {
         psp->e = psp->e2 = 0.0;
     }
-    psp->k = 2.0 * psp->sf * psp->a / sqrt(1.0 - psp->e2) * pow((1.0 - psp->e) / (1.0 + psp->e), psp->e / 2.0);
+    psp->k =
+        2.0 * psp->sf * psp->a / std::sqrt(1.0 - psp->e2) * std::pow((1.0 - psp->e) / (1.0 + psp->e), psp->e / 2.0);
 }
 
 void psp_geod(PSProjection* psp, double ce, double cn, double* slam, double* sphi) {
@@ -46,9 +47,9 @@ void psp_geod(PSProjection* psp, double ce, double cn, double* slam, double* sph
     if (!psp->south) {
         dnorth = -dnorth;
     }
-    dlam = atan2(deast, dnorth);
+    dlam = std::atan2(deast, dnorth);
     r = _hypot(deast, dnorth);
-    q = log(psp->k / r);
+    q = std::log(psp->k / r);
 
     *sphi = geodetic_from_isometric(q, psp->e);
 
@@ -74,27 +75,27 @@ void geod_psp(PSProjection* psp, double slam, double sphi, double* cee, double* 
 
     /* Is this point very close to the pole - within 0.00015" */
 
-    diff = PI / 2.0 - fabs(sphi);
+    diff = PI / 2.0 - std::fabs(sphi);
 
     if (diff < 0.00015 * STOR) {
         *cee = psp->fe;
         *cnn = psp->fn;
     } else {
         power = psp->e / 2.0;
-        a1 = psp->e * sin(sphi);
+        a1 = psp->e * std::sin(sphi);
         if (psp->south) {
-            a2 = tan(PI / 4.0 - sphi / 2.0);
-            a3 = pow((1.0 + a1) / (1.0 - a1), power);
+            a2 = std::tan(PI / 4.0 - sphi / 2.0);
+            a3 = std::pow((1.0 + a1) / (1.0 - a1), power);
         } else {
-            a2 = tan(PI / 4.0 + sphi / 2.0);
-            a3 = pow((1.0 - a1) / (1.0 + a1), power);
+            a2 = std::tan(PI / 4.0 + sphi / 2.0);
+            a3 = std::pow((1.0 - a1) / (1.0 + a1), power);
         }
 
         r = psp->k * (1.0 / (a2 * a3));
 
         slam -= psp->cm;
-        *cee = r * sin(slam) + psp->fe;
-        *cnn = r * cos(slam);
+        *cee = r * std::sin(slam) + psp->fe;
+        *cnn = r * std::cos(slam);
 
         if (!psp->south) {
             *cnn = -*cnn;

@@ -347,7 +347,7 @@ bool SnapCsvObs::CsvObservation::loadObservation() {
             }
 
             if (error[0] > 0.0) {
-                error[0] = sqrt(error[0]);
+                error[0] = std::sqrt(error[0]);
             }
         } else if (_angleerrorcalced && ishorangle) {
             double errcomp;
@@ -392,7 +392,7 @@ bool SnapCsvObs::CsvObservation::loadObservation() {
             }
             error[0] = secerr + mmerr;
             if (error[0] > 0.0) {
-                error[0] = sqrt(error[0]) * RTOD;
+                error[0] = std::sqrt(error[0]) * RTOD;
             }
         } else if (_hderrorcalced && type->id == LV) {
             double errcomp;
@@ -415,7 +415,7 @@ bool SnapCsvObs::CsvObservation::loadObservation() {
                 } else if (boost::iequals(component, "mmrkm")) {
                     istr >> component >> runlen;
                     if (!istr.fail() && boost::iequals(component, "sqrt")) {
-                        runlen = sqrt(fabs(runlen) / 1000.0);
+                        runlen = std::sqrt(std::fabs(runlen) / 1000.0);
                         errcomp *= 0.001 * runlen;
                         pcomp = &ppmerr;
                     } else {
@@ -437,7 +437,7 @@ bool SnapCsvObs::CsvObservation::loadObservation() {
             }
             error[0] = ppmerr + mmerr;
             if (error[0] > 0.0) {
-                error[0] = sqrt(error[0]);
+                error[0] = std::sqrt(error[0]);
             }
         } else if (_zderrorcalced && type->id == ZD) {
             double errcomp;
@@ -490,12 +490,12 @@ bool SnapCsvObs::CsvObservation::loadObservation() {
                 } else {
                     mmverr = 4.0;
                 }
-                mmherr *= cos(zendist) * cos(zendist);
-                mmverr *= sin(zendist) * sin(zendist);
+                mmherr *= std::cos(zendist) * std::cos(zendist);
+                mmverr *= std::sin(zendist) * std::sin(zendist);
             }
             error[0] = secerr + mmherr + mmverr;
             if (error[0] > 0.0) {
-                error[0] = sqrt(error[0]) * RTOD;
+                error[0] = std::sqrt(error[0]) * RTOD;
             }
         } else {
             _error >> error[0];

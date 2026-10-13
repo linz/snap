@@ -28,7 +28,7 @@ int describe_ellipsoid(output_string_def* os, ellipsoid* el) {
     }
     write_output_string(os, "Ellipsoid: ");
     write_output_string(os, el->name);
-    sprintf(out, "\n  a = %.3lf  1/f = %.6lf\n", el->a, el->rf);
+    std::sprintf(out, "\n  a = %.3lf  1/f = %.6lf\n", el->a, el->rf);
     write_output_string(os, out);
     return OK;
 }
@@ -71,38 +71,38 @@ int describe_ref_frame(output_string_def* os, ref_frame* rf) {
         write_output_string(os, *rf->refcode);
         write_output_string(os, "\n");
         if (rates) {
-            sprintf(out, format3, "    Reference date", "(year)", rf->refdate);
+            std::sprintf(out, format3, "    Reference date", "(year)", rf->refdate);
             write_output_string(os, out);
         }
         if (translation) {
-            sprintf(unitstr, "(%s)", (*units)[0].data());
-            sprintf(out, format1, (*components)[0].data(), unitstr, uf * rf->txyz[0], uf * rf->txyz[1],
-                    uf * rf->txyz[2]);
+            std::sprintf(unitstr, "(%s)", (*units)[0].data());
+            std::sprintf(out, format1, (*components)[0].data(), unitstr, uf * rf->txyz[0], uf * rf->txyz[1],
+                         uf * rf->txyz[2]);
             write_output_string(os, out);
             if (rates) {
-                sprintf(unitstr, "(%s/yr)", (*units)[0].data());
-                sprintf(out, format1, ratestr, unitstr, uf * rf->dtxyz[0], uf * rf->dtxyz[1], uf * rf->dtxyz[2]);
+                std::sprintf(unitstr, "(%s/yr)", (*units)[0].data());
+                std::sprintf(out, format1, ratestr, unitstr, uf * rf->dtxyz[0], uf * rf->dtxyz[1], uf * rf->dtxyz[2]);
                 write_output_string(os, out);
             }
         }
         if (rotation) {
-            sprintf(unitstr, "(%s)", (*units)[1].data());
-            sprintf(out, format1, (*components)[1].data(), unitstr, af * rf->rxyz[0], af * rf->rxyz[1],
-                    af * rf->rxyz[2]);
+            std::sprintf(unitstr, "(%s)", (*units)[1].data());
+            std::sprintf(out, format1, (*components)[1].data(), unitstr, af * rf->rxyz[0], af * rf->rxyz[1],
+                         af * rf->rxyz[2]);
             write_output_string(os, out);
             if (rates) {
-                sprintf(unitstr, "(%s/yr)", (*units)[1].data());
-                sprintf(out, format1, ratestr, unitstr, af * rf->drxyz[0], af * rf->drxyz[1], af * rf->drxyz[2]);
+                std::sprintf(unitstr, "(%s/yr)", (*units)[1].data());
+                std::sprintf(out, format1, ratestr, unitstr, af * rf->drxyz[0], af * rf->drxyz[1], af * rf->drxyz[2]);
                 write_output_string(os, out);
             }
         }
         if (scale) {
-            sprintf(unitstr, "(%s)", (*units)[2].data());
-            sprintf(out, format2, (*components)[2].data(), unitstr, uf * rf->scale);
+            std::sprintf(unitstr, "(%s)", (*units)[2].data());
+            std::sprintf(out, format2, (*components)[2].data(), unitstr, uf * rf->scale);
             write_output_string(os, out);
             if (rates) {
-                sprintf(unitstr, "(%s/yr)", (*units)[2].data());
-                sprintf(out, format2, ratestr, unitstr, uf * rf->dscale);
+                std::sprintf(unitstr, "(%s/yr)", (*units)[2].data());
+                std::sprintf(out, format2, ratestr, unitstr, uf * rf->dscale);
                 write_output_string(os, out);
             }
         }
@@ -151,7 +151,7 @@ int describe_coordsys(output_string_def* os, coordsys* cs) {
     if (has_deformation_model(cs) && cs->rf->defepoch != 0.0) {
         char buf[32];
         write_output_string(os, "Calculated at epoch ");
-        sprintf(buf, "%.1lf\n", cs->rf->defepoch);
+        std::sprintf(buf, "%.1lf\n", cs->rf->defepoch);
         write_output_string(os, buf);
     }
     describe_projection(os, cs->prj);

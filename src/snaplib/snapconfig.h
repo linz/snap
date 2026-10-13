@@ -17,7 +17,7 @@
 #define _stricmp strcasecmp
 #define _strnicmp strncasecmp
 #define _isatty isatty
-#define _hypot hypot
+#define _hypot std::hypot
 #define _tempnam tempnam
 #define _strupr(x)                       \
     {                                    \
@@ -38,11 +38,11 @@
 #define _set_output_format(x)
 #define _strdup strdup
 #define _putenv putenv
-#define vsprintf_s vsnprintf
+#define vsprintf_s std::vsnprintf
 #define CONFIGURE_PRINTF()
 #define CONFIGURE_EXPONENT()
-#define ftell64 ftell
-#define fseek64 fseek
+#define ftell64 std::ftell
+#define fseek64 std::fseek
 
 // std::regex not fully supported by g++ at 4.8
 #define REGEX_BOOST 1

@@ -1074,15 +1074,15 @@ int read_key_definition(std::string_view def) {
     return OK;
 }
 
-void print_key(FILE* out, const std::string_view prefix) {
+void print_key(std::FILE* out, const std::string_view prefix) {
     for (int i = 0; i < symbology->LayerCount(); i++) {
         LayerSymbology& ls = symbology->GetLayer(i);
         const int type = ls.Type();
         if (type & LayerSymbology::hasColourAndStatus) {
-            fwrite(prefix.data(), 1, prefix.size(), out);
-            fprintf(out, " \"%s\"", (const char*)(ls.Identifier().mb_str()));
+            std::fwrite(prefix.data(), 1, prefix.size(), out);
+            std::fprintf(out, " \"%s\"", (const char*)(ls.Identifier().mb_str()));
             if (type & LayerSymbology::hasStatus) {
-                fputs(ls.Status() ? " on" : " off", out);
+                std::fputs(ls.Status() ? " on" : " off", out);
             }
             if (type & LayerSymbology::hasColour) {
                 const wxColour colour = symbology->GetPalette()->Colour(ls.ColourId());
@@ -1091,9 +1091,9 @@ void print_key(FILE* out, const std::string_view prefix) {
                     colname = colour.GetAsString(wxC2S_CSS_SYNTAX);
                 }
                 colname.Replace(" ", "_");
-                fprintf(out, " %s", (const char*)(colname.mb_str()));
+                std::fprintf(out, " %s", (const char*)(colname.mb_str()));
             }
-            fputs("\n", out);
+            std::fputs("\n", out);
         }
     }
 }

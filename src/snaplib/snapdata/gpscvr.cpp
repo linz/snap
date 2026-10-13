@@ -66,7 +66,7 @@ static void rmat_from_vertical(double rmat[3][3]) {
     if (r > 0.0) {
         scalevec(vece, 1.0 / r); /* East vector */
         vecn[2] = r;
-        r = sqrt(1.0 - r * r) / r;
+        r = std::sqrt(1.0 - r * r) / r;
         if (vecu[2] > 0.0) {
             r = -r;
         }
@@ -129,7 +129,7 @@ static void get_enu_rmat(int st1, int st2, double rmat[3][3]) {
         if (!fixed_rmat_calculated) {
             set_gps_vertical();
         }
-        memcpy(rmat, fixed_rmat, sizeof(fixed_rmat));
+        std::memcpy(rmat, fixed_rmat, sizeof(fixed_rmat));
         return;
     }
 
@@ -141,7 +141,7 @@ static void get_set_enu_rmat(survdata* sd, double rmat[3][3]) {
         if (!fixed_rmat_calculated) {
             set_gps_vertical();
         }
-        memcpy(rmat, fixed_rmat, sizeof(fixed_rmat));
+        std::memcpy(rmat, fixed_rmat, sizeof(fixed_rmat));
         return;
     }
     set_midpoint_rmat(sd, rmat);
@@ -737,7 +737,7 @@ double vector_standardised_residual(double vec[3], ltmat cvr, int* rank) {
                     (*rank)--;
                     *r1 = 1.0;
                 } else {
-                    *r1 = sqrt(sum);
+                    *r1 = std::sqrt(sum);
                 }
             } else {
                 *r1 = sum / *r2;
@@ -763,7 +763,7 @@ double vector_standardised_residual(double vec[3], ltmat cvr, int* rank) {
     if (*rank) {
         prod /= *rank;
         if (prod > 0) {
-            prod = sqrt(prod);
+            prod = std::sqrt(prod);
         } else {
             prod = 0.0;
         }
@@ -912,9 +912,9 @@ int calc_vecdata_vector(survdata* vd, int from, int to, int type, double* vec, d
     }
 
     if (pcvr && type & VD_STDERR) {
-        cvr[0] = (pcvr[0] > 0) ? sqrt(pcvr[0]) : 0.0;
-        cvr[1] = (pcvr[2] > 0) ? sqrt(pcvr[2]) : 0.0;
-        cvr[2] = (pcvr[5] > 0) ? sqrt(pcvr[5]) : 0.0;
+        cvr[0] = (pcvr[0] > 0) ? std::sqrt(pcvr[0]) : 0.0;
+        cvr[1] = (pcvr[2] > 0) ? std::sqrt(pcvr[2]) : 0.0;
+        cvr[2] = (pcvr[5] > 0) ? std::sqrt(pcvr[5]) : 0.0;
     }
 
     return OK;
@@ -998,9 +998,9 @@ int calc_vecdata_point(survdata* vd, int to, int type, double* vec, double* cvr)
     }
 
     if (pcvr && type & VD_STDERR) {
-        cvr[0] = (pcvr[0] > 0) ? sqrt(pcvr[0]) : 0.0;
-        cvr[1] = (pcvr[2] > 0) ? sqrt(pcvr[2]) : 0.0;
-        cvr[2] = (pcvr[5] > 0) ? sqrt(pcvr[5]) : 0.0;
+        cvr[0] = (pcvr[0] > 0) ? std::sqrt(pcvr[0]) : 0.0;
+        cvr[1] = (pcvr[2] > 0) ? std::sqrt(pcvr[2]) : 0.0;
+        cvr[2] = (pcvr[5] > 0) ? std::sqrt(pcvr[5]) : 0.0;
     }
 
     return OK;

@@ -69,7 +69,7 @@ static void init_obsflags() {
             char errmess[80];
             datatypedef* dtd;
             dtd = datatypedef_from_id(i);
-            sprintf(errmess, "Data type %.20s not handled in autofix.c", dtd->name.data());
+            std::sprintf(errmess, "Data type %.20s not handled in autofix.c", dtd->name.data());
             handle_error(WARNING_ERROR, errmess, NO_MESSAGE);
         }
     }
@@ -215,7 +215,7 @@ int station_autofix_constraints(int istn) {
         }
     } else {
         char errmsg[80];
-        sprintf(errmsg, "Invalid station id %d in station_autofix_constraints", istn);
+        std::sprintf(errmsg, "Invalid station id %d in station_autofix_constraints", istn);
         handle_error(WARNING_ERROR, errmsg, NO_MESSAGE);
     }
     return fixflags;
@@ -241,7 +241,7 @@ int station_autofix_reject(int istn) {
         }
     } else {
         char errmsg[80];
-        sprintf(errmsg, "Invalid station id %d in station_autofix_constraints", istn);
+        std::sprintf(errmsg, "Invalid station id %d in station_autofix_constraints", istn);
         handle_error(WARNING_ERROR, errmsg, NO_MESSAGE);
     }
     return reject;

@@ -188,27 +188,27 @@ static int check_header(hBinSrc binsrc, INT4* indexloc) {
     int version;
     Endian endian = Endian::Little;
     version = 0;
-    len = strlen(LNZDEF_FILE_HEADER_1L);
+    len = std::strlen(LNZDEF_FILE_HEADER_1L);
     if (utlBinSrcLoad1(binsrc, 0, len, buf) != STS_OK) {
         return 0;
     }
 
-    if (memcmp(buf, LNZDEF_FILE_HEADER_1L, len) == 0) {
+    if (std::memcmp(buf, LNZDEF_FILE_HEADER_1L, len) == 0) {
         version = 1;
         endian = Endian::Little;
-    } else if (memcmp(buf, LNZDEF_FILE_HEADER_1B, len) == 0) {
+    } else if (std::memcmp(buf, LNZDEF_FILE_HEADER_1B, len) == 0) {
         version = 1;
         endian = Endian::Big;
-    } else if (memcmp(buf, LNZDEF_FILE_HEADER_2B, len) == 0) {
+    } else if (std::memcmp(buf, LNZDEF_FILE_HEADER_2B, len) == 0) {
         version = 2;
         endian = Endian::Big;
-    } else if (memcmp(buf, LNZDEF_FILE_HEADER_2L, len) == 0) {
+    } else if (std::memcmp(buf, LNZDEF_FILE_HEADER_2L, len) == 0) {
         version = 2;
         endian = Endian::Little;
-    } else if (memcmp(buf, LNZDEF_FILE_HEADER_3B, len) == 0) {
+    } else if (std::memcmp(buf, LNZDEF_FILE_HEADER_3B, len) == 0) {
         version = 3;
         endian = Endian::Big;
-    } else if (memcmp(buf, LNZDEF_FILE_HEADER_3L, len) == 0) {
+    } else if (std::memcmp(buf, LNZDEF_FILE_HEADER_3L, len) == 0) {
         version = 3;
         endian = Endian::Little;
     }

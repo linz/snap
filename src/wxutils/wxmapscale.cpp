@@ -120,7 +120,7 @@ double wxMapScale::GetScale() const {
     if (!scaleValid) {
         return 0;
     }
-    return 0.5 * (1.0 / fabs(wdxscale) + 1.0 / fabs(wdyscale));
+    return 0.5 * (1.0 / std::fabs(wdxscale) + 1.0 / std::fabs(wdyscale));
 }
 
 void wxMapScale::ZoomTo(const MapRect& extents) {
@@ -191,14 +191,14 @@ void wxMapScale::CalcScale() {
         if (wdx == 0.0) {
             wdxscale = wdyscale * 2;
         }
-        if (fabs(wdyscale) < fabs(wdxscale)) {
-            wdxscale = fabs(wdyscale) / aspectRatio;
+        if (std::fabs(wdyscale) < std::fabs(wdxscale)) {
+            wdxscale = std::fabs(wdyscale) / aspectRatio;
             if (ddx < 0) {
                 wdxscale = -wdxscale;
             }
             wxorg -= (ddx / wdxscale - wdx) / 2.0;
         } else {
-            wdyscale = fabs(wdxscale);
+            wdyscale = std::fabs(wdxscale);
             if (ddy < 0) {
                 wdyscale = -wdyscale;
             }

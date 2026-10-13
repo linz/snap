@@ -88,7 +88,7 @@ double tau_distn(double value, long dof) {
     if (dof < 1 || value >= dof) {
         return 0.0;
     }
-    value = sqrt((dof - 1) * value / (dof - value));
+    value = std::sqrt((dof - 1) * value / (dof - value));
     prob = students_t_distn(value, dof - 1);
     if (negative) {
         prob = 1.0 - prob;
@@ -104,7 +104,7 @@ double inv_tau_distn(double prob, long dof) {
     }
     value = inv_students_t_distn(prob, dof - 1);
     if (value != 0) {
-        tmp = sqrt(dof * value * value / (dof - 1 + value * value));
+        tmp = std::sqrt(dof * value * value / (dof - 1 + value * value));
         value = value < 0.0 ? -tmp : tmp;
     }
     return value;
@@ -119,28 +119,28 @@ int main(int argc, char* argv[]) {
     char inverse;
     char doinv = 0;
     int istty = 1;
-    FILE* infile = stdin;
+    std::FILE* infile = stdin;
 
     if (argc > 1) {
-        infile = fopen(argv[1], "r");
+        infile = std::fopen(argv[1], "r");
         istty = 0;
         if (!infile) {
-            printf("Cannot open %s\n", argv[1]);
+            std::printf("Cannot open %s\n", argv[1]);
             return 0;
         }
     }
 
     if (istty)
-        printf("Enter [I](N|F|C|S|T) value [dof1] [dof2]\n");
+        std::printf("Enter [I](N|F|C|S|T) value [dof1] [dof2]\n");
 
-    while ((!istty || printf("> ")), fgets(line, 79, infile)) {
+    while ((!istty || std::printf("> ")), std::fgets(line, 79, infile)) {
         if (line[0] == 0) {
             if (!doinv)
                 break;
             inverse = !inverse;
             doinv = 0;
         } else {
-            sscanf(line, "%2s%lf%ld%ld", opt, &value, &dof1, &dof2);
+            std::sscanf(line, "%2s%lf%ld%ld", opt, &value, &dof1, &dof2);
             o = opt;
             inverse = (*o == 'i' || *o == 'I');
             if (inverse)
@@ -148,45 +148,45 @@ int main(int argc, char* argv[]) {
             doinv = 1;
         }
         if (inverse) {
-            printf("Inverse ");
+            std::printf("Inverse ");
         }
         switch (*o) {
             case 'n':
             case 'N':
-                printf("Normal (%.4lf)", value);
+                std::printf("Normal (%.4lf)", value);
                 value = inverse ? inv_normal_distn(value) : normal_distn(value);
                 break;
 
             case 'c':
             case 'C':
-                printf("Chi2 (%.4lf,%ld)", value, dof1);
+                std::printf("Chi2 (%.4lf,%ld)", value, dof1);
                 value = inverse ? inv_chi2_distn(value, dof1) : chi2_distn(value, dof1);
                 break;
 
             case 's':
             case 'S':
-                printf("Students t (%.4lf,%ld)", value, dof1);
+                std::printf("Students t (%.4lf,%ld)", value, dof1);
                 value = inverse ? inv_students_t_distn(value, dof1) : students_t_distn(value, dof1);
                 break;
 
             case 't':
             case 'T':
-                printf("Tau (%.4lf,%ld)", value, dof1);
+                std::printf("Tau (%.4lf,%ld)", value, dof1);
                 value = inverse ? inv_tau_distn(value, dof1) : tau_distn(value, dof1);
                 break;
 
             case 'f':
             case 'F':
-                printf("F (%.4lf,%ld,%ld)", value, dof1, dof2);
+                std::printf("F (%.4lf,%ld,%ld)", value, dof1, dof2);
                 value = inverse ? inv_f_distn(value, dof1, dof2) : f_distn(value, dof1, dof2);
                 break;
 
             default:
-                printf("Invalid command\n");
+                std::printf("Invalid command\n");
                 doinv = 0;
                 continue;
         }
-        printf(" = %.8lf\n", value);
+        std::printf(" = %.8lf\n", value);
     }
 }
 

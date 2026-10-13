@@ -126,7 +126,7 @@ std::string describe_results() {
     }
 
     // The summary of the modifications
-    FILE* summary = std::tmpfile();
+    std::FILE* summary = std::tmpfile();
     summarize_obs_modifications(obsmod, summary, "> ");
     std::rewind(summary);
     char line[512];

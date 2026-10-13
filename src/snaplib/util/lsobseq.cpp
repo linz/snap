@@ -165,7 +165,7 @@ void oe_covar(void* hA, int irow, int icol, double v) {
     }
 }
 
-void print_obseqn(FILE* out, void* hA) {
+void print_obseqn(std::FILE* out, void* hA) {
     obseqn* A;
     int i;
     int j;
@@ -179,41 +179,41 @@ void print_obseqn(FILE* out, void* hA) {
     for (i = 0; i++ < A->nrow;) {
         obs = A->obs[i - 1];
         if (obs->flag & OE_UNUSED) {
-            fputs("*", out);
+            std::fputs("*", out);
         } else {
-            fputs(" ", out);
+            std::fputs(" ", out);
         }
-        fprintf(out, "%-2d ", (int)i);
-        fprintf(out, "%12.5le ", obs->obsv);
+        std::fprintf(out, "%-2d ", (int)i);
+        std::fprintf(out, "%12.5le ", obs->obsv);
         if (A->flag & OE_SCHREIBER) {
-            fprintf(out, "%12s ", "SCH");
+            std::fprintf(out, "%12s ", "SCH");
         }
         for (j = 0; j < obs->ncol; j++) {
-            fprintf(out, "%12d ", (int)(obs->col[j] + 1));
+            std::fprintf(out, "%12d ", (int)(obs->col[j] + 1));
         }
-        fprintf(out, "\n    ");
+        std::fprintf(out, "\n    ");
         w = *wgt;
         if (w > 0.0) {
-            w = sqrt(w);
+            w = std::sqrt(w);
         }
-        fprintf(out, "%12.5le ", w);
+        std::fprintf(out, "%12.5le ", w);
         wgt += A->flag & OE_DIAGONAL_CVR ? 1 : i;
         if (A->flag & OE_SCHREIBER) {
-            fprintf(out, "%12.5le ", obs->schv);
+            std::fprintf(out, "%12.5le ", obs->schv);
         }
         for (j = 0; j < obs->ncol; j++) {
-            fprintf(out, "%12.5le ", obs->val[j]);
+            std::fprintf(out, "%12.5le ", obs->val[j]);
         }
-        fprintf(out, "\n\n");
+        std::fprintf(out, "\n\n");
     }
 
     if (!(A->flag & OE_DIAGONAL_CVR)) {
         print_ltmat(out, A->cvr, A->nrow, "%12.5le", 0);
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
     }
 }
 
-void print_obseqn_json(FILE* out, void* hA, const std::optional<std::string_view> source, const int nprefix) {
+void print_obseqn_json(std::FILE* out, void* hA, const std::optional<std::string_view> source, const int nprefix) {
     obseqn* A;
     int i;
     int j;
@@ -223,52 +223,53 @@ void print_obseqn_json(FILE* out, void* hA, const std::optional<std::string_view
     A = (obseqn*)hA;
     cvr = A->cvr;
 
-    fprintf(out, "{\n%*s", nprefix, "");
+    std::fprintf(out, "{\n%*s", nprefix, "");
     if (source) {
-        fprintf(out, "  \"source\": %.*s,\n%*s", boost::numeric_cast<int>(source->size()), source->data(), nprefix, "");
+        std::fprintf(out, "  \"source\": %.*s,\n%*s", boost::numeric_cast<int>(source->size()), source->data(), nprefix,
+                     "");
     }
-    fprintf(out, "  \"nobs\": %d,\n%*s", A->nrow, nprefix, "");
-    fprintf(out, "  \"obs\": [\n%*s", nprefix, "");
+    std::fprintf(out, "  \"nobs\": %d,\n%*s", A->nrow, nprefix, "");
+    std::fprintf(out, "  \"obs\": [\n%*s", nprefix, "");
     for (i = 0; i++ < A->nrow;) {
         obs = A->obs[i - 1];
-        fprintf(out, "   {\n%*s", nprefix, "");
-        fprintf(out, "    \"value\": %15.8le,\n%*s", obs->obsv, nprefix, "");
+        std::fprintf(out, "   {\n%*s", nprefix, "");
+        std::fprintf(out, "    \"value\": %15.8le,\n%*s", obs->obsv, nprefix, "");
         if (A->flag & OE_SCHREIBER) {
-            fprintf(out, "    \"schreiber\": %15.8le,\n%*s", obs->schv, nprefix, "");
+            std::fprintf(out, "    \"schreiber\": %15.8le,\n%*s", obs->schv, nprefix, "");
         }
-        fprintf(out, "    \"useobs\": %s,\n%*s", obs->flag & OE_UNUSED ? "false" : "true", nprefix, "");
-        fprintf(out, "    \"ncolumns\": %d,\n%*s", obs->ncol, nprefix, "");
-        fprintf(out, "    \"columns\": [");
+        std::fprintf(out, "    \"useobs\": %s,\n%*s", obs->flag & OE_UNUSED ? "false" : "true", nprefix, "");
+        std::fprintf(out, "    \"ncolumns\": %d,\n%*s", obs->ncol, nprefix, "");
+        std::fprintf(out, "    \"columns\": [");
         for (j = 0; j < obs->ncol; j++) {
-            fprintf(out, "%s%d", j ? ", " : "", (int)(obs->col[j] + 1));
+            std::fprintf(out, "%s%d", j ? ", " : "", (int)(obs->col[j] + 1));
         }
-        fprintf(out, "],\n%*s", nprefix, "");
-        fprintf(out, "    \"values\": [");
+        std::fprintf(out, "],\n%*s", nprefix, "");
+        std::fprintf(out, "    \"values\": [");
         for (j = 0; j < obs->ncol; j++) {
-            fprintf(out, "%s%15.8le", j ? ", " : "", (obs->val[j]));
+            std::fprintf(out, "%s%15.8le", j ? ", " : "", (obs->val[j]));
         }
-        fprintf(out, "]\n%*s", nprefix, "");
-        fprintf(out, "   }%s\n%*s", i < A->nrow ? "," : "", nprefix, "");
+        std::fprintf(out, "]\n%*s", nprefix, "");
+        std::fprintf(out, "   }%s\n%*s", i < A->nrow ? "," : "", nprefix, "");
     }
-    fprintf(out, "  ],\n%*s", nprefix, "");
+    std::fprintf(out, "  ],\n%*s", nprefix, "");
     if (A->flag & OE_DIAGONAL_CVR) {
         int ir;
-        fprintf(out, "  \"cvrdiag\": [\n%*s", nprefix, "");
+        std::fprintf(out, "  \"cvrdiag\": [\n%*s", nprefix, "");
         for (ir = 0; ir < A->nrow; ir++) {
             if (ir) {
                 if (ir) {
-                    fprintf(out, ",");
+                    std::fprintf(out, ",");
                     if (ir % 10 == 0) {
-                        fprintf(out, "\n%*s  ", nprefix, "");
+                        std::fprintf(out, "\n%*s  ", nprefix, "");
                     }
                 }
             }
-            fprintf(out, "%15.8le", cvr[ir]);
+            std::fprintf(out, "%15.8le", cvr[ir]);
         }
-        fprintf(out, "\n%*s  ]\n%*s", nprefix, "", nprefix, "");
+        std::fprintf(out, "\n%*s  ]\n%*s", nprefix, "", nprefix, "");
     } else {
-        fprintf(out, "  \"cvr\": ");
+        std::fprintf(out, "  \"cvr\": ");
         print_ltmat_json(out, cvr, A->nrow, "%15.8le", nprefix);
     }
-    fprintf(out, "}");
+    std::fprintf(out, "}");
 }

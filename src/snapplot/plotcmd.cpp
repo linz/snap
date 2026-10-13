@@ -845,8 +845,8 @@ static int read_config_menu_command(CFG_FILE* cfg, std::string_view string, void
     return OK;
 }
 
-int write_config_file(FILE* out, int key_only) {
-    fprintf(out, "! SNAPPLOT configuration file\n\n");
+int write_config_file(std::FILE* out, int key_only) {
+    std::fprintf(out, "! SNAPPLOT configuration file\n\n");
     if (!key_only) {
         double val;
         int autoscl;
@@ -861,86 +861,87 @@ int write_config_file(FILE* out, int key_only) {
         fprintf( out, "station_size symbol %.2lf%s\n",
            val, autoscl ? " times_default" : "" );
         */
-        fprintf(out, "error_type %s", aposteriori_errors ? "aposteriori" : "apriori");
+        std::fprintf(out, "error_type %s", aposteriori_errors ? "aposteriori" : "apriori");
         if (use_confidence_limit) {
-            fprintf(out, " %.2lf confidence_limit\n", confidence_limit);
+            std::fprintf(out, " %.2lf confidence_limit\n", confidence_limit);
         } else {
-            fprintf(out, " %.1lf standard_error\n", confidence_limit);
+            std::fprintf(out, " %.1lf standard_error\n", confidence_limit);
         }
         get_errell_exaggeration(&val, &autoscl);
-        fprintf(out, "error_scale horizontal %.2lf%s\n", val, autoscl ? " times_default" : "");
+        std::fprintf(out, "error_scale horizontal %.2lf%s\n", val, autoscl ? " times_default" : "");
         ;
         get_hgterr_exaggeration(&val, &autoscl);
-        fprintf(out, "error_scale vertical %.2lf%s\n", val, autoscl ? " times_default" : "");
-        fputs("obs_listing_fields ", out);
-        fputs(write_display_fields_definition().c_str(), out);
-        fputs("\n", out);
-        fprintf(out, "obs_listing_order %s\n", get_display_field_name(get_sres_sort_option()).value_or("").c_str());
-        fputs("observation_options ", out);
+        std::fprintf(out, "error_scale vertical %.2lf%s\n", val, autoscl ? " times_default" : "");
+        std::fputs("obs_listing_fields ", out);
+        std::fputs(write_display_fields_definition().c_str(), out);
+        std::fputs("\n", out);
+        std::fprintf(out, "obs_listing_order %s\n",
+                     get_display_field_name(get_sres_sort_option()).value_or("").c_str());
+        std::fputs("observation_options ", out);
 
         if (!show_oneway_obs) {
-            fputs("no_", out);
+            std::fputs("no_", out);
         }
-        fputs("show_obs_directions ", out);
+        std::fputs("show_obs_directions ", out);
         switch (merge_common_obs) {
             case PCONN_ONE_CONNECTION:
-                fputs("merge_all_obs ", out);
+                std::fputs("merge_all_obs ", out);
                 break;
 
             case PCONN_DIFFERENT_TYPES:
-                fputs("merge_similar_obs ", out);
+                std::fputs("merge_similar_obs ", out);
                 break;
 
             default:
-                fputs("no_merge_obs ", out);
+                std::fputs("no_merge_obs ", out);
                 break;
         }
         if (!show_hidden_stn_obs) {
-            fputs("no_", out);
+            std::fputs("no_", out);
         }
-        fputs("show_hidden_station_obs", out);
-        fputs("\n", out);
-        fprintf(out, "observation_spacing %.2lf%s\n", offset_spacing, autospacing ? " times_default" : "");
-        fprintf(out, "%s ", "highlight_observations");
+        std::fputs("show_hidden_station_obs", out);
+        std::fputs("\n", out);
+        std::fprintf(out, "observation_spacing %.2lf%s\n", offset_spacing, autospacing ? " times_default" : "");
+        std::fprintf(out, "%s ", "highlight_observations");
         get_obs_highlight_option(&opt, &threshold);
         switch (opt) {
             case PCONN_HIGHLIGHT_IF_EITHER:
-                fprintf(out, "%s\n", "to_stations");
+                std::fprintf(out, "%s\n", "to_stations");
                 break;
             case PCONN_HIGHLIGHT_IF_BOTH:
-                fprintf(out, "%s\n", "between_stations");
+                std::fprintf(out, "%s\n", "between_stations");
                 break;
             case PCONN_HIGHLIGHT_REJECTED:
-                fprintf(out, "%s\n", "rejected");
+                std::fprintf(out, "%s\n", "rejected");
                 break;
             case PCONN_HIGHLIGHT_UNUSED:
-                fprintf(out, "%s\n", "unused");
+                std::fprintf(out, "%s\n", "unused");
                 break;
             case PCONN_HIGHLIGHT_SRES:
-                fprintf(out, "%s %.3lf\n", "std_residual", threshold);
+                std::fprintf(out, "%s %.3lf\n", "std_residual", threshold);
                 break;
             case PCONN_HIGHLIGHT_APOST_SRES:
-                fprintf(out, "%s %.3lf\n", "apost_std_residual", threshold);
+                std::fprintf(out, "%s %.3lf\n", "apost_std_residual", threshold);
                 break;
             case PCONN_HIGHLIGHT_RFAC:
-                fprintf(out, "%s %.3lf\n", "redundancy", threshold);
+                std::fprintf(out, "%s %.3lf\n", "redundancy", threshold);
                 break;
             default:
-                fprintf(out, "%s\n", "none");
+                std::fprintf(out, "%s\n", "none");
                 break;
         }
 
-        fprintf(out, "\n! Station code and name font\n");
-        fprintf(out, "station_font %s\n", get_station_font().c_str());
-        fprintf(out, "\n! Station offsets\n");
-        fprintf(out, "ignore_station_offsets %s\n", using_station_offsets() ? "no" : "yes");
+        std::fprintf(out, "\n! Station code and name font\n");
+        std::fprintf(out, "station_font %s\n", get_station_font().c_str());
+        std::fprintf(out, "\n! Station offsets\n");
+        std::fprintf(out, "ignore_station_offsets %s\n", using_station_offsets() ? "no" : "yes");
         if (offset_station_count()) {
             int istn;
             for (istn = 0; istn++ < station_count();) {
                 double oe;
                 double on;
                 if (get_station_offset(istn, &oe, &on)) {
-                    fprintf(out, "offset_station %s  %.2lf %.2lf\n", stnptr(istn)->Code.c_str(), oe, on);
+                    std::fprintf(out, "offset_station %s  %.2lf %.2lf\n", stnptr(istn)->Code.c_str(), oe, on);
                 }
             }
         }
@@ -954,19 +955,19 @@ int write_config_file(FILE* out, int key_only) {
             for (istn = 0; istn++ < station_count();) {
                 if (station_highlighted(istn)) {
                     if (first) {
-                        fprintf(out, "\n! Highlighted stations\nhighlight");
+                        std::fprintf(out, "\n! Highlighted stations\nhighlight");
                         first = 0;
                     }
                     if (nline > 8) {
-                        fprintf(out, "\nhighlight");
+                        std::fprintf(out, "\nhighlight");
                         nline = 0;
                     }
-                    fprintf(out, " %s", stnptr(istn)->Code.c_str());
+                    std::fprintf(out, " %s", stnptr(istn)->Code.c_str());
                     nline++;
                 }
             }
             if (first) {
-                fprintf(out, "\n");
+                std::fprintf(out, "\n");
             }
         }
 
@@ -979,37 +980,37 @@ int write_config_file(FILE* out, int key_only) {
             for (istn = 0; istn++ < station_count();) {
                 if (station_hidden(istn)) {
                     if (first) {
-                        fprintf(out, "\n! Hidden stations\nhide");
+                        std::fprintf(out, "\n! Hidden stations\nhide");
                         first = 0;
                     }
                     if (nline > 8) {
-                        fprintf(out, "\nhide");
+                        std::fprintf(out, "\nhide");
                         nline = 0;
                     }
-                    fprintf(out, " %s", stnptr(istn)->Code.c_str());
+                    std::fprintf(out, " %s", stnptr(istn)->Code.c_str());
                     nline++;
                 }
             }
             if (first) {
-                fprintf(out, "\n");
+                std::fprintf(out, "\n");
             }
         }
-        fprintf(out, "\n! Key defined as follows:\n\n");
+        std::fprintf(out, "\n! Key defined as follows:\n\n");
     }
-    fprintf(out, "station_colours %s\n", get_stationpen_definition().c_str());
-    fprintf(out, "observation_colours %s\n", get_datapen_definition().c_str());
+    std::fprintf(out, "station_colours %s\n", get_stationpen_definition().c_str());
+    std::fprintf(out, "observation_colours %s\n", get_datapen_definition().c_str());
     print_key(out, "key");
     return OK;
 }
 
 int save_configuration(const std::string& cfgname) {
-    FILE* cfg = fopen(cfgname.c_str(), "w");
+    std::FILE* cfg = std::fopen(cfgname.c_str(), "w");
     if (!cfg) {
         return 0;
     }
 
     write_config_file(cfg, 0);
-    fclose(cfg);
+    std::fclose(cfg);
     return 1;
 }
 

@@ -202,7 +202,7 @@ int write_station_file(const std::optional<std::string>& prog, const std::option
 
 /* Procedure to dump the station coordinates to a binary file */
 
-static void dump_stnadj_flags(stn_adjustment* st, FILE* f) {
+static void dump_stnadj_flags(stn_adjustment* st, std::FILE* f) {
     unsigned int flag;
     flag = 0;
     if (st->flag.adj_h) {
@@ -238,12 +238,12 @@ static void dump_stnadj_flags(stn_adjustment* st, FILE* f) {
     if (st->flag.auto_v) {
         flag += 1024;
     }
-    fwrite(&flag, sizeof(flag), 1, f);
+    std::fwrite(&flag, sizeof(flag), 1, f);
 }
 
-static void reload_stnadj_flags(stn_adjustment* st, FILE* f) {
+static void reload_stnadj_flags(stn_adjustment* st, std::FILE* f) {
     unsigned int flag;
-    fread(&flag, sizeof(flag), 1, f);
+    std::fread(&flag, sizeof(flag), 1, f);
     st->flag.adj_h = flag & 1 ? 1 : 0;
     st->flag.adj_v = flag & 2 ? 1 : 0;
     st->flag.float_h = flag & 4 ? 1 : 0;
@@ -281,7 +281,7 @@ void dump_stations(BINARY_FILE* b) {
 
     for (istn = 0; istn++ < number_of_stations(net);) {
         st = stnadj(stnptr(istn));
-        fwrite(st, sizeof(*st) - sizeof(st->flag), 1, b->f);
+        std::fwrite(st, sizeof(*st) - sizeof(st->flag), 1, b->f);
         dump_stnadj_flags(st, b->f);
     }
 
@@ -316,7 +316,7 @@ int reload_stations(BINARY_FILE* b) {
         st = stnptr(istn);
         create_stn_adjustment(st);
         sa = stnadj(stnptr(istn));
-        fread(sa, sizeof(stn_adjustment) - sizeof(sa->flag), 1, b->f);
+        std::fread(sa, sizeof(stn_adjustment) - sizeof(sa->flag), 1, b->f);
         reload_stnadj_flags(sa, b->f);
     }
 

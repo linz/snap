@@ -143,9 +143,9 @@ void set_confidence_limit() {
         prob = (100 - confidence_limit) / 100.0;
         dofd = apriori ? 0 : dof;
         hgterr_factor = inv_f_distn(prob, 1, dofd);
-        hgterr_factor = hgterr_factor > 0.0 ? sqrt(hgterr_factor) : 0.0;
+        hgterr_factor = hgterr_factor > 0.0 ? std::sqrt(hgterr_factor) : 0.0;
         errell_factor = inv_f_distn(prob, 2, dofd);
-        errell_factor = errell_factor > 0.0 ? sqrt(errell_factor * 2.0) : 0.0;
+        errell_factor = errell_factor > 0.0 ? std::sqrt(errell_factor * 2.0) : 0.0;
     } else {
         errell_factor = hgterr_factor = confidence_limit;
     }

@@ -49,19 +49,19 @@ struct syserrdata {
 };
 
 struct trgtdata {
-    int to;          /* The index of the target station */
-    double tohgt;    /* The instrument height at the target station */
-    int type;        /* The type of data */
-    int obsid;       /* Id of observation for snap */
-    int id;          /* An optional external id for the observation */
-    int lineno;      /* The line number in the data file - used to pinpoint problems */
-    int nclass;      /* Number of classifications for the obs */
-    int iclass;      /* Index of first class in array of classes */
-    int nsyserr;     /* Number of systematic errors */
-    int isyserr;     /* Index of first systematic error in array of syserrs */
-    char unused;     /* Flags whether the observation has been rejected */
-    int64_t noteloc; /* Identifies a note associated with the obs */
-    double errfct;   /* Error factor applied to the obs by obs modifications */
+    int to;               /* The index of the target station */
+    double tohgt;         /* The instrument height at the target station */
+    int type;             /* The type of data */
+    int obsid;            /* Id of observation for snap */
+    int id;               /* An optional external id for the observation */
+    int lineno;           /* The line number in the data file - used to pinpoint problems */
+    int nclass;           /* Number of classifications for the obs */
+    int iclass;           /* Index of first class in array of classes */
+    int nsyserr;          /* Number of systematic errors */
+    int isyserr;          /* Index of first systematic error in array of syserrs */
+    char unused;          /* Flags whether the observation has been rejected */
+    std::int64_t noteloc; /* Identifies a note associated with the obs */
+    double errfct;        /* Error factor applied to the obs by obs modifications */
 };
 
 /* NOTE: each variant structure used within typedef survdata, defined
@@ -129,15 +129,15 @@ struct survdata {
         vecdata* vdata;
         pntdata* pdata;
     } obs;
-    int32_t obsalloc;   /* Space allocated for the observations */
-    int maxcvr;         /* Allocated size of covariance matrices */
-    int maxclass;       /* Allocated size of classification array */
-    int maxsyserr;      /* Allocated size of systematic error array */
-    ltmat cvr;          /* The covariance of the observations (vector data only) */
-    ltmat calccvr;      /* The covariance of the calculate values (vector data only) */
-    ltmat rescvr;       /* The covariance matrix of the residuals (vector data only */
-    classdata* clsf;    /* Array of classifications - observations index into this */
-    syserrdata* syserr; /* The list of systematic errors */
+    std::int32_t obsalloc; /* Space allocated for the observations */
+    int maxcvr;            /* Allocated size of covariance matrices */
+    int maxclass;          /* Allocated size of classification array */
+    int maxsyserr;         /* Allocated size of systematic error array */
+    ltmat cvr;             /* The covariance of the observations (vector data only) */
+    ltmat calccvr;         /* The covariance of the calculate values (vector data only) */
+    ltmat rescvr;          /* The covariance matrix of the residuals (vector data only */
+    classdata* clsf;       /* Array of classifications - observations index into this */
+    syserrdata* syserr;    /* The list of systematic errors */
 };
 
 // The fixed-width on-disk layout of the 16 fields above `from` through

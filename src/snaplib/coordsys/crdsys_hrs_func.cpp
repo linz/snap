@@ -47,7 +47,7 @@ static int calc_offset_vdatum_func(vdatum_func* hrf, double[3], double* height, 
 
 vdatum_func* create_offset_vdatum_func(double offset) {
     char description[80];
-    sprintf(description, "Offset of %.3lf metres", offset);
+    std::sprintf(description, "Offset of %.3lf metres", offset);
     return new vdatum_func("OFFSET", description, new double(offset), delete_offset_vdatum_func_data,
                            describe_offset_vdatum_func, copy_offset_vdatum_func_data, identical_offset_vdatum_func,
                            calc_offset_vdatum_func);

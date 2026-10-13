@@ -380,13 +380,13 @@ void rfTransformation::_calcTmat(const double* parameters, tmatrix tmat, tmatrix
     if (!istopo) {
         calcrotmat(0, 1.0, 0.0, tmat);
     } else {
-        memcpy(tmat, toporot, sizeof(tmatrix));
+        std::memcpy(tmat, toporot, sizeof(tmatrix));
     }
 
     for (axis = 3; axis--;) {
         angle = parameters[rfRotx + axis] * STOR;
-        cs = cos(angle);
-        sn = sin(angle);
+        cs = std::cos(angle);
+        sn = std::sin(angle);
         calcrotmat(axis, cs, sn, mult);
         premult3(DS mult, DS tmat, DS tmat, 3);
     }
@@ -482,14 +482,14 @@ void rfTransformation::setup() {
         }
     } else {
         for (i = 0; i < 3; i++) {
-            memcpy(dtmatdrot[i], topocentreRotation, sizeof(tmatrix));
+            std::memcpy(dtmatdrot[i], topocentreRotation, sizeof(tmatrix));
         }
     }
 
     for (axis = 3; axis--;) {
         angle = prm[rfRotx + axis] * STOR;
-        cs = cos(angle);
-        sn = sin(angle);
+        cs = std::cos(angle);
+        sn = std::sin(angle);
 
         calcrotmat(axis, cs, sn, mult);
         for (i = 0; i < 3; i++) {
@@ -529,10 +529,10 @@ static void setup_topo_rotations(double lt, double ln) {
     double cln;
     double sln;
 
-    clt = cos(lt);
-    slt = sin(lt);
-    cln = cos(ln);
-    sln = sin(ln);
+    clt = std::cos(lt);
+    slt = std::sin(lt);
+    cln = std::cos(ln);
+    sln = std::sin(ln);
 
     invTopocentreRotation[0][0] = topocentreRotation[0][0] = -sln;
     invTopocentreRotation[1][0] = topocentreRotation[0][1] = cln;

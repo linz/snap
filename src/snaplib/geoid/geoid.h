@@ -44,8 +44,8 @@ std::optional<std::string> create_geoid_filename(const std::optional<std::string
 /// If no name is given the default geoid is looked up.
 geoid_def* create_geoid_grid(const std::optional<std::string>& filename);
 void delete_geoid_grid(geoid_def* gd);
-void print_geoid_header(geoid_def* gd, FILE* out, int width, std::string_view prefix);
-void print_geoid_data(geoid_def* gd, FILE* out, char showGrid);
+void print_geoid_header(geoid_def* gd, std::FILE* out, int width, std::string_view prefix);
+void print_geoid_data(geoid_def* gd, std::FILE* out, char showGrid);
 std::string_view geoid_title(geoid_def* gd, int titleno);
 coordsys* get_geoid_coordsys(geoid_def* gd);
 std::string_view get_geoid_model(geoid_def* gd);

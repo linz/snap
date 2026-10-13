@@ -222,7 +222,7 @@ static int max_ro_id = 0;
 static int listonly = 0;
 static int userejected = 0;
 
-static FILE* errlog;
+static std::FILE* errlog;
 static int errcount;
 
 #define CONFIRM_NONE 0
@@ -404,10 +404,11 @@ static void add_vecdata(stn* from, stn* to, double value[3], int type) {
         rcn = get_connection(to, from);
         if (cn->flag & CN_GB) {
             double diff;
-            diff = fabs(cn->gb.xyz[0] - value[0]) + fabs(cn->gb.xyz[1] - value[1]) + fabs(cn->gb.xyz[2] - value[2]);
+            diff = std::fabs(cn->gb.xyz[0] - value[0]) + std::fabs(cn->gb.xyz[1] - value[1]) +
+                   std::fabs(cn->gb.xyz[2] - value[2]);
             if (diff > GB_TOL) {
-                fprintf(errlog, "\nFrom %s to %s\n: GPS baselines differ by %.2f m\n", from->code.c_str(),
-                        to->code.c_str(), diff);
+                std::fprintf(errlog, "\nFrom %s to %s\n: GPS baselines differ by %.2f m\n", from->code.c_str(),
+                             to->code.c_str(), diff);
                 errcount++;
             }
             cn->gb.xyz[0] = (cn->gb.xyz[0] + value[0]) / 2;
@@ -426,9 +427,10 @@ static void add_vecdata(stn* from, stn* to, double value[3], int type) {
     } else if (type == GX) {
         if (to->flag & CN_GX) {
             double diff;
-            diff = fabs(value[0] - to->gx.xyz[0]) + fabs(value[1] - to->gx.xyz[1]) + fabs(value[2] - to->gx.xyz[2]);
+            diff = std::fabs(value[0] - to->gx.xyz[0]) + std::fabs(value[1] - to->gx.xyz[1]) +
+                   std::fabs(value[2] - to->gx.xyz[2]);
             if (diff > GX_TOL) {
-                fprintf(errlog, "\nFrom %s\n: Point coordinate obs differ by %.2f m\n", to->code.c_str(), diff);
+                std::fprintf(errlog, "\nFrom %s\n: Point coordinate obs differ by %.2f m\n", to->code.c_str(), diff);
                 errcount++;
             }
             to->gx.xyz[0] = (to->gx.xyz[0] + value[0]) / 2;
@@ -454,10 +456,10 @@ static void add_dsdata(stn* from, stn* to, double dist, char type) {
     if (cn->flag & CN_DS) {
         if (type < cn->ds.type) {
             double diff;
-            diff = fabs(cn->ds.ds - dist);
+            diff = std::fabs(cn->ds.ds - dist);
             if (diff > DS_TOL) {
-                fprintf(errlog, "From %s to %s: Distances differ by %.1f m\n", from->code.c_str(), to->code.c_str(),
-                        diff);
+                std::fprintf(errlog, "From %s to %s: Distances differ by %.1f m\n", from->code.c_str(),
+                             to->code.c_str(), diff);
             }
             cn->ds.ds = dist;
             cn->ds.type = type;
@@ -481,10 +483,10 @@ static void add_zddata(stn* from, stn* to, double zd) {
     cn = get_connection(from, to);
     if (cn->flag & CN_ZD) {
         double diff;
-        diff = fabs(cn->zd.zd - zd);
+        diff = std::fabs(cn->zd.zd - zd);
         if (diff > ZD_TOL) {
-            fprintf(errlog, "From %s to %s: Zenith distances differ by %.3f degrees\n", from->code.c_str(),
-                    to->code.c_str(), diff);
+            std::fprintf(errlog, "From %s to %s: Zenith distances differ by %.3f degrees\n", from->code.c_str(),
+                         to->code.c_str(), diff);
             errcount++;
         }
         cn->zd.zd = (cn->zd.zd + zd) / 2.0;
@@ -505,10 +507,10 @@ static void add_lvdata(stn* from, stn* to, double hd) {
     rcn = get_connection(to, from);
     if (cn->flag & CN_LV) {
         double diff;
-        diff = fabs(cn->lv.hd - hd);
+        diff = std::fabs(cn->lv.hd - hd);
         if (diff > LV_TOL) {
-            fprintf(errlog, "From %s to %s: Height differences differ by %.1fm\n", from->code.c_str(), to->code.c_str(),
-                    diff);
+            std::fprintf(errlog, "From %s to %s: Height differences differ by %.1fm\n", from->code.c_str(),
+                         to->code.c_str(), diff);
             errcount++;
         }
         cn->lv.hd = (cn->lv.hd + hd) / 2.0;
@@ -538,10 +540,10 @@ static void add_azdata(stn* from, stn* to, double az, int* ro_id, double* ro_cor
             while (diff < -PI) {
                 diff += TWOPI;
             }
-            diff = fabs(diff);
+            diff = std::fabs(diff);
             if (diff > AZ_TOL) {
-                fprintf(errlog, "From %s to %s: Angle/azimuth discrepancy of %.2f deg\n", from->code.c_str(),
-                        to->code.c_str(), diff * RTOD);
+                std::fprintf(errlog, "From %s to %s: Angle/azimuth discrepancy of %.2f deg\n", from->code.c_str(),
+                             to->code.c_str(), diff * RTOD);
                 errcount++;
             }
             cn->az.az = (cn->az.az + az) / 2.0;
@@ -669,9 +671,9 @@ static void load_data(survdata* sd) {
 
 // #pragma warning (disable : 4100)
 
-static int64_t get_id(int type, int, std::string_view code) {
+static std::int64_t get_id(int type, int, std::string_view code) {
     if (type == ID_STATION) {
-        return (int64_t)get_station_id(code);
+        return (std::int64_t)get_station_id(code);
     }
     if (type == ID_PROJCTN) {
         return 1;
@@ -716,10 +718,10 @@ static void convert_zd_to_lv(stn* from, stn* to, double arcdist) {
         double diff;
         a1 = cn->zd.zd + corr;
         a2 = rcn->zd.zd + corr;
-        diff = fabs(a1 + a2 - PI);
+        diff = std::fabs(a1 + a2 - PI);
         if (diff > ZD_TOL) {
-            fprintf(errlog, "From %s to %s: Zenith distances differ by %.1f deg", from->code.c_str(), to->code.c_str(),
-                    diff * RTOD);
+            std::fprintf(errlog, "From %s to %s: Zenith distances differ by %.1f deg", from->code.c_str(),
+                         to->code.c_str(), diff * RTOD);
             errcount++;
         }
         zd = (a1 + PI - a2) / 2.0;
@@ -730,7 +732,7 @@ static void convert_zd_to_lv(stn* from, stn* to, double arcdist) {
     } else {
         return;
     }
-    hd = arcdist * cos(zd) / sin(zd);
+    hd = arcdist * std::cos(zd) / std::sin(zd);
     add_lvdata(from, to, hd);
 }
 
@@ -746,7 +748,7 @@ static void fixup_all_zdds(void) {
                     nds = cn->ds.ds * cn->ds.ds - cn->lv.hd * cn->lv.hd;
                     if (nds > 0.0) {
                         cn->ds.type = DS_HOR;
-                        cn->ds.ds = sqrt(nds);
+                        cn->ds.ds = std::sqrt(nds);
                         rcn = get_connection(cn->to, &st);
                         rcn->ds.type = cn->ds.type;
                         rcn->ds.ds = cn->ds.ds;
@@ -762,7 +764,7 @@ static void fixup_all_zdds(void) {
             }
             dist = cn->ds.ds;
             if (cn->ds.type == DS_SLP) {
-                dist *= sin(cn->zd.zd - 0.425 * dist / RADIUS_OF_EARTH);
+                dist *= std::sin(cn->zd.zd - 0.425 * dist / RADIUS_OF_EARTH);
                 cn->ds.ds = dist;
                 cn->ds.type = DS_HOR;
                 rcn = get_connection(cn->to, &st);
@@ -853,7 +855,7 @@ static void add_ro_link(int ro1, int ro2, double corr) {
         while (diff < -PI) {
             diff += TWOPI;
         }
-        diff = fabs(diff);
+        diff = std::fabs(diff);
         if (diff < max_ro_diff) {
             max_ro_diff = diff;
         }
@@ -963,7 +965,7 @@ static void use_vertical_fix(stn* from) {
             const double hdiff = ds_calc_height_diff(from, cn->to);
             const double ds2 = cn->ds.ds * cn->ds.ds - hdiff * hdiff;
             if (ds2 > 0.0) {
-                cn->ds.ds = sqrt(ds2);
+                cn->ds.ds = std::sqrt(ds2);
                 cn->ds.type = DS_HOR;
                 rcn = get_connection(cn->to, from);
                 rcn->ds.ds = cn->ds.ds;
@@ -1176,7 +1178,7 @@ static void update_fix_info(stn* from, stn* newfix) {
                 quality = 0.0;
                 FOR_ALL_CONNECTIONS(from, cn) {
                     double dst;
-                    double cos;
+                    double cos_value;
                     if (cn->to == newfix || !(cn->to->fixed & ST_FIXH) || !(cn->flag & CN_DS)) {
                         continue;
                     }
@@ -1186,17 +1188,17 @@ static void update_fix_info(stn* from, stn* newfix) {
                         nhdst++;
                     }
                     dst = ds_calc_arc_distance(newfix, cn->to);
-                    cos = (newcn->ds.ds * newcn->ds.ds + cn->ds.ds * cn->ds.ds - dst * dst) /
-                          (2.0 * newcn->ds.ds * cn->ds.ds);
-                    cos = 1.0 - cos * cos;
-                    if (cos < 0.0) {
+                    cos_value = (newcn->ds.ds * newcn->ds.ds + cn->ds.ds * cn->ds.ds - dst * dst) /
+                                (2.0 * newcn->ds.ds * cn->ds.ds);
+                    cos_value = 1.0 - cos_value * cos_value;
+                    if (cos_value < 0.0) {
                         continue;
                     }
                     if (newcn->ds.type == DS_SLP || cn->ds.type == DS_SLP) {
-                        cos *= SLP_DIST_FACTOR;
+                        cos_value *= SLP_DIST_FACTOR;
                     }
-                    if (cos > quality) {
-                        quality = cos;
+                    if (cos_value > quality) {
+                        quality = cos_value;
                     }
                 }
                 if (nsdst + nhdst <= 1) {
@@ -1248,7 +1250,7 @@ static void update_fix_info(stn* from, stn* newfix) {
                     continue;
                 }
                 nfixaz++;
-                qdiff = fabs(sin(newcn->revaz.az - cn->revaz.az));
+                qdiff = std::fabs(std::sin(newcn->revaz.az - cn->revaz.az));
                 if (qdiff > quality) {
                     quality = qdiff;
                 }
@@ -1321,7 +1323,7 @@ static void fix_station(stn* st, double lat, double lon, double hgt, int flag) {
             const double dx = xyz[i] - st->st->XYZ[i];
             offset += dx * dx;
         }
-        offset = sqrt(offset);
+        offset = std::sqrt(offset);
         if (!(flag & ST_HIDEFIX)) {
             PRINTLOG(LOGFIX, ("Station %s shifted %.2lf m\n", st->code.c_str(), offset));
         }
@@ -1386,7 +1388,7 @@ static void fix_known_stations(const std::vector<std::string>& recalclist) {
             st->fixed = 0;
         }
     }
-    printf("\nFixing known stations\n");
+    std::printf("\nFixing known stations\n");
     init_progress_meter(maxstn);
     for (i = 0; i++ < maxstn;) {
         station* s;
@@ -1426,8 +1428,8 @@ static int confirm_fix(const std::string_view msg) {
         return 0;
     }
     for (;;) {
-        printf("%.*s? Y(es), N(o), Q(uit): ", numeric_cast<int>(msg.size()), msg.data());
-        fgets(response, 80, stdin);
+        std::printf("%.*s? Y(es), N(o), Q(uit): ", numeric_cast<int>(msg.size()), msg.data());
+        std::fgets(response, 80, stdin);
         for (c = response; *c && *c == ' '; c++) {
         }
         switch (*c) {
@@ -1472,7 +1474,7 @@ static int fix_with_gps(stn* st, double* lat, double* lon, double* hgt, int*) {
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s using GPS", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s using GPS", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -1587,7 +1589,7 @@ static int fix_with_gps_point(stn* st, double* lat, double* lon, double* hgt, in
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s using GPS point observation", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s using GPS point observation", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -1628,7 +1630,7 @@ static int fix_with_hgtdif(stn* st, double* lt, double* ln, double* hgt) {
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s vertically using height difference", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s vertically using height difference", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -1660,7 +1662,7 @@ static void setup_plane_projection(const double xyz[3]) {
         cxyz[i] = vxyz[i] = xyz[i];
         v += vxyz[i] * vxyz[i];
     }
-    v = sqrt(v);
+    v = std::sqrt(v);
     for (i = 0; i < 3; i++) {
         vxyz[i] /= v;
     }
@@ -1734,7 +1736,7 @@ static int fix_with_azds(stn* st, double* lt, double* ln, double* hgt) {
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s using azimuths and distances", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s using azimuths and distances", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -1759,8 +1761,8 @@ static int fix_with_azds(stn* st, double* lt, double* ln, double* hgt) {
                 ds = cn->ds.ds;
                 nconn++;
             }
-            xy[0] += cn->to->xy[0] - ds * sin(cn->revaz.az);
-            xy[1] += cn->to->xy[1] - ds * cos(cn->revaz.az);
+            xy[0] += cn->to->xy[0] - ds * std::sin(cn->revaz.az);
+            xy[1] += cn->to->xy[1] - ds * std::cos(cn->revaz.az);
         }
     }
     if (nconn <= 0.0) {
@@ -1779,7 +1781,7 @@ static double distance(double xy1[2], double xy2[2]) {
 }
 
 static double bearing(double xy1[2], double xy2[2]) {
-    return atan2(xy2[0] - xy1[0], xy2[1] - xy1[1]);
+    return std::atan2(xy2[0] - xy1[0], xy2[1] - xy1[1]);
 }
 
 static int fix_with_azaz(stn* st, double* lt, double* ln, double* hgt) {
@@ -1792,7 +1794,7 @@ static int fix_with_azaz(stn* st, double* lt, double* ln, double* hgt) {
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s using intersecting azimuths", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s using intersecting azimuths", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -1812,8 +1814,8 @@ static int fix_with_azaz(stn* st, double* lt, double* ln, double* hgt) {
             double s;
             double v;
             n++;
-            c = cos(cn->revaz.az);
-            s = sin(cn->revaz.az);
+            c = std::cos(cn->revaz.az);
+            s = std::sin(cn->revaz.az);
             v = c * cn->to->xy[0] - s * cn->to->xy[1];
             N[0] += c * c;
             N[1] -= c * s;
@@ -1853,7 +1855,7 @@ static int fix_with_dsds(stn* st, double* lt, double* ln, double* hgt) {
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s using a distances", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s using a distances", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -1921,13 +1923,13 @@ static int fix_with_dsds(stn* st, double* lt, double* ln, double* hgt) {
     if (daz <= -1.0) {
         return 0;
     }
-    daz = atan2(sqrt(1 - daz * daz), daz);
+    daz = std::atan2(std::sqrt(1 - daz * daz), daz);
 
     az = bearing(cnd1->to->xy, cnd2->to->xy);
-    xy1[0] = cnd1->to->xy[0] + d1 * sin(az + daz);
-    xy1[1] = cnd1->to->xy[1] + d1 * cos(az + daz);
-    xy2[0] = cnd1->to->xy[0] + d1 * sin(az - daz);
-    xy2[1] = cnd1->to->xy[1] + d1 * cos(az - daz);
+    xy1[0] = cnd1->to->xy[0] + d1 * std::sin(az + daz);
+    xy1[1] = cnd1->to->xy[1] + d1 * std::cos(az + daz);
+    xy2[0] = cnd1->to->xy[0] + d1 * std::sin(az - daz);
+    xy2[1] = cnd1->to->xy[1] + d1 * std::cos(az - daz);
 
     /* Now look at the other distances to decide which is the best
        fit */
@@ -1983,7 +1985,7 @@ static int fix_with_dshaha(stn* st, double* lt, double* ln, double* hgt) {
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s using a distance and horizontal angles", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s using a distance and horizontal angles", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -2040,17 +2042,17 @@ static int fix_with_dshaha(stn* st, double* lt, double* ln, double* hgt) {
     a12 = cnd2->az.az - cnd1->az.az;
     d12 = distance(cnd1->to->xy, cnd2->to->xy);
     d1 = cnd1->ds.ds;
-    d2 = d1 * sin(a12);
-    d2 = d1 * cos(a12) + sqrt(d12 * d12 - d2 * d2);
+    d2 = d1 * std::sin(a12);
+    d2 = d1 * std::cos(a12) + std::sqrt(d12 * d12 - d2 * d2);
 
     /* Bearing from at cnd1->to from cnd2->to to st */
 
-    sn = d2 * sin(a12) / d12;
+    sn = d2 * std::sin(a12) / d12;
     cs = (d1 * d1 + d12 * d12 - d2 * d2) / (2.0 * d1 * d12);
-    a12 = bearing(cnd1->to->xy, cnd2->to->xy) + atan2(sn, cs);
+    a12 = bearing(cnd1->to->xy, cnd2->to->xy) + std::atan2(sn, cs);
 
-    xy[0] = cnd1->to->xy[0] + d1 * sin(a12);
-    xy[1] = cnd1->to->xy[1] + d1 * cos(a12);
+    xy[0] = cnd1->to->xy[0] + d1 * std::sin(a12);
+    xy[1] = cnd1->to->xy[1] + d1 * std::cos(a12);
     plane_to_geodetic(xy, lt, ln);
     *hgt = 0.0;
 
@@ -2090,7 +2092,7 @@ static int fix_by_resection(stn* st, double* lt, double* ln, double* hgt) {
 
     {
         char msg[80];
-        sprintf(msg, "Fixing %.10s using resection", st->code.c_str());
+        std::sprintf(msg, "Fixing %.10s using resection", st->code.c_str());
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -2173,11 +2175,11 @@ static int fix_by_resection(stn* st, double* lt, double* ln, double* hgt) {
                 continue;
             }
             cs = cn1->az.az - cn->az.az;
-            sn = sin(cs);
-            if (fabs(sn) < 0.0001) {
+            sn = std::sin(cs);
+            if (std::fabs(sn) < 0.0001) {
                 continue; /* Centre gets too far away... */
             }
-            cs = cos(cs);
+            cs = std::cos(cs);
             dx = cn1->to->xy[0] - cn->to->xy[0];
             dy = cn1->to->xy[1] - cn->to->xy[1];
             centre[nro].xy[0] = cn->to->xy[0] + (dx + dy * cs / sn) / 2;
@@ -2230,13 +2232,13 @@ static int fix_by_resection(stn* st, double* lt, double* ln, double* hgt) {
         delete[] centre;
         return 0;
     }
-    daz = atan2(sqrt(1 - daz * daz), daz);
+    daz = std::atan2(std::sqrt(1 - daz * daz), daz);
 
     az = bearing(centre[c1].xy, centre[c2].xy);
-    xy1[0] = centre[c1].xy[0] + d1 * sin(az + daz);
-    xy1[1] = centre[c1].xy[1] + d1 * cos(az + daz);
-    xy2[0] = centre[c1].xy[0] + d1 * sin(az - daz);
-    xy2[1] = centre[c1].xy[1] + d1 * cos(az - daz);
+    xy1[0] = centre[c1].xy[0] + d1 * std::sin(az + daz);
+    xy1[1] = centre[c1].xy[1] + d1 * std::cos(az + daz);
+    xy2[0] = centre[c1].xy[0] + d1 * std::sin(az - daz);
+    xy2[1] = centre[c1].xy[1] + d1 * std::cos(az - daz);
 
     /* Now look at the other distances to decide which is the best
        fit */
@@ -2419,8 +2421,8 @@ static int fix_by_traverse(void) {
                     az = cn->az.az + ro_corr[iro];
                     ds = cn->ds.ds;
                     wgt = (cn->ds.type == DS_SLP) ? SLP_DIST_FACTOR : 1.0;
-                    cn->to->travxy[0] += wgt * (st.travxy[0] + ds * sin(az));
-                    cn->to->travxy[1] += wgt * (st.travxy[1] + ds * cos(az));
+                    cn->to->travxy[0] += wgt * (st.travxy[0] + ds * std::sin(az));
+                    cn->to->travxy[1] += wgt * (st.travxy[1] + ds * std::cos(az));
                     cn->to->travwgt += wgt;
                     if (cn->to->traverse == 0) {
                         cn->to->traverse = current_id + 1;
@@ -2541,7 +2543,7 @@ static int fix_by_traverse(void) {
 
     {
         char msg[80];
-        sprintf(msg, "Fix %d stations by traverse", fixed_stns);
+        std::sprintf(msg, "Fix %d stations by traverse", fixed_stns);
         if (!confirm_fix(msg)) {
             return 0;
         }
@@ -2644,7 +2646,7 @@ static int fix_unknown_stations(void) {
 
 /*=====================================================================*/
 
-static int print_unfixed_stations(FILE* out, char status, const char mask, const std::string_view prompt) {
+static int print_unfixed_stations(std::FILE* out, char status, const char mask, const std::string_view prompt) {
     int lineno = 0;
     int nbad = 0;
     status &= mask;
@@ -2653,20 +2655,20 @@ static int print_unfixed_stations(FILE* out, char status, const char mask, const
             continue;
         }
         if (!lineno) {
-            fputs("\n", out);
-            fwrite(prompt.data(), 1, prompt.size(), out);
-            fputs("\n", out);
+            std::fputs("\n", out);
+            std::fwrite(prompt.data(), 1, prompt.size(), out);
+            std::fputs("\n", out);
         }
         if (lineno == 6) {
-            fprintf(out, "\n");
+            std::fprintf(out, "\n");
             lineno = 0;
         }
-        fprintf(out, "  %-10s", st.code.c_str());
+        std::fprintf(out, "  %-10s", st.code.c_str());
         lineno++;
         nbad++;
     }
     if (lineno) {
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
     }
     return nbad;
 }
@@ -2690,7 +2692,7 @@ static std::string logname;
 static int gotroot = 0;
 static char newcrdfile = 0;
 
-static FILE* logfile = nullptr;
+static std::FILE* logfile = nullptr;
 
 static void set_logname(const std::string& name) {
     if (!logname.empty()) {
@@ -2702,35 +2704,35 @@ static void set_logname(const std::string& name) {
 static void list_coordsys_codes() {
     int i;
     int nlines;
-    printf("\nValid coordinate system codes are:\n");
+    std::printf("\nValid coordinate system codes are:\n");
     nlines = 0;
     for (i = 0; i < coordsys_list_count(); i++) {
         if (nlines == 20) {
-            printf("    Press enter to continue: ");
-            if (!fgets(inrec, 256, stdin) || inrec[0] != '\n') {
+            std::printf("    Press enter to continue: ");
+            if (!std::fgets(inrec, 256, stdin) || inrec[0] != '\n') {
                 break;
             }
             nlines = 0;
         }
-        printf("  %-10s  %s\n", coordsys_list_code(i).c_str(), coordsys_list_desc(i).c_str());
+        std::printf("  %-10s  %s\n", coordsys_list_code(i).c_str(), coordsys_list_desc(i).c_str());
         nlines++;
     }
-    printf("\n");
+    std::printf("\n");
 }
 
 static int get_net_coordsys(void) {
     coordsys* cs;
     for (;;) {
         char* code;
-        printf("\nEnter the coordinate system code or ?: ");
-        if (!fgets(inrec, 256, stdin)) {
-            exit(0);
+        std::printf("\nEnter the coordinate system code or ?: ");
+        if (!std::fgets(inrec, 256, stdin)) {
+            std::exit(0);
         }
-        code = strtok(inrec, " \t\n");
+        code = std::strtok(inrec, " \t\n");
         if (!code) {
             return 0;
         }
-        if (strcmp(code, "?") == 0) {
+        if (std::strcmp(code, "?") == 0) {
             list_coordsys_codes();
             continue;
         }
@@ -2739,7 +2741,7 @@ static int get_net_coordsys(void) {
         if (is_geocentric(cs)) {
             delete cs;
             cs = nullptr;
-            printf("Cannot use a geocentric (XYZ) coordinate system\n");
+            std::printf("Cannot use a geocentric (XYZ) coordinate system\n");
         }
         if (cs) {
             break;
@@ -2754,11 +2756,11 @@ static int get_net_coordsys(void) {
 static int get_option(const std::string_view prompt, const int dflt) {
     char* s;
     while (true) {
-        fwrite(prompt.data(), 1, prompt.size(), stdout);
-        if (!fgets(inrec, 256, stdin)) {
-            exit(0);
+        std::fwrite(prompt.data(), 1, prompt.size(), stdout);
+        if (!std::fgets(inrec, 256, stdin)) {
+            std::exit(0);
         }
-        s = strtok(inrec, " \t\n");
+        s = std::strtok(inrec, " \t\n");
         if (!s) {
             break;
         }
@@ -2789,16 +2791,16 @@ static int add_stations(void) {
     geodetic = is_geodetic(net->crdsys);
 
     for (;;) {
-        printf("\n     Enter station id (blank to quit): ");
-        if (!fgets(inrec, 256, stdin)) {
-            exit(0);
+        std::printf("\n     Enter station id (blank to quit): ");
+        if (!std::fgets(inrec, 256, stdin)) {
+            std::exit(0);
         }
-        if (sscanf(inrec, "%10s", code) != 1) {
+        if (std::sscanf(inrec, "%10s", code) != 1) {
             break;
         }
         _strupr(code);
         if (find_station(net, code)) {
-            printf("     Station %s already defined\n", code);
+            std::printf("     Station %s already defined\n", code);
             continue;
         }
 
@@ -2808,14 +2810,14 @@ static int add_stations(void) {
                 int min;
                 double sec;
                 char hem[2];
-                printf("     Enter station latitude (ddd mm ss.ss N|S):  ");
-                if (!fgets(inrec, 256, stdin)) {
+                std::printf("     Enter station latitude (ddd mm ss.ss N|S):  ");
+                if (!std::fgets(inrec, 256, stdin)) {
                     continue;
                 }
-                if (sscanf(inrec, "%d%d%lf%1s", &deg, &min, &sec, hem) != 4 || deg < 0 || deg > 90 || min < 0 ||
+                if (std::sscanf(inrec, "%d%d%lf%1s", &deg, &min, &sec, hem) != 4 || deg < 0 || deg > 90 || min < 0 ||
                     min > 60 || sec < 0.0 || sec > 60.0 ||
                     (hem[0] != 's' && hem[0] != 'S' && hem[0] != 'n' && hem[0] != 'N')) {
-                    printf("     Invalid input\n");
+                    std::printf("     Invalid input\n");
                     continue;
                 }
                 sec = (deg + min / 60.0 + sec / 3600.0) * DTOR;
@@ -2831,14 +2833,14 @@ static int add_stations(void) {
                 int min;
                 double sec;
                 char hem[2];
-                printf("     Enter station longitude (ddd mm ss.ss E|W): ");
-                if (!fgets(inrec, 256, stdin)) {
+                std::printf("     Enter station longitude (ddd mm ss.ss E|W): ");
+                if (!std::fgets(inrec, 256, stdin)) {
                     continue;
                 }
-                if (sscanf(inrec, "%d%d%lf%1s", &deg, &min, &sec, hem) != 4 || deg < 0 || deg > 180 || min < 0 ||
+                if (std::sscanf(inrec, "%d%d%lf%1s", &deg, &min, &sec, hem) != 4 || deg < 0 || deg > 180 || min < 0 ||
                     min > 60 || sec < 0.0 || sec > 60.0 ||
                     (hem[0] != 'e' && hem[0] != 'E' && hem[0] != 'w' && hem[0] != 'W')) {
-                    printf("     Invalid input\n");
+                    std::printf("     Invalid input\n");
                     continue;
                 }
                 sec = (deg + min / 60.0 + sec / 3600.0) * DTOR;
@@ -2850,23 +2852,23 @@ static int add_stations(void) {
             }
         } else {
             for (;;) {
-                printf("     Enter station easting: ");
-                if (!fgets(inrec, 256, stdin) || sscanf(inrec, "%lf", &llh[CRD_EAST]) != 1) {
+                std::printf("     Enter station easting: ");
+                if (!std::fgets(inrec, 256, stdin) || std::sscanf(inrec, "%lf", &llh[CRD_EAST]) != 1) {
                     continue;
                 }
                 break;
             }
             for (;;) {
-                printf("     Enter station northing: ");
-                if (!fgets(inrec, 256, stdin) || sscanf(inrec, "%lf", &llh[CRD_NORTH]) != 1) {
+                std::printf("     Enter station northing: ");
+                if (!std::fgets(inrec, 256, stdin) || std::sscanf(inrec, "%lf", &llh[CRD_NORTH]) != 1) {
                     continue;
                 }
                 break;
             }
         }
         for (;;) {
-            printf("     Enter station elevation: ");
-            if (!fgets(inrec, 256, stdin) || sscanf(inrec, "%lf", &llh[CRD_HGT]) != 1) {
+            std::printf("     Enter station elevation: ");
+            if (!std::fgets(inrec, 256, stdin) || std::sscanf(inrec, "%lf", &llh[CRD_HGT]) != 1) {
                 continue;
             }
             break;
@@ -2876,7 +2878,7 @@ static int add_stations(void) {
         }
         if (!geodetic) {
             if (convert_coords(&cnv, llh, nullptr, llh, nullptr) != OK) {
-                printf("     Cannot convert these coordinates to latitude and longitude\n");
+                std::printf("     Cannot convert these coordinates to latitude and longitude\n");
                 continue;
             }
         }
@@ -2892,29 +2894,29 @@ static int add_stations(void) {
 static void load_interactively(void) {
     char fname[80];
 
-    printf("\nDAT2SITE requires a SNAP coordinate file and one or more SNAP data files\n\n");
-    printf("\n=============================================================\n");
+    std::printf("\nDAT2SITE requires a SNAP coordinate file and one or more SNAP data files\n\n");
+    std::printf("\n=============================================================\n");
 
     net = new_network();
     while (true) {
-        printf("\nEnter input coordinate file name: ");
-        if (!fgets(inrec, 256, stdin) || sscanf(inrec, "%79s", fname) != 1) {
-            exit(0);
+        std::printf("\nEnter input coordinate file name: ");
+        if (!std::fgets(inrec, 256, stdin) || std::sscanf(inrec, "%79s", fname) != 1) {
+            std::exit(0);
         }
         crdfname = fname;
         if (!path_exists(crdfname)) {
-            printf("File %s does not exist\n", crdfname.c_str());
+            std::printf("File %s does not exist\n", crdfname.c_str());
             if (get_option("Do you want to create a new coordinate file? Y/N: ", 0) && get_net_coordsys()) {
                 set_network_name(net, "New network");
                 newcrdfile = 1;
                 break;
             }
-            printf("Cannot open file %s\n", crdfname.c_str());
+            std::printf("Cannot open file %s\n", crdfname.c_str());
         } else {
             if (read_network(net, crdfname, 0) == OK) {
                 break;
             }
-            printf("Error reading coordinate file %s\n", crdfname.c_str());
+            std::printf("Error reading coordinate file %s\n", crdfname.c_str());
         }
     }
     add_network_stations();
@@ -2923,13 +2925,13 @@ static void load_interactively(void) {
 
     set_logname(crdfname);
 
-    printf("\n=============================================================\n");
-    printf("\nEnter the names of the data files\n");
-    printf("\nAfter the last file enter a blank line to start calculating coordinates\n");
+    std::printf("\n=============================================================\n");
+    std::printf("\nEnter the names of the data files\n");
+    std::printf("\nAfter the last file enter a blank line to start calculating coordinates\n");
 
     while (true) {
-        printf("\nEnter the SNAP data file name: ");
-        if (!fgets(inrec, 256, stdin) || sscanf(inrec, "%79s", fname) != 1) {
+        std::printf("\nEnter the SNAP data file name: ");
+        if (!std::fgets(inrec, 256, stdin) || std::sscanf(inrec, "%79s", fname) != 1) {
             break;
         }
         const std::unique_ptr<DATAFILE> d = DATAFILE::open(fname, "SNAP data file");
@@ -2959,8 +2961,8 @@ static void load_data_files(const std::string& coord_file, const std::vector<std
 
     net = new_network();
     if (read_network(net, crdfname, 0) != OK) {
-        printf("Error reading coordinate file %s\n", crdfname.c_str());
-        exit(0);
+        std::printf("Error reading coordinate file %s\n", crdfname.c_str());
+        std::exit(0);
     }
     add_network_stations();
 
@@ -3019,17 +3021,17 @@ static void load_command_file(const std::string& cmd_file, int recalconly, int i
         sts = read_config_file(cfg, snap_commands);
         close_config_file(cfg);
     } else {
-        printf("\n\nCannot open command file %s\n", f.c_str());
-        exit(0);
+        std::printf("\n\nCannot open command file %s\n", f.c_str());
+        std::exit(0);
     }
     if (sts != OK) {
-        printf("\n\nErrors encountered reading command file\n");
-        exit(0);
+        std::printf("\n\nErrors encountered reading command file\n");
+        std::exit(0);
     }
     if (!included) {
         if (!net || !survey_data_file_count()) {
-            printf("\n\nCoordinate or data file not found in configuration file\n");
-            exit(0);
+            std::printf("\n\nCoordinate or data file not found in configuration file\n");
+            std::exit(0);
         }
         add_network_stations();
         if (recalconly) {
@@ -3056,15 +3058,15 @@ static int read_include_file(CFG_FILE*, std::string_view string, void*, int, int
 }
 
 static void printlog(const char* fmt, ...) {
-    va_list argptr;
+    std::va_list argptr;
     va_start(argptr, fmt);
     if (logfile) {
-        vfprintf(logfile, fmt, argptr);
-        fflush(logfile);
+        std::vfprintf(logfile, fmt, argptr);
+        std::fflush(logfile);
     }
     va_end(argptr);
     va_start(argptr, fmt);
-    vfprintf(stdout, fmt, argptr);
+    std::vfprintf(stdout, fmt, argptr);
     va_end(argptr);
 }
 
@@ -3151,24 +3153,24 @@ int main(int argc, char* argv[]) {
     }
 
     if (interactive || syntax_error) {
-        printf("\nDAT2SITE: Calculates trial coordinates using observational data\n\n");
+        std::printf("\nDAT2SITE: Calculates trial coordinates using observational data\n\n");
     }
 
     if (syntax_error) {
-        printf("Syntax:  dat2site options\n");
-        printf("    or   dat2site  options command_file [-r stations...]\n");
-        printf("    or   dat2site  options -f  coord_file  data_file data_file ... -r [stations]\n\n");
-        printf("The first options loads files interactively\n");
-        printf("The second reads the coordinate and data file names from the command file\n");
-        printf("The third option allows the coordinate and data file names to be\n");
-        printf("specified on the command line\n\n");
-        printf("\nAvailable options are:\n");
-        printf("    -c   confirm each calculation before continuing\n");
-        printf("    -r   is followed by a list of stations to recalculate - others are unchanged\n");
-        printf("    -l   just lists all the stations without doing calculations\n");
-        printf("    -m   just list missing stations without doing calculations\n");
-        printf("    -u   use rejected or ignored stations\n");
-        printf("    -o filename  specifies a filename for station lists\n");
+        std::printf("Syntax:  dat2site options\n");
+        std::printf("    or   dat2site  options command_file [-r stations...]\n");
+        std::printf("    or   dat2site  options -f  coord_file  data_file data_file ... -r [stations]\n\n");
+        std::printf("The first options loads files interactively\n");
+        std::printf("The second reads the coordinate and data file names from the command file\n");
+        std::printf("The third option allows the coordinate and data file names to be\n");
+        std::printf("specified on the command line\n\n");
+        std::printf("\nAvailable options are:\n");
+        std::printf("    -c   confirm each calculation before continuing\n");
+        std::printf("    -r   is followed by a list of stations to recalculate - others are unchanged\n");
+        std::printf("    -l   just lists all the stations without doing calculations\n");
+        std::printf("    -m   just list missing stations without doing calculations\n");
+        std::printf("    -u   use rejected or ignored stations\n");
+        std::printf("    -o filename  specifies a filename for station lists\n");
         return 0;
     }
 
@@ -3194,20 +3196,20 @@ int main(int argc, char* argv[]) {
     stations_frozen = true;
 
     if (stnlist.empty()) {
-        printf("\nNo data has been loaded\n");
+        std::printf("\nNo data has been loaded\n");
         return 0;
     }
 
     if (listonly) {
-        FILE* out;
+        std::FILE* out;
         if (outputfile) {
-            out = fopen(outputfile->c_str(), "w");
+            out = std::fopen(outputfile->c_str(), "w");
             if (!out) {
-                printf("\nCannot open output file %s\n", outputfile->c_str());
+                std::printf("\nCannot open output file %s\n", outputfile->c_str());
                 return 0;
             }
         } else {
-            printf("%s stations in data files:\n", listonly == 1 ? "All" : "Missing");
+            std::printf("%s stations in data files:\n", listonly == 1 ? "All" : "Missing");
             out = stdout;
         }
 
@@ -3217,21 +3219,21 @@ int main(int argc, char* argv[]) {
                     continue;
                 }
             }
-            fprintf(out, "%s\n", st.code.c_str());
+            std::fprintf(out, "%s\n", st.code.c_str());
         }
 
         if (outputfile) {
-            fclose(out);
+            std::fclose(out);
         }
         return 0;
     }
 
     if (!logname.empty()) {
-        logfile = fopen(logname.c_str(), "w");
+        logfile = std::fopen(logname.c_str(), "w");
     }
     if (logfile) {
-        fprintf(logfile, "DAT2SITE log file\n");
-        fprintf(logfile, "\nAdding coordinates to file %s\n\n", crdfname.c_str());
+        std::fprintf(logfile, "DAT2SITE log file\n");
+        std::fprintf(logfile, "\nAdding coordinates to file %s\n\n", crdfname.c_str());
     }
 
     /* Calculate height differences where available, and convert
@@ -3269,7 +3271,7 @@ int main(int argc, char* argv[]) {
         /* Count the unfixed stations */
 
         if (interactive) {
-            printf("\n=============================================================\n");
+            std::printf("\n=============================================================\n");
         }
         i = print_unfixed_stations(stdout, 0, ST_FIXH, "The following stations have not been fixed");
 
@@ -3280,8 +3282,8 @@ int main(int argc, char* argv[]) {
             interactive = 0;
         }
         if (interactive) {
-            printf("\nEnter coordinates of one or more of these stations\n");
-            printf("DAT2SITE will then attempt to calculate the rest\n");
+            std::printf("\nEnter coordinates of one or more of these stations\n");
+            std::printf("DAT2SITE will then attempt to calculate the rest\n");
             interactive = add_stations();
         }
     } while (interactive);
@@ -3304,11 +3306,11 @@ int main(int argc, char* argv[]) {
 
     write_station_file("dat2site", std::nullopt, std::nullopt, std::nullopt, 0, true);
 
-    printf("\nUpdated coordinates written to %s\n", crdfname.c_str());
+    std::printf("\nUpdated coordinates written to %s\n", crdfname.c_str());
 
     if (logfile) {
-        fclose(logfile);
-        printf("\nLog file written to %s\n\n", logname.c_str());
+        std::fclose(logfile);
+        std::printf("\nLog file written to %s\n\n", logname.c_str());
     }
 
     return 0;

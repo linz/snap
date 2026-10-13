@@ -46,7 +46,7 @@ void init_snap_globals() {
         return;
     }
     for (const char* const variable : {"SNAPUSER", "USERNAME", "USER"}) {
-        const char* const value = getenv(variable);
+        const char* const value = std::getenv(variable);
         if (value) {
             snap_user = value;
             break;
@@ -135,17 +135,17 @@ void* snap_obs_modifications(bool create) {
 }
 
 /// Writes the job title as a JOBTITLELEN+1 byte field, padded with NUL bytes.
-static void write_job_title_field(FILE* const f) {
+static void write_job_title_field(std::FILE* const f) {
     std::string field = job_title.substr(0, JOBTITLELEN);
     field.resize(JOBTITLELEN + 1, '\0');
-    fwrite(field.data(), field.size(), 1, f);
+    std::fwrite(field.data(), field.size(), 1, f);
 }
 
 /// Reads the job title from a JOBTITLELEN+1 byte field, up to the first NUL byte.
 /// Returns false, leaving job_title unchanged, if the field cannot be read.
-static bool read_job_title_field(FILE* const f) {
+static bool read_job_title_field(std::FILE* const f) {
     std::array<char, JOBTITLELEN + 1> field{};
-    if (fread(field.data(), field.size(), 1, f) != 1) {
+    if (std::fread(field.data(), field.size(), 1, f) != 1) {
         return false;
     }
     const std::string_view text(field.data(), field.size());

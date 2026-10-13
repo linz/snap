@@ -57,7 +57,7 @@ struct residual {
     int line;
     char unused;
     double sres;
-    int64_t note;
+    std::int64_t note;
 };
 
 inline constexpr int MAXRANK = 3;
@@ -90,17 +90,17 @@ static void setup_flag_values(void) {
             if (apriori) {
                 value = inv_chi2_distn(prob, rank);
                 if (value > 0.0) {
-                    value = sqrt(value / rank);
+                    value = std::sqrt(value / rank);
                 }
                 flagval[rank - 1][0][level] = flagval[rank - 1][1][level] = value;
             } else {
                 value = inv_f_distn(prob, rank, dof);
-                flagval[rank - 1][0][level] = value > 0.0 ? sqrt(value) : value;
+                flagval[rank - 1][0][level] = value > 0.0 ? std::sqrt(value) : value;
 
                 if (dof > rank) {
                     value = inv_f_distn(prob, rank, dof - rank);
                     value = dof * value / (dof - rank + rank * value);
-                    flagval[rank - 1][1][level] = value > 0.0 ? sqrt(value) : value;
+                    flagval[rank - 1][1][level] = value > 0.0 ? std::sqrt(value) : value;
                 } else {
                     flagval[rank - 1][1][level] = 1.0;
                 }
@@ -134,7 +134,7 @@ std::string_view residual_flag(const int unused, int rank, double sres) {
 }
 
 void save_residual(int from, int to, int id, int type, int file, int line, char unused, int rank, double sres,
-                   int64_t note) {
+                   std::int64_t note) {
     int i;
     int level;
     int used;
@@ -207,7 +207,7 @@ void save_residual(int from, int to, int id, int type, int file, int line, char 
     totalcount++;
 }
 
-void print_worst_residuals(FILE* out) {
+void print_worst_residuals(std::FILE* out) {
     double prob[2][MAXRANK];
     size_t index[2][MAXRANK];
     const residual* ws;
@@ -231,25 +231,25 @@ void print_worst_residuals(FILE* out) {
     print_zero_inverse_warning(out);
     print_convergence_warning(out);
 
-    fprintf(out, "\n\nThe %ld residuals from this data are classified as follows:\n\n", totalcount);
+    std::fprintf(out, "\n\nThe %ld residuals from this data are classified as follows:\n\n", totalcount);
 
     for (i = 0; i < 3; i++) {
         if (i < 2) {
-            fprintf(out, "Under");
+            std::fprintf(out, "Under");
         } else {
-            fprintf(out, "Over ");
+            std::fprintf(out, "Over ");
         }
         level = i < 2 ? i : 1;
-        fprintf(out, "%6.2lf%%%c significant    Used: %3ld    Unused: %3ld\n", flag_level[level],
-                taumax[level] ? 'M' : ' ', nsigres[1][i], nsigres[0][i]);
+        std::fprintf(out, "%6.2lf%%%c significant    Used: %3ld    Unused: %3ld\n", flag_level[level],
+                     taumax[level] ? 'M' : ' ', nsigres[1][i], nsigres[0][i]);
     }
 
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
     if (taumax[0] || taumax[1]) {
-        fprintf(out, "The \'M\'indicates that the significance applies to the maximum\n");
-        fprintf(out, "of all residuals rather than to the individual residuals.\n");
+        std::fprintf(out, "The \'M\'indicates that the significance applies to the maximum\n");
+        std::fprintf(out, "of all residuals rather than to the individual residuals.\n");
     }
-    fprintf(out, "Note: Only the overall residual for vector data is counted\n");
+    std::fprintf(out, "Note: Only the overall residual for vector data is counted\n");
 
     /* If useall is non-zero, then worst residuals of used and rejected
        observations are combined */
@@ -278,13 +278,13 @@ void print_worst_residuals(FILE* out) {
             nwslist = maxworst;
         }
 
-        fprintf(out, "\n\nThe following table lists the %d worst residuals", (int)nwslist);
+        std::fprintf(out, "\n\nThe following table lists the %d worst residuals", (int)nwslist);
         if (!useall) {
-            fprintf(out, " of %s data", iused ? "used" : "rejected");
+            std::fprintf(out, " of %s data", iused ? "used" : "rejected");
         }
 
-        fprintf(out, "\n\n%-*s  %-*s%s  Type     S.R.  Sig (%%)       Line  File\n", stn_name_width, "From",
-                stn_name_width, "To", have_obs_ids ? "      Id" : "");
+        std::fprintf(out, "\n\n%-*s  %-*s%s  Type     S.R.  Sig (%%)       Line  File\n", stn_name_width, "From",
+                     stn_name_width, "To", have_obs_ids ? "      Id" : "");
 
         for (i = imin; i <= imax; i++) {
             for (j = 0; j < MAXRANK; j++) {
@@ -326,19 +326,19 @@ void print_worst_residuals(FILE* out) {
 
             list_note(out, ws->note);
 
-            fprintf(out, "\n%-*s  %-*s", stn_name_width, station_code(from).c_str(), stn_name_width,
-                    to ? station_code(to).c_str() : "");
+            std::fprintf(out, "\n%-*s  %-*s", stn_name_width, station_code(from).c_str(), stn_name_width,
+                         to ? station_code(to).c_str() : "");
             if (have_obs_ids) {
-                fprintf(out, " %7d", ws->id);
+                std::fprintf(out, " %7d", ws->id);
             }
-            fprintf(out, "   %-2s%c  %7.3lf  ", datatype[ws->type].code.data(), ws->unused, ws->sres);
+            std::fprintf(out, "   %-2s%c  %7.3lf  ", datatype[ws->type].code.data(), ws->unused, ws->sres);
             if (prob[maxi][maxj] > 0.0) {
-                fprintf(out, "%7.3lf", prob[maxi][maxj]);
+                std::fprintf(out, "%7.3lf", prob[maxi][maxj]);
             } else {
-                fputs("   -   ", out);
+                std::fputs("   -   ", out);
             }
-            fprintf(out, " %-3s", std::string(residual_flag(1 - maxi, maxj + 1, ws->sres)).c_str());
-            fprintf(out, "  %5d  %s\n", (int)(ws->line), survey_data_file_name(ws->file).c_str());
+            std::fprintf(out, " %-3s", std::string(residual_flag(1 - maxi, maxj + 1, ws->sres)).c_str());
+            std::fprintf(out, "  %5d  %s\n", (int)(ws->line), survey_data_file_name(ws->file).c_str());
 
             // Now the next residual in this list, which is read below
             index[maxi][maxj]++;

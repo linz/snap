@@ -286,7 +286,7 @@ bool Reader::namesMatch(const std::string& name1, const std::string& name2) cons
     std::string::const_iterator c1 = name1.begin();
     std::string::const_iterator c2 = name2.begin();
     for (; c1 < name1.end(); c1++, c2++) {
-        if (tolower(*c1) != tolower(*c2)) {
+        if (std::tolower(*c1) != std::tolower(*c2)) {
             return false;
         }
     }

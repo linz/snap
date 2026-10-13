@@ -115,7 +115,7 @@ int calc_station_geoid_info_from_coordsys(network* nw, coordsys* cs, int fixed_h
 
     if (ninvalid && errlevel != OK) {
         char buffer[80];
-        sprintf(buffer, "Error calculating geoid for %d network stations", ninvalid);
+        std::sprintf(buffer, "Error calculating geoid for %d network stations", ninvalid);
         handle_error(errlevel, buffer, NO_MESSAGE);
         return errlevel;
     }
@@ -126,7 +126,7 @@ int set_network_geoid(network* nw, const std::optional<std::string>& geoid, cons
                       const int errlevel) {
     geoid_def* gd = create_geoid_grid(geoid);
     if (!gd) {
-        printf("Unable to load geoid model\n");
+        std::printf("Unable to load geoid model\n");
         return INVALID_DATA;
     }
     const int sts = set_network_geoid_def(nw, gd, fixed_height_type, errlevel);
@@ -225,7 +225,7 @@ int set_network_geoid_def(network* nw, geoid_def* gd, int fixed_height_type, int
 
     if (ninvalid && errlevel != OK) {
         char buffer[80];
-        sprintf(buffer, "Error calculating geoid for %d network stations", ninvalid);
+        std::sprintf(buffer, "Error calculating geoid for %d network stations", ninvalid);
         handle_error(errlevel, buffer, NO_MESSAGE);
         return errlevel;
     }

@@ -193,8 +193,8 @@ static void list_missing_stations(void) {
         if (!reportall && station.quiet) {
             continue;
         }
-        sprintf(buf, "Station %-10s is not in the coordinate file.  Used %d times", station.code.c_str(),
-                station.refcount);
+        std::sprintf(buf, "Station %-10s is not in the coordinate file.  Used %d times", station.code.c_str(),
+                     station.refcount);
         handle_error(WARNING_ERROR, buf, NO_MESSAGE);
     }
 }
@@ -335,7 +335,7 @@ static void save_split_survdata(survdata* sd) {
         } else {
             sobs = iobs;
         }
-        const int64_t loc = save_survdata_subset(sd, sobs, t->type);
+        const std::int64_t loc = save_survdata_subset(sd, sobs, t->type);
         to = t->to;
         if (sobs < 0) {
             to = 0;
@@ -350,7 +350,7 @@ static void save_split_survdata(survdata* sd) {
 static void save_whole_survdata(survdata* sd) {
     int to;
     trgtdata* t;
-    const int64_t loc = save_survdata(sd);
+    const std::int64_t loc = save_survdata(sd);
     to = 0;
     t = get_trgtdata(sd, 0);
     if (sd->nobs == 1) {
@@ -368,7 +368,8 @@ static void load_snap(survdata* sd) {
 
     if (need_obs_date && sd->date == UNDEFINED_DATE) {
         char location[80];
-        sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno);
+        std::sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(),
+                     sd->obs.vdata[0].tgt.lineno);
         handle_error(INVALID_DATA, "Observation date not defined", location);
         missing_data++;
         return;
@@ -378,7 +379,8 @@ static void load_snap(survdata* sd) {
 
     if (sd->format == SD_VECDATA && !sd->cvr) {
         char location[80];
-        sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno);
+        std::sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(),
+                     sd->obs.vdata[0].tgt.lineno);
         handle_error(INVALID_DATA, "Observation covariance not defined", location);
         missing_data++;
         return;
@@ -417,8 +419,8 @@ static void load_snap(survdata* sd) {
 
 /* Callback function used by loaddata to get id's of various objects */
 
-static int64_t snap_id(int type, int group_id, std::string_view code) {
-    int64_t id;
+static std::int64_t snap_id(int type, int group_id, std::string_view code) {
+    std::int64_t id;
     id = 0;
     switch (type) {
         case ID_STATION:

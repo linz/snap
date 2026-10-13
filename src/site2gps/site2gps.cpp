@@ -17,7 +17,7 @@
 #include "snap/filenames.h"
 #include "util/getversion.h"
 
-void print_gps_baselines(FILE* out, int* stn, int nstns) {
+void print_gps_baselines(std::FILE* out, int* stn, int nstns) {
     int j;
     station* s1;
     vector3 dxyz;
@@ -26,22 +26,22 @@ void print_gps_baselines(FILE* out, int* stn, int nstns) {
         station* s2;
         s2 = station_ptr(net, stn[j]);
         calc_vec_dif(s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr);
-        fprintf(out, "%-5s %-5s %10.3lf %10.3lf %10.3lf\n", s1->Code.c_str(), s2->Code.c_str(), dxyz[0], dxyz[1],
-                dxyz[2]);
+        std::fprintf(out, "%-5s %-5s %10.3lf %10.3lf %10.3lf\n", s1->Code.c_str(), s2->Code.c_str(), dxyz[0], dxyz[1],
+                     dxyz[2]);
     }
 }
 
-void print_multistation_gps(FILE* out, int* stn, int nstns) {
+void print_multistation_gps(std::FILE* out, int* stn, int nstns) {
     station* s1;
     station* s2;
     int i;
     vector3 dxyz;
     s1 = station_ptr(net, stn[0]);
-    fprintf(out, "%s\n", s1->Code.c_str());
+    std::fprintf(out, "%s\n", s1->Code.c_str());
     for (i = 1; i < nstns; i++) {
         s2 = station_ptr(net, stn[i]);
         calc_vec_dif(s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr);
-        fprintf(out, "%-5s %10.3lf %10.3lf %10.3lf\n", s2->Code.c_str(), dxyz[0], dxyz[1], dxyz[2]);
+        std::fprintf(out, "%-5s %10.3lf %10.3lf %10.3lf\n", s2->Code.c_str(), dxyz[0], dxyz[1], dxyz[2]);
     }
 }
 
@@ -99,8 +99,8 @@ int check_list(int* stn, int nstns, double maxlen, double minlen, double* dst, i
 }
 
 int main(int argc, char* argv[]) {
-    FILE* in = nullptr;
-    FILE* out;
+    std::FILE* in = nullptr;
+    std::FILE* out;
     int* stn;
     int* stn2;
     double* dst;
@@ -117,8 +117,8 @@ int main(int argc, char* argv[]) {
 
     CONFIGURE_RUNTIME();
 
-    printf("\n%s %s: Creates a dummy GPS data file from a site file and list of lines\n\n", PROGRAM_NAME,
-           PROGRAM_VERSION);
+    std::printf("\n%s %s: Creates a dummy GPS data file from a site file and list of lines\n\n", PROGRAM_NAME,
+                PROGRAM_VERSION);
 
     while (argc > 1 && argv[1][0] == '-') {
         switch (argv[1][1]) {
@@ -132,18 +132,18 @@ int main(int argc, char* argv[]) {
                 break;
             case 'f':
             case 'F':
-                maxlen = atof(argv[1] + 2) * 1000;
+                maxlen = std::atof(argv[1] + 2) * 1000;
                 break;
             case 'c':
             case 'C':
-                minlen = atof(argv[1] + 2) * 1000;
+                minlen = std::atof(argv[1] + 2) * 1000;
                 break;
             case 'n':
             case 'N':
-                nmax = atoi(argv[1] + 2);
+                nmax = std::atoi(argv[1] + 2);
                 break;
             default:
-                printf("Invalid switch %s\n", argv[1]);
+                std::printf("Invalid switch %s\n", argv[1]);
                 syntax_error = 1;
         }
         argc--;
@@ -151,49 +151,49 @@ int main(int argc, char* argv[]) {
     }
 
     if (syntax_error || argc != (autolist ? 3 : 4)) {
-        printf("Syntax: site2gps [options] crd_file_name line_list_file output_file\n");
-        printf("\nIn the line_list_file, each line is a list of stations to be connected\n\n");
-        printf("Valid input files are:\n");
-        printf("  -a    Automatically connect every station to every other station,\n");
-        printf("        The line_list_file should be omitted\n");
-        printf("  -b    The output file will consist of individual baselines rather than\n");
-        printf("        multistation data\n");
-        printf("  -c#   Lines less # km will be omitted\n");
-        printf("  -f#   Lines greater then # km will be omitted\n");
-        printf("  -n#   No more than n lines will be output\n");
+        std::printf("Syntax: site2gps [options] crd_file_name line_list_file output_file\n");
+        std::printf("\nIn the line_list_file, each line is a list of stations to be connected\n\n");
+        std::printf("Valid input files are:\n");
+        std::printf("  -a    Automatically connect every station to every other station,\n");
+        std::printf("        The line_list_file should be omitted\n");
+        std::printf("  -b    The output file will consist of individual baselines rather than\n");
+        std::printf("        multistation data\n");
+        std::printf("  -c#   Lines less # km will be omitted\n");
+        std::printf("  -f#   Lines greater then # km will be omitted\n");
+        std::printf("  -n#   No more than n lines will be output\n");
         return 0;
     }
 
     install_default_crdsys_file();
 
     if (read_station_file(argv[1], "", STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE) != OK) {
-        printf("Cannot open coordinate file %s\n", argv[1]);
+        std::printf("Cannot open coordinate file %s\n", argv[1]);
         return 0;
     }
 
     nostns = number_of_stations(net);
     if (!nostns) {
-        printf("No stations loaded from coordinate file\n");
+        std::printf("No stations loaded from coordinate file\n");
         return 0;
     }
     stn = new int[2 * nostns];
     dst = new double[nostns];
     stn2 = stn + nostns;
 
-    if (!autolist && (nullptr == (in = fopen(argv[2], "r")))) {
-        printf("Cannot open list file %s\n", argv[2]);
+    if (!autolist && (nullptr == (in = std::fopen(argv[2], "r")))) {
+        std::printf("Cannot open list file %s\n", argv[2]);
         return 0;
     }
 
-    if (nullptr == (out = fopen(argv[(autolist ? 2 : 3)], "w"))) {
-        printf("Cannot open output data file %s\n", argv[(autolist ? 2 : 3)]);
+    if (nullptr == (out = std::fopen(argv[(autolist ? 2 : 3)], "w"))) {
+        std::printf("Cannot open output data file %s\n", argv[(autolist ? 2 : 3)]);
         return 0;
     }
 
-    fprintf(out, "Dummy gps data file\n");
-    fprintf(out, "\n#date unknown\n");
-    fprintf(out, "#gps_enu_error 10 10 10 mm 1 1 1 ppm\n");
-    fprintf(out, "#data gb no_heights%s\n\n", baselines ? "" : " grouped");
+    std::fprintf(out, "Dummy gps data file\n");
+    std::fprintf(out, "\n#date unknown\n");
+    std::fprintf(out, "#gps_enu_error 10 10 10 mm 1 1 1 ppm\n");
+    std::fprintf(out, "#data gb no_heights%s\n\n", baselines ? "" : " grouped");
 
     nextstn = 0;
     block_id = 0;
@@ -222,19 +222,19 @@ int main(int argc, char* argv[]) {
             char* code;
             nstns = 0;
 
-            if (!fgets(inrec, 512, in)) {
+            if (!std::fgets(inrec, 512, in)) {
                 break;
             }
             if (inrec[0] == '!' || inrec[0] == '#') {
-                fputs(inrec, out);
+                std::fputs(inrec, out);
                 continue;
             }
-            for (code = strtok(inrec, " \t\r\n"); code; code = strtok(nullptr, " \t\r\n")) {
+            for (code = std::strtok(inrec, " \t\r\n"); code; code = std::strtok(nullptr, " \t\r\n")) {
                 int id;
                 int i;
                 id = find_station(net, code);
                 if (!id) {
-                    printf("Station %s is not defined in the coordinate file\n", code);
+                    std::printf("Station %s is not defined in the coordinate file\n", code);
                     continue;
                 }
                 for (i = 0; i < nstns; i++) {
@@ -247,7 +247,7 @@ int main(int argc, char* argv[]) {
                 }
                 stn[nstns++] = id;
             }
-            fprintf(out, "\n#classify gb SESSION SESSION_%d\n", block_id);
+            std::fprintf(out, "\n#classify gb SESSION SESSION_%d\n", block_id);
             block_id++;
         }
         if (autolist || baselines) {
@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
         if (nstns < 2) {
             continue;
         }
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
         if (baselines) {
             int i;
             const char need_all = nmax < nstns;
@@ -284,8 +284,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (in) {
-        fclose(in);
+        std::fclose(in);
     }
-    fclose(out);
+    std::fclose(out);
     return 0;
 }

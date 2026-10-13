@@ -253,7 +253,7 @@ static int read_cvr_connections(CFG_FILE* cfg, std::string_view string, void*, i
         // (unlike parse_double(), which would reject it).
         const auto value = st ? parse_leading<double>(*st) : std::nullopt;
         if (!value) {
-            sprintf(errmess, "Invalid relative covariance max length %.30s", st ? std::string(*st).c_str() : "");
+            std::sprintf(errmess, "Invalid relative covariance max length %.30s", st ? std::string(*st).c_str() : "");
             send_config_error(cfg, INVALID_DATA, errmess);
             return OK;
         }
@@ -263,7 +263,7 @@ static int read_cvr_connections(CFG_FILE* cfg, std::string_view string, void*, i
             code = RELCVR_CMD_BETWEEN;
             string = scanner.remainder();
         } else if (next) {
-            sprintf(errmess, "Invalid option %.30s in output relative_ covariance", std::string(*next).c_str());
+            std::sprintf(errmess, "Invalid option %.30s in output relative_ covariance", std::string(*next).c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             return OK;
         }
@@ -350,9 +350,9 @@ int open_output_files() {
     char errmess[40 + MAX_FILENAME_LEN];
 
     lst_name = command_file->root + LISTINGFILE_EXT;
-    lst = fopen(lst_name.c_str(), "w");
+    lst = std::fopen(lst_name.c_str(), "w");
     if (!lst) {
-        sprintf(errmess, "Unable to open listing file %.*s", MAX_FILENAME_LEN, lst_name.c_str());
+        std::sprintf(errmess, "Unable to open listing file %.*s", MAX_FILENAME_LEN, lst_name.c_str());
         handle_error(FILE_OPEN_ERROR, errmess, "Aborting program");
         return 0;
     }
@@ -363,9 +363,9 @@ int open_output_files() {
     }
 
     err_name = command_file->root + ERRORFILE_EXT;
-    err = fopen(err_name.c_str(), "w");
+    err = std::fopen(err_name.c_str(), "w");
     if (!err) {
-        sprintf(errmess, "Unable to open error file %.*s", MAX_FILENAME_LEN, err_name.c_str());
+        std::sprintf(errmess, "Unable to open error file %.*s", MAX_FILENAME_LEN, err_name.c_str());
         handle_error(FILE_OPEN_ERROR, errmess, "Aborting program");
         return 0;
     }
@@ -386,15 +386,15 @@ static void close_listing_file(void) {
     }
     if (errcount > 0) {
         print_section_header(lst, "ERRORS");
-        fprintf(lst, "\nNote: %d errors reported in %s\n", errcount,
-                std::filesystem::path(err_name).filename().string().c_str());
+        std::fprintf(lst, "\nNote: %d errors reported in %s\n", errcount,
+                     std::filesystem::path(err_name).filename().string().c_str());
         print_section_footer(lst);
     }
     if (!output_noruntime) {
         print_report_footer(lst);
     }
     if (lst) {
-        fclose(lst);
+        std::fclose(lst);
     }
     lst = nullptr;
     xprintf("\n\n****************************************************\n\n");
@@ -409,34 +409,34 @@ static void close_error_file(const error_message mess1, const error_message mess
         if (!output_noruntime) {
             print_report_footer(err);
         }
-        fclose(err);
+        std::fclose(err);
     }
     err = nullptr;
     if (errcount <= 0) {
         _unlink(err_name.c_str());
     } else {
-        fprintf(stderr, "\n\n****************************************************\n\n");
-        fprintf(stderr, "See the errors reported in %s\n", err_name.c_str());
+        std::fprintf(stderr, "\n\n****************************************************\n\n");
+        std::fprintf(stderr, "See the errors reported in %s\n", err_name.c_str());
         if (mess1 || mess2) {
-            fprintf(stderr, "\nThe program stopped with the following error:\n");
+            std::fprintf(stderr, "\nThe program stopped with the following error:\n");
             if (mess1) {
-                fprintf(stderr, "%.*s\n", boost::numeric_cast<int>(mess1->size()), mess1->data());
+                std::fprintf(stderr, "%.*s\n", boost::numeric_cast<int>(mess1->size()), mess1->data());
             }
             if (mess2) {
-                fprintf(stderr, "%.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
+                std::fprintf(stderr, "%.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
             }
         }
-        fprintf(stderr, "\n****************************************************\n\n");
+        std::fprintf(stderr, "\n****************************************************\n\n");
     }
 }
 
 static int print_err(const int sts, const std::string_view mess1, const error_message mess2) {
-    fprintf(err, "\n%s: %.*s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error",
-            boost::numeric_cast<int>(mess1.size()), mess1.data());
+    std::fprintf(err, "\n%s: %.*s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error",
+                 boost::numeric_cast<int>(mess1.size()), mess1.data());
     if (mess2) {
-        fprintf(err, "       %.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
+        std::fprintf(err, "       %.*s\n", boost::numeric_cast<int>(mess2->size()), mess2->data());
     }
-    fflush(err);
+    std::fflush(err);
     errcount++;
     if (FATAL_ERROR_CONDITION(sts)) {
         close_output_files(mess1, mess2);
@@ -486,57 +486,57 @@ void eliminate_inconsistent_outputs(void) {
     }
 }
 
-static void new_page(FILE* out) {
-    fprintf(out, "\n%c\n", output_form_feeds ? '\f' : '\n');
+static void new_page(std::FILE* out) {
+    std::fprintf(out, "\n%c\n", output_form_feeds ? '\f' : '\n');
 }
 
-static void print_line(FILE* out) {
+static void print_line(std::FILE* out) {
     if (divider.empty()) {
         divider = std::string(page_width, '=') + "\n";
     }
-    fputs(divider.c_str(), out);
+    std::fputs(divider.c_str(), out);
 }
 
-static void print_centred(FILE* out, const std::string_view heading) {
+static void print_centred(std::FILE* out, const std::string_view heading) {
     const int length = boost::numeric_cast<int>(heading.size());
     const int pos = std::max(0, (page_width - length) / 2);
-    fprintf(out, "%*s%.*s\n", pos, "", length, heading.data());
+    std::fprintf(out, "%*s%.*s\n", pos, "", length, heading.data());
 }
 
-static void skip_line(FILE* out) {
-    fputc('\n', out);
+static void skip_line(std::FILE* out) {
+    std::fputc('\n', out);
 }
 
-void print_solution_type(FILE* lst) {
-    fputs("\nSolution type: ", lst);
+void print_solution_type(std::FILE* lst) {
+    std::fputs("\nSolution type: ", lst);
     switch (dimension) {
         case 1:
-            fputs("Vertical ", lst);
+            std::fputs("Vertical ", lst);
             break;
         case 2:
-            fputs("Horizontal ", lst);
+            std::fputs("Horizontal ", lst);
             break;
         case 3:
-            fputs("3d ", lst);
+            std::fputs("3d ", lst);
             break;
     }
     switch (program_mode) {
         case ADJUST:
-            fputs("coordinate adjustment\n", lst);
+            std::fputs("coordinate adjustment\n", lst);
             break;
         case PREANALYSIS:
-            fputs("network preanalysis\n", lst);
+            std::fputs("network preanalysis\n", lst);
             break;
         case DATA_CHECK:
-            fputs("data checking\n", lst);
+            std::fputs("data checking\n", lst);
             break;
         case DATA_CONSISTENCY:
-            fputs("data internal consistency check\n", lst);
+            std::fputs("data internal consistency check\n", lst);
             break;
     }
 }
 
-void print_report_header(FILE* out) {
+void print_report_header(std::FILE* out) {
     print_line(out);
     skip_line(out);
     std::string heading = "PROGRAM ";
@@ -563,30 +563,31 @@ void print_report_header(FILE* out) {
     skip_line(out);
 }
 
-void print_report_footer(FILE*) {}
+void print_report_footer(std::FILE*) {}
 
-void print_control_options(FILE* lst) {
-    fprintf(lst, "\n\nProgram options read from %s\n\n",
-            std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
-    fprintf(lst, "Job: %s\n\n", job_title.c_str());
+void print_control_options(std::FILE* lst) {
+    std::fprintf(lst, "\n\nProgram options read from %s\n\n",
+                 std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
+    std::fprintf(lst, "Job: %s\n\n", job_title.c_str());
     print_solution_type(lst);
 }
 
-void print_section_header(FILE* out, const std::string_view heading) {
+void print_section_header(std::FILE* out, const std::string_view heading) {
     new_page(out);
     print_line(out);
     const int rtl = boost::numeric_cast<int>(run_time.size());
-    fprintf(out, "%-*s   %s\n\n", page_width - rtl - 3, job_title.c_str(), output_noruntime ? "" : run_time.c_str());
+    std::fprintf(out, "%-*s   %s\n\n", page_width - rtl - 3, job_title.c_str(),
+                 output_noruntime ? "" : run_time.c_str());
 
     print_centred(out, heading);
-    fputc('\n', out);
+    std::fputc('\n', out);
     print_line(out);
 }
 
-void print_section_footer(FILE* out) {
+void print_section_footer(std::FILE* out) {
     /* Flush the output so that it is available 
      * for viewing if SNAP is still running */
-    fflush(out);
+    std::fflush(out);
 }
 
 /// Describes what is solved at equation row \p row: a general parameter, an observation
@@ -613,31 +614,31 @@ void handle_singularity(int sts) {
     const std::string paramname = describe_parameter_row(sts, stno);
 
     print_section_header(lst, "SINGULARITY REPORT");
-    fprintf(lst, "The least squares equations cannot be solved\n");
+    std::fprintf(lst, "The least squares equations cannot be solved\n");
     std::string errmess = "A singularity was detected at " + paramname;
     if (stno) {
         errmess += std::string(" of station ") + std::string(station_code(stno));
     }
 
-    fprintf(lst, "%s\n\n", errmess.c_str());
+    std::fprintf(lst, "%s\n\n", errmess.c_str());
 
     handle_error(INVALID_DATA, "Normal equations are singular", errmess);
     print_section_footer(lst);
 }
 
-void print_zero_inverse_warning(FILE* out) {
+void print_zero_inverse_warning(std::FILE* out) {
     if (nprm > 0 && lsq_using_zero_inverse()) {
-        fprintf(out, "\nNOTE: Inverse normal equations not calculated\n");
-        fprintf(out, "Calculated errors are set to zero and statistics are inaccurate.\n");
+        std::fprintf(out, "\nNOTE: Inverse normal equations not calculated\n");
+        std::fprintf(out, "Calculated errors are set to zero and statistics are inaccurate.\n");
     }
 }
 
-void print_convergence_warning(FILE* out) {
+void print_convergence_warning(std::FILE* out) {
     if (converged) {
         return;
     }
-    fprintf(out, "\nNOTE: Adjustment has not converged - results may be misleading\n");
-    fprintf(out, "Final iteration maximum adjustment is %.4lf.\n", last_iteration_max_adjustment);
+    std::fprintf(out, "\nNOTE: Adjustment has not converged - results may be misleading\n");
+    std::fprintf(out, "Final iteration maximum adjustment is %.4lf.\n", last_iteration_max_adjustment);
 }
 
 void print_iteration_header(int iteration) {
@@ -650,14 +651,14 @@ void print_iteration_header(int iteration) {
 
 void print_iteration_update(int iteration, double maxadj, int maxstn, int nstnadj) {
     if (output_station_adjustments) {
-        fprintf(lst, "\n");
+        std::fprintf(lst, "\n");
         print_coordinate_changes(lst);
     }
 
     if (output_iteration_summary) {
-        fprintf(lst, "\nIteration %d: Maximum change is %.4lf metres at station %s\n", (int)iteration, maxadj,
-                station_code(maxstn).c_str());
-        fprintf(lst, "             %d station adjustments exceed convergence criteria\n", (int)nstnadj);
+        std::fprintf(lst, "\nIteration %d: Maximum change is %.4lf metres at station %s\n", (int)iteration, maxadj,
+                     station_code(maxstn).c_str());
+        std::fprintf(lst, "             %d station adjustments exceed convergence criteria\n", (int)nstnadj);
     }
 }
 
@@ -665,7 +666,7 @@ void print_iteration_footer() {
     print_section_footer(lst);
 }
 
-void print_problem_summary(FILE* lst) {
+void print_problem_summary(std::FILE* lst) {
     char havefloat;
     char haveauto;
     char floatrel;
@@ -704,40 +705,40 @@ void print_problem_summary(FILE* lst) {
         }
     }
 
-    fputs("\n\nThe following table lists the stations included in the adjustment.\n", lst);
-    fputs("Adjustment is signified by F (fixed), ", lst);
+    std::fputs("\n\nThe following table lists the stations included in the adjustment.\n", lst);
+    std::fputs("Adjustment is signified by F (fixed), ", lst);
     if (dimension == 3) {
-        fputs("H (horizontal), V (vertical) or 3 (3d).\n", lst);
+        std::fputs("H (horizontal), V (vertical) or 3 (3d).\n", lst);
     } else {
-        fputs("A (adjusted).\n", lst);
+        std::fputs("A (adjusted).\n", lst);
     }
     if (havefloat) {
-        fputs("Where errors are specified the adjustment is constrained by giving the\n", lst);
+        std::fputs("Where errors are specified the adjustment is constrained by giving the\n", lst);
         if (floatrel) {
-            fputs("initial station coordinates or relative station coordinates the\n", lst);
-            fputs("specified apriori expected error\n", lst);
+            std::fputs("initial station coordinates or relative station coordinates the\n", lst);
+            std::fputs("specified apriori expected error\n", lst);
         } else {
-            fputs("initial station coordinates the specified apriori expected error\n", lst);
+            std::fputs("initial station coordinates the specified apriori expected error\n", lst);
         }
     }
 
-    fprintf(lst, "\n\n%-*s  Adj", stn_name_width + 2, "Station");
+    std::fprintf(lst, "\n\n%-*s  Adj", stn_name_width + 2, "Station");
     if (havefloat) {
         if (dimension != 3) {
-            fputs("   Error", lst);
+            std::fputs("   Error", lst);
         } else {
-            fputs("      Error     ", lst);
+            std::fputs("      Error     ", lst);
         }
     }
     if (floatrel) {
-        fprintf(lst, "  %-*s", stn_name_width, "Rel");
+        std::fprintf(lst, "  %-*s", stn_name_width, "Rel");
     }
-    fputs("  Row", lst);
-    fputs("  Name\n", lst);
+    std::fputs("  Row", lst);
+    std::fputs("  Name\n", lst);
     if (havefloat && dimension == 3) {
-        fputs("                Hor     Ver\n", lst);
+        std::fputs("                Hor     Ver\n", lst);
     }
-    fputs("\n", lst);
+    std::fputs("\n", lst);
 
     for (reset_station_list(net, (int)output_sorted_stations); nullptr != (st = next_station(net));) {
         if (stnadj(st)->flag.rejected) {
@@ -760,28 +761,28 @@ void print_problem_summary(FILE* lst) {
             adj = 'F';
         }
 
-        fprintf(lst, "%-*s    %c ", stn_name_width, st->Code.c_str(), adj);
+        std::fprintf(lst, "%-*s    %c ", stn_name_width, st->Code.c_str(), adj);
         if (havefloat) {
             if (dimension != 1) {
                 if (stnadj(st)->flag.float_h) {
-                    fprintf(lst, "  %6.3f", stnadj(st)->herror);
+                    std::fprintf(lst, "  %6.3f", stnadj(st)->herror);
                 } else {
-                    fputs("    -   ", lst);
+                    std::fputs("    -   ", lst);
                 }
             }
             if (dimension != 2) {
                 if (stnadj(st)->flag.float_v) {
-                    fprintf(lst, "  %6.3f", stnadj(st)->verror);
+                    std::fprintf(lst, "  %6.3f", stnadj(st)->verror);
                 } else {
-                    fputs("    -   ", lst);
+                    std::fputs("    -   ", lst);
                 }
             }
             if (floatrel) {
                 if (stnadj(st)->idcol) {
                     station* stcol = stnptr(stnadj(st)->idcol);
-                    fprintf(lst, " %-*s", stn_name_width, stcol->Code.c_str());
+                    std::fprintf(lst, " %-*s", stn_name_width, stcol->Code.c_str());
                 } else {
-                    fprintf(lst, " %-*s", stn_name_width, " ");
+                    std::fprintf(lst, " %-*s", stn_name_width, " ");
                 }
             }
         }
@@ -792,26 +793,26 @@ void print_problem_summary(FILE* lst) {
             row = stnadj(st)->vrowno;
         }
         if (row < 0) {
-            fprintf(lst, "    -");
+            std::fprintf(lst, "    -");
         } else {
-            fprintf(lst, " %4d", row);
+            std::fprintf(lst, " %4d", row);
         }
-        fprintf(lst, "  %s\n", st->Name.c_str());
+        std::fprintf(lst, "  %s\n", st->Name.c_str());
     }
 
     if (reject) {
-        fputs("\n\n\nThe following stations have been rejected.  Those denoted with '*'\n", lst);
-        fputs("have been rejected automatically because there is insufficient data\n", lst);
-        fputs("to locate them.\n\n", lst);
-        fprintf(lst, "%-*s  Name\n\n", stn_name_width + 2, "Station");
+        std::fputs("\n\n\nThe following stations have been rejected.  Those denoted with '*'\n", lst);
+        std::fputs("have been rejected automatically because there is insufficient data\n", lst);
+        std::fputs("to locate them.\n\n", lst);
+        std::fprintf(lst, "%-*s  Name\n\n", stn_name_width + 2, "Station");
     }
 
     for (reset_station_list(net, (int)output_sorted_stations); nullptr != (st = next_station(net));) {
         if (!stnadj(st)->flag.rejected) {
             continue;
         }
-        fprintf(lst, "%c%-*s   %s\n", stnadj(st)->flag.autoreject ? '*' : ' ', stn_name_width, st->Code.c_str(),
-                st->Name.c_str());
+        std::fprintf(lst, "%c%-*s   %s\n", stnadj(st)->flag.autoreject ? '*' : ' ', stn_name_width, st->Code.c_str(),
+                     st->Name.c_str());
     }
 
     /* Print out auto constrained stations */
@@ -832,10 +833,10 @@ void print_problem_summary(FILE* lst) {
                 break;
         }
 
-        fprintf(lst, "\n\nThe following stations have been automatically fixed %s\n",
-                i == 4   ? "in 3 dimensions"
-                : i == 2 ? "horizontally"
-                         : "vertically");
+        std::fprintf(lst, "\n\nThe following stations have been automatically fixed %s\n",
+                     i == 4   ? "in 3 dimensions"
+                     : i == 2 ? "horizontally"
+                              : "vertically");
 
         row = 0;
         for (reset_station_list(net, (int)output_sorted_stations); nullptr != (st = next_station(net));) {
@@ -845,10 +846,10 @@ void print_problem_summary(FILE* lst) {
             stn_adjustment* sa = stnadj(st);
             if (sa->flag.auto_h == auto_h && sa->flag.auto_v == auto_v) {
                 if (row >= 80) {
-                    fputs("\n", lst);
+                    std::fputs("\n", lst);
                     row = 0;
                 }
-                fprintf(lst, " %-*s", stn_name_width, st->Code.c_str());
+                std::fprintf(lst, " %-*s", stn_name_width, st->Code.c_str());
                 row += stn_name_width + 1;
             }
         }
@@ -857,7 +858,7 @@ void print_problem_summary(FILE* lst) {
     list_calculated_parameters(lst);
 
     if (deformation) {
-        fputs("\n\nThe following deformation has been applied\n", lst);
+        std::fputs("\n\nThe following deformation has been applied\n", lst);
         print_deformation_model(deformation, lst, "");
     }
 
@@ -866,10 +867,10 @@ void print_problem_summary(FILE* lst) {
 
 /* Print out a summary of statistics from the least squares adjustment */
 
-void print_ls_summary(FILE* lst) {
-    fprintf(lst, "\nDegrees of freedom:               %5ld\n", (long)dof);
-    fprintf(lst, "Sum of squared residuals:         %11.5lf\n", ssr);
-    fprintf(lst, "Standard error of unit weight:    %11.5lf\n", seu);
+void print_ls_summary(std::FILE* lst) {
+    std::fprintf(lst, "\nDegrees of freedom:               %5ld\n", (long)dof);
+    std::fprintf(lst, "Sum of squared residuals:         %11.5lf\n", ssr);
+    std::fprintf(lst, "Standard error of unit weight:    %11.5lf\n", seu);
 }
 
 void xprint_ls_summary() {
@@ -878,7 +879,7 @@ void xprint_ls_summary() {
     xprintf("Standard error of unit weight:    %11.5lf\n", seu);
 }
 
-void print_solution_summary(FILE* lst) {
+void print_solution_summary(std::FILE* lst) {
     double c2sig;
 
     print_section_header(lst, "SOLUTION SUMMARY");
@@ -886,14 +887,14 @@ void print_solution_summary(FILE* lst) {
 
     print_solution_type(lst);
 
-    fprintf(lst, "\n\nNumber of observations:           %5ld", (long)(nobs + nschp));
+    std::fprintf(lst, "\n\nNumber of observations:           %5ld", (long)(nobs + nschp));
 
-    fprintf(lst, "\nNumber of parameters:             %5d\n", (int)nprm);
+    std::fprintf(lst, "\nNumber of parameters:             %5d\n", (int)nprm);
     if (nschp) {
-        fprintf(lst, "Number of implicit parameters:    %5ld\n", (long)nschp);
+        std::fprintf(lst, "Number of implicit parameters:    %5ld\n", (long)nschp);
     }
     if (ncon) {
-        fprintf(lst, "Number of arbitrary constraints:  %5ld\n", (long)ncon);
+        std::fprintf(lst, "Number of arbitrary constraints:  %5ld\n", (long)ncon);
     }
 
     print_ls_summary(lst);
@@ -906,18 +907,20 @@ void print_solution_summary(FILE* lst) {
 
     if (c2sig > 0.5) {
         c2sig = 100.0 * (1.0 - c2sig);
-        fprintf(lst, "\nThe probability of an SSR this low is %.3lf%% (from Chi squared (%ld))\n", c2sig, (long)dof);
+        std::fprintf(lst, "\nThe probability of an SSR this low is %.3lf%% (from Chi squared (%ld))\n", c2sig,
+                     (long)dof);
         if (c2sig < 2.5) {
-            fprintf(lst, "\nYou may have over-estimated the errors of the data.\n");
+            std::fprintf(lst, "\nYou may have over-estimated the errors of the data.\n");
         }
     } else {
         c2sig = 100.0 * c2sig;
-        fprintf(lst, "\nThe probability of an SSR this high is %.3lf%% (from Chi squared (%ld))\n", c2sig, (long)dof);
+        std::fprintf(lst, "\nThe probability of an SSR this high is %.3lf%% (from Chi squared (%ld))\n", c2sig,
+                     (long)dof);
         if (c2sig < 2.5) {
-            fprintf(lst, "\nYou may have under-estimated the errors of the data,\n");
-            fprintf(lst, "or there may be gross errors in the data\n");
+            std::fprintf(lst, "\nYou may have under-estimated the errors of the data,\n");
+            std::fprintf(lst, "or there may be gross errors in the data\n");
             if (program_mode != DATA_CONSISTENCY) {
-                fprintf(lst, "or the fixed stations may be incorrectly positioned\n");
+                std::fprintf(lst, "or the fixed stations may be incorrectly positioned\n");
             }
         }
     }
@@ -925,7 +928,7 @@ void print_solution_summary(FILE* lst) {
     print_section_footer(lst);
 }
 
-void print_bandwidth_reduction(FILE* lst) {
+void print_bandwidth_reduction(std::FILE* lst) {
     long nsave;
     long nfull;
     /* Report effectiveness of bandwidth reduction */
@@ -933,40 +936,40 @@ void print_bandwidth_reduction(FILE* lst) {
         nfull = ((long)nprm * (nprm + 1)) / 2;
         nsave = nfull - lsq_normal_matrix()->nelement;
         if (nsave > 0) {
-            fprintf(lst, "\nStation reordering has reduced the matrix size by %.1lf%%\n", (nsave * 100.0) / nfull);
+            std::fprintf(lst, "\nStation reordering has reduced the matrix size by %.1lf%%\n", (nsave * 100.0) / nfull);
         }
     }
 }
 
-void print_json_start(FILE* out, const std::string_view name) {
-    fprintf(out, "\nBEGIN_JSON %.*s\n", boost::numeric_cast<int>(name.size()), name.data());
+void print_json_start(std::FILE* out, const std::string_view name) {
+    std::fprintf(out, "\nBEGIN_JSON %.*s\n", boost::numeric_cast<int>(name.size()), name.data());
 }
 
-void print_json_end(FILE* out, const std::string_view name) {
-    fprintf(out, "\nEND_JSON %.*s\n", boost::numeric_cast<int>(name.size()), name.data());
+void print_json_end(std::FILE* out, const std::string_view name) {
+    std::fprintf(out, "\nEND_JSON %.*s\n", boost::numeric_cast<int>(name.size()), name.data());
 }
 
-void print_json_params(FILE* lst, int nprefix) {
-    fprintf(lst, "%*s\"nparam\":%d", nprefix, "", nprm);
+void print_json_params(std::FILE* lst, int nprefix) {
+    std::fprintf(lst, "%*s\"nparam\":%d", nprefix, "", nprm);
     if (nprm) {
-        fprintf(lst, ",\n%*s\"parameters\": [", nprefix, "");
+        std::fprintf(lst, ",\n%*s\"parameters\": [", nprefix, "");
         for (int i = 0; i++ < nprm;) {
             int stno;
             const std::string paramname = describe_parameter_row(i, stno);
-            fprintf(lst, "%s\n%*s\"%s%s%s\"", i > 1 ? "," : "", nprefix + 2, "", stno ? station_code(stno).c_str() : "",
-                    stno ? ": " : "", paramname.c_str());
+            std::fprintf(lst, "%s\n%*s\"%s%s%s\"", i > 1 ? "," : "", nprefix + 2, "",
+                         stno ? station_code(stno).c_str() : "", stno ? ": " : "", paramname.c_str());
         }
-        fprintf(lst, "\n%*s]", nprefix, "");
+        std::fprintf(lst, "\n%*s]", nprefix, "");
     }
 }
 
 void print_solution_json_file() {
-    FILE* f;
+    std::FILE* f;
     bltmatrix* invnorm;
 
     const std::string bfn = command_file->root + SOLNFILE_EXT + JSONFILE_EXT;
 
-    f = fopen(bfn.c_str(), "w");
+    f = std::fopen(bfn.c_str(), "w");
     if (!f) {
         handle_error(FILE_OPEN_ERROR, "Unable to open JSON solution file", bfn);
     } else {
@@ -977,20 +980,20 @@ void print_solution_json_file() {
         return;
     }
 
-    fprintf(f, "{\n");
-    fprintf(f, "  \"nparam\": %d,\n", (int)nprm);
-    fprintf(f, "  \"nimplicit_param\": %ld,\n", (long)(nschp));
-    fprintf(f, "  \"nobs\": %ld,\n", (long)(nobs + nschp));
-    fprintf(f, "  \"nconstraint\": %ld,\n", (long)(ncon));
-    fprintf(f, "  \"dof\": %ld,\n", (long)dof);
-    fprintf(f, "  \"ssr\": %.5lf,\n", ssr);
-    fprintf(f, "  \"seu\": %.5lf,\n", seu);
+    std::fprintf(f, "{\n");
+    std::fprintf(f, "  \"nparam\": %d,\n", (int)nprm);
+    std::fprintf(f, "  \"nimplicit_param\": %ld,\n", (long)(nschp));
+    std::fprintf(f, "  \"nobs\": %ld,\n", (long)(nobs + nschp));
+    std::fprintf(f, "  \"nconstraint\": %ld,\n", (long)(ncon));
+    std::fprintf(f, "  \"dof\": %ld,\n", (long)dof);
+    std::fprintf(f, "  \"ssr\": %.5lf,\n", ssr);
+    std::fprintf(f, "  \"seu\": %.5lf,\n", seu);
     print_json_params(f, 2);
-    fprintf(f, ",\n  \"covariance\":\n  ");
+    std::fprintf(f, ",\n  \"covariance\":\n  ");
     invnorm = lsq_normal_matrix();
     print_bltmatrix_json(invnorm, f, 4, BLT_JSON_FULL | BLT_JSON_MATRIX_ONLY, "%.8le");
-    fprintf(f, "\n}\n");
-    fclose(f);
+    std::fprintf(f, "\n}\n");
+    std::fclose(f);
 }
 
 std::unique_ptr<output_csv> open_snap_output_csv(const std::string_view type) {
@@ -1002,7 +1005,7 @@ std::unique_ptr<output_csv> open_snap_output_csv(const std::string_view type) {
         record_filename(filename, std::string(type.substr(0, 20)) + "_output_csv");
     } else {
         char errmess[120];
-        sprintf(errmess, "Unable to open CSV file %.80s", filename.c_str());
+        std::sprintf(errmess, "Unable to open CSV file %.80s", filename.c_str());
         handle_error(FILE_OPEN_ERROR, errmess, NO_MESSAGE);
         return nullptr;
     }

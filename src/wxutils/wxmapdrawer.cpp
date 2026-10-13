@@ -132,18 +132,18 @@ void wxMapDrawer::PlotEllipse(const MapPoint& pt, double majorAxis, double minor
     // Calculate the number of points required to display the ellipse
 
     const double pixelSize = scale.GetScale();
-    int npt = (int)(1.6 * sqrt((majorAxis + minorAxis) / (4.0 * pixelSize)));
+    int npt = (int)(1.6 * std::sqrt((majorAxis + minorAxis) / (4.0 * pixelSize)));
     if (npt < 2) {
         npt = 2;
     } else if (npt > 18) {
         npt = 18;
     }
     npt *= 4;
-    const double angle = atan(1.0) * 8.0 / npt;
-    const double cosa = cos(angle);
-    const double sina = sin(angle);
-    const double coso = cos(orientation);
-    const double sino = sin(orientation);
+    const double angle = std::atan(1.0) * 8.0 / npt;
+    const double cosa = std::cos(angle);
+    const double sina = std::sin(angle);
+    const double coso = std::cos(orientation);
+    const double sino = std::sin(orientation);
     double cs = 1.0;
     double sn = 0.0;
 

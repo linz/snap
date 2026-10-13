@@ -266,7 +266,7 @@ static bool add_obs_datatype_criterion(CFG_FILE* cfg, const std::string& datatyp
         const int id = datatype_from_code(typecode);
         if (id == NOBSTYPE) {
             char errmess[80];
-            sprintf(errmess, "Invalid data type code %.20s in observation criteria", typecode.c_str());
+            std::sprintf(errmess, "Invalid data type code %.20s in observation criteria", typecode.c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             sts = INVALID_DATA;
         } else {
@@ -289,7 +289,7 @@ static bool obs_datatype_match(const obs_datatype_criterion& datatype, obsmod_co
     return datatype.select[oac->tgt->type];
 }
 
-static void describe_obs_datatype_criterion(FILE* lst, const obs_datatype_criterion& datatype,
+static void describe_obs_datatype_criterion(std::FILE* lst, const obs_datatype_criterion& datatype,
                                             const std::string& prefix) {
     int ntype = 0;
     int itype = 0;
@@ -303,13 +303,13 @@ static void describe_obs_datatype_criterion(FILE* lst, const obs_datatype_criter
 
     if (ntype == 1) {
         datatypedef* dtype = datatypedef_from_id(itype);
-        fprintf(lst, "which are of type %s (%s)", dtype->code.data(), dtype->name.data());
+        std::fprintf(lst, "which are of type %s (%s)", dtype->code.data(), dtype->name.data());
     } else {
-        fprintf(lst, "which are of types:");
+        std::fprintf(lst, "which are of types:");
         for (int i = 0; i < NOBSTYPE; i++) {
             if (datatype.select[i]) {
                 datatypedef* dtype = datatypedef_from_id(i);
-                fprintf(lst, "\n%s        - %s (%s)", prefix.c_str(), dtype->code.data(), dtype->name.data());
+                std::fprintf(lst, "\n%s        - %s (%s)", prefix.c_str(), dtype->code.data(), dtype->name.data());
             }
         }
     }
@@ -340,11 +340,12 @@ static bool obs_datafile_match(obs_datafile_criterion& datafile, obsmod_context*
     return obs_datafile_match_fileid(oac->obsmod, datafile, oac->sd->file);
 }
 
-static void describe_obs_datafile_criterion(FILE* lst, const obs_datafile_criterion& datafile, const std::string&) {
+static void describe_obs_datafile_criterion(std::FILE* lst, const obs_datafile_criterion& datafile,
+                                            const std::string&) {
     if (datafile.wildcard) {
-        fprintf(lst, "which are from files matching %s", datafile.filenamepattern.c_str());
+        std::fprintf(lst, "which are from files matching %s", datafile.filenamepattern.c_str());
     } else {
-        fprintf(lst, "which are from file %s", datafile.filenamepattern.c_str());
+        std::fprintf(lst, "which are from file %s", datafile.filenamepattern.c_str());
     }
 }
 
@@ -426,25 +427,25 @@ static bool obs_wildcard_classification_match(wildcard_obs_classification_criter
     return std::find(wildcard.value_ids.begin(), wildcard.value_ids.end(), value_id) != wildcard.value_ids.end();
 }
 
-static void describe_obs_classification_criterion(FILE* lst, const obs_classification_criterion& classification,
+static void describe_obs_classification_criterion(std::FILE* lst, const obs_classification_criterion& classification,
                                                   const std::string&, classifications* classes) {
-    fprintf(lst, "where %s classification is \"%s\"", classes->name(classification.class_id).c_str(),
-            classes->value_name(classification.class_id, classification.value_id).c_str());
+    std::fprintf(lst, "where %s classification is \"%s\"", classes->name(classification.class_id).c_str(),
+                 classes->value_name(classification.class_id, classification.value_id).c_str());
 }
 
-static void describe_obs_mult_classification_criterion(FILE* lst, const mult_obs_classification_criterion& mult,
+static void describe_obs_mult_classification_criterion(std::FILE* lst, const mult_obs_classification_criterion& mult,
                                                        const std::string& prefix, classifications* classes) {
-    fprintf(lst, "where %s classification is one of:", classes->name(mult.class_id).c_str());
+    std::fprintf(lst, "where %s classification is one of:", classes->name(mult.class_id).c_str());
     for (const int value_id : mult.value_ids) {
-        fprintf(lst, "\n%s    - \"%s\"", prefix.c_str(), classes->value_name(mult.class_id, value_id).c_str());
+        std::fprintf(lst, "\n%s    - \"%s\"", prefix.c_str(), classes->value_name(mult.class_id, value_id).c_str());
     }
 }
 
-static void describe_obs_wildcard_classification_criterion(FILE* lst,
+static void describe_obs_wildcard_classification_criterion(std::FILE* lst,
                                                            const wildcard_obs_classification_criterion& wildcard,
                                                            const std::string&, classifications* classes) {
-    fprintf(lst, "where %s classification matches \"%s\"", classes->name(wildcard.class_id).c_str(),
-            wildcard.wildclass.c_str());
+    std::fprintf(lst, "where %s classification matches \"%s\"", classes->name(wildcard.class_id).c_str(),
+                 wildcard.wildclass.c_str());
 }
 
 /// Adds a criterion for observations with one of the ids in a '/' separated
@@ -462,9 +463,9 @@ static bool add_obs_id_criterion(CFG_FILE* cfg, const std::string& idstr, std::v
         const std::string token(i + 1 < nval ? *scanner.next('/') : scanner.remainder());
         char chk[2];
         chk[0] = 0;
-        if (sscanf(token.c_str(), "%d%1s", &parsed[i], chk) < 1 || chk[0]) {
+        if (std::sscanf(token.c_str(), "%d%1s", &parsed[i], chk) < 1 || chk[0]) {
             char errmsg[100];
-            sprintf(errmsg, "Invalid observation id \"%.50s\" in observation criteria", token.c_str());
+            std::sprintf(errmsg, "Invalid observation id \"%.50s\" in observation criteria", token.c_str());
             send_config_error(cfg, INVALID_DATA, errmsg);
             return false;
         }
@@ -478,13 +479,13 @@ static bool obs_id_match(const obs_id_criterion& id, obsmod_context* oac) {
     return std::find(id.obs_ids.begin(), id.obs_ids.end(), oac->tgt->id) != id.obs_ids.end();
 }
 
-static void describe_obs_id_criterion(FILE* lst, const obs_id_criterion& id, const std::string& prefix) {
+static void describe_obs_id_criterion(std::FILE* lst, const obs_id_criterion& id, const std::string& prefix) {
     if (id.obs_ids.size() == 1) {
-        fprintf(lst, "where the observation id is %d", id.obs_ids[0]);
+        std::fprintf(lst, "where the observation id is %d", id.obs_ids[0]);
     } else {
-        fprintf(lst, "where the observation id is one of:");
+        std::fprintf(lst, "where the observation id is one of:");
         for (const int obs_id : id.obs_ids) {
-            fprintf(lst, "\n%s    - %d", prefix.c_str(), obs_id);
+            std::fprintf(lst, "\n%s    - %d", prefix.c_str(), obs_id);
         }
     }
 }
@@ -500,7 +501,7 @@ static bool add_obs_date_criterion(CFG_FILE* cfg, const obs_date_criterion_type 
         date = snap_datetime_parse(datestr);
         if (date == UNDEFINED_DATE) {
             char errmsg[100];
-            sprintf(errmsg, "Invalid date \"%.50s\" in observation date criteria", datestr.c_str());
+            std::sprintf(errmsg, "Invalid date \"%.50s\" in observation date criteria", datestr.c_str());
             send_config_error(cfg, INVALID_DATA, errmsg);
             return false;
         }
@@ -523,13 +524,13 @@ static bool obs_date_match(const obs_date_criterion& date_criterion, obsmod_cont
     return date == UNDEFINED_DATE;
 }
 
-static void describe_obs_date_criterion(FILE* lst, const obs_date_criterion& date_criterion, const std::string&) {
+static void describe_obs_date_criterion(std::FILE* lst, const obs_date_criterion& date_criterion, const std::string&) {
     if (date_criterion.date_criterion_type == obs_date_criterion_type::unknown) {
-        fprintf(lst, "which have no observation date");
+        std::fprintf(lst, "which have no observation date");
     } else {
-        fprintf(lst, "which are observed %s %s",
-                date_criterion.date_criterion_type == obs_date_criterion_type::before ? "before" : "after",
-                date_as_string(date_criterion.date, DateStringFormat::timeIfNotMidnight).c_str());
+        std::fprintf(lst, "which are observed %s %s",
+                     date_criterion.date_criterion_type == obs_date_criterion_type::before ? "before" : "after",
+                     date_as_string(date_criterion.date, DateStringFormat::timeIfNotMidnight).c_str());
     }
 }
 
@@ -587,8 +588,9 @@ static bool obs_stations_match(obs_stations_criterion& stations, obsmod_context*
     return matchfrom && matchto;
 }
 
-static void describe_obs_stations_criterion(FILE* lst, const obs_stations_criterion& stations, const std::string&) {
-    fprintf(lst, "which %s stations %s", stations.between ? "are between" : "use", stations.station_list.c_str());
+static void describe_obs_stations_criterion(std::FILE* lst, const obs_stations_criterion& stations,
+                                            const std::string&) {
+    std::fprintf(lst, "which %s stations %s", stations.between ? "are between" : "use", stations.station_list.c_str());
 }
 
 static bool obs_criterion_match(obs_criterion& oc, obsmod_context* oac) {
@@ -713,7 +715,7 @@ static bool obs_criteria_ignore_datafile(obs_modifications* obsmod, obs_criteria
     return matched;
 }
 
-static void describe_obs_criterion(FILE* lst, const obs_criterion& oc, const std::string& prefix,
+static void describe_obs_criterion(std::FILE* lst, const obs_criterion& oc, const std::string& prefix,
                                    classifications* classes) {
     if (const auto* datatype = std::get_if<obs_datatype_criterion>(&oc.type)) {
         describe_obs_datatype_criterion(lst, *datatype, prefix);
@@ -734,33 +736,33 @@ static void describe_obs_criterion(FILE* lst, const obs_criterion& oc, const std
     }
 }
 
-static void summarize_obs_criteria(FILE* lst, const std::string& prefix, const obs_criteria& ocr,
+static void summarize_obs_criteria(std::FILE* lst, const std::string& prefix, const obs_criteria& ocr,
                                    classifications* classes) {
     if (ocr.criteria.empty()) {
-        fprintf(lst, "%s  All observations\n", prefix.c_str());
+        std::fprintf(lst, "%s  All observations\n", prefix.c_str());
         return;
     }
 
     const bool just1 = ocr.criteria.size() == 1;
 
     if (ocr.action == OBS_MOD_REWEIGHT_SET) {
-        fprintf(lst, "%s  Observations in sets including one or more observations%s", prefix.c_str(),
-                just1 ? " " : ":");
+        std::fprintf(lst, "%s  Observations in sets including one or more observations%s", prefix.c_str(),
+                     just1 ? " " : ":");
     } else {
-        fprintf(lst, "%s  Observations%s", prefix.c_str(), just1 ? " " : ":");
+        std::fprintf(lst, "%s  Observations%s", prefix.c_str(), just1 ? " " : ":");
     }
     int ncrit = 0;
     for (const obs_criterion& oc : ocr.criteria) {
         ncrit++;
         if (ncrit > 1) {
-            fprintf(lst, ", and");
+            std::fprintf(lst, ", and");
         }
         if (!just1) {
-            fprintf(lst, "\n%s    - ", prefix.c_str());
+            std::fprintf(lst, "\n%s    - ", prefix.c_str());
         }
         describe_obs_criterion(lst, oc, prefix, classes);
     }
-    fprintf(lst, "\n");
+    std::fprintf(lst, "\n");
 }
 
 void* new_obs_modifications(network* nw, classifications* obs_classes) {
@@ -801,7 +803,7 @@ static int get_file_id(obs_modifications* obsmod, CFG_FILE* cfg, std::string_vie
     const int file_id = obsmod->get_fileid(datafile, current_file_context());
     if (file_id < 0 && missing_error != OK) {
         char errmess[120];
-        sprintf(errmess, "Invalid data_file %.60s in classification command", std::string(datafile).c_str());
+        std::sprintf(errmess, "Invalid data_file %.60s in classification command", std::string(datafile).c_str());
         send_config_error(cfg, missing_error, errmess);
     }
     return file_id;
@@ -829,7 +831,7 @@ static bool parse_key_value_criterion(
     if (key.empty() || valuePart.empty()) {
         char errmess[100];
         const std::string fieldText(field);
-        sprintf(errmess, "Invalid observation selection criteria \"%.40s\"", fieldText.c_str());
+        std::sprintf(errmess, "Invalid observation selection criteria \"%.40s\"", fieldText.c_str());
         send_config_error(cfg, INVALID_DATA, errmess);
         return false;
     }
@@ -857,7 +859,7 @@ static bool parse_key_value_criterion(
             auto afterQuote = scanner.remainder();
             auto messageEnd = afterQuote.size() < beforeQuote.size() ? afterQuote : beforeQuote;
             const std::string fieldText(field.data(), messageEnd.data() - field.data());
-            sprintf(errmess, "Invalid observation selection criteria for \"%.40s\"", fieldText.c_str());
+            std::sprintf(errmess, "Invalid observation selection criteria for \"%.40s\"", fieldText.c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             return false;
         }
@@ -978,7 +980,7 @@ static int add_obs_modifications_imp(CFG_FILE* cfg, void* pobsmod, std::string_v
         } else {
             char errmess[120];
             const std::string fieldText(*field);
-            sprintf(errmess, "Invalid specification %.50s in observation selection criteria", fieldText.c_str());
+            std::sprintf(errmess, "Invalid specification %.50s in observation selection criteria", fieldText.c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             sts = INVALID_DATA;
         }
@@ -1330,7 +1332,7 @@ int check_obsmod_station_criteria_codes(void* pobsmod, network* nw) {
     return return_sts;
 }
 
-void summarize_obs_modifications(void* pobsmod, FILE* lst, const std::string& prefix) {
+void summarize_obs_modifications(void* pobsmod, std::FILE* lst, const std::string& prefix) {
     obs_modifications* obsmod = (obs_modifications*)pobsmod;
     if (!obsmod) {
         return;
@@ -1377,23 +1379,24 @@ void summarize_obs_modifications(void* pobsmod, FILE* lst, const std::string& pr
                 break;
             }
             if (action == OBS_MOD_IGNORE) {
-                fprintf(lst, "\n%sThe following observations are ignored:\n", prefix.c_str());
+                std::fprintf(lst, "\n%sThe following observations are ignored:\n", prefix.c_str());
             } else if (action == OBS_MOD_REJECT) {
-                fprintf(lst, "\n%sThe following observations are rejected\n", prefix.c_str());
+                std::fprintf(lst, "\n%sThe following observations are rejected\n", prefix.c_str());
             } else if (action == OBS_MOD_REWEIGHT) {
-                fprintf(lst, "\n%sErrors of the following observations are scaled by %.3lf\n", prefix.c_str(), errfct);
+                std::fprintf(lst, "\n%sErrors of the following observations are scaled by %.3lf\n", prefix.c_str(),
+                             errfct);
             } else if (action == OBS_MOD_REWEIGHT_SET) {
-                fprintf(lst, "\n%sErrors of the following observations are scaled by set by %.3lf\n", prefix.c_str(),
-                        errfct);
+                std::fprintf(lst, "\n%sErrors of the following observations are scaled by set by %.3lf\n",
+                             prefix.c_str(), errfct);
             } else if (action == OBS_MOD_OFFSET_ERROR) {
-                fprintf(lst, "\n%sOffset error %0.3lf %0.3lf m applied to the following observations\n", prefix.c_str(),
-                        match->factor, match->factor2);
+                std::fprintf(lst, "\n%sOffset error %0.3lf %0.3lf m applied to the following observations\n",
+                             prefix.c_str(), match->factor, match->factor2);
             } else if (action == OBS_MOD_CENTROID_ERROR) {
-                fprintf(lst, "\n%sCentroid error %0.3lf %0.3lf m applied to the following observations\n",
-                        prefix.c_str(), match->factor, match->factor2);
+                std::fprintf(lst, "\n%sCentroid error %0.3lf %0.3lf m applied to the following observations\n",
+                             prefix.c_str(), match->factor, match->factor2);
             } else if (action == OBS_MOD_ANTENNA_OFFSET) {
-                fprintf(lst, "\n%sAntenna offset %0.3lf m applied to the following GX/GB observations\n",
-                        prefix.c_str(), match->factor);
+                std::fprintf(lst, "\n%sAntenna offset %0.3lf m applied to the following GX/GB observations\n",
+                             prefix.c_str(), match->factor);
             }
             while (match != criteria_end) {
                 summarize_obs_criteria(lst, prefix, *match, obsmod->classes);
@@ -1424,8 +1427,8 @@ void summarize_obs_modifications(void* pobsmod, FILE* lst, const std::string& pr
         }
 
         if (action & (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) && ncriteria > 1) {
-            fprintf(lst, "\n%sNote: error factors are multiplied for observations meeting several criteria\n",
-                    prefix.c_str());
+            std::fprintf(lst, "\n%sNote: error factors are multiplied for observations meeting several criteria\n",
+                         prefix.c_str());
         }
     }
 }

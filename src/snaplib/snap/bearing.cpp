@@ -176,7 +176,7 @@ int calc_prj_azimuth2(int bproj_id, station* st1, double hgt1, station* st2, dou
     if (de * de + dn * dn < DIST_TOL_2) {
         (*angle) = 0.0;
     } else {
-        (*angle) = atan2(e2 - e1, n2 - n1);
+        (*angle) = std::atan2(e2 - e1, n2 - n1);
     }
 
     return OK;

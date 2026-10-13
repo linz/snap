@@ -37,7 +37,7 @@ PutTextInfoWriter::PutTextInfoWriter(const wxString& string) {
     int ito;
     int iobs_id;
     type = ptfNone;
-    if (sscanf(string.mb_str(), "PTI:%d:%d:%d:%d", &itype, &ifrom, &ito, &iobs_id) != EOF) {
+    if (std::sscanf(string.mb_str(), "PTI:%d:%d:%d:%d", &itype, &ifrom, &ito, &iobs_id) != EOF) {
         type = itype;
         from = ifrom;
         to = ito;

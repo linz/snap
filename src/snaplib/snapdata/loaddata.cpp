@@ -39,11 +39,11 @@ using boost::numeric_cast;
 #define INC_SIZE 5 /* Increment for data blocks */
 
 #ifdef DEBUG_LOADDATA
-#define DEBUG_PRINT(x) \
-    {                  \
-        putchar('\n'); \
-        printf x;      \
-        putchar('\n'); \
+#define DEBUG_PRINT(x)      \
+    {                       \
+        std::putchar('\n'); \
+        std::printf x;      \
+        std::putchar('\n'); \
     }
 #else
 #define DEBUG_PRINT(x)
@@ -58,7 +58,7 @@ static trgtdata* tgt = nullptr;
 static int tgt_id = 0;
 static double tgt_hgt;
 static long file_lineno;
-static int64_t noteloc;
+static std::int64_t noteloc;
 static int inst_cancelled;
 static int trgt_cancelled;
 static int data_cancelled;
@@ -134,7 +134,7 @@ void (*usedata_func)(survdata* sd);
 /* The functions for converting codes to and from numeric id's,
    and for calculating values  */
 
-static int64_t (*id_func)(int type, int group_id, std::string_view code);
+static std::int64_t (*id_func)(int type, int group_id, std::string_view code);
 static std::string (*code_func)(int type, int group_id, long id);
 static double (*calc_func)(int type, long id1, long id2);
 
@@ -320,7 +320,8 @@ static void report_error(const std::string_view location) {
     handle_error(INTERNAL_ERROR, msg, "In module loaddata.c");
 }
 
-void init_load_data(void (*usedata)(survdata* sd), int64_t (*idfunc)(int type, int group_id, std::string_view code),
+void init_load_data(void (*usedata)(survdata* sd),
+                    std::int64_t (*idfunc)(int type, int group_id, std::string_view code),
                     std::string (*codefunc)(int type, int group_id, long id),
                     double (*calcfunc)(int type, long id1, long id2)) {
     DEBUG_PRINT(("LDT: init_load_data"));
@@ -644,7 +645,7 @@ static classdata* getclassdata(void) {
     return &classblock[idx];
 }
 
-int64_t ldt_get_id(int type, int group_id, std::string_view code) {
+std::int64_t ldt_get_id(int type, int group_id, std::string_view code) {
     if (type == ID_STATION && recoding) {
         if (group_id != GET_REAL_STATION_ID) {
             return save_code(code);
@@ -702,7 +703,7 @@ void ldt_date(double obsdate) {
 void ldt_time(double time) {
     DEBUG_PRINT(("LDT: ldt_time %.5lf", time));
     if (data.date != UNDEFINED_DATE) {
-        data.date = floor(data.date) + time;
+        data.date = std::floor(data.date) + time;
     }
 }
 
@@ -935,7 +936,7 @@ void ldt_vecsyserr(int syserr_id, double influence[]) {
 
 void ldt_prefix_note(std::string_view note) {
     DEBUG_PRINT(("LDT: ldt_prefix_note %.*s", numeric_cast<int>(note.size()), note.data()));
-    const int64_t newnote = ldt_get_id(ID_NOTE, noteloc ? 1 : 0, note);
+    const std::int64_t newnote = ldt_get_id(ID_NOTE, noteloc ? 1 : 0, note);
     if (!noteloc) {
         noteloc = newnote;
     }
@@ -948,7 +949,7 @@ void ldt_note(std::string_view note) {
         report_error("ldt_postfix_note");
         return;
     }
-    const int64_t newnote = ldt_get_id(ID_NOTE, tgt->noteloc ? 1 : 0, note);
+    const std::int64_t newnote = ldt_get_id(ID_NOTE, tgt->noteloc ? 1 : 0, note);
     if (!tgt->noteloc) {
         tgt->noteloc = newnote;
     }
@@ -1062,19 +1063,19 @@ static void remove_ignored_obs() {
         if (tgt->nclass > 0) {
             const int nc = tgt->nclass;
             const int iclass0 = tgt->iclass;
-            memcpy(&(data.clsf[iclass]), &(data.clsf[iclass0]), (sizeof(classdata)) * nc);
+            std::memcpy(&(data.clsf[iclass]), &(data.clsf[iclass0]), (sizeof(classdata)) * nc);
             tgt->iclass = iclass;
             iclass += nc;
         }
         if (tgt->nsyserr > 0) {
             const int ns = tgt->nsyserr;
             const int isyserr0 = tgt->isyserr;
-            memcpy(&(data.syserr[isyserr]), &(data.syserr[isyserr0]), (sizeof(syserrdata)) * ns);
+            std::memcpy(&(data.syserr[isyserr]), &(data.syserr[isyserr0]), (sizeof(syserrdata)) * ns);
             tgt->isyserr = isyserr;
             isyserr += ns;
         }
 
-        memcpy((void*)get_trgtdata(&data, nused), (void*)tgt, data.obssize);
+        std::memcpy((void*)get_trgtdata(&data, nused), (void*)tgt, data.obssize);
         nused++;
     }
     data.nobs = nused;

@@ -88,7 +88,7 @@ wxMainProgWindow::wxMainProgWindow(const wxString& title, bool hasProgress, bool
     buffer.resize(1024);
     instance = this;
 
-    lastUpdate = clock();
+    lastUpdate = std::clock();
 
     set_printf_target(PrintArgs);
 
@@ -147,7 +147,7 @@ void wxMainProgWindow::AppendString(const wxString& text) {
     logText->AppendText(text);
 
     Update();
-    lastUpdate = clock();
+    lastUpdate = std::clock();
 
     // Keep track of the last non-blank line as the header for the progress meter
     wxStringTokenizer tokens(text, "\n");
@@ -160,17 +160,17 @@ void wxMainProgWindow::AppendString(const wxString& text) {
     }
 }
 
-int wxMainProgWindow::DoPrintArgs(const char* format, va_list args) {
-    va_list copy;
+int wxMainProgWindow::DoPrintArgs(const char* format, std::va_list args) {
+    std::va_list copy;
     va_copy(copy, args);
 
     // The first call may truncate, and only measures the length needed
-    const int required = vsnprintf(buffer.data(), buffer.size(), format, args);
+    const int required = std::vsnprintf(buffer.data(), buffer.size(), format, args);
     if (required >= 0 && buffer.size() < static_cast<size_t>(required) + 1) {
         buffer.resize(static_cast<size_t>(required) + 1);
     }
 
-    const int len = vsnprintf(buffer.data(), buffer.size(), format, copy);
+    const int len = std::vsnprintf(buffer.data(), buffer.size(), format, copy);
     AppendString(wxString(buffer.data()));
     va_end(copy);
     return len;
@@ -184,7 +184,7 @@ int wxMainProgWindow::DoErrorHandler(const int sts, const std::string_view msg1,
     return sts;
 }
 
-int wxMainProgWindow::PrintArgs(const char* format, va_list args) {
+int wxMainProgWindow::PrintArgs(const char* format, std::va_list args) {
     if (instance) {
         return instance->DoPrintArgs(format, args);
     }
@@ -203,7 +203,7 @@ void wxMainProgWindow::DoInitMeter(long total_size) {
         progressText->SetLabel(lastLine.Trim(false));
         progressText->Update();
         progressGauge->SetRange(total_size);
-        startTime = clock();
+        startTime = std::clock();
         maxUnreportedProgress = total_size / 100;
         nextProgressUpdate = maxUnreportedProgress;
     }
@@ -214,10 +214,10 @@ void wxMainProgWindow::DoUpdateMeter(long progress) {
         progressGauge->SetValue(progress);
         nextProgressUpdate = progress + maxUnreportedProgress;
     }
-    if (clock() - lastUpdate > CLOCKS_PER_SEC) {
+    if (std::clock() - lastUpdate > CLOCKS_PER_SEC) {
         Update();
         // while( wxTheApp->Pending() ){ wxTheApp->Dispatch(); }
-        lastUpdate = clock();
+        lastUpdate = std::clock();
     }
 }
 
@@ -226,7 +226,7 @@ void wxMainProgWindow::DoEndMeter() {
         progressText->SetLabel("");
         progressGauge->SetValue(0);
         if (reportTimes) {
-            const double time = (double)(clock() - startTime) / CLOCKS_PER_SEC;
+            const double time = (double)(std::clock() - startTime) / CLOCKS_PER_SEC;
             AppendString(wxString::Format("     ... duration %.2lf seconds\n", time));
         }
     }

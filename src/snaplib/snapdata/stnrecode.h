@@ -98,7 +98,8 @@ void add_stn_recode_to_map(stn_recode_map* stt, std::string_view codefrom, std::
 
 int read_station_recode_definition(stn_recode_map* stt, std::string_view def, const std::string& basefile);
 
-void print_stn_recode_list(FILE* out, stn_recode_map* stt, bool onlyused, int stn_name_width, std::string_view prefix);
+void print_stn_recode_list(std::FILE* out, stn_recode_map* stt, bool onlyused, int stn_name_width,
+                           std::string_view prefix);
 
 /// Returns the recodes of code, or nullptr if it has none
 const stn_recode_list* get_station_recodes(stn_recode_map* stt, std::string_view code);

@@ -89,8 +89,8 @@ struct stn_relacc {
 #define SRA_HVMODE_3D 3
 
 struct stn_relacc_array {
-    FILE* logfile = nullptr;
-    FILE* dbgfile = nullptr;
+    std::FILE* logfile = nullptr;
+    std::FILE* dbgfile = nullptr;
     SDCTest* hsdc = nullptr;  ///< The tests, owned by the caller of create_test
     std::string csvoutput;
     std::string crdoutput;
@@ -155,7 +155,7 @@ static double calc_error_ellipse_semimajor2(const double cvr[]) {
     v3 = cvr[1];
     v4 = v2 * v2 + v3 * v3;
     if (v4 > 0.0) {
-        v4 = sqrt(v4);
+        v4 = std::sqrt(v4);
         v1 += v4;
     }
     return v1;
@@ -342,7 +342,7 @@ static void cache_covariance_matrix(stn_relacc_array* ra, const std::string& cfn
     dump_bltmatrix(ra->blt, c->f);
     end_section(c);
     close_binary_file(c);
-    printf("Created covariance cache file %s\n", cfn.c_str());
+    std::printf("Created covariance cache file %s\n", cfn.c_str());
 }
 
 static int relacc_calc_requested_covar(stn_relacc_array* ra) {
@@ -356,11 +356,11 @@ static int relacc_calc_requested_covar(stn_relacc_array* ra) {
     }
 
     if (ra->loglevel & SDC_LOG_STEPS) {
-        fprintf(ra->logfile, "   Calculating covariances from decomposition\n");
+        std::fprintf(ra->logfile, "   Calculating covariances from decomposition\n");
         const long nrow = blt_nrows(ra->bltreq);
         const long nelement = blt_requested_size(ra->bltreq);
         const double pcntfull = 100.0 * ((double)nelement) / (((double)nrow) * (((double)nrow) + 1) / 2.0);
-        fprintf(ra->logfile, "   Matrix size %ld rows %ld elements %.2lf%% full\n", nrow, nelement, pcntfull);
+        std::fprintf(ra->logfile, "   Matrix size %ld rows %ld elements %.2lf%% full\n", nrow, nelement, pcntfull);
     }
 
     expand_bltmatrix_to_requested(ra->bltreq);
@@ -750,7 +750,7 @@ static int reload_covariances(BINARY_FILE* b, stn_relacc_array* ra) {
     nstns = number_of_stations(net);
 
     for (istn = 0; istn++ < nstns;) {
-        fread(cvr, sizeof(cvr), 1, b->f);
+        std::fread(cvr, sizeof(cvr), 1, b->f);
         emax2 = calc_error_ellipse_semimajor2(cvr);
         add_relacc(ra, istn, istn, emax2, cvr[5]);
     }
@@ -771,14 +771,14 @@ static int reload_relative_covariances(BINARY_FILE* b, stn_relacc_array* ra) {
     relacc_alloc_cache(ra);
 
     for (;;) {
-        if (fread(&from, sizeof(from), 1, b->f) != 1) {
+        if (std::fread(&from, sizeof(from), 1, b->f) != 1) {
             break;
         }
         if (from < 0) {
             break;
         }
-        fread(&to, sizeof(to), 1, b->f);
-        fread(cvr, sizeof(cvr), 1, b->f);
+        std::fread(&to, sizeof(to), 1, b->f);
+        std::fread(cvr, sizeof(cvr), 1, b->f);
 
         emax2 = calc_error_ellipse_semimajor2(cvr);
         add_relacc(ra, from, to, emax2, cvr[5]);
@@ -804,7 +804,7 @@ static int try_reload_cached_covariance(stn_relacc_array* ra, const std::string&
     }
     read_run_date_field(c->f, cruntime);
     if (compare_ignoring_case(cruntime, run_time) != 0) {
-        printf("Covariance cache file out of date - deleting %s\n", cfn.c_str());
+        std::printf("Covariance cache file out of date - deleting %s\n", cfn.c_str());
         close_binary_file(c);
         _unlink(cfn.c_str());
         return 0;
@@ -819,7 +819,7 @@ static int try_reload_cached_covariance(stn_relacc_array* ra, const std::string&
     }
     close_binary_file(c);
     ra->bltupdated = 0;
-    printf("Using covariance from cache file %s\n", cfn.c_str());
+    std::printf("Using covariance from cache file %s\n", cfn.c_str());
     return 1;
 }
 
@@ -967,18 +967,18 @@ static void f_set_order(void* env, int stn, int order) {
 static void f_write_log(void* env, const std::string_view text) {
     stn_relacc_array* ra = (stn_relacc_array*)env;
     if (ra->logfile) {
-        fwrite(text.data(), 1, text.size(), ra->logfile);
+        std::fwrite(text.data(), 1, text.size(), ra->logfile);
     }
     if (ra->outputlog) {
-        fwrite(text.data(), 1, text.size(), stdout);
-        putchar('\n');
+        std::fwrite(text.data(), 1, text.size(), stdout);
+        std::putchar('\n');
     }
 }
 
 static void f_write_debug(void* env, const std::string_view text) {
     stn_relacc_array* ra = (stn_relacc_array*)env;
     if (ra->dbgfile) {
-        fwrite(text.data(), 1, text.size(), ra->dbgfile);
+        std::fwrite(text.data(), 1, text.size(), ra->dbgfile);
     }
 }
 
@@ -1004,7 +1004,7 @@ static int run_tests(SDCTest& hsdc) {
 }
 
 static void write_results(const SDCTest& hsdc, stn_relacc_array* ra) {
-    FILE* out = ra->logfile;
+    std::FILE* out = ra->logfile;
     const int nstns = ra->nstn;
     int order;
     char header[80];
@@ -1013,44 +1013,44 @@ static void write_results(const SDCTest& hsdc, stn_relacc_array* ra) {
         return;
     }
 
-    fprintf(out, "Results of order calculations\n");
+    std::fprintf(out, "Results of order calculations\n");
 
     for (order = -2; order <= hsdc.norder(); order++) {
         int headed = 0;
         if (order == -2) {
-            sprintf(header, "Control stations");
+            std::sprintf(header, "Control stations");
         } else if (order == -1) {
-            sprintf(header, "Rejected stations");
+            std::sprintf(header, "Rejected stations");
         } else if (order == 0) {
-            sprintf(header, "Stations assigned order %s", dfltOrder.c_str());
+            std::sprintf(header, "Stations assigned order %s", dfltOrder.c_str());
         } else if (order > 0) {
-            sprintf(header, "Stations achieving order %s", hsdc.tests[order - 1].scOrder.c_str());
+            std::sprintf(header, "Stations achieving order %s", hsdc.tests[order - 1].scOrder.c_str());
         }
         for (int istn = 1; istn <= nstns; istn++) {
             if (ra->order[istn - 1] != order) {
                 continue;
             }
             if (!headed) {
-                fprintf(out, "\n%s\n", header);
+                std::fprintf(out, "\n%s\n", header);
                 headed = 1;
             }
-            fprintf(out, "%s\n", stnptr(istn)->Code.c_str());
+            std::fprintf(out, "%s\n", stnptr(istn)->Code.c_str());
         }
     }
 }
 
 static void write_station_index(stn_relacc_array* ra) {
-    FILE* out = ra->logfile;
+    std::FILE* out = ra->logfile;
     int i;
 
-    fprintf(out, "\nStation lookup for SDC test module\n");
-    fprintf(out, "    id %-*s role prty\n", stn_name_width, "code");
+    std::fprintf(out, "\nStation lookup for SDC test module\n");
+    std::fprintf(out, "    id %-*s role prty\n", stn_name_width, "code");
     for (i = 0; i < ra->nstn; i++) {
         const int ist0 = i + 1;
-        fprintf(out, "  %4d %-*s %4d %4d\n", ist0, stn_name_width, stnptr(ist0)->Code.c_str(), f_station_role(ra, i),
-                f_station_priority(ra, i));
+        std::fprintf(out, "  %4d %-*s %4d %4d\n", ist0, stn_name_width, stnptr(ist0)->Code.c_str(),
+                     f_station_role(ra, i), f_station_priority(ra, i));
     }
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
 }
 
 static std::string_view relacc_order_string(stn_relacc_array* ra, short order) {
@@ -1091,7 +1091,7 @@ static std::string output_filename(std::string_view filename, const std::string&
 static void write_output_csv(const std::string& csvname, stn_relacc_array* ra) {
     const std::unique_ptr<output_csv> csv = output_csv::open(csvname, false);
     if (!csv) {
-        printf("\nCannot open results csv file %s\n", csvname.c_str());
+        std::printf("\nCannot open results csv file %s\n", csvname.c_str());
         return;
     }
 
@@ -1206,13 +1206,13 @@ static void write_output_csv(const std::string& csvname, stn_relacc_array* ra) {
             csv->writeDouble(dh, coord_precision);
 
             if (ra->horvar[idra] >= 0.0) {
-                csv->writeDouble(sqrt(ra->horvar[idra]), coord_precision);
+                csv->writeDouble(std::sqrt(ra->horvar[idra]), coord_precision);
             } else {
                 csv->writeNullField();
             }
 
             if (ra->vrtvar[idra] >= 0.0) {
-                csv->writeDouble(sqrt(ra->vrtvar[idra]), coord_precision);
+                csv->writeDouble(std::sqrt(ra->vrtvar[idra]), coord_precision);
             } else {
                 csv->writeNullField();
             }
@@ -1264,8 +1264,8 @@ static void write_coord_files(const SDCTest& hsdc, stn_relacc_array* ra, const s
             }
             const std::string order = (iorder ? hsdc.tests[iorder - 1].scOrder : dfltOrder).str();
             const std::string crdfile = fname + "_" + order + ".crd";
-            sprintf(comment, "Stations assigned order %s by snapspec - run at %s", order.c_str(),
-                    spec_run_time.c_str());
+            std::sprintf(comment, "Stations assigned order %s by snapspec - run at %s", order.c_str(),
+                         spec_run_time.c_str());
             station_order = iorder;
             write_network(net, crdfile, comment, coord_precision, stations_of_order);
             break;
@@ -1305,7 +1305,7 @@ static void update_station_orders(const SDCTest& hsdc, stn_relacc_array* ra) {
 
 static void update_crdfile(const std::string& fname) {
     write_network(net, fname, "Coordinate orders updated by snapspec", coord_precision, nullptr);
-    printf("Updated station orders in %s\n", fname.c_str());
+    std::printf("Updated station orders in %s\n", fname.c_str());
 }
 
 struct MaxControlOrder {
@@ -1330,9 +1330,10 @@ static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_arr
 
     if (!net->order_count()) {
         if (ra->logfile) {
-            fprintf(ra->logfile, "Cannot determine control station orders as network doesn't have order information\n");
+            std::fprintf(ra->logfile,
+                         "Cannot determine control station orders as network doesn't have order information\n");
         }
-        printf("Cannot determine control station orders as network doesn't have order information\n");
+        std::printf("Cannot determine control station orders as network doesn't have order information\n");
         return MaxControlOrder(-1);
     }
 
@@ -1402,8 +1403,8 @@ static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_arr
         iorder = order_lookup[orderid];
         if (iorder == -2) {
             if (ra->logfile) {
-                fprintf(ra->logfile, "Control station %s has unrecognised order %s\n", st->Code.c_str(),
-                        net->order(orderid).c_str());
+                std::fprintf(ra->logfile, "Control station %s has unrecognised order %s\n", st->Code.c_str(),
+                             net->order(orderid).c_str());
             }
             nbadorder++;
             order_lookup[orderid] = -3;
@@ -1422,9 +1423,10 @@ static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_arr
         for (i = 0; i <= nnetorder; i++) {
             if (order_lookup[i] == -3) {
                 if (i == 0) {
-                    printf("Control stations have undefined orders\n");
+                    std::printf("Control stations have undefined orders\n");
                 } else {
-                    printf("Control stations order %s not defined in snapspec configuration\n", net->order(i).c_str());
+                    std::printf("Control stations order %s not defined in snapspec configuration\n",
+                                net->order(i).c_str());
                 }
             }
         }
@@ -1442,7 +1444,7 @@ static int setup_hv_mode(int hvmode, SDCTest& hsdc, stn_relacc_array* ra) {
     int testvrt;
     int i;
     int nstns;
-    FILE* out = ra->logfile;
+    std::FILE* out = ra->logfile;
 
     if (hvmode == SRA_HVMODE_AUTO) {
         hvmode = ra->hvmode;
@@ -1482,53 +1484,53 @@ static int setup_hv_mode(int hvmode, SDCTest& hsdc, stn_relacc_array* ra) {
     }
 
     if (hvmode == SRA_HVMODE_HOR && testhor == 0) {
-        printf("snapspec: Requested horizontal testing but configuration doesn't have horizontal tests\n");
-        fprintf(out, "Requested horizontal testing but configuration doesn't have horizontal tests\n");
+        std::printf("snapspec: Requested horizontal testing but configuration doesn't have horizontal tests\n");
+        std::fprintf(out, "Requested horizontal testing but configuration doesn't have horizontal tests\n");
         return INCONSISTENT_DATA;
     }
 
     if (hvmode == SRA_HVMODE_VRT && testvrt == 0) {
-        printf("snapspec: Requested vertical testing but configuration doesn't have vertical tests\n");
-        fprintf(out, "Requested vertical testing but configuration doesn't have vertical tests\n");
+        std::printf("snapspec: Requested vertical testing but configuration doesn't have vertical tests\n");
+        std::fprintf(out, "Requested vertical testing but configuration doesn't have vertical tests\n");
         return INCONSISTENT_DATA;
     }
 
     if (hvmode == SRA_HVMODE_3D && (testvrt == 0 || testhor == 0)) {
-        printf("snapspec: Requested 3d testing but configuration doesn't have 3d tests\n");
-        fprintf(out, "Requested 3d testing but configuration doesn't have 3d tests\n");
+        std::printf("snapspec: Requested 3d testing but configuration doesn't have 3d tests\n");
+        std::fprintf(out, "Requested 3d testing but configuration doesn't have 3d tests\n");
         return INCONSISTENT_DATA;
     }
 
     if (hvmode == SRA_HVMODE_HOR && adjhor == 0) {
-        printf("snapspec: Requested horizontal testing but no stations are adjusted horizontally\n");
-        fprintf(out, "Requested horizontal testing but no stations are adjusted horizontally\n");
+        std::printf("snapspec: Requested horizontal testing but no stations are adjusted horizontally\n");
+        std::fprintf(out, "Requested horizontal testing but no stations are adjusted horizontally\n");
         return INCONSISTENT_DATA;
     }
 
     if (hvmode == SRA_HVMODE_VRT && adjvrt == 0) {
-        printf("snapspec: Requested vertical testing but no stations are adjusted vertically\n");
-        fprintf(out, "Requested vertical testing but no stations are adjusted vertically\n");
+        std::printf("snapspec: Requested vertical testing but no stations are adjusted vertically\n");
+        std::fprintf(out, "Requested vertical testing but no stations are adjusted vertically\n");
         return INCONSISTENT_DATA;
     }
 
     if (hvmode == SRA_HVMODE_3D && adj3d == 0) {
-        printf("snapspec: Requested 3d testing but no stations are adjusted in three dimensions\n");
-        fprintf(out, "Requested 3d testing but no stations are adjusted in three dimensions\n");
+        std::printf("snapspec: Requested 3d testing but no stations are adjusted in three dimensions\n");
+        std::fprintf(out, "Requested 3d testing but no stations are adjusted in three dimensions\n");
         return INCONSISTENT_DATA;
     }
 
     if (hvmode == SRA_HVMODE_AUTO) {
         if (testhor && !adjhor) {
-            fprintf(out, "Horizontal tests will not be applied as no stations are adjusted horizontally\n");
+            std::fprintf(out, "Horizontal tests will not be applied as no stations are adjusted horizontally\n");
             testhor = 0;
         }
         if (testvrt && !adjvrt) {
-            fprintf(out, "Vertical tests will not be applied as no stations are adjusted vertically\n");
+            std::fprintf(out, "Vertical tests will not be applied as no stations are adjusted vertically\n");
             testvrt = 0;
         }
         if (!testhor && !testvrt) {
-            printf("snapspec: Requested testing is inconsistent with adjustment\n");
-            fprintf(out, "Requested testing is inconsistent with adjustment\n");
+            std::printf("snapspec: Requested testing is inconsistent with adjustment\n");
+            std::fprintf(out, "Requested testing is inconsistent with adjustment\n");
             return INCONSISTENT_DATA;
         }
     }
@@ -1546,8 +1548,8 @@ static int setup_hv_mode(int hvmode, SDCTest& hsdc, stn_relacc_array* ra) {
     }
 
     if (testhor && testvrt && (adjhor != adj3d || adjvrt != adj3d)) {
-        printf("Warning: testing 3d adjustment but some stations are adjusted hor/vrt only\n");
-        fprintf(out, "Warning: testing 3d adjustment but some stations are adjusted hor/vrt only\n");
+        std::printf("Warning: testing 3d adjustment but some stations are adjusted hor/vrt only\n");
+        std::fprintf(out, "Warning: testing 3d adjustment but some stations are adjusted hor/vrt only\n");
     }
     return OK;
 }
@@ -1943,7 +1945,7 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
     int sts = OK;
     int nbadstn = 0;
     limit_order_params p;
-    FILE* f = fopen(filename.c_str(), "r");
+    std::FILE* f = std::fopen(filename.c_str(), "r");
     if (!f) {
         return FILE_OPEN_ERROR;
     }
@@ -1952,8 +1954,8 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
     constexpr char csvDelimiter = ',';
     int first = 1;
     int nrec = 0;
-    while (!feof(f)) {
-        if (!fgets(record, STN_CONFIG_BUFSIZE, f)) {
+    while (!std::feof(f)) {
+        if (!std::fgets(record, STN_CONFIG_BUFSIZE, f)) {
             break;
         }
         nrec++;
@@ -2043,9 +2045,9 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
                         } else {
                             char errmsg1[80];
                             char errmsg2[MAX_FILENAME_LEN + 80];
-                            sprintf(errmsg1, "Invalid order %.10s in station configuration file",
-                                    field[orderfield]->c_str());
-                            sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
+                            std::sprintf(errmsg1, "Invalid order %.10s in station configuration file",
+                                         field[orderfield]->c_str());
+                            std::sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
                             handle_error(INVALID_DATA, errmsg1, errmsg2);
                             sts = INVALID_DATA;
                         }
@@ -2060,14 +2062,14 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
                     char check;
                     if (*field[priorityfield] == "*") {
                         ra->role[istn - 1] = SDC_IGNORE_MARK;
-                    } else if (sscanf(field[priorityfield]->c_str(), "%d%c", &priority, &check) == 1) {
+                    } else if (std::sscanf(field[priorityfield]->c_str(), "%d%c", &priority, &check) == 1) {
                         ra->priority[istn - 1] = priority;
                     } else {
                         char errmsg1[80];
                         char errmsg2[MAX_FILENAME_LEN + 80];
-                        sprintf(errmsg1, "Invalid priority %.10s in station configuration file",
-                                field[priorityfield]->c_str());
-                        sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
+                        std::sprintf(errmsg1, "Invalid priority %.10s in station configuration file",
+                                     field[priorityfield]->c_str());
+                        std::sprintf(errmsg2, "Line %d file %*s", nrec, MAX_FILENAME_LEN, filename.c_str());
                         handle_error(INVALID_DATA, errmsg1, errmsg2);
                         sts = INVALID_DATA;
                     }
@@ -2076,19 +2078,19 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
         }
         if (!haveEol) {
             while (true) {
-                const int c = fgetc(f);
+                const int c = std::fgetc(f);
                 if (c == '\n' || c == EOF) {
                     break;
                 }
             }
         }
     }
-    fclose(f);
+    std::fclose(f);
     if (nbadstn > 0) {
         char errmsg1[80];
         char errmsg2[MAX_FILENAME_LEN + 80];
-        sprintf(errmsg1, "%d unrecognised stations in station configuration file", nbadstn);
-        sprintf(errmsg2, "File %*s", MAX_FILENAME_LEN, filename.c_str());
+        std::sprintf(errmsg1, "%d unrecognised stations in station configuration file", nbadstn);
+        std::sprintf(errmsg2, "File %*s", MAX_FILENAME_LEN, filename.c_str());
         handle_error(INFO_ERROR, errmsg1, errmsg2);
     }
     return sts;
@@ -2151,7 +2153,7 @@ static int read_configuration_command(CFG_FILE* cfg, std::string_view string, vo
         }
         if (recurse) {
             char buf[120];
-            sprintf(buf, "Error - recursive load of configuration %.60s", basecfn.c_str());
+            std::sprintf(buf, "Error - recursive load of configuration %.60s", basecfn.c_str());
             send_config_error(cfg, INVALID_DATA, buf);
             return OK;
         }
@@ -2163,7 +2165,7 @@ static int read_configuration_command(CFG_FILE* cfg, std::string_view string, vo
     }
     if (!cfg2) {
         char buf[120];
-        sprintf(buf, "Cannot open configuration file %.60s", basecfn.c_str());
+        std::sprintf(buf, "Cannot open configuration file %.60s", basecfn.c_str());
         send_config_error(cfg, INVALID_DATA, buf);
         return OK;
     }
@@ -2184,7 +2186,7 @@ static int read_configuration_command(CFG_FILE* cfg, std::string_view string, vo
 
     if (nerr > 0) {
         char buf[120];
-        sprintf(buf, "Errors processing configuration file %.60s", basecfn.c_str());
+        std::sprintf(buf, "Errors processing configuration file %.60s", basecfn.c_str());
         send_config_error(cfg, INVALID_DATA, buf);
         return OK;
     }
@@ -2218,7 +2220,7 @@ static int read_station_config_command(CFG_FILE* cfg, std::string_view string, v
     if (invalidField) {
         const std::string bad(*invalidField);
         char buf[150];
-        sprintf(buf, "Error - invalid format %.60s in station_configuration_file command", bad.c_str());
+        std::sprintf(buf, "Error - invalid format %.60s in station_configuration_file command", bad.c_str());
         send_config_error(cfg, INVALID_DATA, buf);
         return OK;
     }
@@ -2229,12 +2231,13 @@ static int read_station_config_command(CFG_FILE* cfg, std::string_view string, v
         const int sts = read_station_config_file(*cfn, *(stn_relacc_array**)value, csv);
         if (sts != OK) {
             char buf[100 + MAX_FILENAME_LEN];
-            sprintf(buf, "Errors encountered reading station configuration file %.*s", MAX_FILENAME_LEN, cfn->c_str());
+            std::sprintf(buf, "Errors encountered reading station configuration file %.*s", MAX_FILENAME_LEN,
+                         cfn->c_str());
             send_config_error(cfg, INVALID_DATA, buf);
         }
     } else {
         char buf[100 + MAX_FILENAME_LEN];
-        sprintf(buf, "Cannot open station configuration file %.*s", MAX_FILENAME_LEN, stcfgfn.c_str());
+        std::sprintf(buf, "Cannot open station configuration file %.*s", MAX_FILENAME_LEN, stcfgfn.c_str());
         send_config_error(cfg, INVALID_DATA, buf);
     }
     return OK;
@@ -2266,7 +2269,7 @@ static int read_options_command(CFG_FILE* cfg, std::string_view string, void* va
         } else {
             const std::string opt(*option);
             char errmsg[100];
-            sprintf(errmsg, "Invalid value %.40s in option command", opt.c_str());
+            std::sprintf(errmsg, "Invalid value %.40s in option command", opt.c_str());
             send_config_error(cfg, INVALID_DATA, errmsg);
         }
     }
@@ -2319,7 +2322,7 @@ static int read_log_level_command(CFG_FILE* cfg, std::string_view string, void* 
             } else {
                 const std::string opt(*option);
                 char errmsg[100];
-                sprintf(errmsg, "Invalid value %.40s in option command", opt.c_str());
+                std::sprintf(errmsg, "Invalid value %.40s in option command", opt.c_str());
                 send_config_error(cfg, INVALID_DATA, errmsg);
                 continue;
             }
@@ -2399,10 +2402,10 @@ static void set_test_confidence(SDCTest& hsdc) {
 
     if (test_apriori) {
         // vtolfactor = sqrt(fabs(inv_chi2_distn( prob, 1 )));
-        htolfactor = sqrt(fabs(inv_chi2_distn(prob, 2)));
+        htolfactor = std::sqrt(std::fabs(inv_chi2_distn(prob, 2)));
     } else {
         // vtolfactor = sqrt(fabs(inv_f_distn( prob, 1, dof )));
-        htolfactor = sqrt(fabs(inv_f_distn(prob, 2, dof) * 2));
+        htolfactor = std::sqrt(std::fabs(inv_f_distn(prob, 2, dof) * 2));
     }
 
     hsdc.dblErrFactor = htolfactor;
@@ -2421,8 +2424,8 @@ int main(int argc, char* argv[]) {
     int nerr;
     std::unique_ptr<SDCTest> hsdc;
     BINARY_FILE* b;
-    FILE* debugfile;
-    FILE* out;
+    std::FILE* debugfile;
+    std::FILE* out;
     stn_relacc_array* ra;
     std::optional<std::string> min_order_str;
     char* modestr = nullptr;
@@ -2445,7 +2448,7 @@ int main(int argc, char* argv[]) {
 
     blt_set_number_of_threads(1);
 
-    printf(
+    std::printf(
         "snapspec %s: Tests adjustments against relative accuracy specifications\n"
         "            and calculates orders of coordinates\n",
         PROGRAM_VERSION);
@@ -2524,8 +2527,8 @@ int main(int argc, char* argv[]) {
                 int nthread;
                 if (_stricmp(arg2, "auto") == 0) {
                     nthread = BLT_DEFAULT_NTHREAD;
-                } else if (sscanf(arg2, "%d", &nthread) != 1 || nthread <= 0) {
-                    printf("snapspec: Invalid value %s for number of threads", arg2);
+                } else if (std::sscanf(arg2, "%d", &nthread) != 1 || nthread <= 0) {
+                    std::printf("snapspec: Invalid value %s for number of threads", arg2);
                     return 0;
                 }
                 blt_set_number_of_threads(nthread);
@@ -2534,7 +2537,7 @@ int main(int argc, char* argv[]) {
                 break;
 
             default:
-                printf("snapspec: Invalid option %s\n", argv[1]);
+                std::printf("snapspec: Invalid option %s\n", argv[1]);
                 return 0;
         }
         argv += narg;
@@ -2561,26 +2564,26 @@ int main(int argc, char* argv[]) {
                 hvmode = SRA_HVMODE_3D;
                 break;
             default:
-                printf("snapspec: Invalid mode string %s\n", modestr);
+                std::printf("snapspec: Invalid mode string %s\n", modestr);
         }
     }
 
     if (argc != 3 && argc != 4) {
-        printf("\nSyntax: snapspec [options]] binary_file_name [config_file_name] listing_file_name\n");
-        printf("\nOptions are:\n");
-        printf("   -o order      Specifies the highest order to test\n");
-        printf("   -a            Base the highest order on the control station orders\n");
-        printf("   -m mode       The mode for testing, 3d, horizontal, vertical, or auto (default)\n");
-        printf("   -u filename   Updates the orders in the named coordinate file\n");
-        printf("   -s filename   Base name for separate coordinate files for each order (no extension)\n");
-        printf("   -c filename   Output results in a csv file\n");
+        std::printf("\nSyntax: snapspec [options]] binary_file_name [config_file_name] listing_file_name\n");
+        std::printf("\nOptions are:\n");
+        std::printf("   -o order      Specifies the highest order to test\n");
+        std::printf("   -a            Base the highest order on the control station orders\n");
+        std::printf("   -m mode       The mode for testing, 3d, horizontal, vertical, or auto (default)\n");
+        std::printf("   -u filename   Updates the orders in the named coordinate file\n");
+        std::printf("   -s filename   Base name for separate coordinate files for each order (no extension)\n");
+        std::printf("   -c filename   Output results in a csv file\n");
         /* printf("   -d filename   Output calculation debug csv file\n"); - hidden option */
-        printf(
+        std::printf(
             "   -k            Use KD-tree spatial index to potentially accelerate inter-station distance calculations (requires range limits in config file)\n");
-        printf("   -v            Use covariance cache (.ssc file) if calculating covariances\n");
-        printf("   -t #|auto     Specifies the number of threads to use\n");
+        std::printf("   -v            Use covariance cache (.ssc file) if calculating covariances\n");
+        std::printf("   -t #|auto     Specifies the number of threads to use\n");
         /* printf("   -x            Disable relative accuracy tests\n\n"); - hidden option */
-        printf("Use filename \"-\" to use default filenames for outputs\n\n");
+        std::printf("Use filename \"-\" to use default filenames for outputs\n\n");
         return 0;
     }
 
@@ -2594,9 +2597,9 @@ int main(int argc, char* argv[]) {
         ofn = argv[3];
     }
 
-    out = fopen(ofn, "w");
+    out = std::fopen(ofn, "w");
     if (!out) {
-        printf("Cannot open output file %s\n", ofn);
+        std::printf("Cannot open output file %s\n", ofn);
         return 0;
     }
     set_error_file(out);
@@ -2607,27 +2610,27 @@ int main(int argc, char* argv[]) {
     cfn = find_file(basecfn, ".cfg", std::optional<std::string>(bfn), FF_TRYALL, "snapspec");
 
     if (skip_rel_acc) {
-        fprintf(out, "NOTE: Relative accuracy tests have not been run\n");
+        std::fprintf(out, "NOTE: Relative accuracy tests have not been run\n");
     }
-    fprintf(out, "snapspec version %s: Calculation of station orders\n", PROGRAM_VERSION);
-    fprintf(out, "Run at %s\n", spec_run_time.c_str());
-    fprintf(out, "SNAP binary file: %s\n", bfn.c_str());
-    fprintf(out, "Spec configuration file: %s\n", cfn ? cfn->c_str() : nullptr);
+    std::fprintf(out, "snapspec version %s: Calculation of station orders\n", PROGRAM_VERSION);
+    std::fprintf(out, "Run at %s\n", spec_run_time.c_str());
+    std::fprintf(out, "SNAP binary file: %s\n", bfn.c_str());
+    std::fprintf(out, "Spec configuration file: %s\n", cfn ? cfn->c_str() : nullptr);
 
     if (cfn) {
         cfg = open_config_file(*cfn, '!');
     }
     if (!cfn || !cfg) {
-        fprintf(out, "Cannot open configuration file %s\n", basecfn);
-        printf("snapspec: Cannot open configuration file %s\n", basecfn);
+        std::fprintf(out, "Cannot open configuration file %s\n", basecfn);
+        std::printf("snapspec: Cannot open configuration file %s\n", basecfn);
         return 0;
     }
 
     b = open_binary_file(bfn, BINFILE_SIGNATURE).file;
 
     if (!b || reload_snap_globals(b) != OK || reload_stations(b) != OK) {
-        fprintf(out, "Cannot reload data from binary file %s\n", bfn.c_str());
-        printf("snapspec: Cannot reload data from binary file %s\n", bfn.c_str());
+        std::fprintf(out, "Cannot reload data from binary file %s\n", bfn.c_str());
+        std::printf("snapspec: Cannot reload data from binary file %s\n", bfn.c_str());
         return 0;
     }
 
@@ -2641,33 +2644,33 @@ int main(int argc, char* argv[]) {
 
     ra->logfile = out;
     if (skip_rel_acc) {
-        printf("NOTE: snapspec is not applying relative accuracy tests\n");
+        std::printf("NOTE: snapspec is not applying relative accuracy tests\n");
     }
-    printf("\nUsing configuration file %s\n", cfn->c_str());
+    std::printf("\nUsing configuration file %s\n", cfn->c_str());
 
     nerr = read_configuration(cfg, *hsdc, skip_rel_acc);
     close_config_file(cfg);
 
     if (nerr > 0) {
-        printf("\n%d errors in configuration file %s\nTest aborted\n", nerr, cfn->c_str());
-        fprintf(out, "\n%d errors in configuration file %s\nTest aborted\n", nerr, cfn->c_str());
+        std::printf("\n%d errors in configuration file %s\nTest aborted\n", nerr, cfn->c_str());
+        std::fprintf(out, "\n%d errors in configuration file %s\nTest aborted\n", nerr, cfn->c_str());
         return 1;
     }
 
     if (setup_hv_mode(hvmode, *hsdc, ra) != OK) {
-        exit(1);
+        std::exit(1);
     }
 
     ra->binfn = bfn;
 
     if (reload_covariances(b, ra) != OK ||
         (!relacc_create_blt_req(ra) && (reload_relative_covariances(b, ra) != OK || check_relacc_complete(ra) != OK))) {
-        fprintf(out,
-                "Cannot reload covariance data from binary file %s\n"
-                "Make sure that the SNAP command file includes \"output all_relative_covariances\"\n"
-                "or \"output decomposition\"\n",
-                bfn.c_str());
-        printf(
+        std::fprintf(out,
+                     "Cannot reload covariance data from binary file %s\n"
+                     "Make sure that the SNAP command file includes \"output all_relative_covariances\"\n"
+                     "or \"output decomposition\"\n",
+                     bfn.c_str());
+        std::printf(
             "snapspec: Cannot reload covariance data from binary file %s\n"
             "Make sure the SNAP command file includes\n"
             "   output all_relative_covariances or\n"
@@ -2692,9 +2695,9 @@ int main(int argc, char* argv[]) {
     if (min_order_str) {
         const int iorder = find_order(*hsdc, *min_order_str);
         if (iorder < 0) {
-            printf("snapspec: Invalid order parameter %s supplied to program\n", min_order_str->c_str());
-            fprintf(out, "Invalid order parameter %s supplied to program\n", min_order_str->c_str());
-            exit(1);
+            std::printf("snapspec: Invalid order parameter %s supplied to program\n", min_order_str->c_str());
+            std::fprintf(out, "Invalid order parameter %s supplied to program\n", min_order_str->c_str());
+            std::exit(1);
         }
         min_order = iorder;
     }
@@ -2704,8 +2707,8 @@ int main(int argc, char* argv[]) {
         const int max_control_order = control.order;
         max_control_str = control.orderName;
         if (max_control_order < -1) {
-            printf("snapspec: Unable to determine order of control stations\n");
-            fprintf(out, "Unable to determine order of control stations\n");
+            std::printf("snapspec: Unable to determine order of control stations\n");
+            std::fprintf(out, "Unable to determine order of control stations\n");
             return 1;
         }
 
@@ -2721,29 +2724,29 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    fprintf(out, "SNAP run time: %s\n", run_time.c_str());
+    std::fprintf(out, "SNAP run time: %s\n", run_time.c_str());
 
     if (max_control_str) {
-        fprintf(out, "Lowest order of control stations: %s\n", max_control_str->c_str());
+        std::fprintf(out, "Lowest order of control stations: %s\n", max_control_str->c_str());
     }
     if (min_order_str) {
-        fprintf(out, "Best order permitted: %s\n", min_order_str->c_str());
+        std::fprintf(out, "Best order permitted: %s\n", min_order_str->c_str());
     }
     if (test_apriori) {
-        fprintf(out, "Running apriori tests\n");
+        std::fprintf(out, "Running apriori tests\n");
         varmult = 1.0;
     } else {
-        fprintf(out, "Running aposteriori tests with SEU = %.4lf\n", seu);
+        std::fprintf(out, "Running aposteriori tests with SEU = %.4lf\n", seu);
         varmult = seu * seu;
     }
-    fprintf(out, "\n");
+    std::fprintf(out, "\n");
 
     debugfile = nullptr;
     if (debugcsvname) {
         const std::string csvfile = output_filename(debugcsvname, bfn, SNAPSPEC_CSV_EXT);
-        debugfile = fopen(csvfile.c_str(), "w");
+        debugfile = std::fopen(csvfile.c_str(), "w");
         if (!debugfile) {
-            printf("Cannot create debug output file %s\n", csvfile.c_str());
+            std::printf("Cannot create debug output file %s\n", csvfile.c_str());
             return 1;
         }
         ra->dbgfile = debugfile;
@@ -2758,7 +2761,7 @@ int main(int argc, char* argv[]) {
 
     if (debugfile) {
         ra->dbgfile = nullptr;
-        fclose(debugfile);
+        std::fclose(debugfile);
     }
 
     copy_unused_roles_to_orders(ra);
@@ -2771,8 +2774,8 @@ int main(int argc, char* argv[]) {
         if (outputcsvname) {
             const std::string csvfile = output_filename(outputcsvname, bfn, SNAPSPEC_CSV_EXT);
             write_output_csv(csvfile, ra);
-            fprintf(out, "\nResults written to CSV file %s\n", csvfile.c_str());
-            printf("Results written to CSV file %s\n", csvfile.c_str());
+            std::fprintf(out, "\nResults written to CSV file %s\n", csvfile.c_str());
+            std::printf("Results written to CSV file %s\n", csvfile.c_str());
         } else {
             write_results(*hsdc, ra);
         }
@@ -2784,23 +2787,23 @@ int main(int argc, char* argv[]) {
             if (splitcrdfile || ra->splitcrdfile) {
                 const std::string crdfile = output_filename(updatecrdfile, bfn, "");
                 write_coord_files(*hsdc, ra, crdfile);
-                fprintf(out, "\nSplit coordinate files written to %s...\n", crdfile.c_str());
-                printf("Split coordinate files written to %s...\n", crdfile.c_str());
+                std::fprintf(out, "\nSplit coordinate files written to %s...\n", crdfile.c_str());
+                std::printf("Split coordinate files written to %s...\n", crdfile.c_str());
             } else {
                 const std::string crdfile = output_filename(updatecrdfile, bfn, SNAPSPEC_CRD_EXT);
                 update_crdfile(crdfile);
-                fprintf(out, "\nUpdated coordinate file written to %s\n", crdfile.c_str());
-                printf("Updated coordinate file written to %s\n", crdfile.c_str());
+                std::fprintf(out, "\nUpdated coordinate file written to %s\n", crdfile.c_str());
+                std::printf("Updated coordinate file written to %s\n", crdfile.c_str());
             }
         }
     } else {
-        fprintf(out, "\nsnapspec aborted with errors\n");
-        printf("\nsnapspec aborted with errors\n");
-        printf("\nSee %s for details\n", ofn);
+        std::fprintf(out, "\nsnapspec aborted with errors\n");
+        std::printf("\nsnapspec aborted with errors\n");
+        std::printf("\nSee %s for details\n", ofn);
     }
 
     ra->logfile = nullptr;
-    fclose(out);
+    std::fclose(out);
 
     delete_relacc(ra);
 

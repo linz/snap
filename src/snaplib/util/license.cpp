@@ -58,88 +58,88 @@ char* decrypted_license(unsigned char* license_text) {
 static unsigned char license_text[MAX_LICENSE_TEXT + LICENSE_HEADER_LEN + 1];
 static unsigned char* license = license_text + LICENSE_HEADER_LEN;
 
-#include <stdio.h>
+#include <cstdio>
 #include "util/snapctype.h"
-#include <string.h>
+#include <cstring>
 #include <stdlib.h>
 
 int main(int argc, char* argv[]) {
-    FILE* in;
+    std::FILE* in;
     int c;
     long loc;
     unsigned char buf[LICENSE_HEADER_LEN];
     unsigned char save;
     in = NULL;
 
-    if (argc < 2 || (_stricmp(argv[1], "-s") && !(in = fopen(argv[1], "r+b")))) {
-        fprintf(stderr, "Missing or invalid file name in LICENSE command\n");
+    if (argc < 2 || (_stricmp(argv[1], "-s") && !(in = std::fopen(argv[1], "r+b")))) {
+        std::fprintf(stderr, "Missing or invalid file name in LICENSE command\n");
         return 0;
     }
 
-    strcpy(license_text, LICENSE_HEADER);
+    std::strcpy(license_text, LICENSE_HEADER);
     for (c = 0; c < MAX_LICENSE_TEXT; c++)
         license[c] = c;
 
     if (in) {
         for (;;) {
-            while ((c = fgetc(in)) != license_text[0] && c != EOF)
+            while ((c = std::fgetc(in)) != license_text[0] && c != EOF)
                 ;
             if (c == EOF)
                 break;
-            loc = ftell(in);
-            if (fread(buf, LICENSE_HEADER_LEN - 1, 1, in) == 1 &&
-                memcmp(buf, license_text + 1, LICENSE_HEADER_LEN - 1) == 0) {
+            loc = std::ftell(in);
+            if (std::fread(buf, LICENSE_HEADER_LEN - 1, 1, in) == 1 &&
+                std::memcmp(buf, license_text + 1, LICENSE_HEADER_LEN - 1) == 0) {
                 break;
             }
-            fseek(in, loc, SEEK_SET);
+            std::fseek(in, loc, SEEK_SET);
         }
         if (c == EOF) {
-            fprintf(stderr, "%s cannot be licensed\n", argv[1]);
+            std::fprintf(stderr, "%s cannot be licensed\n", argv[1]);
             return 0;
         }
     }
 
-    fprintf(stderr, "Enter licensee name: ");
+    std::fprintf(stderr, "Enter licensee name: ");
     gets((char*)license);
     if (!in)
-        printf("\n/* License string for: %s */\n", license);
+        std::printf("\n/* License string for: %s */\n", license);
     save = license_text[0];
     decrypted_license(license_text);
     license_text[0] = save;
     if (in) {
-        fseek(in, loc - 1, SEEK_SET);
-        if (fwrite(license_text, sizeof(license_text), 1, in) != 1) {
-            printf("Unable to write license information to %s\n", argv[1]);
+        std::fseek(in, loc - 1, SEEK_SET);
+        if (std::fwrite(license_text, sizeof(license_text), 1, in) != 1) {
+            std::printf("Unable to write license information to %s\n", argv[1]);
             return 0;
         }
-        fprintf(stderr, "License written to %s\n", argv[1]);
-        fclose(in);
+        std::fprintf(stderr, "License written to %s\n", argv[1]);
+        std::fclose(in);
     } else {
         char inhex = 0;
         int nc = 0;
         int i;
-        printf("\nstatic unsigned char *license_text = \"");
+        std::printf("\nstatic unsigned char *license_text = \"");
         for (i = 0; i < MAX_LICENSE_TEXT + LICENSE_HEADER_LEN; i++) {
             c = license_text[i];
             if (nc > 50) {
-                printf("\"\n                                  \"");
+                std::printf("\"\n                                  \"");
                 nc = 0;
             }
             if (ISPRINT(c) && !ISSPACE(c) && (!inhex || !ISXDIGIT(c))) {
                 if (c == '\"' || c == '\\') {
-                    putchar('\\');
+                    std::putchar('\\');
                     nc++;
                 }
-                putchar((int)(c));
+                std::putchar((int)(c));
                 nc++;
                 inhex = 0;
             } else {
-                printf("\\x%02X", (int)(c));
+                std::printf("\\x%02X", (int)(c));
                 inhex = 1;
                 nc += 4;
             }
         }
-        printf("\";\n");
+        std::printf("\";\n");
     }
     return 0;
 }

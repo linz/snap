@@ -180,7 +180,7 @@ static void index_stations(station_list* sl) {
         }
     }
     assert(ic == count);
-    qsort(sl->codeindex + 1, count, sizeof(station*), stncmp);
+    std::qsort(sl->codeindex + 1, count, sizeof(station*), stncmp);
 
     sl->maxsortid = sl->lastid;
     sl->nsorted = count;

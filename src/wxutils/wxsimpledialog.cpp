@@ -440,7 +440,7 @@ void wxSimpleDialog::AddControls(int nColumns, wxWindow* control, ...) {
 
     wxFlexGridSizer* sizer = new wxFlexGridSizer(nColumns, 0, GetCharWidth());
 
-    va_list argptr;
+    std::va_list argptr;
     for (va_start(argptr, control); control; control = va_arg(argptr, wxWindow*)) {
         sizer->Add(control);
     }

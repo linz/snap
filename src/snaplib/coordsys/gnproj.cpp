@@ -25,8 +25,8 @@ void define_gnomic_projection(GnomicProjection* gp, double a, double, double org
     gp->fn = fn;
     gp->a = a;
 
-    gp->csolt = cos(orglat);
-    gp->snolt = sin(orglat);
+    gp->csolt = std::cos(orglat);
+    gp->snolt = std::sin(orglat);
 }
 
 void gnomic_geod(GnomicProjection* gp, double ce, double cn, double* lon, double* lat) {
@@ -55,13 +55,13 @@ void gnomic_geod(GnomicProjection* gp, double ce, double cn, double* lon, double
     csth = ce / csth;
 
     if (ce == 0.0) {
-        psi = atan(cn / (gp->a * snth));
+        psi = std::atan(cn / (gp->a * snth));
     } else {
-        psi = atan(ce / (gp->a * csth));
+        psi = std::atan(ce / (gp->a * csth));
     }
 
-    u = sin(psi);
-    a4 = cos(psi);
+    u = std::sin(psi);
+    a4 = std::cos(psi);
 
     a1 = a4 * a4;
 
@@ -73,15 +73,15 @@ void gnomic_geod(GnomicProjection* gp, double ce, double cn, double* lon, double
 
     u *= csth;
 
-    root = sqrt(a3 - a2 - a1);
+    root = std::sqrt(a3 - a2 - a1);
 
     if (cn > 0.0) {
-        *lat = asin(a4 + root);
+        *lat = std::asin(a4 + root);
     } else {
-        *lat = asin(a4 - root);
+        *lat = std::asin(a4 - root);
     }
 
-    dlam = asin(u / cos(*lat));
+    dlam = std::asin(u / std::cos(*lat));
     dlam += gp->orglon;
     while (dlam > PI) {
         dlam -= TWOPI;
@@ -102,13 +102,13 @@ void geod_gnomic(GnomicProjection* gp, double lon, double lat, double* ce, doubl
     double csl;
     double bot;
 
-    snp = sin(lat);
+    snp = std::sin(lat);
     snpo = gp->snolt;
-    csp = cos(lat);
+    csp = std::cos(lat);
     cspo = gp->csolt;
     lon -= gp->orglon;
-    snl = sin(lon);
-    csl = cos(lon);
+    snl = std::sin(lon);
+    csl = std::cos(lon);
     bot = snpo * snp + cspo * csp * csl;
 
     *ce = gp->a * csp * snl / bot + gp->fe;

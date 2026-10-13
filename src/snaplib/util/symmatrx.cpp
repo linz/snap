@@ -67,7 +67,7 @@ int chol_dec(ltmat N, int np) {
                 if (sum < *r1 * small || sum < abssmall) {
                     return ++i;
                 }
-                *r1 = sqrt(sum);
+                *r1 = std::sqrt(sum);
             } else {
                 *r1 = sum / *r2;
             }
@@ -121,7 +121,7 @@ void chol_inv(ltmat N, ltmat tmp, int np) {
 }
 #undef ROW
 
-void print_ltmat(FILE* out, ltmat N, int nrow, const char* format, int indent) {
+void print_ltmat(std::FILE* out, ltmat N, int nrow, const char* format, int indent) {
     int i;
     int j;
     int k;
@@ -134,7 +134,7 @@ void print_ltmat(FILE* out, ltmat N, int nrow, const char* format, int indent) {
     }
     if (*f) {
         int iwid;
-        sscanf(f, "%d", &iwid);
+        std::sscanf(f, "%d", &iwid);
         wid = iwid;
     } else {
         wid = 10;
@@ -146,40 +146,40 @@ void print_ltmat(FILE* out, ltmat N, int nrow, const char* format, int indent) {
     }
 
     for (k = 0; k < nrow; k += cols) {
-        fprintf(out, "\n%.*s       ", indent, "");
+        std::fprintf(out, "\n%.*s       ", indent, "");
         for (j = k; j < nrow && j < k + cols; j++) {
-            fprintf(out, "%*d ", wid, j + 1);
+            std::fprintf(out, "%*d ", wid, j + 1);
         }
-        fprintf(out, "\n");
+        std::fprintf(out, "\n");
         for (i = k; i < nrow; i++) {
-            fprintf(out, "%.*s%6d ", indent, "", i + 1);
+            std::fprintf(out, "%.*s%6d ", indent, "", i + 1);
             for (j = k; j <= i && j < k + cols; j++) {
-                fprintf(out, format, Lij(N, i, j));
-                fputs(" ", out);
+                std::fprintf(out, format, Lij(N, i, j));
+                std::fputs(" ", out);
             }
-            fprintf(out, "\n");
+            std::fprintf(out, "\n");
         }
     }
 }
 
-void print_ltmat_json(FILE* out, ltmat N, int nrow, const char* format, int indent) {
+void print_ltmat_json(std::FILE* out, ltmat N, int nrow, const char* format, int indent) {
     int ir;
     int ic;
-    fprintf(out, "[");
+    std::fprintf(out, "[");
     for (ir = 0; ir < nrow; ir++) {
-        fprintf(out, "%s\n%*s    [", ir ? "," : "", indent, "");
+        std::fprintf(out, "%s\n%*s    [", ir ? "," : "", indent, "");
         for (ic = 0; ic < nrow; ic++) {
             if (ic) {
-                fprintf(out, ",");
+                std::fprintf(out, ",");
                 if (ic % 10 == 0) {
-                    fprintf(out, "\n%*s  ", indent, "");
+                    std::fprintf(out, "\n%*s  ", indent, "");
                 }
             }
-            fprintf(out, format, Lij(N, ir, ic));
+            std::fprintf(out, format, Lij(N, ir, ic));
         }
-        fprintf(out, "]");
+        std::fprintf(out, "]");
     }
-    fprintf(out, "\n%*s  ]\n%*s", indent, "", indent, "");
+    std::fprintf(out, "\n%*s  ]\n%*s", indent, "", indent, "");
 }
 
 /* This code performs a Cholesky decomposition with pivoting to
@@ -253,7 +253,7 @@ int pvt_chol_dec(ltmat N, int* col, int nprm) {
         /* Calculate the diagonal element for the row */
 
         if (rmax > rmin) {
-            rmax = sqrt(rmax);
+            rmax = std::sqrt(rmax);
         } else {
             rmax = 1.0;
             nfix++;
@@ -331,27 +331,27 @@ void pvt_chol_inv(ltmat N, ltmat tmp, const int* col, int np) {
 #ifdef TESTSYM
 
 int main(int argc, char* argv[]) {
-    FILE *in, *out;
+    std::FILE *in, *out;
     ltmat N, b, tmp, N1, b1, p;
     int* col;
     int nprm, nmem;
     int i;
     double v;
 
-    if (argc < 2 || NULL == (in = fopen(argv[1], "r"))) {
-        printf("Need input file as parameter\n");
+    if (argc < 2 || NULL == (in = std::fopen(argv[1], "r"))) {
+        std::printf("Need input file as parameter\n");
         return;
     }
 
     out = stdout;
-    if (argc > 2 && NULL == (out = fopen(argv[2], "w"))) {
-        printf("Cannot open output file\n");
+    if (argc > 2 && NULL == (out = std::fopen(argv[2], "w"))) {
+        std::printf("Cannot open output file\n");
         return;
     }
 
-    fscanf(in, "%d", &nprm);
+    std::fscanf(in, "%d", &nprm);
     if (nprm <= 0) {
-        printf("Invalid number of parameters\n");
+        std::printf("Invalid number of parameters\n");
         return;
     }
 
@@ -366,47 +366,47 @@ int main(int argc, char* argv[]) {
     tmp = b1 + nmem;
 
     for (i = 0; i < nmem; i++) {
-        fscanf(in, "%lf", &v);
+        std::fscanf(in, "%lf", &v);
         b[i] = b1[i] = v;
     }
 
-    fprintf(out, "Input matrix\n\n");
+    std::fprintf(out, "Input matrix\n\n");
     print_ltmat(out, N, nprm, "%10.2lf");
-    fprintf(out, "\nInput vector\n");
+    std::fprintf(out, "\nInput vector\n");
     for (i = 0; i < nprm; i++)
-        fprintf(out, "%3d  %10.2lf\n", i + 1, b[i]);
+        std::fprintf(out, "%3d  %10.2lf\n", i + 1, b[i]);
 
-    fprintf(out, "\nWITH PIVOTING\n");
-    fprintf(out, "\nCholesky decomposition status = %d\n", pvt_chol_dec(N1, col, nprm));
+    std::fprintf(out, "\nWITH PIVOTING\n");
+    std::fprintf(out, "\nCholesky decomposition status = %d\n", pvt_chol_dec(N1, col, nprm));
     pvt_chol_slv(N1, b1, b1, col, nprm);
 
-    fprintf(out, "\nDecomposed matrix\n\n");
+    std::fprintf(out, "\nDecomposed matrix\n\n");
     print_ltmat(out, N1, nprm, "%10.2lf");
-    fprintf(out, "\nSolution vector\n");
+    std::fprintf(out, "\nSolution vector\n");
     for (i = 0; i < nprm; i++)
-        fprintf(out, "%3d  %10.2lf\n", i + 1, b1[i]);
+        std::fprintf(out, "%3d  %10.2lf\n", i + 1, b1[i]);
 
     pvt_chol_inv(N1, tmp, col, nprm);
-    fprintf(out, "\nInverted matrix\n\n");
+    std::fprintf(out, "\nInverted matrix\n\n");
     print_ltmat(out, N1, nprm, "%10.2lf");
 
-    fprintf(out, "\n\nWITHOUT PIVOTING\n");
-    fprintf(out, "\nCholesky decomposition status = %d\n", chol_dec(N, nprm));
+    std::fprintf(out, "\n\nWITHOUT PIVOTING\n");
+    std::fprintf(out, "\nCholesky decomposition status = %d\n", chol_dec(N, nprm));
     chol_slv(N, b, b, nprm);
 
-    fprintf(out, "\nDecomposed matrix\n\n");
+    std::fprintf(out, "\nDecomposed matrix\n\n");
     print_ltmat(out, N, nprm, "%10.2lf");
-    fprintf(out, "\nSolution vector\n");
+    std::fprintf(out, "\nSolution vector\n");
     for (i = 0; i < nprm; i++)
-        fprintf(out, "%3d  %10.2lf\n", i + 1, b[i]);
+        std::fprintf(out, "%3d  %10.2lf\n", i + 1, b[i]);
 
     chol_inv(N, tmp, nprm);
-    fprintf(out, "\nInverted matrix\n\n");
+    std::fprintf(out, "\nInverted matrix\n\n");
     print_ltmat(out, N, nprm, "%10.2lf");
 
-    fclose(in);
+    std::fclose(in);
     if (argc > 2)
-        fclose(out);
+        std::fclose(out);
 }
 
 #endif

@@ -29,7 +29,7 @@
 deformation_model* create_deformation_model(void* data, int (*init_deformation)(void* model),
                                             int (*calc_deformation)(void* model, station* st, double date,
                                                                     double denu[3]),
-                                            int (*print_model)(void* model, FILE* out, std::string_view prefix),
+                                            int (*print_model)(void* model, std::FILE* out, std::string_view prefix),
                                             int (*delete_model)(void* model)) {
     deformation_model* model = new deformation_model;
     model->data = data;
@@ -63,7 +63,7 @@ int calc_deformation(deformation_model* deformation, station* st, double date, d
     return sts;
 }
 
-int print_deformation_model(deformation_model* deformation, FILE* out, const std::string_view prefix) {
+int print_deformation_model(deformation_model* deformation, std::FILE* out, const std::string_view prefix) {
     return (*(deformation->print_model))(deformation->data, out, prefix);
 }
 

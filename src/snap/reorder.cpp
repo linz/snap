@@ -502,23 +502,23 @@ static void exclude_node(int node) {
     order1[node] = lastnode--;
 }
 
-static void dump_connection_list(FILE* lst) {
+static void dump_connection_list(std::FILE* lst) {
     int i1;
-    fprintf(lst, "\nConnection list\n");
+    std::fprintf(lst, "\nConnection list\n");
     for (i1 = 0; i1++ < nconnlst;) {
         int c;
-        fprintf(lst, "   %3d =>", i1);
+        std::fprintf(lst, "   %3d =>", i1);
         for (c = 0; c < connlst[i1].count; c++) {
             if (c && c % 15 == 0) {
-                fprintf(lst, "\n         ");
+                std::fprintf(lst, "\n         ");
             }
-            fprintf(lst, " %3d", (int)(connlst[i1].list[c]));
+            std::fprintf(lst, " %3d", (int)(connlst[i1].list[c]));
         }
-        fprintf(lst, "\n");
+        std::fprintf(lst, "\n");
     }
 }
 
-static void dump_ordering(FILE* lst) {
+static void dump_ordering(std::FILE* lst) {
     int i1;
     station* stn;
 
@@ -526,11 +526,11 @@ static void dump_ordering(FILE* lst) {
         order2[order1[i1]] = i1;
     }
 
-    fprintf(lst, "\nFinal order...\n");
+    std::fprintf(lst, "\nFinal order...\n");
 
     for (i1 = 0; i1++ < nconnlst;) {
         stn = station_ptr(net, order2[i1]);
-        fprintf(lst, "   %s\n", stn->Code.c_str());
+        std::fprintf(lst, "   %s\n", stn->Code.c_str());
     }
 }
 
@@ -625,7 +625,7 @@ void exclude_stations(void) {
    parameters involved, and if required reorders the stations to give an
    optimal ordering. */
 
-int setup_parameters(FILE* lst) {
+int setup_parameters(std::FILE* lst) {
     int nrowst;
     int nprm;
     int nrow;
@@ -718,18 +718,18 @@ int setup_parameters(FILE* lst) {
 #else /* if TEST is defined */
 
 int main(int argc, char* argv[]) {
-    FILE* in;
+    std::FILE* in;
     int i1, i2, ncon;
 
-    if (argc < 2 || !(in = fopen(argv[1], "r"))) {
-        printf("Missing or invalid file name");
+    if (argc < 2 || !(in = std::fopen(argv[1], "r"))) {
+        std::printf("Missing or invalid file name");
     }
 
     save_connections = 1;
 
-    fscanf(in, "%d", &ncon);
+    std::fscanf(in, "%d", &ncon);
     init_connections(ncon);
-    while (fscanf(in, "%d%d", &i1, &i2) == 2) {
+    while (std::fscanf(in, "%d%d", &i1, &i2) == 2) {
         if (i1) {
             add_connection(i1, i2);
         } else {

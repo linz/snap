@@ -113,10 +113,10 @@ int define_error_summary(const std::string& definition) {
                 sdf.level_id[nlevel] = BY_DATA_TYPE;
                 sdf.enu_components = 1;
             } else if (boost::algorithm::istarts_with(fieldStr, DATA_TYPE_STR) &&
-                       fieldStr.size() > strlen(DATA_TYPE_STR) && fieldStr[strlen(DATA_TYPE_STR)] == ':') {
+                       fieldStr.size() > std::strlen(DATA_TYPE_STR) && fieldStr[std::strlen(DATA_TYPE_STR)] == ':') {
                 sdf.level_id[nlevel] = BY_DATA_TYPE;
                 sdf.enu_components =
-                    boost::algorithm::iequals(fieldStr.substr(strlen(DATA_TYPE_STR)), ":no_enu") ? 0 : 1;
+                    boost::algorithm::iequals(fieldStr.substr(std::strlen(DATA_TYPE_STR)), ":no_enu") ? 0 : 1;
             } else if (boost::algorithm::iequals(fieldStr, FILE_STR)) {
                 sdf.level_id[nlevel] = BY_FILE;
             } else {
@@ -391,7 +391,8 @@ static void sum_summary(const summary_def& sdf) {
 #define LEVEL_INDENT 5
 #define AXIS_INDENT 8
 
-static void print_summary_level(FILE* lst, const summary_def& sdf, int ilevel, int index, int axis, double semult) {
+static void print_summary_level(std::FILE* lst, const summary_def& sdf, int ilevel, int index, int axis,
+                                double semult) {
     int ilvl;
     int sublevel_count;
     const int lastlevel = ilevel >= sdf.nlevel - 1 && sdf.level_id[ilevel] == BY_DATA_TYPE;
@@ -464,9 +465,9 @@ static void print_summary_level(FILE* lst, const summary_def& sdf, int ilevel, i
                 }
                 ttlwidth = TITLE_WIDTH - indent;
                 if (indent) {
-                    fprintf(lst, "%*s", indent, "");
+                    std::fprintf(lst, "%*s", indent, "");
                 } else {
-                    fprintf(lst, "\n");
+                    std::fprintf(lst, "\n");
                 }
 
                 switch (sdf.level_id[ilevel]) {
@@ -498,8 +499,8 @@ static void print_summary_level(FILE* lst, const summary_def& sdf, int ilevel, i
                                 }
                             }
                             if (!lastlevel) {
-                                sprintf(ttlbuf, "%.4s %s", datatype[obstype_from_index[ilvl]].code.data(),
-                                        title.c_str());
+                                std::sprintf(ttlbuf, "%.4s %s", datatype[obstype_from_index[ilvl]].code.data(),
+                                             title.c_str());
                                 title = ttlbuf;
                             }
                         } else {
@@ -517,18 +518,18 @@ static void print_summary_level(FILE* lst, const summary_def& sdf, int ilevel, i
                 }
 
                 if (ttlwidth > 0) {
-                    fprintf(lst, "%-*.*s", ttlwidth, ttlwidth, title.c_str());
+                    std::fprintf(lst, "%-*.*s", ttlwidth, ttlwidth, title.c_str());
                 }
 
                 for (j = 0; j < 3; j++) {
                     if (sum_total[j].count) {
-                        fprintf(lst, " %7.2lf %4ld", sqrt(sum_total[j].ssr / sum_total[j].count) / semult,
-                                sum_total[j].count);
+                        std::fprintf(lst, " %7.2lf %4ld", std::sqrt(sum_total[j].ssr / sum_total[j].count) / semult,
+                                     sum_total[j].count);
                     } else {
-                        fprintf(lst, "     -      -");
+                        std::fprintf(lst, "     -      -");
                     }
                 }
-                fprintf(lst, "\n");
+                std::fprintf(lst, "\n");
             }
         }
 
@@ -540,36 +541,36 @@ static void print_summary_level(FILE* lst, const summary_def& sdf, int ilevel, i
     }
 }
 
-static void print_summary(FILE* lst, summary_def& sdf, double semult) {
+static void print_summary(std::FILE* lst, summary_def& sdf, double semult) {
     int ilvl;
     if (init_summary(sdf) != OK) {
         return;
     }
     sum_summary(sdf);
-    fprintf(lst, "\n\nSummary of residuals classified by ");
+    std::fprintf(lst, "\n\nSummary of residuals classified by ");
     for (ilvl = 0; ilvl < sdf.nlevel; ilvl++) {
         if (ilvl) {
-            fprintf(lst, ", ");
+            std::fprintf(lst, ", ");
         }
         switch (sdf.level_id[ilvl]) {
             case BY_DATA_TYPE:
-                fprintf(lst, "data type");
+                std::fprintf(lst, "data type");
                 break;
             case BY_FILE:
-                fprintf(lst, "input file");
+                std::fprintf(lst, "input file");
                 break;
             default:
-                fprintf(lst, "%s", obs_classes.name(sdf.level_id[ilvl]).c_str());
+                std::fprintf(lst, "%s", obs_classes.name(sdf.level_id[ilvl]).c_str());
                 break;
         }
     }
-    fprintf(lst, "\n\n%-*s%s\n%-*s%s\n\n", TITLE_WIDTH, "Classification", "     Used        Unused       Total",
-            TITLE_WIDTH, "", "    RMS  Count   RMS  Count   RMS  Count\n");
+    std::fprintf(lst, "\n\n%-*s%s\n%-*s%s\n\n", TITLE_WIDTH, "Classification", "     Used        Unused       Total",
+                 TITLE_WIDTH, "", "    RMS  Count   RMS  Count   RMS  Count\n");
     print_summary_level(lst, sdf, 0, 0, 0, semult);
     term_summary();
 }
 
-void print_error_summary(FILE* lst) {
+void print_error_summary(std::FILE* lst) {
     print_section_header(lst, "ERROR SUMMARY");
     print_zero_inverse_warning(lst);
     print_convergence_warning(lst);

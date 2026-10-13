@@ -342,7 +342,7 @@ int convert_coords(coord_conversion* conv, const double* fenh, const double* fex
             isgeoc = 0;
         }
         gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
-        gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON] / cos(xyz[CRD_LAT]);
+        gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON] / std::cos(xyz[CRD_LAT]);
         gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
     }
 
@@ -490,7 +490,7 @@ int convert_coords(coord_conversion* conv, const double* fenh, const double* fex
                 isgeoc = 0;
             }
             gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
-            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
+            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * std::cos(xyz[CRD_LAT]);
             gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
         }
     }

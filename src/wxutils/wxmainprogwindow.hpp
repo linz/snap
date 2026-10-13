@@ -5,6 +5,7 @@
 
 #include "util/errdef.h"
 
+#include <cstdarg>
 #include <ctime>
 #include <vector>
 
@@ -19,13 +20,13 @@ class wxMainProgWindow : public wxDialog {
     void OnClose(wxCloseEvent& event);
 
     void AppendString(const wxString& string);
-    int DoPrintArgs(const char* format, va_list args);
+    int DoPrintArgs(const char* format, std::va_list args);
     int DoErrorHandler(int sts, std::string_view msg1, error_message msg2);
     void DoInitMeter(long total_size);
     void DoUpdateMeter(long progress);
     void DoEndMeter();
 
-    static int PrintArgs(const char* format, va_list args);
+    static int PrintArgs(const char* format, std::va_list args);
     static int ErrorHandler(int sts, std::string_view msg1, error_message msg2);
     static void InitMeter(long total_size);
     static void UpdateMeter(long progress);
@@ -41,8 +42,8 @@ class wxMainProgWindow : public wxDialog {
     bool running;
     bool hasProgress;
     bool reportTimes;
-    clock_t lastUpdate;
-    clock_t startTime;
+    std::clock_t lastUpdate;
+    std::clock_t startTime;
     long nextProgressUpdate;
     long maxUnreportedProgress;
 

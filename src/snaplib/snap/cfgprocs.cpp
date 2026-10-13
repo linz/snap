@@ -151,7 +151,7 @@ int add_coordinate_file(CFG_FILE* cfg, std::string_view string, void* value, int
             // call instead now that "missing" is representable directly.
             else if (!parse_crdsys_epoch(*epochstr, mergedate)) {
                 char errmsg[100];
-                sprintf(errmsg, "Invalid date %.20s in add_coordinate_file epoch", std::string(*epochstr).c_str());
+                std::sprintf(errmsg, "Invalid date %.20s in add_coordinate_file epoch", std::string(*epochstr).c_str());
                 send_config_error(cfg, INVALID_DATA, errmsg);
                 sts = INVALID_DATA;
             }
@@ -159,7 +159,7 @@ int add_coordinate_file(CFG_FILE* cfg, std::string_view string, void* value, int
             break;
         } else {
             char errmsg[80];
-            sprintf(errmsg, "Invalid add_coordinate_file option %.20s", std::string(*opt).c_str());
+            std::sprintf(errmsg, "Invalid add_coordinate_file option %.20s", std::string(*opt).c_str());
             send_config_error(cfg, INVALID_DATA, errmsg);
             return ABORT_CONFIG_FILE;
         }
@@ -261,7 +261,7 @@ int load_data_file(CFG_FILE* cfg, std::string_view string, void*, int, int) {
             ftype = SINEX_FORMAT;
             readoptions = 1;
         } else {
-            sprintf(errmess, "Invalid format %.20s specified for data file", std::string(*formatField).c_str());
+            std::sprintf(errmess, "Invalid format %.20s specified for data file", std::string(*formatField).c_str());
             send_config_error(cfg, INVALID_DATA, errmess);
             return OK;
         }

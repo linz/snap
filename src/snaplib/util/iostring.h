@@ -82,7 +82,7 @@ void report_string_error(input_string_def& def, int status, std::string_view mes
 
 int write_output_string(output_string_def* os, std::string_view s);
 int write_output_string2(output_string_def* os, std::string_view s, int options, std::string_view prefix);
-void output_string_to_file(output_string_def* os, FILE* f);
+void output_string_to_file(output_string_def* os, std::FILE* f);
 
 #define OSW_TRIMR 1
 #define OSW_TRIML 2

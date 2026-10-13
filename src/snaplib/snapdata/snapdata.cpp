@@ -809,7 +809,7 @@ static void load_default_error(snapfile_def* sd, snap_data_type* obstype, double
                 if (dist < mmerr / 2.0) {
                     dist = mmerr / 2.0;
                 }
-                error = hypot(error, mmerr / dist);
+                error = std::hypot(error, mmerr / dist);
             }
             ldt_error(&error);
             break;
@@ -829,7 +829,7 @@ static void load_default_error(snapfile_def* sd, snap_data_type* obstype, double
                 if (dist < mmerr / 2.0) {
                     dist = mmerr / 2.0;
                 }
-                error = hypot(error, mmerr / dist);
+                error = std::hypot(error, mmerr / dist);
             }
             ldt_error(&error);
             break;
@@ -864,9 +864,9 @@ static void load_default_error(snapfile_def* sd, snap_data_type* obstype, double
                 } else {
                     mmverr = 2;
                 }
-                mmherr *= cos(value);
-                mmverr *= sin(value);
-                error = sqrt(error * error + mmherr * mmherr + mmverr * mmverr);
+                mmherr *= std::cos(value);
+                mmverr *= std::sin(value);
+                error = std::sqrt(error * error + mmherr * mmherr + mmverr * mmverr);
             }
             ldt_error(&error);
             break;
@@ -951,8 +951,8 @@ static bool read_time(FieldScanner& scanner, double& obstime) {
         return false;
     }
 
-    if ((sscanf(time.c_str(), "%d:%d", &hr, &min) < 2 && sscanf(time.c_str(), "%d.%d", &hr, &min) < 2) || hr < 0 ||
-        hr > 24 || min < 0 || min > 59) {
+    if ((std::sscanf(time.c_str(), "%d:%d", &hr, &min) < 2 && std::sscanf(time.c_str(), "%d.%d", &hr, &min) < 2) ||
+        hr < 0 || hr > 24 || min < 0 || min > 59) {
         return false;
     }
 
@@ -977,7 +977,7 @@ static int read_time_command(snapfile_def* sd, int, std::string_view cmd) {
     double obstime = 0.0;
     if (read_time(sd->scanner(), obstime)) {
         if (sd->date != UNDEFINED_DATE) {
-            sd->date = floor(sd->date) + obstime;
+            sd->date = std::floor(sd->date) + obstime;
         }
         ldt_date(sd->date);
     } else {

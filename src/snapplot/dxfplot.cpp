@@ -37,7 +37,7 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static FILE* dxf = nullptr;
+static std::FILE* dxf = nullptr;
 
 static double save_x1, save_y1;
 static double save_x2, save_y2;
@@ -159,7 +159,7 @@ static int setup_dxf_layers(void) {
         for (int j = 0; j < i; j++) {
             if (!layer_name[j].empty() && boost::algorithm::iequals(layer_name[j], layer)) {
                 char buf[40];
-                snprintf(buf, sizeof(buf), "_LAYER_%04d", i);
+                std::snprintf(buf, sizeof(buf), "_LAYER_%04d", i);
                 layer = buf;
             }
         }
@@ -195,7 +195,7 @@ static void write_symbol_blocks();
 
 int open_dxf_file(const std::string& dxfname) {
     int i;
-    dxf = fopen(dxfname.c_str(), "w");
+    dxf = std::fopen(dxfname.c_str(), "w");
     poly_id = 0;
     nppt = 0;
     entid = 0;
@@ -204,38 +204,38 @@ int open_dxf_file(const std::string& dxfname) {
         /* Initialise layers etc.. */
 
         const int usedlayers = setup_dxf_layers();
-        fprintf(dxf, "  0\nSECTION\n");
-        fprintf(dxf, "  2\nHEADER\n");
-        fprintf(dxf, "  9\n$LTSCALE\n");
-        fprintf(dxf, " 40\n1.0\n");
-        fprintf(dxf, "  9\n$LUNITS\n");
-        fprintf(dxf, " 70\n2\n");
-        fprintf(dxf, "  9\n$LUPREC\n");
-        fprintf(dxf, " 70\n2\n");
-        fprintf(dxf, "  9\n$AUNITS\n");
-        fprintf(dxf, " 70\n0\n");
-        fprintf(dxf, "  9\n$AUPREC\n");
-        fprintf(dxf, " 70\n6\n");
-        fprintf(dxf, "  0\nENDSEC\n");
+        std::fprintf(dxf, "  0\nSECTION\n");
+        std::fprintf(dxf, "  2\nHEADER\n");
+        std::fprintf(dxf, "  9\n$LTSCALE\n");
+        std::fprintf(dxf, " 40\n1.0\n");
+        std::fprintf(dxf, "  9\n$LUNITS\n");
+        std::fprintf(dxf, " 70\n2\n");
+        std::fprintf(dxf, "  9\n$LUPREC\n");
+        std::fprintf(dxf, " 70\n2\n");
+        std::fprintf(dxf, "  9\n$AUNITS\n");
+        std::fprintf(dxf, " 70\n0\n");
+        std::fprintf(dxf, "  9\n$AUPREC\n");
+        std::fprintf(dxf, " 70\n6\n");
+        std::fprintf(dxf, "  0\nENDSEC\n");
 
-        fprintf(dxf, "  0\nSECTION\n");
-        fprintf(dxf, "  2\nTABLES\n");
+        std::fprintf(dxf, "  0\nSECTION\n");
+        std::fprintf(dxf, "  2\nTABLES\n");
 
-        fprintf(dxf, "  0\nTABLE\n");
-        fprintf(dxf, "  2\nLTYPE\n");
-        fprintf(dxf, " 70\n1\n");
-        fprintf(dxf, "  0\nLTYPE\n");
-        fprintf(dxf, "  2\nCONTINUOUS\n");
-        fprintf(dxf, " 70\n64\n");
-        fprintf(dxf, "  3\nSolid line\n");
-        fprintf(dxf, " 72\n65\n");
-        fprintf(dxf, " 73\n0\n");
-        fprintf(dxf, " 40\n0.0\n");
-        fprintf(dxf, "  0\nENDTAB\n");
+        std::fprintf(dxf, "  0\nTABLE\n");
+        std::fprintf(dxf, "  2\nLTYPE\n");
+        std::fprintf(dxf, " 70\n1\n");
+        std::fprintf(dxf, "  0\nLTYPE\n");
+        std::fprintf(dxf, "  2\nCONTINUOUS\n");
+        std::fprintf(dxf, " 70\n64\n");
+        std::fprintf(dxf, "  3\nSolid line\n");
+        std::fprintf(dxf, " 72\n65\n");
+        std::fprintf(dxf, " 73\n0\n");
+        std::fprintf(dxf, " 40\n0.0\n");
+        std::fprintf(dxf, "  0\nENDTAB\n");
 
-        fprintf(dxf, "  0\nTABLE\n");
-        fprintf(dxf, "  2\nLAYER\n");
-        fprintf(dxf, " 70\n%d\n", usedlayers);
+        std::fprintf(dxf, "  0\nTABLE\n");
+        std::fprintf(dxf, "  2\nLAYER\n");
+        std::fprintf(dxf, " 70\n%d\n", usedlayers);
 
         const int layer_count = boost::numeric_cast<int>(layer_name.size());
         for (i = 0; i < layer_count; i++) {
@@ -250,57 +250,58 @@ int open_dxf_file(const std::string& dxfname) {
                 get_pen_colour(i - 1, red, green, blue);
                 colourid = dxf_colour_id(red, green, blue);
             }
-            fprintf(dxf, "  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n", layer_name[i].c_str(), colourid);
+            std::fprintf(dxf, "  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n", layer_name[i].c_str(),
+                         colourid);
         }
-        fprintf(dxf, "  0\nENDTAB\n");
+        std::fprintf(dxf, "  0\nENDTAB\n");
 
-        fprintf(dxf, "  0\nENDSEC\n");
+        std::fprintf(dxf, "  0\nENDSEC\n");
 
-        fprintf(dxf, "  0\nSECTION\n");
-        fprintf(dxf, "  2\nBLOCKS\n");
+        std::fprintf(dxf, "  0\nSECTION\n");
+        std::fprintf(dxf, "  2\nBLOCKS\n");
 
         write_symbol_blocks();
 
-        fprintf(dxf, "  0\nENDSEC\n");
+        std::fprintf(dxf, "  0\nENDSEC\n");
 
-        fprintf(dxf, "  0\nSECTION\n");
-        fprintf(dxf, "  2\nENTITIES\n");
+        std::fprintf(dxf, "  0\nSECTION\n");
+        std::fprintf(dxf, "  2\nENTITIES\n");
     }
     return dxf ? OK : FILE_OPEN_ERROR;
 }
 
 static long write_dxf_entity_id() {
     entid++;
-    fprintf(dxf, "  5\n%ld\n", entid);
+    std::fprintf(dxf, "  5\n%ld\n", entid);
     return entid;
 }
 
 static long end_line(void) {
     long id = 0;
     if (poly_id) {
-        fprintf(dxf, "  0\nSEQEND\n");
+        std::fprintf(dxf, "  0\nSEQEND\n");
         id = poly_id;
         poly_id = 0;
     } else if (nppt > 1) {
-        fprintf(dxf, "  0\nLINE\n  8\n%s\n", cur_layer.c_str());
+        std::fprintf(dxf, "  0\nLINE\n  8\n%s\n", cur_layer.c_str());
         id = write_dxf_entity_id();
-        fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n 11\n%.*lf\n 21\n%.*lf\n", precision, save_x1, precision, save_y1,
-                precision, save_x2, precision, save_y2);
+        std::fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n 11\n%.*lf\n 21\n%.*lf\n", precision, save_x1, precision, save_y1,
+                     precision, save_x2, precision, save_y2);
     }
     nppt = 0;
     return id;
 }
 
 static void start_polyline(void) {
-    fprintf(dxf, "  0\nPOLYLINE\n  8\n%s\n 66\n1\n", cur_layer.c_str());
+    std::fprintf(dxf, "  0\nPOLYLINE\n  8\n%s\n 66\n1\n", cur_layer.c_str());
     entid = write_dxf_entity_id();
     poly_id = entid;
 }
 
 static void write_poly_vertex(double x, double y) {
-    fprintf(dxf, "  0\nVERTEX\n  8\n%s\n", cur_layer.c_str());
+    std::fprintf(dxf, "  0\nVERTEX\n  8\n%s\n", cur_layer.c_str());
     write_dxf_entity_id();
-    fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
+    std::fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
 }
 
 static int write_dxf_point(double x, double y, int pen) {
@@ -341,11 +342,11 @@ static long write_dxf_text(double x, double y, int pen, double size, double angl
     end_line();
     set_layer(pen);
 
-    fprintf(dxf, "  0\nTEXT\n  8\n%s\n 62\n256\n", cur_layer.c_str());
+    std::fprintf(dxf, "  0\nTEXT\n  8\n%s\n 62\n256\n", cur_layer.c_str());
     id = write_dxf_entity_id();
-    fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
-    fprintf(dxf, " 40\n%.*lf\n  1\n%s\n", precision, size, text.c_str());
-    fprintf(dxf, " 50\n%.6lf\n", angle);
+    std::fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
+    std::fprintf(dxf, " 40\n%.*lf\n  1\n%s\n", precision, size, text.c_str());
+    std::fprintf(dxf, " 50\n%.6lf\n", angle);
 
     return id;
 }
@@ -357,10 +358,10 @@ static long write_dxf_circle(double x, double y, double rad, int pen) {
     }
     end_line();
     set_layer(pen);
-    fprintf(dxf, "  0\nCIRCLE\n  8\n%s\n 62\n256\n", cur_layer.c_str());
+    std::fprintf(dxf, "  0\nCIRCLE\n  8\n%s\n 62\n256\n", cur_layer.c_str());
     id = write_dxf_entity_id();
-    fprintf(dxf, "  10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
-    fprintf(dxf, "  40\n%.*lf\n", precision, rad);
+    std::fprintf(dxf, "  10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
+    std::fprintf(dxf, "  40\n%.*lf\n", precision, rad);
 
     return id;
 }
@@ -373,31 +374,31 @@ static long write_dxf_blockref(double x, double y, const std::string& blkname, d
     end_line();
     set_layer(pen);
 
-    fprintf(dxf, "  0\nINSERT\n");
-    fprintf(dxf, "  8\n%s\n 62\n0\n", cur_layer.c_str());
+    std::fprintf(dxf, "  0\nINSERT\n");
+    std::fprintf(dxf, "  8\n%s\n 62\n0\n", cur_layer.c_str());
     id = write_dxf_entity_id();
-    fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
-    fprintf(dxf, "  2\n%s\n", blkname.c_str());
-    fprintf(dxf, " 41\n%.*lf\n 42\n%.*lf\n", precision, blocksize, precision, blocksize);
+    std::fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
+    std::fprintf(dxf, "  2\n%s\n", blkname.c_str());
+    std::fprintf(dxf, " 41\n%.*lf\n 42\n%.*lf\n", precision, blocksize, precision, blocksize);
 
     return id;
 }
 
 static long start_block(const std::string& blockname) {
     long id;
-    fprintf(dxf, "  0\nBLOCK\n");
-    fprintf(dxf, "  8\n0\n");
+    std::fprintf(dxf, "  0\nBLOCK\n");
+    std::fprintf(dxf, "  8\n0\n");
     id = write_dxf_entity_id();
-    fprintf(dxf, "  2\n%s\n", blockname.c_str());
-    fprintf(dxf, " 70\n0\n");
-    fprintf(dxf, " 10\n0.0\n");
-    fprintf(dxf, " 20\n0.0\n");
-    fprintf(dxf, "  3\n%s\n", blockname.c_str());
+    std::fprintf(dxf, "  2\n%s\n", blockname.c_str());
+    std::fprintf(dxf, " 70\n0\n");
+    std::fprintf(dxf, " 10\n0.0\n");
+    std::fprintf(dxf, " 20\n0.0\n");
+    std::fprintf(dxf, "  3\n%s\n", blockname.c_str());
     return id;
 }
 
 static void end_block(long) {
-    fprintf(dxf, "  0\nENDBLK\n");
+    std::fprintf(dxf, "  0\nENDBLK\n");
 }
 
 static std::string symbol_block_name(int symbol) {
@@ -499,22 +500,22 @@ static void dxf_ellipse(void*, double x, double y, double a, double b, double az
     if (rad < sep) {
         ai = PI;
     } else {
-        ai = sqrt(8.0 * sep / rad);
+        ai = std::sqrt(8.0 * sep / rad);
     }
     if (ai < MININC) {
         ai = MININC;
     }
-    ncd = ceil(2.0 * PI / ai);
+    ncd = std::ceil(2.0 * PI / ai);
     if (ncd < 1) {
         ncd = 1;
     }
     ai = 2.0 * PI / ncd;
     ca = 1.0;
     sa = 0.0;
-    co = cos(az);
-    so = sin(az);
-    ci = cos(ai);
-    si = sin(ai);
+    co = std::cos(az);
+    so = std::sin(az);
+    ci = std::cos(ai);
+    si = std::sin(ai);
 
     pen = pen + 1;
 
@@ -538,8 +539,8 @@ int close_dxf_file() {
         return FILE_OPEN_ERROR;
     }
     end_line();
-    fprintf(dxf, "  0\nENDSEC\n  0\nEOF\n");
-    fclose(dxf);
+    std::fprintf(dxf, "  0\nENDSEC\n  0\nEOF\n");
+    std::fclose(dxf);
     dxf = nullptr;
 
     /* Clear out the memory used for dxf pen names */
@@ -586,32 +587,32 @@ void write_dxf_title_block(map_plotter*) {
     NOTE(job_title);
 
     if (!run_time.empty()) {
-        sprintf(text, "Run at %s", run_time.c_str());
+        std::sprintf(text, "Run at %s", run_time.c_str());
         NOTE(text);
     }
 
-    sprintf(text, "Coordinate system: %.60s", plot_projection()->name.c_str());
+    std::sprintf(text, "Coordinate system: %.60s", plot_projection()->name.c_str());
     NOTE(text);
 
     if (got_covariances()) {
-        sprintf(text, "Displaying %s ", aposteriori_errors ? "aposteriori" : "apriori");
-        nch = strlen(text);
+        std::sprintf(text, "Displaying %s ", aposteriori_errors ? "aposteriori" : "apriori");
+        nch = std::strlen(text);
         if (use_confidence_limit) {
-            sprintf(text + nch, "%.2lf%% confidence limits", confidence_limit);
+            std::sprintf(text + nch, "%.2lf%% confidence limits", confidence_limit);
         } else if (confidence_limit != 1.0) {
-            sprintf(text + nch, "%.1lf times standard error", confidence_limit);
+            std::sprintf(text + nch, "%.1lf times standard error", confidence_limit);
         } else {
-            strcpy(text + nch, "standard errors");
+            std::strcpy(text + nch, "standard errors");
         }
         NOTE(text);
 
         if (dimension != 1) {
-            sprintf(text, "Ellipses exaggerated %.0lf times", errell_scale);
+            std::sprintf(text, "Ellipses exaggerated %.0lf times", errell_scale);
             NOTE(text);
         }
 
         if (dimension != 2) {
-            sprintf(text, "Height errors exaggerated %.0lf times", hgterr_scale);
+            std::sprintf(text, "Height errors exaggerated %.0lf times", hgterr_scale);
             NOTE(text);
         }
     }
@@ -670,7 +671,7 @@ int plot_dxf(void) {
     data_offset = calc_obs_offset();
 
     SetTrimmerExtents(&tr, plot_emin, plot_nmin, plot_emax, plot_nmax);
-    stn_symbol_size = (fabs(plot_emax - plot_emin) + fabs(plot_nmax - plot_nmin)) / 500.0;
+    stn_symbol_size = (std::fabs(plot_emax - plot_emin) + std::fabs(plot_nmax - plot_nmin)) / 500.0;
 
     /* Plot the data */
 

@@ -202,9 +202,9 @@ void survey_data_file_dates(double* mindate, double* maxdate, int* nnodate) {
 void dump_filenames(BINARY_FILE* b) {
     int i;
     create_section(b, "DATA_FILES");
-    fwrite(&nsdindx, sizeof(nsdindx), 1, b->f);
+    std::fwrite(&nsdindx, sizeof(nsdindx), 1, b->f);
     for (i = 0; i < nsdindx; i++) {
-        fwrite(&sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f);
+        std::fwrite(&sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f);
         dump_filepath(sdindx[i]->name, b->f);
         dump_string(sdindx[i]->subtype, b->f);
         dump_filepath(sdindx[i]->recodefile, b->f);
@@ -223,9 +223,9 @@ int reload_filenames(BINARY_FILE* b) {
     if (find_section(b, "DATA_FILES") != OK) {
         return MISSING_DATA;
     }
-    fread(&i, sizeof(i), 1, b->f);
+    std::fread(&i, sizeof(i), 1, b->f);
     while (i-- > 0) {
-        fread(&fmt, sizeof(fmt), 1, b->f);
+        std::fread(&fmt, sizeof(fmt), 1, b->f);
         name = reload_string(b->f);
         subtype = reload_optional_string(b->f);
         recodefile = reload_optional_string(b->f);
