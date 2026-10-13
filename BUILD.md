@@ -315,9 +315,11 @@ Requirements, on Ubuntu 24.04 (Noble):
   from source, from the `clang_21` branch of
   https://github.com/include-what-you-use/include-what-you-use at the commit named in
   `lint-cpp.yml`, currently `791e69ea4662cb3e74e8128fd5fd69bd7f4ea6b3`. It needs
-  `libclang-21-dev` and `llvm-21-dev` from the LLVM apt repository, and
-  `cmake -S <source> -B <build> -DCMAKE_PREFIX_PATH=/usr/lib/llvm-21 -DCMAKE_BUILD_TYPE=Release`,
-  then `cmake --build <build> --parallel` and `cmake --install <build>`.
+  `clang-21`, `libclang-21-dev` and `llvm-21-dev` from the LLVM apt repository (`clang-21` provides
+  the `ClangConfig.cmake` that cmake looks for), and
+  `cmake -S <source> -B <build> -DCMAKE_PREFIX_PATH=/usr/lib/llvm-21 -DClang_DIR=/usr/lib/llvm-21/lib/cmake/clang -DLLVM_DIR=/usr/lib/llvm-21/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release`,
+  then `cmake --build <build> --parallel` and `cmake --install <build>`. The two `_DIR` settings
+  stop cmake from picking up another LLVM that is installed, such as the one on a GitHub runner.
 
 ```
 python3 build.py debug iwyu       # writes the report; exits 0 unless IWYU fails
