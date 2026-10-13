@@ -6,61 +6,62 @@
 
 #include "wxmapwindow.hpp"
 
-DECLARE_EVENT_TYPE( WX_MAPVIEW_DISPLAY_COORDS, -1 )
+DECLARE_EVENT_TYPE(WX_MAPVIEW_DISPLAY_COORDS, -1)
 
-class SnapplotMapView : public wxMapWindow
-{
-public:
-
-    SnapplotMapView( wxWindow *parent );
+class SnapplotMapView : public wxMapWindow {
+ public:
+    SnapplotMapView(wxWindow* parent);
     ~SnapplotMapView() override;
-    void ZoomToStation( int istn );
-    void ZoomToLine( int from, int to );
-    void LocateStation( int istn );
-    void LocateLine( int from, int to );
+    void ZoomToStation(int istn);
+    void ZoomToLine(int from, int to);
+    void LocateStation(int istn);
+    void LocateLine(int from, int to);
     wxBitmap CreateImage();
-    void SetWeakLock( bool newWeakLock ) { weakLock = newWeakLock; }
-    [[nodiscard]] bool WeakLock() const { return weakLock; }
+    void SetWeakLock(bool newWeakLock) {
+        weakLock = newWeakLock;
+    }
+    [[nodiscard]] bool WeakLock() const {
+        return weakLock;
+    }
 
-private:
-    void OnIdleEvent( wxIdleEvent &event );
-    void TestOnShowDetails( wxSnapplotEvent &event );
-    void OnMapWindowPosition( wxMapWindowEvent &event );
-    void OnClickEvent( wxMapWindowEvent &event );
-    void OnIdle( wxIdleEvent &event  );
-    void OnPaint( wxPaintEvent &event );
-    void ShowInfo( const MapPoint &pt, bool zoom );
+ private:
+    void OnIdleEvent(wxIdleEvent& event);
+    void TestOnShowDetails(wxSnapplotEvent& event);
+    void OnMapWindowPosition(wxMapWindowEvent& event);
+    void OnClickEvent(wxMapWindowEvent& event);
+    void OnIdle(wxIdleEvent& event);
+    void OnPaint(wxPaintEvent& event);
+    void ShowInfo(const MapPoint& pt, bool zoom);
 
-    void SendShowStationEvent( int istn, bool zoom );
-    void SendShowLineEvent( int from, int to, bool zoom );
+    void SendShowStationEvent(int istn, bool zoom);
+    void SendShowLineEvent(int from, int to, bool zoom);
     void SendShowTitleEvent();
 
-    void SetLocator( int from, int to );
-    void SetLocatorLocked( bool locked );
-    void PaintLocator( wxDC &dc );
-    void DrawLocator( wxDC &dc );
+    void SetLocator(int from, int to);
+    void SetLocatorLocked(bool locked);
+    void PaintLocator(wxDC& dc);
+    void DrawLocator(wxDC& dc);
 
     void SaveMapImage();
-    void RestoreMapImage( wxDC &dc );
+    void RestoreMapImage(wxDC& dc);
     void DropSavedMap();
 
-    int FindStation( const MapPoint &pt );
+    int FindStation(const MapPoint& pt);
 
     int pickTolerance;
     bool positionChanged;
     int locatorFrom;
     int locatorTo;
-    bool locatorLocked; // If the from station is locked ...
-    bool weakLock; // If true, then clicking other than a station will release a lock
-    bool locatorOnlyRepaint; // Set when the next OnPaint only needs to redraw the locator, not the whole map
+    bool locatorLocked;       // If the from station is locked ...
+    bool weakLock;            // If true, then clicking other than a station will release a lock
+    bool locatorOnlyRepaint;  // Set when the next OnPaint only needs to redraw the locator, not the whole map
     wxString coordString;
 
     // Object used to manage dragging on the map
     SnapplotMapDragger mapDragger;
-    wxBitmap *savedMap;
+    wxBitmap* savedMap;
 
     DECLARE_EVENT_TABLE();
 };
-
 
 #endif

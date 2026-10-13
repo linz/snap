@@ -8,30 +8,24 @@
 
 */
 
-struct tmprojection
-{
-    double meridian;          /* Central meridian */
-    double scalef;            /* Scale factor */
-    double orglat;            /* Origin latitude */
-    double falsee;            /* False easting */
-    double falsen;            /* False northing */
-    double utom;              /* Unit to metre conversion */
+struct tmprojection {
+    double meridian; /* Central meridian */
+    double scalef;   /* Scale factor */
+    double orglat;   /* Origin latitude */
+    double falsee;   /* False easting */
+    double falsen;   /* False northing */
+    double utom;     /* Unit to metre conversion */
 
-    double a, rf, f, e2, ep2;     /* Ellipsoid parameters */
+    double a, rf, f, e2, ep2; /* Ellipsoid parameters */
     double om;                /* Intermediate calculation */
 };
 
-
 /* Functions defined in TMPROJ.C */
 
-void define_tmprojection( tmprojection *tm, double a, double rf,
-                          double cm, double sf, double lto,
-                          double fe, double fn, double utom );
+void define_tmprojection(tmprojection* tm, double a, double rf, double cm, double sf, double lto, double fe, double fn,
+                         double utom);
 
-void tm_geod( tmprojection *tm, double ce, double cn, double *lt, double *ln );
-void geod_tm( tmprojection *tm, double lt, double ln, double *ce, double *cn );
+void tm_geod(tmprojection* tm, double ce, double cn, double* lt, double* ln);
+void geod_tm(tmprojection* tm, double lt, double ln, double* ce, double* cn);
 
 #endif
-
-
-

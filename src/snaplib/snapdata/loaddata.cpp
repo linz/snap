@@ -36,10 +36,15 @@ using boost::numeric_cast;
 #include "util/dateutil.h"
 #include "util/dstring.h"
 
-#define INC_SIZE 5   /* Increment for data blocks */
+#define INC_SIZE 5 /* Increment for data blocks */
 
 #ifdef DEBUG_LOADDATA
-#define DEBUG_PRINT(x) { putchar('\n'); printf x ; putchar( '\n' ); }
+#define DEBUG_PRINT(x) \
+    {                  \
+        putchar('\n'); \
+        printf x;      \
+        putchar('\n'); \
+    }
 #else
 #define DEBUG_PRINT(x)
 #endif
@@ -47,10 +52,10 @@ using boost::numeric_cast;
 #define ID_UNDEFINED -1
 
 static survdata data;
-static int next_id=1;
-static int inst_id=0;
-static trgtdata *tgt = nullptr;
-static int tgt_id=0;
+static int next_id = 1;
+static int inst_id = 0;
+static trgtdata* tgt = nullptr;
+static int tgt_id = 0;
 static double tgt_hgt;
 static long file_lineno;
 static int64_t noteloc;
@@ -60,23 +65,23 @@ static int data_cancelled;
 static int ndata_cancelled;
 static int trgt_init_nobs;
 
-static obsdata *od;
-static vecdata *vd;
-static pntdata *pd;
-static datatypedef *obsdatatype;
+static obsdata* od;
+static vecdata* vd;
+static pntdata* pd;
+static datatypedef* obsdatatype;
 
-static double *aval;
-static int  nval;
-static double *aerr;
-static int  nerr;
-static int  iscovar;
-static int  gotval;
-static int  goterr;
+static double* aval;
+static int nval;
+static double* aerr;
+static int nerr;
+static int iscovar;
+static int gotval;
+static int goterr;
 
-static int projid=ID_UNDEFINED;
-static int projclassid=ID_UNDEFINED;
-static int projidcache=ID_UNDEFINED;     // Caching of projection code value
-static int projcodeid=ID_UNDEFINED;
+static int projid = ID_UNDEFINED;
+static int projclassid = ID_UNDEFINED;
+static int projidcache = ID_UNDEFINED;  // Caching of projection code value
+static int projcodeid = ID_UNDEFINED;
 
 static int default_refcoef = ID_UNDEFINED;
 static int default_reffrm = ID_UNDEFINED;
@@ -103,54 +108,52 @@ static int cvrdim = 0;
  * observation group (but the memory used is retained until the end of the
  * data set. */
 
-struct recoded_id
-{
-    int codeid;   /* Index into saved codes - subtract saved_codes_offset */
-    int recoded;  /* Flag for recoded */
-    int id;       /* Recoded station id */
-    bool reject;  /* Recoded rejection */
+struct recoded_id {
+    int codeid;  /* Index into saved codes - subtract saved_codes_offset */
+    int recoded; /* Flag for recoded */
+    int id;      /* Recoded station id */
+    bool reject; /* Recoded rejection */
 };
 
 static std::vector<recoded_id> saved_ids;
-static int saved_id_offset=1;
-static int next_saved_id=0;
-static int preserve_saved_codes=0;  /* Used to handle exception with point data */
+static int saved_id_offset = 1;
+static int next_saved_id = 0;
+static int preserve_saved_codes = 0; /* Used to handle exception with point data */
 
-static std::string saved_codes;  /* NUL terminated codes, one after another */
-static int code_offset=0;
-static int next_code_id=0;
+static std::string saved_codes; /* NUL terminated codes, one after another */
+static int code_offset = 0;
+static int next_code_id = 0;
 
 #define SAVED_IDS_INC 64
 #define GET_REAL_STATION_ID 42
 
 /* The function to call when data has been read */
 
-void (*usedata_func)( survdata *sd );
+void (*usedata_func)(survdata* sd);
 
 /* The functions for converting codes to and from numeric id's,
    and for calculating values  */
 
-static int64_t (*id_func)( int type, int group_id, std::string_view code );
-static std::string (*code_func)( int type, int group_id, long id );
-static double (*calc_func)( int type, long id1, long id2 );
+static int64_t (*id_func)(int type, int group_id, std::string_view code);
+static std::string (*code_func)(int type, int group_id, long id);
+static double (*calc_func)(int type, long id1, long id2);
 
 /* Specifications for reweighting, rejecting, and ignoring observations */
 
-static double err_factor=1.0;
-static void *pobsmod=nullptr;
+static double err_factor = 1.0;
+static void* pobsmod = nullptr;
 
 /* A function for recoding station codes read from data files */
 
-static std::optional<recode_result> (*recode_func)( void *recodedata, std::string_view code, double date ) = nullptr;
-static void *recode_data=nullptr; 
-static int recoding=0;
+static std::optional<recode_result> (*recode_func)(void* recodedata, std::string_view code, double date) = nullptr;
+static void* recode_data = nullptr;
+static int recoding = 0;
 
 /* The function for computing gps covariances is handled with a function
    pointer to avoid linking in the associated code when we are not
    interested in gps covariances */
 
-static void (*gpscvr_func)( survdata *vd, int cvrtype,
-                            double *mmerr ) = nullptr;
+static void (*gpscvr_func)(survdata* vd, int cvrtype, double* mmerr) = nullptr;
 
 static int cvrtype;
 static double cvr_mmerr[9];
@@ -158,16 +161,12 @@ static double cvr_mmerr[9];
 
 /* Initialisation and clean-up functions */
 
-static coef_class_info coef_classes[] =
-{
-    {"distance_scale_code", &datatypedef::distsf },
-    {"bearing_error_code", &datatypedef::brngref },
-    {"refraction_coef_code", &datatypedef::refcoef },
-    {"ref_frame_code", &datatypedef::reffrm }
-};
+static coef_class_info coef_classes[] = {{"distance_scale_code", &datatypedef::distsf},
+                                         {"bearing_error_code", &datatypedef::brngref},
+                                         {"refraction_coef_code", &datatypedef::refcoef},
+                                         {"ref_frame_code", &datatypedef::reffrm}};
 
-struct coef_class_state
-{
+struct coef_class_state {
     std::optional<std::string> classname;
     int idclass = ID_UNDEFINED;
     int idname = ID_UNDEFINED;
@@ -176,174 +175,161 @@ struct coef_class_state
 
 static std::array<coef_class_state, N_COEF_CLASSES> coef_class_id;
 
-coef_class_info *coef_class( int coeftype )
-{
+coef_class_info* coef_class(int coeftype) {
     return &(coef_classes[coeftype]);
 }
 
-void set_coef_class( int coeftype, std::string_view name )
-{
-    coef_class_id[coeftype].classname = std::string( name );
+void set_coef_class(int coeftype, std::string_view name) {
+    coef_class_id[coeftype].classname = std::string(name);
 }
 
-static void init_coef_class_id()
-{
-    for( int i = 0; i < N_COEF_CLASSES; i++ )
-    {
-        coef_class_state &state = coef_class_id[i];
-        if( ! state.classname )
-        {
-            state.classname = std::string( coef_classes[i].default_classname );
+static void init_coef_class_id() {
+    for (int i = 0; i < N_COEF_CLASSES; i++) {
+        coef_class_state& state = coef_class_id[i];
+        if (!state.classname) {
+            state.classname = std::string(coef_classes[i].default_classname);
         }
-        state.idclass = numeric_cast<int>( ldt_get_id( ID_CLASSTYPE, 0, *state.classname ) );
+        state.idclass = numeric_cast<int>(ldt_get_id(ID_CLASSTYPE, 0, *state.classname));
         state.idname = ID_UNDEFINED;
         state.idcoef = ID_UNDEFINED;
     }
 }
 
-static int get_coef_id( int coeftype, int idname )
-{
-    if( idname==coef_class_id[coeftype].idname) { return coef_class_id[coeftype].idcoef;
-}
-    const std::string name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
-    int const idcoef = ldt_get_id( ID_COEF, coeftype, name );
+static int get_coef_id(int coeftype, int idname) {
+    if (idname == coef_class_id[coeftype].idname) {
+        return coef_class_id[coeftype].idcoef;
+    }
+    const std::string name = ldt_get_code(ID_CLASSNAME, coef_class_id[coeftype].idclass, idname);
+    const int idcoef = ldt_get_id(ID_COEF, coeftype, name);
     coef_class_id[coeftype].idcoef = idcoef;
     coef_class_id[coeftype].idname = idname;
     return idcoef;
 }
 
-static int save_code( std::string_view code )
-{
-    const int codelen=numeric_cast<int>( code.size() )+1;
-    int const codeid=next_code_id;
+static int save_code(std::string_view code) {
+    const int codelen = numeric_cast<int>(code.size()) + 1;
+    const int codeid = next_code_id;
     int idoffset;
-    recoded_id *newid;
+    recoded_id* newid;
 
-    saved_codes.append( code );
-    saved_codes.push_back( '\0' );
+    saved_codes.append(code);
+    saved_codes.push_back('\0');
     next_code_id += codelen;
 
     next_saved_id++;
-    idoffset=next_saved_id-saved_id_offset;
-    if( numeric_cast<size_t>( idoffset ) >= saved_ids.size() )
-    {
-        saved_ids.resize( saved_ids.size() + SAVED_IDS_INC );
+    idoffset = next_saved_id - saved_id_offset;
+    if (numeric_cast<size_t>(idoffset) >= saved_ids.size()) {
+        saved_ids.resize(saved_ids.size() + SAVED_IDS_INC);
     }
-    newid=&saved_ids[idoffset];
-    newid->codeid=codeid;
-    newid->recoded=0;
-    newid->id=0;
-    newid->reject=false;
+    newid = &saved_ids[idoffset];
+    newid->codeid = codeid;
+    newid->recoded = 0;
+    newid->id = 0;
+    newid->reject = false;
     return next_saved_id;
 }
 
 /// Returns the saved code with the given id, or an empty view if there isn't one.
-static std::string_view saved_code( int codeid )
-{
-    if( codeid >= next_code_id ) { return {};
-}
-    codeid -= code_offset;
-    if( codeid < 0 ) { return {};
-}
-    return std::string_view( saved_codes.c_str()+codeid );
-}
-
-static int get_recoded_id( int id, bool *reject )
-{
-    if( reject ) { *reject=false;
-}
-    recoded_id *rid;
-    if( id == 0 ) { return 0;
-}
-    if( id > next_saved_id ) { return 0;
-}
-    id -= saved_id_offset;
-    if( id < 0 ) { return 0;
-}
-
-    rid=&saved_ids[id];
-    if( ! rid->recoded )
-    {
-        const std::string_view src=saved_code(rid->codeid);
-        recode_result target{ src, false };
-        if( const auto recoded=(*recode_func)(recode_data,src,data.date) )
-        {
-            target=*recoded;
-        }
-        if( target.reject && target.code.empty() )
-        {
-            rid->id=-1;
-        }
-        else
-        {
-            rid->reject=target.reject;
-            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, target.code );
-        }
-        rid->recoded=1;
+static std::string_view saved_code(int codeid) {
+    if (codeid >= next_code_id) {
+        return {};
     }
-    if( reject ) { *reject=rid->reject;
+    codeid -= code_offset;
+    if (codeid < 0) {
+        return {};
+    }
+    return std::string_view(saved_codes.c_str() + codeid);
 }
+
+static int get_recoded_id(int id, bool* reject) {
+    if (reject) {
+        *reject = false;
+    }
+    recoded_id* rid;
+    if (id == 0) {
+        return 0;
+    }
+    if (id > next_saved_id) {
+        return 0;
+    }
+    id -= saved_id_offset;
+    if (id < 0) {
+        return 0;
+    }
+
+    rid = &saved_ids[id];
+    if (!rid->recoded) {
+        const std::string_view src = saved_code(rid->codeid);
+        recode_result target{src, false};
+        if (const auto recoded = (*recode_func)(recode_data, src, data.date)) {
+            target = *recoded;
+        }
+        if (target.reject && target.code.empty()) {
+            rid->id = -1;
+        } else {
+            rid->reject = target.reject;
+            rid->id = ldt_get_id(ID_STATION, GET_REAL_STATION_ID, target.code);
+        }
+        rid->recoded = 1;
+    }
+    if (reject) {
+        *reject = rid->reject;
+    }
     return rid->id;
 }
 
-static void reset_saved_code_ids()
-{
-    saved_id_offset=1;
-    next_saved_id=0;
-    code_offset=0;
-    next_code_id=0;
+static void reset_saved_code_ids() {
+    saved_id_offset = 1;
+    next_saved_id = 0;
+    code_offset = 0;
+    next_code_id = 0;
     saved_codes.clear();
 }
 
-static void reset_saved_codes( int lastid )
-{
-    int const ndrop=(lastid-saved_id_offset)+1;
-    int const nkeep=next_saved_id-lastid;
-    if( ndrop <= 0 ) { return;
-}
-    if( nkeep <= 0 )
-    {
-         reset_saved_code_ids();
-         return;
+static void reset_saved_codes(int lastid) {
+    const int ndrop = (lastid - saved_id_offset) + 1;
+    const int nkeep = next_saved_id - lastid;
+    if (ndrop <= 0) {
+        return;
     }
-    std::copy( saved_ids.begin()+ndrop, saved_ids.begin()+ndrop+nkeep, saved_ids.begin() );
+    if (nkeep <= 0) {
+        reset_saved_code_ids();
+        return;
+    }
+    std::copy(saved_ids.begin() + ndrop, saved_ids.begin() + ndrop + nkeep, saved_ids.begin());
     saved_id_offset += ndrop;
 
     {
-        int const codeloc=saved_ids.front().codeid;
-        int const codeshift=codeloc-code_offset;
-        saved_codes.erase( 0, codeshift );
-        code_offset+=codeshift;
+        const int codeloc = saved_ids.front().codeid;
+        const int codeshift = codeloc - code_offset;
+        saved_codes.erase(0, codeshift);
+        code_offset += codeshift;
     }
 }
 
-static void clear_saved_codes()
-{ 
+static void clear_saved_codes() {
     reset_saved_code_ids();
     saved_codes.clear();
     saved_codes.shrink_to_fit();
     // Swapping with an empty vector releases the memory, which clear() would not
-    std::vector<recoded_id>().swap( saved_ids );
+    std::vector<recoded_id>().swap(saved_ids);
 }
 
-static void report_error( const std::string_view location )
-{
+static void report_error(const std::string_view location) {
     const std::string msg = "Internal programming error in call to " + std::string(location);
-    handle_error( INTERNAL_ERROR, msg, "In module loaddata.c");
+    handle_error(INTERNAL_ERROR, msg, "In module loaddata.c");
 }
 
-void init_load_data( void (*usedata)( survdata *sd ),
-                     int64_t (*idfunc)( int type, int group_id, std::string_view code ),
-                     std::string (*codefunc)( int type, int group_id, long id ),
-                     double (*calcfunc)( int type, long id1, long id2 ))
-{
+void init_load_data(void (*usedata)(survdata* sd), int64_t (*idfunc)(int type, int group_id, std::string_view code),
+                    std::string (*codefunc)(int type, int group_id, long id),
+                    double (*calcfunc)(int type, long id1, long id2)) {
     DEBUG_PRINT(("LDT: init_load_data"));
     usedata_func = usedata;
     id_func = idfunc;
     code_func = codefunc;
     calc_func = calcfunc;
     pobsmod = nullptr;
-    err_factor=1.0;
+    err_factor = 1.0;
 
     data.nobs = 0;
     noteloc = 0;
@@ -355,16 +341,15 @@ void init_load_data( void (*usedata)( survdata *sd ),
     init_coef_class_id();
 }
 
-void term_load_data( void )
-{
+void term_load_data(void) {
     DEBUG_PRINT(("LDT: term_load_data"));
-    delete [] cvr;
-    delete [] calccvr;
-    delete [] rescvr;
+    delete[] cvr;
+    delete[] calccvr;
+    delete[] rescvr;
     // Swapping with an empty vector releases the memory, which clear() would not
-    std::vector<unsigned char>().swap( datablock );
-    std::vector<classdata>().swap( classblock );
-    std::vector<syserrdata>().swap( syserrblock );
+    std::vector<unsigned char>().swap(datablock);
+    std::vector<classdata>().swap(classblock);
+    std::vector<syserrdata>().swap(syserrblock);
     clear_saved_codes();
 
     cvrdim = 0;
@@ -373,156 +358,126 @@ void term_load_data( void )
     rescvr = nullptr;
 }
 
-
-void set_stn_recode_func(
-        std::optional<recode_result> (*recode)( void *recodedata, std::string_view code, double date ),
-        void *recodedata)
-{
+void set_stn_recode_func(std::optional<recode_result> (*recode)(void* recodedata, std::string_view code, double date),
+                         void* recodedata) {
     DEBUG_PRINT(("LDT: set_stn_recode_func"));
     recode_func = recode;
     recode_data = recodedata;
     recoding = recode_func ? 1 : 0;
 }
 
-void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
-                                    double *mmerr ) )
-{
+void set_gpscvr_func(void (*func)(survdata* vd, int cvrtype, double* mmerr)) {
     DEBUG_PRINT(("LDT: set_gpscvr_fund"));
     gpscvr_func = func;
 }
 
-
 /* Memory allocation routines for the components that grow... */
 
-static void setup_data_format( int format )
-{
-
+static void setup_data_format(int format) {
     data.format = format;
-    switch( format )
-    {
-    case SD_OBSDATA:
-        data.obssize = sizeof( obsdata );
-        break;
+    switch (format) {
+        case SD_OBSDATA:
+            data.obssize = sizeof(obsdata);
+            break;
 
-    case SD_VECDATA:
-        data.obssize = sizeof( vecdata );
-        break;
+        case SD_VECDATA:
+            data.obssize = sizeof(vecdata);
+            break;
 
-    case SD_PNTDATA:
-        data.obssize = sizeof( pntdata );
-        break;
-    }
-
-}
-
-static void check_data( void )
-{
-    bool rejfrom=false;
-    bool rejto=false;
-
-    if( recoding )
-    {
-        get_recoded_id( data.from, &rejfrom );
-        get_recoded_id( tgt->to, &rejto );
-    }
-
-    if( !gotval || !goterr)
-    {
-        handle_error( INVALID_DATA, "Observation value or error not defined",NO_MESSAGE);
-    }
-
-    if( rejfrom || rejto ) { ldt_unused();
-}
-
-    switch( data.format )
-    {
-    case SD_OBSDATA:
-        if( obsdatatype->projctn )
-        {
-            if( projid == ID_UNDEFINED)
-            {
-                projid = ldt_get_id( ID_PROJCTN, 0, DEFAULT_PROJECTION );
-            }
-            data.reffrm = projid;
-            if( projclassid == ID_UNDEFINED )
-            {
-                projclassid = ldt_get_id( ID_CLASSTYPE, 0, "projection" );
-            }
-            if( projclassid )
-            {
-                if( projid != projidcache )
-                {
-                    const std::string code = ldt_get_code( ID_PROJCTN, 0, projid );
-                    projidcache = projid;
-                    projcodeid = ldt_get_id( ID_CLASSNAME, projclassid, code );
-                }
-                ldt_classification( projclassid, projcodeid );
-            }
-        }
-        if( obsdatatype->refcoef && od->refcoef == ID_UNDEFINED )
-        {
-            int const idclass = coef_class_id[COEF_CLASS_REFCOEF].idclass;
-            if( idclass )
-            {
-                // If refraction coefficient not yet defined then define it (via classification)
-                if( default_refcoef == ID_UNDEFINED)
-                {
-                    default_refcoef = ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFCOEF_NAME);
-                }
-                ldt_classification( idclass, default_refcoef );
-            }
-            // No classification so coefficient directly
-            else
-            {
-                if( default_refcoef == ID_UNDEFINED )
-                {
-                    default_refcoef = ldt_get_id( ID_COEF, COEF_CLASS_REFCOEF, DEFAULT_REFCOEF_NAME );
-                }
-                od->refcoef = default_refcoef;
-            }
-        }
-        if( od->refcoef == ID_UNDEFINED ) { od->refcoef = 0;
-}
-        break;
-
-    case SD_VECDATA:
-        if( obsdatatype->reffrm )
-        {
-            int const idclass = coef_class_id[COEF_CLASS_REFFRM].idclass;
-            if( idclass )
-            {
-                // If reference frame not yet defined then define it (via classification)
-                if( data.reffrm == ID_UNDEFINED )
-                {
-                    int const id = ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFFRM_NAME);
-                    ldt_classification( idclass, id );
-                }
-                // Else if subsequent vector and not classified then use previous classification
-                else if( ! reffrm_classified )
-                {
-                    ldt_classification( idclass, reffrm_classification );
-                }
-            }
-            // Cannot define via class, defined directly
-            else if( data.reffrm == ID_UNDEFINED )
-            {
-                if( default_reffrm == ID_UNDEFINED )
-                {
-                    default_reffrm = ldt_get_id( ID_COEF, COEF_CLASS_REFFRM, DEFAULT_REFFRM_NAME );
-                }
-                data.reffrm = default_reffrm;
-            }
-        }
-        break;
-
-    case SD_PNTDATA:
-        break;
+        case SD_PNTDATA:
+            data.obssize = sizeof(pntdata);
+            break;
     }
 }
 
+static void check_data(void) {
+    bool rejfrom = false;
+    bool rejto = false;
 
-static void setup_target( int datatype )
-{
+    if (recoding) {
+        get_recoded_id(data.from, &rejfrom);
+        get_recoded_id(tgt->to, &rejto);
+    }
+
+    if (!gotval || !goterr) {
+        handle_error(INVALID_DATA, "Observation value or error not defined", NO_MESSAGE);
+    }
+
+    if (rejfrom || rejto) {
+        ldt_unused();
+    }
+
+    switch (data.format) {
+        case SD_OBSDATA:
+            if (obsdatatype->projctn) {
+                if (projid == ID_UNDEFINED) {
+                    projid = ldt_get_id(ID_PROJCTN, 0, DEFAULT_PROJECTION);
+                }
+                data.reffrm = projid;
+                if (projclassid == ID_UNDEFINED) {
+                    projclassid = ldt_get_id(ID_CLASSTYPE, 0, "projection");
+                }
+                if (projclassid) {
+                    if (projid != projidcache) {
+                        const std::string code = ldt_get_code(ID_PROJCTN, 0, projid);
+                        projidcache = projid;
+                        projcodeid = ldt_get_id(ID_CLASSNAME, projclassid, code);
+                    }
+                    ldt_classification(projclassid, projcodeid);
+                }
+            }
+            if (obsdatatype->refcoef && od->refcoef == ID_UNDEFINED) {
+                const int idclass = coef_class_id[COEF_CLASS_REFCOEF].idclass;
+                if (idclass) {
+                    // If refraction coefficient not yet defined then define it (via classification)
+                    if (default_refcoef == ID_UNDEFINED) {
+                        default_refcoef = ldt_get_id(ID_CLASSNAME, idclass, DEFAULT_REFCOEF_NAME);
+                    }
+                    ldt_classification(idclass, default_refcoef);
+                }
+                // No classification so coefficient directly
+                else {
+                    if (default_refcoef == ID_UNDEFINED) {
+                        default_refcoef = ldt_get_id(ID_COEF, COEF_CLASS_REFCOEF, DEFAULT_REFCOEF_NAME);
+                    }
+                    od->refcoef = default_refcoef;
+                }
+            }
+            if (od->refcoef == ID_UNDEFINED) {
+                od->refcoef = 0;
+            }
+            break;
+
+        case SD_VECDATA:
+            if (obsdatatype->reffrm) {
+                const int idclass = coef_class_id[COEF_CLASS_REFFRM].idclass;
+                if (idclass) {
+                    // If reference frame not yet defined then define it (via classification)
+                    if (data.reffrm == ID_UNDEFINED) {
+                        const int id = ldt_get_id(ID_CLASSNAME, idclass, DEFAULT_REFFRM_NAME);
+                        ldt_classification(idclass, id);
+                    }
+                    // Else if subsequent vector and not classified then use previous classification
+                    else if (!reffrm_classified) {
+                        ldt_classification(idclass, reffrm_classification);
+                    }
+                }
+                // Cannot define via class, defined directly
+                else if (data.reffrm == ID_UNDEFINED) {
+                    if (default_reffrm == ID_UNDEFINED) {
+                        default_reffrm = ldt_get_id(ID_COEF, COEF_CLASS_REFFRM, DEFAULT_REFFRM_NAME);
+                    }
+                    data.reffrm = default_reffrm;
+                }
+            }
+            break;
+
+        case SD_PNTDATA:
+            break;
+    }
+}
+
+static void setup_target(int datatype) {
     tgt->to = tgt_id;
     tgt->tohgt = tgt_hgt;
     tgt->obsid = next_id++;
@@ -537,63 +492,53 @@ static void setup_target( int datatype )
     noteloc = 0;
 }
 
-static void *next_data( int type )
-{
+static void* next_data(int type) {
     int required;
     int format;
-    void *obs;
+    void* obs;
 
     DEBUG_PRINT(("LDT: next_data"));
 
-    if( data.nobs ) { check_data();
-}
-    obsdatatype = datatypedef_from_id( type );
+    if (data.nobs) {
+        check_data();
+    }
+    obsdatatype = datatypedef_from_id(type);
 
-    if( obsdatatype->isvector )
-    {
+    if (obsdatatype->isvector) {
         format = SD_VECDATA;
-    }
-    else if( obsdatatype->ispoint )
-    {
+    } else if (obsdatatype->ispoint) {
         format = SD_PNTDATA;
-    }
-    else
-    {
+    } else {
         format = SD_OBSDATA;
     }
 
-    if( data.nobs == 0 )
-    {
-        setup_data_format( format );
-    }
-    else if ( format != data.format )
-    {
+    if (data.nobs == 0) {
+        setup_data_format(format);
+    } else if (format != data.format) {
         report_error("next_data");
     }
 
-    required = (data.nobs+1)*data.obssize;
-    if( numeric_cast<size_t>( required ) > datablock.size() )
-    {
+    required = (data.nobs + 1) * data.obssize;
+    if (numeric_cast<size_t>(required) > datablock.size()) {
         // resize zero fills the new bytes. This buffer gets written to a .bin file
         // as one raw fwrite (save_survdata, bindata.cpp), so any garbage here
         // (compiler struct padding in obsdata/vecdata/pntdata, or fields like
         // isyserr/iclass that are only set when an observation actually
         // has classifications/syserrs) would otherwise leak nondeterministic
         // bytes into the file, differing between runs and compilers.
-        datablock.resize( numeric_cast<size_t>( required + INC_SIZE * data.obssize ) );
-        switch( format )
-        {
-        case SD_OBSDATA:
-            data.obs.odata = reinterpret_cast<obsdata *>( datablock.data() );
-            break;
+        datablock.resize(numeric_cast<size_t>(required + INC_SIZE * data.obssize));
+        switch (format) {
+            case SD_OBSDATA:
+                data.obs.odata = reinterpret_cast<obsdata*>(datablock.data());
+                break;
 
-        case SD_VECDATA:
-            data.obs.vdata = reinterpret_cast<vecdata *>( datablock.data() );
-            break;
+            case SD_VECDATA:
+                data.obs.vdata = reinterpret_cast<vecdata*>(datablock.data());
+                break;
 
-        case SD_PNTDATA:
-            data.obs.pdata = reinterpret_cast<pntdata *>( datablock.data() );
-            break;
+            case SD_PNTDATA:
+                data.obs.pdata = reinterpret_cast<pntdata*>(datablock.data());
+                break;
         }
     }
     data_cancelled = 0;
@@ -604,199 +549,183 @@ static void *next_data( int type )
 
     iscovar = 0;
 
-    switch( data.format )
-    {
-    case SD_OBSDATA: od = static_cast<obsdata *>( obs );
-        tgt = &od->tgt;
-        aval = &od->value;
-        nval = 1;
-        aerr = &od->error;
-        nerr = 1;
-        iscovar = 0;
-        od->refcoef = ID_UNDEFINED;
-        od->prm_id = 0;
-        break;
+    switch (data.format) {
+        case SD_OBSDATA:
+            od = static_cast<obsdata*>(obs);
+            tgt = &od->tgt;
+            aval = &od->value;
+            nval = 1;
+            aerr = &od->error;
+            nerr = 1;
+            iscovar = 0;
+            od->refcoef = ID_UNDEFINED;
+            od->prm_id = 0;
+            break;
 
-    case SD_VECDATA: vd = static_cast<vecdata *>( obs );
-        tgt = &vd->tgt;
-        aval = vd->vector;
-        nval = 3;
-        aerr = nullptr;
-        nerr = 0;
-        goterr = 1;
-        iscovar = 1;
-        break;
+        case SD_VECDATA:
+            vd = static_cast<vecdata*>(obs);
+            tgt = &vd->tgt;
+            aval = vd->vector;
+            nval = 3;
+            aerr = nullptr;
+            nerr = 0;
+            goterr = 1;
+            iscovar = 1;
+            break;
 
-    case SD_PNTDATA: pd = static_cast<pntdata *>( obs );
-        tgt = &pd->tgt;
-        aval = &pd->value;
-        nval = 1;
-        aerr = &pd->error;
-        nerr = 1;
-        iscovar = 0;
-        break;
+        case SD_PNTDATA:
+            pd = static_cast<pntdata*>(obs);
+            tgt = &pd->tgt;
+            aval = &pd->value;
+            nval = 1;
+            aerr = &pd->error;
+            nerr = 1;
+            iscovar = 0;
+            break;
 
-    default: report_error("nextdata");
+        default:
+            report_error("nextdata");
     }
 
-    setup_target( type );
+    setup_target(type);
 
     return obs;
 }
 
-static void clear_cvr( int ndim, ltmat cvr )
-{
+static void clear_cvr(int ndim, ltmat cvr) {
     int i;
     int j;
-    for( i = 0; i < ndim; i++ ) { for( j = 0; j <= i; j++ )
-        {
+    for (i = 0; i < ndim; i++) {
+        for (j = 0; j <= i; j++) {
             *cvr = 0.0;
             cvr++;
         }
-}
+    }
 }
 
-static ltmat alloc_cvr( void )
-{
+static ltmat alloc_cvr(void) {
     long cvrsize;
     int dimreq;
     dimreq = data.nobs * 3;
-    if( dimreq > cvrdim )
-    {
-        delete [] cvr;
-        delete [] calccvr;
-        delete [] rescvr;
+    if (dimreq > cvrdim) {
+        delete[] cvr;
+        delete[] calccvr;
+        delete[] rescvr;
         cvr = calccvr = rescvr = nullptr;
         cvrdim = dimreq + 6;
-        cvrsize = ( static_cast<long>( cvrdim ) * static_cast<long>( cvrdim+1 ) ) / 2;
+        cvrsize = (static_cast<long>(cvrdim) * static_cast<long>(cvrdim + 1)) / 2;
         cvr = new double[cvrsize];
         calccvr = new double[cvrsize];
         rescvr = new double[cvrsize];
     }
 
-    clear_cvr( dimreq, cvr );
-    clear_cvr( dimreq, calccvr );
-    clear_cvr( dimreq, rescvr );
+    clear_cvr(dimreq, cvr);
+    clear_cvr(dimreq, calccvr);
+    clear_cvr(dimreq, rescvr);
 
     return cvr;
 }
 
-static syserrdata *getsyserrdata( void )
-{
-    const size_t idx = numeric_cast<size_t>( data.nsyserr );
-    if( idx >= syserrblock.size() )
-    {
-        syserrblock.resize( idx+1+INC_SIZE );
-        data.syserr=syserrblock.data();
+static syserrdata* getsyserrdata(void) {
+    const size_t idx = numeric_cast<size_t>(data.nsyserr);
+    if (idx >= syserrblock.size()) {
+        syserrblock.resize(idx + 1 + INC_SIZE);
+        data.syserr = syserrblock.data();
     }
     return &syserrblock[idx];
 }
 
-static classdata *getclassdata( void )
-{
-    const size_t idx = numeric_cast<size_t>( data.nclass );
-    if( idx >= classblock.size() )
-    {
-        classblock.resize( idx+1+INC_SIZE );
-        data.clsf=classblock.data();
+static classdata* getclassdata(void) {
+    const size_t idx = numeric_cast<size_t>(data.nclass);
+    if (idx >= classblock.size()) {
+        classblock.resize(idx + 1 + INC_SIZE);
+        data.clsf = classblock.data();
     }
     return &classblock[idx];
 }
 
-int64_t ldt_get_id( int type, int group_id, std::string_view code )
-{
-    if( type == ID_STATION && recoding )
-    {
-        if( group_id != GET_REAL_STATION_ID ) { return save_code( code );
-}
-        group_id=0;
+int64_t ldt_get_id(int type, int group_id, std::string_view code) {
+    if (type == ID_STATION && recoding) {
+        if (group_id != GET_REAL_STATION_ID) {
+            return save_code(code);
+        }
+        group_id = 0;
     }
-    if( type == ID_COEFCLASS )
-    {
+    if (type == ID_COEFCLASS) {
         return coef_class_id[group_id].idclass;
     }
-    return (*id_func)( type, group_id, code );
+    return (*id_func)(type, group_id, code);
 }
 
-std::string ldt_get_code( int type, int group_id, long id )
-{
-    if( type == ID_STATION && recoding )
-    {
-        if( group_id != GET_REAL_STATION_ID ) { return std::string( saved_code( id ) );
-}
-        group_id=0;
+std::string ldt_get_code(int type, int group_id, long id) {
+    if (type == ID_STATION && recoding) {
+        if (group_id != GET_REAL_STATION_ID) {
+            return std::string(saved_code(id));
+        }
+        group_id = 0;
     }
-    return (*code_func)( type, group_id, id );
+    return (*code_func)(type, group_id, id);
 }
 
-double ldt_calc_value( int calc_type, long id1, long id2 )
-{
-    if( recoding )
-    {
-        switch( calc_type )
-        {
+double ldt_calc_value(int calc_type, long id1, long id2) {
+    if (recoding) {
+        switch (calc_type) {
             case CALC_DISTANCE:
             case CALC_HDIST:
-                id1=get_recoded_id( id1, nullptr );
-                id2=get_recoded_id( id2, nullptr );
+                id1 = get_recoded_id(id1, nullptr);
+                id2 = get_recoded_id(id2, nullptr);
                 break;
         }
     }
-    return (*calc_func)( calc_type, id1, id2 );
+    return (*calc_func)(calc_type, id1, id2);
 }
 
-void ldt_init_obs_modifications( void *obsmod )
-{
-    pobsmod=obsmod;
+void ldt_init_obs_modifications(void* obsmod) {
+    pobsmod = obsmod;
 }
 
-void ldt_file( int fileno  )
-{
-    DEBUG_PRINT(("LDT: ldt_file %d", (int) fileno ));
+void ldt_file(int fileno) {
+    DEBUG_PRINT(("LDT: ldt_file %d", (int)fileno));
     data.file = fileno;
 }
 
-void ldt_lineno( long lineno )
-{
-    DEBUG_PRINT(("LDT: ldt_lineno %ld", lineno ));
+void ldt_lineno(long lineno) {
+    DEBUG_PRINT(("LDT: ldt_lineno %ld", lineno));
     file_lineno = lineno;
 }
 
-void ldt_date( double obsdate )
-{
+void ldt_date(double obsdate) {
     DEBUG_PRINT(("LDT: ldt_date %.3lf", obsdate));
     data.date = obsdate;
 }
 
-void ldt_time( double time )
-{
-    DEBUG_PRINT(("LDT: ldt_time %.5lf",time));
-    if( data.date != UNDEFINED_DATE ) { data.date = floor(data.date)+time;
-}
+void ldt_time(double time) {
+    DEBUG_PRINT(("LDT: ldt_time %.5lf", time));
+    if (data.date != UNDEFINED_DATE) {
+        data.date = floor(data.date) + time;
+    }
 }
 
-void ldt_projection( int proj_id )
-{
-    DEBUG_PRINT(("LDT: ldt_projection %d", (int) reffrm_id));
+void ldt_projection(int proj_id) {
+    DEBUG_PRINT(("LDT: ldt_projection %d", (int)reffrm_id));
     projid = proj_id;
 }
 
-void ldt_inststn( int stn_id, double ihgt )
-{
-
-    DEBUG_PRINT(("LDT: ldt_inststn %d %.3lf", (int) stn_id, ihgt ));
+void ldt_inststn(int stn_id, double ihgt) {
+    DEBUG_PRINT(("LDT: ldt_inststn %d %.3lf", (int)stn_id, ihgt));
 
     /* Save existing data if any */
 
-    if( data.nobs ) { ldt_end_data();
-}
+    if (data.nobs) {
+        ldt_end_data();
+    }
 
     /* Initialise data structure.
 
        Note: data.file persists, everything else is reset */
 
     data.from = stn_id;
-    inst_id=stn_id;
+    inst_id = stn_id;
     data.fromhgt = ihgt;
     data.date = UNDEFINED_DATE;
     data.reffrm = ID_UNDEFINED;
@@ -819,74 +748,66 @@ void ldt_inststn( int stn_id, double ihgt )
     ndata_cancelled = 0;
 }
 
-void ldt_tgtstn( int stn_id, double ihgt  )
-{
-    DEBUG_PRINT(("LDT: ldt_tgtstn %d %.3lf", (int) stn_id, ihgt ));
+void ldt_tgtstn(int stn_id, double ihgt) {
+    DEBUG_PRINT(("LDT: ldt_tgtstn %d %.3lf", (int)stn_id, ihgt));
     tgt_id = stn_id;
     tgt_hgt = ihgt;
     trgt_cancelled = stn_id < 0 ? 1 : 0;
     trgt_init_nobs = data.nobs;
 }
 
+void ldt_nextdata(int type) {
+    DEBUG_PRINT(("LDT: ldt_nextdata %d", (int)type));
 
-void ldt_nextdata( int type )
-{
-    DEBUG_PRINT(("LDT: ldt_nextdata %d", (int) type ));
-
-    if( data.format == SD_PNTDATA && data.nobs ) 
-    {
-        preserve_saved_codes=1;
+    if (data.format == SD_PNTDATA && data.nobs) {
+        preserve_saved_codes = 1;
         ldt_end_data();
-        preserve_saved_codes=0;
+        preserve_saved_codes = 0;
 
-        data.from=inst_id;
-        trgt_cancelled=0;
-        data_cancelled=0;
+        data.from = inst_id;
+        trgt_cancelled = 0;
+        data_cancelled = 0;
         inst_cancelled = inst_id < 0 ? 1 : 0;
     }
 
     next_data(type);
-    if( trgt_cancelled ) { ldt_cancel_data();
-}
+    if (trgt_cancelled) {
+        ldt_cancel_data();
+    }
 }
 
-
-void ldt_value( const double *value )
-{
+void ldt_value(const double* value) {
     int i;
 
 #ifdef DEBUG
-    if( nval == 1 )
-    {
-        DEBUG_PRINT(("LDT: ldt_value  %.5lf",value[0]));
-    }
-    else
-    {
-        DEBUG_PRINT(("LDT: ldt_value %.3lf %.3lf %.3lf",value[0],value[1],value[2]));
+    if (nval == 1) {
+        DEBUG_PRINT(("LDT: ldt_value  %.5lf", value[0]));
+    } else {
+        DEBUG_PRINT(("LDT: ldt_value %.3lf %.3lf %.3lf", value[0], value[1], value[2]));
     }
 #endif
 
-    for( i = 0; i<nval; i++ ) { aval[i] = value[i];
-}
+    for (i = 0; i < nval; i++) {
+        aval[i] = value[i];
+    }
     gotval = 1;
 }
 
-void ldt_error( const double *error )
-{
+void ldt_error(const double* error) {
     int i;
 
-    DEBUG_PRINT(("LDT: ldt_error %.5lf",error[0]));
-    if( !nerr )
-    {
+    DEBUG_PRINT(("LDT: ldt_error %.5lf", error[0]));
+    if (!nerr) {
         report_error("ldt_error");
     }
 
-    for( i = 0; i<nerr; i++ ) { aerr[i] = error[i];
-}
-    if( iscovar )
-    {
-        for( i = 0; i<nerr; i++ ) { aerr[i] *= aerr[i];
-}
+    for (i = 0; i < nerr; i++) {
+        aerr[i] = error[i];
+    }
+    if (iscovar) {
+        for (i = 0; i < nerr; i++) {
+            aerr[i] *= aerr[i];
+        }
     }
     goterr = 1;
 }
@@ -894,31 +815,25 @@ void ldt_error( const double *error )
 /* Note: this should be called only when all the vectors have been read,
    (ie nobs is correct) */
 
-ltmat ldt_covariance( int type, const double* mmerr )
-{
-    DEBUG_PRINT(("LDT: ldt_covariance %d", (int) type ));
+ltmat ldt_covariance(int type, const double* mmerr) {
+    DEBUG_PRINT(("LDT: ldt_covariance %d", (int)type));
 
-    if( data.format != SD_VECDATA )
-    {
-        report_error( "ldt_covariance" );
+    if (data.format != SD_VECDATA) {
+        report_error("ldt_covariance");
         return nullptr;
     }
 
-    if( !gpscvr_func || inst_cancelled )
-    {
+    if (!gpscvr_func || inst_cancelled) {
         data.cvr = nullptr;
         data.calccvr = nullptr;
         data.rescvr = nullptr;
-    }
-    else
-    {
+    } else {
         int i;
         data.cvr = alloc_cvr();
         data.calccvr = calccvr;
         data.rescvr = rescvr;
         cvrtype = type;
-        for( i = 0; i < 9; i++ )
-        {
+        for (i = 0; i < 9; i++) {
             cvr_mmerr[i] = mmerr ? mmerr[i] : 0.0;
         }
 
@@ -927,185 +842,159 @@ ltmat ldt_covariance( int type, const double* mmerr )
     return data.cvr;
 }
 
-
-void ldt_unused()
-{
+void ldt_unused() {
     DEBUG_PRINT(("LDT: ldt_unused"));
-    if( !tgt )
-    {
-        report_error( "ldt_unused" );
+    if (!tgt) {
+        report_error("ldt_unused");
         return;
     }
     tgt->unused |= REJECT_OBS_BIT;
 }
 
-
-void ldt_obs_id( int id )
-{
-    if( !tgt )
-    {
-        report_error( "ldt_classification" );
+void ldt_obs_id(int id) {
+    if (!tgt) {
+        report_error("ldt_classification");
         return;
     }
     tgt->id = id;
 }
 
-void ldt_classification( int class_id, int name_id )
-{
-    classdata *cd;
+void ldt_classification(int class_id, int name_id) {
+    classdata* cd;
 
-    DEBUG_PRINT(("LDT: ldt_classification %d %d", (int) class_id, (int) name_id ));
+    DEBUG_PRINT(("LDT: ldt_classification %d %d", (int)class_id, (int)name_id));
 
-    if( ! class_id ) { return;
-}
-
-    if( !tgt )
-    {
-        report_error( "ldt_classification" );
+    if (!class_id) {
         return;
     }
 
-    cd = (classdata *) getclassdata();
+    if (!tgt) {
+        report_error("ldt_classification");
+        return;
+    }
+
+    cd = (classdata*)getclassdata();
     cd->class_id = class_id;
     cd->name_id = name_id;
 
-    if( !tgt->nclass ) { tgt->iclass = data.nclass;
-}
+    if (!tgt->nclass) {
+        tgt->iclass = data.nclass;
+    }
     tgt->nclass++;
     data.nclass++;
 
     // Classifications that relate to other parameters...
-    if( obsdatatype->distsf && class_id == coef_class_id[COEF_CLASS_DISTSF].idclass && od )
-    {
-        od->prm_id = get_coef_id( COEF_CLASS_DISTSF, name_id );
+    if (obsdatatype->distsf && class_id == coef_class_id[COEF_CLASS_DISTSF].idclass && od) {
+        od->prm_id = get_coef_id(COEF_CLASS_DISTSF, name_id);
     }
-    if( obsdatatype->brngref && class_id == coef_class_id[COEF_CLASS_BRNGREF].idclass && od )
-    {
-        od->prm_id = get_coef_id( COEF_CLASS_BRNGREF, name_id );
+    if (obsdatatype->brngref && class_id == coef_class_id[COEF_CLASS_BRNGREF].idclass && od) {
+        od->prm_id = get_coef_id(COEF_CLASS_BRNGREF, name_id);
     }
-    if( obsdatatype->refcoef && class_id == coef_class_id[COEF_CLASS_REFCOEF].idclass )
-    {
-        od->refcoef = get_coef_id( COEF_CLASS_REFCOEF, name_id );
+    if (obsdatatype->refcoef && class_id == coef_class_id[COEF_CLASS_REFCOEF].idclass) {
+        od->refcoef = get_coef_id(COEF_CLASS_REFCOEF, name_id);
     }
-    if( obsdatatype->reffrm && class_id == coef_class_id[COEF_CLASS_REFFRM].idclass )
-    {
-        data.reffrm = get_coef_id( COEF_CLASS_REFFRM, name_id );
+    if (obsdatatype->reffrm && class_id == coef_class_id[COEF_CLASS_REFFRM].idclass) {
+        data.reffrm = get_coef_id(COEF_CLASS_REFFRM, name_id);
         reffrm_classification = name_id;
-        reffrm_classified=1;
+        reffrm_classified = 1;
     }
 }
 
+void ldt_syserr(int syserr_id, double influence) {
+    syserrdata* sd;
 
-void ldt_syserr( int syserr_id, double influence )
-{
-    syserrdata *sd;
+    DEBUG_PRINT(("LDT: ldt_syserr %d  %.5lf", (int)syserr_id, influence));
 
-    DEBUG_PRINT(("LDT: ldt_syserr %d  %.5lf", (int) syserr_id, influence));
-
-    if( !tgt )
-    {
-        report_error( "ldt_syserr" );
+    if (!tgt) {
+        report_error("ldt_syserr");
         return;
     }
 
-    sd = (syserrdata *) getsyserrdata();
+    sd = (syserrdata*)getsyserrdata();
     sd->prm_id = syserr_id;
     sd->influence = influence;
 
-    if( !tgt->nsyserr ) { tgt->isyserr = data.nsyserr;
-}
+    if (!tgt->nsyserr) {
+        tgt->isyserr = data.nsyserr;
+    }
     tgt->nsyserr++;
     data.nsyserr++;
 }
 
+void ldt_vecsyserr(int syserr_id, double influence[]) {
+    DEBUG_PRINT(("LDT: ldt_vecsyserr %d %.5lf %.5lf %.5lf", (int)syserr_id, influence[0], influence[1], influence[2]));
 
-void ldt_vecsyserr( int syserr_id, double influence[] )
-{
-    DEBUG_PRINT(("LDT: ldt_vecsyserr %d %.5lf %.5lf %.5lf", (int) syserr_id,
-                 influence[0], influence[1], influence[2]));
-
-    if( !tgt )
-    {
-        report_error( "ldt_vecsyserr" );
+    if (!tgt) {
+        report_error("ldt_vecsyserr");
         return;
     }
-    ldt_syserr( syserr_id, influence[0] );
-    ldt_syserr( syserr_id, influence[1] );
-    ldt_syserr( syserr_id, influence[2] );
+    ldt_syserr(syserr_id, influence[0]);
+    ldt_syserr(syserr_id, influence[1]);
+    ldt_syserr(syserr_id, influence[2]);
 }
 
-
-void ldt_prefix_note( std::string_view note )
-{
-    DEBUG_PRINT(("LDT: ldt_prefix_note %.*s",numeric_cast<int>(note.size()),note.data()));
-    const int64_t newnote = ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
-    if( !noteloc ) { noteloc = newnote;
+void ldt_prefix_note(std::string_view note) {
+    DEBUG_PRINT(("LDT: ldt_prefix_note %.*s", numeric_cast<int>(note.size()), note.data()));
+    const int64_t newnote = ldt_get_id(ID_NOTE, noteloc ? 1 : 0, note);
+    if (!noteloc) {
+        noteloc = newnote;
+    }
 }
-}
 
-void ldt_note( std::string_view note )
-{
-    DEBUG_PRINT(("LDT: ldt_note %.*s",numeric_cast<int>(note.size()),note.data()));
+void ldt_note(std::string_view note) {
+    DEBUG_PRINT(("LDT: ldt_note %.*s", numeric_cast<int>(note.size()), note.data()));
 
-    if( !tgt )
-    {
-        report_error( "ldt_postfix_note" );
+    if (!tgt) {
+        report_error("ldt_postfix_note");
         return;
     }
-    const int64_t newnote = ldt_get_id( ID_NOTE, tgt->noteloc ? 1 : 0, note );
-    if( !tgt->noteloc ) { tgt->noteloc = newnote;
-}
+    const int64_t newnote = ldt_get_id(ID_NOTE, tgt->noteloc ? 1 : 0, note);
+    if (!tgt->noteloc) {
+        tgt->noteloc = newnote;
+    }
 }
 
-void ldt_cancel_data( void )
-{
+void ldt_cancel_data(void) {
     DEBUG_PRINT(("LDT: ldt_cancel_data"));
-    if( !data_cancelled )
-    {
+    if (!data_cancelled) {
         tgt->unused |= IGNORE_OBS_BIT;
         data_cancelled = 1;
         ndata_cancelled++;
     }
 }
 
-void ldt_cancel_inst( void )
-{
+void ldt_cancel_inst(void) {
     DEBUG_PRINT(("LDT: ldt_cancel_inst"));
     inst_cancelled = 1;
 }
 
-
-void ldt_cancel_trgt( void )
-{
+void ldt_cancel_trgt(void) {
     int i;
     DEBUG_PRINT(("LDT: ldt_cancel_trgt"));
     trgt_cancelled = 1;
     data_cancelled = 1;
     trgt_init_nobs = data.nobs;
-    for( i=trgt_init_nobs; i < data.nobs; i++ )
-    {
-        trgtdata *tgt=get_trgtdata(&data,i);
+    for (i = trgt_init_nobs; i < data.nobs; i++) {
+        trgtdata* tgt = get_trgtdata(&data, i);
         tgt->unused |= IGNORE_OBS_BIT;
     }
 }
 
-int ldt_data_cancelled( void )
-{
+int ldt_data_cancelled(void) {
     return inst_cancelled || data_cancelled;
 }
 
-static void remove_ignored_obs()
-{
+static void remove_ignored_obs() {
     int i;
-    survdata *sd = &data;
-    if( ndata_cancelled <= 0 ) { return;
-}
+    survdata* sd = &data;
+    if (ndata_cancelled <= 0) {
+        return;
+    }
 
     /* Remove the extraneous rows form the covariance matrix ... */
 
-    if( data.format == SD_VECDATA && cvr )
-    {
-        int const cvrperobs=3;
+    if (data.format == SD_VECDATA && cvr) {
+        const int cvrperobs = 3;
         int ir0;
         int ir1;
         int ir;
@@ -1113,44 +1002,38 @@ static void remove_ignored_obs()
         int j;
         int jr0;
         int jtgt;
-        int itgt=0;
-        for( i = 0; i < data.nobs; i++ )
-        {
-            trgtdata *t;
-            t = get_trgtdata( sd, i );
-            ir0 = i*cvrperobs;
-            ir1 = ir0+cvrperobs;
-            if( t->unused & IGNORE_OBS_BIT ) { continue;
-}
-            if( ir0 == itgt )
-            {
-                itgt=ir1;
+        int itgt = 0;
+        for (i = 0; i < data.nobs; i++) {
+            trgtdata* t;
+            t = get_trgtdata(sd, i);
+            ir0 = i * cvrperobs;
+            ir1 = ir0 + cvrperobs;
+            if (t->unused & IGNORE_OBS_BIT) {
                 continue;
             }
-            for( ir = ir0; ir < ir1; ir++, itgt++ )
-            {
+            if (ir0 == itgt) {
+                itgt = ir1;
+                continue;
+            }
+            for (ir = ir0; ir < ir1; ir++, itgt++) {
                 njr = cvrperobs;
-                jtgt=0;
-                for( j = 0; j <= i; j++ )
-                {
-                    if( j != i )
-                    {
-                        trgtdata *tj;
-                        tj = get_trgtdata( sd, j );
-                        if( tj->unused & IGNORE_OBS_BIT ) { continue;
-}
+                jtgt = 0;
+                for (j = 0; j <= i; j++) {
+                    if (j != i) {
+                        trgtdata* tj;
+                        tj = get_trgtdata(sd, j);
+                        if (tj->unused & IGNORE_OBS_BIT) {
+                            continue;
+                        }
                         jr0 = j * cvrperobs;
                         njr = cvrperobs;
-                    }
-                    else
-                    {
+                    } else {
                         jr0 = ir0;
-                        njr = ir-ir0+1;
+                        njr = ir - ir0 + 1;
                     }
-                    while( njr-- )
-                    {
-                        Lij(cvr,itgt,jtgt)=Lij(cvr,ir,jr0);
-                        Lij(cvr,ir,jr0)=0.0;
+                    while (njr--) {
+                        Lij(cvr, itgt, jtgt) = Lij(cvr, ir, jr0);
+                        Lij(cvr, ir, jr0) = 0.0;
                         jtgt++;
                         jr0++;
                     }
@@ -1163,115 +1046,108 @@ static void remove_ignored_obs()
      * and systematic errors
      */
 
-    int nused=0;
-    int iclass=0;
-    int isyserr=0;
+    int nused = 0;
+    int iclass = 0;
+    int isyserr = 0;
 
-    for( i=0; i<data.nobs; i++ )
-    {
-        trgtdata *tgt=get_trgtdata(&data,i);
-        if( tgt->unused & IGNORE_OBS_BIT ) { continue;
-}
-        if( i == nused) { nused++; continue; }
-        if( tgt->nclass > 0 )
-        {
-            int const nc=tgt->nclass;
-            int const iclass0=tgt->iclass;
-            memcpy( &(data.clsf[iclass]),&(data.clsf[iclass0]),(sizeof(classdata))*nc);
-            tgt->iclass=iclass;
+    for (i = 0; i < data.nobs; i++) {
+        trgtdata* tgt = get_trgtdata(&data, i);
+        if (tgt->unused & IGNORE_OBS_BIT) {
+            continue;
+        }
+        if (i == nused) {
+            nused++;
+            continue;
+        }
+        if (tgt->nclass > 0) {
+            const int nc = tgt->nclass;
+            const int iclass0 = tgt->iclass;
+            memcpy(&(data.clsf[iclass]), &(data.clsf[iclass0]), (sizeof(classdata)) * nc);
+            tgt->iclass = iclass;
             iclass += nc;
         }
-        if( tgt->nsyserr > 0 )
-        {
-            int const ns=tgt->nsyserr;
-            int const isyserr0=tgt->isyserr;
-            memcpy( &(data.syserr[isyserr]),&(data.syserr[isyserr0]),(sizeof(syserrdata))*ns);
-            tgt->isyserr=isyserr;
+        if (tgt->nsyserr > 0) {
+            const int ns = tgt->nsyserr;
+            const int isyserr0 = tgt->isyserr;
+            memcpy(&(data.syserr[isyserr]), &(data.syserr[isyserr0]), (sizeof(syserrdata)) * ns);
+            tgt->isyserr = isyserr;
             isyserr += ns;
         }
 
-        memcpy( (void *) get_trgtdata(&data,nused), (void *) tgt, data.obssize );
+        memcpy((void*)get_trgtdata(&data, nused), (void*)tgt, data.obssize);
         nused++;
     }
-    data.nobs=nused;
+    data.nobs = nused;
 }
 
-static void recode_stations()
-{
+static void recode_stations() {
     int i;
-    int lastid=0;
-    if( ! recoding ) { return;
-}
-    if( data.from )
-    {
-        lastid=data.from;
-        data.from=get_recoded_id( data.from, nullptr );
-        if( data.from <= 0 ) { inst_cancelled=1;
-}
+    int lastid = 0;
+    if (!recoding) {
+        return;
     }
-    for( i=0; i < data.nobs; i++ )
-    {
-        trgtdata *tgt=get_trgtdata(&data,i);
-        if( tgt->to > lastid ) { lastid=tgt->to;
-}
-        if( ! tgt->to ) { continue;
-}
-        tgt->to=get_recoded_id( tgt->to, nullptr );
-        if( tgt->to <= 0 && ! (tgt->unused & IGNORE_OBS_BIT) ) 
-        {
+    if (data.from) {
+        lastid = data.from;
+        data.from = get_recoded_id(data.from, nullptr);
+        if (data.from <= 0) {
+            inst_cancelled = 1;
+        }
+    }
+    for (i = 0; i < data.nobs; i++) {
+        trgtdata* tgt = get_trgtdata(&data, i);
+        if (tgt->to > lastid) {
+            lastid = tgt->to;
+        }
+        if (!tgt->to) {
+            continue;
+        }
+        tgt->to = get_recoded_id(tgt->to, nullptr);
+        if (tgt->to <= 0 && !(tgt->unused & IGNORE_OBS_BIT)) {
             ndata_cancelled++;
             tgt->unused |= IGNORE_OBS_BIT;
         }
     }
-    if( lastid > 0 && ! preserve_saved_codes ) { reset_saved_codes( lastid );
-}
+    if (lastid > 0 && !preserve_saved_codes) {
+        reset_saved_codes(lastid);
+    }
 }
 
-void ldt_end_data( void )
-{
+void ldt_end_data(void) {
     DEBUG_PRINT(("LDT: ldt_end_data"));
 
-    if( data.nobs > 0 && ! inst_cancelled )
-    {
+    if (data.nobs > 0 && !inst_cancelled) {
         check_data();
     }
-    if( recoding && ! inst_cancelled )
-    {
+    if (recoding && !inst_cancelled) {
         recode_stations();
     }
-    if( data.nobs > ndata_cancelled && !inst_cancelled )
-    {
-
-        if( data.reffrm == ID_UNDEFINED )
-        {
+    if (data.nobs > ndata_cancelled && !inst_cancelled) {
+        if (data.reffrm == ID_UNDEFINED) {
             data.reffrm = 0;
         }
 
-        if( data.format == SD_VECDATA )
-        {
-            if( data.cvr )
-            {
-                (*gpscvr_func)( &data, cvrtype, cvr_mmerr );
-                clear_cvr( data.nobs * 3, data.calccvr );
-                clear_cvr( data.nobs * 3, data.rescvr );
+        if (data.format == SD_VECDATA) {
+            if (data.cvr) {
+                (*gpscvr_func)(&data, cvrtype, cvr_mmerr);
+                clear_cvr(data.nobs * 3, data.calccvr);
+                clear_cvr(data.nobs * 3, data.rescvr);
             }
         }
 
-        if( pobsmod )
-        {
-            ndata_cancelled += apply_obs_modifications( pobsmod, &data );
+        if (pobsmod) {
+            ndata_cancelled += apply_obs_modifications(pobsmod, &data);
         }
 
-        if( data.nobs > ndata_cancelled )
-        {
-            if( ndata_cancelled ) { remove_ignored_obs();
-}
-            if( usedata_func ) { (*usedata_func)( &data );
-}
+        if (data.nobs > ndata_cancelled) {
+            if (ndata_cancelled) {
+                remove_ignored_obs();
+            }
+            if (usedata_func) {
+                (*usedata_func)(&data);
+            }
         }
     }
 
     data.nobs = 0;
-    ndata_cancelled=0;
+    ndata_cancelled = 0;
 }
-

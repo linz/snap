@@ -22,8 +22,7 @@
 // on-disk format from the struct. genparam.cpp's compile-time
 // param_disk_fields_contiguous() check catches most such drift, but can't catch
 // a field added and never added to the table at all.
-struct param
-{
+struct param {
     std::string name;
     unsigned int hash;
     double value;
@@ -46,52 +45,52 @@ struct param
 extern const DiskField PARAM_DISK_FIELDS[];
 extern const size_t PARAM_DISK_FIELD_COUNT;
 
-#define PRM_ADJUST 0x01  /* Flags that parameter is to be adjusted */
-#define PRM_USED   0x02  /* Flags that data have been used... */
-#define PRM_LISTED 0x04  /* Flags that parameters have already been listed */
-#define PRM_ROWSET 0x04  /* Flags that the parameter rownumber is set by other code */
+#define PRM_ADJUST 0x01 /* Flags that parameter is to be adjusted */
+#define PRM_USED 0x02   /* Flags that data have been used... */
+#define PRM_LISTED 0x04 /* Flags that parameters have already been listed */
+#define PRM_ROWSET 0x04 /* Flags that the parameter rownumber is set by other code */
 
 /* Note: the numbers defined for PRM_ correspond to indexes in the
    coefprefix and coefpfxlen arrays in genparam.c */
 
 #define PRM_REFCOEF 0
-#define PRM_DISTSF  1
+#define PRM_DISTSF 1
 #define PRM_BRNGREF 2
-#define PRM_SYSERR  3
+#define PRM_SYSERR 3
 
 #define DEFAULT_REFCOEF 0.075
 
-void set_default_refcoef( double value );
+void set_default_refcoef(double value);
 
-int define_param( std::string_view name, double value, int adjust );
-int find_param( std::string_view name );
-void   flag_param_used( int p);
-void   flag_param_listed( int p );
-double param_value( int p );
-void update_param_value( int p, double v, double var );
-std::string_view param_name( int p );
-int param_rowno( int p );
-int identical_param( int p );
-int param_count( void );
-param * param_from_id( int pid );
-int sorted_param_id( int n );
+int define_param(std::string_view name, double value, int adjust);
+int find_param(std::string_view name);
+void flag_param_used(int p);
+void flag_param_listed(int p);
+double param_value(int p);
+void update_param_value(int p, double v, double var);
+std::string_view param_name(int p);
+int param_rowno(int p);
+int identical_param(int p);
+int param_count(void);
+param* param_from_id(int pid);
+int sorted_param_id(int n);
 
-void define_param_value( int p, double value, int adjust );
-void wildcard_param_value( std::string_view name, double value, int adjust );
-void define_param_match( int p1, int p2 );
-void wildcard_param_match( std::string_view name, int p );
+void define_param_value(int p, double value, int adjust);
+void wildcard_param_value(std::string_view name, double value, int adjust);
+void define_param_match(int p1, int p2);
+void wildcard_param_match(std::string_view name, int p);
 
-int init_param_rowno( int nextprm );
+int init_param_rowno(int nextprm);
 /// Returns the name of the parameter solved at equation row \p row, if there is one.
-std::optional<std::string> find_param_row( int row );
+std::optional<std::string> find_param_row(int row);
 
-void clear_param_list( void );
-void dump_parameters( BINARY_FILE *b );
-int reload_parameters( BINARY_FILE *b );
+void clear_param_list(void);
+void dump_parameters(BINARY_FILE* b);
+int reload_parameters(BINARY_FILE* b);
 
-int get_param( int type, std::string_view name, int create );
-std::string_view param_type_name( int type, int pid );
-void configure_param( int type, std::string_view refcoef, double value, int adjust );
-void configure_param_match( int type, std::string_view coef1, std::string_view coef2 );
+int get_param(int type, std::string_view name, int create);
+std::string_view param_type_name(int type, int pid);
+void configure_param(int type, std::string_view refcoef, double value, int adjust);
+void configure_param_match(int type, std::string_view coef1, std::string_view coef2);
 
 #endif

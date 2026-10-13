@@ -12,18 +12,15 @@
 #include "util/pi.h"
 #include "csdeform.h"
 
-struct StationDeformation
-{
+struct StationDeformation {
     double x, y;
     double y0def[3];
     double year;
     double def[3];
 };
 
-
-struct CrdsysDefModel
-{
-    StationDeformation *stdefs;
+struct CrdsysDefModel {
+    StationDeformation* stdefs;
 };
 
 /* Called when the configuration file includes a deformation command - the
@@ -31,19 +28,19 @@ struct CrdsysDefModel
 
 // #pragma warning (disable : 4100)
 
-static void delete_csdefmodel( CrdsysDefModel *model )
-{
-    if( model == nullptr ) { return;
-}
-    delete [] model->stdefs;
+static void delete_csdefmodel(CrdsysDefModel* model) {
+    if (model == nullptr) {
+        return;
+    }
+    delete[] model->stdefs;
     delete model;
 }
 
-static CrdsysDefModel *init_csdefmodel()
-{
-    if( ! has_deformation_model( net->crdsys ) ) { return nullptr;
-}
-    CrdsysDefModel *model = new CrdsysDefModel;
+static CrdsysDefModel* init_csdefmodel() {
+    if (!has_deformation_model(net->crdsys)) {
+        return nullptr;
+    }
+    CrdsysDefModel* model = new CrdsysDefModel;
     model->stdefs = nullptr;
     return model;
 }
@@ -51,34 +48,33 @@ static CrdsysDefModel *init_csdefmodel()
 /* Called before the first adjustment iteration to perform any necessary
    preparation  - cache converted coordinates and epoch 0 deformations. */
 
-static int init_csdef_deformation( void *deformation )
-{
+static int init_csdef_deformation(void* deformation) {
     double csepoch;
     int nstns;
     int istn;
-    StationDeformation *stdefs;
+    StationDeformation* stdefs;
     char buf[128];
-    CrdsysDefModel *model = (CrdsysDefModel *) deformation;
+    CrdsysDefModel* model = (CrdsysDefModel*)deformation;
 
-    if( ! model ) { return 0;
-}
+    if (!model) {
+        return 0;
+    }
 
     /* Allocate space for a set of station initial values  */
 
-    nstns = number_of_stations( net );
-    stdefs = new StationDeformation[nstns+1];
+    nstns = number_of_stations(net);
+    stdefs = new StationDeformation[nstns + 1];
     model->stdefs = stdefs;
 
     /* For each station calculate the coordsys epoch coords */
 
     csepoch = deformation_model_epoch(net->crdsys);
-    for( istn = 1; istn <= nstns; istn++ )
-    {
+    for (istn = 1; istn <= nstns; istn++) {
         double xyz[3];
-        station *st;
-        StationDeformation *std;
-        st = station_ptr( net, istn );
-        std = stdefs+station_id( net, st );
+        station* st;
+        StationDeformation* std;
+        st = station_ptr(net, istn);
+        std = stdefs + station_id(net, st);
 
         xyz[CRD_LAT] = st->ELat;
         xyz[CRD_LON] = st->ELon;
@@ -87,16 +83,12 @@ static int init_csdef_deformation( void *deformation )
         std->year = 0.0;
         std->y0def[0] = std->y0def[1] = std->y0def[2] = 0.0;
 
-        if( csepoch != 0 )
-        {
+        if (csepoch != 0) {
             int sts;
-            sts = ref_deformation_at_epoch( net->crdsys->rf, xyz,
-                                            csepoch, std->y0def );
-            if( sts != OK )
-            {
-                sprintf(buf,"Cannot calculate deformation of %.20s at date %.1lf",
-                        st->Code.c_str(), csepoch);
-                handle_error(WARNING_ERROR,buf,NO_MESSAGE);
+            sts = ref_deformation_at_epoch(net->crdsys->rf, xyz, csepoch, std->y0def);
+            if (sts != OK) {
+                sprintf(buf, "Cannot calculate deformation of %.20s at date %.1lf", st->Code.c_str(), csepoch);
+                handle_error(WARNING_ERROR, buf, NO_MESSAGE);
                 return INVALID_DATA;
             }
         }
@@ -108,37 +100,33 @@ static int init_csdef_deformation( void *deformation )
 /* Called for each observation to determine the east, north, and vertical
    offset that the model predicts for a specific time */
 
-static int calc_csdef_deformation( void *deformation, station *st, double date, double denu[3] )
-{
+static int calc_csdef_deformation(void* deformation, station* st, double date, double denu[3]) {
     int stnid;
-    StationDeformation *std;
+    StationDeformation* std;
     int sts;
     char buf[128];
     double year;
-    CrdsysDefModel *model = (CrdsysDefModel *) deformation;
+    CrdsysDefModel* model = (CrdsysDefModel*)deformation;
 
     denu[0] = denu[1] = denu[2] = 0.0;
-    if( ! model ) { return OK;
-}
+    if (!model) {
+        return OK;
+    }
 
-    stnid = station_id( net, st );
-    std = model->stdefs+stnid;
+    stnid = station_id(net, st);
+    std = model->stdefs + stnid;
 
-    year = date_as_year( date );
+    year = date_as_year(date);
 
-    if( std->year == 0.0 || std->year != date )
-    {
+    if (std->year == 0.0 || std->year != date) {
         double xyz[3];
         xyz[CRD_LAT] = st->ELat;
         xyz[CRD_LON] = st->ELon;
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
-        sts = ref_deformation_at_epoch( net->crdsys->rf, xyz,
-                                        year, std->def );
-        if( sts != OK )
-        {
-            sprintf(buf,"Cannot calculate deformation of %.20s at %.1lf",
-                    st->Code.c_str(), year);
-            handle_error(WARNING_ERROR,buf,NO_MESSAGE);
+        sts = ref_deformation_at_epoch(net->crdsys->rf, xyz, year, std->def);
+        if (sts != OK) {
+            sprintf(buf, "Cannot calculate deformation of %.20s at %.1lf", st->Code.c_str(), year);
+            handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             return INVALID_DATA;
         }
         std->year = year;
@@ -156,43 +144,36 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
 
 /* Describe the deformation model in an output file */
 
-static int print_csdef( void *deformation, FILE *out, const std::string_view prefix )
-{
-    if( ! deformation ) { return OK;
-}
-    fwrite( prefix.data(), 1, prefix.size(), out );
-    fputs("Applying coordinate system deformation model\n",out);
+static int print_csdef(void* deformation, FILE* out, const std::string_view prefix) {
+    if (!deformation) {
+        return OK;
+    }
+    fwrite(prefix.data(), 1, prefix.size(), out);
+    fputs("Applying coordinate system deformation model\n", out);
     output_string_def os;
-    output_string_to_file( &os, out );
-    describe_deformation_model( &os, net->crdsys->rf );
+    output_string_to_file(&os, out);
+    describe_deformation_model(&os, net->crdsys->rf);
     return OK;
 }
 
-static int delete_csdef( void *deformation )
-{
-    CrdsysDefModel *model = (CrdsysDefModel *) deformation;
-    if( model ) { delete_csdefmodel( model );
-}
+static int delete_csdef(void* deformation) {
+    CrdsysDefModel* model = (CrdsysDefModel*)deformation;
+    if (model) {
+        delete_csdefmodel(model);
+    }
     return OK;
 }
 
-int create_crdsys_deformation( deformation_model **model )
-{
+int create_crdsys_deformation(deformation_model** model) {
     int sts;
-    CrdsysDefModel *ldm;
+    CrdsysDefModel* ldm;
 
     (*model) = nullptr;
     sts = OK;
-    ldm = init_csdefmodel( );
-    if( ldm )
-    {
-        (*model) = create_deformation_model(
-                       ldm,
-                       init_csdef_deformation,
-                       calc_csdef_deformation,
-                       print_csdef,
-                       delete_csdef);
+    ldm = init_csdefmodel();
+    if (ldm) {
+        (*model) =
+            create_deformation_model(ldm, init_csdef_deformation, calc_csdef_deformation, print_csdef, delete_csdef);
     }
     return sts;
 }
-

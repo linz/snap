@@ -13,40 +13,34 @@
 #include "util/fieldscanner.hpp"
 #include "coordsys/crdsys_prj.h"
 
-projection *parse_projection_def( input_string_def &is )
-{
+projection* parse_projection_def(input_string_def& is) {
     std::string typecode;
     int sts;
-    projection_type *pt;
-    projection *prj;
+    projection_type* pt;
+    projection* prj;
 
     prj = nullptr;
 
-    if( read_string_field( is.scanner, typecode, CRDSYS_CODE_LEN ) != FieldResult::Ok )
-    {
-        report_string_error( is, MISSING_DATA, "Projection code missing" );
+    if (read_string_field(is.scanner, typecode, CRDSYS_CODE_LEN) != FieldResult::Ok) {
+        report_string_error(is, MISSING_DATA, "Projection code missing");
         return prj;
     }
 
-    pt = find_projection_type( typecode );
-    if( !pt )
-    {
+    pt = find_projection_type(typecode);
+    if (!pt) {
         const std::string errmess = "Invalid projection code " + typecode;
-        report_string_error( is, INVALID_DATA, errmess );
+        report_string_error(is, INVALID_DATA, errmess);
         return nullptr;
     }
 
-    prj = new projection( *pt );
+    prj = new projection(*pt);
 
-    sts = read_param_list( is, pt->params, pt->nparams, prj->data );
+    sts = read_param_list(is, pt->params, pt->nparams, prj->data);
 
-    if( sts != OK )
-    {
+    if (sts != OK) {
         delete prj;
         prj = nullptr;
     }
 
     return prj;
 }
-
-

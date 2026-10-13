@@ -8,8 +8,7 @@
 
 */
 
-struct ErrorScaleDef
-{
+struct ErrorScaleDef {
     char aPost;
     char stdErr;
     double confLim;
@@ -22,6 +21,6 @@ struct ErrorScaleDef
 #ifdef __cplusplus
 //extern "C"
 #endif
-int EditErrorScale( ErrorScaleDef *def );
+int EditErrorScale(ErrorScaleDef* def);
 
 #endif

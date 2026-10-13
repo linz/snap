@@ -12,7 +12,7 @@
 #include "util/binfile.h"
 #endif
 
-void dump_rftransformations( BINARY_FILE *b );
-int reload_rftransformations( BINARY_FILE *b );
+void dump_rftransformations(BINARY_FILE* b);
+int reload_rftransformations(BINARY_FILE* b);
 
 #endif

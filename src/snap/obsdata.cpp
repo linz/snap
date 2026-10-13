@@ -46,26 +46,25 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-
-static const DmsFormat &angle_format( const int type )
-{
-    static const DmsFormat horizontalAngleFormat( 3, obs_precision[HA] );
-    static const DmsFormat azimuthFormat( 3, obs_precision[AZ] );
-    static const DmsFormat projectionBearingFormat( 3, obs_precision[PB] );
-    static const DmsFormat zenithDistanceFormat( 3, obs_precision[ZD] );
-    if( type == PB ) { return projectionBearingFormat;
-}
-    if( type == AZ ) { return azimuthFormat;
-}
-    if( type == ZD ) { return zenithDistanceFormat;
-}
+static const DmsFormat& angle_format(const int type) {
+    static const DmsFormat horizontalAngleFormat(3, obs_precision[HA]);
+    static const DmsFormat azimuthFormat(3, obs_precision[AZ]);
+    static const DmsFormat projectionBearingFormat(3, obs_precision[PB]);
+    static const DmsFormat zenithDistanceFormat(3, obs_precision[ZD]);
+    if (type == PB) {
+        return projectionBearingFormat;
+    }
+    if (type == AZ) {
+        return azimuthFormat;
+    }
+    if (type == ZD) {
+        return zenithDistanceFormat;
+    }
     return horizontalAngleFormat;
 }
 
-
-void list_obsdata( FILE *out, survdata *o )
-{
-    obsdata *t;
+void list_obsdata(FILE* out, survdata* o) {
+    obsdata* t;
     int iobs;
     int to;
     double tohgt;
@@ -76,102 +75,81 @@ void list_obsdata( FILE *out, survdata *o )
     to = -1;
     tohgt = 0.0;
 
-    for(iobs = 0; iobs < o->nobs; iobs++ )
-    {
+    for (iobs = 0; iobs < o->nobs; iobs++) {
         t = &o->obs.odata[iobs];
         type = t->tgt.type;
-        list_note( out, t->tgt.noteloc );
-        fprintf(out,"%2d:%-4d  ",(int)(o->file+1),(int)(t->tgt.lineno));
-        if( iobs == 0 )
-        {
-            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(o->from).c_str(), o->fromhgt );
-        }
-        else
-        {
-            fprintf( out, "%*s        ",stn_name_width,"");
+        list_note(out, t->tgt.noteloc);
+        fprintf(out, "%2d:%-4d  ", (int)(o->file + 1), (int)(t->tgt.lineno));
+        if (iobs == 0) {
+            fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(o->from).c_str(), o->fromhgt);
+        } else {
+            fprintf(out, "%*s        ", stn_name_width, "");
         }
 
-        if( t->tgt.to != to || t->tgt.tohgt != tohgt )
-        {
-            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(t->tgt.to).c_str(), t->tgt.tohgt );
+        if (t->tgt.to != to || t->tgt.tohgt != tohgt) {
+            fprintf(out, "%-*s %5.3lf  ", stn_name_width, station_code(t->tgt.to).c_str(), t->tgt.tohgt);
             to = t->tgt.to;
             tohgt = t->tgt.tohgt;
-        }
-        else
-        {
-            fprintf( out, "%*s        ",stn_name_width,"");
+        } else {
+            fprintf(out, "%*s        ", stn_name_width, "");
         }
 
-        fprintf( out, "%2s%c  ",datatype[type].code.data(), t->tgt.unused ? '*' : ' ');
+        fprintf(out, "%2s%c  ", datatype[type].code.data(), t->tgt.unused ? '*' : ' ');
 
-        if( datatype[type].isangle )
-        {
-            fprintf( out, "%11s   %6.1lf",dms_string(t->value*RTOD,angle_format(type)).c_str(),t->error*RTOS);
-        }
-        else
-        {
-            fprintf( out, "%11.4lf   %6.4lf",t->value,t->error);
+        if (datatype[type].isangle) {
+            fprintf(out, "%11s   %6.1lf", dms_string(t->value * RTOD, angle_format(type)).c_str(), t->error * RTOS);
+        } else {
+            fprintf(out, "%11.4lf   %6.4lf", t->value, t->error);
         }
 
-        if( type == ZD )
-        {
-            fprintf( out, "   %s", refcoef_name( t->refcoef ).data() );
+        if (type == ZD) {
+            fprintf(out, "   %s", refcoef_name(t->refcoef).data());
+        } else if (t->prm_id && (type == ED || type == MD || type == HD || type == SD || type == DR)) {
+            fprintf(out, "   %s", distsf_name(t->prm_id).data());
+        } else if (t->prm_id && (type == AZ || type == PB)) {
+            fprintf(out, "   %s", brngref_name(t->prm_id).data());
         }
-        else if( t->prm_id && (type == ED || type == MD || type == HD || type == SD || type == DR ))
-        {
-            fprintf( out, "   %s", distsf_name( t->prm_id ).data());
-        }
-        else if( t->prm_id && (type == AZ || type == PB) )
-        {
-            fprintf( out, "   %s", brngref_name( t->prm_id ).data());
-        }
-        fputs("\n", out );
+        fputs("\n", out);
 
         {
-            classdata *clsf;
+            classdata* clsf;
             int i;
             clsf = o->clsf + t->tgt.iclass;
-            for( i = 0; i< t->tgt.nclass; i++, clsf++ )
-            {
+            for (i = 0; i < t->tgt.nclass; i++, clsf++) {
                 std::string class_name;
                 std::string class_value;
-                class_name = obs_classes.name( clsf->class_id );
-                class_value = obs_classes.value_name( clsf->class_id, clsf->name_id );
-                fprintf(out, "     %s = %s\n",class_name.c_str(),class_value.c_str() );
+                class_name = obs_classes.name(clsf->class_id);
+                class_value = obs_classes.value_name(clsf->class_id, clsf->name_id);
+                fprintf(out, "     %s = %s\n", class_name.c_str(), class_value.c_str());
             }
         }
 
         {
-            syserrdata *sd;
+            syserrdata* sd;
             int i;
             sd = o->syserr + t->tgt.isyserr;
-            for( i = 0; i < t->tgt.nsyserr; i++, sd++ )
-            {
-                const std::string_view name = syserr_name( sd->prm_id );
-                fprintf(out,"     Systematic error: %s = %lf\n",name.data(),sd->influence);
+            for (i = 0; i < t->tgt.nsyserr; i++, sd++) {
+                const std::string_view name = syserr_name(sd->prm_id);
+                fprintf(out, "     Systematic error: %s = %lf\n", name.data(), sd->influence);
             }
         }
-
     }
 }
 
-void apply_obsdata_options( survdata *o )
-{
-    if( (o->options & OBS_OPT_CALC_DISTRATIO_AS_DIST) )
-    {
-        for( int i=0; i<o->nobs; i++ )
-        {
-            trgtdata *t = get_trgtdata( o, i );
-            if( t->type == DR ) { t->type = SD;
-}
+void apply_obsdata_options(survdata* o) {
+    if ((o->options & OBS_OPT_CALC_DISTRATIO_AS_DIST)) {
+        for (int i = 0; i < o->nobs; i++) {
+            trgtdata* t = get_trgtdata(o, i);
+            if (t->type == DR) {
+                t->type = SD;
+            }
         }
     }
 }
 
-int obsdata_obseq( survdata *o, void *hA, int nextra )
-{
-    station *st1;
-    station *st2;
+int obsdata_obseq(survdata* o, void* hA, int nextra) {
+    station* st1;
+    station* st2;
     vector3 dst1;
     vector3 dst2;
     double hgt1;
@@ -185,24 +163,22 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
     int iobs;
     int obsstatus;
     int status;
-    obsdata *t;
+    obsdata* t;
 
     status = OK;
 
     /* Initialise for the two stations plus up to 3 extra parameters */
 
-    init_oe( hA, o->nobs, 2*dimension+3+nextra, OE_DIAGONAL_CVR );
+    init_oe(hA, o->nobs, 2 * dimension + 3 + nextra, OE_DIAGONAL_CVR);
 
-    st1 = stnptr( o->from );
+    st1 = stnptr(o->from);
     hgt1 = o->fromhgt;
 
     firstha = 1;
     refaz = 0.0;
 
-    for( iobs = 0, t=o->obs.odata; iobs++ < o->nobs; t++ )
-    {
-
-        st2 = stnptr( t->tgt.to );
+    for (iobs = 0, t = o->obs.odata; iobs++ < o->nobs; t++) {
+        st2 = stnptr(t->tgt.to);
         hgt2 = t->tgt.tohgt;
 
         /* Check that the stations are not collocated.  Calculate distance
@@ -211,147 +187,143 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
          types don't flag an error. */
 
         value = 1.0;
-        switch( t->tgt.type )
-        {
-        case SD:
-        case DR:
-        case ZD:
-            value = calc_distance( st1, hgt1, st2, hgt2, dst1, dst2 );
-            break;
+        switch (t->tgt.type) {
+            case SD:
+            case DR:
+            case ZD:
+                value = calc_distance(st1, hgt1, st2, hgt2, dst1, dst2);
+                break;
 
-        case HD:
-            dhgt1 = (st2->OHgt+hgt2 - (st1->OHgt+hgt1))/2.0;
-            dhgt2 = -dhgt1;
-            value = calc_distance( st1, hgt1+dhgt1, st2, hgt2+dhgt2, dst1, dst2 );
-            break;
+            case HD:
+                dhgt1 = (st2->OHgt + hgt2 - (st1->OHgt + hgt1)) / 2.0;
+                dhgt2 = -dhgt1;
+                value = calc_distance(st1, hgt1 + dhgt1, st2, hgt2 + dhgt2, dst1, dst2);
+                break;
 
+            case ED:
+            case HA:
+            case PB:
+            case AZ:
+                value = calc_ellipsoidal_distance(st1, st2, dst1, dst2);
+                break;
 
-        case ED:
-        case HA:
-        case PB:
-        case AZ:
-            value = calc_ellipsoidal_distance( st1, st2,dst1, dst2 );
-            break;
-
-        case MD:
-            value = calc_msl_distance( st1, st2,dst1, dst2 );
-            break;
+            case MD:
+                value = calc_msl_distance(st1, st2, dst1, dst2);
+                break;
         }
 
-        if( value < 0.0001 )
-        {
+        if (value < 0.0001) {
             char buf[256];
-            sprintf(buf,"Unable to calculate %s obs from colocated stations %s to %s - obs not used",
-                    datatype[t->tgt.type].name.data(),st1->Code.c_str(),st2->Code.c_str() );
+            sprintf(buf, "Unable to calculate %s obs from colocated stations %s to %s - obs not used",
+                    datatype[t->tgt.type].name.data(), st1->Code.c_str(), st2->Code.c_str());
 
-            handle_error( WARNING_ERROR, buf, NO_MESSAGE );
+            handle_error(WARNING_ERROR, buf, NO_MESSAGE);
             status = INVALID_DATA;
             continue;
         }
 
-
         /* Note: for distance data types the value has already been calculated by the
            above check */
 
-        switch( t->tgt.type )
-        {
-        case SD:
-        case DR:  value = calc_distance( st1, hgt1, st2, hgt2, dst1, dst2 );
-            value += rf_scale_error( value, hA, iobs );
-            value += distsf_correction( t->prm_id, value, hA, iobs );
-            if( t->tgt.type == DR )
-            {
-                oe_schreiber( hA, iobs, value*1.0e-6 );
-            }
-            break;
+        switch (t->tgt.type) {
+            case SD:
+            case DR:
+                value = calc_distance(st1, hgt1, st2, hgt2, dst1, dst2);
+                value += rf_scale_error(value, hA, iobs);
+                value += distsf_correction(t->prm_id, value, hA, iobs);
+                if (t->tgt.type == DR) {
+                    oe_schreiber(hA, iobs, value * 1.0e-6);
+                }
+                break;
 
-            /* For apply scale corrections to horizontal distances */
+                /* For apply scale corrections to horizontal distances */
 
-        case HD:
-        case ED:
-        case MD:  value += rf_scale_error( value, hA, iobs );
-            value += distsf_correction( t->prm_id, value, hA, iobs );
-            break;
+            case HD:
+            case ED:
+            case MD:
+                value += rf_scale_error(value, hA, iobs);
+                value += distsf_correction(t->prm_id, value, hA, iobs);
+                break;
 
-            /* For azimuths need to correct for multiples of 2*pi */
+                /* For azimuths need to correct for multiples of 2*pi */
 
-        case HA:
-        case AZ:  value = calc_azimuth( st1, hgt1, st2, hgt2,
-                                            t->tgt.type == HA, dst1, dst2 );
-            value = t->value - value;
-            if( t->tgt.type == HA )
-            {
-                if( firstha ) { refaz = value; firstha = 0; }
-                value -= refaz;
-                oe_schreiber( hA, iobs, 1.0);
-            }
-            else
-            {
-                value -= brngref_correction( t->prm_id, hA, iobs );
-            }
+            case HA:
+            case AZ:
+                value = calc_azimuth(st1, hgt1, st2, hgt2, t->tgt.type == HA, dst1, dst2);
+                value = t->value - value;
+                if (t->tgt.type == HA) {
+                    if (firstha) {
+                        refaz = value;
+                        firstha = 0;
+                    }
+                    value -= refaz;
+                    oe_schreiber(hA, iobs, 1.0);
+                } else {
+                    value -= brngref_correction(t->prm_id, hA, iobs);
+                }
 
-            while( value > PI ) { value -= PI*2;
-}
-            while( value <- PI ) { value += PI*2;
-}
-            value = t->value - value;
-            break;
+                while (value > PI) {
+                    value -= PI * 2;
+                }
+                while (value < -PI) {
+                    value += PI * 2;
+                }
+                value = t->value - value;
+                break;
 
-        case PB:  obsstatus = calc_prj_azimuth2( o->reffrm,
-                                  st1, hgt1, st2, hgt2, &value, dst1, dst2 );
-            if( obsstatus != OK )
-            {
-                char buf[256];
-                sprintf(buf,"Unable to calculate %s projection bearin from %s to %s - obs not used",
-                        bproj_name(o->reffrm).data(),st1->Code.c_str(),st2->Code.c_str() );
-                handle_error( WARNING_ERROR, buf, NO_MESSAGE );
-                status = INVALID_DATA;
-                continue;
-            }
-            value = t->value - value;
-            value -= brngref_correction( t->prm_id, hA, iobs );
-            while( value > PI ) { value -= PI*2;
-}
-            while( value < -PI ) { value += PI*2;
-}
-            value = t->value - value;
-            break;
+            case PB:
+                obsstatus = calc_prj_azimuth2(o->reffrm, st1, hgt1, st2, hgt2, &value, dst1, dst2);
+                if (obsstatus != OK) {
+                    char buf[256];
+                    sprintf(buf, "Unable to calculate %s projection bearin from %s to %s - obs not used",
+                            bproj_name(o->reffrm).data(), st1->Code.c_str(), st2->Code.c_str());
+                    handle_error(WARNING_ERROR, buf, NO_MESSAGE);
+                    status = INVALID_DATA;
+                    continue;
+                }
+                value = t->value - value;
+                value -= brngref_correction(t->prm_id, hA, iobs);
+                while (value > PI) {
+                    value -= PI * 2;
+                }
+                while (value < -PI) {
+                    value += PI * 2;
+                }
+                value = t->value - value;
+                break;
 
+                /* For zenith distances apply a refraction correction */
 
-            /* For zenith distances apply a refraction correction */
+            case ZD:
+                value = calc_zenith_dist(st1, hgt1, st2, hgt2, dst1, dst2);
+                value += zd_ref_correction(t->refcoef, st1, st2, hA, iobs);
+                break;
 
-        case ZD:  value = calc_zenith_dist( st1, hgt1, st2, hgt2, dst1, dst2 );
-            value += zd_ref_correction( t->refcoef, st1, st2, hA, iobs );
-            break;
-
-        case LV:  value = calc_hgt_diff( st1, hgt1, st2, hgt2, dst1, dst2 );
-            break;
+            case LV:
+                value = calc_hgt_diff(st1, hgt1, st2, hgt2, dst1, dst2);
+                break;
         }
 
-        oe_value( hA, iobs, t->value - value );
+        oe_value(hA, iobs, t->value - value);
 
         /* set station obseq also applies any station deformation to the
            the observed value */
-        set_station_obseq( st1, dst1, hA, iobs, o->date );
-        set_station_obseq( st2, dst2, hA, iobs, o->date );
-
+        set_station_obseq(st1, dst1, hA, iobs, o->date);
+        set_station_obseq(st2, dst2, hA, iobs, o->date);
 
         cvr = t->error;
         cvr *= cvr;
-        oe_covar( hA, iobs, iobs, cvr );
+        oe_covar(hA, iobs, iobs, cvr);
 
-        if( t->tgt.unused || rejected_station( o->from ) || rejected_station (t->tgt.to ))
-        {
-            oe_flag_unused( hA, iobs );
+        if (t->tgt.unused || rejected_station(o->from) || rejected_station(t->tgt.to)) {
+            oe_flag_unused(hA, iobs);
         }
     }
     return status;
 }
 
-
-void list_obsdata_residuals( FILE *out, survdata *o, double semult )
-{
-    obsdata *t;
+void list_obsdata_residuals(FILE* out, survdata* o, double semult) {
+    obsdata* t;
     int iobs;
     int to;
     int itype;
@@ -374,220 +346,186 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
     double altres;
     double mde;
 
-
-    if( !output_rejected_stations && rejected_station( o->from ) ) { return;
-}
+    if (!output_rejected_stations && rejected_station(o->from)) {
+        return;
+    }
 
     maxtype = output_sort_by_type ? NOBSTYPE : 1;
 
     firstoutput = 1;
 
-    for( itype = 0; itype < maxtype; itype++ )
-    {
+    for (itype = 0; itype < maxtype; itype++) {
         firstobs = 1;
         to = -1;
         distratios = 0;
 
-        for(iobs = 0; iobs < o->nobs; iobs++ )
-        {
-
+        for (iobs = 0; iobs < o->nobs; iobs++) {
             t = &o->obs.odata[iobs];
             type = t->tgt.type;
 
             ok = output_sort_by_type && t->tgt.type == itype;
 
-            if( ok ) { ok = output_rejected_stations || !rejected_station( t->tgt.to );
-}
+            if (ok) {
+                ok = output_rejected_stations || !rejected_station(t->tgt.to);
+            }
 
-            if( ok )
-            {
-
-                if( set_residual_listing_data_type( out, t->tgt.type ) )
-                {
+            if (ok) {
+                if (set_residual_listing_data_type(out, t->tgt.type)) {
                     firstoutput = 1;
                     firstobs = 1;
                     to = -1;
                 }
 
-                if( firstoutput )
-                {
-                    list_file_location( out, o->file, o->obs.odata[0].tgt.lineno );
+                if (firstoutput) {
+                    list_file_location(out, o->file, o->obs.odata[0].tgt.lineno);
                     firstoutput = 0;
                 }
 
-                list_note( out, t->tgt.noteloc );
+                list_note(out, t->tgt.noteloc);
 
-                if( firstobs )
-                {
-                    fprintf(out,"\n");
+                if (firstobs) {
+                    fprintf(out, "\n");
                     set_survdata_fields(o);
                     firstobs = 0;
                 }
 
-                if( t->tgt.to != to )
-                {
-                    set_trgtdata_fields( &t->tgt, o );
+                if (t->tgt.to != to) {
+                    set_trgtdata_fields(&t->tgt, o);
                     to = t->tgt.to;
                 }
 
-
-                if( t->tgt.unused & REJECT_OBS_BIT )
-                {
+                if (t->tgt.unused & REJECT_OBS_BIT) {
                     unused = REJECTED_OBS_FLAG;
-                }
-                else if( t->tgt.unused )
-                {
+                } else if (t->tgt.unused) {
                     unused = REJECTED_STN_FLAG;
-                }
-                else
-                {
+                } else {
                     unused = ' ';
                 }
 
-                std::string typecode( datatype[type].code );
-                if( unused != ' ' ) { typecode += unused;
-}
-                set_residual_field( OF_TYPE, typecode );
+                std::string typecode(datatype[type].code);
+                if (unused != ' ') {
+                    typecode += unused;
+                }
+                set_residual_field(OF_TYPE, typecode);
 
                 calc = t->calc;
                 seo = t->error * semult;
-                sec = t->calcerr*semult;
-                ser = t->reserr*semult;
+                sec = t->calcerr * semult;
+                ser = t->reserr * semult;
                 sres = t->sres;
-                if( sres >= 0.0 ) { sres /= semult;
-}
-                mde = calculate_mde( seo, ser );
-
-                if( unused == ' ' && t->error > 0.0 )
-                {
-                    redundancy = t->reserr/t->error;
+                if (sres >= 0.0) {
+                    sres /= semult;
                 }
-                else
-                {
+                mde = calculate_mde(seo, ser);
+
+                if (unused == ' ' && t->error > 0.0) {
+                    redundancy = t->reserr / t->error;
+                } else {
                     redundancy = -1;
                 }
 
                 ndp = obs_precision[type];
-                if( datatype[type].isangle )
-                {
+                if (datatype[type].isangle) {
                     calc *= RTOD;
-                    if( calc < 0.0 ) { calc += 360.0;
-}
-                    if( calc >= 360.0 ) { calc -= 360.0;
-}
-                    set_residual_field_dms( OF_OBS, angle_format(type), t->value*RTOD);
-                    set_residual_field_value( OF_OBSERR, ndp, seo*RTOS );
-                    set_residual_field_dms( OF_CALC, angle_format(type), calc );
-                    set_residual_field_value( OF_CALCERR, ndp, sec*RTOS );
-                    set_residual_field_value( OF_RES, ndp, t->residual*RTOS );
-                    set_residual_field_value( OF_RESERR, ndp, ser*RTOS );
-                    set_residual_field_value( OF_MDE, ndp, mde*RTOS );
-                }
-                else
-                {
-                    set_residual_field_value( OF_OBS    , ndp, t->value );
-                    set_residual_field_value( OF_OBSERR , ndp, seo );
-                    set_residual_field_value( OF_CALC   , ndp, calc );
-                    set_residual_field_value( OF_CALCERR, ndp, sec );
-                    set_residual_field_value( OF_RES    , ndp, t->residual );
-                    set_residual_field_value( OF_RESERR , ndp, ser );
-                    set_residual_field_value( OF_MDE, ndp, mde );
+                    if (calc < 0.0) {
+                        calc += 360.0;
+                    }
+                    if (calc >= 360.0) {
+                        calc -= 360.0;
+                    }
+                    set_residual_field_dms(OF_OBS, angle_format(type), t->value * RTOD);
+                    set_residual_field_value(OF_OBSERR, ndp, seo * RTOS);
+                    set_residual_field_dms(OF_CALC, angle_format(type), calc);
+                    set_residual_field_value(OF_CALCERR, ndp, sec * RTOS);
+                    set_residual_field_value(OF_RES, ndp, t->residual * RTOS);
+                    set_residual_field_value(OF_RESERR, ndp, ser * RTOS);
+                    set_residual_field_value(OF_MDE, ndp, mde * RTOS);
+                } else {
+                    set_residual_field_value(OF_OBS, ndp, t->value);
+                    set_residual_field_value(OF_OBSERR, ndp, seo);
+                    set_residual_field_value(OF_CALC, ndp, calc);
+                    set_residual_field_value(OF_CALCERR, ndp, sec);
+                    set_residual_field_value(OF_RES, ndp, t->residual);
+                    set_residual_field_value(OF_RESERR, ndp, ser);
+                    set_residual_field_value(OF_MDE, ndp, mde);
                 }
 
                 /* Calculate an alternative form for the residual */
 
-                switch( type )
-                {
-                case SD:
-                case ED:
-                case MD:
-                case HD:
-                case DR:
-                    if( t->value > 0.0 )
-                    {
-                        set_residual_field_value( OF_ALTRES, 2,
-                                                  1.0e6*t->residual/t->value );
-                    }
-                    break;
+                switch (type) {
+                    case SD:
+                    case ED:
+                    case MD:
+                    case HD:
+                    case DR:
+                        if (t->value > 0.0) {
+                            set_residual_field_value(OF_ALTRES, 2, 1.0e6 * t->residual / t->value);
+                        }
+                        break;
 
-                case AZ:
-                case HA:
-                case ZD:
-                case PB:
-                    obslength = calc_distance( stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0,nullptr,nullptr);
-                    altres = t->residual*obslength;
-                    if( type == ZD ) { altres *= sin( t->value );
-}
-                    set_residual_field_value( OF_ALTRES, 3, altres );
-                    break;
+                    case AZ:
+                    case HA:
+                    case ZD:
+                    case PB:
+                        obslength = calc_distance(stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0, nullptr, nullptr);
+                        altres = t->residual * obslength;
+                        if (type == ZD) {
+                            altres *= sin(t->value);
+                        }
+                        set_residual_field_value(OF_ALTRES, 3, altres);
+                        break;
 
-                case LV:
-                    obslength = calc_distance( stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0,nullptr,nullptr);
-                    if( obslength > 0 )
-                    {
-                        set_residual_field_value( OF_ALTRES, 2,
-                                                  1.0e6*t->residual/obslength );
-                    }
-                    break;
+                    case LV:
+                        obslength = calc_distance(stnptr(o->from), 0.0, stnptr(t->tgt.to), 0.0, nullptr, nullptr);
+                        if (obslength > 0) {
+                            set_residual_field_value(OF_ALTRES, 2, 1.0e6 * t->residual / obslength);
+                        }
+                        break;
                 }
 
-
-                if( sres < 0 )
-                {
-                    set_residual_field( OF_SRES, "-  " );
-                }
-                else
-                {
-                    set_residual_field_value( OF_SRES, 2, sres );
+                if (sres < 0) {
+                    set_residual_field(OF_SRES, "-  ");
+                } else {
+                    set_residual_field_value(OF_SRES, 2, sres);
                 }
 
-                if( redundancy < 0 )
-                {
-                    set_residual_field( OF_REDUNDANCY, "-  ");
-                }
-                else
-                {
-                    set_residual_field_value( OF_REDUNDANCY, 2, redundancy );
+                if (redundancy < 0) {
+                    set_residual_field(OF_REDUNDANCY, "-  ");
+                } else {
+                    set_residual_field_value(OF_REDUNDANCY, 2, redundancy);
                 }
 
                 rfunused = unused;
-                if( rfunused == ' ' && redundancy > -0.5 && redundancy < redundancy_flag_level )
-                {
+                if (rfunused == ' ' && redundancy > -0.5 && redundancy < redundancy_flag_level) {
                     rfunused = LOW_REDUNDANCY_FLAG;
                 }
 
-                set_residual_field( OF_FLAGS,
-                        std::string( 1, rfunused ).append( residual_flag((unused != ' '), 1, sres ) ));
+                set_residual_field(OF_FLAGS, std::string(1, rfunused).append(residual_flag((unused != ' '), 1, sres)));
 
-                print_residual_line( out );
+                print_residual_line(out);
 
-                if( type == DR ) { distratios = 1;
-}
+                if (type == DR) {
+                    distratios = 1;
+                }
             }
-
         }
 
-        if( distratios && output_distance_ratio_scales )
-        {
+        if (distratios && output_distance_ratio_scales) {
             double se;
             se = o->schvar;
-            if( se > 0.0 ) { se = sqrt(se);
-}
+            if (se > 0.0) {
+                se = sqrt(se);
+            }
             se *= semult;
 
-            fprintf(out,"\n%*sDistance scale factor %.1lfppm +/- %.1lfppm\n",
-                    stn_name_width*2+2,"",o->schval,se );
+            fprintf(out, "\n%*sDistance scale factor %.1lfppm +/- %.1lfppm\n", stn_name_width * 2 + 2, "", o->schval,
+                    se);
         }
-
     }
 }
 
-
-
-
-void calc_obsdata_residuals( survdata *o, lsdata *l )
-{
-    obsdata *t;
+void calc_obsdata_residuals(survdata* o, lsdata* l) {
+    obsdata* t;
     int iobs;
     ltmat ccvr;
     ltmat rcvr;
@@ -601,56 +539,43 @@ void calc_obsdata_residuals( survdata *o, lsdata *l )
     o->schval = l->sch;
     o->schvar = l->schvar;
 
-    unused = rejected_station( o->from );
+    unused = rejected_station(o->from);
 
-    for(iobs = 0; iobs < o->nobs; iobs++ )
-    {
-
+    for (iobs = 0; iobs < o->nobs; iobs++) {
         t = &o->obs.odata[iobs];
-        if( unused || rejected_station(t->tgt.to) || t->tgt.unused ) {
+        if (unused || rejected_station(t->tgt.to) || t->tgt.unused) {
             t->tgt.unused |= UNUSED_OBS_BIT;
-}
+        }
 
         t->calc = t->value - l->res[iobs];
         t->calcerr = *ccvr > 0.0 ? sqrt(*ccvr) : 0.0;
         t->residual = l->res[iobs];
         t->reserr = *rcvr > 0.0 ? sqrt(*rcvr) : 0.0;
-        if( t->reserr < t->error*1.0e-4 )
-        {
+        if (t->reserr < t->error * 1.0e-4) {
             t->sres = -1.0;
-        }
-        else
-        {
-            sres = l->res[iobs]/t->reserr;
+        } else {
+            sres = l->res[iobs] / t->reserr;
             t->sres = sres >= 0.0 ? sres : -sres;
         }
 
         ccvr++;
         rcvr++;
-        if( !l->diagonal )
-        {
+        if (!l->diagonal) {
             ccvr += iobs;
             rcvr += iobs;
         }
 
-        if( output_rejected_stations ||
-                (! rejected_station( o->from ) && !rejected_station( t->tgt.to )) )
-        {
-            if( t->tgt.unused & REJECT_OBS_BIT )
-            {
+        if (output_rejected_stations || (!rejected_station(o->from) && !rejected_station(t->tgt.to))) {
+            if (t->tgt.unused & REJECT_OBS_BIT) {
                 unused_flag = REJECTED_OBS_FLAG;
-            }
-            else if( t->tgt.unused )
-            {
+            } else if (t->tgt.unused) {
                 unused_flag = REJECTED_STN_FLAG;
-            }
-            else
-            {
+            } else {
                 unused_flag = ' ';
             }
 
-            save_residual( o->from, t->tgt.to, t->tgt.id, t->tgt.type,
-                           o->file, t->tgt.lineno, unused_flag, 1, t->sres, t->tgt.noteloc );
+            save_residual(o->from, t->tgt.to, t->tgt.id, t->tgt.type, o->file, t->tgt.lineno, unused_flag, 1, t->sres,
+                          t->tgt.noteloc);
         }
     }
 }

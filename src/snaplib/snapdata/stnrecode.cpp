@@ -36,61 +36,51 @@ using boost::numeric_cast;
 /* Tolerance in comparing dates */
 
 /// Returns -1, 0 or 1 as d0 is before, the same as or after d1
-static int compare_three_way( const double d0, const double d1 )
-{
-    if( d0 < d1 )
-    {
+static int compare_three_way(const double d0, const double d1) {
+    if (d0 < d1) {
         return -1;
     }
     return d0 == d1 ? 0 : 1;
 }
 
-static int nextseqid=0;
+static int nextseqid = 0;
 
 /// Creates a recode to codeto, where a leading RECODE_IGNORE_CHAR marks the station as rejected
-static stn_recode create_stn_recode( std::string_view codeto, double datefrom, double dateto, double herror, double verror )
-{
-    const bool reject=! codeto.empty() && codeto[0] == RECODE_IGNORE_CHAR;
-    if( reject ) { codeto.remove_prefix(1);
-}
-    return stn_recode( std::string(codeto), reject, datefrom, dateto, herror, verror, ++nextseqid );
+static stn_recode create_stn_recode(std::string_view codeto, double datefrom, double dateto, double herror,
+                                    double verror) {
+    const bool reject = !codeto.empty() && codeto[0] == RECODE_IGNORE_CHAR;
+    if (reject) {
+        codeto.remove_prefix(1);
+    }
+    return stn_recode(std::string(codeto), reject, datefrom, dateto, herror, verror, ++nextseqid);
 }
 
 /// Describes a recoding, with the station code padded to stnwidth
-static std::string describe_stn_recode( const stn_recode &src, const int stnwidth )
-{
+static std::string describe_stn_recode(const stn_recode& src, const int stnwidth) {
     std::string description;
-    if( src.reject && src.codeto.empty() )
-    {
-        description="ignored";
+    if (src.reject && src.codeto.empty()) {
+        description = "ignored";
+    } else {
+        std::string codeto = (src.reject ? std::string(1, RECODE_IGNORE_CHAR) : std::string()) + src.codeto;
+        codeto.resize(std::min(codeto.size(), static_cast<std::size_t>(STNCODELEN + 1)));
+        const std::size_t width = stnwidth > 0 ? static_cast<std::size_t>(stnwidth) : 0;
+        if (codeto.size() < width) {
+            codeto.append(width - codeto.size(), ' ');
+        }
+        description = codeto;
     }
-    else
-    {
-        std::string codeto=(src.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src.codeto;
-        codeto.resize(std::min(codeto.size(),static_cast<std::size_t>(STNCODELEN+1)));
-        const std::size_t width=stnwidth > 0 ? static_cast<std::size_t>(stnwidth) : 0;
-        if( codeto.size() < width ) { codeto.append(width-codeto.size(),' ');
-}
-        description=codeto;
+    const DateStringFormat format = DateStringFormat::timeIfNotMidnight;
+    if (src.datefrom != UNDEFINED_DATE && src.dateto != UNDEFINED_DATE) {
+        description +=
+            " between " + date_as_string(src.datefrom, format) + " and " + date_as_string(src.dateto, format);
+    } else if (src.datefrom != UNDEFINED_DATE) {
+        description += " after " + date_as_string(src.datefrom, format);
+    } else if (src.dateto != UNDEFINED_DATE) {
+        description += " before " + date_as_string(src.dateto, format);
     }
-    const DateStringFormat format=DateStringFormat::timeIfNotMidnight;
-    if( src.datefrom != UNDEFINED_DATE && src.dateto != UNDEFINED_DATE )
-    {
-        description += " between "+date_as_string(src.datefrom,format)+" and "+date_as_string(src.dateto,format);
-    }
-    else if( src.datefrom != UNDEFINED_DATE )
-    {
-        description += " after "+date_as_string(src.datefrom,format);
-    }
-    else if( src.dateto != UNDEFINED_DATE )
-    {
-        description += " before "+date_as_string(src.dateto,format);
-    }
-    if( src.herror > 0.0 || src.verror > 0.0 )
-    {
-        description += " co-location error "+
-                format_fixed(std::max(std::min(src.herror,9999.999),0.0),3)+" "+
-                format_fixed(std::max(std::min(src.verror,9999.999),0.0),3)+" m";
+    if (src.herror > 0.0 || src.verror > 0.0) {
+        description += " co-location error " + format_fixed(std::max(std::min(src.herror, 9999.999), 0.0), 3) + " " +
+                       format_fixed(std::max(std::min(src.verror, 9999.999), 0.0), 3) + " m";
     }
     return description;
 }
@@ -99,188 +89,162 @@ static std::string describe_stn_recode( const stn_recode &src, const int stnwidt
  * one to use in get_stn_recode, except for "after ###" for which the date
  * order is ascending. 
  */
-static int cmp_stn_recode( const stn_recode &src0, const stn_recode &src1 )
-{
-    if( src1.datefrom == UNDEFINED_DATE && src1.dateto == UNDEFINED_DATE )
-    {
-        if( src0.datefrom == UNDEFINED_DATE && src0.dateto == UNDEFINED_DATE )
-        {
+static int cmp_stn_recode(const stn_recode& src0, const stn_recode& src1) {
+    if (src1.datefrom == UNDEFINED_DATE && src1.dateto == UNDEFINED_DATE) {
+        if (src0.datefrom == UNDEFINED_DATE && src0.dateto == UNDEFINED_DATE) {
             return 0;
         }
-        
-                    return -1;
-       
-    }
-    if( src0.datefrom == UNDEFINED_DATE && src0.dateto == UNDEFINED_DATE )
-    {
-        return 1;
-    }
-    if( src1.dateto == UNDEFINED_DATE )
-    {
-        if( src0.dateto != UNDEFINED_DATE )
-        {
-            return -1;
-        }
-        
-                    return compare_three_way(src0.datefrom,src1.datefrom);
-       
-    }
-    if( src0.dateto == UNDEFINED_DATE )
-    {
-        return 1;
-    }
-    if( src1.datefrom == UNDEFINED_DATE )
-    {
-        if( src0.datefrom != UNDEFINED_DATE )
-        {
-            return 1;
-        }
-        
-                    return compare_three_way(src0.dateto,src1.dateto);
-       
-    }
-    if( src0.dateto == UNDEFINED_DATE )
-    {
+
         return -1;
     }
-    int result = compare_three_way(src0.datefrom,src1.datefrom);
-    if( result == 0 )
-    {
-        result=compare_three_way(src0.dateto,src1.dateto);
+    if (src0.datefrom == UNDEFINED_DATE && src0.dateto == UNDEFINED_DATE) {
+        return 1;
+    }
+    if (src1.dateto == UNDEFINED_DATE) {
+        if (src0.dateto != UNDEFINED_DATE) {
+            return -1;
+        }
+
+        return compare_three_way(src0.datefrom, src1.datefrom);
+    }
+    if (src0.dateto == UNDEFINED_DATE) {
+        return 1;
+    }
+    if (src1.datefrom == UNDEFINED_DATE) {
+        if (src0.datefrom != UNDEFINED_DATE) {
+            return 1;
+        }
+
+        return compare_three_way(src0.dateto, src1.dateto);
+    }
+    if (src0.dateto == UNDEFINED_DATE) {
+        return -1;
+    }
+    int result = compare_three_way(src0.datefrom, src1.datefrom);
+    if (result == 0) {
+        result = compare_three_way(src0.dateto, src1.dateto);
     }
     return result;
 }
 
-static void update_stn_recode( const std::string &codefrom, stn_recode &src, const stn_recode &src_update )
-{
-    int const diffmark=stncodecmp(src.codeto,src_update.codeto);
-    if( diffmark || src.reject != src_update.reject )
-    {
-        const std::string codeto=(src_update.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src_update.codeto;
-        const std::string errmsg="Overriding recode of "+codefrom.substr(0,STNCODELEN)+" to "+
-                codeto.substr(0,STNCODELEN+1)+" with recode to "+describe_stn_recode(src,0);
-        handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
-        if( diffmark ) { return;
-}
+static void update_stn_recode(const std::string& codefrom, stn_recode& src, const stn_recode& src_update) {
+    const int diffmark = stncodecmp(src.codeto, src_update.codeto);
+    if (diffmark || src.reject != src_update.reject) {
+        const std::string codeto =
+            (src_update.reject ? std::string(1, RECODE_IGNORE_CHAR) : std::string()) + src_update.codeto;
+        const std::string errmsg = "Overriding recode of " + codefrom.substr(0, STNCODELEN) + " to " +
+                                   codeto.substr(0, STNCODELEN + 1) + " with recode to " + describe_stn_recode(src, 0);
+        handle_error(INFO_ERROR, errmsg, NO_MESSAGE);
+        if (diffmark) {
+            return;
+        }
     }
-    if( src_update.herror <= 0.0 )
-    {
-        src.herror=0.0;
+    if (src_update.herror <= 0.0) {
+        src.herror = 0.0;
+    } else if (src.herror > 0.0 && src_update.herror > src.herror) {
+        src.herror = src_update.herror;
     }
-    else if( src.herror > 0.0 && src_update.herror > src.herror )
-    {
-        src.herror=src_update.herror;
-    }
-    if( src_update.verror <= 0.0 )
-    {
-        src.verror=0.0;
-    }
-    else if( src.verror > 0.0 && src_update.verror > src.verror )
-    {
-        src.verror=src_update.verror;
+    if (src_update.verror <= 0.0) {
+        src.verror = 0.0;
+    } else if (src.verror > 0.0 && src_update.verror > src.verror) {
+        src.verror = src_update.verror;
     }
 }
 
 /// Adds a recode to the list of recodes of codefrom, in its sorted position.
 /// It replaces any recode in the list for the same date range.
-static void add_stn_recode_to_list( stn_recode_list &list, const std::string &codefrom, stn_recode recode )
-{
-    auto previous=list.before_begin();
-    auto current=list.begin();
-    int cmp=1;
-    while( current != list.end() )
-    {
-        cmp=cmp_stn_recode(*current,recode);
-        if( cmp >= 0 ) { break;
-}
-        previous=current;
+static void add_stn_recode_to_list(stn_recode_list& list, const std::string& codefrom, stn_recode recode) {
+    auto previous = list.before_begin();
+    auto current = list.begin();
+    int cmp = 1;
+    while (current != list.end()) {
+        cmp = cmp_stn_recode(*current, recode);
+        if (cmp >= 0) {
+            break;
+        }
+        previous = current;
         ++current;
     }
-    if( current != list.end() && cmp == 0 )
-    {
-        update_stn_recode(codefrom,recode,*current);
+    if (current != list.end() && cmp == 0) {
+        update_stn_recode(codefrom, recode, *current);
         list.erase_after(previous);
     }
-    const auto added=list.insert_after(previous,std::move(recode));
+    const auto added = list.insert_after(previous, std::move(recode));
     /* Check for incompatible recoding */
-    for( auto other=list.begin(); other != list.end(); ++other )
-    {
-        if( other == added ) { continue;
-}
-        const stn_recode &src=*other;
-        const stn_recode &trans=*added;
-        if( src.dateto == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE ) { continue;
-}
-        if( trans.dateto == UNDEFINED_DATE && trans.datefrom == UNDEFINED_DATE ) { continue;
-}
-        if( trans.dateto == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE ) { continue;
-}
-        if( trans.datefrom == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE ) { continue;
-}
-        if( src.dateto != UNDEFINED_DATE
-                && trans.datefrom != UNDEFINED_DATE
-                && src.dateto < trans.datefrom
-                ) { continue;
-}
-        if( trans.dateto != UNDEFINED_DATE
-                && src.datefrom != UNDEFINED_DATE
-                && trans.dateto < src.datefrom
-                ) { continue;
-}
-        const std::string errmsg="Recode of "+codefrom.substr(0,STNCODELEN)+" to "+describe_stn_recode(trans,0)+
-                " conflicts with "+describe_stn_recode(src,0);
-        handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
+    for (auto other = list.begin(); other != list.end(); ++other) {
+        if (other == added) {
+            continue;
+        }
+        const stn_recode& src = *other;
+        const stn_recode& trans = *added;
+        if (src.dateto == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE) {
+            continue;
+        }
+        if (trans.dateto == UNDEFINED_DATE && trans.datefrom == UNDEFINED_DATE) {
+            continue;
+        }
+        if (trans.dateto == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE) {
+            continue;
+        }
+        if (trans.datefrom == UNDEFINED_DATE && src.datefrom == UNDEFINED_DATE) {
+            continue;
+        }
+        if (src.dateto != UNDEFINED_DATE && trans.datefrom != UNDEFINED_DATE && src.dateto < trans.datefrom) {
+            continue;
+        }
+        if (trans.dateto != UNDEFINED_DATE && src.datefrom != UNDEFINED_DATE && trans.dateto < src.datefrom) {
+            continue;
+        }
+        const std::string errmsg = "Recode of " + codefrom.substr(0, STNCODELEN) + " to " +
+                                   describe_stn_recode(trans, 0) + " conflicts with " + describe_stn_recode(src, 0);
+        handle_error(INFO_ERROR, errmsg, NO_MESSAGE);
     }
 }
 
-
-stn_recode_map *create_stn_recode_map( network *net )
-{
-    return new stn_recode_map( net );
+stn_recode_map* create_stn_recode_map(network* net) {
+    return new stn_recode_map(net);
 }
 
-bool recodes_used( stn_recode_map *stt )
-{
+bool recodes_used(stn_recode_map* stt) {
     return stt->used;
 }
 
-void delete_stn_recode_map( stn_recode_map *stt ) {
+void delete_stn_recode_map(stn_recode_map* stt) {
     delete stt;
 }
 
-static stn_recode_list *lookup_station_recode( stn_recode_map *stt, std::string_view code )
-{
-    if ( ! stt ) { return nullptr;
-}
-    const auto match=stt->lists.find( code );
+static stn_recode_list* lookup_station_recode(stn_recode_map* stt, std::string_view code) {
+    if (!stt) {
+        return nullptr;
+    }
+    const auto match = stt->lists.find(code);
     return match != stt->lists.end() ? &match->second : nullptr;
 }
 
-static void add_stn_recode_to_map_err( stn_recode_map *stt, std::string_view codefrom, std::string_view codeto, double datefrom, double dateto, double herror, double verror )
-{
-    const bool global=boost::algorithm::iequals(codefrom,RECODE_IGNORE_CODE);
+static void add_stn_recode_to_map_err(stn_recode_map* stt, std::string_view codefrom, std::string_view codeto,
+                                      double datefrom, double dateto, double herror, double verror) {
+    const bool global = boost::algorithm::iequals(codefrom, RECODE_IGNORE_CODE);
     /* Global recoding only applies for ignoring codes */
-    if( global && ! boost::algorithm::iequals(codeto,RECODE_IGNORE_CODE) ) { return;
-}
-    if( global )
-    {
-        add_stn_recode_to_list( stt->global, std::string(codefrom), create_stn_recode( codeto, datefrom, dateto, herror, verror ) );
+    if (global && !boost::algorithm::iequals(codeto, RECODE_IGNORE_CODE)) {
+        return;
     }
-    else
-    {
-        const auto stlist=stt->lists.try_emplace( std::string(codefrom) ).first;
-        add_stn_recode_to_list( stlist->second, stlist->first, create_stn_recode( codeto, datefrom, dateto, herror, verror ) );
+    if (global) {
+        add_stn_recode_to_list(stt->global, std::string(codefrom),
+                               create_stn_recode(codeto, datefrom, dateto, herror, verror));
+    } else {
+        const auto stlist = stt->lists.try_emplace(std::string(codefrom)).first;
+        add_stn_recode_to_list(stlist->second, stlist->first,
+                               create_stn_recode(codeto, datefrom, dateto, herror, verror));
     }
 }
 
-void add_stn_recode_to_map( stn_recode_map *stt, std::string_view codefrom, std::string_view codeto, double datefrom, double dateto )
-{
-    add_stn_recode_to_map_err( stt, codefrom, codeto, datefrom, dateto, 0.0, 0.0 );
+void add_stn_recode_to_map(stn_recode_map* stt, std::string_view codefrom, std::string_view codeto, double datefrom,
+                           double dateto) {
+    add_stn_recode_to_map_err(stt, codefrom, codeto, datefrom, dateto, 0.0, 0.0);
 }
 
-struct stn_recode_suffix_data
-{
-    stn_recode_map *srm;
+struct stn_recode_suffix_data {
+    stn_recode_map* srm;
     std::string_view suffix;
     double datefrom;
     double dateto;
@@ -288,26 +252,26 @@ struct stn_recode_suffix_data
     double verror;
 };
 
-
-static void apply_recode_suffix( station *st, void *psrd )
-{
-    const stn_recode_suffix_data *srd=static_cast<const stn_recode_suffix_data *>( psrd );
-    const std::string_view suffix=srd->suffix;
-    const std::string_view codefrom=st->Code;
+static void apply_recode_suffix(station* st, void* psrd) {
+    const stn_recode_suffix_data* srd = static_cast<const stn_recode_suffix_data*>(psrd);
+    const std::string_view suffix = srd->suffix;
+    const std::string_view codefrom = st->Code;
 
     /* Check if reprocessing a code for which a suffix is already applied */
-    if( codefrom.size() > suffix.size() && compare_ignoring_case(suffix,codefrom.substr(codefrom.size()-suffix.size()))==0 ) { return;
-}
-    if( suffix.size() > STNCODELEN ) { return;
-}
+    if (codefrom.size() > suffix.size() &&
+        compare_ignoring_case(suffix, codefrom.substr(codefrom.size() - suffix.size())) == 0) {
+        return;
+    }
+    if (suffix.size() > STNCODELEN) {
+        return;
+    }
 
-    std::string codeto( codefrom.substr(0,STNCODELEN-suffix.size()) );
+    std::string codeto(codefrom.substr(0, STNCODELEN - suffix.size()));
     codeto += suffix;
-    add_stn_recode_to_map_err( srd->srm, codefrom, codeto, srd->datefrom, srd->dateto, srd->herror, srd->verror );
+    add_stn_recode_to_map_err(srd->srm, codefrom, codeto, srd->datefrom, srd->dateto, srd->herror, srd->verror);
 }
 
-struct RecodeTarget
-{
+struct RecodeTarget {
     std::optional<std::string> suffix;  ///< set only for the "suffix <name>" form
     std::string codefrom;               ///< set only for the plain "<codefrom> [to] <codeto>" form
     std::string codeto;                 ///< set only for the plain "<codefrom> [to] <codeto>" form
@@ -319,53 +283,48 @@ struct RecodeTarget
 /// e.g. "suffix RC1" (suffix form), or "ABC to XYZ" / "ABC XYZ" (plain
 /// form, "to" optional).
 static std::optional<RecodeTarget> parse_recode_codes(
-    FieldScanner &scanner,        ///< field cursor, will be advanced past whatever this function consumes
+    FieldScanner& scanner,        ///< field cursor, will be advanced past whatever this function consumes
     std::string_view firstField,  ///< the first field of the recode definition; the caller has already
-                                   ///< checked it isn't "file", which is a separate grammar handled inline
-    std::string &msg )            ///< error message, set on failure
+                                  ///< checked it isn't "file", which is a separate grammar handled inline
+    std::string& msg)             ///< error message, set on failure
 {
     RecodeTarget target;
 
-    if( boost::algorithm::iequals(firstField,"suffix") )
-    {
-        auto suffixField=scanner.next();
-        if( ! suffixField )
-        {
-            msg="Suffix missing in station recode";
+    if (boost::algorithm::iequals(firstField, "suffix")) {
+        auto suffixField = scanner.next();
+        if (!suffixField) {
+            msg = "Suffix missing in station recode";
             return std::nullopt;
         }
-        target.suffix=std::string(*suffixField);
+        target.suffix = std::string(*suffixField);
         return target;
     }
 
     target.codefrom.assign(firstField);
-    auto field=scanner.next();
-    if( field && boost::algorithm::iequals(*field,"to") ) { field=scanner.next();
-}
-    bool ok=true;
-    if( ! field )
-    {
-        msg="Missing target station code in recode definition";
-        ok=false;
+    auto field = scanner.next();
+    if (field && boost::algorithm::iequals(*field, "to")) {
+        field = scanner.next();
     }
-    else
-    {
+    bool ok = true;
+    if (!field) {
+        msg = "Missing target station code in recode definition";
+        ok = false;
+    } else {
         target.codeto.assign(*field);
     }
-    if( boost::algorithm::iequals(target.codefrom,RECODE_IGNORE_CODE) && ! boost::algorithm::iequals(target.codeto,RECODE_IGNORE_CODE) )
-    {
-        msg="Cannot recode from "+target.codefrom.substr(0,20)+" to "+target.codeto.substr(0,20);
-        ok=false;
+    if (boost::algorithm::iequals(target.codefrom, RECODE_IGNORE_CODE) &&
+        !boost::algorithm::iequals(target.codeto, RECODE_IGNORE_CODE)) {
+        msg = "Cannot recode from " + target.codefrom.substr(0, 20) + " to " + target.codeto.substr(0, 20);
+        ok = false;
     }
     return ok ? std::optional<RecodeTarget>(target) : std::nullopt;
 }
 
-struct UncertaintyResult
-{
-    double herror=0.0;                          ///< horizontal error, 0.0 if no hv_error clause
-    double verror=0.0;                          ///< vertical error, 0.0 if no hv_error clause
-    int n_enu=0;                                ///< count of hv_error values parsed (0, 1 or 2)
-    std::optional<std::string_view> nextField;   ///< the field after this clause, for the date-range parser
+struct UncertaintyResult {
+    double herror = 0.0;                        ///< horizontal error, 0.0 if no hv_error clause
+    double verror = 0.0;                        ///< vertical error, 0.0 if no hv_error clause
+    int n_enu = 0;                              ///< count of hv_error values parsed (0, 1 or 2)
+    std::optional<std::string_view> nextField;  ///< the field after this clause, for the date-range parser
 };
 
 /// Parses the optional uncertainty clause ("disconnected" or
@@ -375,66 +334,59 @@ struct UncertaintyResult
 /// only on a genuine hv_error parse error, with msg set.
 /// e.g. "disconnected", "hv_error 0.5 m", or "hv_error 0.5 0.6 m".
 static std::optional<UncertaintyResult> parse_uncertainty(
-    FieldScanner &scanner,     ///< field cursor, will be advanced past whatever this function consumes
-    std::string_view field,    ///< the field to inspect; the caller has already confirmed it has a value
-    std::string &msg )         ///< error message, set on failure
+    FieldScanner& scanner,   ///< field cursor, will be advanced past whatever this function consumes
+    std::string_view field,  ///< the field to inspect; the caller has already confirmed it has a value
+    std::string& msg)        ///< error message, set on failure
 {
     UncertaintyResult result;
 
-    if( boost::algorithm::iequals(field,"disconnected") )
-    {
-        result.nextField=scanner.next();
+    if (boost::algorithm::iequals(field, "disconnected")) {
+        result.nextField = scanner.next();
         return result;
     }
-    if( ! boost::algorithm::iequals(field,"hv_error") )
-    {
-        result.nextField=field;
+    if (!boost::algorithm::iequals(field, "hv_error")) {
+        result.nextField = field;
         return result;
     }
 
-    bool ok=true;
-    while( ok )
-    {
-        auto errorField=scanner.next();
-        if( ! errorField ) { break;
-}
-        if( boost::algorithm::iequals(*errorField,"m") || boost::algorithm::iequals(*errorField,"metres") )
-        {
+    bool ok = true;
+    while (ok) {
+        auto errorField = scanner.next();
+        if (!errorField) {
             break;
         }
-        
-                    if( result.n_enu > 1 )
-            {
-                msg="Missing m (metres) at end of hv_error in recode definition";
-                ok=false;
-                break;
-            }
-            auto verror = parse_positive_double( *errorField );
-            if( ! verror )
-            {
-                msg="Invalid hv_error "+std::string(*errorField)+" in recode definition";
-                ok=false;
-                break;
-            }
-            result.verror = *verror;
-            if( result.n_enu == 0 ) { result.herror=result.verror;
-}
-            result.n_enu++;
-       
+        if (boost::algorithm::iequals(*errorField, "m") || boost::algorithm::iequals(*errorField, "metres")) {
+            break;
+        }
+
+        if (result.n_enu > 1) {
+            msg = "Missing m (metres) at end of hv_error in recode definition";
+            ok = false;
+            break;
+        }
+        auto verror = parse_positive_double(*errorField);
+        if (!verror) {
+            msg = "Invalid hv_error " + std::string(*errorField) + " in recode definition";
+            ok = false;
+            break;
+        }
+        result.verror = *verror;
+        if (result.n_enu == 0) {
+            result.herror = result.verror;
+        }
+        result.n_enu++;
     }
-    if( ok && result.n_enu == 0 )
-    {
-        msg="Missing hv_error in recode definition";
-        ok=false;
+    if (ok && result.n_enu == 0) {
+        msg = "Missing hv_error in recode definition";
+        ok = false;
     }
-    result.nextField=scanner.next();
+    result.nextField = scanner.next();
     return ok ? std::optional<UncertaintyResult>(result) : std::nullopt;
 }
 
-struct DateRange
-{
-    double datefrom=UNDEFINED_DATE;  ///< start of the date range, UNDEFINED_DATE if unbounded
-    double dateto=UNDEFINED_DATE;    ///< end of the date range, UNDEFINED_DATE if unbounded
+struct DateRange {
+    double datefrom = UNDEFINED_DATE;  ///< start of the date range, UNDEFINED_DATE if unbounded
+    double dateto = UNDEFINED_DATE;    ///< end of the date range, UNDEFINED_DATE if unbounded
 };
 
 /// Parses the optional date-range clause ("between X and Y" / "before Y" /
@@ -444,126 +396,97 @@ struct DateRange
 /// e.g. "between 2000-01-01 and 2001-01-01", "before 2000-01-01", or
 /// "after 2000-01-01".
 static std::optional<DateRange> parse_date_range(
-    FieldScanner &scanner,   ///< field cursor, will be advanced past whatever this function consumes
+    FieldScanner& scanner,   ///< field cursor, will be advanced past whatever this function consumes
     std::string_view field,  ///< the field to inspect; the caller has already confirmed it has a value
     int n_enu,               ///< count of hv_error values already parsed by parse_uncertainty
-    std::string &msg )       ///< error message, set on failure
+    std::string& msg)        ///< error message, set on failure
 {
     DateRange range;
     std::optional<std::string> fromdef;
     std::optional<std::string> todef;
-    bool ok=true;
-    if( boost::algorithm::iequals(field,"between") )
-    {
-        auto fromField=scanner.next();
-        if( ! fromField )
-        {
-            msg="Date missing after \"between\"";
-            ok=false;
+    bool ok = true;
+    if (boost::algorithm::iequals(field, "between")) {
+        auto fromField = scanner.next();
+        if (!fromField) {
+            msg = "Date missing after \"between\"";
+            ok = false;
+        } else {
+            fromdef = std::string(*fromField);
         }
-        else
-        {
-            fromdef=std::string(*fromField);
-        }
-        if( ok )
-        {
-            auto andField=scanner.next();
-            if( ! ( andField && boost::algorithm::iequals(*andField,"and") ) )
-            {
-                msg="\"and\" missing after \"between\"";
-                ok=false;
+        if (ok) {
+            auto andField = scanner.next();
+            if (!(andField && boost::algorithm::iequals(*andField, "and"))) {
+                msg = "\"and\" missing after \"between\"";
+                ok = false;
             }
         }
-        if( ok )
-        {
-            auto toField=scanner.next();
-            if( ! toField )
-            {
-                msg="Date missing after \"and\"";
-                ok=false;
-            }
-            else
-            {
-                todef=std::string(*toField);
+        if (ok) {
+            auto toField = scanner.next();
+            if (!toField) {
+                msg = "Date missing after \"and\"";
+                ok = false;
+            } else {
+                todef = std::string(*toField);
             }
         }
-        if( ok && n_enu > 0 )
-        {
-            msg="Cannot use \"hv_error\" and \"between\" in recode definition";
-            ok=false;
+        if (ok && n_enu > 0) {
+            msg = "Cannot use \"hv_error\" and \"between\" in recode definition";
+            ok = false;
+        }
+    } else if (boost::algorithm::iequals(field, "before")) {
+        auto toField = scanner.next();
+        if (!toField) {
+            msg = "Date missing after \"before\"";
+            ok = false;
+        } else {
+            todef = std::string(*toField);
+        }
+    } else if (boost::algorithm::iequals(field, "after")) {
+        auto fromField = scanner.next();
+        if (!fromField) {
+            msg = "Date missing after \"after\"";
+            ok = false;
+        } else {
+            fromdef = std::string(*fromField);
+        }
+    } else {
+        msg = "Undefined field " + std::string(field.substr(0, 50));
+        ok = false;
+    }
+    if (ok && fromdef) {
+        range.datefrom = snap_datetime_parse(*fromdef);
+        if (!range.datefrom) {
+            msg = "Invalid from date \"" + fromdef->substr(0, 50) + "\"";
+            ok = false;
         }
     }
-    else if( boost::algorithm::iequals(field,"before") )
-    {
-        auto toField=scanner.next();
-        if( ! toField )
-        {
-            msg="Date missing after \"before\"";
-            ok=false;
-        }
-        else
-        {
-            todef=std::string(*toField);
-        }
-    }
-    else if( boost::algorithm::iequals(field,"after") )
-    {
-        auto fromField=scanner.next();
-        if( ! fromField )
-        {
-            msg="Date missing after \"after\"";
-            ok=false;
-        }
-        else
-        {
-            fromdef=std::string(*fromField);
-        }
-    }
-    else
-    {
-        msg="Undefined field "+std::string(field.substr(0,50));
-        ok=false;
-    }
-    if( ok && fromdef )
-    {
-        range.datefrom=snap_datetime_parse( *fromdef );
-        if( ! range.datefrom )
-        {
-            msg="Invalid from date \""+fromdef->substr(0,50)+"\"";
-            ok=false;
-        }
-    }
-    if( ok && todef )
-    {
-        range.dateto=snap_datetime_parse( *todef );
-        if( ! range.dateto )
-        {
-            msg="Invalid to date \""+todef->substr(0,50)+"\"";
-            ok=false;
-        }
-        else if( range.datefrom != UNDEFINED_DATE && range.datefrom >= range.dateto )
-        {
-            msg="Start date \""+(fromdef ? fromdef->substr(0,20) : std::string())+"\" and end date \""+todef->substr(0,20)+"\" inconsistent";
-            ok=false;
+    if (ok && todef) {
+        range.dateto = snap_datetime_parse(*todef);
+        if (!range.dateto) {
+            msg = "Invalid to date \"" + todef->substr(0, 50) + "\"";
+            ok = false;
+        } else if (range.datefrom != UNDEFINED_DATE && range.datefrom >= range.dateto) {
+            msg = "Start date \"" + (fromdef ? fromdef->substr(0, 20) : std::string()) + "\" and end date \"" +
+                  todef->substr(0, 20) + "\" inconsistent";
+            ok = false;
         }
     }
     return ok ? std::optional<DateRange>(range) : std::nullopt;
 }
 
-int read_station_recode_definition( stn_recode_map *stt, std::string_view def, const std::string &basefile )
-{
+int read_station_recode_definition(stn_recode_map* stt, std::string_view def, const std::string& basefile) {
     std::string msg;
     std::string codefrom;
     std::string codeto;
-    double datefrom=UNDEFINED_DATE;
-    double dateto=UNDEFINED_DATE;
+    double datefrom = UNDEFINED_DATE;
+    double dateto = UNDEFINED_DATE;
     std::optional<std::string> suffix;
-    int n_enu=0;
-    double herror=0.0;
-    double verror=0.0;
-    bool ok=true;
+    int n_enu = 0;
+    double herror = 0.0;
+    double verror = 0.0;
+    bool ok = true;
 
-/*
+    /*
    recode xxx to yyyy uncertainty
    recode xxx to yyyy uncertainty between date and date
    recode xxx to yyyy uncertainty before date
@@ -576,16 +499,13 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
    hv_error ###.# ###.# mm
 
 */
-    FieldScanner scanner( def );
-    auto field=scanner.next();
+    FieldScanner scanner(def);
+    auto field = scanner.next();
 
-    if( ! field )
-    {
-        msg="Missing source station code in recode definition";
-        ok=false;
-    }
-    else if ( boost::algorithm::iequals(*field,"file") )
-    {
+    if (!field) {
+        msg = "Missing source station code in recode definition";
+        ok = false;
+    } else if (boost::algorithm::iequals(*field, "file")) {
         // "recode file <recodefile>" is a distinct grammar from the other
         // two forms below, and shares none of their optional uncertainty or
         // date-range clauses etc. - the recode file's own columns are all it
@@ -593,205 +513,167 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
         // recode from the file by the time it returns, so this branch returns
         // immediately rather than falling into logic that assumes codefrom
         // and codeto are set.
-        auto filenameField=scanner.next();
-        if( ! filenameField )
-        {
-            msg="Filename missing in station recode";
-            ok=false;
-        }
-        else
-        {
-            std::string const filename(*filenameField);
-            int const sts=read_station_recode_file( stt, filename, basefile );
-            if( sts != OK )
-            {
-                msg="Error reading station recode file "+filename.substr(0,MAX_FILENAME_LEN);
-                ok=false;
+        auto filenameField = scanner.next();
+        if (!filenameField) {
+            msg = "Filename missing in station recode";
+            ok = false;
+        } else {
+            const std::string filename(*filenameField);
+            const int sts = read_station_recode_file(stt, filename, basefile);
+            if (sts != OK) {
+                msg = "Error reading station recode file " + filename.substr(0, MAX_FILENAME_LEN);
+                ok = false;
             }
         }
-        if( ! ok )
-        {
-            handle_error(INVALID_DATA,"Error reading station recoding",msg);
+        if (!ok) {
+            handle_error(INVALID_DATA, "Error reading station recoding", msg);
         }
         return ok ? OK : INVALID_DATA;
-    }
-    else
-    {
-        auto target=parse_recode_codes( scanner, *field, msg );
-        if( ! target )
-        {
-            ok=false;
-        }
-        else
-        {
-            suffix=std::move(target->suffix);
-            codefrom=std::move(target->codefrom);
-            codeto=std::move(target->codeto);
+    } else {
+        auto target = parse_recode_codes(scanner, *field, msg);
+        if (!target) {
+            ok = false;
+        } else {
+            suffix = std::move(target->suffix);
+            codefrom = std::move(target->codefrom);
+            codeto = std::move(target->codeto);
         }
     }
 
-    field=scanner.next();
-    if( ok && field )
-    {
-        auto uncertainty=parse_uncertainty( scanner, *field, msg );
-        if( ! uncertainty )
-        {
-            ok=false;
-        }
-        else
-        {
-            herror=uncertainty->herror;
-            verror=uncertainty->verror;
-            n_enu=uncertainty->n_enu;
-            field=uncertainty->nextField;
+    field = scanner.next();
+    if (ok && field) {
+        auto uncertainty = parse_uncertainty(scanner, *field, msg);
+        if (!uncertainty) {
+            ok = false;
+        } else {
+            herror = uncertainty->herror;
+            verror = uncertainty->verror;
+            n_enu = uncertainty->n_enu;
+            field = uncertainty->nextField;
         }
     }
 
-    if( ok && field )
-    {
-        auto range=parse_date_range( scanner, *field, n_enu, msg );
-        if( ! range )
-        {
-            ok=false;
-        }
-        else
-        {
-            datefrom=range->datefrom;
-            dateto=range->dateto;
+    if (ok && field) {
+        auto range = parse_date_range(scanner, *field, n_enu, msg);
+        if (!range) {
+            ok = false;
+        } else {
+            datefrom = range->datefrom;
+            dateto = range->dateto;
         }
     }
 
-    if( suffix && ok )
-    {
-        field=scanner.next();
-        if( ! field || ! boost::algorithm::iequals(*field,"for") )
-        {
-            msg="\"for\" missing in \"recode suffix\" definition";
-            ok=false;
-        }
-        else
-        {
+    if (suffix && ok) {
+        field = scanner.next();
+        if (!field || !boost::algorithm::iequals(*field, "for")) {
+            msg = "\"for\" missing in \"recode suffix\" definition";
+            ok = false;
+        } else {
             const std::string stationList(scanner.remainder());
-            if( stationList.empty() )
-            {
-                msg="Station list missing from recode suffix definition";
-                ok=false;
-            }
-            else
-            {
+            if (stationList.empty()) {
+                msg = "Station list missing from recode suffix definition";
+                ok = false;
+            } else {
                 stn_recode_suffix_data srd;
-                srd.srm=stt;
-                srd.suffix=*suffix;
-                srd.datefrom=datefrom;
-                srd.dateto=dateto;
-                srd.herror=herror;
-                srd.verror=verror;
-                process_selected_stations( stt->net, stationList, basefile, &srd, apply_recode_suffix );
+                srd.srm = stt;
+                srd.suffix = *suffix;
+                srd.datefrom = datefrom;
+                srd.dateto = dateto;
+                srd.herror = herror;
+                srd.verror = verror;
+                process_selected_stations(stt->net, stationList, basefile, &srd, apply_recode_suffix);
             }
         }
-    }
-    else if( ok )
-    {
-        add_stn_recode_to_map_err( stt, codefrom, codeto, datefrom, dateto, herror, verror );
+    } else if (ok) {
+        add_stn_recode_to_map_err(stt, codefrom, codeto, datefrom, dateto, herror, verror);
     }
 
-    if( ! ok )
-    {
-        handle_error(INVALID_DATA,"Error reading station recoding",msg);
+    if (!ok) {
+        handle_error(INVALID_DATA, "Error reading station recoding", msg);
     }
     return ok ? OK : INVALID_DATA;
 }
 
-void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int stn_name_width, std::string_view prefix )
-{
-    if( ! stt ) { return;
-}
-    const int prefix_length=numeric_cast<int>(prefix.size());
-    for( const auto &[codefrom,recodes] : stt->lists )
-    {
-        bool first=true;
-        bool show_reloc=false;
-        if( onlyused )
-        {
-            for( const stn_recode &src : recodes )
-            {
-                if( ! src.used ) { continue;
-}
-                if( src.herror > 0.0 || src.verror > 0.0 )
-                {
-                    show_reloc=true;
+void print_stn_recode_list(FILE* out, stn_recode_map* stt, bool onlyused, int stn_name_width, std::string_view prefix) {
+    if (!stt) {
+        return;
+    }
+    const int prefix_length = numeric_cast<int>(prefix.size());
+    for (const auto& [codefrom, recodes] : stt->lists) {
+        bool first = true;
+        bool show_reloc = false;
+        if (onlyused) {
+            for (const stn_recode& src : recodes) {
+                if (!src.used) {
+                    continue;
+                }
+                if (src.herror > 0.0 || src.verror > 0.0) {
+                    show_reloc = true;
                     break;
                 }
             }
         }
-        for( const stn_recode &src : recodes )
-        {
-            if( onlyused && ! src.used )
-            {
-                if( ! show_reloc ) { continue;
-}
-                if( src.datefrom == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE ) { continue;
-}
-                if( src.datefrom != UNDEFINED_DATE && src.dateto != UNDEFINED_DATE ) { continue;
-}
+        for (const stn_recode& src : recodes) {
+            if (onlyused && !src.used) {
+                if (!show_reloc) {
+                    continue;
+                }
+                if (src.datefrom == UNDEFINED_DATE && src.dateto == UNDEFINED_DATE) {
+                    continue;
+                }
+                if (src.datefrom != UNDEFINED_DATE && src.dateto != UNDEFINED_DATE) {
+                    continue;
+                }
             }
-            if( first )
-            {
-                first=false;
-                fprintf(out,"%.*s%-*s ", prefix_length,prefix.data(),stn_name_width,codefrom.c_str());
+            if (first) {
+                first = false;
+                fprintf(out, "%.*s%-*s ", prefix_length, prefix.data(), stn_name_width, codefrom.c_str());
+            } else {
+                fprintf(out, "%.*s%-*s ", prefix_length, prefix.data(), stn_name_width, " ");
             }
-            else
-            {
-                fprintf(out,"%.*s%-*s ", prefix_length,prefix.data(),stn_name_width," ");
-            }
-            fprintf(out,"to %s\n",describe_stn_recode( src, stn_name_width ).c_str());
+            fprintf(out, "to %s\n", describe_stn_recode(src, stn_name_width).c_str());
         }
     }
-    bool first=true;
-    for( const stn_recode &src : stt->global )
-    {
-        if( onlyused && ! src.used ) { continue;
-}
-        if( first )
-        {
-            first=false;
-            fprintf(out,"%.*sOther stations ",prefix_length,prefix.data());
+    bool first = true;
+    for (const stn_recode& src : stt->global) {
+        if (onlyused && !src.used) {
+            continue;
         }
-        else
-        {
-            fprintf(out,"%.*s              ", prefix_length,prefix.data());
+        if (first) {
+            first = false;
+            fprintf(out, "%.*sOther stations ", prefix_length, prefix.data());
+        } else {
+            fprintf(out, "%.*s              ", prefix_length, prefix.data());
         }
-        fprintf(out,"to %s\n",describe_stn_recode( src, stn_name_width ).c_str());
+        fprintf(out, "to %s\n", describe_stn_recode(src, stn_name_width).c_str());
     }
 }
 
-const stn_recode_list *get_station_recodes( stn_recode_map *stt, std::string_view code )
-{
-    return lookup_station_recode( stt, code );
+const stn_recode_list* get_station_recodes(stn_recode_map* stt, std::string_view code) {
+    return lookup_station_recode(stt, code);
 }
 
 /// Finds the recode in a list that applies on date, or list.end() if none does
-static stn_recode_list::iterator find_stn_recode( stn_recode_list &list, double date )
-{
-    for( auto src=list.begin(); src != list.end(); ++src )
-    {
-        if( src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE ) { return src;
-}
-        if( date == UNDEFINED_DATE ) { continue;
-}
-        if( src->datefrom == UNDEFINED_DATE && date < src->dateto ) { return src;
-}
-        if( date <= src->dateto && date >= src->datefrom ) { return src;
-}
-        if( src->dateto == UNDEFINED_DATE && date >= src->datefrom )
-        {
+static stn_recode_list::iterator find_stn_recode(stn_recode_list& list, double date) {
+    for (auto src = list.begin(); src != list.end(); ++src) {
+        if (src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE) {
+            return src;
+        }
+        if (date == UNDEFINED_DATE) {
+            continue;
+        }
+        if (src->datefrom == UNDEFINED_DATE && date < src->dateto) {
+            return src;
+        }
+        if (date <= src->dateto && date >= src->datefrom) {
+            return src;
+        }
+        if (src->dateto == UNDEFINED_DATE && date >= src->datefrom) {
             /* Use the last of the "after" recodes that has started by date */
-            auto latest=src;
-            for( auto next=std::next(src);
-                 next != list.end() && next->datefrom != UNDEFINED_DATE && date >= next->datefrom;
-                 ++next )
-            {
-                latest=next;
+            auto latest = src;
+            for (auto next = std::next(src);
+                 next != list.end() && next->datefrom != UNDEFINED_DATE && date >= next->datefrom; ++next) {
+                latest = next;
             }
             return latest;
         }
@@ -799,55 +681,57 @@ static stn_recode_list::iterator find_stn_recode( stn_recode_list &list, double 
     return list.end();
 }
 
-std::optional<recode_result> get_stn_recode( stn_recode_map *stt, std::string_view code, double date )
-{
-    for( stn_recode_list *list : { lookup_station_recode( stt, code ), &stt->global } )
-    {
-        if( ! list ) { continue;
-}
-        const auto src=find_stn_recode( *list, date );
-        if( src == list->end() ) { continue;
-}
-        src->used=true;
-        stt->used=true;
-        return recode_result{ src->codeto, src->reject };
+std::optional<recode_result> get_stn_recode(stn_recode_map* stt, std::string_view code, double date) {
+    for (stn_recode_list* list : {lookup_station_recode(stt, code), &stt->global}) {
+        if (!list) {
+            continue;
+        }
+        const auto src = find_stn_recode(*list, date);
+        if (src == list->end()) {
+            continue;
+        }
+        src->used = true;
+        stt->used = true;
+        return recode_result{src->codeto, src->reject};
     }
     return std::nullopt;
 }
 
-std::optional<recode_result> recoded_network_station( void *recode_data, std::string_view code, double date )
-{
-    stn_recode_data *srd=(stn_recode_data *)recode_data;
-    if( ! srd ) { return std::nullopt;
-}
+std::optional<recode_result> recoded_network_station(void* recode_data, std::string_view code, double date) {
+    stn_recode_data* srd = (stn_recode_data*)recode_data;
+    if (!srd) {
+        return std::nullopt;
+    }
     std::optional<recode_result> file_recode;
     std::optional<recode_result> global_recode;
-    if( srd->file_map ) { file_recode=get_stn_recode(srd->file_map,code,date);
-}
-    if( srd->global_map ) { global_recode=get_stn_recode(srd->global_map,file_recode ? file_recode->code : code,date);
-}
-    if( ! global_recode && ! file_recode ) { return std::nullopt;
-}
-    const recode_result &recoded=global_recode ? *global_recode : *file_recode;
-    const bool reject=( file_recode && file_recode->reject ) || ( global_recode && global_recode->reject );
+    if (srd->file_map) {
+        file_recode = get_stn_recode(srd->file_map, code, date);
+    }
+    if (srd->global_map) {
+        global_recode = get_stn_recode(srd->global_map, file_recode ? file_recode->code : code, date);
+    }
+    if (!global_recode && !file_recode) {
+        return std::nullopt;
+    }
+    const recode_result& recoded = global_recode ? *global_recode : *file_recode;
+    const bool reject = (file_recode && file_recode->reject) || (global_recode && global_recode->reject);
 
     /* Ignored stations are not created; others are created if the recoded station does not exist */
-    if( ! ( reject && recoded.code.empty() ) && srd->net )
-    {
-        const std::string recoded_code( recoded.code );
-        int id = find_station( srd->net, recoded_code );
-        if( ! id )
-        {
-            if( global_recode && file_recode ) { id = find_station( srd->net, file_recode->code );
-}
-            if( ! id ) { id = find_station( srd->net, code );
-}
-            if( id )
-            {
-                station *st=station_ptr(srd->net,id);
-                duplicate_network_station( srd->net, st, recoded_code, st->Name );
+    if (!(reject && recoded.code.empty()) && srd->net) {
+        const std::string recoded_code(recoded.code);
+        int id = find_station(srd->net, recoded_code);
+        if (!id) {
+            if (global_recode && file_recode) {
+                id = find_station(srd->net, file_recode->code);
+            }
+            if (!id) {
+                id = find_station(srd->net, code);
+            }
+            if (id) {
+                station* st = station_ptr(srd->net, id);
+                duplicate_network_station(srd->net, st, recoded_code, st->Name);
             }
         }
     }
-    return recode_result{ recoded.code, reject };
+    return recode_result{recoded.code, reject};
 }

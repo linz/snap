@@ -92,24 +92,20 @@ using boost::numeric_cast;
 #include "util/errdef.h"
 #include "util/symmatrx.h"
 
-
 /*********************************************************************/
 /* Code to manage a list of missing stations...                      */
 /* Callback function used by loaddata to get id's of various objects */
 
 /* Id returned for stations that will be ignored                     */
 
-#define IGNORE_ID -1 
+#define IGNORE_ID -1
 
-struct missing_stn
-{
-    missing_stn( std::string_view code, int id ) :
-        code(code), refcount(0), quiet(false), id(id)
-    {}
+struct missing_stn {
+    missing_stn(std::string_view code, int id) : code(code), refcount(0), quiet(false), id(id) {}
 
     const std::string code;
-    int refcount;                  ///< mutated later, incremented on each use
-    bool quiet;                    ///< mutated later, set by set_accept_missing_station
+    int refcount;  ///< mutated later, incremented on each use
+    bool quiet;    ///< mutated later, set by set_accept_missing_station
     const int id;
 };
 
@@ -126,181 +122,168 @@ static int need_obs_date = 0;
 
 static int missing_data = 0;
 
-void set_ignore_missing_stations( int option )
-{
+void set_ignore_missing_stations(int option) {
     ignore_missing_stations = option;
 }
 
-void set_report_missing_stations( int option )
-{
+void set_report_missing_stations(int option) {
     report_missing_stations = option;
 }
 
-void set_require_obs_date( int option )
-{
+void set_require_obs_date(int option) {
     need_obs_date = option;
 }
 
 /// Returns the missing station with the given code, adding it to the list
 /// first if create is set. Returns nullptr if it is absent and create is not set.
-static missing_stn *get_missing_station( std::string_view code, int create )
-{
+static missing_stn* get_missing_station(std::string_view code, int create) {
     auto previous = missing.before_begin();
-    for( auto station = missing.begin(); station != missing.end(); previous = station, ++station )
-    {
-        const int cmp = stncodecmp( station->code, code );
-        if( cmp == 0 ) { return &*station; }
-        if( cmp > 0 ) { break; }
+    for (auto station = missing.begin(); station != missing.end(); previous = station, ++station) {
+        const int cmp = stncodecmp(station->code, code);
+        if (cmp == 0) {
+            return &*station;
+        }
+        if (cmp > 0) {
+            break;
+        }
     }
-    if( ! create ) { return nullptr; }
-    return &*missing.emplace_after( previous, code, --missing_id );
+    if (!create) {
+        return nullptr;
+    }
+    return &*missing.emplace_after(previous, code, --missing_id);
 }
 
-void set_accept_missing_station( std::string_view code )
-{
-    missing_stn *ms=get_missing_station(code,1);
-    if( ms ) { ms->quiet=true;
-}
+void set_accept_missing_station(std::string_view code) {
+    missing_stn* ms = get_missing_station(code, 1);
+    if (ms) {
+        ms->quiet = true;
+    }
 }
 
-static int missing_station_id( std::string_view code )
-{
-    missing_stn *ms = get_missing_station( code, ignore_missing_stations );
-    if( ms )
-    {
+static int missing_station_id(std::string_view code) {
+    missing_stn* ms = get_missing_station(code, ignore_missing_stations);
+    if (ms) {
         ms->refcount++;
         return ms->id;
     }
     return 0;
 }
 
-static std::optional<std::string_view> missing_station_name( int id )
-{
-    for( const missing_stn &station : missing )
-    {
-        if( station.id == id ) { return station.code;
-}
+static std::optional<std::string_view> missing_station_name(int id) {
+    for (const missing_stn& station : missing) {
+        if (station.id == id) {
+            return station.code;
+        }
     }
     return std::nullopt;
 }
 
-static void delete_missing_station_list( void )
-{
+static void delete_missing_station_list(void) {
     missing.clear();
     missing_id = IGNORE_ID;
 }
 
-static void list_missing_stations( void )
-{
+static void list_missing_stations(void) {
     char buf[80];
-    if( ! report_missing_stations ) { return;
-}
-    const bool reportall=report_missing_stations == REPORT_MISSING_ALL;
-    for( const missing_stn &station : missing )
-    {
-        if( ! reportall && station.quiet ) { continue;
-}
-        sprintf(buf,"Station %-10s is not in the coordinate file.  Used %d times",
-                station.code.c_str(),station.refcount );
-        handle_error(WARNING_ERROR, buf, NO_MESSAGE );
+    if (!report_missing_stations) {
+        return;
+    }
+    const bool reportall = report_missing_stations == REPORT_MISSING_ALL;
+    for (const missing_stn& station : missing) {
+        if (!reportall && station.quiet) {
+            continue;
+        }
+        sprintf(buf, "Station %-10s is not in the coordinate file.  Used %d times", station.code.c_str(),
+                station.refcount);
+        handle_error(WARNING_ERROR, buf, NO_MESSAGE);
     }
 }
 
 /***********************************************************************/
 
-static void record_connections( survdata *sd )
-{
+static void record_connections(survdata* sd) {
     int i;
     int i2;
     int from;
-    trgtdata *t;
-    trgtdata *t2;
+    trgtdata* t;
+    trgtdata* t2;
 
     from = sd->from;
-    for( i=0; i < sd->nobs; i++ )
-    {
-        t = get_trgtdata(sd,i);
-        if( !t->to ) { continue;
-}
-        if( from && t->to ) { add_connection( from, t->to );
-}
-        if( !datatype[t->type].joinsgroup ) { continue;
-}
-        for( i2 = i+1; i2<sd->nobs; i2++ )
-        {
-            t2 = get_trgtdata(sd, i2 );
-            if( t2->type == t->type && t2->to ) { add_connection( t->to, t2->to );
-}
+    for (i = 0; i < sd->nobs; i++) {
+        t = get_trgtdata(sd, i);
+        if (!t->to) {
+            continue;
+        }
+        if (from && t->to) {
+            add_connection(from, t->to);
+        }
+        if (!datatype[t->type].joinsgroup) {
+            continue;
+        }
+        for (i2 = i + 1; i2 < sd->nobs; i2++) {
+            t2 = get_trgtdata(sd, i2);
+            if (t2->type == t->type && t2->to) {
+                add_connection(t->to, t2->to);
+            }
         }
     }
 }
 
-static void record_parameter_usage( survdata *sd )
-{
-    trgtdata *t;
-    datatypedef *dt;
+static void record_parameter_usage(survdata* sd) {
+    trgtdata* t;
+    datatypedef* dt;
     int i;
     char unused;
     int type;
 
-    for( i=0; i<sd->nobs; i++ )
-    {
-
-        t = get_trgtdata(sd,i);
+    for (i = 0; i < sd->nobs; i++) {
+        t = get_trgtdata(sd, i);
 
         unused = t->unused;
         type = t->type;
         dt = datatype + type;
 
-        count_obs( type, sd->file, sd->date, unused );
-        if( sd->from ) { count_stn_obs( type, sd->from, unused );
-}
-        if( t->to ) { count_stn_obs( type, t->to, unused );
-}
+        count_obs(type, sd->file, sd->date, unused);
+        if (sd->from) {
+            count_stn_obs(type, sd->from, unused);
+        }
+        if (t->to) {
+            count_stn_obs(type, t->to, unused);
+        }
 
         /* If the observations could be used (no guarantee - stations
            may still be rejected) then note parameters that may be used */
 
-        if ( !unused &&
-                (!sd->from || !rejected_station( sd->from )) &&
-                (!t->to || !rejected_station(t->to)) )
-        {
-
+        if (!unused && (!sd->from || !rejected_station(sd->from)) && (!t->to || !rejected_station(t->to))) {
             int is;
 
-            for( is = 0; is < t->nsyserr; is++ )
-            {
-                flag_param_used(sd->syserr[is+t->isyserr].prm_id);
+            for (is = 0; is < t->nsyserr; is++) {
+                flag_param_used(sd->syserr[is + t->isyserr].prm_id);
             }
 
-            flag_obsparam_used( sd );
+            flag_obsparam_used(sd);
 
-            switch( sd->format )
-            {
+            switch (sd->format) {
+                case SD_OBSDATA: {
+                    obsdata* od;
+                    od = &sd->obs.odata[i];
+                    if (od->prm_id) {
+                        flag_param_used(od->prm_id);
+                    }
+                    if (t->type == ZD) {
+                        flag_param_used(od->refcoef);
+                    }
+                } break;
 
-            case SD_OBSDATA:
-            {
-                obsdata *od;
-                od = & sd->obs.odata[i];
-                if( od->prm_id ) { flag_param_used( od->prm_id );
-}
-                if( t->type == ZD ) { flag_param_used( od->refcoef );
-}
-            }
-            break;
+                case SD_VECDATA:
+                    rftrans_from_id(sd->reffrm)->flagUsed(dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF);
+                    break;
 
-            case SD_VECDATA:
-                rftrans_from_id(sd->reffrm)->flagUsed(
-                        dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF );
-                break;
+                case SD_PNTDATA:
+                    break;
 
-            case SD_PNTDATA:
-                break;
-
-            default:
-                handle_error( INTERNAL_ERROR,
-                              "Invalid survdata.format in record_parameter_usage",
-                              NO_MESSAGE );
+                default:
+                    handle_error(INTERNAL_ERROR, "Invalid survdata.format in record_parameter_usage", NO_MESSAGE);
             }
         }
     }
@@ -310,240 +293,244 @@ static void record_parameter_usage( survdata *sd )
    apply Schreibers method (ie if we have both distance ratio and
    horizontal angle data */
 
-static int split_obsdata_for_schreiber( survdata *sd )
-{
+static int split_obsdata_for_schreiber(survdata* sd) {
     int schtype = -1;
-    obsdata *od;
+    obsdata* od;
     int i;
 
-    for( i = 0, od = sd->obs.odata; i<sd->nobs; i++, od++ )
-    {
+    for (i = 0, od = sd->obs.odata; i < sd->nobs; i++, od++) {
         int type;
         type = od->tgt.type;
-        if( type == DR || type == HA )
-        {
-            if( schtype != type && schtype >= 0 ) { return 1;
-}
+        if (type == DR || type == HA) {
+            if (schtype != type && schtype >= 0) {
+                return 1;
+            }
             schtype = type;
         }
     }
     return 0;
 }
 
-
 /* Routine to load observations by subsets based upon type */
 
-static void save_split_survdata( survdata *sd )
-{
+static void save_split_survdata(survdata* sd) {
     unsigned char typesaved[NOBSTYPE];
     int iobs;
     int sobs;
     int to;
-    trgtdata *t;
+    trgtdata* t;
 
-    for( iobs = 0; iobs< NOBSTYPE; iobs++ ) { typesaved[iobs] = 0;
-}
+    for (iobs = 0; iobs < NOBSTYPE; iobs++) {
+        typesaved[iobs] = 0;
+    }
 
-    for( iobs = 0; iobs < sd->nobs; iobs++ )
-    {
-        t = get_trgtdata( sd, iobs );
-        if( typesaved[t->type] ) { continue;
-}
-        if( datatype[t->type].joinsgroup )
-        {
+    for (iobs = 0; iobs < sd->nobs; iobs++) {
+        t = get_trgtdata(sd, iobs);
+        if (typesaved[t->type]) {
+            continue;
+        }
+        if (datatype[t->type].joinsgroup) {
             sobs = -1;
             typesaved[t->type] = 1;
-        }
-        else
-        {
+        } else {
             sobs = iobs;
         }
-        const int64_t loc = save_survdata_subset( sd, sobs, t->type );
+        const int64_t loc = save_survdata_subset(sd, sobs, t->type);
         to = t->to;
-        if( sobs < 0 ) { to = 0;
-}
-        if( t->type == GB && sd->nobs == 1 ) { to = t->to;
-}
-        save_observation( sd->from, to, t->type, loc );
+        if (sobs < 0) {
+            to = 0;
+        }
+        if (t->type == GB && sd->nobs == 1) {
+            to = t->to;
+        }
+        save_observation(sd->from, to, t->type, loc);
     }
 }
 
-static void save_whole_survdata( survdata *sd )
-{
+static void save_whole_survdata(survdata* sd) {
     int to;
-    trgtdata *t;
-    const int64_t loc = save_survdata( sd );
+    trgtdata* t;
+    const int64_t loc = save_survdata(sd);
     to = 0;
-    t = get_trgtdata( sd, 0 );
-    if( sd->nobs == 1 ) { to = t->to;
-}
-    save_observation( sd->from, to, t->type, loc );
+    t = get_trgtdata(sd, 0);
+    if (sd->nobs == 1) {
+        to = t->to;
+    }
+    save_observation(sd->from, to, t->type, loc);
 }
 
 //case ID_REFCOEF:    id = refcoef_prm( code ); break;
 //case ID_DISTSF:     id = distsf_prm( code ); break;
 //case ID_BRNGREF:    id = brngref_prm( code ); break;
 //
-static void load_snap( survdata *sd )
-{
+static void load_snap(survdata* sd) {
     /* Fail if need observation date and is not provided */
 
-    if( need_obs_date && sd->date == UNDEFINED_DATE )
-    {
+    if (need_obs_date && sd->date == UNDEFINED_DATE) {
         char location[80];
-        sprintf(location,"In %.50s line %d",
-                survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno );
-        handle_error(INVALID_DATA,"Observation date not defined", location);
+        sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno);
+        handle_error(INVALID_DATA, "Observation date not defined", location);
         missing_data++;
         return;
     }
 
     /* Fail if covariance not defined for observation */
 
-    if( sd->format == SD_VECDATA && ! sd->cvr )
-    {
+    if (sd->format == SD_VECDATA && !sd->cvr) {
         char location[80];
-        sprintf(location,"In %.50s line %d",
-                survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno );
-        handle_error(INVALID_DATA,"Observation covariance not defined", location);
+        sprintf(location, "In %.50s line %d", survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno);
+        handle_error(INVALID_DATA, "Observation covariance not defined", location);
         missing_data++;
         return;
     }
 
     /* Apply observation options */
 
-    if( sd->options )
-    {
-        switch( sd->format )
-        {
-            case SD_OBSDATA: apply_obsdata_options( sd ); break;
-            case SD_VECDATA: apply_vecdata_options( sd ); break;
-            case SD_PNTDATA: apply_pntdata_options( sd ); break;
+    if (sd->options) {
+        switch (sd->format) {
+            case SD_OBSDATA:
+                apply_obsdata_options(sd);
+                break;
+            case SD_VECDATA:
+                apply_vecdata_options(sd);
+                break;
+            case SD_PNTDATA:
+                apply_pntdata_options(sd);
+                break;
         }
     }
 
     /* Record the usage (for identifying which parameters can be calculated),
        and the connections (for minimising bandwidth) */
 
-    record_connections( sd );
-    record_parameter_usage( sd );
+    record_connections(sd);
+    record_parameter_usage(sd);
 
     /* Decide whether to split the observations or not */
 
-    if( ( sd->format == SD_OBSDATA &&
-              ( sort_obs || split_obsdata_for_schreiber(sd) ) ) )
-    {
-
-        save_split_survdata( sd );
-    }
-    else
-    {
-        save_whole_survdata( sd );
+    if ((sd->format == SD_OBSDATA && (sort_obs || split_obsdata_for_schreiber(sd)))) {
+        save_split_survdata(sd);
+    } else {
+        save_whole_survdata(sd);
     }
 }
-
 
 /* Callback function used by loaddata to get id's of various objects */
 
-
-static int64_t snap_id( int type, int group_id, std::string_view code )
-{
+static int64_t snap_id(int type, int group_id, std::string_view code) {
     int64_t id;
     id = 0;
-    switch (type)
-    {
-    case ID_STATION:    
-        id = find_station( net, code );
-        if( id )
-        {
-            if( ignored_station(id) ) { id=IGNORE_ID;
-}
-        }
-        else
-        { 
-            id = missing_station_id( code );
-        }
-        break;
-    case ID_COEF:
-        switch( group_id )
-        {
-        case COEF_CLASS_DISTSF:  id = distsf_prm( code ); break;
-        case COEF_CLASS_BRNGREF: id = brngref_prm( code ); break;
-        case COEF_CLASS_REFCOEF: id = refcoef_prm( code ); break;
-        case COEF_CLASS_REFFRM:  id = get_rftrans_id( code, REFFRM_DEFAULT ); break;
-        }
-        break;
-    case ID_PROJCTN:    id = get_bproj( code ); break;
-    case ID_SYSERR:     id = syserr_prm( code ); break;
-    case ID_CLASSTYPE:  id = obs_classes.id( code, 1 ); break;
-    case ID_CLASSNAME:  id = obs_classes.value_id( group_id, code, 1 ); break;
-    case ID_NOTE:       id = save_note( code, group_id ); break;
+    switch (type) {
+        case ID_STATION:
+            id = find_station(net, code);
+            if (id) {
+                if (ignored_station(id)) {
+                    id = IGNORE_ID;
+                }
+            } else {
+                id = missing_station_id(code);
+            }
+            break;
+        case ID_COEF:
+            switch (group_id) {
+                case COEF_CLASS_DISTSF:
+                    id = distsf_prm(code);
+                    break;
+                case COEF_CLASS_BRNGREF:
+                    id = brngref_prm(code);
+                    break;
+                case COEF_CLASS_REFCOEF:
+                    id = refcoef_prm(code);
+                    break;
+                case COEF_CLASS_REFFRM:
+                    id = get_rftrans_id(code, REFFRM_DEFAULT);
+                    break;
+            }
+            break;
+        case ID_PROJCTN:
+            id = get_bproj(code);
+            break;
+        case ID_SYSERR:
+            id = syserr_prm(code);
+            break;
+        case ID_CLASSTYPE:
+            id = obs_classes.id(code, 1);
+            break;
+        case ID_CLASSNAME:
+            id = obs_classes.value_id(group_id, code, 1);
+            break;
+        case ID_NOTE:
+            id = save_note(code, group_id);
+            break;
     }
     return id;
 }
 
-static std::string snap_name( int type, int group_id, long id )
-{
-    switch (type)
-    {
-    case ID_STATION:   if( id < 0 )
-        {
-            return std::string( missing_station_name( numeric_cast<int>( id ) ).value_or( std::string_view() ) );
-        }
-        return std::string( station_code( numeric_cast<int>( id ) ) );
-    case ID_COEF:
-        switch( group_id )
-        {
-        case COEF_CLASS_DISTSF:  return std::string( distsf_name( numeric_cast<int>( id ) ) );
-        case COEF_CLASS_BRNGREF: return std::string( brngref_name( numeric_cast<int>( id ) ) );
-        case COEF_CLASS_REFCOEF: return std::string( refcoef_name( numeric_cast<int>( id ) ) );
-        case COEF_CLASS_REFFRM:  break;
-        }
-        break;
-    case ID_SYSERR:    return std::string( syserr_name( numeric_cast<int>( id ) ) );
-    case ID_PROJCTN:   return std::string( bproj_name( numeric_cast<int>( id ) ) );
-    case ID_CLASSTYPE: return obs_classes.name( numeric_cast<int>( id ) );
-    case ID_CLASSNAME: return obs_classes.value_name( group_id, numeric_cast<int>( id ) );
-    case ID_NOTE:    break;
+static std::string snap_name(int type, int group_id, long id) {
+    switch (type) {
+        case ID_STATION:
+            if (id < 0) {
+                return std::string(missing_station_name(numeric_cast<int>(id)).value_or(std::string_view()));
+            }
+            return std::string(station_code(numeric_cast<int>(id)));
+        case ID_COEF:
+            switch (group_id) {
+                case COEF_CLASS_DISTSF:
+                    return std::string(distsf_name(numeric_cast<int>(id)));
+                case COEF_CLASS_BRNGREF:
+                    return std::string(brngref_name(numeric_cast<int>(id)));
+                case COEF_CLASS_REFCOEF:
+                    return std::string(refcoef_name(numeric_cast<int>(id)));
+                case COEF_CLASS_REFFRM:
+                    break;
+            }
+            break;
+        case ID_SYSERR:
+            return std::string(syserr_name(numeric_cast<int>(id)));
+        case ID_PROJCTN:
+            return std::string(bproj_name(numeric_cast<int>(id)));
+        case ID_CLASSTYPE:
+            return obs_classes.name(numeric_cast<int>(id));
+        case ID_CLASSNAME:
+            return obs_classes.value_name(group_id, numeric_cast<int>(id));
+        case ID_NOTE:
+            break;
     }
     return std::string();
 }
 
-static double snap_calc_value( int type, long id1, long id2 )
-{
-    if( type == CALC_DISTANCE )
-    {
+static double snap_calc_value(int type, long id1, long id2) {
+    if (type == CALC_DISTANCE) {
         double dist;
-        station *st1 = stnptr(id1);
-        station *st2 = stnptr(id2);
-        if( ! st1 || ! st2 ) { return 0.0;
-}
-        dist = calc_distance( st1, 0.0, st2, 0.0, nullptr, nullptr );
+        station* st1 = stnptr(id1);
+        station* st2 = stnptr(id2);
+        if (!st1 || !st2) {
+            return 0.0;
+        }
+        dist = calc_distance(st1, 0.0, st2, 0.0, nullptr, nullptr);
         return dist;
     }
-    if ( type == CALC_HDIST )
-    {
+    if (type == CALC_HDIST) {
         double dist;
-        station *st1 = stnptr(id1);
-        station *st2 = stnptr(id2);
-        if( ! st1 || ! st2 ) { return 0.0;
-}
-        dist = calc_horizontal_distance( st1, st2, nullptr, nullptr );
+        station* st1 = stnptr(id1);
+        station* st2 = stnptr(id2);
+        if (!st1 || !st2) {
+            return 0.0;
+        }
+        dist = calc_horizontal_distance(st1, st2, nullptr, nullptr);
         return dist;
     }
     return 0.0;
 }
 
-void init_load_snap( void )
-{
-    set_require_obs_date( deformation == nullptr ? 0 : 1 );
-    init_load_data( load_snap, snap_id, snap_name, snap_calc_value );
+void init_load_snap(void) {
+    set_require_obs_date(deformation == nullptr ? 0 : 1);
+    init_load_data(load_snap, snap_id, snap_name, snap_calc_value);
     init_snap_gps_covariance();
     missing_data = 0;
 }
 
-int term_load_snap( void )
-{
+int term_load_snap(void) {
     term_load_data();
     list_missing_stations();
     delete_missing_station_list();

@@ -6,19 +6,17 @@
 #include "snapmain.h"
 //}
 
-class SnapAdjustApp: public wxApp
-{
-public:
+class SnapAdjustApp : public wxApp {
+ public:
     SnapAdjustApp() = default;
-    bool OnInit() override
-    {
+    bool OnInit() override {
         // create and show the main frame
 
-        wxMainProgWindow * mainWin = new wxMainProgWindow("Snap adjustment", true, true );
-        SetTopWindow( mainWin );
+        wxMainProgWindow* mainWin = new wxMainProgWindow("Snap adjustment", true, true);
+        SetTopWindow(mainWin);
 
         mainWin->Show(true);
-        mainWin->RunMainProg( snap_main );
+        mainWin->RunMainProg(snap_main);
 
         return true;
     }

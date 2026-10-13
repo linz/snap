@@ -25,3 +25,18 @@ jobs:
           sudo apt-get install -y clang-tidy-21
       - name: Run clang-tidy
         run: python3 build.py debug tidy
+
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7.0.1
+      - name: Install clang-format 21
+        # REQUIRED_CLANG_VERSION in build.py must name the same version.
+        run: |
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc > /dev/null
+          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" | sudo tee /etc/apt/sources.list.d/llvm.list
+          sudo apt-get update
+          sudo apt-get install -y clang-format-21
+      - name: Check the formatting
+        run: python3 build.py debug format

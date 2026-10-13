@@ -11,7 +11,7 @@
 #include "network/network.h"
 #include "util/binfile.h"
 
-void dump_network_to_bin( network *net, BINARY_FILE *b );
-int reload_network_from_bin( network *net, BINARY_FILE *b );
+void dump_network_to_bin(network* net, BINARY_FILE* b);
+int reload_network_from_bin(network* net, BINARY_FILE* b);
 
 #endif

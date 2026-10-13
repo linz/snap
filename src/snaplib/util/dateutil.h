@@ -21,35 +21,34 @@
 
 /* Unspecified date */
 
-#define UNDEFINED_DATE     0.0
+#define UNDEFINED_DATE 0.0
 
 /* Snap uses dates as double day number */
 
-double snap_date( int year, int month, int day );
-double snap_datetime( int year, int month, int day, int hour, int min, int sec );
-double snap_yds( int year, int dayno, int secs );
+double snap_date(int year, int month, int day);
+double snap_datetime(int year, int month, int day, int hour, int min, int sec);
+double snap_yds(int year, int dayno, int secs);
 double snap_datetime_now();
 /// Parses a date or date time, returning UNDEFINED_DATE if it is not valid.
 /// If no format is given the default formats are tried in turn.
-double snap_datetime_parse( std::string_view definition, std::optional<std::string_view> format = std::nullopt );
-int same_date( double date0, double date1 );
+double snap_datetime_parse(std::string_view definition, std::optional<std::string_view> format = std::nullopt);
+int same_date(double date0, double date1);
 
 /* Conversion to other date formats */
-double date_as_year( double snapdate );
-double year_as_snapdate( double years );
-void date_as_ymd( double snapdate, int *year, int *month, int *day );
-void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour, int *min, int *sec );
-void date_as_yds( double snapdate, int *year, int *dayno, int *secs );
+double date_as_year(double snapdate);
+double year_as_snapdate(double years);
+void date_as_ymd(double snapdate, int* year, int* month, int* day);
+void date_as_ymdhms(double snapdate, int* year, int* month, int* day, int* hour, int* min, int* sec);
+void date_as_yds(double snapdate, int* year, int* dayno, int* secs);
 
 /// How date_as_string formats a date.
-enum class DateStringFormat
-{
-    dateTime,           ///< Date and time, yyyy-mm-dd hh:mm:ss
-    dateOnly,           ///< Date only, yyyy-mm-dd
-    timeIfNotMidnight   ///< As dateTime, but the time is omitted if it is 00:00:00
+enum class DateStringFormat {
+    dateTime,          ///< Date and time, yyyy-mm-dd hh:mm:ss
+    dateOnly,          ///< Date only, yyyy-mm-dd
+    timeIfNotMidnight  ///< As dateTime, but the time is omitted if it is 00:00:00
 };
 
 /// Formats a date as text, or "undefined" if it is UNDEFINED_DATE.
-std::string date_as_string( double snapdate, DateStringFormat format = DateStringFormat::dateTime );
+std::string date_as_string(double snapdate, DateStringFormat format = DateStringFormat::dateTime);
 
 #endif

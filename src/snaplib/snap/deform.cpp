@@ -26,16 +26,12 @@
 #include "network/network.h"
 #include "util/errdef.h"
 
-
-deformation_model *create_deformation_model(
-    void *data,
-    int (*init_deformation)( void *model ),
-    int (*calc_deformation)( void *model, station *st, double date, double denu[3] ),
-    int (*print_model)( void *model, FILE *out, std::string_view prefix ),
-    int (*delete_model)( void *model )
-)
-{
-    deformation_model *model = new deformation_model;
+deformation_model* create_deformation_model(void* data, int (*init_deformation)(void* model),
+                                            int (*calc_deformation)(void* model, station* st, double date,
+                                                                    double denu[3]),
+                                            int (*print_model)(void* model, FILE* out, std::string_view prefix),
+                                            int (*delete_model)(void* model)) {
+    deformation_model* model = new deformation_model;
     model->data = data;
     model->init_deformation = init_deformation;
     model->calc_deformation = calc_deformation;
@@ -44,29 +40,22 @@ deformation_model *create_deformation_model(
     return model;
 }
 
-
-int init_deformation( deformation_model *deformation )
-{
-    return (*(deformation->init_deformation))( deformation->data );
+int init_deformation(deformation_model* deformation) {
+    return (*(deformation->init_deformation))(deformation->data);
 }
 
-int calc_deformation( deformation_model *deformation, station *st, double date, double denu[3] )
-{
+int calc_deformation(deformation_model* deformation, station* st, double date, double denu[3]) {
     int sts = OK;
-    int const hasoffset=station_has_offset(st);
+    const int hasoffset = station_has_offset(st);
 
-    if( hasoffset && station_offset_is_deformation(st) ) 
-    {
-        denu[0]=denu[1]=denu[2]=0.0;
+    if (hasoffset && station_offset_is_deformation(st)) {
+        denu[0] = denu[1] = denu[2] = 0.0;
+    } else {
+        sts = (*(deformation->calc_deformation))(deformation->data, st, date, denu);
     }
-    else
-    {
-        sts=(*(deformation->calc_deformation))( deformation->data, st, date, denu );
-    }
-    if( hasoffset )
-    {
+    if (hasoffset) {
         double dsenu[3];
-        calc_station_offset( st, date, dsenu );
+        calc_station_offset(st, date, dsenu);
         denu[0] += dsenu[0];
         denu[1] += dsenu[1];
         denu[2] += dsenu[2];
@@ -74,15 +63,12 @@ int calc_deformation( deformation_model *deformation, station *st, double date, 
     return sts;
 }
 
-int print_deformation_model( deformation_model *deformation, FILE *out, const std::string_view prefix )
-{
-    return (*(deformation->print_model))( deformation->data, out, prefix );
+int print_deformation_model(deformation_model* deformation, FILE* out, const std::string_view prefix) {
+    return (*(deformation->print_model))(deformation->data, out, prefix);
 }
 
-int delete_deformation( deformation_model *deformation )
-{
-    const int sts = (*(deformation->delete_model))( deformation->data );
+int delete_deformation(deformation_model* deformation) {
+    const int sts = (*(deformation->delete_model))(deformation->data);
     delete deformation;
     return sts;
 }
-

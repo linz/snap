@@ -42,7 +42,6 @@
 
 */
 
-
 /*
    $Log: bltmatrx.c,v $
    Revision 1.5  2004/04/22 02:35:43  ccrook
@@ -73,7 +72,6 @@
 #include "util/progress.h"
 #include "util/errdef.h"
 
-
 enum { BLT_UNINIT, BLT_ROWS, BLT_READY };
 
 /* Number of columns of the inverse computed simultaneously in blt_chol_inv.
@@ -90,29 +88,22 @@ static int minrowsize = 1000;
 static double small = 1.0e-10;
 static double abssmall = 1.0e-30;
 
-double blt_get_small( int absolute )
-{
+double blt_get_small(int absolute) {
     return absolute ? abssmall : small;
 }
 
-void blt_set_small( int absolute, double value )
-{
-    if( absolute )
-    {
+void blt_set_small(int absolute, double value) {
+    if (absolute) {
         abssmall = value;
-    }
-    else
-    {
+    } else {
         small = value;
     }
 }
 
-static bltrow *alloc_bltrow( int nrow )
-{
+static bltrow* alloc_bltrow(int nrow) {
     int i;
-    bltrow *row = new bltrow[nrow];
-    for( i=0; i<nrow; i++ )
-    {
+    bltrow* row = new bltrow[nrow];
+    for (i = 0; i < nrow; i++) {
         row[i].col = i;
         row[i].req = i;
         row[i].alloc = 0;
@@ -121,106 +112,96 @@ static bltrow *alloc_bltrow( int nrow )
     return row;
 }
 
-static void delete_bltrow( bltrow *row, int nrow )
-{
+static void delete_bltrow(bltrow* row, int nrow) {
     int i;
-    for( i=0; i < nrow; i++ )
-    {
-        bltrow *r = &(row[i]);
-        if( r->alloc && r->address )
-        {
-            delete [] r->address;
+    for (i = 0; i < nrow; i++) {
+        bltrow* r = &(row[i]);
+        if (r->alloc && r->address) {
+            delete[] r->address;
         }
     }
-    delete [] row;
+    delete[] row;
 }
 
-static void zero_bltmatrix( bltmatrix *blt )
-{
+static void zero_bltmatrix(bltmatrix* blt) {
     int i;
     int c;
-    double *m;
+    double* m;
 
     /* Clear out the matrix ready for summation or whatever */
 
-    for( i = 0; i<blt->nrow; i++ )
-    {
+    for (i = 0; i < blt->nrow; i++) {
         m = blt->row[i].address;
-        for( c=blt->row[i].col; c <= i; c++ ) { *m++ = 0.0;
-}
+        for (c = blt->row[i].col; c <= i; c++) {
+            *m++ = 0.0;
+        }
     }
 }
 
-bltmatrix *create_bltmatrix( int nrow )
-{
-    bltmatrix *blt = new bltmatrix;
+bltmatrix* create_bltmatrix(int nrow) {
+    bltmatrix* blt = new bltmatrix;
     blt->nrow = nrow;
     blt->nsparse = 0;
     blt->status = BLT_UNINIT;
-    blt->row = alloc_bltrow( nrow );
+    blt->row = alloc_bltrow(nrow);
     return blt;
 }
 
-
-void delete_bltmatrix( bltmatrix *blt )
-{
-    if( blt->row )
-    {
-        delete_bltrow( blt->row, blt->nrow );
+void delete_bltmatrix(bltmatrix* blt) {
+    if (blt->row) {
+        delete_bltrow(blt->row, blt->nrow);
         blt->row = nullptr;
     }
     delete blt;
 }
 
-static void alloc_bltrow_arrays( bltmatrix *blt )
-{
+static void alloc_bltrow_arrays(bltmatrix* blt) {
     int i;
     long nelement;
-    double *lastalloc;
+    double* lastalloc;
 
     /* Allocate the memory row by row - to make this efficient the
        memory is allocated in blocks of at least the minimum block size.
        */
 
     nelement = 0;
-    lastalloc=nullptr;
-    for( i=0; i<blt->nrow; )
-    {
+    lastalloc = nullptr;
+    for (i = 0; i < blt->nrow;) {
         int i0 = i;
         int nalloc = 0;
-        double *address;
+        double* address;
         int rowsize;
         int alloc;
-        while( i < blt->nrow )
-        {
-            bltrow *r = &(blt->row[i]);
-            if( r->col < r->req ) { r->req = r->col;
-}
-            if( i >= blt->nsparse ) { r->req = 0;
-}
+        while (i < blt->nrow) {
+            bltrow* r = &(blt->row[i]);
+            if (r->col < r->req) {
+                r->req = r->col;
+            }
+            if (i >= blt->nsparse) {
+                r->req = 0;
+            }
             rowsize = i + 1 - r->req;
             i++;
             nalloc += rowsize;
-            if( nalloc > minrowsize ) { break;
-}
+            if (nalloc > minrowsize) {
+                break;
+            }
         }
         address = new double[nalloc];
         alloc = 1;
-        while( i0 < i )
-        {
+        while (i0 < i) {
             int rw;
             int r0;
             int r1;
             int r2;
-            double *a1;
-            bltrow *r = &(blt->row[i0]);
-            if( r->alloc && r->address )
-            {
-                delete [] lastalloc;
-                lastalloc=r->address;
+            double* a1;
+            bltrow* r = &(blt->row[i0]);
+            if (r->alloc && r->address) {
+                delete[] lastalloc;
+                lastalloc = r->address;
             }
             r0 = r->req;
-            r2 = i0+1;
+            r2 = i0 + 1;
             r1 = r->address ? r->col : r2;
             a1 = r->address;
 
@@ -228,209 +209,203 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
             r->alloc = alloc;
             r->col = r->req;
 
-            for( rw = r0; rw < r1; rw++ ) { *(address++) = 0.0; }
-            for( rw = r1; rw < r2; rw++ ) { *(address++) = *(a1++); }
+            for (rw = r0; rw < r1; rw++) {
+                *(address++) = 0.0;
+            }
+            for (rw = r1; rw < r2; rw++) {
+                *(address++) = *(a1++);
+            }
             alloc = 0;
             i0++;
         }
         nelement += nalloc;
     }
     blt->nelement = nelement;
-    delete [] lastalloc;
+    delete[] lastalloc;
 
     blt->status = BLT_READY;
 }
 
-int blt_nrows( bltmatrix *blt )
-{
+int blt_nrows(bltmatrix* blt) {
     return blt->nrow;
 }
 
-long blt_requested_size( bltmatrix *blt )
-{
+long blt_requested_size(bltmatrix* blt) {
     int i;
     long nelement;
     nelement = 0;
-    for( i=0; i<blt->nrow; i++ )
-    {
-            bltrow *r = &(blt->row[i]);
-            if( r->col < r->req ) { r->req = r->col;
-}
-            if( i >= blt->nsparse ) { r->req = 0;
-}
-            nelement += i + 1 - r->req;
+    for (i = 0; i < blt->nrow; i++) {
+        bltrow* r = &(blt->row[i]);
+        if (r->col < r->req) {
+            r->req = r->col;
+        }
+        if (i >= blt->nsparse) {
+            r->req = 0;
+        }
+        nelement += i + 1 - r->req;
     }
     return nelement;
 }
 
-void blt_nonzero_element( bltmatrix *blt, int row, int col )
-{
+void blt_nonzero_element(bltmatrix* blt, int row, int col) {
     int i;
-    if( row < col )
-    {
+    if (row < col) {
         i = row;
         row = col;
         col = i;
     }
-    if( col < blt->row[row].req) { blt->row[row].req = col;
-}
-    if( blt->status != BLT_READY) { blt->status = BLT_ROWS;
-}
-}
-
-int blt_is_nonzero_element( bltmatrix *blt, int row, int col )
-{
-    return blt->status == BLT_READY &&
-           ((row < col) ?
-            blt->row[col].col <= row   :
-            blt->row[row].col <= col);
+    if (col < blt->row[row].req) {
+        blt->row[row].req = col;
+    }
+    if (blt->status != BLT_READY) {
+        blt->status = BLT_ROWS;
+    }
 }
 
-void blt_set_sparse_rows( bltmatrix *blt, int nsparse )
-{
+int blt_is_nonzero_element(bltmatrix* blt, int row, int col) {
+    return blt->status == BLT_READY && ((row < col) ? blt->row[col].col <= row : blt->row[row].col <= col);
+}
+
+void blt_set_sparse_rows(bltmatrix* blt, int nsparse) {
     blt->nsparse = nsparse;
 }
 
-
-void init_bltmatrix( bltmatrix *blt )
-{
+void init_bltmatrix(bltmatrix* blt) {
     int i;
 
     /* If no rows have been registered then assume a full matrix */
 
-    if( blt->status == BLT_UNINIT )
-    {
-        for( i=0; i<blt->nrow; i++ ) { blt->row[i].col = 0;
-}
+    if (blt->status == BLT_UNINIT) {
+        for (i = 0; i < blt->nrow; i++) {
+            blt->row[i].col = 0;
+        }
         blt->status = BLT_ROWS;
     }
 
     /* If the array hasn't been allocated yet then fill up the
        non-sparse rows and allocate it  */
 
-    if( blt->status == BLT_ROWS )
-    {
-
-        alloc_bltrow_arrays( blt );
-    }
-    else
-    {
-        zero_bltmatrix( blt );
+    if (blt->status == BLT_ROWS) {
+        alloc_bltrow_arrays(blt);
+    } else {
+        zero_bltmatrix(blt);
     }
 }
 
 /* Expand a BLT matrix to full rows filling missing elements with zero */
 
-void expand_bltmatrix_to_full( bltmatrix *blt )
-{
-    if( ! blt ) { return;
-}
+void expand_bltmatrix_to_full(bltmatrix* blt) {
+    if (!blt) {
+        return;
+    }
 
-    blt_set_sparse_rows( blt, 0 );
+    blt_set_sparse_rows(blt, 0);
 
-    expand_bltmatrix_to_requested( blt );
+    expand_bltmatrix_to_requested(blt);
 }
 
 /* Expand a bltmatrix according to requested (requested after initial allocation) */
 
-void expand_bltmatrix_to_requested( bltmatrix *blt )
-{
+void expand_bltmatrix_to_requested(bltmatrix* blt) {
     int i;
     int expand;
 
-    if( ! blt  ) { return;
-}
+    if (!blt) {
+        return;
+    }
 
     /* If not initialised, then there is nothing to do */
 
-    if( blt->status == BLT_UNINIT || blt->status == BLT_ROWS ) { return;
-}
+    if (blt->status == BLT_UNINIT || blt->status == BLT_ROWS) {
+        return;
+    }
 
     /* Check that the matrix is not already big enough */
 
     expand = 0;
-    for( i = 0; i < blt->nrow; i++ )
-    {
-        bltrow *r = &(blt->row[i]);
-        if( r->req < r->col || (i >= blt->nsparse && r->col > 0) )
-        {
-            expand = 1; break;
+    for (i = 0; i < blt->nrow; i++) {
+        bltrow* r = &(blt->row[i]);
+        if (r->req < r->col || (i >= blt->nsparse && r->col > 0)) {
+            expand = 1;
+            break;
         }
     }
 
     /* If needs to expand, then reallocate the rows */
 
-    if( expand ) { alloc_bltrow_arrays( blt );
-}
+    if (expand) {
+        alloc_bltrow_arrays(blt);
+    }
 }
 
 /* Copy bltmatrix bandwidth */
 
-int copy_bltmatrix_bandwidth( bltmatrix *bltsrc, bltmatrix *bltcopy )
-{
+int copy_bltmatrix_bandwidth(bltmatrix* bltsrc, bltmatrix* bltcopy) {
     int i;
     int nrow;
 
-    if( bltsrc->nrow != bltcopy->nrow ) { return INCONSISTENT_DATA;
-}
-    if( bltsrc->status != BLT_READY ) { return INCONSISTENT_DATA;
-}
+    if (bltsrc->nrow != bltcopy->nrow) {
+        return INCONSISTENT_DATA;
+    }
+    if (bltsrc->status != BLT_READY) {
+        return INCONSISTENT_DATA;
+    }
 
     /* Ensure inverse matrix has non-zero rows for all elements of
        decomposition */
 
     nrow = bltsrc->nrow;
-    for( i = 0; i < nrow; i++ )
-    {
-        blt_nonzero_element(bltcopy,i,bltsrc->row[i].col);
+    for (i = 0; i < nrow; i++) {
+        blt_nonzero_element(bltcopy, i, bltsrc->row[i].col);
     }
-    blt_set_sparse_rows(bltcopy,nrow);
+    blt_set_sparse_rows(bltcopy, nrow);
     return OK;
 }
 
 /* Copy bltmatrix */
 
-int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
-{
+int copy_bltmatrix(bltmatrix* bltsrc, bltmatrix* bltcopy) {
     int i;
     int nrow;
     int sts;
-    
-    sts = copy_bltmatrix_bandwidth( bltsrc, bltcopy );
-    if( sts != OK ) { return sts;
-}
 
-    expand_bltmatrix_to_requested( bltcopy );
-    if( bltcopy->status != BLT_READY ) { alloc_bltrow_arrays( bltcopy );
-}
+    sts = copy_bltmatrix_bandwidth(bltsrc, bltcopy);
+    if (sts != OK) {
+        return sts;
+    }
+
+    expand_bltmatrix_to_requested(bltcopy);
+    if (bltcopy->status != BLT_READY) {
+        alloc_bltrow_arrays(bltcopy);
+    }
 
     /* Copy the data row by row */
 
     nrow = bltsrc->nrow;
     nrow = bltsrc->nrow;
-    for( i = 0; i < nrow; i++ )
-    {
-        bltrow *rs = &(bltsrc->row[i]);
-        bltrow *rc = &(bltcopy->row[i]);
-        int const cs = rs->col;
+    for (i = 0; i < nrow; i++) {
+        bltrow* rs = &(bltsrc->row[i]);
+        bltrow* rc = &(bltcopy->row[i]);
+        const int cs = rs->col;
         int cc = rc->col;
-        double *as = rs->address;
-        double *ac = rc->address;
-        while( cc < cs ) { cc++; *ac++ = 0.0; }
+        double* as = rs->address;
+        double* ac = rc->address;
+        while (cc < cs) {
+            cc++;
+            *ac++ = 0.0;
+        }
         /* while( cc <= i ){ cc++; *ac++ = *as++; } */
-        memcpy( ac, as, sizeof(double)*(i+1-cs) );
+        memcpy(ac, as, sizeof(double) * (i + 1 - cs));
     }
 
     return OK;
 }
 
-
 /* Calculate the cholesky decomposition */
 
-int blt_chol_dec( bltmatrix *blt, int fill )
-{
-    double *r1;
-    double *r2;
+int blt_chol_dec(bltmatrix* blt, int fill) {
+    double* r1;
+    double* r2;
     double sum;
     int i;
     int j;
@@ -443,82 +418,73 @@ int blt_chol_dec( bltmatrix *blt, int fill )
     nfill = 0;
     ndone = 0;
 
-    init_progress_meter( blt->nelement );
+    init_progress_meter(blt->nelement);
 
-    for (i = 0; i<blt->nrow; i++ )
-    {
-
+    for (i = 0; i < blt->nrow; i++) {
         /* For each row being decomposed, skip over all initial zero's in
         the row */
 
-        jmin  = blt->row[i].col;
+        jmin = blt->row[i].col;
 
-        for ( j = jmin; j<= i; j++ )
-        {
-
+        for (j = jmin; j <= i; j++) {
             kmin = blt->row[j].col;
-            if( jmin > kmin ) { kmin = jmin;
-}
+            if (jmin > kmin) {
+                kmin = jmin;
+            }
             r1 = blt->row[i].address + kmin - jmin;
             r2 = blt->row[j].address + kmin - blt->row[j].col;
             sum = 0.0;
 
-            for( k=kmin; k < j; k++ ) { sum -= *r1++ * *r2++;
-}
+            for (k = kmin; k < j; k++) {
+                sum -= *r1++ * *r2++;
+            }
 
             sum += *r1;
 
-            if ( i==j )
-            {
-                if( sum < *r1 * small || sum < abssmall )
-                {
-                    if( !fill ) { return ++i;
-}
+            if (i == j) {
+                if (sum < *r1 * small || sum < abssmall) {
+                    if (!fill) {
+                        return ++i;
+                    }
                     nfill++;
                     sum = 1.0;
                 }
-                *r1 = sqrt( sum );
-            }
-            else
-            {
-                *r1 = sum/ *r2;
+                *r1 = sqrt(sum);
+            } else {
+                *r1 = sum / *r2;
             }
             ndone++;
         }
-        update_progress_meter( ndone );
+        update_progress_meter(ndone);
     }
     end_progress_meter();
     return nfill;
 }
 
-
 /* Solve linear equations using the cholesky decomposition */
 
-void blt_chol_slv( bltmatrix *blt, const double *b, double *r )
-{
-    double *r1;
+void blt_chol_slv(bltmatrix* blt, const double* b, double* r) {
+    double* r1;
     double sum;
     int i;
     int k;
     int ik;
-    for ( i=0; i<blt->nrow; i++ )
-    {
+    for (i = 0; i < blt->nrow; i++) {
         r1 = blt->row[i].address;
-        for (k = blt->row[i].col, sum=0.0; k<i; k++ ) { sum -= *r1++ * r[k];
-}
-        r[i] = (b[i]+sum) / *r1;
+        for (k = blt->row[i].col, sum = 0.0; k < i; k++) {
+            sum -= *r1++ * r[k];
+        }
+        r[i] = (b[i] + sum) / *r1;
     }
-    for ( i=blt->nrow; i--; )
-    {
-        for (k = blt->nrow, sum=0.0 ; --k > i; )
-        {
+    for (i = blt->nrow; i--;) {
+        for (k = blt->nrow, sum = 0.0; --k > i;) {
             ik = i - blt->row[k].col;
-            if( ik >= 0 )
-            {
-                sum -= r[k]* *(blt->row[k].address + ik);
+            if (ik >= 0) {
+                sum -= r[k] * *(blt->row[k].address + ik);
             }
         }
-        r[i] += sum; r[i] /= BLT(blt,i,i);
+        r[i] += sum;
+        r[i] /= BLT(blt, i, i);
     }
 }
 
@@ -533,52 +499,49 @@ void blt_chol_slv( bltmatrix *blt, const double *b, double *r )
    a given row walks consecutive memory.  Both this function and the sum loop in
    blt_chol_inv iterate over slots for a given row as their inner loop, so both
    benefit from the layout. */
-static void blt_load_col_cache( bltmatrix *blt, double *tmpcol, double *sumcol,
-                                int *dosum, int iget, int nget, int isave, int nsave )
-{
-
-    int const nrow = blt->nrow;
+static void blt_load_col_cache(bltmatrix* blt, double* tmpcol, double* sumcol, int* dosum, int iget, int nget,
+                               int isave, int nsave) {
+    const int nrow = blt->nrow;
     int i;
 
-    for( i = iget; i < nrow; i++ )
-    {
-        int const col0 = blt->row[i].col;
+    for (i = iget; i < nrow; i++) {
+        const int col0 = blt->row[i].col;
         int c0;
-        double *row = blt->row[i].address;
-        double *r;
+        double* row = blt->row[i].address;
+        double* r;
 
         /* If there are rows to be saved, then do so */
 
-        if( nsave && i >= isave && dosum[i] < nsave )
-        {
+        if (nsave && i >= isave && dosum[i] < nsave) {
             /* Pre-compute base pointer for row i to avoid recomputing the
                stride offset on every iteration of the inner loop. */
-            double *sc_i = sumcol + i * BLT_INV_CACHE_SIZE;
-            for( c0 = dosum[i], r = row+isave+c0-col0; c0 < nsave; c0++, r++ )
-            {
-                if( isave+c0 > i ) { break;
-}
+            double* sc_i = sumcol + i * BLT_INV_CACHE_SIZE;
+            for (c0 = dosum[i], r = row + isave + c0 - col0; c0 < nsave; c0++, r++) {
+                if (isave + c0 > i) {
+                    break;
+                }
                 *r = sc_i[c0];
             }
         }
 
         /* Count number of cols to get */
 
-        dosum[i] = c0 = col0 < iget ? 0 : col0-iget;
-        if( c0 >= nget ) { continue;
-}
+        dosum[i] = c0 = col0 < iget ? 0 : col0 - iget;
+        if (c0 >= nget) {
+            continue;
+        }
 
         /* Retrieve the cols and initialise the summation */
 
         {
             /* Pre-compute base pointers for row i to avoid recomputing the
                stride offset on every iteration of the inner loop. */
-            double *tc_i = tmpcol + i * BLT_INV_CACHE_SIZE;
-            double *sc_i = sumcol + i * BLT_INV_CACHE_SIZE;
-            for( r = row + iget + c0 - col0; c0 < nget; c0++, r++ )
-            {
-                if( iget + c0 > i ) { break;
-}
+            double* tc_i = tmpcol + i * BLT_INV_CACHE_SIZE;
+            double* sc_i = sumcol + i * BLT_INV_CACHE_SIZE;
+            for (r = row + iget + c0 - col0; c0 < nget; c0++, r++) {
+                if (iget + c0 > i) {
+                    break;
+                }
                 tc_i[c0] = *r;
                 sc_i[c0] = 0.0;
             }
@@ -586,9 +549,7 @@ static void blt_load_col_cache( bltmatrix *blt, double *tmpcol, double *sumcol,
     }
 }
 
-
-void blt_chol_inv( bltmatrix *blt )
-{
+void blt_chol_inv(bltmatrix* blt) {
     int i0;
     int i1;
     int c;
@@ -602,98 +563,85 @@ void blt_chol_inv( bltmatrix *blt )
          read from the other (aliasing), and would refuse to vectorise the inner
          loop.  Distinct allocations give it that guarantee. */
     const int nrow = blt->nrow;
-    const size_t cachesize = static_cast<size_t>( nrow ) * BLT_INV_CACHE_SIZE;
-    double *tmpcol = new double[cachesize];
-    double *sumcol = new double[cachesize];
-    int    *dosum  = new int[nrow];
+    const size_t cachesize = static_cast<size_t>(nrow) * BLT_INV_CACHE_SIZE;
+    double* tmpcol = new double[cachesize];
+    double* sumcol = new double[cachesize];
+    int* dosum = new int[nrow];
 
-    init_progress_meter( blt->nelement );
+    init_progress_meter(blt->nelement);
 
     long ndone = 0;
-    int  nsave = 0;
+    int nsave = 0;
 
-    for (i1=nrow-1, i0=nrow-BLT_INV_CACHE_SIZE;
-            i1 >= 0;
-            i1=i0-1, i0 -= BLT_INV_CACHE_SIZE )
-    {
-
-        if( i0 < 0 ) { i0 = 0;
-}
+    for (i1 = nrow - 1, i0 = nrow - BLT_INV_CACHE_SIZE; i1 >= 0; i1 = i0 - 1, i0 -= BLT_INV_CACHE_SIZE) {
+        if (i0 < 0) {
+            i0 = 0;
+        }
 
         /* Save the cached row data and update with the new values ... */
 
-        blt_load_col_cache( blt, tmpcol, sumcol, dosum, i0, i1-i0+1, i1+1, nsave );
-        nsave = i1-i0+1;
+        blt_load_col_cache(blt, tmpcol, sumcol, dosum, i0, i1 - i0 + 1, i1 + 1, nsave);
+        nsave = i1 - i0 + 1;
 
         /* Sum the data for the rows after i0 into the summation */
-        for (j=i1+1; j < nrow; j++ )
-        {
+        for (j = i1 + 1; j < nrow; j++) {
             int col0 = blt->row[j].col;
-            double *row = blt->row[j].address;
+            double* row = blt->row[j].address;
 
-            if( col0 < i1+1 )
-            {
-                row += i1+1-col0;
-                col0 = i1+1;
+            if (col0 < i1 + 1) {
+                row += i1 + 1 - col0;
+                col0 = i1 + 1;
             }
 
-            for( ; col0 <= j; col0++, row++ )
-            {
+            for (; col0 <= j; col0++, row++) {
                 /* Sum the effect of matrix element (j, col0) into the cache.
                    c_start skips slots not yet active for either row, removing
                    the per-slot branch from the inner loop.  Pre-computing base
                    pointers avoids recomputing the row stride on every iteration. */
-                int const c_start = dosum[col0] > dosum[j] ? dosum[col0] : dosum[j];
-                double const elem = *row;
-                double *sc_col0 = sumcol + col0 * BLT_INV_CACHE_SIZE;
-                double *sc_j    = sumcol + j   * BLT_INV_CACHE_SIZE;
-                double *tc_j    = tmpcol + j   * BLT_INV_CACHE_SIZE;
-                double *tc_col0 = tmpcol + col0 * BLT_INV_CACHE_SIZE;
-                if( j != col0 )
-                {
-                    for( c = c_start; c < nsave; c++ )
-                    {
+                const int c_start = dosum[col0] > dosum[j] ? dosum[col0] : dosum[j];
+                const double elem = *row;
+                double* sc_col0 = sumcol + col0 * BLT_INV_CACHE_SIZE;
+                double* sc_j = sumcol + j * BLT_INV_CACHE_SIZE;
+                double* tc_j = tmpcol + j * BLT_INV_CACHE_SIZE;
+                double* tc_col0 = tmpcol + col0 * BLT_INV_CACHE_SIZE;
+                if (j != col0) {
+                    for (c = c_start; c < nsave; c++) {
                         sc_col0[c] -= elem * tc_j[c];
-                        sc_j[c]    -= elem * tc_col0[c];
+                        sc_j[c] -= elem * tc_col0[c];
                     }
-                }
-                else
-                {
-                    for( c = c_start; c < nsave; c++ ) {
+                } else {
+                    for (c = c_start; c < nsave; c++) {
                         sc_col0[c] -= elem * tc_j[c];
-}
+                    }
                 }
             }
         }
 
         /* Now process the cached columns to generate the inverse in
            sumcol */
-        for( c = nsave; c--; )
-        {
+        for (c = nsave; c--;) {
             double sc;
-            int const ic = i0 + c;
+            const int ic = i0 + c;
             /* Pre-compute base pointers for the current cached column ic so
                the j-loop body doesn't recompute the row stride each iteration. */
-            double *sc_ic = sumcol + ic * BLT_INV_CACHE_SIZE;
-            double *tc_ic = tmpcol + ic * BLT_INV_CACHE_SIZE;
-            for( j = nrow-1; j > ic; j-- )
-            {
-                double *sc_j = sumcol + j * BLT_INV_CACHE_SIZE;
-                double *tc_j = tmpcol + j * BLT_INV_CACHE_SIZE;
+            double* sc_ic = sumcol + ic * BLT_INV_CACHE_SIZE;
+            double* tc_ic = tmpcol + ic * BLT_INV_CACHE_SIZE;
+            for (j = nrow - 1; j > ic; j--) {
+                double* sc_j = sumcol + j * BLT_INV_CACHE_SIZE;
+                double* tc_j = tmpcol + j * BLT_INV_CACHE_SIZE;
                 /* Calculate the new element [ic,j] in sumcol */
-                if( c < dosum[j] ) { continue;
-}
+                if (c < dosum[j]) {
+                    continue;
+                }
                 sc = sc_j[c];
                 sc /= tc_ic[c];
                 sc_j[c] = sc;
                 ndone++;
                 /* Update the sums affected by this element (ic,j) */
-                for( c1 = dosum[j]; c1 < c; c1++ )
-                {
-                    if( c1 >= dosum[ic] )
-                    {
+                for (c1 = dosum[j]; c1 < c; c1++) {
+                    if (c1 >= dosum[ic]) {
                         sc_ic[c1] -= sc * tc_j[c1];
-                        sc_j[c1]  -= sc * tc_ic[c1];
+                        sc_j[c1] -= sc * tc_ic[c1];
                     }
                 }
             }
@@ -703,146 +651,135 @@ void blt_chol_inv( bltmatrix *blt )
                sum in FPU, hence improving accuracy, and accuracy is more
                critical for diagonal element than for others. */
 
-            sc = 1.0/tc_ic[c];
-            for( j = ic+1; j < nrow; j++ )
-            {
-                double *sc_j = sumcol + j * BLT_INV_CACHE_SIZE;
-                double *tc_j = tmpcol + j * BLT_INV_CACHE_SIZE;
-                if( c >= dosum[j] ) { sc -= sc_j[c] * tc_j[c];
-}
+            sc = 1.0 / tc_ic[c];
+            for (j = ic + 1; j < nrow; j++) {
+                double* sc_j = sumcol + j * BLT_INV_CACHE_SIZE;
+                double* tc_j = tmpcol + j * BLT_INV_CACHE_SIZE;
+                if (c >= dosum[j]) {
+                    sc -= sc_j[c] * tc_j[c];
+                }
             }
             sc /= tc_ic[c];
             sc_ic[c] = sc;
 
-            for( c1 = dosum[ic]; c1 < c; c1++ )
-            {
+            for (c1 = dosum[ic]; c1 < c; c1++) {
                 sc_ic[c1] -= sc * tc_ic[c1];
             }
         }
 
-        update_progress_meter( ndone );
+        update_progress_meter(ndone);
     }
 
     /* Save the last cached columns back again... */
 
-    blt_load_col_cache( blt, tmpcol, sumcol, dosum, 0, 0, 0, nsave );
+    blt_load_col_cache(blt, tmpcol, sumcol, dosum, 0, 0, 0, nsave);
     end_progress_meter();
 
-    delete [] tmpcol;
-    delete [] sumcol;
-    delete [] dosum;
+    delete[] tmpcol;
+    delete[] sumcol;
+    delete[] dosum;
 }
 
-void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent )
-{
+void print_bltmatrix(FILE* out, bltmatrix* blt, char* format, int indent) {
     int i;
     int j;
     int k;
     int cols;
     int wid;
-    char *f;
+    char* f;
 
-    for( f=format; *f != 0 && (*f < '0' || *f > '9'); f++) {;
-}
-    if( *f )
-    {
-        sscanf(f,"%d",&wid);
+    for (f = format; *f != 0 && (*f < '0' || *f > '9'); f++) {
+        ;
     }
-    else
-    {
+    if (*f) {
+        sscanf(f, "%d", &wid);
+    } else {
         wid = 10;
     }
 
-    cols = (80-indent)/(wid+1);
-    if( cols < 4 ) { cols = 4;
-}
+    cols = (80 - indent) / (wid + 1);
+    if (cols < 4) {
+        cols = 4;
+    }
 
-
-    for (k=0; k<blt->nrow; k+=cols)
-    {
-        fprintf(out,"\n%.*s      ",indent,"");
-        for( j=k; j<blt->nrow && j<k+cols; j++) { fprintf(out,"%*d ",wid,j+1);
-}
-        fprintf(out,"\n");
-        for (i=k; i<blt->nrow; i++ )
-        {
-            fprintf(out,"%.*s%6d%s",indent,"",i+1,blt->row[i].alloc ? "*" : " ");
-            for( j=k; j<=i && j<k+cols; j++)
-            {
-                if( j >= blt->row[i].col )
-                {
-                    fprintf(out,format,BLT(blt,i,j) );
+    for (k = 0; k < blt->nrow; k += cols) {
+        fprintf(out, "\n%.*s      ", indent, "");
+        for (j = k; j < blt->nrow && j < k + cols; j++) {
+            fprintf(out, "%*d ", wid, j + 1);
+        }
+        fprintf(out, "\n");
+        for (i = k; i < blt->nrow; i++) {
+            fprintf(out, "%.*s%6d%s", indent, "", i + 1, blt->row[i].alloc ? "*" : " ");
+            for (j = k; j <= i && j < k + cols; j++) {
+                if (j >= blt->row[i].col) {
+                    fprintf(out, format, BLT(blt, i, j));
+                } else {
+                    fprintf(out, "%*s", wid, "-");
                 }
-                else
-                {
-                    fprintf(out,"%*s",wid,"-");
-                }
-                fputs( " ", out);
+                fputs(" ", out);
             }
-            fprintf(out,"\n");
+            fprintf(out, "\n");
         }
     }
 }
 
-double *blt_get_row_data( bltmatrix * blt, int irow )
-{
-    if( irow < 0 || irow > blt->nrow
-            || blt->status != BLT_READY
-            || blt->row[irow].col > 0 ) { return nullptr;
-}
+double* blt_get_row_data(bltmatrix* blt, int irow) {
+    if (irow < 0 || irow > blt->nrow || blt->status != BLT_READY || blt->row[irow].col > 0) {
+        return nullptr;
+    }
 
     return blt->row[irow].address;
 }
 
-void dump_bltmatrix( bltmatrix *blt, FILE *b )
-{
+void dump_bltmatrix(bltmatrix* blt, FILE* b) {
     int i;
-    if( blt->status != BLT_READY ) { return;
-}
-    fwrite(&(blt->nrow),sizeof(blt->nrow),1,b);
-    for( i = 0; i < blt->nrow; i++ )
-    {
-        fwrite(&(blt->row[i].col),sizeof(blt->row[i].col),1,b);
+    if (blt->status != BLT_READY) {
+        return;
     }
-    for( i = 0; i < blt->nrow; i++ )
-    {
-        bltrow *r = &(blt->row[i]);
-        int const len = i + 1 - r->col;
-        fwrite(r->address,sizeof(double),len,b);
+    fwrite(&(blt->nrow), sizeof(blt->nrow), 1, b);
+    for (i = 0; i < blt->nrow; i++) {
+        fwrite(&(blt->row[i].col), sizeof(blt->row[i].col), 1, b);
+    }
+    for (i = 0; i < blt->nrow; i++) {
+        bltrow* r = &(blt->row[i]);
+        const int len = i + 1 - r->col;
+        fwrite(r->address, sizeof(double), len, b);
     }
 }
 
-int reload_bltmatrix( bltmatrix **pblt, FILE *b )
-{
+int reload_bltmatrix(bltmatrix** pblt, FILE* b) {
     int i;
     int nrow;
-    bltmatrix *blt = nullptr;
+    bltmatrix* blt = nullptr;
 
     *pblt = nullptr;
-    if( fread(&nrow,sizeof(nrow),1,b) != 1 ) { return FILE_READ_ERROR;
-}
-    if( nrow <= 0 ) { return INVALID_DATA;
-}
+    if (fread(&nrow, sizeof(nrow), 1, b) != 1) {
+        return FILE_READ_ERROR;
+    }
+    if (nrow <= 0) {
+        return INVALID_DATA;
+    }
 
     blt = create_bltmatrix(nrow);
     *pblt = blt;
-    for( i = 0; i < blt->nrow; i++ )
-    {
+    for (i = 0; i < blt->nrow; i++) {
         int icol;
-        if( fread(&icol,sizeof(icol),1,b) != 1 ) { return FILE_READ_ERROR;
-}
-        if( icol < 0 || icol > i ) { return INVALID_DATA;
-}
-        blt_nonzero_element(blt,i,icol);
+        if (fread(&icol, sizeof(icol), 1, b) != 1) {
+            return FILE_READ_ERROR;
+        }
+        if (icol < 0 || icol > i) {
+            return INVALID_DATA;
+        }
+        blt_nonzero_element(blt, i, icol);
     }
-    blt_set_sparse_rows(blt,nrow);
+    blt_set_sparse_rows(blt, nrow);
     init_bltmatrix(blt);
-    for( i = 0; i < blt->nrow; i++ )
-    {
-        bltrow *r = &(blt->row[i]);
-        int const len = i + 1 - r->col;
-        if( fread(r->address,sizeof(double),len,b) != (unsigned int) len) { return FILE_READ_ERROR;
-}
+    for (i = 0; i < blt->nrow; i++) {
+        bltrow* r = &(blt->row[i]);
+        const int len = i + 1 - r->col;
+        if (fread(r->address, sizeof(double), len, b) != (unsigned int)len) {
+            return FILE_READ_ERROR;
+        }
     }
     return OK;
 }
@@ -863,26 +800,24 @@ int reload_bltmatrix( bltmatrix **pblt, FILE *b )
 // the actual byte layout with dump_bltmatrix_dense - a plain convenience
 // wrapper over the same two pieces, with no progress meter, for callers
 // that don't need one.
-void dump_bltmatrix_dense_header( bltmatrix *blt, FILE *b )
-{
+void dump_bltmatrix_dense_header(bltmatrix* blt, FILE* b) {
     fwrite(&(blt->nrow), sizeof(blt->nrow), 1, b);
 }
 
-void dump_bltmatrix_dense_row( bltmatrix *blt, int irow, FILE *b )
-{
-    double *row = blt_get_row_data(blt, irow);
-    if( row ) {
-        fwrite( row, sizeof(double), irow+1, b );
+void dump_bltmatrix_dense_row(bltmatrix* blt, int irow, FILE* b) {
+    double* row = blt_get_row_data(blt, irow);
+    if (row) {
+        fwrite(row, sizeof(double), irow + 1, b);
     }
 }
 
-void dump_bltmatrix_dense( bltmatrix *blt, FILE *b )
-{
+void dump_bltmatrix_dense(bltmatrix* blt, FILE* b) {
     int i;
-    if( blt->status != BLT_READY ) { return;
-}
+    if (blt->status != BLT_READY) {
+        return;
+    }
     dump_bltmatrix_dense_header(blt, b);
-    for( i = 0; i < blt->nrow; i++ ) {
+    for (i = 0; i < blt->nrow; i++) {
         dump_bltmatrix_dense_row(blt, i, b);
     }
 }
@@ -893,119 +828,112 @@ void dump_bltmatrix_dense( bltmatrix *blt, FILE *b )
 // without going through snap_main's own live adjustment state -
 // lsq_get_covariance_matrix() only has a meaningful answer during a
 // real snap run.
-int reload_bltmatrix_dense( bltmatrix **pblt, FILE *b )
-{
+int reload_bltmatrix_dense(bltmatrix** pblt, FILE* b) {
     int i;
     int nrow;
-    bltmatrix *blt = nullptr;
+    bltmatrix* blt = nullptr;
 
     *pblt = nullptr;
-    if( fread(&nrow, sizeof(nrow), 1, b) != 1 ) { return FILE_READ_ERROR;
-}
-    if( nrow <= 0 ) { return INVALID_DATA;
-}
+    if (fread(&nrow, sizeof(nrow), 1, b) != 1) {
+        return FILE_READ_ERROR;
+    }
+    if (nrow <= 0) {
+        return INVALID_DATA;
+    }
 
     blt = create_bltmatrix(nrow);
     *pblt = blt;
-    for( i = 0; i < blt->nrow; i++ ) {
+    for (i = 0; i < blt->nrow; i++) {
         blt_nonzero_element(blt, i, 0);
     }
     blt_set_sparse_rows(blt, nrow);
     init_bltmatrix(blt);
-    for( i = 0; i < blt->nrow; i++ )
-    {
-        bltrow *r = &(blt->row[i]);
-        int const len = i + 1 - r->col;
-        if( fread(r->address, sizeof(double), len, b) != (unsigned int) len) {
+    for (i = 0; i < blt->nrow; i++) {
+        bltrow* r = &(blt->row[i]);
+        const int len = i + 1 - r->col;
+        if (fread(r->address, sizeof(double), len, b) != (unsigned int)len) {
             return FILE_READ_ERROR;
         }
     }
     return OK;
 }
 
-void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format )
-{
+void print_bltmatrix_json(bltmatrix* blt, FILE* out, int nprefix, int options, const char* format) {
     int ir;
     int ic;
     int ir0;
     int ic0;
     int col0;
-    int const nrows=blt->nrow;
-    int const matonly = options & BLT_JSON_MATRIX_ONLY;
+    const int nrows = blt->nrow;
+    const int matonly = options & BLT_JSON_MATRIX_ONLY;
     int rows = options & BLT_JSON_FULL;
-    int const lower = rows == BLT_JSON_LOWER;
+    const int lower = rows == BLT_JSON_LOWER;
 
-    if( matonly && ! rows ){ rows=BLT_JSON_LOWER; }
-    if( ! format ) { format = "%15.8le";
-}
+    if (matonly && !rows) {
+        rows = BLT_JSON_LOWER;
+    }
+    if (!format) {
+        format = "%15.8le";
+    }
 
-    if( ! matonly )
-    {
-        fprintf(out,"{\n%*s\"nrows\": %d,\n%*s\"nsparse\": %d,\n%*s\"col0\": [",
-                nprefix,"",nrows,nprefix,"",blt->nsparse,nprefix,"");
-        for( ir=0; ir < nrows; ir++ )
-        {
-            if( ir )
-            {
-                if( ir %20 == 0 ) { fprintf(out,",\n%*s",nprefix,"");
-                } else { fprintf(out,",");
-}
+    if (!matonly) {
+        fprintf(out, "{\n%*s\"nrows\": %d,\n%*s\"nsparse\": %d,\n%*s\"col0\": [", nprefix, "", nrows, nprefix, "",
+                blt->nsparse, nprefix, "");
+        for (ir = 0; ir < nrows; ir++) {
+            if (ir) {
+                if (ir % 20 == 0) {
+                    fprintf(out, ",\n%*s", nprefix, "");
+                } else {
+                    fprintf(out, ",");
+                }
             }
-            fprintf( out, "%d", blt->row[ir].col );
+            fprintf(out, "%d", blt->row[ir].col);
         }
-        fprintf(out,"],\n");
-        fprintf(out,"%*s\"matrix\": ",nprefix,"");
+        fprintf(out, "],\n");
+        fprintf(out, "%*s\"matrix\": ", nprefix, "");
         nprefix += 2;
     }
 
-    fprintf(out,"[");
-    for( ir=0; ir < nrows; ir++ )
-    {
-        fprintf(out,"%s\n%*s  [",ir ? "," : "",nprefix,"");
-        for( ic=0; ic < nrows; ic++ )
-        {
-            double val=0.0;
-            if( ic > ir )
-            {
-               if( lower ) { continue;
-}
-               ic0=ir;
-               ir0=ic;
+    fprintf(out, "[");
+    for (ir = 0; ir < nrows; ir++) {
+        fprintf(out, "%s\n%*s  [", ir ? "," : "", nprefix, "");
+        for (ic = 0; ic < nrows; ic++) {
+            double val = 0.0;
+            if (ic > ir) {
+                if (lower) {
+                    continue;
+                }
+                ic0 = ir;
+                ir0 = ic;
+            } else {
+                ic0 = ic;
+                ir0 = ir;
             }
-            else
-            {
-                ic0=ic;
-                ir0=ir;
+            col0 = blt->row[ir0].col;
+            if (ic0 < col0) {
+                if (!rows) {
+                    continue;
+                }
+            } else {
+                val = blt->row[ir0].address[ic0 - col0];
             }
-            col0=blt->row[ir0].col;
-            if( ic0 < col0 )
-            {
-                if( ! rows ) { continue;
-}
+            if (ic) {
+                fprintf(out, ",");
+                if (ic % 10 == 0) {
+                    fprintf(out, "\n%*s  ", nprefix, "");
+                }
             }
-            else
-            {
-                val=blt->row[ir0].address[ic0-col0];
-            }
-            if( ic ) 
-            {
-                fprintf(out,",");
-                if( ic % 10 == 0 ) { fprintf(out,"\n%*s  ",nprefix,"");
-}
-            }
-            fprintf( out, format, val );
+            fprintf(out, format, val);
         }
-        fprintf(out,"]");
+        fprintf(out, "]");
     }
-    fprintf(out,"]");
+    fprintf(out, "]");
 
-    if( ! matonly )
-    {
+    if (!matonly) {
         nprefix -= 2;
-        fprintf(out,"\n%*s}",nprefix,"");
+        fprintf(out, "\n%*s}", nprefix, "");
     }
 }
-
 
 #ifdef TESTBLT
 
@@ -1036,152 +964,146 @@ plus as many zero based non-zero row/columns as required
 
 */
 
-int main(int argc, char *argv[] )
-{
+int main(int argc, char* argv[]) {
     FILE *in, *out;
-    double *N,*b,*tmp,*N1,*b1,*p;
+    double *N, *b, *tmp, *N1, *b1, *p;
     bltmatrix *blt, *bltc;
-    int *col;
+    int* col;
     int nprm, nmem, nes;
     int i, j;
     double v;
     int expanded = 0;
 
-    if( argc<2 || NULL == (in=fopen(argv[1],"r")) )
-    {
+    if (argc < 2 || NULL == (in = fopen(argv[1], "r"))) {
         xprintf("Need input file as parameter\n");
         return;
     }
 
     out = stdout;
-    if( argc>2 && NULL == (out = fopen(argv[2],"w")) )
-    {
+    if (argc > 2 && NULL == (out = fopen(argv[2], "w"))) {
         xprintf("Cannot open output file\n");
         return;
     }
 
-
-
-    fscanf(in,"%d%d%d",&nprm,&nes,&minrowsize);
-    if( nprm <= 0 )
-    {
+    fscanf(in, "%d%d%d", &nprm, &nes, &minrowsize);
+    if (nprm <= 0) {
         xprintf("Invalid number of parameters\n");
         return;
     }
 
-    nmem = (nprm * (nprm+1))/2 + nprm;
+    nmem = (nprm * (nprm + 1)) / 2 + nprm;
 
-    b = new double[2*nmem+nprm];
-    blt = create_bltmatrix( nprm );
-    bltc = create_bltmatrix( nprm );
+    b = new double[2 * nmem + nprm];
+    blt = create_bltmatrix(nprm);
+    bltc = create_bltmatrix(nprm);
 
-    N = b+nprm;
-    b1 = b+nmem;
-    N1 = b1+nprm;
-    tmp = b1+nmem;
+    N = b + nprm;
+    b1 = b + nmem;
+    N1 = b1 + nprm;
+    tmp = b1 + nmem;
 
-    for( i = 0; i<nmem; i++ ) { fscanf(in,"%lf",&v); b[i] = b1[i] = v; }
-    for( i = 0; i<nprm; i++ ) for( j=0; j<=i; j++ )
-        {
-            if( Lij(N,i,j) != 0.0 ) blt_nonzero_element( blt, i, j );
+    for (i = 0; i < nmem; i++) {
+        fscanf(in, "%lf", &v);
+        b[i] = b1[i] = v;
+    }
+    for (i = 0; i < nprm; i++)
+        for (j = 0; j <= i; j++) {
+            if (Lij(N, i, j) != 0.0)
+                blt_nonzero_element(blt, i, j);
         }
-    blt_set_sparse_rows( blt, nes );
+    blt_set_sparse_rows(blt, nes);
 
-    init_bltmatrix( blt );
-    for( i = 0; i<nprm; i++ ) for( j=0; j<=i; j++ )
-        {
-            if( Lij(N,i,j) != 0.0 )
-            {
-                BLT(blt,i,j) = Lij(N,i,j);
+    init_bltmatrix(blt);
+    for (i = 0; i < nprm; i++)
+        for (j = 0; j <= i; j++) {
+            if (Lij(N, i, j) != 0.0) {
+                BLT(blt, i, j) = Lij(N, i, j);
             }
         }
 
-    fprintf(out,"Matrix as read\n\n");
-    print_ltmat( out, N, nprm, "%10.4lf", 0 );
+    fprintf(out, "Matrix as read\n\n");
+    print_ltmat(out, N, nprm, "%10.4lf", 0);
 
-    fprintf(out,"\nInput matrix\n");
-    print_bltmatrix( out, blt, "%10.4lf", 0 );
-    fprintf(out,"\nInput vector\n");
-    for( i=0; i<nprm; i++ ) fprintf(out,"%3d  %10.4lf\n",i+1,b[i]);
+    fprintf(out, "\nInput matrix\n");
+    print_bltmatrix(out, blt, "%10.4lf", 0);
+    fprintf(out, "\nInput vector\n");
+    for (i = 0; i < nprm; i++)
+        fprintf(out, "%3d  %10.4lf\n", i + 1, b[i]);
 
-    fprintf(out,"\n\nFULL SYMMETRIC SOLUTION\n");
+    fprintf(out, "\n\nFULL SYMMETRIC SOLUTION\n");
 
-    fprintf(out,"\nCholesky decomposition status = %d\n",(int)chol_dec(N,nprm));
-    chol_slv( N, b1, b1, nprm );
+    fprintf(out, "\nCholesky decomposition status = %d\n", (int)chol_dec(N, nprm));
+    chol_slv(N, b1, b1, nprm);
 
-    fprintf(out,"\nDecomposed matrix\n\n");
-    print_ltmat( out, N, nprm, "%10.4lf", 0 );
-    fprintf(out,"\nSolution vector\n");
-    for( i=0; i<nprm; i++ ) fprintf(out,"%3d  %10.4lf\n",i+1,b1[i]);
+    fprintf(out, "\nDecomposed matrix\n\n");
+    print_ltmat(out, N, nprm, "%10.4lf", 0);
+    fprintf(out, "\nSolution vector\n");
+    for (i = 0; i < nprm; i++)
+        fprintf(out, "%3d  %10.4lf\n", i + 1, b1[i]);
 
-    chol_inv( N, tmp, nprm );
-    fprintf(out,"\nInverted matrix\n\n");
-    print_ltmat( out, N, nprm, "%10.4lf", 0 );
+    chol_inv(N, tmp, nprm);
+    fprintf(out, "\nInverted matrix\n\n");
+    print_ltmat(out, N, nprm, "%10.4lf", 0);
 
-    fprintf(out,"\n\nBANDED SOLUTION\n");
+    fprintf(out, "\n\nBANDED SOLUTION\n");
 
-    fprintf(out,"\nCholesky decomposition status = %d\n",(int)blt_chol_dec(blt,0));
+    fprintf(out, "\nCholesky decomposition status = %d\n", (int)blt_chol_dec(blt, 0));
 
-    fprintf(out,"\nDecomposed matrix\n");
-    print_bltmatrix( out, blt, "%10.4lf", 0 );
-    blt_chol_slv( blt, b, b1 );
-    fprintf(out,"\nSolution vector\n");
-    for( i=0; i<nprm; i++ ) fprintf(out,"%3d  %10.4lf\n",i+1,b1[i]);
+    fprintf(out, "\nDecomposed matrix\n");
+    print_bltmatrix(out, blt, "%10.4lf", 0);
+    blt_chol_slv(blt, b, b1);
+    fprintf(out, "\nSolution vector\n");
+    for (i = 0; i < nprm; i++)
+        fprintf(out, "%3d  %10.4lf\n", i + 1, b1[i]);
 
-    copy_bltmatrix(blt,bltc);
+    copy_bltmatrix(blt, bltc);
 
-    if( fscanf(in,"%d",&nes) == 1 )
-    {
-        blt_set_sparse_rows(blt,nes);
+    if (fscanf(in, "%d", &nes) == 1) {
+        blt_set_sparse_rows(blt, nes);
 
-        while( fscanf(in,"%d%d",&i,&j) == 2 )
-        {
-            blt_nonzero_element(blt,i,j);
+        while (fscanf(in, "%d%d", &i, &j) == 2) {
+            blt_nonzero_element(blt, i, j);
         }
         expand_bltmatrix_to_requested(blt);
 
-        fprintf(out,"\nExpanded Cholesky matrix\n");
-        print_bltmatrix( out, blt, "%10.4lf", 0 );
+        fprintf(out, "\nExpanded Cholesky matrix\n");
+        print_bltmatrix(out, blt, "%10.4lf", 0);
         expanded = 1;
     }
 
-    blt_chol_inv( blt );
-    fprintf(out,"\nInverted matrix\n\n");
-    print_bltmatrix( out, blt, "%10.4lf", 0 );
+    blt_chol_inv(blt);
+    fprintf(out, "\nInverted matrix\n\n");
+    print_bltmatrix(out, blt, "%10.4lf", 0);
 
-    fprintf(out,"\nCopy of decomposed matrix\n");
-    print_bltmatrix( out, bltc, "%10.4lf", 0 );
+    fprintf(out, "\nCopy of decomposed matrix\n");
+    print_bltmatrix(out, bltc, "%10.4lf", 0);
 
-    if( expanded )
-    {
-        copy_bltmatrix(bltc,blt);
-        fprintf(out,"\nDecomposition copied back\n");
-        print_bltmatrix( out, blt, "%10.4lf", 0 );
+    if (expanded) {
+        copy_bltmatrix(bltc, blt);
+        fprintf(out, "\nDecomposition copied back\n");
+        print_bltmatrix(out, blt, "%10.4lf", 0);
     }
 
     // Test dump and restore of file
 
     {
-        FILE *bin;
-        char *binfile  = "blt.bin";
-        fprintf(out,"\nTesting dump and reload using %s\n",binfile);
-        bin = fopen(binfile,"w+b");
-        if( bin )
-        {
-            bltmatrix *blt2;
-            dump_bltmatrix( blt, bin );
+        FILE* bin;
+        char* binfile = "blt.bin";
+        fprintf(out, "\nTesting dump and reload using %s\n", binfile);
+        bin = fopen(binfile, "w+b");
+        if (bin) {
+            bltmatrix* blt2;
+            dump_bltmatrix(blt, bin);
             fclose(bin);
-            bin = fopen( binfile,"r+b");
-            if( bin && reload_bltmatrix(&blt2,bin) == OK )
-            {
-                fprintf(out,"Reloaded matrix\n");
-                print_bltmatrix(out,blt,"%10.4lf",0);
+            bin = fopen(binfile, "r+b");
+            if (bin && reload_bltmatrix(&blt2, bin) == OK) {
+                fprintf(out, "Reloaded matrix\n");
+                print_bltmatrix(out, blt, "%10.4lf", 0);
+            } else {
+                fprintf(out, "Reload failed\n");
             }
-            else
-            {
-                fprintf(out,"Reload failed\n");
-            }
-            if( bin ) fclose(bin);
+            if (bin)
+                fclose(bin);
         }
     }
 }

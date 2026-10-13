@@ -15,8 +15,7 @@
 
 /* Definition of survey datatypes. */
 
-datatypedef datatype[] =
-{
+datatypedef datatype[] = {
     /*
       P  point observation (ie no target station)
       V  vector observation
@@ -42,23 +41,105 @@ datatypedef datatype[] =
       types in datatype.h
 
         Code   Name                       P  V  A  F  T  Pj C  Ds D  B  N  J  D Wid Ewid Rwid Ndp*/
-    {GB, "GB", "GPS baseline",           false, true, false, true, false, false, false, false, false, false, false, true, false, 13,  7,   7,  4},
-    {GX, "GX", "GPS point coord",        true, true, false, true, true, false, false, false, false, false, false, true, false, 13,  7,   7,  4},
-    {SD, "SD", "slope distance",         false, false, false, false, false, false, false, true, true, false, false, false, false,  9,  6,   7,  4},
-    {HD, "HD", "horizontal distance",    false, false, false, false, false, false, false, true, true, false, false, false, false,  9,  6,   7,  4},
-    {ED, "ED", "ellipsoidal distance",   false, false, false, false, false, false, false, true, true, false, false, false, false,  9,  6,   7,  4},
-    {MD, "MD", "mean sea level distance",false, false, false, false, false, false, false, true, true, false, false, false, false,  9,  6,   7,  4},
-    {DR, "DR", "distance ratio",         false, false, false, false, false, false, false, true, true, false, true, true, false,  9,  6,   7,  4},
-    {HA, "HA", "horizontal angle",       false, false, true, false, false, false, false, false, false, false, true, true, true, 11,  4,   7,  1},
-    {AZ, "AZ", "azimuth",                false, false, true, false, false, false, false, false, false, true, false, false, true, 11,  4,   7,  1},
-    {PB, "PB", "projection bearing",     false, false, true, false, false, true, false, false, false, true, false, false, true, 11,  4,   7,  1},
-    {ZD, "ZD", "zenith distance",        false, false, true, false, false, false, true, false, false, false, false, false, false, 11,  4,   7,  1},
-    {LV, "LV", "height difference",      false, false, false, false, false, false, false, false, false, false, false, false, false, 10,  6,   7,  4},
-    {OH, "OH", "orthometric height",     true, false, false, false, false, false, false, false, false, false, false, false, false, 10,  6,   7,  4},
-    {EH, "EH", "ellipsoidal height",     true, false, false, false, false, false, false, false, false, false, false, false, false, 10,  6,   7,  4},
-    {LT, "LT", "latitude",               true, false, true, false, false, false, false, false, false, false, false, false, false, 14,  4,   7,  2},
-    {LN, "LN", "longitude",              true, false, true, false, false, false, false, false, false, false, false, false, false, 14,  4,   7,  2},
-    {EP, "EP", "ellipsoidal point crd",  true, true, true, true, true, false, false, false, false, false, false, true, false, 14,  4,   7,  2},
+    {GB,    "GB",  "GPS baseline", false, true, false, true, false, false, false,
+     false, false, false,          false, true, false, 13,   7,     7,     4},
+    {GX,    "GX",  "GPS point coord",
+     true,  true,  false,
+     true,  true,  false,
+     false, false, false,
+     false, false, true,
+     false, 13,    7,
+     7,     4},
+    {SD,    "SD",  "slope distance",
+     false, false, false,
+     false, false, false,
+     false, true,  true,
+     false, false, false,
+     false, 9,     6,
+     7,     4},
+    {HD,    "HD",  "horizontal distance",
+     false, false, false,
+     false, false, false,
+     false, true,  true,
+     false, false, false,
+     false, 9,     6,
+     7,     4},
+    {ED,    "ED",  "ellipsoidal distance",
+     false, false, false,
+     false, false, false,
+     false, true,  true,
+     false, false, false,
+     false, 9,     6,
+     7,     4},
+    {MD,    "MD",  "mean sea level distance",
+     false, false, false,
+     false, false, false,
+     false, true,  true,
+     false, false, false,
+     false, 9,     6,
+     7,     4},
+    {DR,    "DR",  "distance ratio",
+     false, false, false,
+     false, false, false,
+     false, true,  true,
+     false, true,  true,
+     false, 9,     6,
+     7,     4},
+    {HA,    "HA",  "horizontal angle",
+     false, false, true,
+     false, false, false,
+     false, false, false,
+     false, true,  true,
+     true,  11,    4,
+     7,     1},
+    {AZ,    "AZ",  "azimuth", false, false, true, false, false, false, false,
+     false, false, true,      false, false, true, 11,    4,     7,     1},
+    {PB,    "PB",  "projection bearing",
+     false, false, true,
+     false, false, true,
+     false, false, false,
+     true,  false, false,
+     true,  11,    4,
+     7,     1},
+    {ZD,    "ZD",  "zenith distance",
+     false, false, true,
+     false, false, false,
+     true,  false, false,
+     false, false, false,
+     false, 11,    4,
+     7,     1},
+    {LV,    "LV",  "height difference",
+     false, false, false,
+     false, false, false,
+     false, false, false,
+     false, false, false,
+     false, 10,    6,
+     7,     4},
+    {OH,    "OH",  "orthometric height",
+     true,  false, false,
+     false, false, false,
+     false, false, false,
+     false, false, false,
+     false, 10,    6,
+     7,     4},
+    {EH,    "EH",  "ellipsoidal height",
+     true,  false, false,
+     false, false, false,
+     false, false, false,
+     false, false, false,
+     false, 10,    6,
+     7,     4},
+    {LT,    "LT",  "latitude", true,  false, true,  false, false, false, false,
+     false, false, false,      false, false, false, 14,    4,     7,     2},
+    {LN,    "LN",  "longitude", true,  false, true,  false, false, false, false,
+     false, false, false,       false, false, false, 14,    4,     7,     2},
+    {EP,    "EP",  "ellipsoidal point crd",
+     true,  true,  true,
+     true,  true,  false,
+     false, false, false,
+     false, false, true,
+     false, 14,    4,
+     7,     2},
 };
 
 /* SEE NOTE ABOVE BEFORE MODIFYING THIS */
@@ -66,32 +147,30 @@ datatypedef datatype[] =
 /*===============================================================*/
 /* Get observation snap type from its code                       */
 
-int datatype_from_code( std::string_view code )
-{
+int datatype_from_code(std::string_view code) {
     int i;
-    if( compare_ignoring_case( code, "GPS" ) == 0 ) { code = "GB";
-}
-    for( i=0; i < NOBSTYPE; i++ )
-    {
-        if( compare_ignoring_case( datatype[i].code, code ) == 0 )
-        {
-            if( datatype[i].id != i ) { handle_error( INTERNAL_ERROR, "Data type id inconsistent in datatype.c",NO_MESSAGE);
-}
+    if (compare_ignoring_case(code, "GPS") == 0) {
+        code = "GB";
+    }
+    for (i = 0; i < NOBSTYPE; i++) {
+        if (compare_ignoring_case(datatype[i].code, code) == 0) {
+            if (datatype[i].id != i) {
+                handle_error(INTERNAL_ERROR, "Data type id inconsistent in datatype.c", NO_MESSAGE);
+            }
             return i;
         }
     }
     return NOBSTYPE;
 }
 
-datatypedef *datatypedef_from_code( std::string_view code )
-{
-    int const i = datatype_from_code(code);
-    if( i < NOBSTYPE ) { return &(datatype[i]);
-}
+datatypedef* datatypedef_from_code(std::string_view code) {
+    const int i = datatype_from_code(code);
+    if (i < NOBSTYPE) {
+        return &(datatype[i]);
+    }
     return nullptr;
 }
 
-datatypedef *datatypedef_from_id( int idtype )
-{
+datatypedef* datatypedef_from_id(int idtype) {
     return &(datatype[idtype]);
 }

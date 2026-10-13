@@ -7,36 +7,40 @@
 #include "wxmapscale.hpp"
 #include "wxmap.hpp"
 
-DECLARE_EVENT_TYPE( WX_MAPWINDOW_POSITION, -1)
-DECLARE_EVENT_TYPE( WX_MAPWINDOW_CLICKED, -1)
-DECLARE_EVENT_TYPE( WX_MAPWINDOW_REPAINTED, -1)
-DECLARE_EVENT_TYPE( WX_MAPWINDOW_REDRAWMAP, -1)
+DECLARE_EVENT_TYPE(WX_MAPWINDOW_POSITION, -1)
+DECLARE_EVENT_TYPE(WX_MAPWINDOW_CLICKED, -1)
+DECLARE_EVENT_TYPE(WX_MAPWINDOW_REPAINTED, -1)
+DECLARE_EVENT_TYPE(WX_MAPWINDOW_REDRAWMAP, -1)
 
-class wxMapWindowEvent: public wxEvent
-{
-public:
-    wxMapWindowEvent( wxEventType eventType, int id, const wxMouseEvent &me, MapPoint pt );
-    wxMapWindowEvent( const wxMapWindowEvent &event );
+class wxMapWindowEvent : public wxEvent {
+ public:
+    wxMapWindowEvent(wxEventType eventType, int id, const wxMouseEvent& me, MapPoint pt);
+    wxMapWindowEvent(const wxMapWindowEvent& event);
 
-    const MapPoint GetMapPoint() { return pt; }
-    const wxMouseEvent &GetMouseEvent() { return mouseEvent; }
+    const MapPoint GetMapPoint() {
+        return pt;
+    }
+    const wxMouseEvent& GetMouseEvent() {
+        return mouseEvent;
+    }
 
     // required for sending with wxPostEvent()
-    [[nodiscard]] wxEvent* Clone() const override { return new wxMapWindowEvent(*this); }
+    [[nodiscard]] wxEvent* Clone() const override {
+        return new wxMapWindowEvent(*this);
+    }
 
-
-private:
+ private:
     wxMouseEvent mouseEvent;
     MapPoint pt;
-    DECLARE_NO_ASSIGN_CLASS( wxMapWindowEvent )
+    DECLARE_NO_ASSIGN_CLASS(wxMapWindowEvent)
 };
 
 using wxMapWindowEventFunction = void (wxEvtHandler::*)(wxMapWindowEvent&);
 
-#define EVT_MAPWINDOW_EVENT( eventtype, fn) \
-    DECLARE_EVENT_TABLE_ENTRY( eventtype, wxID_ANY, -1, \
-    (wxObjectEventFunction) (wxEventFunction) \
-    wxStaticCastEvent( wxMapWindowEventFunction, & fn ), (wxObject *) NULL ),
+#define EVT_MAPWINDOW_EVENT(eventtype, fn) \
+    DECLARE_EVENT_TABLE_ENTRY(             \
+        eventtype, wxID_ANY, -1,           \
+        (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxMapWindowEventFunction, &fn), (wxObject*)NULL),
 
 //---------------------------------------------------------------------------
 
@@ -46,8 +50,7 @@ enum RBDragMode { rbmNone, rbmRect };
 enum ZoomDragMode { zdmNone, zdmZoom, zdmPan };
 
 // Options for rubber band dragging
-enum
-{
+enum {
     rbLeftButtonCanDrag = 1,
     rbRightButtonCanDrag = 2,
     rbMiddleButtonCanDrag = 4,
@@ -57,24 +60,24 @@ enum
 
 class wxMapWindow;
 
-class wxMapDragger
-{
+class wxMapDragger {
     friend class wxMapWindow;
-public:
+
+ public:
     wxMapDragger();
     ~wxMapDragger();
 
-    virtual bool InitDrag( const wxMouseEvent &event );
+    virtual bool InitDrag(const wxMouseEvent& event);
     virtual void SetDragCursor();
     virtual void EndDrag();
 
-    void SetMinDragLength( int length );
-    void SetRBDragMode( RBDragMode newMode );
-    void SetMoveOriginOnShift( bool newState );
+    void SetMinDragLength(int length);
+    void SetRBDragMode(RBDragMode newMode);
+    void SetMoveOriginOnShift(bool newState);
 
-protected:
-    void SetMapCursor( const wxCursor &cursor );
-    virtual void DrawDragger( wxDC &dc );
+ protected:
+    void SetMapCursor(const wxCursor& cursor);
+    virtual void DrawDragger(wxDC& dc);
 
     // Fills dc with the background colour, then draws a fresh copy of the
     // map onto it - rather than reading back what's currently on screen
@@ -82,19 +85,19 @@ protected:
     // meaningful at all under wx's native overlay backend (selected on
     // Wayland sessions), which draws to a separate transparent layer
     // instead of the real window.
-    void PaintMapOnto( wxDC &dc );
+    void PaintMapOnto(wxDC& dc);
 
     // As PaintMapOnto, but into an owned bitmap sized to the window.
     wxBitmap CaptureMapBitmap();
 
-    wxMapWindow *mapWindow;
+    wxMapWindow* mapWindow;
     wxPoint dragStartPoint;
     wxPoint dragEndPoint;
 
-private:
-    void AttachToMapWindow( wxMapWindow *newWindow );
-    void ProcessMouseEvent( wxMouseEvent &event );
-    void ProcessMouseCaptureLostEvent( wxMouseCaptureLostEvent &event );
+ private:
+    void AttachToMapWindow(wxMapWindow* newWindow);
+    void ProcessMouseEvent(wxMouseEvent& event);
+    void ProcessMouseCaptureLostEvent(wxMouseCaptureLostEvent& event);
 
     // Called by wxMapWindow::PaintMap() (a friend) right after it draws -
     // if a reset was requested, starts a settle timer rather than resetting
@@ -126,22 +129,23 @@ private:
 
 // Map scale dragger class
 
-class wxMapScaleDragger : public wxMapDragger
-{
-public:
+class wxMapScaleDragger : public wxMapDragger {
+ public:
     wxMapScaleDragger();
-    bool InitDrag( const wxMouseEvent &event ) override;
+    bool InitDrag(const wxMouseEvent& event) override;
     void SetDragCursor() override;
     void EndDrag() override;
-    void SetZoomDragMode( ZoomDragMode newMode );
-    void SetAutoZoomPanMode( bool newMode = true );
-protected:
+    void SetZoomDragMode(ZoomDragMode newMode);
+    void SetAutoZoomPanMode(bool newMode = true);
+
+ protected:
     // protected, not private: a subclass may need to call this base
     // implementation directly (qualified, non-virtually) from within its
     // own override, which requires at least protected access.
-    void DrawDragger( wxDC &dc ) override;
-private:
-    void ZoomTo( const MapRect &newRect );
+    void DrawDragger(wxDC& dc) override;
+
+ private:
+    void ZoomTo(const MapRect& newRect);
     ZoomDragMode zoomMode;
     bool autoZoomPanMode;
 
@@ -152,61 +156,66 @@ private:
 
 // Map window class
 
-class wxMapWindow : public wxWindow
-{
+class wxMapWindow : public wxWindow {
     friend wxMapDragger;
-public:
+
+ public:
     wxMapWindow();
-    wxMapWindow( wxWindow *parent, wxWindowID id );
+    wxMapWindow(wxWindow* parent, wxWindowID id);
     ~wxMapWindow() override;
 
-    wxMapScale &GetScale() { return scale; }
-    Symbology *GetSymbology() { return symbology; }
-    wxMap *GetMap() { return map; }
-    [[nodiscard]] const MapPoint &GetCursorPosition() const { return cursorPosition; }
+    wxMapScale& GetScale() {
+        return scale;
+    }
+    Symbology* GetSymbology() {
+        return symbology;
+    }
+    wxMap* GetMap() {
+        return map;
+    }
+    [[nodiscard]] const MapPoint& GetCursorPosition() const {
+        return cursorPosition;
+    }
 
-    void SetSendPositionEvent( bool sendPosition = true );
-    void SetDragger( wxMapDragger *dragger );
-    void SetSymbology( Symbology *symbology );
-    void SetMap( wxMap *map );
+    void SetSendPositionEvent(bool sendPosition = true);
+    void SetDragger(wxMapDragger* dragger);
+    void SetSymbology(Symbology* symbology);
+    void SetMap(wxMap* map);
 
     void RedrawMap();
 
-protected:
-    void PaintMap( wxDC &dc );
+ protected:
+    void PaintMap(wxDC& dc);
 
-private:
+ private:
     void SetupMapWindow();
     void DoRedrawMap();
-    void OnPaint( wxPaintEvent &event );
-    void OnMouseEvent( wxMouseEvent &event );
-    void OnMouseCaptureLost( wxMouseCaptureLostEvent &event );
-    void OnSizeEvent( wxSizeEvent &event );
-    void OnScaleChangeEvent( wxSimpleEvent &event );
-    void OnRedrawMap( wxSimpleEvent &event );
-    void ForwardMouseEvent(  wxEventType type, const wxMouseEvent &event );
+    void OnPaint(wxPaintEvent& event);
+    void OnMouseEvent(wxMouseEvent& event);
+    void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+    void OnSizeEvent(wxSizeEvent& event);
+    void OnScaleChangeEvent(wxSimpleEvent& event);
+    void OnRedrawMap(wxSimpleEvent& event);
+    void ForwardMouseEvent(wxEventType type, const wxMouseEvent& event);
     void RefreshCursorPosition();
-    void OnOverlayResetTimer( wxTimerEvent &event );
+    void OnOverlayResetTimer(wxTimerEvent& event);
 
     // Starts a one-shot timer that calls dragger->ResetOverlayNow() after
     // delayMilliseconds - the repaint that made this necessary may have
     // been issued but not yet actually presented on screen, so this gives
     // it a margin to catch up before the drag preview is hidden.
-    void StartOverlayResetTimer( int delayMilliseconds );
+    void StartOverlayResetTimer(int delayMilliseconds);
 
-    wxMap *map;
+    wxMap* map;
     wxMapScale scale;
-    Symbology *symbology;
-    wxMapDragger *dragger;
+    Symbology* symbology;
+    wxMapDragger* dragger;
     MapPoint cursorPosition;
     bool sendPositionEvent;
     wxTimer overlayResetTimer;
 
-    DECLARE_DYNAMIC_CLASS( wxMapWindow );
+    DECLARE_DYNAMIC_CLASS(wxMapWindow);
     DECLARE_EVENT_TABLE();
-
 };
 
-
 #endif
-

@@ -10,13 +10,13 @@
 #include "snap/stnadj.h"
 //}
 
-DEFINE_EVENT_TYPE( WX_MAPVIEW_DISPLAY_COORDS)
+DEFINE_EVENT_TYPE(WX_MAPVIEW_DISPLAY_COORDS)
 
-BEGIN_EVENT_TABLE( SnapplotMapView, wxMapWindow )
-    EVT_IDLE( SnapplotMapView::OnIdle )
-    EVT_MAPWINDOW_EVENT( WX_MAPWINDOW_POSITION, SnapplotMapView::OnMapWindowPosition )
-    EVT_MAPWINDOW_EVENT( WX_MAPWINDOW_CLICKED, SnapplotMapView::OnClickEvent )
-    EVT_PAINT( SnapplotMapView::OnPaint )
+BEGIN_EVENT_TABLE(SnapplotMapView, wxMapWindow)
+EVT_IDLE(SnapplotMapView::OnIdle)
+EVT_MAPWINDOW_EVENT(WX_MAPWINDOW_POSITION, SnapplotMapView::OnMapWindowPosition)
+EVT_MAPWINDOW_EVENT(WX_MAPWINDOW_CLICKED, SnapplotMapView::OnClickEvent)
+EVT_PAINT(SnapplotMapView::OnPaint)
 END_EVENT_TABLE()
 
 // TODO: Fix up code here to use real colour and XOR with background colour
@@ -26,12 +26,10 @@ static int locatorWidth = 9;
 static int locatorPenWidth = 3;
 static int locatorLockedWidth = 13;
 
-SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
-    wxMapWindow( parent, -1 )
-{
+SnapplotMapView::SnapplotMapView(wxWindow* parent) : wxMapWindow(parent, -1) {
     // Set up the crosshair cursor with a white outline..
 
-    SetCursor( wxCursor("CUR_CROSSHAIR2"));
+    SetCursor(wxCursor("CUR_CROSSHAIR2"));
 
     // TODO: Work out a better pick tolerance ... maybe need to
     // base on symbol size...
@@ -45,161 +43,157 @@ SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
     locatorOnlyRepaint = false;
     savedMap = nullptr;
 
-    mapDragger.SetMoveOriginOnShift( true );
-    mapDragger.SetPickTolerance( pickTolerance );
-    SetDragger( &mapDragger );
+    mapDragger.SetMoveOriginOnShift(true);
+    mapDragger.SetPickTolerance(pickTolerance);
+    SetDragger(&mapDragger);
 
     SetSendPositionEvent();
 }
 
-SnapplotMapView::~SnapplotMapView()
-{
+SnapplotMapView::~SnapplotMapView() {
     DropSavedMap();
 }
 
-void SnapplotMapView::OnClickEvent( wxMapWindowEvent &event )
-{
-    const wxMouseEvent &me = event.GetMouseEvent();
-    if( me.ButtonUp( wxMOUSE_BTN_LEFT ) )
-    {
-        ShowInfo( GetCursorPosition(), me.ShiftDown() );
-    }
-    else if ( me.ButtonUp( wxMOUSE_BTN_RIGHT ) )
-    {
-        if( me.ControlDown() && me.ShiftDown() )
-        {
-            int const istn = FindStation( event.GetMapPoint() );
-            if( istn )
-            {
+void SnapplotMapView::OnClickEvent(wxMapWindowEvent& event) {
+    const wxMouseEvent& me = event.GetMouseEvent();
+    if (me.ButtonUp(wxMOUSE_BTN_LEFT)) {
+        ShowInfo(GetCursorPosition(), me.ShiftDown());
+    } else if (me.ButtonUp(wxMOUSE_BTN_RIGHT)) {
+        if (me.ControlDown() && me.ShiftDown()) {
+            const int istn = FindStation(event.GetMapPoint());
+            if (istn) {
                 double dx;
                 double dy;
-                get_station_offset( istn, &dx, &dy );
-                if( dx != 0.0 || dy != 0.0 )
-                {
-                    set_station_offset( istn, 0.0, 0.0 );
+                get_station_offset(istn, &dx, &dy);
+                if (dx != 0.0 || dy != 0.0) {
+                    set_station_offset(istn, 0.0, 0.0);
                     RedrawMap();
                 }
             }
-        }
-        else if( me.ShiftDown() )
-        {
+        } else if (me.ShiftDown()) {
             GetScale().ZoomOut();
-        }
-        else if ( me.AltDown() )
-        {
+        } else if (me.AltDown()) {
             GetScale().ZoomAll();
-        }
-        else
-        {
+        } else {
             GetScale().ZoomPrev();
         }
     }
 }
 
-void SnapplotMapView::ZoomToStation( int istn )
-{
-    ZoomToLine( istn, 0 );
+void SnapplotMapView::ZoomToStation(int istn) {
+    ZoomToLine(istn, 0);
 }
 
-void SnapplotMapView::ZoomToLine( int from, int to )
-{
+void SnapplotMapView::ZoomToLine(int from, int to) {
     double x1;
     double y1;
     double x2;
     double y2;
     double xm;
     double ym;
-    if( !from ) { return;
-}
-    get_station_coordinates( from, &x1, &y1 );
+    if (!from) {
+        return;
+    }
+    get_station_coordinates(from, &x1, &y1);
 
     // If zooming to a line then just get the extents of the line
-    if( to && to != from )
-    {
-        get_station_coordinates( to, &x2, &y2 );
-        double const dx = fabs( x1 - x2 );
-        double const dy = fabs( y1 - y2 );
-        if( dx > 0.0 || dy > 0.0 )
-        {
-            x1 = (x1+x2)/2.0;
-            y1 = (y1+y2)/2.0;
-            GetScale().ZoomTo(MapRect( x1 - dx, y1 - dy, x1 + dx, y1 + dy ) );
+    if (to && to != from) {
+        get_station_coordinates(to, &x2, &y2);
+        const double dx = fabs(x1 - x2);
+        const double dy = fabs(y1 - y2);
+        if (dx > 0.0 || dy > 0.0) {
+            x1 = (x1 + x2) / 2.0;
+            y1 = (y1 + y2) / 2.0;
+            GetScale().ZoomTo(MapRect(x1 - dx, y1 - dy, x1 + dx, y1 + dy));
             return;
         }
     }
 
     // Otherwise get the extents of the connected stations
-    int nconnect = get_connection_count( from );
-    x2 = xm = x1; y2 = ym = y1;
-    while( nconnect-- )
-    {
-        int const cto = get_connected_station( from, nconnect, nullptr );
-        if( !cto ) { continue;
-}
-        if( ! connection_observation_count( from, nconnect ) ) { continue;
-}
+    int nconnect = get_connection_count(from);
+    x2 = xm = x1;
+    y2 = ym = y1;
+    while (nconnect--) {
+        const int cto = get_connected_station(from, nconnect, nullptr);
+        if (!cto) {
+            continue;
+        }
+        if (!connection_observation_count(from, nconnect)) {
+            continue;
+        }
         double x;
         double y;
-        get_station_coordinates( cto, &x, &y );
-        if( x < x1 ) { x1 = x; } else if( x > x2 ) { x2 = x;
-}
-        if( y < y1 ) { y1 = y; } else if( y > y2 ) { y2 = y;
-}
+        get_station_coordinates(cto, &x, &y);
+        if (x < x1) {
+            x1 = x;
+        } else if (x > x2) {
+            x2 = x;
+        }
+        if (y < y1) {
+            y1 = y;
+        } else if (y > y2) {
+            y2 = y;
+        }
     }
 
     // If the range is not null then adjust the range to
     // put the selected station in the middle, and zoom to it
 
-    if( x2 > x1 || y2 > y1 )
-    {
-        x2 = x2 - xm; x1 = xm - x1; if( x1 > x2 ) { x2 = x1;
-}
+    if (x2 > x1 || y2 > y1) {
+        x2 = x2 - xm;
+        x1 = xm - x1;
+        if (x1 > x2) {
+            x2 = x1;
+        }
         x2 *= 1.1;
-        x1 = xm - x2; x2 = xm + x2;
-        y2 = y2 - ym; y1 = ym - y1; if( y1 > y2 ) { y2 = y1;
-}
+        x1 = xm - x2;
+        x2 = xm + x2;
+        y2 = y2 - ym;
+        y1 = ym - y1;
+        if (y1 > y2) {
+            y2 = y1;
+        }
         y2 *= 1.1;
-        y1 = ym - y2; y2 = ym + y2;
-        GetScale().ZoomTo( MapRect( x1, y1, x2, y2 ));
+        y1 = ym - y2;
+        y2 = ym + y2;
+        GetScale().ZoomTo(MapRect(x1, y1, x2, y2));
     }
 
     // Otherwise zoom to extents centred on the station and
     // calculated based on the number and extents of the stations
     // in the job ...
-    else
-    {
+    else {
         double emin;
         double nmin;
         double emax;
         double nmax;
-        get_station_range( &emin, &nmin, &emax, &nmax );
-        int const nstns = used_station_count();
-        double stnarea = (emax-emin)*(nmax-nmin);
-        if( nstns ) { stnarea /= nstns;
-}
-        y2 = sqrt( stnarea ) * 0.7;
-        if( y2 <= 0.0 ) { y2 = 1000.0;
-}
-        GetScale().ZoomTo( MapRect( xm - y2, ym - y2, xm + y2, ym + y2 ) );
+        get_station_range(&emin, &nmin, &emax, &nmax);
+        const int nstns = used_station_count();
+        double stnarea = (emax - emin) * (nmax - nmin);
+        if (nstns) {
+            stnarea /= nstns;
+        }
+        y2 = sqrt(stnarea) * 0.7;
+        if (y2 <= 0.0) {
+            y2 = 1000.0;
+        }
+        GetScale().ZoomTo(MapRect(xm - y2, ym - y2, xm + y2, ym + y2));
     }
 }
 
-int SnapplotMapView::FindStation( const MapPoint &pt )
-{
-    double const tolerance = pickTolerance * GetScale().GetScale();
-    return nearest_station( pt.x, pt.y, tolerance );
+int SnapplotMapView::FindStation(const MapPoint& pt) {
+    const double tolerance = pickTolerance * GetScale().GetScale();
+    return nearest_station(pt.x, pt.y, tolerance);
 }
 
-void SnapplotMapView::ShowInfo( const MapPoint &pt, bool zoom )
-{
-    wxMapScale  const&mscale = GetScale();
-    if( ! mscale.IsValid() ) { return;
-}
+void SnapplotMapView::ShowInfo(const MapPoint& pt, bool zoom) {
+    const wxMapScale& mscale = GetScale();
+    if (!mscale.IsValid()) {
+        return;
+    }
 
-
-    int const istn = FindStation( pt );
-    if( istn )
-    {
+    const int istn = FindStation(pt);
+    if (istn) {
         /*
         if( lockedStn == istn ) curLockedStn = 0;
         if( !lockedStn && istn == hltStn1 && ! hltStn2 ) curLockedStn = istn;
@@ -215,266 +209,233 @@ void SnapplotMapView::ShowInfo( const MapPoint &pt, bool zoom )
 
         }
         */
-        if( locatorFrom == istn )
-        {
-            SetLocatorLocked( ! locatorLocked );
-            SendShowStationEvent( istn, zoom );
+        if (locatorFrom == istn) {
+            SetLocatorLocked(!locatorLocked);
+            SendShowStationEvent(istn, zoom);
+        } else if (locatorLocked && locatorFrom != 0) {
+            SetLocator(locatorFrom, istn);
+            SendShowLineEvent(locatorFrom, istn, zoom);
+        } else {
+            SetLocatorLocked(false);
+            SetLocator(istn, 0);
+            SendShowStationEvent(istn, zoom);
         }
-        else if( locatorLocked && locatorFrom != 0 )
-        {
-            SetLocator( locatorFrom, istn );
-            SendShowLineEvent( locatorFrom, istn, zoom );
-        }
-        else
-        {
-            SetLocatorLocked( false );
-            SetLocator( istn, 0 );
-            SendShowStationEvent( istn, zoom );
-        }
-    }
-    else if( weakLock || ! locatorLocked )
-    {
-        int from ;
+    } else if (weakLock || !locatorLocked) {
+        int from;
         int to;
-        double const tolerance = pickTolerance * mscale.GetScale();
-        if( nearest_connection( pt.x, pt.y, tolerance, &from, &to ) )
-        {
-            SetLocatorLocked( false );
-            SetLocator( from, to );
-            SendShowLineEvent( from, to, zoom );
+        const double tolerance = pickTolerance * mscale.GetScale();
+        if (nearest_connection(pt.x, pt.y, tolerance, &from, &to)) {
+            SetLocatorLocked(false);
+            SetLocator(from, to);
+            SendShowLineEvent(from, to, zoom);
         }
 
-        else
-        {
-            SetLocatorLocked( false );
-            SetLocator( 0, 0 );
+        else {
+            SetLocatorLocked(false);
+            SetLocator(0, 0);
             SendShowTitleEvent();
         }
-
     }
 }
 
-void SnapplotMapView::SendShowStationEvent( int istn, bool zoom )
-{
-    wxSnapplotEvent event( wxEVT_SHOW_DETAILVIEW, GetId() );
-    event.SetShowStation( istn );
+void SnapplotMapView::SendShowStationEvent(int istn, bool zoom) {
+    wxSnapplotEvent event(wxEVT_SHOW_DETAILVIEW, GetId());
+    event.SetShowStation(istn);
     event.SetEventObject(this);
-    AddPendingEvent( event );
-    if( zoom ) { ZoomToStation( istn );
-}
+    AddPendingEvent(event);
+    if (zoom) {
+        ZoomToStation(istn);
+    }
 }
 
-void SnapplotMapView::SendShowLineEvent( int from, int to, bool zoom )
-{
-    wxSnapplotEvent event( wxEVT_SHOW_DETAILVIEW, GetId() );
-    event.SetShowLine( from, to );
+void SnapplotMapView::SendShowLineEvent(int from, int to, bool zoom) {
+    wxSnapplotEvent event(wxEVT_SHOW_DETAILVIEW, GetId());
+    event.SetShowLine(from, to);
     event.SetEventObject(this);
-    AddPendingEvent( event );
-    if( zoom ) { ZoomToLine( from, to );
-}
+    AddPendingEvent(event);
+    if (zoom) {
+        ZoomToLine(from, to);
+    }
 }
 
-void SnapplotMapView::SendShowTitleEvent()
-{
-    wxSnapplotEvent event( wxEVT_SHOW_DETAILVIEW, GetId() );
+void SnapplotMapView::SendShowTitleEvent() {
+    wxSnapplotEvent event(wxEVT_SHOW_DETAILVIEW, GetId());
     event.SetShowTitle();
     event.SetEventObject(this);
-    AddPendingEvent( event );
+    AddPendingEvent(event);
 }
 
-void SnapplotMapView::LocateLine( int from, int to )
-{
-    SetLocatorLocked( false );
-    SetLocator( from, to );
+void SnapplotMapView::LocateLine(int from, int to) {
+    SetLocatorLocked(false);
+    SetLocator(from, to);
 }
 
-void SnapplotMapView::LocateStation( int istn )
-{
-    SetLocatorLocked( false );
-    SetLocator( istn, 0 );
+void SnapplotMapView::LocateStation(int istn) {
+    SetLocatorLocked(false);
+    SetLocator(istn, 0);
 }
 
-void SnapplotMapView::SetLocator( int from, int to )
-{
-    if( from == locatorFrom && to == locatorTo ) { return;
-}
+void SnapplotMapView::SetLocator(int from, int to) {
+    if (from == locatorFrom && to == locatorTo) {
+        return;
+    }
     locatorFrom = from;
     locatorTo = to;
     locatorOnlyRepaint = true;
     Refresh();
 }
 
-void SnapplotMapView::SetLocatorLocked( bool locked )
-{
-    if( locatorFrom && (locked != locatorLocked ))
-    {
+void SnapplotMapView::SetLocatorLocked(bool locked) {
+    if (locatorFrom && (locked != locatorLocked)) {
         locatorLocked = locked;
         locatorOnlyRepaint = true;
         Refresh();
     }
 }
 
-void SnapplotMapView::SaveMapImage()
-{
+void SnapplotMapView::SaveMapImage() {
     wxClientDC dc(this);
-    wxSize const size(dc.GetSize());
-    if( this->savedMap && this->savedMap->GetSize() != size)
-    {
+    const wxSize size(dc.GetSize());
+    if (this->savedMap && this->savedMap->GetSize() != size) {
         DropSavedMap();
     }
-    if( ! this->savedMap )
-    {
-        this->savedMap=new wxBitmap(size);
+    if (!this->savedMap) {
+        this->savedMap = new wxBitmap(size);
     }
     wxMemoryDC bdc(&dc);
     bdc.SelectObject(*(this->savedMap));
-    bdc.Blit(0,0,size.GetWidth(),size.GetHeight(),&dc,0,0);
+    bdc.Blit(0, 0, size.GetWidth(), size.GetHeight(), &dc, 0, 0);
     bdc.SelectObject(wxNullBitmap);
 }
 
-void SnapplotMapView::RestoreMapImage( wxDC &dc )
-{
-    if( this->savedMap )
-    {
-        wxSize const size(dc.GetSize());
+void SnapplotMapView::RestoreMapImage(wxDC& dc) {
+    if (this->savedMap) {
+        const wxSize size(dc.GetSize());
         wxMemoryDC bdc(*(this->savedMap));
-        dc.Blit(0,0,size.GetWidth(),size.GetHeight(),&bdc,0,0);
+        dc.Blit(0, 0, size.GetWidth(), size.GetHeight(), &bdc, 0, 0);
     }
 }
 
-void SnapplotMapView::DropSavedMap()
-{
-    if( this->savedMap )
-    {
+void SnapplotMapView::DropSavedMap() {
+    if (this->savedMap) {
         delete this->savedMap;
-        this->savedMap=nullptr;
+        this->savedMap = nullptr;
     }
-
 }
 
 // Using macro to shift circles a little as otherwise don't line up properly!
 
-#define DC_CIRCLE( dc, pt, radius ) dc.DrawEllipse( (pt).x-(radius), (pt).y-(radius), (radius)*2+1, (radius)*2+1 )
+#define DC_CIRCLE(dc, pt, radius) \
+    dc.DrawEllipse((pt).x - (radius), (pt).y - (radius), (radius) * 2 + 1, (radius) * 2 + 1)
 
-void SnapplotMapView::PaintLocator( wxDC &dc )
-{
+void SnapplotMapView::PaintLocator(wxDC& dc) {
     RestoreMapImage(dc);
     DrawLocator(dc);
 }
 
-void SnapplotMapView::DrawLocator( wxDC &dc )
-{
-    if( locatorFrom == 0 ) { return;
-}
-    wxColour const locatorCol = GetSymbology()->LayerColour( get_pen( SELECTED_PEN ) );
-    wxColour const backCol = GetSymbology()->LayerColour( get_pen( BACKGROUND_PEN ) );
+void SnapplotMapView::DrawLocator(wxDC& dc) {
+    if (locatorFrom == 0) {
+        return;
+    }
+    const wxColour locatorCol = GetSymbology()->LayerColour(get_pen(SELECTED_PEN));
+    const wxColour backCol = GetSymbology()->LayerColour(get_pen(BACKGROUND_PEN));
 
-    if( ! locatorTo )
-    {
-        if( station_in_view(locatorFrom) )
-        {
-            dc.SetPen( wxPen( locatorCol, locatorPenWidth ));
-            dc.SetBrush( wxBrush( backCol, wxBRUSHSTYLE_TRANSPARENT  ));
+    if (!locatorTo) {
+        if (station_in_view(locatorFrom)) {
+            dc.SetPen(wxPen(locatorCol, locatorPenWidth));
+            dc.SetBrush(wxBrush(backCol, wxBRUSHSTYLE_TRANSPARENT));
             double e;
             double n;
-            get_station_coordinates( locatorFrom, &e, &n );
+            get_station_coordinates(locatorFrom, &e, &n);
             wxPoint ptFrom;
-            GetScale().WorldToPlot( MapPoint(e,n),ptFrom );
-            DC_CIRCLE( dc, ptFrom, locatorWidth );
-            if( locatorLocked ) { DC_CIRCLE( dc, ptFrom, locatorLockedWidth );
-}
-            dc.SetPen( wxNullPen );
-            dc.SetBrush( wxNullBrush );
+            GetScale().WorldToPlot(MapPoint(e, n), ptFrom);
+            DC_CIRCLE(dc, ptFrom, locatorWidth);
+            if (locatorLocked) {
+                DC_CIRCLE(dc, ptFrom, locatorLockedWidth);
+            }
+            dc.SetPen(wxNullPen);
+            dc.SetBrush(wxNullBrush);
         }
-    }
-    else
-    {
-        if( station_in_view( locatorFrom ) || station_in_view(locatorTo) )
-        {
-
+    } else {
+        if (station_in_view(locatorFrom) || station_in_view(locatorTo)) {
             wxMapScale scale = GetScale();
             double e;
             double n;
             wxPoint ptStart;
             wxPoint ptEnd;
             bool start;
-            get_station_coordinates( locatorFrom, &e, &n );
-            scale.AddPoint( MapPoint(e,n), true );
-            bool const gotFromPoint = scale.GetPoint( ptStart, start );
-            get_station_coordinates( locatorTo, &e, &n );
-            scale.AddPoint( MapPoint(e,n), false );
-            dc.SetPen(wxPen(locatorCol, locatorPenWidth) );
-            dc.SetBrush( wxBrush( backCol, wxBRUSHSTYLE_TRANSPARENT  ));
+            get_station_coordinates(locatorFrom, &e, &n);
+            scale.AddPoint(MapPoint(e, n), true);
+            const bool gotFromPoint = scale.GetPoint(ptStart, start);
+            get_station_coordinates(locatorTo, &e, &n);
+            scale.AddPoint(MapPoint(e, n), false);
+            dc.SetPen(wxPen(locatorCol, locatorPenWidth));
+            dc.SetBrush(wxBrush(backCol, wxBRUSHSTYLE_TRANSPARENT));
 
-            if( ( gotFromPoint || scale.GetPoint( ptStart, start )) && scale.GetPoint( ptEnd, start ) )
-            {
-                wxPoint pts[]={ptStart,ptEnd};
-                double const xdiff=ptEnd.x-ptStart.x;
-                double const ydiff=ptEnd.y-ptStart.y;
-                double const len=sqrt(xdiff*xdiff+ydiff*ydiff);
-                int const xoffset= -(int)round(locatorWidth*ydiff/len);
-                int const yoffset= (int)round(locatorWidth*xdiff/len);
-                wxPoint const offset(xoffset,yoffset);
-                dc.DrawLines( 2, pts,xoffset, yoffset);
-                dc.DrawLines( 2, pts, -xoffset, -yoffset);
-                dc.DrawArc(ptStart-offset,ptStart+offset,ptStart);
-                dc.DrawArc(ptEnd+offset,ptEnd-offset,ptEnd);
+            if ((gotFromPoint || scale.GetPoint(ptStart, start)) && scale.GetPoint(ptEnd, start)) {
+                wxPoint pts[] = {ptStart, ptEnd};
+                const double xdiff = ptEnd.x - ptStart.x;
+                const double ydiff = ptEnd.y - ptStart.y;
+                const double len = sqrt(xdiff * xdiff + ydiff * ydiff);
+                const int xoffset = -(int)round(locatorWidth * ydiff / len);
+                const int yoffset = (int)round(locatorWidth * xdiff / len);
+                const wxPoint offset(xoffset, yoffset);
+                dc.DrawLines(2, pts, xoffset, yoffset);
+                dc.DrawLines(2, pts, -xoffset, -yoffset);
+                dc.DrawArc(ptStart - offset, ptStart + offset, ptStart);
+                dc.DrawArc(ptEnd + offset, ptEnd - offset, ptEnd);
             }
             // gotFromPoint means that the from point is in the screen
-            if( locatorLocked && gotFromPoint )
-            {
-                DC_CIRCLE( dc, ptStart, locatorWidth );
-                DC_CIRCLE( dc, ptStart, locatorLockedWidth );
+            if (locatorLocked && gotFromPoint) {
+                DC_CIRCLE(dc, ptStart, locatorWidth);
+                DC_CIRCLE(dc, ptStart, locatorLockedWidth);
             }
-            dc.SetBrush( wxNullBrush );
-            dc.SetPen( wxNullPen );
+            dc.SetBrush(wxNullBrush);
+            dc.SetPen(wxNullPen);
         }
     }
 
-    dc.SetPen( wxNullPen );
+    dc.SetPen(wxNullPen);
 }
 
-void SnapplotMapView::OnMapWindowPosition( wxMapWindowEvent & WXUNUSED(event) )
-{
+void SnapplotMapView::OnMapWindowPosition(wxMapWindowEvent& WXUNUSED(event)) {
     positionChanged = true;
 }
 
-void SnapplotMapView::OnIdle( wxIdleEvent & WXUNUSED(event)  )
-{
-
+void SnapplotMapView::OnIdle(wxIdleEvent& WXUNUSED(event)) {
     // If we get some idle time, then update the coordinates display
 
-    wxMapScale  const&mscale = GetScale();
-    if( ! mscale.IsValid() ) { return;
-}
-    if( ! positionChanged ) { return;
-}
+    const wxMapScale& mscale = GetScale();
+    if (!mscale.IsValid()) {
+        return;
+    }
+    if (!positionChanged) {
+        return;
+    }
     positionChanged = false;
 
-    MapPoint const pt = GetCursorPosition();
+    const MapPoint pt = GetCursorPosition();
 
     coordString.Empty();
-    coordString.Append(format_plot_coords( pt.x, pt.y ).c_str());
+    coordString.Append(format_plot_coords(pt.x, pt.y).c_str());
 
-    double const tolerance = pickTolerance * mscale.GetScale();
-    int const istn = nearest_station( pt.x, pt.y, tolerance );
+    const double tolerance = pickTolerance * mscale.GetScale();
+    const int istn = nearest_station(pt.x, pt.y, tolerance);
 
-    if( istn )
-    {
+    if (istn) {
         coordString.Append("\r\n");
         coordString.Append(stnptr(istn)->Code.c_str());
         coordString.Append("\r\n");
         coordString.Append(stnptr(istn)->Name.c_str());
-        coordString.Replace("\t"," ");
+        coordString.Replace("\t", " ");
     }
 
-    wxCommandEvent crdevent( WX_MAPVIEW_DISPLAY_COORDS, GetId() );
-    crdevent.SetString( coordString );
-    AddPendingEvent( crdevent );
+    wxCommandEvent crdevent(WX_MAPVIEW_DISPLAY_COORDS, GetId());
+    crdevent.SetString(coordString);
+    AddPendingEvent(crdevent);
 }
 
-void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
-{
+void SnapplotMapView::OnPaint(wxPaintEvent& WXUNUSED(event)) {
     //#if wxUSE_GRAPHICS_CONTEXT
     //wxPaintDC pdc(this);
     //wxGCDC dc( pdc ) ;
@@ -482,11 +443,10 @@ void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
     //wxPaintDC dc(this);
     //#endif
     wxPaintDC dc(this);
-    bool const locatorOnly = locatorOnlyRepaint && savedMap;
+    const bool locatorOnly = locatorOnlyRepaint && savedMap;
     locatorOnlyRepaint = false;
-    if( locatorOnly )
-    {
-        // Only the locator moved since the last full repaint, so just blit the 
+    if (locatorOnly) {
+        // Only the locator moved since the last full repaint, so just blit the
         // cached base map back and paint the new locator on top
         PaintLocator(dc);
         return;
@@ -499,17 +459,16 @@ void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
 // Routine generates a bitmap image that is a copy of contents of the screen map,
 // by replotting the map onto the image ..
 
-wxBitmap SnapplotMapView::CreateImage()
-{
-    wxSize const mapSize = GetClientSize();
-    wxBitmap bmp( mapSize.GetWidth(), mapSize.GetHeight() );
-    wxMemoryDC bmpDC( bmp );
-    wxMapScale scale( GetScale() );
-    scale.SetWindowExtents( wxRect( wxPoint(0,0), mapSize ) );
-    wxMapDrawer drawer( bmpDC, scale, *GetSymbology() );
-    GetMap()->DrawMap( drawer );
-    bmpDC.SetPen( wxPen( *wxBLACK ) );
-    bmpDC.SetBrush( wxBrush( *wxBLACK, wxTRANSPARENT ) );
-    bmpDC.DrawRectangle( 0, 0, mapSize.GetWidth(), mapSize.GetHeight() );
+wxBitmap SnapplotMapView::CreateImage() {
+    const wxSize mapSize = GetClientSize();
+    wxBitmap bmp(mapSize.GetWidth(), mapSize.GetHeight());
+    wxMemoryDC bmpDC(bmp);
+    wxMapScale scale(GetScale());
+    scale.SetWindowExtents(wxRect(wxPoint(0, 0), mapSize));
+    wxMapDrawer drawer(bmpDC, scale, *GetSymbology());
+    GetMap()->DrawMap(drawer);
+    bmpDC.SetPen(wxPen(*wxBLACK));
+    bmpDC.SetBrush(wxBrush(*wxBLACK, wxTRANSPARENT));
+    bmpDC.DrawRectangle(0, 0, mapSize.GetWidth(), mapSize.GetHeight());
     return bmp;
 }

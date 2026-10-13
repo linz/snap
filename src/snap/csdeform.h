@@ -3,6 +3,6 @@
 
 #include "snap/deform.h"
 
-int create_crdsys_deformation( deformation_model **model );
+int create_crdsys_deformation(deformation_model** model);
 
 #endif

@@ -17,81 +17,77 @@
 #include "snap/filenames.h"
 #include "util/getversion.h"
 
-void print_gps_baselines( FILE *out, int *stn, int nstns )
-{
+void print_gps_baselines(FILE* out, int* stn, int nstns) {
     int j;
-    station *s1;
+    station* s1;
     vector3 dxyz;
-    s1 = station_ptr( net, stn[0] );
-    for( j = 1; j < nstns; j++ )
-    {
-        station *s2;
-        s2 = station_ptr( net, stn[j] );
-        calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr );
-        fprintf(out,"%-5s %-5s %10.3lf %10.3lf %10.3lf\n",s1->Code.c_str(),s2->Code.c_str(),
-                dxyz[0],dxyz[1],dxyz[2] );
+    s1 = station_ptr(net, stn[0]);
+    for (j = 1; j < nstns; j++) {
+        station* s2;
+        s2 = station_ptr(net, stn[j]);
+        calc_vec_dif(s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr);
+        fprintf(out, "%-5s %-5s %10.3lf %10.3lf %10.3lf\n", s1->Code.c_str(), s2->Code.c_str(), dxyz[0], dxyz[1],
+                dxyz[2]);
     }
 }
 
-void print_multistation_gps( FILE *out, int *stn, int nstns )
-{
-    station *s1;
-    station *s2;
+void print_multistation_gps(FILE* out, int* stn, int nstns) {
+    station* s1;
+    station* s2;
     int i;
     vector3 dxyz;
-    s1 = station_ptr( net, stn[0] );
-    fprintf(out,"%s\n",s1->Code.c_str());
-    for( i = 1; i < nstns; i++ )
-    {
-        s2 = station_ptr( net, stn[i] );
-        calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr );
-        fprintf(out,"%-5s %10.3lf %10.3lf %10.3lf\n",s2->Code.c_str(),
-                dxyz[0],dxyz[1],dxyz[2] );
+    s1 = station_ptr(net, stn[0]);
+    fprintf(out, "%s\n", s1->Code.c_str());
+    for (i = 1; i < nstns; i++) {
+        s2 = station_ptr(net, stn[i]);
+        calc_vec_dif(s1, 0.0, s2, 0.0, dxyz, nullptr, nullptr);
+        fprintf(out, "%-5s %10.3lf %10.3lf %10.3lf\n", s2->Code.c_str(), dxyz[0], dxyz[1], dxyz[2]);
     }
 }
 
-
-int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, int nmax )
-{
+int check_list(int* stn, int nstns, double maxlen, double minlen, double* dst, int nmax) {
     int istn;
     int i;
-    station *s1;
-    station *s2;
-    if( nstns < 2 ) { return nstns;
-}
-    s1 = station_ptr( net, stn[0] );
+    station* s1;
+    station* s2;
+    if (nstns < 2) {
+        return nstns;
+    }
+    s1 = station_ptr(net, stn[0]);
     istn = 1;
-    for( i = 1; i < nstns; i++ )
-    {
+    for (i = 1; i < nstns; i++) {
         double d;
-        s2 = station_ptr( net, stn[i] );
-        d = calc_distance( s1, 0.0, s2, 0.0, nullptr, nullptr );
-        if( d < minlen || d > maxlen ) { continue;
-}
+        s2 = station_ptr(net, stn[i]);
+        d = calc_distance(s1, 0.0, s2, 0.0, nullptr, nullptr);
+        if (d < minlen || d > maxlen) {
+            continue;
+        }
         stn[istn++] = stn[i];
     }
-    if( istn+1 <= nmax ) { return istn;
-}
-    if( nmax < 1 ) { return istn;
-}
-    if( !dst ) { return istn;
-}
+    if (istn + 1 <= nmax) {
+        return istn;
+    }
+    if (nmax < 1) {
+        return istn;
+    }
+    if (!dst) {
+        return istn;
+    }
 
-    s2 = station_ptr( net, stn[1] );
-    dst[1] = calc_distance( s1, 0.0, s2, 0.0, nullptr, nullptr );
-    for( i = 2; i < istn; i++ )
-    {
-        int const si = stn[i];
+    s2 = station_ptr(net, stn[1]);
+    dst[1] = calc_distance(s1, 0.0, s2, 0.0, nullptr, nullptr);
+    for (i = 2; i < istn; i++) {
+        const int si = stn[i];
         int j;
-        double const d = calc_distance( s1, 0.0, station_ptr(net, si), 0.0, nullptr, nullptr );
-        j = i-1;
-        if( j > nmax ) { j = nmax;
-}
+        const double d = calc_distance(s1, 0.0, station_ptr(net, si), 0.0, nullptr, nullptr);
+        j = i - 1;
+        if (j > nmax) {
+            j = nmax;
+        }
 
-        while( j >= 1 && d < dst[j] )
-        {
-            dst[j+1] = dst[j];
-            stn[j+1] = stn[j];
+        while (j >= 1 && d < dst[j]) {
+            dst[j + 1] = dst[j];
+            stn[j + 1] = stn[j];
             j--;
         }
         j++;
@@ -99,16 +95,15 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
         dst[j] = d;
     }
 
-    return nmax+1;
+    return nmax + 1;
 }
 
-int main( int argc, char *argv[] )
-{
-    FILE *in=nullptr;
-    FILE *out;
-    int *stn;
-    int *stn2;
-    double *dst;
+int main(int argc, char* argv[]) {
+    FILE* in = nullptr;
+    FILE* out;
+    int* stn;
+    int* stn2;
+    double* dst;
     int nstns;
     int baselines = 0;
     int autolist = 0;
@@ -122,29 +117,40 @@ int main( int argc, char *argv[] )
 
     CONFIGURE_RUNTIME();
 
-    printf("\n%s %s: Creates a dummy GPS data file from a site file and list of lines\n\n",
-           PROGRAM_NAME, PROGRAM_VERSION);
+    printf("\n%s %s: Creates a dummy GPS data file from a site file and list of lines\n\n", PROGRAM_NAME,
+           PROGRAM_VERSION);
 
-    while ( argc > 1 && argv[1][0] == '-' )
-    {
-        switch( argv[1][1] )
-        {
-        case 'b': case 'B': baselines = 1; break;
-        case 'a': case 'A': autolist = 1; break;
-        case 'f': case 'F': maxlen = atof( argv[1]+2 ) * 1000; break;
-        case 'c': case 'C': minlen = atof( argv[1]+2 ) * 1000; break;
-        case 'n': case 'N': nmax = atoi( argv[1]+2 ); break;
-        default:
-            printf("Invalid switch %s\n",argv[1]);
-            syntax_error = 1;
+    while (argc > 1 && argv[1][0] == '-') {
+        switch (argv[1][1]) {
+            case 'b':
+            case 'B':
+                baselines = 1;
+                break;
+            case 'a':
+            case 'A':
+                autolist = 1;
+                break;
+            case 'f':
+            case 'F':
+                maxlen = atof(argv[1] + 2) * 1000;
+                break;
+            case 'c':
+            case 'C':
+                minlen = atof(argv[1] + 2) * 1000;
+                break;
+            case 'n':
+            case 'N':
+                nmax = atoi(argv[1] + 2);
+                break;
+            default:
+                printf("Invalid switch %s\n", argv[1]);
+                syntax_error = 1;
         }
         argc--;
         argv++;
     }
 
-
-    if( syntax_error  || argc != (autolist ? 3 : 4) )
-    {
+    if (syntax_error || argc != (autolist ? 3 : 4)) {
         printf("Syntax: site2gps [options] crd_file_name line_list_file output_file\n");
         printf("\nIn the line_list_file, each line is a list of stations to be connected\n\n");
         printf("Valid input files are:\n");
@@ -160,15 +166,13 @@ int main( int argc, char *argv[] )
 
     install_default_crdsys_file();
 
-    if( read_station_file( argv[1], "", STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE ) != OK )
-    {
-        printf("Cannot open coordinate file %s\n",argv[1]);
+    if (read_station_file(argv[1], "", STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE) != OK) {
+        printf("Cannot open coordinate file %s\n", argv[1]);
         return 0;
     }
 
-    nostns = number_of_stations( net );
-    if( !nostns )
-    {
+    nostns = number_of_stations(net);
+    if (!nostns) {
         printf("No stations loaded from coordinate file\n");
         return 0;
     }
@@ -176,116 +180,112 @@ int main( int argc, char *argv[] )
     dst = new double[nostns];
     stn2 = stn + nostns;
 
-    if( !autolist && (nullptr == (in = fopen(argv[2],"r"))))
-    {
-        printf("Cannot open list file %s\n",argv[2]);
+    if (!autolist && (nullptr == (in = fopen(argv[2], "r")))) {
+        printf("Cannot open list file %s\n", argv[2]);
         return 0;
     }
 
-    if( nullptr == (out = fopen(argv[(autolist ? 2 :3)],"w")))
-    {
-        printf("Cannot open output data file %s\n",argv[(autolist ? 2 : 3)]);
+    if (nullptr == (out = fopen(argv[(autolist ? 2 : 3)], "w"))) {
+        printf("Cannot open output data file %s\n", argv[(autolist ? 2 : 3)]);
         return 0;
     }
 
-    fprintf(out,"Dummy gps data file\n");
-    fprintf(out,"\n#date unknown\n");
-    fprintf(out,"#gps_enu_error 10 10 10 mm 1 1 1 ppm\n");
-    fprintf(out,"#data gb no_heights%s\n\n",baselines ? "" : " grouped");
+    fprintf(out, "Dummy gps data file\n");
+    fprintf(out, "\n#date unknown\n");
+    fprintf(out, "#gps_enu_error 10 10 10 mm 1 1 1 ppm\n");
+    fprintf(out, "#data gb no_heights%s\n\n", baselines ? "" : " grouped");
 
     nextstn = 0;
     block_id = 0;
 
-    while( true )
-    {
-
-        if( autolist )
-        {
+    while (true) {
+        if (autolist) {
             int i;
             nextstn++;
-            if( nextstn > nostns ) { break;
-}
+            if (nextstn > nostns) {
+                break;
+            }
             nstns = 1;
             stn[0] = nextstn;
             i = 1;
-            for( ; i <= nostns; i++ )
-            {
-                if( i == nextstn ) { continue;
-}
+            for (; i <= nostns; i++) {
+                if (i == nextstn) {
+                    continue;
+                }
                 stn[nstns++] = i;
             }
-            if( baselines ) { nextstn = nostns+1;
-}
-        }
-        else
-        {
+            if (baselines) {
+                nextstn = nostns + 1;
+            }
+        } else {
             char inrec[512];
-            char *code;
+            char* code;
             nstns = 0;
 
-            if( !fgets(inrec,512,in) ) { break;
-}
-            if( inrec[0] == '!' || inrec[0] == '#' ) { fputs(inrec,out); continue; }
-            for( code = strtok(inrec," \t\r\n"); code; code = strtok(nullptr," \t\r\n") )
-            {
+            if (!fgets(inrec, 512, in)) {
+                break;
+            }
+            if (inrec[0] == '!' || inrec[0] == '#') {
+                fputs(inrec, out);
+                continue;
+            }
+            for (code = strtok(inrec, " \t\r\n"); code; code = strtok(nullptr, " \t\r\n")) {
                 int id;
                 int i;
-                id = find_station( net, code );
-                if( !id )
-                {
+                id = find_station(net, code);
+                if (!id) {
                     printf("Station %s is not defined in the coordinate file\n", code);
                     continue;
                 }
-                for( i = 0; i < nstns; i++ ) { if( stn[i] == id ) { break;
-}
-}
-                if( i < nstns ) { continue;
-}
+                for (i = 0; i < nstns; i++) {
+                    if (stn[i] == id) {
+                        break;
+                    }
+                }
+                if (i < nstns) {
+                    continue;
+                }
                 stn[nstns++] = id;
             }
-            fprintf(out,"\n#classify gb SESSION SESSION_%d\n",block_id);
+            fprintf(out, "\n#classify gb SESSION SESSION_%d\n", block_id);
             block_id++;
         }
-        if( autolist || baselines )
-        {
+        if (autolist || baselines) {
         }
 
-        if( nstns < 2 ) { continue;
-}
-        fprintf(out,"\n");
-        if( baselines )
-        {
+        if (nstns < 2) {
+            continue;
+        }
+        fprintf(out, "\n");
+        if (baselines) {
             int i;
-            char const need_all = nmax < nstns;
-            for( i = 0; i < nstns; i++ )
-            {
+            const char need_all = nmax < nstns;
+            for (i = 0; i < nstns; i++) {
                 int j;
                 int nstns2 = 1;
                 stn2[0] = stn[i];
-                for( j = need_all ? 0 : i+1; j < nstns; j++ )
-                {
-                    if( i == j ) { continue;
-}
+                for (j = need_all ? 0 : i + 1; j < nstns; j++) {
+                    if (i == j) {
+                        continue;
+                    }
                     stn2[nstns2++] = stn[j];
                 }
-                if( nstns2 > 1 )
-                {
-                    nstns2 = check_list( stn2, nstns2, maxlen, minlen, dst, nmax );
-                    print_gps_baselines( out, stn2, nstns2 );
+                if (nstns2 > 1) {
+                    nstns2 = check_list(stn2, nstns2, maxlen, minlen, dst, nmax);
+                    print_gps_baselines(out, stn2, nstns2);
                 }
             }
-        }
-        else
-        {
-            if( autolist ) { nstns = check_list( stn, nstns, maxlen, minlen, dst, nmax );
-}
-            print_multistation_gps( out, stn, nstns );
+        } else {
+            if (autolist) {
+                nstns = check_list(stn, nstns, maxlen, minlen, dst, nmax);
+            }
+            print_multistation_gps(out, stn, nstns);
         }
     }
 
-    if(in) { fclose(in);
-}
+    if (in) {
+        fclose(in);
+    }
     fclose(out);
     return 0;
 }
-

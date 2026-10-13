@@ -1,7 +1,6 @@
 #include "snapconfig.h"
 /* Routines to display progress through a job or through a data file */
 
-
 /*
    $Log: progress.c,v $
    Revision 1.3  2004/04/22 01:44:36  ccrook
@@ -22,11 +21,10 @@
 
 #include "util/progress.h"
 
-
-#define HEADER_STRING  "      "
-#define TAIL_STRING    ""
-#define METER_LEN      50
-#define TOTAL_LEN      METER_LEN+6  /* 6 = header + tail length */
+#define HEADER_STRING "      "
+#define TAIL_STRING ""
+#define METER_LEN 50
+#define TOTAL_LEN METER_LEN + 6 /* 6 = header + tail length */
 
 #if defined(__MSDOS__) || defined(__TSC__) || defined(__WATCOMC__)
 #include <dos.h>
@@ -38,181 +36,175 @@
 #define FILL_CHAR '*'
 #endif
 
-static long increment=1;
+static long increment = 1;
 static long lasttick;
 static long meter_max;
 static int meter_drawn;
 static int npts;
-static int newline=0;
-static int showmeter=1;
-static FILE *infile = nullptr;
+static int newline = 0;
+static int showmeter = 1;
+static FILE* infile = nullptr;
 
-static void default_init_progress_meter( long total_size );
-static void default_update_progress_meter( long progress );
-static void default_end_progress_meter( void );
+static void default_init_progress_meter(long total_size);
+static void default_update_progress_meter(long progress);
+static void default_end_progress_meter(void);
 
-static void (*init_meter)( long total_size ) = default_init_progress_meter;
-static void (*update_meter)( long progress ) = default_update_progress_meter;
-static void (*end_meter)( void ) = default_end_progress_meter;
+static void (*init_meter)(long total_size) = default_init_progress_meter;
+static void (*update_meter)(long progress) = default_update_progress_meter;
+static void (*end_meter)(void) = default_end_progress_meter;
 
-#define DAY (24L*60L*60L*100L)
+#define DAY (24L * 60L * 60L * 100L)
 
 #ifdef USE_TIME
 
 static long reftime;
 
-static long elapsed_time ( long ref_time )
-{
+static long elapsed_time(long ref_time) {
     struct time tm;
     long elapsed;
 
-    gettime( &tm );
-    elapsed = ((tm.ti_hour * 60L + tm.ti_min ) * 60L +tm.ti_sec ) * 100L + tm.ti_hund - ref_time;
-    if( elapsed < 0 ) elapsed += DAY;
+    gettime(&tm);
+    elapsed = ((tm.ti_hour * 60L + tm.ti_min) * 60L + tm.ti_sec) * 100L + tm.ti_hund - ref_time;
+    if (elapsed < 0)
+        elapsed += DAY;
     return elapsed;
 }
 #endif
 
-
-static void draw_meter( int ntick )
-{
-    int nch=0;
-    if( ! newline ) { putchar('\r');
-}
-    fputs(HEADER_STRING,stdout);
-    for (nch=0; nch < METER_LEN; nch++ ) { putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
-}
-    fputs(TAIL_STRING,stdout);
-    if( newline )
-    {
-        putchar('\n');
-    }
-    else
-    {
+static void draw_meter(int ntick) {
+    int nch = 0;
+    if (!newline) {
         putchar('\r');
-        fputs(HEADER_STRING,stdout);
     }
-    fflush( stdout );
+    fputs(HEADER_STRING, stdout);
+    for (nch = 0; nch < METER_LEN; nch++) {
+        putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
+    }
+    fputs(TAIL_STRING, stdout);
+    if (newline) {
+        putchar('\n');
+    } else {
+        putchar('\r');
+        fputs(HEADER_STRING, stdout);
+    }
+    fflush(stdout);
     npts = METER_LEN;
     meter_drawn = 1;
 }
 
-
-static void default_init_progress_meter( long total_size )
-{
+static void default_init_progress_meter(long total_size) {
     meter_max = total_size;
     lasttick = increment = total_size / METER_LEN;
-    if(increment <= 0) { increment=1;
-}
+    if (increment <= 0) {
+        increment = 1;
+    }
     meter_drawn = 0;
 #ifdef USE_TIME
-    reftime = elapsed_time( 0L );
+    reftime = elapsed_time(0L);
 #endif
 }
 
 /* Note - the meter will only be drawn if it looks as if its going to
    take more than 5 seconds ( = 100 hundredths * 5 */
 
-static void default_update_progress_meter( long progress )
-{
-    int redraw=0;
-    if( !meter_drawn )
-    {
+static void default_update_progress_meter(long progress) {
+    int redraw = 0;
+    if (!meter_drawn) {
 #ifdef USE_TIME
-        if( elapsed_time(reftime) < 100 || progress > meter_max/5 ) return;
-        redraw=1;
+        if (elapsed_time(reftime) < 100 || progress > meter_max / 5)
+            return;
+        redraw = 1;
 #endif
     }
-    while (progress > lasttick ) { redraw=1; lasttick+=increment; }
-    if( redraw ) { draw_meter( (int) (lasttick/increment) - 1 );
-}
+    while (progress > lasttick) {
+        redraw = 1;
+        lasttick += increment;
+    }
+    if (redraw) {
+        draw_meter((int)(lasttick / increment) - 1);
+    }
     fflush(stdout);
 }
 
-static void default_end_progress_meter( void )
-{
-    if( !meter_drawn ) { return;
-}
-    if( ! newline )
-    {
+static void default_end_progress_meter(void) {
+    if (!meter_drawn) {
+        return;
+    }
+    if (!newline) {
         putchar('\r');
-        for (npts=TOTAL_LEN; npts--;) { putchar(' ');
-}
+        for (npts = TOTAL_LEN; npts--;) {
+            putchar(' ');
+        }
         putchar('\r');
     }
     fflush(stdout);
 }
 
-void init_file_display( FILE *file )
-{
+void init_file_display(FILE* file) {
     long fpos;
     infile = file;
-    fpos = ftell( infile );
-    fseek( infile, 0L, SEEK_END );
-    init_progress_meter( ftell(infile));
-    fseek( infile, fpos, SEEK_SET );
+    fpos = ftell(infile);
+    fseek(infile, 0L, SEEK_END);
+    init_progress_meter(ftell(infile));
+    fseek(infile, fpos, SEEK_SET);
 }
 
-void update_file_display( void )
-{
-    if( !infile ) { return;
-}
-    update_progress_meter( ftell( infile ) );
+void update_file_display(void) {
+    if (!infile) {
+        return;
+    }
+    update_progress_meter(ftell(infile));
 }
 
-void end_file_display( void )
-{
-    if( !infile ) { return;
-}
+void end_file_display(void) {
+    if (!infile) {
+        return;
+    }
     end_progress_meter();
     infile = nullptr;
 }
 
-void install_progress_meter( progress_meter_def *meter )
-{
+void install_progress_meter(progress_meter_def* meter) {
     init_meter = meter->init_meter;
     update_meter = meter->update_meter;
     end_meter = meter->end_meter;
 }
 
-void uninstall_progress_meter( void )
-{
+void uninstall_progress_meter(void) {
     init_meter = nullptr;
     update_meter = nullptr;
     end_meter = nullptr;
 }
 
-void reinstall_default_progress_meter( void )
-{
+void reinstall_default_progress_meter(void) {
     init_meter = default_init_progress_meter;
     update_meter = default_update_progress_meter;
     end_meter = default_end_progress_meter;
 }
 
-void init_progress_meter( long total_size )
-{
-    const char *progressopt=getenv("SNAP_PROGRESS_METER");
-    if( progressopt )
-    {
-        if( _stricmp(progressopt,"newline") == 0 ) { newline=1;
-}
-        if( _stricmp(progressopt,"none") ==0 ) { showmeter=0;
-}
+void init_progress_meter(long total_size) {
+    const char* progressopt = getenv("SNAP_PROGRESS_METER");
+    if (progressopt) {
+        if (_stricmp(progressopt, "newline") == 0) {
+            newline = 1;
+        }
+        if (_stricmp(progressopt, "none") == 0) {
+            showmeter = 0;
+        }
     }
-    if( showmeter && init_meter ) { (*init_meter)( total_size );
-}
-}
-
-void update_progress_meter( long progress )
-{
-    if( showmeter && update_meter ) { (*update_meter)( progress );
-}
+    if (showmeter && init_meter) {
+        (*init_meter)(total_size);
+    }
 }
 
-void end_progress_meter( void )
-{
-    if( showmeter && end_meter ) { (*end_meter)();
-}
+void update_progress_meter(long progress) {
+    if (showmeter && update_meter) {
+        (*update_meter)(progress);
+    }
 }
 
-
+void end_progress_meter(void) {
+    if (showmeter && end_meter) {
+        (*end_meter)();
+    }
+}

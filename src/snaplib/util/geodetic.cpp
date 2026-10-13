@@ -18,54 +18,41 @@
 /*                                                                */
 /*----------------------------------------------------------------*/
 
-rotmat::rotmat( const double Lat, const double Lon )
-    : cslt( cos(Lat) ),
-      snlt( sin(Lat) ),
-      csln( cos(Lon) ),
-      snln( sin(Lon) )
-{
-}
+rotmat::rotmat(const double Lat, const double Lon) : cslt(cos(Lat)), snlt(sin(Lat)), csln(cos(Lon)), snln(sin(Lon)) {}
 
-
-rotmat rotmat::gravimetric( const double Lat, const double Lon, const double Xi, const double Eta )
-{
+rotmat rotmat::gravimetric(const double Lat, const double Lon, const double Xi, const double Eta) {
     const double gravLat = Lat + Xi;
-    const double gravLon = Lon + Eta/cos(gravLat);
-    return rotmat( gravLat, gravLon );
+    const double gravLon = Lon + Eta / cos(gravLat);
+    return rotmat(gravLat, gravLon);
 }
 
-
-void rotmat::rotvec( const vector3 in, vector3 out ) const
-{
+void rotmat::rotvec(const vector3 in, vector3 out) const {
     vector3 tmp;
 
-    tmp[0] = -in[0]*snln      + in[1]*csln;
-    tmp[1] = -in[0]*snlt*csln - in[1]*snlt*snln + in[2]*cslt;
-    tmp[2] =  in[0]*cslt*csln + in[1]*cslt*snln + in[2]*snlt;
+    tmp[0] = -in[0] * snln + in[1] * csln;
+    tmp[1] = -in[0] * snlt * csln - in[1] * snlt * snln + in[2] * cslt;
+    tmp[2] = in[0] * cslt * csln + in[1] * cslt * snln + in[2] * snlt;
     out[0] = tmp[0];
     out[1] = tmp[1];
     out[2] = tmp[2];
 }
 
-void rotmat::unrotvec( const vector3 in, vector3 out ) const
-{
+void rotmat::unrotvec(const vector3 in, vector3 out) const {
     vector3 tmp;
 
-    tmp[0] = -in[0]*snln      - in[1]*snlt*csln + in[2]*cslt*csln;
-    tmp[1] =  in[0]*csln      - in[1]*snlt*snln + in[2]*cslt*snln;
-    tmp[2] =                    in[1]*cslt      + in[2]*snlt;
+    tmp[0] = -in[0] * snln - in[1] * snlt * csln + in[2] * cslt * csln;
+    tmp[1] = in[0] * csln - in[1] * snlt * snln + in[2] * cslt * snln;
+    tmp[2] = in[1] * cslt + in[2] * snlt;
     out[0] = tmp[0];
     out[1] = tmp[1];
     out[2] = tmp[2];
 }
 
-void rotmat::rot_vertical( vector3 vrt ) const
-{
-    vrt[0] = cslt*csln;
-    vrt[1] = cslt*snln;
+void rotmat::rot_vertical(vector3 vrt) const {
+    vrt[0] = cslt * csln;
+    vrt[1] = cslt * snln;
     vrt[2] = snlt;
 }
-
 
 /*----------------------------------------------------------------*/
 /*   Some vector processing routines..                            */
@@ -76,68 +63,58 @@ void rotmat::rot_vertical( vector3 vrt ) const
 /*   vecadd     Adds two scaled vectors                           */
 /*----------------------------------------------------------------*/
 
-double vecdot( const vector3 vec1, const vector3 vec2 )
-{
-    return vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2];
+double vecdot(const vector3 vec1, const vector3 vec2) {
+    return vec1[0] * vec2[0] + vec1[1] * vec2[1] + vec1[2] * vec2[2];
 }
 
-double veclen( vector3 vec )
-{
-    return sqrt( vecdot( vec, vec ));
+double veclen(vector3 vec) {
+    return sqrt(vecdot(vec, vec));
 }
 
-void veccopy( const vector3 vec, vector3 copy )
-{
+void veccopy(const vector3 vec, vector3 copy) {
     copy[0] = vec[0];
     copy[1] = vec[1];
     copy[2] = vec[2];
 }
 
-void vecprd( const vector3 vec1, const vector3 vec2, vector3 prd )
-{
+void vecprd(const vector3 vec1, const vector3 vec2, vector3 prd) {
     double tmp[3];
-    tmp[0] = vec1[1]*vec2[2] - vec1[2]*vec2[1];
-    tmp[1] = vec1[2]*vec2[0] - vec1[0]*vec2[2];
-    tmp[2] = vec1[0]*vec2[1] - vec1[1]*vec2[0];
+    tmp[0] = vec1[1] * vec2[2] - vec1[2] * vec2[1];
+    tmp[1] = vec1[2] * vec2[0] - vec1[0] * vec2[2];
+    tmp[2] = vec1[0] * vec2[1] - vec1[1] * vec2[0];
     prd[0] = tmp[0];
     prd[1] = tmp[1];
     prd[2] = tmp[2];
 }
 
-void vecadd2( const vector3 vec1, double mult1, const vector3 vec2, double mult2,
-              vector3 res )
-{
+void vecadd2(const vector3 vec1, double mult1, const vector3 vec2, double mult2, vector3 res) {
     int i;
-    for (i=0; i<3; i++) { res[i] = vec1[i]*mult1 + vec2[i]*mult2;
-}
+    for (i = 0; i < 3; i++) {
+        res[i] = vec1[i] * mult1 + vec2[i] * mult2;
+    }
 }
 
-void vecadd( const vector3 vec1, const vector3 vec2, vector3 sum )
-{
+void vecadd(const vector3 vec1, const vector3 vec2, vector3 sum) {
     sum[0] = vec1[0] + vec2[0];
     sum[1] = vec1[1] + vec2[1];
     sum[2] = vec1[2] + vec2[2];
 }
 
-void vecdif( const vector3 vec1, const vector3 vec2, vector3 dif )
-{
+void vecdif(const vector3 vec1, const vector3 vec2, vector3 dif) {
     dif[0] = vec1[0] - vec2[0];
     dif[1] = vec1[1] - vec2[1];
     dif[2] = vec1[2] - vec2[2];
 }
 
-void scalevec( vector3 vec, double mult )
-{
+void scalevec(vector3 vec, double mult) {
     vec[0] *= mult;
     vec[1] *= mult;
     vec[2] *= mult;
 }
 
-
 /* Put product m1.m2 in mr, where mr and m2 can be the same */
 
-void premult3( const double *m1, const double *m2, double *mr, int ndim )
-{
+void premult3(const double* m1, const double* m2, double* mr, int ndim) {
     double col[3];
     double sum;
     int i;
@@ -146,20 +123,19 @@ void premult3( const double *m1, const double *m2, double *mr, int ndim )
     int ij;
     int jk;
 
-    for( i = 0; i < ndim; i++ )
-    {
+    for (i = 0; i < ndim; i++) {
         ij = i;
-        for( j = 0; j < 3; j++ )
-        {
+        for (j = 0; j < 3; j++) {
             col[j] = m2[ij];
             ij += ndim;
         }
-        ij = i; jk = 0;
-        for( j = 0; j < 3; j++ )
-        {
+        ij = i;
+        jk = 0;
+        for (j = 0; j < 3; j++) {
             sum = 0.0;
-            for( k = 0; k < 3; k++ ) { sum += m1[jk++]*col[k];
-}
+            for (k = 0; k < 3; k++) {
+                sum += m1[jk++] * col[k];
+            }
             mr[ij] = sum;
             ij += ndim;
         }

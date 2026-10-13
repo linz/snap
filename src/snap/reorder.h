@@ -8,17 +8,17 @@
 
 */
 
-#define SKIP_REORDERING    0
-#define FORCE_REORDERING   1
+#define SKIP_REORDERING 0
+#define FORCE_REORDERING 1
 #define DEFAULT_REORDERING 2
 
-int  init_connections( int nnodes );
+int init_connections(int nnodes);
 void term_connections();
-void add_connection( int stn1, int stn2 );
-int get_connection_count( int stn );
-int get_connection( int stn, int nconn );
-void add_observation_parameter_count( int nprm );
-int setup_parameters( FILE *lst );
+void add_connection(int stn1, int stn2);
+int get_connection_count(int stn);
+int get_connection(int stn, int nconn);
+void add_observation_parameter_count(int nprm);
+int setup_parameters(FILE* lst);
 
 #ifdef REORDER_C
 int save_connections = 1;

@@ -12,23 +12,24 @@
 //
 // If the message is silent, then it fails silently
 
-class wxRegexpStringValidator : public wxTextValidator
-{
-public:
-    wxRegexpStringValidator( wxString *value, const wxString &rules = wxEmptyString  );
-    wxRegexpStringValidator( const wxRegexpStringValidator &validator );
+class wxRegexpStringValidator : public wxTextValidator {
+ public:
+    wxRegexpStringValidator(wxString* value, const wxString& rules = wxEmptyString);
+    wxRegexpStringValidator(const wxRegexpStringValidator& validator);
 
-    [[nodiscard]] wxValidator *Clone() const override { return new wxRegexpStringValidator( *this ); }
-    bool Validate( wxWindow *parent ) override;
+    [[nodiscard]] wxValidator* Clone() const override {
+        return new wxRegexpStringValidator(*this);
+    }
+    bool Validate(wxWindow* parent) override;
 
-private:
-    void OnChar(wxKeyEvent &event);
+ private:
+    void OnChar(wxKeyEvent& event);
     wxString regexstr;
     wxString message;
     wxRegEx regex;
     bool haveRegex;
     bool showMessage;
-    int setCase; // 0 = no, 1 = upper, 2 = lower - not working at present :-(
+    int setCase;  // 0 = no, 1 = upper, 2 = lower - not working at present :-(
 
     DECLARE_EVENT_TABLE()
 };

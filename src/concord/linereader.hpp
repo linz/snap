@@ -8,8 +8,7 @@
 #include <string_view>
 
 /// What readToken() found.
-enum class TokenResult
-{
+enum class TokenResult {
     Found,       ///< a field with one or more characters
     EmptyField,  ///< a field with no characters, before a separator or a carriage return
     EndOfLine,   ///< the end of the line, so there was no field. The line is now finished.
@@ -24,18 +23,19 @@ enum class TokenResult
 /// its end, or when the caller gives up on the rest of it with skipRemaining().
 /// Reading again then loads the next line, so a caller that sees EndOfLine can
 /// treat it as an error and stop, or carry on reading from the next line.
-class LineReader
-{
-public:
+class LineReader {
+ public:
     /// \param input must outlive the reader.
-    explicit LineReader( std::istream &input );
+    explicit LineReader(std::istream& input);
 
-    LineReader( const LineReader & ) = delete;
-    LineReader &operator=( const LineReader & ) = delete;
+    LineReader(const LineReader&) = delete;
+    LineReader& operator=(const LineReader&) = delete;
 
     /// Whether the input is a file, so that a record can be read again from
     /// its start with rewindToRecord(), as opposed to a pipe or the keyboard.
-    [[nodiscard]] bool seekable() const { return _seekable; }
+    [[nodiscard]] bool seekable() const {
+        return _seekable;
+    }
 
     /// Reads the next field of the current line. Spaces and tabs before the
     /// field are skipped, and those after it are removed. The field ends at the
@@ -49,11 +49,11 @@ public:
     ///
     /// \return what was found. The token is empty unless the result is Found.
     TokenResult readToken(
-        char separator,        ///< the character that ends a field, or 0 for none
-        bool usespace,         ///< true if a space or tab also ends a field
-        bool &isspace,         ///< set true if the field ended at a space or tab, rather than at the separator
-        std::string &token,    ///< set to the field, cut to maxLength characters
-        size_t maxLength );    ///< the most characters to keep, though all of the field is read
+        char separator,      ///< the character that ends a field, or 0 for none
+        bool usespace,       ///< true if a space or tab also ends a field
+        bool& isspace,       ///< set true if the field ended at a space or tab, rather than at the separator
+        std::string& token,  ///< set to the field, cut to maxLength characters
+        size_t maxLength);   ///< the most characters to keep, though all of the field is read
 
     /// Skips spaces and tabs in the current line without reading a field, and
     /// without finishing the line. The next line is loaded first if the current
@@ -70,7 +70,9 @@ public:
     /// with any carriage returns in it and without its newline. It is empty once
     /// readToken() has reported the end of the line, or if the input has ended,
     /// and is valid until the next line is loaded.
-    [[nodiscard]] std::string_view remainder() const { return _rest; }
+    [[nodiscard]] std::string_view remainder() const {
+        return _rest;
+    }
 
     /// Whether the current line ended with a newline, rather than at the end
     /// of the input. False if the input has ended. An empty remainder() is the
@@ -84,19 +86,19 @@ public:
     /// line current again if it had been finished.
     void rewindToRecord();
 
-private:
+ private:
     /// Reads the next line if the current one is finished. Does nothing if the
     /// input has ended.
     void _loadLine();
     void _skipBlanks();
 
-    std::istream &_input;         ///< where the lines come from
-    const bool _seekable;         ///< whether the input is a file
-    bool _lineDone=true;          ///< whether the current line is finished, so the next read loads another
-    bool _inputEnded=false;       ///< whether there are no more lines
-    std::string _line;            ///< the current line, without its newline
-    std::string_view _rest;       ///< the unread part of _line
-    size_t _recordStart=0;        ///< offset in _line remembered by markRecordStart()
+    std::istream& _input;      ///< where the lines come from
+    const bool _seekable;      ///< whether the input is a file
+    bool _lineDone = true;     ///< whether the current line is finished, so the next read loads another
+    bool _inputEnded = false;  ///< whether there are no more lines
+    std::string _line;         ///< the current line, without its newline
+    std::string_view _rest;    ///< the unread part of _line
+    size_t _recordStart = 0;   ///< offset in _line remembered by markRecordStart()
 };
 
 #endif

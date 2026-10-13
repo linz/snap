@@ -8,7 +8,7 @@
 
 */
 
-void register_em_projection( void );
-projection *create_em_projection(  double cm, double sp );
+void register_em_projection(void);
+projection* create_em_projection(double cm, double sp);
 
 #endif

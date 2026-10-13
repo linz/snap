@@ -16,12 +16,9 @@
 #include "coordsys/lambertr.h"
 #include "coordsys/psprojr.h"
 
-void install_default_projections( void )
-{
+void install_default_projections(void) {
     register_nzmg_projection();
     register_tm_projection();
     register_lcc_projection();
     register_ps_projection();
 }
-
-

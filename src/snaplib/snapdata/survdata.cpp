@@ -4,8 +4,7 @@
 #include "snapdata/survdata.h"
 #include "util/classify.h"
 
-snap_data_type snap_type[] =
-{
+snap_data_type snap_type[] = {
     /*
         O True if the type cannot be joined with others (eg vectors)
         R True if uses a refraction coefficient
@@ -13,55 +12,48 @@ snap_data_type snap_type[] =
         B True if uses a bearing orientation error
 
        Type Error   Obsclass    O */
-    {  HD, DS_ERR,  SD_OBSDATA, 0, nullptr },
-    {  SD, DS_ERR,  SD_OBSDATA, 0, nullptr },
-    {  ED, DS_ERR,  SD_OBSDATA, 0, nullptr },
-    {  MD, DS_ERR,  SD_OBSDATA, 0, nullptr },
-    {  DR, DS_ERR,  SD_OBSDATA, 0, nullptr },
-    {  HA, HA_ERR,  SD_OBSDATA, 0, nullptr },
-    {  AZ, AZ_ERR,  SD_OBSDATA, 0, nullptr },
-    {  ZD, ZD_ERR,  SD_OBSDATA, 0, nullptr },
-    {  LV, LV_ERR,  SD_OBSDATA, 0, nullptr },
-    {  GB, GB_ERR,  SD_VECDATA, 1, nullptr },
-    {  LT, LT_ERR,  SD_PNTDATA, 0, nullptr },
-    {  LN, LN_ERR,  SD_PNTDATA, 0, nullptr },
-    {  PB, AZ_ERR,  SD_OBSDATA, 0, nullptr },
-    {  OH, OH_ERR,  SD_PNTDATA, 0, nullptr },
-    {  EH, EH_ERR,  SD_PNTDATA, 0, nullptr },
-    {  GX, GX_ERR,  SD_VECDATA, 1, nullptr },
-    {  -1 }
-};
+    {HD, DS_ERR, SD_OBSDATA, 0, nullptr},
+    {SD, DS_ERR, SD_OBSDATA, 0, nullptr},
+    {ED, DS_ERR, SD_OBSDATA, 0, nullptr},
+    {MD, DS_ERR, SD_OBSDATA, 0, nullptr},
+    {DR, DS_ERR, SD_OBSDATA, 0, nullptr},
+    {HA, HA_ERR, SD_OBSDATA, 0, nullptr},
+    {AZ, AZ_ERR, SD_OBSDATA, 0, nullptr},
+    {ZD, ZD_ERR, SD_OBSDATA, 0, nullptr},
+    {LV, LV_ERR, SD_OBSDATA, 0, nullptr},
+    {GB, GB_ERR, SD_VECDATA, 1, nullptr},
+    {LT, LT_ERR, SD_PNTDATA, 0, nullptr},
+    {LN, LN_ERR, SD_PNTDATA, 0, nullptr},
+    {PB, AZ_ERR, SD_OBSDATA, 0, nullptr},
+    {OH, OH_ERR, SD_PNTDATA, 0, nullptr},
+    {EH, EH_ERR, SD_PNTDATA, 0, nullptr},
+    {GX, GX_ERR, SD_VECDATA, 1, nullptr},
+    {-1}};
 
-
-snap_data_type *snap_data_type_from_id( int idtype )
-{
+snap_data_type* snap_data_type_from_id(int idtype) {
     static bool init = false;
-    static snap_data_type *snaptypebyid[NOBSTYPE];
+    static snap_data_type* snaptypebyid[NOBSTYPE];
 
-    if( ! init )
-    {
+    if (!init) {
         init = true;
-        for( int i = 0; i < NOBSTYPE; i++ ) { snaptypebyid[i] = nullptr;
-}
+        for (int i = 0; i < NOBSTYPE; i++) {
+            snaptypebyid[i] = nullptr;
+        }
 
-        for( snap_data_type *sd = snap_type; sd->type != -1; sd++ )
-        {
-            sd->datatype = datatypedef_from_id( sd->type );
+        for (snap_data_type* sd = snap_type; sd->type != -1; sd++) {
+            sd->datatype = datatypedef_from_id(sd->type);
             snaptypebyid[sd->type] = sd;
         }
     }
     return snaptypebyid[idtype];
 }
 
-int get_obs_classification_id( survdata *sd, trgtdata *t, int class_id )
-{
+int get_obs_classification_id(survdata* sd, trgtdata* t, int class_id) {
     int ic;
-    for( ic = 0; ic < t->nclass; ic++ )
-    {
-        classdata *cd;
+    for (ic = 0; ic < t->nclass; ic++) {
+        classdata* cd;
         cd = sd->clsf + ic + t->iclass;
-        if( cd->class_id == class_id )
-        {
+        if (cd->class_id == class_id) {
             return cd->name_id;
         }
     }

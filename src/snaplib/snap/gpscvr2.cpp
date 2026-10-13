@@ -4,7 +4,6 @@
    vertical and a function to obtain the transformation parameters
    for a reference frame, given it's ID. */
 
-
 /*
    $Log: gpscvr2.c,v $
    Revision 1.1  1995/12/22 17:44:59  CHRIS
@@ -19,66 +18,49 @@
 #include "snap/stnadj.h"
 #include "snap/rftrans.h"
 
-static double dflttmat[] = { 1.0, 0.0, 0.0,
-                             0.0, 1.0, 0.0,
-                             0.0, 0.0, 1.0
-                           };
+static double dflttmat[] = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
 
-
-static void station_vertical( int id, double vrt[3] )
-{
-    stnptr(id)->rTopo.rot_vertical( vrt );
+static void station_vertical(int id, double vrt[3]) {
+    stnptr(id)->rTopo.rot_vertical(vrt);
 }
 
-
-static void topocentre_vertical( double vrt[3] )
-{
+static void topocentre_vertical(double vrt[3]) {
     static char got_topocentre = 0;
     static double tlat;
     static double tlon;
     static rotmat toporot;
     double lt;
     double ln;
-    get_network_topocentre( net, &lt, &ln );
-    if( !got_topocentre || lt != tlat || ln != tlon )
-    {
-        tlat = lt; tlon = ln;
+    get_network_topocentre(net, &lt, &ln);
+    if (!got_topocentre || lt != tlat || ln != tlon) {
+        tlat = lt;
+        tlon = ln;
         got_topocentre = 1;
-        toporot = rotmat( tlat, tlon );
+        toporot = rotmat(tlat, tlon);
     }
-    toporot.rot_vertical( vrt );
+    toporot.rot_vertical(vrt);
 }
 
-static void get_vertical( int id, double vrt[3] )
-{
-    if( id > 0 )
-    {
-        station_vertical( id, vrt );
-    }
-    else
-    {
-        topocentre_vertical( vrt );
+static void get_vertical(int id, double vrt[3]) {
+    if (id > 0) {
+        station_vertical(id, vrt);
+    } else {
+        topocentre_vertical(vrt);
     }
 }
 
-static double *get_transformation( int rfid, int inverse )
-{
-    rfTransformation *rf = rftrans_from_id( rfid );
-    if( ! rf )
-    {
+static double* get_transformation(int rfid, int inverse) {
+    rfTransformation* rf = rftrans_from_id(rfid);
+    if (!rf) {
         return dflttmat;
     }
-    if( inverse )
-    {
+    if (inverse) {
         return &rf->invtmat[0][0];
     }
-    
-            return &rf->tmat[0][0];
-   
+
+    return &rf->tmat[0][0];
 }
 
-
-void init_snap_gps_covariance()
-{
-    init_gps_covariances( get_vertical, get_transformation );
+void init_snap_gps_covariance() {
+    init_gps_covariances(get_vertical, get_transformation);
 }

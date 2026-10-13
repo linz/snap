@@ -19,67 +19,58 @@ using boost::numeric_cast;
 #include "snap/bindata.h"
 #include "notedata.h"
 
-
 /*===================================================*/
-
 
 /* Routines to handle notes */
 /* If the note is continued, the first character is set to blank,
    otherwise it is a line-feed character */
 
-int64_t save_note( std::string_view text, int continued )
-{
-    const long size = numeric_cast<long>( text.size() )+3;
+int64_t save_note(std::string_view text, int continued) {
+    const long size = numeric_cast<long>(text.size()) + 3;
 
-    const int64_t loc = write_bindata_header( size, NOTEDATA );
+    const int64_t loc = write_bindata_header(size, NOTEDATA);
 
-    fputc( continued ? ' ' : '\n', bindata_file );
-    fwrite( text.data(), text.size(), 1, bindata_file );
-    fputc( '\n', bindata_file );
-    fputc( 0, bindata_file );
+    fputc(continued ? ' ' : '\n', bindata_file);
+    fwrite(text.data(), text.size(), 1, bindata_file);
+    fputc('\n', bindata_file);
+    fputc(0, bindata_file);
 
     return loc;
 }
 
-
-
-void list_note( FILE *out, int64_t loc )
-{
+void list_note(FILE* out, int64_t loc) {
     char note[81];
     long size;
     int block;
     int type;
     int firstline;
     int c;
-    if( loc < 0 || !output_notes ) { return;
-}
-    const int64_t curloc = ftell64( bindata_file );
-    fseek64( bindata_file, loc, SEEK_SET );
+    if (loc < 0 || !output_notes) {
+        return;
+    }
+    const int64_t curloc = ftell64(bindata_file);
+    fseek64(bindata_file, loc, SEEK_SET);
 
     firstline = 1;
-    while( read_bindata_header( &size, &type ) && type == NOTEDATA )
-    {
-        c = fgetc( bindata_file );
-        if( firstline )
-        {
-            fputc( c, out );
+    while (read_bindata_header(&size, &type) && type == NOTEDATA) {
+        c = fgetc(bindata_file);
+        if (firstline) {
+            fputc(c, out);
             firstline = 0;
-        }
-        else
-        {
-            if( c != ' ' ) { break;
-}
+        } else {
+            if (c != ' ') {
+                break;
+            }
         }
         size--;
         note[80] = 0;
-        while ( size )
-        {
+        while (size) {
             block = size > 80 ? 80 : size;
-            fread( note, 1, block, bindata_file );
-            fputs( note, out );
+            fread(note, 1, block, bindata_file);
+            fputs(note, out);
             size -= block;
         }
     }
 
-    fseek64( bindata_file, curloc, SEEK_SET );
+    fseek64(bindata_file, curloc, SEEK_SET);
 }

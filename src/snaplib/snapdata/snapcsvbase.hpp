@@ -17,63 +17,59 @@
 
 #define CSVFORMAT_CONFIG "format"
 
-namespace LINZ
-{
-namespace SNAP
-{
+namespace LINZ {
+namespace SNAP {
 
 using namespace LINZ;
 using namespace DelimitedTextFile;
 
-class SnapCsvBase
-{
-public:
-    class CsvValue
-    {
-    public:
-        CsvValue(const std::string &name) : _name(name), _column(nullptr) {}
+class SnapCsvBase {
+ public:
+    class CsvValue {
+     public:
+        CsvValue(const std::string& name) : _name(name), _column(nullptr) {}
         ~CsvValue();
-        const std::string &name() {
+        const std::string& name() {
             return _name;
         }
         void setName(const std::string& name);
-        [[nodiscard]] const std::string &value() const {
+        [[nodiscard]] const std::string& value() const {
             return _column->value();
         }
-        ConcatValue &cvalue() {
+        ConcatValue& cvalue() {
             return _value;
         }
         bool hasValue() {
             return _value.hasValue();
         }
-        void attach(CalcReader *reader);
+        void attach(CalcReader* reader);
         template <typename T>
-        bool operator>>(T &value) {
+        bool operator>>(T& value) {
             return (*_column) >> value;
         }
 
-    private:
+     private:
         std::string _name;
         ConcatValue _value;
-        Column *_column;
+        Column* _column;
     };
 
-public:
-    SnapCsvBase(const std::string &name, const OptionString &config = OptionString(""));
+ public:
+    SnapCsvBase(const std::string& name, const OptionString& config = OptionString(""));
     virtual ~SnapCsvBase();
-    bool load(const std::string &filename);
-    bool load(RecordInputBase &input);
-    [[nodiscard]] const std::string &loadedFilename() const {
+    bool load(const std::string& filename);
+    bool load(RecordInputBase& input);
+    [[nodiscard]] const std::string& loadedFilename() const {
         return _loadedFilename;
     }
-    [[nodiscard]] const std::string &definitionFilename() const {
+    [[nodiscard]] const std::string& definitionFilename() const {
         return _definitionFilename;
     }
 
-protected:
+ protected:
     // Implementation functions
     virtual void initialiseLoadDefinition();
-    virtual void loadDefinitionCommand(const std::string &command, RecordStream &rs) = 0;
+    virtual void loadDefinitionCommand(const std::string& command, RecordStream& rs) = 0;
     virtual void terminateLoadDefinition();
 
     virtual void readerAttached() = 0;
@@ -82,33 +78,33 @@ protected:
     virtual void terminateLoadData();
 
     // Helper functions
-    void definitionError(const string &message, RecordErrorType errortype = RuntimeError);
-    void runtimeError(const string &message);
-    void loadValueDefinition(RecordStream &rs, CsvValue &value);
-    void loadValueDefinition(const std::string &valuestr, CsvValue &value);
-    const std::string getConfigValue(const std::string &name, RecordStream &rs);
-    const std::string getConfigValue(const std::string &name, const std::string &valuestr);
+    void definitionError(const string& message, RecordErrorType errortype = RuntimeError);
+    void runtimeError(const string& message);
+    void loadValueDefinition(RecordStream& rs, CsvValue& value);
+    void loadValueDefinition(const std::string& valuestr, CsvValue& value);
+    const std::string getConfigValue(const std::string& name, RecordStream& rs);
+    const std::string getConfigValue(const std::string& name, const std::string& valuestr);
 
-    void normaliseColumnNames(CalcReader *reader);
-    void attachReader(CalcReader *reader);
+    void normaliseColumnNames(CalcReader* reader);
+    void attachReader(CalcReader* reader);
     bool checkColumns();
 
-    CalcReader *reader() {
+    CalcReader* reader() {
         return _reader;
     }
 
-    LookupMap &lookup(const std::string &lookupName);
+    LookupMap& lookup(const std::string& lookupName);
 
-private:
+ private:
     void loadDefinition();
-    void loadDefinition(RecordStream &rs);
-    void loadLookupDefinition(RecordStream &rs, const std::string &name, bool skip = false);
-    void loadFormatDefinition(const std::string &formatstr);
-    void loadColumnsDefinition(RecordStream &rs, std::vector<std::string> &cols);
+    void loadDefinition(RecordStream& rs);
+    void loadLookupDefinition(RecordStream& rs, const std::string& name, bool skip = false);
+    void loadFormatDefinition(const std::string& formatstr);
+    void loadColumnsDefinition(RecordStream& rs, std::vector<std::string>& cols);
     void setNSkipLines(int nskip) {
         _options.setNSkipLines(nskip);
     }
-    void recordUsedColumn(const std::string &column);
+    void recordUsedColumn(const std::string& column);
 
     bool _definitionLoaded;
 
@@ -131,13 +127,13 @@ private:
     std::map<std::string, LookupMap> _lookups;
 
     // Currently attached reader
-    CalcReader *_reader;
+    CalcReader* _reader;
 
     // Currently used definition input
-    RecordStream *_defstream;
+    RecordStream* _defstream;
 };
 
-} // End of namespace SNAP
-} // End of namespace LINZ
+}  // End of namespace SNAP
+}  // End of namespace LINZ
 
 #endif

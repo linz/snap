@@ -21,35 +21,34 @@
 
 enum { SNAP_FORMAT, GB_FORMAT, CSV_FORMAT, SINEX_FORMAT };
 
-struct survey_data_file
-{
+struct survey_data_file {
     std::string name;
     int format;
     std::optional<std::string> subtype;
-    file_context *context;
+    file_context* context;
     std::optional<std::string> recodefile;
     double mindate;
     double maxdate;
     long nnodate;
     long obscount[NOBSTYPE];
     unsigned char usage;
-    stn_recode_map *recode;
+    stn_recode_map* recode;
 };
 
-int  add_data_file( const std::string &name, int format, const std::optional<std::string> &subtype, const std::optional<std::string> &recode, file_context *context );
-survey_data_file *survey_data_file_ptr( int ifile );
-std::string survey_data_file_name( int ifile );
-int survey_data_file_id( std::string_view name, file_context *context );
-int survey_data_file_count( void );
-void survey_data_file_dates( double *mindate, double *maxdate, int *nnodate );
+int add_data_file(const std::string& name, int format, const std::optional<std::string>& subtype,
+                  const std::optional<std::string>& recode, file_context* context);
+survey_data_file* survey_data_file_ptr(int ifile);
+std::string survey_data_file_name(int ifile);
+int survey_data_file_id(std::string_view name, file_context* context);
+int survey_data_file_count(void);
+void survey_data_file_dates(double* mindate, double* maxdate, int* nnodate);
 
 void delete_survey_file_recodes();
 void delete_survey_file_list();
 
 #ifdef _BINFILE_H
-void dump_filenames( BINARY_FILE *b );
-int reload_filenames( BINARY_FILE *b );
+void dump_filenames(BINARY_FILE* b);
+int reload_filenames(BINARY_FILE* b);
 #endif
 
 #endif
-

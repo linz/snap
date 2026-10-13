@@ -8,61 +8,51 @@
 #include "plotconn.h"
 //}
 
+static const std::vector<ListControlOption> obsHighlightOptions = {
+    {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE},
+    {"Apriori &standardised residuals greater than threshold", PCONN_HIGHLIGHT_SRES},
+    {"&Aposteriori standardised residuals greater than threshold", PCONN_HIGHLIGHT_APOST_SRES},
+    {"&Redundancy factor less than threshold", PCONN_HIGHLIGHT_RFAC},
+    {"Re&jected observations", PCONN_HIGHLIGHT_REJECTED},
+    {"&Unused observations", PCONN_HIGHLIGHT_UNUSED},
+    {"&Between highlighted stations", PCONN_HIGHLIGHT_IF_BOTH},
+    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER}};
 
-static const std::vector<ListControlOption> obsHighlightOptions =
-{
-    {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE },
-    {"Apriori &standardised residuals greater than threshold", PCONN_HIGHLIGHT_SRES },
-    {"&Aposteriori standardised residuals greater than threshold", PCONN_HIGHLIGHT_APOST_SRES },
-    {"&Redundancy factor less than threshold", PCONN_HIGHLIGHT_RFAC },
-    {"Re&jected observations", PCONN_HIGHLIGHT_REJECTED },
-    {"&Unused observations", PCONN_HIGHLIGHT_UNUSED },
-    {"&Between highlighted stations", PCONN_HIGHLIGHT_IF_BOTH },
-    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER }
-};
+class ObsHighlightDialog : public wxSimpleDialog {
+ public:
+    ObsHighlightDialog(wxHelpController* help = nullptr);
 
-class ObsHighlightDialog : public wxSimpleDialog
-{
-public:
-    ObsHighlightDialog( wxHelpController *help = nullptr );
-
-protected:
+ protected:
     void ReadData() override;
     void Apply() override;
 
-private:
+ private:
     int nOpts;
     int highlightOpt;
     double threshold;
 };
 
-
-ObsHighlightDialog::ObsHighlightDialog( wxHelpController *help ) :
-    wxSimpleDialog("Highlight observations")
-{
-
-    AddRadioBox( "", highlightOpt, obsHighlightOptions );
+ObsHighlightDialog::ObsHighlightDialog(wxHelpController* help) : wxSimpleDialog("Highlight observations") {
+    AddRadioBox("", highlightOpt, obsHighlightOptions);
     AddSpacer();
-    AddNumberBox( "T&hreshold value", threshold, true, 2 );
+    AddNumberBox("T&hreshold value", threshold, true, 2);
     AddButtonsAndSize();
-    if( help ) { SetupHelp( help,  HELPBASE "dlg_highlight_observations.html"  );
-}
+    if (help) {
+        SetupHelp(help, HELPBASE "dlg_highlight_observations.html");
+    }
 }
 
-void ObsHighlightDialog::ReadData()
-{
+void ObsHighlightDialog::ReadData() {
     int hltOpt;
-    get_obs_highlight_option( &hltOpt, &threshold );
+    get_obs_highlight_option(&hltOpt, &threshold);
     highlightOpt = hltOpt;
 }
 
-void ObsHighlightDialog::Apply()
-{
-    set_obs_highlight_option( highlightOpt, threshold );
+void ObsHighlightDialog::Apply() {
+    set_obs_highlight_option(highlightOpt, threshold);
 }
 
-bool SetupObsHighlights( wxHelpController *help )
-{
+bool SetupObsHighlights(wxHelpController* help) {
     ObsHighlightDialog dlg(help);
     return dlg.RunDialog();
 }

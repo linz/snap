@@ -9,29 +9,25 @@
 /// longer value truncates it.  The base is private so that the other
 /// std::string members, which could break the limit, are not available.
 template <size_t MaxChars>
-class StringLimited : private std::string
-{
-public:
+class StringLimited : private std::string {
+ public:
     StringLimited() = default;
 
     /// Creates a string, truncating it to MaxChars characters.
-    explicit StringLimited( const std::string_view text ) ///< The text
-        : std::string( text.substr( 0, MaxChars ) )
-    {
-    }
+    explicit StringLimited(const std::string_view text)  ///< The text
+        : std::string(text.substr(0, MaxChars)) {}
 
     /// Replaces the string, truncating it to MaxChars characters.
-    void assign( const std::string_view text ) ///< The new text
+    void assign(const std::string_view text)  ///< The new text
     {
-        std::string::assign( text.substr( 0, MaxChars ) );
+        std::string::assign(text.substr(0, MaxChars));
     }
 
     using std::string::empty;
     using std::string::size;
 
     /// A copy of the text as a std::string
-    [[nodiscard]] std::string str() const
-    {
+    [[nodiscard]] std::string str() const {
         return *this;
     }
 

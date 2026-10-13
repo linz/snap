@@ -10,17 +10,16 @@
 
 /* Object for trimming lines to a rectangular boundary */
 
-struct Trimmer
-{
+struct Trimmer {
     double xmin, xmax, ymin, ymax;
     double x0, y0, x1, y1, xnext, ynext;
     char flagnext;
     char s0, s1, npt;
 };
 
-void SetTrimmerExtents( Trimmer *t, double xmin, double ymin, double xmax, double ymax );
-int AddTrimmerPoint( Trimmer *t, double x, double y, char start );
-char NextTrimmedPoint( Trimmer *t, double *x, double *y, char *start );
+void SetTrimmerExtents(Trimmer* t, double xmin, double ymin, double xmax, double ymax);
+int AddTrimmerPoint(Trimmer* t, double x, double y, char start);
+char NextTrimmedPoint(Trimmer* t, double* x, double* y, char* start);
 
 #define GotTrimmedPoint(t) ((t)->npt)
 

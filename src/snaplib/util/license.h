@@ -13,7 +13,6 @@
 
 /* Code to handle an encrypted password */
 
-char *decrypted_license( unsigned char *license_text );
+char* decrypted_license(unsigned char* license_text);
 
 #endif
-

@@ -21,17 +21,16 @@
 #include "dbl4_utl_binsrc.h"
 #endif
 
-using hGrid = void *;
+using hGrid = void*;
 
-StatusType utlCreateGrid( hBinSrc blob, hGrid * grid);
+StatusType utlCreateGrid(hBinSrc blob, hGrid* grid);
 
-StatusType utlReleaseGrid( hGrid grid);
+StatusType utlReleaseGrid(hGrid grid);
 
-StatusType utlGridVectorDimension( hGrid grid, int *dimension );
+StatusType utlGridVectorDimension(hGrid grid, int* dimension);
 
-StatusType utlCalcGridLinear( hGrid grid, double x, double y, double * value);
+StatusType utlCalcGridLinear(hGrid grid, double x, double y, double* value);
 
-StatusType utlCalcGridCubic( hGrid grid, double x, double y, double * value);
-
+StatusType utlCalcGridCubic(hGrid grid, double x, double y, double* value);
 
 #endif /* DBL4_UTL_GRID_H not defined */

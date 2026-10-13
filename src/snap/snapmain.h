@@ -82,6 +82,6 @@
 
 #define DEFAULT_RETURN_STATUS 1
 
-int snap_main( int argc, char *argv[] );
+int snap_main(int argc, char* argv[]);
 
 #endif

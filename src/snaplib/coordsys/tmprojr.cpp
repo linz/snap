@@ -18,84 +18,57 @@
 #include "coordsys/tmproj.h"
 #include "coordsys/tmprojr.h"
 
-static param_def tmparams[]  =
-{
-    {
-        "Central meridian","CM",OFFSET_OF(meridian,tmprojection),
-        read_radians, print_radians, print_longitude
-    },
-    {
-        "Origin of latitude","LO",OFFSET_OF(orglat,tmprojection),
-        read_radians, print_radians, print_latitude
-    },
-    {
-        "Scale factor","SF", OFFSET_OF(scalef,tmprojection),
-        double_from_string, print_double6, print_double6
-    },
-    {
-        "False easting","FE", OFFSET_OF(falsee,tmprojection),
-        double_from_string, print_double3, print_double3
-    },
-    {
-        "False northing", "FN", OFFSET_OF(falsen,tmprojection),
-        double_from_string, print_double3, print_double3
-    },
-    {
-        "Unit to metres conversion","UTOM",OFFSET_OF(utom,tmprojection),
-        double_from_string, print_double6, print_double6
+static param_def tmparams[] = {
+    {"Central meridian", "CM", OFFSET_OF(meridian, tmprojection), read_radians, print_radians, print_longitude},
+    {"Origin of latitude", "LO", OFFSET_OF(orglat, tmprojection), read_radians, print_radians, print_latitude},
+    {"Scale factor", "SF", OFFSET_OF(scalef, tmprojection), double_from_string, print_double6, print_double6},
+    {"False easting", "FE", OFFSET_OF(falsee, tmprojection), double_from_string, print_double3, print_double3},
+    {"False northing", "FN", OFFSET_OF(falsen, tmprojection), double_from_string, print_double3, print_double3},
+    {"Unit to metres conversion", "UTOM", OFFSET_OF(utom, tmprojection), double_from_string, print_double6,
+     print_double6}};
+
+static projection_type* tm_type = nullptr;
+
+static int tm_bind_ellipsoid(void* data, ellipsoid* el) {
+    tmprojection* tm;
+    tm = (tmprojection*)data;
+    define_tmprojection(tm, el->a, el->rf, tm->meridian, tm->scalef, tm->orglat, tm->falsee, tm->falsen, tm->utom);
+    return OK;
+}
+
+static int tm_proj_to_geog(void* data, double e, double n, double* ln, double* lt) {
+    tm_geod((tmprojection*)data, e, n, ln, lt);
+    return OK;
+}
+
+static int tm_geog_to_proj(void* data, double ln, double lt, double* e, double* n) {
+    geod_tm((tmprojection*)data, ln, lt, e, n);
+    return OK;
+}
+
+void register_tm_projection(void) {
+    if (tm_type) {
+        return;
     }
-};
 
-static projection_type *tm_type = nullptr;
-
-
-static int tm_bind_ellipsoid( void *data, ellipsoid *el )
-{
-    tmprojection *tm;
-    tm = (tmprojection *) data;
-    define_tmprojection( tm, el->a, el->rf,
-                         tm->meridian, tm->scalef, tm->orglat, tm->falsee, tm->falsen, tm->utom );
-    return OK;
+    tm_type = register_projection_type(
+        new projection_type("TM", "Transverse Mercator", sizeof(tmprojection), tmparams, COUNT_OF(tmparams), nullptr,
+                            nullptr, nullptr, tm_bind_ellipsoid, nullptr, tm_geog_to_proj, tm_proj_to_geog, nullptr));
 }
 
-static int tm_proj_to_geog( void *data, double e, double n, double *ln, double *lt )
-{
-    tm_geod( (tmprojection *) data, e, n, ln, lt );
-    return OK;
-}
+projection* create_tm_projection(double cm, double sf, double lto, double fe, double fn, double utom) {
+    projection* prj;
 
-static int tm_geog_to_proj( void *data, double ln, double lt, double *e, double *n )
-{
-    geod_tm( (tmprojection *) data, ln, lt, e, n );
-    return OK;
-}
+    if (!tm_type) {
+        register_tm_projection();
+    }
+    if (!tm_type) {
+        return nullptr;
+    }
 
-void register_tm_projection( void )
-{
-    if( tm_type ) { return;
-}
+    prj = new projection(*tm_type);
 
-    tm_type = register_projection_type( new projection_type(
-        "TM", "Transverse Mercator", sizeof(tmprojection), tmparams, COUNT_OF(tmparams),
-        nullptr, nullptr, nullptr, tm_bind_ellipsoid, nullptr,
-        tm_geog_to_proj, tm_proj_to_geog, nullptr ) );
-}
-
-projection *create_tm_projection(  double cm, double sf, double lto,
-                                   double fe, double fn, double utom )
-{
-    projection *prj;
-
-    if( !tm_type ) { register_tm_projection();
-}
-    if( !tm_type ) { return nullptr;
-}
-
-    prj = new projection( *tm_type );
-
-    define_tmprojection( (tmprojection *) prj->data, 6378388.0, 297.0,
-                         cm, sf, lto, fe, fn, utom );
+    define_tmprojection((tmprojection*)prj->data, 6378388.0, 297.0, cm, sf, lto, fe, fn, utom);
 
     return prj;
 }
-

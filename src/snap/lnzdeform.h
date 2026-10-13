@@ -5,6 +5,6 @@
 
 #include "snap/deform.h"
 
-int create_linzdef_deformation( deformation_model **model, const std::string &pmodel, double pepoch );
+int create_linzdef_deformation(deformation_model** model, const std::string& pmodel, double pepoch);
 
 #endif

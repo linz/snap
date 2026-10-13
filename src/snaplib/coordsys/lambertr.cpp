@@ -18,84 +18,56 @@
 #include "coordsys/lambertr.h"
 #include "util/pi.h"
 
-static projection_type *LCC_type = nullptr;
+static projection_type* LCC_type = nullptr;
 
-static param_def LCCparams[] =
-{
-    {
-        "First standard parallel","SP1",OFFSET_OF(sp1,LCCProjection),
-        read_radians, print_radians, print_latitude
-    },
-    {
-        "Second standard parallel","SP2",OFFSET_OF(sp2,LCCProjection),
-        read_radians, print_radians, print_latitude
-    },
-    {
-        "Origin of latitude","LT",OFFSET_OF(lt0,LCCProjection),
-        read_radians, print_radians, print_latitude
-    },
-    {
-        "Origin of longitude","LN",OFFSET_OF(ln0,LCCProjection),
-        read_radians, print_radians, print_longitude
-    },
-    {
-        "False easting","FE", OFFSET_OF(e0,LCCProjection),
-        double_from_string, print_double3, print_double3
-    },
-    {
-        "False northing", "FN", OFFSET_OF(n0,LCCProjection),
-        double_from_string, print_double3, print_double3
+static param_def LCCparams[] = {
+    {"First standard parallel", "SP1", OFFSET_OF(sp1, LCCProjection), read_radians, print_radians, print_latitude},
+    {"Second standard parallel", "SP2", OFFSET_OF(sp2, LCCProjection), read_radians, print_radians, print_latitude},
+    {"Origin of latitude", "LT", OFFSET_OF(lt0, LCCProjection), read_radians, print_radians, print_latitude},
+    {"Origin of longitude", "LN", OFFSET_OF(ln0, LCCProjection), read_radians, print_radians, print_longitude},
+    {"False easting", "FE", OFFSET_OF(e0, LCCProjection), double_from_string, print_double3, print_double3},
+    {"False northing", "FN", OFFSET_OF(n0, LCCProjection), double_from_string, print_double3, print_double3}};
+
+static int LCC_bind_ellipsoid(void* data, ellipsoid* el) {
+    LCCProjection* lp;
+    lp = (LCCProjection*)data;
+    defineLCCProjection(lp, el->a, el->rf, lp->sp1, lp->sp2, lp->lt0, lp->ln0, lp->e0, lp->n0);
+    return OK;
+}
+
+static int LCC_proj_to_geog(void* data, double e, double n, double* ln, double* lt) {
+    convertLCCToGeog((LCCProjection*)data, e, n, ln, lt);
+    return OK;
+}
+
+static int LCC_geog_to_proj(void* data, double ln, double lt, double* e, double* n) {
+    convertGeogToLCC((LCCProjection*)data, ln, lt, e, n, nullptr, nullptr);
+    return OK;
+}
+
+void register_lcc_projection(void) {
+    if (LCC_type) {
+        return;
     }
-};
 
-
-static int LCC_bind_ellipsoid( void *data, ellipsoid *el )
-{
-    LCCProjection *lp;
-    lp = (LCCProjection *) data;
-    defineLCCProjection( lp, el->a, el->rf, lp->sp1, lp->sp2,
-                         lp->lt0, lp->ln0, lp->e0, lp->n0 );
-    return OK;
+    LCC_type = register_projection_type(new projection_type(
+        "LCC", "Lambert Conformal Conic", sizeof(LCCProjection), LCCparams, COUNT_OF(LCCparams), nullptr, nullptr,
+        nullptr, LCC_bind_ellipsoid, nullptr, LCC_geog_to_proj, LCC_proj_to_geog, nullptr));
 }
 
-static int LCC_proj_to_geog( void *data, double e, double n, double *ln, double *lt )
-{
-    convertLCCToGeog( (LCCProjection *) data, e, n, ln, lt );
-    return OK;
-}
+projection* create_lcc_projection(double sp1, double sp2, double lt0, double ln0, double e, double n) {
+    projection* prj;
 
-static int LCC_geog_to_proj( void *data, double ln, double lt, double *e, double *n )
-{
-    convertGeogToLCC( (LCCProjection *) data, ln, lt, e, n, nullptr, nullptr );
-    return OK;
-}
+    if (!LCC_type) {
+        register_lcc_projection();
+    }
+    if (!LCC_type) {
+        return nullptr;
+    }
 
-void register_lcc_projection( void )
-{
-    if( LCC_type ) { return;
-}
+    prj = new projection(*LCC_type);
 
-    LCC_type = register_projection_type( new projection_type(
-        "LCC", "Lambert Conformal Conic", sizeof(LCCProjection), LCCparams, COUNT_OF(LCCparams),
-        nullptr, nullptr, nullptr, LCC_bind_ellipsoid, nullptr,
-        LCC_geog_to_proj, LCC_proj_to_geog, nullptr ) );
-}
-
-projection *create_lcc_projection(  double sp1, double sp2,
-                                    double lt0, double ln0, double e, double n )
-{
-    projection *prj;
-
-    if( !LCC_type ) { register_lcc_projection();
-}
-    if( !LCC_type ) { return nullptr;
-}
-
-    prj = new projection( *LCC_type );
-
-    defineLCCProjection( (LCCProjection *) prj->data, 6378388.0, 297.0,
-                         sp1, sp2, lt0, ln0, e, n );
+    defineLCCProjection((LCCProjection*)prj->data, 6378388.0, 297.0, sp1, sp2, lt0, ln0, e, n);
 
     return prj;
 }
-

@@ -8,10 +8,10 @@
 
 */
 
-#define NZMG_A  6378388.0
+#define NZMG_A 6378388.0
 #define NZMG_RF 297.0
 
-void nzmg_geod( double e, double n, double *lt, double *ln );
-void geod_nzmg( double lt, double ln, double *e, double *n );
+void nzmg_geod(double e, double n, double* lt, double* ln);
+void geod_nzmg(double lt, double ln, double* e, double* n);
 
 #endif

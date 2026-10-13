@@ -37,7 +37,7 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static FILE *dxf = nullptr;
+static FILE* dxf = nullptr;
 
 static double save_x1, save_y1;
 static double save_x2, save_y2;
@@ -56,307 +56,110 @@ static int text_layer = 0;
 static Trimmer tr;
 static char TrimLines;
 
-struct dxfcolour
-{
+struct dxfcolour {
     unsigned char id;
     unsigned char R;
     unsigned char G;
     unsigned char B;
 };
 
-static dxfcolour colourtable[] =
-{
-    {1,255,0,0},
-    {2,255,255,0},
-    {3,0,255,0},
-    {4,0,255,255},
-    {5,0,0,255},
-    {6,255,0,255},
-    {7,255,255,255},
-    {8,65,65,65},
-    {9,128,128,128},
-    {10,255,0,0},
-    {11,255,170,170},
-    {12,189,0,0},
-    {13,189,126,126},
-    {14,129,0,0},
-    {15,129,86,86},
-    {16,104,0,0},
-    {17,104,69,69},
-    {18,79,0,0},
-    {19,79,53,53},
-    {20,255,63,0},
-    {21,255,191,170},
-    {22,189,46,0},
-    {23,189,141,126},
-    {24,129,31,0},
-    {25,129,96,86},
-    {26,104,25,0},
-    {27,104,78,69},
-    {28,79,19,0},
-    {29,79,59,53},
-    {30,255,127,0},
-    {31,255,212,170},
-    {32,189,94,0},
-    {33,189,157,126},
-    {34,129,64,0},
-    {35,129,107,86},
-    {36,104,52,0},
-    {37,104,86,69},
-    {38,79,39,0},
-    {39,79,66,53},
-    {40,255,191,0},
-    {41,255,234,170},
-    {42,189,141,0},
-    {43,189,173,126},
-    {44,129,96,0},
-    {45,129,118,86},
-    {46,104,78,0},
-    {47,104,95,69},
-    {48,79,59,0},
-    {49,79,73,53},
-    {50,255,255,0},
-    {51,255,255,170},
-    {52,189,189,0},
-    {53,189,189,126},
-    {54,129,129,0},
-    {55,129,129,86},
-    {56,104,104,0},
-    {57,104,104,69},
-    {58,79,79,0},
-    {59,79,79,53},
-    {60,191,255,0},
-    {61,234,255,170},
-    {62,141,189,0},
-    {63,173,189,126},
-    {64,96,129,0},
-    {65,118,129,86},
-    {66,78,104,0},
-    {67,95,104,69},
-    {68,59,79,0},
-    {69,73,79,53},
-    {70,127,255,0},
-    {71,212,255,170},
-    {72,94,189,0},
-    {73,157,189,126},
-    {74,64,129,0},
-    {75,107,129,86},
-    {76,52,104,0},
-    {77,86,104,69},
-    {78,39,79,0},
-    {79,66,79,53},
-    {80,63,255,0},
-    {81,191,255,170},
-    {82,46,189,0},
-    {83,141,189,126},
-    {84,31,129,0},
-    {85,96,129,86},
-    {86,25,104,0},
-    {87,78,104,69},
-    {88,19,79,0},
-    {89,59,79,53},
-    {90,0,255,0},
-    {91,170,255,170},
-    {92,0,189,0},
-    {93,126,189,126},
-    {94,0,129,0},
-    {95,86,129,86},
-    {96,0,104,0},
-    {97,69,104,69},
-    {98,0,79,0},
-    {99,53,79,53},
-    {100,0,255,63},
-    {101,170,255,191},
-    {102,0,189,46},
-    {103,126,189,141},
-    {104,0,129,31},
-    {105,86,129,96},
-    {106,0,104,25},
-    {107,69,104,78},
-    {108,0,79,19},
-    {109,53,79,59},
-    {110,0,255,127},
-    {111,170,255,212},
-    {112,0,189,94},
-    {113,126,189,157},
-    {114,0,129,64},
-    {115,86,129,107},
-    {116,0,104,52},
-    {117,69,104,86},
-    {118,0,79,39},
-    {119,53,79,66},
-    {120,0,255,191},
-    {121,170,255,234},
-    {122,0,189,141},
-    {123,126,189,173},
-    {124,0,129,96},
-    {125,86,129,118},
-    {126,0,104,78},
-    {127,69,104,95},
-    {128,0,79,59},
-    {129,53,79,73},
-    {130,0,255,255},
-    {131,170,255,255},
-    {132,0,189,189},
-    {133,126,189,189},
-    {134,0,129,129},
-    {135,86,129,129},
-    {136,0,104,104},
-    {137,69,104,104},
-    {138,0,79,79},
-    {139,53,79,79},
-    {140,0,191,255},
-    {141,170,234,255},
-    {142,0,141,189},
-    {143,126,173,189},
-    {144,0,96,129},
-    {145,86,118,129},
-    {146,0,78,104},
-    {147,69,95,104},
-    {148,0,59,79},
-    {149,53,73,79},
-    {150,0,127,255},
-    {151,170,212,255},
-    {152,0,94,189},
-    {153,126,157,189},
-    {154,0,64,129},
-    {155,86,107,129},
-    {156,0,52,104},
-    {157,69,86,104},
-    {158,0,39,79},
-    {159,53,66,79},
-    {160,0,63,255},
-    {161,170,191,255},
-    {162,0,46,189},
-    {163,126,141,189},
-    {164,0,31,129},
-    {165,86,96,129},
-    {166,0,25,104},
-    {167,69,78,104},
-    {168,0,19,79},
-    {169,53,59,79},
-    {170,0,0,255},
-    {171,170,170,255},
-    {172,0,0,189},
-    {173,126,126,189},
-    {174,0,0,129},
-    {175,86,86,129},
-    {176,0,0,104},
-    {177,69,69,104},
-    {178,0,0,79},
-    {179,53,53,79},
-    {180,63,0,255},
-    {181,191,170,255},
-    {182,46,0,189},
-    {183,141,126,189},
-    {184,31,0,129},
-    {185,96,86,129},
-    {186,25,0,104},
-    {187,78,69,104},
-    {188,19,0,79},
-    {189,59,53,79},
-    {190,127,0,255},
-    {191,212,170,255},
-    {192,94,0,189},
-    {193,157,126,189},
-    {194,64,0,129},
-    {195,107,86,129},
-    {196,52,0,104},
-    {197,86,69,104},
-    {198,39,0,79},
-    {199,66,53,79},
-    {200,191,0,255},
-    {201,234,170,255},
-    {202,141,0,189},
-    {203,173,126,189},
-    {204,96,0,129},
-    {205,118,86,129},
-    {206,78,0,104},
-    {207,95,69,104},
-    {208,59,0,79},
-    {209,73,53,79},
-    {210,255,0,255},
-    {211,255,170,255},
-    {212,189,0,189},
-    {213,189,126,189},
-    {214,129,0,129},
-    {215,129,86,129},
-    {216,104,0,104},
-    {217,104,69,104},
-    {218,79,0,79},
-    {219,79,53,79},
-    {220,255,0,191},
-    {221,255,170,234},
-    {222,189,0,141},
-    {223,189,126,173},
-    {224,129,0,96},
-    {225,129,86,118},
-    {226,104,0,78},
-    {227,104,69,95},
-    {228,79,0,59},
-    {229,79,53,73},
-    {230,255,0,127},
-    {231,255,170,212},
-    {232,189,0,94},
-    {233,189,126,157},
-    {234,129,0,64},
-    {235,129,86,107},
-    {236,104,0,52},
-    {237,104,69,86},
-    {238,79,0,39},
-    {239,79,53,66},
-    {240,255,0,63},
-    {241,255,170,191},
-    {242,189,0,46},
-    {243,189,126,141},
-    {244,129,0,31},
-    {245,129,86,96},
-    {246,104,0,25},
-    {247,104,69,78},
-    {248,79,0,19},
-    {249,79,53,59},
-    {250,51,51,51},
-    {251,80,80,80},
-    {252,105,105,105},
-    {253,130,130,130},
-    {254,190,190,190},
-    {255,255,255,255},
-    {0,0,0}
-};
+static dxfcolour colourtable[] = {
+    {1, 255, 0, 0},       {2, 255, 255, 0},     {3, 0, 255, 0},       {4, 0, 255, 255},
+    {5, 0, 0, 255},       {6, 255, 0, 255},     {7, 255, 255, 255},   {8, 65, 65, 65},
+    {9, 128, 128, 128},   {10, 255, 0, 0},      {11, 255, 170, 170},  {12, 189, 0, 0},
+    {13, 189, 126, 126},  {14, 129, 0, 0},      {15, 129, 86, 86},    {16, 104, 0, 0},
+    {17, 104, 69, 69},    {18, 79, 0, 0},       {19, 79, 53, 53},     {20, 255, 63, 0},
+    {21, 255, 191, 170},  {22, 189, 46, 0},     {23, 189, 141, 126},  {24, 129, 31, 0},
+    {25, 129, 96, 86},    {26, 104, 25, 0},     {27, 104, 78, 69},    {28, 79, 19, 0},
+    {29, 79, 59, 53},     {30, 255, 127, 0},    {31, 255, 212, 170},  {32, 189, 94, 0},
+    {33, 189, 157, 126},  {34, 129, 64, 0},     {35, 129, 107, 86},   {36, 104, 52, 0},
+    {37, 104, 86, 69},    {38, 79, 39, 0},      {39, 79, 66, 53},     {40, 255, 191, 0},
+    {41, 255, 234, 170},  {42, 189, 141, 0},    {43, 189, 173, 126},  {44, 129, 96, 0},
+    {45, 129, 118, 86},   {46, 104, 78, 0},     {47, 104, 95, 69},    {48, 79, 59, 0},
+    {49, 79, 73, 53},     {50, 255, 255, 0},    {51, 255, 255, 170},  {52, 189, 189, 0},
+    {53, 189, 189, 126},  {54, 129, 129, 0},    {55, 129, 129, 86},   {56, 104, 104, 0},
+    {57, 104, 104, 69},   {58, 79, 79, 0},      {59, 79, 79, 53},     {60, 191, 255, 0},
+    {61, 234, 255, 170},  {62, 141, 189, 0},    {63, 173, 189, 126},  {64, 96, 129, 0},
+    {65, 118, 129, 86},   {66, 78, 104, 0},     {67, 95, 104, 69},    {68, 59, 79, 0},
+    {69, 73, 79, 53},     {70, 127, 255, 0},    {71, 212, 255, 170},  {72, 94, 189, 0},
+    {73, 157, 189, 126},  {74, 64, 129, 0},     {75, 107, 129, 86},   {76, 52, 104, 0},
+    {77, 86, 104, 69},    {78, 39, 79, 0},      {79, 66, 79, 53},     {80, 63, 255, 0},
+    {81, 191, 255, 170},  {82, 46, 189, 0},     {83, 141, 189, 126},  {84, 31, 129, 0},
+    {85, 96, 129, 86},    {86, 25, 104, 0},     {87, 78, 104, 69},    {88, 19, 79, 0},
+    {89, 59, 79, 53},     {90, 0, 255, 0},      {91, 170, 255, 170},  {92, 0, 189, 0},
+    {93, 126, 189, 126},  {94, 0, 129, 0},      {95, 86, 129, 86},    {96, 0, 104, 0},
+    {97, 69, 104, 69},    {98, 0, 79, 0},       {99, 53, 79, 53},     {100, 0, 255, 63},
+    {101, 170, 255, 191}, {102, 0, 189, 46},    {103, 126, 189, 141}, {104, 0, 129, 31},
+    {105, 86, 129, 96},   {106, 0, 104, 25},    {107, 69, 104, 78},   {108, 0, 79, 19},
+    {109, 53, 79, 59},    {110, 0, 255, 127},   {111, 170, 255, 212}, {112, 0, 189, 94},
+    {113, 126, 189, 157}, {114, 0, 129, 64},    {115, 86, 129, 107},  {116, 0, 104, 52},
+    {117, 69, 104, 86},   {118, 0, 79, 39},     {119, 53, 79, 66},    {120, 0, 255, 191},
+    {121, 170, 255, 234}, {122, 0, 189, 141},   {123, 126, 189, 173}, {124, 0, 129, 96},
+    {125, 86, 129, 118},  {126, 0, 104, 78},    {127, 69, 104, 95},   {128, 0, 79, 59},
+    {129, 53, 79, 73},    {130, 0, 255, 255},   {131, 170, 255, 255}, {132, 0, 189, 189},
+    {133, 126, 189, 189}, {134, 0, 129, 129},   {135, 86, 129, 129},  {136, 0, 104, 104},
+    {137, 69, 104, 104},  {138, 0, 79, 79},     {139, 53, 79, 79},    {140, 0, 191, 255},
+    {141, 170, 234, 255}, {142, 0, 141, 189},   {143, 126, 173, 189}, {144, 0, 96, 129},
+    {145, 86, 118, 129},  {146, 0, 78, 104},    {147, 69, 95, 104},   {148, 0, 59, 79},
+    {149, 53, 73, 79},    {150, 0, 127, 255},   {151, 170, 212, 255}, {152, 0, 94, 189},
+    {153, 126, 157, 189}, {154, 0, 64, 129},    {155, 86, 107, 129},  {156, 0, 52, 104},
+    {157, 69, 86, 104},   {158, 0, 39, 79},     {159, 53, 66, 79},    {160, 0, 63, 255},
+    {161, 170, 191, 255}, {162, 0, 46, 189},    {163, 126, 141, 189}, {164, 0, 31, 129},
+    {165, 86, 96, 129},   {166, 0, 25, 104},    {167, 69, 78, 104},   {168, 0, 19, 79},
+    {169, 53, 59, 79},    {170, 0, 0, 255},     {171, 170, 170, 255}, {172, 0, 0, 189},
+    {173, 126, 126, 189}, {174, 0, 0, 129},     {175, 86, 86, 129},   {176, 0, 0, 104},
+    {177, 69, 69, 104},   {178, 0, 0, 79},      {179, 53, 53, 79},    {180, 63, 0, 255},
+    {181, 191, 170, 255}, {182, 46, 0, 189},    {183, 141, 126, 189}, {184, 31, 0, 129},
+    {185, 96, 86, 129},   {186, 25, 0, 104},    {187, 78, 69, 104},   {188, 19, 0, 79},
+    {189, 59, 53, 79},    {190, 127, 0, 255},   {191, 212, 170, 255}, {192, 94, 0, 189},
+    {193, 157, 126, 189}, {194, 64, 0, 129},    {195, 107, 86, 129},  {196, 52, 0, 104},
+    {197, 86, 69, 104},   {198, 39, 0, 79},     {199, 66, 53, 79},    {200, 191, 0, 255},
+    {201, 234, 170, 255}, {202, 141, 0, 189},   {203, 173, 126, 189}, {204, 96, 0, 129},
+    {205, 118, 86, 129},  {206, 78, 0, 104},    {207, 95, 69, 104},   {208, 59, 0, 79},
+    {209, 73, 53, 79},    {210, 255, 0, 255},   {211, 255, 170, 255}, {212, 189, 0, 189},
+    {213, 189, 126, 189}, {214, 129, 0, 129},   {215, 129, 86, 129},  {216, 104, 0, 104},
+    {217, 104, 69, 104},  {218, 79, 0, 79},     {219, 79, 53, 79},    {220, 255, 0, 191},
+    {221, 255, 170, 234}, {222, 189, 0, 141},   {223, 189, 126, 173}, {224, 129, 0, 96},
+    {225, 129, 86, 118},  {226, 104, 0, 78},    {227, 104, 69, 95},   {228, 79, 0, 59},
+    {229, 79, 53, 73},    {230, 255, 0, 127},   {231, 255, 170, 212}, {232, 189, 0, 94},
+    {233, 189, 126, 157}, {234, 129, 0, 64},    {235, 129, 86, 107},  {236, 104, 0, 52},
+    {237, 104, 69, 86},   {238, 79, 0, 39},     {239, 79, 53, 66},    {240, 255, 0, 63},
+    {241, 255, 170, 191}, {242, 189, 0, 46},    {243, 189, 126, 141}, {244, 129, 0, 31},
+    {245, 129, 86, 96},   {246, 104, 0, 25},    {247, 104, 69, 78},   {248, 79, 0, 19},
+    {249, 79, 53, 59},    {250, 51, 51, 51},    {251, 80, 80, 80},    {252, 105, 105, 105},
+    {253, 130, 130, 130}, {254, 190, 190, 190}, {255, 255, 255, 255}, {0, 0, 0}};
 
-static void clear_dxf_layers( void )
-{
+static void clear_dxf_layers(void) {
     layer_name.clear();
     nlayer = 0;
 }
 
-static int setup_dxf_layers( void )
-{
+static int setup_dxf_layers(void) {
     int nused = 0;
     clear_dxf_layers();
     const int npen = pen_count();
-    if( npen <= 0 ) { return nused;
-}
-    layer_name.assign( npen+1, std::string() );
+    if (npen <= 0) {
+        return nused;
+    }
+    layer_name.assign(npen + 1, std::string());
     layer_name[0] = "ANNOTATION";
     nused = 1;
-    for( int i=1; i<=npen; i++)
-    {
-        const std::string &name = pen_name(i-1);
-        if( name.empty() || ! pen_has_colour(i-1) ) { continue;
-}
+    for (int i = 1; i <= npen; i++) {
+        const std::string& name = pen_name(i - 1);
+        if (name.empty() || !pen_has_colour(i - 1)) {
+            continue;
+        }
         nused++;
-        std::string &layer = layer_name[i];
-        layer = boost::algorithm::to_upper_copy( name );
-        if( layer == "TEXT" ) { text_layer=i;
-}
-        boost::algorithm::replace_all( layer, " ", "_" );
-        for( int j = 0; j < i; j++ )
-        {
-            if( ! layer_name[j].empty() && boost::algorithm::iequals( layer_name[j], layer ) )
-            {
+        std::string& layer = layer_name[i];
+        layer = boost::algorithm::to_upper_copy(name);
+        if (layer == "TEXT") {
+            text_layer = i;
+        }
+        boost::algorithm::replace_all(layer, " ", "_");
+        for (int j = 0; j < i; j++) {
+            if (!layer_name[j].empty() && boost::algorithm::iequals(layer_name[j], layer)) {
                 char buf[40];
-                snprintf(buf,sizeof(buf),"_LAYER_%04d",i);
+                snprintf(buf, sizeof(buf), "_LAYER_%04d", i);
                 layer = buf;
             }
         }
@@ -365,341 +168,309 @@ static int setup_dxf_layers( void )
     return nused;
 }
 
-static int dxf_colour_id( unsigned char red, unsigned char green, unsigned char blue )
-{
-    int distance = 256*3;
+static int dxf_colour_id(unsigned char red, unsigned char green, unsigned char blue) {
+    int distance = 256 * 3;
     int colour = 1;
-    for( dxfcolour *c = colourtable; c->id > 0; c++ )
-    {
-        int const dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
-        if( dist < distance ) { colour = c->id; distance = dist; }
+    for (dxfcolour* c = colourtable; c->id > 0; c++) {
+        const int dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
+        if (dist < distance) {
+            colour = c->id;
+            distance = dist;
+        }
     }
     return colour;
 }
 
-static void set_layer( int pen )
-{
-    if( pen > 0 && pen <= nlayer && ! layer_name[pen].empty() )
-    {
+static void set_layer(int pen) {
+    if (pen > 0 && pen <= nlayer && !layer_name[pen].empty()) {
         cur_layer = layer_name[pen];
-    }
-    else if( pen < 0 || layer_name.empty() )
-    {
+    } else if (pen < 0 || layer_name.empty()) {
         cur_layer = default_layer;
-    }
-    else
-    {
+    } else {
         cur_layer = layer_name[0];
     }
 }
 
-
 static void write_symbol_blocks();
 
-int open_dxf_file( const std::string &dxfname )
-{
+int open_dxf_file(const std::string& dxfname) {
     int i;
-    dxf = fopen(dxfname.c_str(),"w");
+    dxf = fopen(dxfname.c_str(), "w");
     poly_id = 0;
     nppt = 0;
     entid = 0;
     cur_layer = default_layer;
-    if( dxf )
-    {
+    if (dxf) {
         /* Initialise layers etc.. */
 
-        int const usedlayers = setup_dxf_layers( );
-        fprintf(dxf,"  0\nSECTION\n");
-        fprintf(dxf,"  2\nHEADER\n");
-        fprintf(dxf,"  9\n$LTSCALE\n");
-        fprintf(dxf," 40\n1.0\n");
-        fprintf(dxf,"  9\n$LUNITS\n");
-        fprintf(dxf," 70\n2\n");
-        fprintf(dxf,"  9\n$LUPREC\n");
-        fprintf(dxf," 70\n2\n");
-        fprintf(dxf,"  9\n$AUNITS\n");
-        fprintf(dxf," 70\n0\n");
-        fprintf(dxf,"  9\n$AUPREC\n");
-        fprintf(dxf," 70\n6\n");
-        fprintf(dxf,"  0\nENDSEC\n");
+        const int usedlayers = setup_dxf_layers();
+        fprintf(dxf, "  0\nSECTION\n");
+        fprintf(dxf, "  2\nHEADER\n");
+        fprintf(dxf, "  9\n$LTSCALE\n");
+        fprintf(dxf, " 40\n1.0\n");
+        fprintf(dxf, "  9\n$LUNITS\n");
+        fprintf(dxf, " 70\n2\n");
+        fprintf(dxf, "  9\n$LUPREC\n");
+        fprintf(dxf, " 70\n2\n");
+        fprintf(dxf, "  9\n$AUNITS\n");
+        fprintf(dxf, " 70\n0\n");
+        fprintf(dxf, "  9\n$AUPREC\n");
+        fprintf(dxf, " 70\n6\n");
+        fprintf(dxf, "  0\nENDSEC\n");
 
-        fprintf(dxf,"  0\nSECTION\n");
-        fprintf(dxf,"  2\nTABLES\n");
+        fprintf(dxf, "  0\nSECTION\n");
+        fprintf(dxf, "  2\nTABLES\n");
 
-        fprintf(dxf,"  0\nTABLE\n");
-        fprintf(dxf,"  2\nLTYPE\n");
-        fprintf(dxf," 70\n1\n");
-        fprintf(dxf,"  0\nLTYPE\n");
-        fprintf(dxf,"  2\nCONTINUOUS\n");
-        fprintf(dxf," 70\n64\n");
-        fprintf(dxf,"  3\nSolid line\n");
-        fprintf(dxf," 72\n65\n");
-        fprintf(dxf," 73\n0\n");
-        fprintf(dxf," 40\n0.0\n");
-        fprintf(dxf,"  0\nENDTAB\n");
+        fprintf(dxf, "  0\nTABLE\n");
+        fprintf(dxf, "  2\nLTYPE\n");
+        fprintf(dxf, " 70\n1\n");
+        fprintf(dxf, "  0\nLTYPE\n");
+        fprintf(dxf, "  2\nCONTINUOUS\n");
+        fprintf(dxf, " 70\n64\n");
+        fprintf(dxf, "  3\nSolid line\n");
+        fprintf(dxf, " 72\n65\n");
+        fprintf(dxf, " 73\n0\n");
+        fprintf(dxf, " 40\n0.0\n");
+        fprintf(dxf, "  0\nENDTAB\n");
 
-        fprintf(dxf,"  0\nTABLE\n");
-        fprintf(dxf,"  2\nLAYER\n");
-        fprintf(dxf," 70\n%d\n",usedlayers);
+        fprintf(dxf, "  0\nTABLE\n");
+        fprintf(dxf, "  2\nLAYER\n");
+        fprintf(dxf, " 70\n%d\n", usedlayers);
 
-        const int layer_count = boost::numeric_cast<int>( layer_name.size() );
-        for( i = 0; i < layer_count; i++ )
-        {
+        const int layer_count = boost::numeric_cast<int>(layer_name.size());
+        for (i = 0; i < layer_count; i++) {
             unsigned char red;
             unsigned char green;
             unsigned char blue;
             int colourid = 1;
-            if( layer_name[i].empty() ) { continue;
-}
-            if( i > 0 )
-            {
-                get_pen_colour( i-1, red, green, blue );
-                colourid = dxf_colour_id( red, green, blue );
+            if (layer_name[i].empty()) {
+                continue;
             }
-            fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n",
-                    layer_name[i].c_str(),colourid);
+            if (i > 0) {
+                get_pen_colour(i - 1, red, green, blue);
+                colourid = dxf_colour_id(red, green, blue);
+            }
+            fprintf(dxf, "  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n", layer_name[i].c_str(), colourid);
         }
-        fprintf(dxf,"  0\nENDTAB\n");
+        fprintf(dxf, "  0\nENDTAB\n");
 
-        fprintf(dxf,"  0\nENDSEC\n");
+        fprintf(dxf, "  0\nENDSEC\n");
 
-        fprintf(dxf,"  0\nSECTION\n");
-        fprintf(dxf,"  2\nBLOCKS\n");
+        fprintf(dxf, "  0\nSECTION\n");
+        fprintf(dxf, "  2\nBLOCKS\n");
 
         write_symbol_blocks();
 
+        fprintf(dxf, "  0\nENDSEC\n");
 
-        fprintf(dxf,"  0\nENDSEC\n");
-
-        fprintf(dxf,"  0\nSECTION\n");
-        fprintf(dxf,"  2\nENTITIES\n");
+        fprintf(dxf, "  0\nSECTION\n");
+        fprintf(dxf, "  2\nENTITIES\n");
     }
     return dxf ? OK : FILE_OPEN_ERROR;
 }
 
-static long write_dxf_entity_id()
-{
+static long write_dxf_entity_id() {
     entid++;
-    fprintf(dxf,"  5\n%ld\n",entid);
+    fprintf(dxf, "  5\n%ld\n", entid);
     return entid;
 }
 
-static long end_line( void )
-{
+static long end_line(void) {
     long id = 0;
-    if( poly_id )
-    {
-        fprintf(dxf,"  0\nSEQEND\n");
+    if (poly_id) {
+        fprintf(dxf, "  0\nSEQEND\n");
         id = poly_id;
         poly_id = 0;
-    }
-    else if( nppt > 1 )
-    {
-        fprintf(dxf,"  0\nLINE\n  8\n%s\n",cur_layer.c_str());
-        id =write_dxf_entity_id();
-        fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n 11\n%.*lf\n 21\n%.*lf\n",
-                precision, save_x1, precision, save_y1, precision, save_x2, precision, save_y2 );
+    } else if (nppt > 1) {
+        fprintf(dxf, "  0\nLINE\n  8\n%s\n", cur_layer.c_str());
+        id = write_dxf_entity_id();
+        fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n 11\n%.*lf\n 21\n%.*lf\n", precision, save_x1, precision, save_y1,
+                precision, save_x2, precision, save_y2);
     }
     nppt = 0;
     return id;
 }
 
-static void start_polyline( void )
-{
-    fprintf(dxf,"  0\nPOLYLINE\n  8\n%s\n 66\n1\n",cur_layer.c_str());
+static void start_polyline(void) {
+    fprintf(dxf, "  0\nPOLYLINE\n  8\n%s\n 66\n1\n", cur_layer.c_str());
     entid = write_dxf_entity_id();
     poly_id = entid;
 }
 
-
-static void write_poly_vertex( double x, double y )
-{
-    fprintf(dxf,"  0\nVERTEX\n  8\n%s\n", cur_layer.c_str());
+static void write_poly_vertex(double x, double y) {
+    fprintf(dxf, "  0\nVERTEX\n  8\n%s\n", cur_layer.c_str());
     write_dxf_entity_id();
-    fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x,precision,y);
+    fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
 }
 
-static int write_dxf_point( double x, double y, int pen )
-{
-    if( !dxf ) { return FILE_OPEN_ERROR; }
-
-    if( pen != 0 ) { end_line(); set_layer(pen); }
-
-    if( poly_id )
-    {
-        write_poly_vertex( x, y );
+static int write_dxf_point(double x, double y, int pen) {
+    if (!dxf) {
+        return FILE_OPEN_ERROR;
     }
-    else if( nppt == 2 )
-    {
+
+    if (pen != 0) {
+        end_line();
+        set_layer(pen);
+    }
+
+    if (poly_id) {
+        write_poly_vertex(x, y);
+    } else if (nppt == 2) {
         start_polyline();
-        write_poly_vertex( save_x1, save_y1 );
-        write_poly_vertex( save_x2, save_y2 );
-        write_poly_vertex( x, y );
+        write_poly_vertex(save_x1, save_y1);
+        write_poly_vertex(save_x2, save_y2);
+        write_poly_vertex(x, y);
         nppt = 0;
-    }
-    else if( nppt == 1 )
-    {
-        save_x2 = x; save_y2 = y; nppt = 2;
-    }
-    else
-    {
-        save_x1 = x; save_y1 = y; nppt = 1;
+    } else if (nppt == 1) {
+        save_x2 = x;
+        save_y2 = y;
+        nppt = 2;
+    } else {
+        save_x1 = x;
+        save_y1 = y;
+        nppt = 1;
     }
     return OK;
 }
 
-
-static long write_dxf_text( double x, double y, int pen, double size,
-                            double angle, const std::string &text )
-{
+static long write_dxf_text(double x, double y, int pen, double size, double angle, const std::string& text) {
     long id;
-    if( !dxf ) { return 0;
-}
+    if (!dxf) {
+        return 0;
+    }
     end_line();
-    set_layer( pen );
+    set_layer(pen);
 
-    fprintf(dxf,"  0\nTEXT\n  8\n%s\n 62\n256\n",cur_layer.c_str());
+    fprintf(dxf, "  0\nTEXT\n  8\n%s\n 62\n256\n", cur_layer.c_str());
     id = write_dxf_entity_id();
-    fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x,precision,y);
-    fprintf(dxf," 40\n%.*lf\n  1\n%s\n",precision,size,text.c_str());
-    fprintf(dxf," 50\n%.6lf\n",angle);
+    fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
+    fprintf(dxf, " 40\n%.*lf\n  1\n%s\n", precision, size, text.c_str());
+    fprintf(dxf, " 50\n%.6lf\n", angle);
 
     return id;
 }
 
-static long write_dxf_circle( double x, double y, double rad, int pen )
-{
+static long write_dxf_circle(double x, double y, double rad, int pen) {
     long id;
-    if( !dxf ) { return 0;
-}
+    if (!dxf) {
+        return 0;
+    }
     end_line();
-    set_layer( pen );
-    fprintf(dxf,"  0\nCIRCLE\n  8\n%s\n 62\n256\n",cur_layer.c_str());
+    set_layer(pen);
+    fprintf(dxf, "  0\nCIRCLE\n  8\n%s\n 62\n256\n", cur_layer.c_str());
     id = write_dxf_entity_id();
-    fprintf(dxf,"  10\n%.*lf\n 20\n%.*lf\n",precision,x, precision,y );
-    fprintf(dxf,"  40\n%.*lf\n",precision,rad);
+    fprintf(dxf, "  10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
+    fprintf(dxf, "  40\n%.*lf\n", precision, rad);
 
     return id;
 }
 
-static long write_dxf_blockref( double x, double y, const std::string &blkname, double blocksize, int pen )
-{
+static long write_dxf_blockref(double x, double y, const std::string& blkname, double blocksize, int pen) {
     long id;
-    if( !dxf ) { return 0;
-}
+    if (!dxf) {
+        return 0;
+    }
     end_line();
-    set_layer( pen );
+    set_layer(pen);
 
-    fprintf(dxf,"  0\nINSERT\n");
-    fprintf(dxf,"  8\n%s\n 62\n0\n",cur_layer.c_str());
+    fprintf(dxf, "  0\nINSERT\n");
+    fprintf(dxf, "  8\n%s\n 62\n0\n", cur_layer.c_str());
     id = write_dxf_entity_id();
-    fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x, precision,y );
-    fprintf(dxf,"  2\n%s\n",blkname.c_str());
-    fprintf(dxf," 41\n%.*lf\n 42\n%.*lf\n",precision,blocksize,precision,blocksize );
+    fprintf(dxf, " 10\n%.*lf\n 20\n%.*lf\n", precision, x, precision, y);
+    fprintf(dxf, "  2\n%s\n", blkname.c_str());
+    fprintf(dxf, " 41\n%.*lf\n 42\n%.*lf\n", precision, blocksize, precision, blocksize);
 
     return id;
 }
 
-
-static long start_block( const std::string &blockname )
-{
+static long start_block(const std::string& blockname) {
     long id;
-    fprintf(dxf,"  0\nBLOCK\n");
-    fprintf(dxf,"  8\n0\n");
+    fprintf(dxf, "  0\nBLOCK\n");
+    fprintf(dxf, "  8\n0\n");
     id = write_dxf_entity_id();
-    fprintf(dxf,"  2\n%s\n",blockname.c_str());
-    fprintf(dxf," 70\n0\n");
-    fprintf(dxf," 10\n0.0\n");
-    fprintf(dxf," 20\n0.0\n");
-    fprintf(dxf,"  3\n%s\n",blockname.c_str());
+    fprintf(dxf, "  2\n%s\n", blockname.c_str());
+    fprintf(dxf, " 70\n0\n");
+    fprintf(dxf, " 10\n0.0\n");
+    fprintf(dxf, " 20\n0.0\n");
+    fprintf(dxf, "  3\n%s\n", blockname.c_str());
     return id;
 }
 
-static void end_block( long )
-{
-    fprintf(dxf,"  0\nENDBLK\n");
+static void end_block(long) {
+    fprintf(dxf, "  0\nENDBLK\n");
 }
 
-static std::string symbol_block_name( int symbol )
-{
-    switch (symbol)
-    {
-    case FIXED_STN_SYM: return "fixed_station";
-    case HOR_FIXED_STN_SYM: return "hor_fixed_station";
-    case VRT_FIXED_STN_SYM: return "vrt_fixed_station";
-    case REJECTED_STN_SYM: return "rejected_station";
+static std::string symbol_block_name(int symbol) {
+    switch (symbol) {
+        case FIXED_STN_SYM:
+            return "fixed_station";
+        case HOR_FIXED_STN_SYM:
+            return "hor_fixed_station";
+        case VRT_FIXED_STN_SYM:
+            return "vrt_fixed_station";
+        case REJECTED_STN_SYM:
+            return "rejected_station";
     }
     return "free_station";
 }
-static void write_symbol_blocks()
-{
-    const int maxpts=32;
+static void write_symbol_blocks() {
+    const int maxpts = 32;
     symbolpoint points[maxpts];
 
-    for( int symbol = 0; symbol < N_STN_SYM; symbol++ )
-    {
-        const std::string blockname = symbol_block_name( symbol );
-        int npt = get_symbol_points( symbol, points, maxpts );
-        if( npt < 0 ) { npt = 0; points[0].x = 1.0; }
-
-        start_block( blockname );
-        long edge_id;
-        if( npt == 0 )
-        {
-            edge_id = write_dxf_circle( 0.0, 0.0, points[0].x, text_layer );
+    for (int symbol = 0; symbol < N_STN_SYM; symbol++) {
+        const std::string blockname = symbol_block_name(symbol);
+        int npt = get_symbol_points(symbol, points, maxpts);
+        if (npt < 0) {
+            npt = 0;
+            points[0].x = 1.0;
         }
-        else
-        {
-            write_dxf_point( points[npt-1].x,points[npt-1].y,text_layer );
-            for( int i = 0; i < npt; i++ )
-            {
-                write_dxf_point( points[i].x,points[i].y,0 );
+
+        start_block(blockname);
+        long edge_id;
+        if (npt == 0) {
+            edge_id = write_dxf_circle(0.0, 0.0, points[0].x, text_layer);
+        } else {
+            write_dxf_point(points[npt - 1].x, points[npt - 1].y, text_layer);
+            for (int i = 0; i < npt; i++) {
+                write_dxf_point(points[i].x, points[i].y, 0);
             }
             edge_id = end_line();
         }
-        end_block( edge_id);
+        end_block(edge_id);
     }
-
 }
 
 /*===================================================================*/
 /* DXF plotting routines                                             */
 
-
 // #pragma warning (disable: 4100)
 
-static void dxf_line( void *, double x, double y, int pen, int )
-{
+static void dxf_line(void*, double x, double y, int pen, int) {
     int ntrpt;
     static int lastPen;
     char start;
-    if( !TrimLines )
-    {
-        write_dxf_point( x, y, pen == CONTINUE_LINE ? 0 : pen + 1 );
+    if (!TrimLines) {
+        write_dxf_point(x, y, pen == CONTINUE_LINE ? 0 : pen + 1);
         return;
     }
-    if( pen != CONTINUE_LINE ) { lastPen = pen + 1;
-}
-    ntrpt = AddTrimmerPoint( &tr, x, y, pen == CONTINUE_LINE  ? 0 : 1 );
-    while( ntrpt-- )
-    {
-        NextTrimmedPoint( &tr, &x, &y, &start );
-        write_dxf_point( x, y, start ? lastPen : 0 );
+    if (pen != CONTINUE_LINE) {
+        lastPen = pen + 1;
+    }
+    ntrpt = AddTrimmerPoint(&tr, x, y, pen == CONTINUE_LINE ? 0 : 1);
+    while (ntrpt--) {
+        NextTrimmedPoint(&tr, &x, &y, &start);
+        write_dxf_point(x, y, start ? lastPen : 0);
     }
 }
 
-static void dxf_text( void *, double x, double y, double size, int pen, const std::string &text )
-{
-    write_dxf_text( x, y, pen+1, size, 0.0, text );
+static void dxf_text(void*, double x, double y, double size, int pen, const std::string& text) {
+    write_dxf_text(x, y, pen + 1, size, 0.0, text);
 }
 
 #define MAXSEP 0.1
 #define MININC 0.1
 
-
-static void dxf_ellipse( void *, double x, double y, double a, double b, double az, int pen )
-{
-
+static void dxf_ellipse(void*, double x, double y, double a, double b, double az, int pen) {
     int i;
     int ncd;
     double sep;
@@ -715,31 +486,29 @@ static void dxf_ellipse( void *, double x, double y, double a, double b, double 
     double xe;
     double ye;
 
-    if( a == b )
-    {
-        write_dxf_circle( x, y, a, pen+1 );
+    if (a == b) {
+        write_dxf_circle(x, y, a, pen + 1);
         return;
     }
 
     /* Determine the acceptable chord arc separation */
 
     sep = MAXSEP;
-    r = a>b ? a : b;
+    r = a > b ? a : b;
     rad = r;
-    if( rad < sep )
-    {
+    if (rad < sep) {
         ai = PI;
+    } else {
+        ai = sqrt(8.0 * sep / rad);
     }
-    else
-    {
-        ai = sqrt( 8.0 * sep / rad );
+    if (ai < MININC) {
+        ai = MININC;
     }
-    if( ai < MININC ) { ai = MININC;
-}
-    ncd = ceil( 2.0*PI / ai );
-    if( ncd < 1 ) { ncd = 1;
-}
-    ai = 2.0*PI/ncd;
+    ncd = ceil(2.0 * PI / ai);
+    if (ncd < 1) {
+        ncd = 1;
+    }
+    ai = 2.0 * PI / ncd;
     ca = 1.0;
     sa = 0.0;
     co = cos(az);
@@ -747,33 +516,29 @@ static void dxf_ellipse( void *, double x, double y, double a, double b, double 
     ci = cos(ai);
     si = sin(ai);
 
-    pen = pen+1;
+    pen = pen + 1;
 
-    for( i=0; i<=ncd; i++ )
-    {
-
+    for (i = 0; i <= ncd; i++) {
         xe = ca * a;
         ye = sa * b;
-        write_dxf_point( x + xe*co - ye*so, y + xe*so + ye*co, pen );
+        write_dxf_point(x + xe * co - ye * so, y + xe * so + ye * co, pen);
         pen = 0;
-        xe = ca*ci-sa*si;
-        sa = ca*si+sa*ci;
+        xe = ca * ci - sa * si;
+        sa = ca * si + sa * ci;
         ca = xe;
     }
-
 }
 
-static void dxf_symbol( void *, double px, double py, int pen, int symbol )
-{
-    write_dxf_blockref( px, py, symbol_block_name( symbol ), stn_symbol_size, pen );
+static void dxf_symbol(void*, double px, double py, int pen, int symbol) {
+    write_dxf_blockref(px, py, symbol_block_name(symbol), stn_symbol_size, pen);
 }
 
-int close_dxf_file()
-{
-    if( !dxf ) { return FILE_OPEN_ERROR;
-}
+int close_dxf_file() {
+    if (!dxf) {
+        return FILE_OPEN_ERROR;
+    }
     end_line();
-    fprintf(dxf,"  0\nENDSEC\n  0\nEOF\n");
+    fprintf(dxf, "  0\nENDSEC\n  0\nEOF\n");
     fclose(dxf);
     dxf = nullptr;
 
@@ -783,13 +548,11 @@ int close_dxf_file()
     return OK;
 }
 
+#define NOTE(txt)                           \
+    dxf_text(NULL, xt, yt, size, pen, txt); \
+    yt += spacing
 
-
-
-#define NOTE(txt)  dxf_text(NULL, xt,yt,size,pen,txt); yt += spacing
-
-void write_dxf_title_block( map_plotter * )
-{
+void write_dxf_title_block(map_plotter*) {
     int nch;
     int pen;
     double spacing;
@@ -798,99 +561,93 @@ void write_dxf_title_block( map_plotter * )
     double yt;
     double xs;
     char text[80];
-    double const oldsymsize = stn_symbol_size;
+    const double oldsymsize = stn_symbol_size;
 
-    pen = nlayer + 1;  /* Not one of the defined layers - text goes to default */
+    pen = nlayer + 1; /* Not one of the defined layers - text goes to default */
 
     stn_symbol_size = stn_name_size;
 
-    write_dxf_point( plot_emin, plot_nmin, pen );
-    write_dxf_point( plot_emin, plot_nmax, 0 );
-    write_dxf_point( plot_emax, plot_nmax, 0 );
-    write_dxf_point( plot_emax, plot_nmin, 0 );
-    write_dxf_point( plot_emin, plot_nmin, 0 );
+    write_dxf_point(plot_emin, plot_nmin, pen);
+    write_dxf_point(plot_emin, plot_nmax, 0);
+    write_dxf_point(plot_emax, plot_nmax, 0);
+    write_dxf_point(plot_emax, plot_nmin, 0);
+    write_dxf_point(plot_emin, plot_nmin, 0);
 
     size = stn_symbol_size;
-    if( size <= 0.0 ) { size = 10.0;
-}
+    if (size <= 0.0) {
+        size = 10.0;
+    }
     size *= 1.5;
-    spacing = - size * 1.5;
+    spacing = -size * 1.5;
 
     xt = plot_emin;
     yt = plot_nmin + spacing * 3;
 
-    NOTE( job_title );
+    NOTE(job_title);
 
-    if(! run_time.empty())
-    {
-        sprintf(text,"Run at %s",run_time.c_str());
-        NOTE( text );
+    if (!run_time.empty()) {
+        sprintf(text, "Run at %s", run_time.c_str());
+        NOTE(text);
     }
 
-    sprintf(text,"Coordinate system: %.60s",plot_projection()->name.c_str());
-    NOTE( text );
+    sprintf(text, "Coordinate system: %.60s", plot_projection()->name.c_str());
+    NOTE(text);
 
-    if( got_covariances() )
-    {
-        sprintf(text,"Displaying %s ", aposteriori_errors ? "aposteriori" : "apriori");
-        nch = strlen( text );
-        if( use_confidence_limit )
-        {
-            sprintf(text+nch,"%.2lf%% confidence limits",confidence_limit);
+    if (got_covariances()) {
+        sprintf(text, "Displaying %s ", aposteriori_errors ? "aposteriori" : "apriori");
+        nch = strlen(text);
+        if (use_confidence_limit) {
+            sprintf(text + nch, "%.2lf%% confidence limits", confidence_limit);
+        } else if (confidence_limit != 1.0) {
+            sprintf(text + nch, "%.1lf times standard error", confidence_limit);
+        } else {
+            strcpy(text + nch, "standard errors");
         }
-        else if( confidence_limit != 1.0 )
-        {
-            sprintf(text+nch,"%.1lf times standard error",confidence_limit);
-        }
-        else
-        {
-            strcpy(text+nch,"standard errors");
-        }
-        NOTE( text );
+        NOTE(text);
 
-        if( dimension != 1 )
-        {
-            sprintf(text,"Ellipses exaggerated %.0lf times",errell_scale);
-            NOTE( text );
+        if (dimension != 1) {
+            sprintf(text, "Ellipses exaggerated %.0lf times", errell_scale);
+            NOTE(text);
         }
 
-        if( dimension != 2 )
-        {
-            sprintf(text,"Height errors exaggerated %.0lf times",hgterr_scale);
-            NOTE( text );
+        if (dimension != 2) {
+            sprintf(text, "Height errors exaggerated %.0lf times", hgterr_scale);
+            NOTE(text);
         }
     }
     yt += spacing;
-    xs = xt + stn_symbol_size/2.0;
-    xt += size*3;
+    xs = xt + stn_symbol_size / 2.0;
+    xt += size * 3;
 
-    switch ( dimension )
-    {
-    case 1: dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
-    case 2: dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
-    case 3: dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, FIXED_STN_PEN, FIXED_STN_SYM); break;
+    switch (dimension) {
+        case 1:
+            dxf_symbol(nullptr, xs, yt + stn_symbol_size / 2.0, VRT_FIXED_STN_PEN, HOR_FIXED_STN_SYM);
+            break;
+        case 2:
+            dxf_symbol(nullptr, xs, yt + stn_symbol_size / 2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM);
+            break;
+        case 3:
+            dxf_symbol(nullptr, xs, yt + stn_symbol_size / 2.0, FIXED_STN_PEN, FIXED_STN_SYM);
+            break;
     }
-    NOTE( "Fixed station" );
+    NOTE("Fixed station");
 
-    if( dimension == 3 )
-    {
-        dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM );
+    if (dimension == 3) {
+        dxf_symbol(nullptr, xs, yt + stn_symbol_size / 2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM);
         NOTE("Fixed horizontally");
-        dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, VRT_FIXED_STN_SYM );
+        dxf_symbol(nullptr, xs, yt + stn_symbol_size / 2.0, VRT_FIXED_STN_PEN, VRT_FIXED_STN_SYM);
         NOTE("Fixed vertically");
     }
 
-    dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, FREE_STN_PEN, FREE_STN_SYM );
+    dxf_symbol(nullptr, xs, yt + stn_symbol_size / 2.0, FREE_STN_PEN, FREE_STN_SYM);
     NOTE("Adjusted station");
-    dxf_symbol( nullptr, xs, yt+stn_symbol_size/2.0, REJECTED_STN_PEN, REJECTED_STN_SYM );
+    dxf_symbol(nullptr, xs, yt + stn_symbol_size / 2.0, REJECTED_STN_PEN, REJECTED_STN_SYM);
     NOTE("Rejected station");
 
     stn_symbol_size = oldsymsize;
 }
 
-
-int plot_dxf( void )
-{
+int plot_dxf(void) {
     int pconn_option;
     double data_offset;
 
@@ -907,13 +664,13 @@ int plot_dxf( void )
     plotter.symbol_size_func = nullptr;
 
     pconn_option = merge_common_obs;
-    if( show_oneway_obs ) { pconn_option |= PCONN_SHOW_ONEWAY_OBS;
-}
+    if (show_oneway_obs) {
+        pconn_option |= PCONN_SHOW_ONEWAY_OBS;
+    }
     data_offset = calc_obs_offset();
 
-    SetTrimmerExtents( &tr, plot_emin, plot_nmin, plot_emax, plot_nmax );
-    stn_symbol_size = (fabs( plot_emax-plot_emin) + fabs( plot_nmax-plot_nmin))/500.0;
-
+    SetTrimmerExtents(&tr, plot_emin, plot_nmin, plot_emax, plot_nmax);
+    stn_symbol_size = (fabs(plot_emax - plot_emin) + fabs(plot_nmax - plot_nmin)) / 500.0;
 
     /* Plot the data */
 
@@ -923,15 +680,13 @@ int plot_dxf( void )
     plot_connections(&plotter, -1, pconn_option, data_offset, 0);
     plot_covariances(&plotter, -1);
     plot_height_errors(&plotter, -1);
-    plot_adjustments( &plotter, -1 );
+    plot_adjustments(&plotter, -1);
     plot_station_names(&plotter, -1);
 
     /* Plot the descriptive text */
 
     TrimLines = 0;
-    write_dxf_title_block( &plotter );
+    write_dxf_title_block(&plotter);
 
     return 0;
 }
-
-

@@ -8,6 +8,6 @@
 
 */
 
-void init_snap_gps_covariance( void );
+void init_snap_gps_covariance(void);
 
 #endif

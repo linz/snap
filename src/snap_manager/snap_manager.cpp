@@ -12,76 +12,73 @@
 #include "resources/snap32_icon.xpm"
 #endif
 
-enum
-{
+enum {
     CMD_FILE_CLOSE = 1,
     CMD_HELP_HELP,
     CMD_HELP_ABOUT,
 };
 
-class wxLogPlainTextCtrl : public wxLog
-{
-public:
-    wxLogPlainTextCtrl( wxTextCtrl *ctrl ) : txtctl( ctrl ) {}
-protected:
-    void DoLogText( const wxString &msg ) override
-    {
-        txtctl->AppendText( msg );
-        txtctl->AppendText( "\n" );
+class wxLogPlainTextCtrl : public wxLog {
+ public:
+    wxLogPlainTextCtrl(wxTextCtrl* ctrl) : txtctl(ctrl) {}
+
+ protected:
+    void DoLogText(const wxString& msg) override {
+        txtctl->AppendText(msg);
+        txtctl->AppendText("\n");
     }
-private:
-    wxTextCtrl *txtctl;
+
+ private:
+    wxTextCtrl* txtctl;
     DECLARE_NO_COPY_CLASS(wxLogPlainTextCtrl)
 };
 
-class SnapMgrFrame : public wxFrame
-{
-public:
-    SnapMgrFrame( const wxString &jobfile );
+class SnapMgrFrame : public wxFrame {
+ public:
+    SnapMgrFrame(const wxString& jobfile);
     ~SnapMgrFrame() override;
-private:
+
+ private:
     void SetupIcons();
     void SetupMenu();
     void SetupWindows();
     void ClearLog();
 
-    void OnFileHistory( wxCommandEvent &event );
-    void OnCmdClose( wxCommandEvent &event );
-    void OnCmdHelpHelp( wxCommandEvent &event );
-    void OnCmdHelpAbout( wxCommandEvent &event );
-    void OnActivate( wxActivateEvent &event );
+    void OnFileHistory(wxCommandEvent& event);
+    void OnCmdClose(wxCommandEvent& event);
+    void OnCmdHelpHelp(wxCommandEvent& event);
+    void OnCmdHelpAbout(wxCommandEvent& event);
+    void OnActivate(wxActivateEvent& event);
 
-    void OnJobUpdated( wxCommandEvent &event );
-    void OnClearLog( wxCommandEvent &event );
+    void OnJobUpdated(wxCommandEvent& event);
+    void OnClearLog(wxCommandEvent& event);
 
-    void OnClose( wxCloseEvent &event );
+    void OnClose(wxCloseEvent& event);
 
-    SnapMgrScriptEnv *scriptenv;
-    wxConfig *config;
+    SnapMgrScriptEnv* scriptenv;
+    wxConfig* config;
     wxFileHistory fileHistory;
     // wxHelpController *help;
     wxString helpUrl;
-    wxTextCtrl *logCtrl;
-    wxLogPlainTextCtrl *logger;
+    wxTextCtrl* logCtrl;
+    wxLogPlainTextCtrl* logger;
     int nScriptMenuItems;
 
     DECLARE_EVENT_TABLE()
 };
 
-BEGIN_EVENT_TABLE( SnapMgrFrame, wxFrame )
-    EVT_COMMAND( wxID_ANY, wxEVT_SNAP_JOBUPDATED, SnapMgrFrame::OnJobUpdated )
-    EVT_COMMAND( wxID_ANY, wxEVT_SNAP_CLEARLOG, SnapMgrFrame::OnClearLog )
-    EVT_MENU( CMD_FILE_CLOSE, SnapMgrFrame::OnCmdClose )
-    EVT_MENU( CMD_HELP_HELP, SnapMgrFrame::OnCmdHelpHelp )
-    EVT_MENU( CMD_HELP_ABOUT, SnapMgrFrame::OnCmdHelpAbout )
-    EVT_MENU_RANGE( wxID_FILE1, wxID_FILE9, SnapMgrFrame::OnFileHistory )
-    EVT_ACTIVATE( SnapMgrFrame::OnActivate )
-    EVT_CLOSE( SnapMgrFrame::OnClose )
+BEGIN_EVENT_TABLE(SnapMgrFrame, wxFrame)
+EVT_COMMAND(wxID_ANY, wxEVT_SNAP_JOBUPDATED, SnapMgrFrame::OnJobUpdated)
+EVT_COMMAND(wxID_ANY, wxEVT_SNAP_CLEARLOG, SnapMgrFrame::OnClearLog)
+EVT_MENU(CMD_FILE_CLOSE, SnapMgrFrame::OnCmdClose)
+EVT_MENU(CMD_HELP_HELP, SnapMgrFrame::OnCmdHelpHelp)
+EVT_MENU(CMD_HELP_ABOUT, SnapMgrFrame::OnCmdHelpAbout)
+EVT_MENU_RANGE(wxID_FILE1, wxID_FILE9, SnapMgrFrame::OnFileHistory)
+EVT_ACTIVATE(SnapMgrFrame::OnActivate)
+EVT_CLOSE(SnapMgrFrame::OnClose)
 END_EVENT_TABLE()
 
-SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
-    wxFrame(nullptr, wxID_ANY, "SNAP")
-{
+SnapMgrFrame::SnapMgrFrame(const wxString& jobfile) : wxFrame(nullptr, wxID_ANY, "SNAP") {
     nScriptMenuItems = 0;
     logger = nullptr;
     logCtrl = nullptr;
@@ -91,22 +88,21 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
     CreateStatusBar();
 
     SetupWindows();
-    logger = new wxLogPlainTextCtrl( logCtrl );
-    wxLog::SetActiveTarget( logger );
+    logger = new wxLogPlainTextCtrl(logCtrl);
+    wxLog::SetActiveTarget(logger);
 
     // Get the configuration information
     // and set it as the global configuration (accessible with Get)
-    // and cleared with 
+    // and cleared with
 
-    config = new wxConfig("SnapMgr","LINZ");
+    config = new wxConfig("SnapMgr", "LINZ");
     wxConfigBase::Set(config);
 
     // Restore the previous working directory
 
     wxString curDir;
-    if( config->Read( "WorkingDirectory", &curDir ) )
-    {
-        wxSetWorkingDirectory( curDir );
+    if (config->Read("WorkingDirectory", &curDir)) {
+        wxSetWorkingDirectory(curDir);
     }
 
     SetupIcons();
@@ -117,14 +113,12 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
     // Note: wxFileHistory.Load must be called after setting up menu so that the menu is populated ...
 
-    config->SetPath( "/History" );
-    fileHistory.Load( *config );
+    config->SetPath("/History");
+    fileHistory.Load(*config);
 
-    for( int i=fileHistory.GetCount(); i--; )
-    {
-        wxString const filename=fileHistory.GetHistoryFile(i);
-        if( ! wxFileName(filename).FileExists() )
-        {
+    for (int i = fileHistory.GetCount(); i--;) {
+        const wxString filename = fileHistory.GetHistoryFile(i);
+        if (!wxFileName(filename).FileExists()) {
             fileHistory.RemoveFileFromHistory(i);
         }
     }
@@ -135,7 +129,7 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
     helpFile.AppendDir("help");
     helpFile.SetName("snap_manager_help");
     helpFile.SetExt("html");
-    helpUrl=helpFile.GetFullPath();
+    helpUrl = helpFile.GetFullPath();
     // help = new wxHelpController( this );
     //help->Initialize( helpFile.GetFullPath() );
 
@@ -143,83 +137,71 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
     scriptenv = new SnapMgrScriptEnv(this);
 
-    if( ! jobfile.IsEmpty() ) { scriptenv->LoadJob( jobfile );
-}
+    if (!jobfile.IsEmpty()) {
+        scriptenv->LoadJob(jobfile);
+    }
 }
 
-SnapMgrFrame::~SnapMgrFrame()
-{
+SnapMgrFrame::~SnapMgrFrame() {
     wxLog::SetActiveTarget(nullptr);
     delete logger;
     // delete help;
-    config->SetPath( "/History" );
-    fileHistory.Save( *config );
-    config->SetPath( "/" );
-    config->Write("WorkingDirectory",wxGetCwd());
+    config->SetPath("/History");
+    fileHistory.Save(*config);
+    config->SetPath("/");
+    config->Write("WorkingDirectory", wxGetCwd());
 
     delete scriptenv;
 }
 
-void SnapMgrFrame::SetupIcons()
-{
+void SnapMgrFrame::SetupIcons() {
     wxIconBundle icons;
 #ifdef __WXMSW__
     // snap.ico embeds 16/32/48/256px frames (for a crisp Explorer/shortcut icon), so an
     // explicit size is needed here to still get a distinct small and large icon -
     // wxICON()'s default load just returns whichever frame matches the system's
     // standard large-icon size for both calls.
-    icons.AddIcon( wxIcon(wxT("ICO_SNAP16"), wxBITMAP_TYPE_ICO_RESOURCE, 16, 16) );
-    icons.AddIcon( wxIcon(wxT("ICO_SNAP32"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32) );
+    icons.AddIcon(wxIcon(wxT("ICO_SNAP16"), wxBITMAP_TYPE_ICO_RESOURCE, 16, 16));
+    icons.AddIcon(wxIcon(wxT("ICO_SNAP32"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32));
 #else
-    icons.AddIcon( wxIcon(wxICON(ICO_SNAP16)) );
-    icons.AddIcon( wxIcon(wxICON(ICO_SNAP32)) );
+    icons.AddIcon(wxIcon(wxICON(ICO_SNAP16)));
+    icons.AddIcon(wxIcon(wxICON(ICO_SNAP32)));
 #endif
-    SetIcons( icons );
+    SetIcons(icons);
 }
 
-void SnapMgrFrame::SetupMenu()
-{
-
+void SnapMgrFrame::SetupMenu() {
     // Set up the file menu ..
 
-    wxMenuBar *menuBar = new wxMenuBar;
+    wxMenuBar* menuBar = new wxMenuBar;
 
-    wxMenu *fileMenu = new wxMenu;
-    menuBar->Append( fileMenu, "&File" );
+    wxMenu* fileMenu = new wxMenu;
+    menuBar->Append(fileMenu, "&File");
 
     // Add items at the end of the file menu, add the help menu, and install the menu
     // bar...
 
     fileMenu->AppendSeparator();
-    fileMenu->Append(CMD_FILE_CLOSE,
-                     "&Close\tAlt-F4",
-                     "Quit SNAP");
+    fileMenu->Append(CMD_FILE_CLOSE, "&Close\tAlt-F4", "Quit SNAP");
 
-    fileHistory.UseMenu( fileMenu );
+    fileHistory.UseMenu(fileMenu);
 
-
-    wxMenu *helpMenu = new wxMenu;
-    helpMenu->Append( CMD_HELP_HELP,
-                      "&Help\tF1",
-                      "Get help about snapplot");
+    wxMenu* helpMenu = new wxMenu;
+    helpMenu->Append(CMD_HELP_HELP, "&Help\tF1", "Get help about snapplot");
 
     helpMenu->AppendSeparator();
-    helpMenu->Append( CMD_HELP_ABOUT,
-                      "&About",
-                      "Information about this version snaplot program");
+    helpMenu->Append(CMD_HELP_ABOUT, "&About", "Information about this version snaplot program");
 
-    menuBar->Append( helpMenu, "&Help" );
+    menuBar->Append(helpMenu, "&Help");
 
     SetMenuBar(menuBar);
 }
 
-
-void SnapMgrFrame::SetupWindows()
-{
-    SetBackgroundColour( wxColour("WHITE"));
-    logCtrl = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
-                              wxTE_MULTILINE | wxHSCROLL | wxTE_RICH | wxTE_READONLY );
-    SetClientSize( wxSize( GetCharWidth()*120, GetCharHeight()*40));
+void SnapMgrFrame::SetupWindows() {
+    SetBackgroundColour(wxColour("WHITE"));
+    logCtrl = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
+                             wxTE_MULTILINE | wxHSCROLL | wxTE_RICH | wxTE_READONLY);
+    SetClientSize(wxSize(GetCharWidth() * 120, GetCharHeight() * 40));
     /*
     wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
     wxSizerFlags flags;
@@ -229,127 +211,102 @@ void SnapMgrFrame::SetupWindows()
     */
 }
 
-void SnapMgrFrame::ClearLog()
-{
+void SnapMgrFrame::ClearLog() {
     logCtrl->Clear();
 }
 
-void SnapMgrFrame::OnFileHistory( wxCommandEvent &event )
-{
-    wxString const jobFile(fileHistory.GetHistoryFile(event.GetId() - wxID_FILE1));
-    if( ! jobFile.IsEmpty() )
-    {
-        scriptenv->LoadJob( jobFile );
+void SnapMgrFrame::OnFileHistory(wxCommandEvent& event) {
+    const wxString jobFile(fileHistory.GetHistoryFile(event.GetId() - wxID_FILE1));
+    if (!jobFile.IsEmpty()) {
+        scriptenv->LoadJob(jobFile);
     }
 }
 
-void SnapMgrFrame::OnJobUpdated( wxCommandEvent &event )
-{
-    if( event.GetInt() == SNAP_JOBLOADING )
-    {
+void SnapMgrFrame::OnJobUpdated(wxCommandEvent& event) {
+    if (event.GetInt() == SNAP_JOBLOADING) {
         ClearLog();
         wxLogMessage("Loading job ... ");
         return;
     }
 
-    SnapJob *job = scriptenv->Job();
-    if( job )
-    {
-        wxString const jobfile= job->GetFullFilename();
-        fileHistory.AddFileToHistory( jobfile );
+    SnapJob* job = scriptenv->Job();
+    if (job) {
+        const wxString jobfile = job->GetFullFilename();
+        fileHistory.AddFileToHistory(jobfile);
         wxString label("SNAP - ");
-        label.Append( scriptenv->Job()->GetFilename() );
-        SetLabel( label );
+        label.Append(scriptenv->Job()->GetFilename());
+        SetLabel(label);
 
-        if( event.GetInt() & SNAP_JOBUPDATED_NEWJOB )
-        {
+        if (event.GetInt() & SNAP_JOBUPDATED_NEWJOB) {
             ClearLog();
-            wxLogMessage( "Job location: %s", job->GetPath());
-            wxLogMessage( "Command file: %s", job->GetFilename());
-            if( job->IsOk())
-            {
-                wxLogMessage( "Job title:    %s", job->Title());
-                wxLogMessage( "Coordinate file: %s", job->CoordinateFilename());
-            }
-            else
-            {
-                for( size_t i = 0; i < job->Errors().Count(); i++ )
-                {
-                    wxLogMessage( "%s\n", job->Errors()[i] );
+            wxLogMessage("Job location: %s", job->GetPath());
+            wxLogMessage("Command file: %s", job->GetFilename());
+            if (job->IsOk()) {
+                wxLogMessage("Job title:    %s", job->Title());
+                wxLogMessage("Coordinate file: %s", job->CoordinateFilename());
+            } else {
+                for (size_t i = 0; i < job->Errors().Count(); i++) {
+                    wxLogMessage("%s\n", job->Errors()[i]);
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         SetLabel("SNAP");
     }
-
 }
 
-void SnapMgrFrame::OnCmdClose( wxCommandEvent & WXUNUSED(event) )
-{
+void SnapMgrFrame::OnCmdClose(wxCommandEvent& WXUNUSED(event)) {
     Close();
 }
 
-void SnapMgrFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
-{
+void SnapMgrFrame::OnCmdHelpHelp(wxCommandEvent& WXUNUSED(event)) {
     // help->DisplayContents();
     wxLaunchDefaultBrowser(helpUrl);
 }
 
-void SnapMgrFrame::OnClearLog( wxCommandEvent & WXUNUSED(event) )
-{
+void SnapMgrFrame::OnClearLog(wxCommandEvent& WXUNUSED(event)) {
     ClearLog();
 }
 
-void SnapMgrFrame::OnCmdHelpAbout( wxCommandEvent & WXUNUSED(event) )
-{
-    ShowHelpAbout(getProgramName(),getProgramVersion(SNAPVERSION),PROGRAM_DATE);
+void SnapMgrFrame::OnCmdHelpAbout(wxCommandEvent& WXUNUSED(event)) {
+    ShowHelpAbout(getProgramName(), getProgramVersion(SNAPVERSION), PROGRAM_DATE);
 }
 
-void SnapMgrFrame::OnActivate( wxActivateEvent & WXUNUSED(event) )
-{
+void SnapMgrFrame::OnActivate(wxActivateEvent& WXUNUSED(event)) {
     scriptenv->UpdateJob();
 }
 
-void SnapMgrFrame::OnClose( wxCloseEvent &event )
-{
-    if( ! scriptenv->UnloadJob( event.CanVeto()) )
-    {
+void SnapMgrFrame::OnClose(wxCloseEvent& event) {
+    if (!scriptenv->UnloadJob(event.CanVeto())) {
         event.Veto();
-    }
-    else
-    {
+    } else {
         Destroy();
     }
 }
 
 ////////////////////////////////////////////////////////////////
 
-class SnapMgrApp : public wxApp
-{
-public:
+class SnapMgrApp : public wxApp {
+ public:
     bool OnInit() override;
 };
 
-IMPLEMENT_APP( SnapMgrApp );
+IMPLEMENT_APP(SnapMgrApp);
 
-bool SnapMgrApp::OnInit()
-{
+bool SnapMgrApp::OnInit() {
     CONFIGURE_RUNTIME();
     // For help system
     wxFileSystem::AddHandler(new wxZipFSHandler);
     wxLog::SetTimestamp("");
     wxString jobfile;
-    if( argc > 1 ) { jobfile = argv[1];
-}
+    if (argc > 1) {
+        jobfile = argv[1];
+    }
 
-    SnapMgrFrame *topWindow = new SnapMgrFrame( jobfile );
+    SnapMgrFrame* topWindow = new SnapMgrFrame(jobfile);
 
     topWindow->Show();
 
-
-    SetTopWindow( topWindow );
+    SetTopWindow(topWindow);
     return true;
 }

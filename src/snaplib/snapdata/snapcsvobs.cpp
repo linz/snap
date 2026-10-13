@@ -33,21 +33,18 @@ using namespace SNAP;
 /////////////////////////////////////////////////////////////////
 // CsvClassification
 
-SnapCsvObs::CsvClassification::CsvClassification(const std::string &name) : CsvValue(name), _classId(0)
-{
+SnapCsvObs::CsvClassification::CsvClassification(const std::string& name) : CsvValue(name), _classId(0) {
     _classId = ldt_get_id(ID_CLASSTYPE, 0, name);
 }
 
-int SnapCsvObs::CsvClassification::classValue()
-{
+int SnapCsvObs::CsvClassification::classValue() {
     return ldt_get_id(ID_CLASSNAME, _classId, value());
 }
 
 /////////////////////////////////////////////////////////////////
 // CsvClassColumn
 
-SnapCsvObs::CsvClassColumn::CsvClassColumn(const std::string &classname, const Column *column)
-{
+SnapCsvObs::CsvClassColumn::CsvClassColumn(const std::string& classname, const Column* column) {
     _classId = ldt_get_id(ID_CLASSTYPE, 0, classname);
     _column = column;
 }
@@ -55,31 +52,31 @@ SnapCsvObs::CsvClassColumn::CsvClassColumn(const std::string &classname, const C
 /////////////////////////////////////////////////////////////////
 // CsvObservation
 
-SnapCsvObs::CsvObservation::CsvObservation(SnapCsvObs *owner) : _type("Data type"),
-                                                                _fromstn("From station"),
-                                                                _fromhgt("From inst height"),
-                                                                _tostn("To station"),
-                                                                _tohgt("To inst height"),
-                                                                _value("Obs value"),
-                                                                _error("Obs error"),
-                                                                _time("Obs data/time"),
-                                                                _errorfactor("Error factor"),
-                                                                _obsid("Observation id"),
-                                                                _projection("Projection"),
-                                                                _note("Note"),
-                                                                _setid("Observation set id"),
-                                                                _rejected("Observation rejected"),
-                                                                _ignoremissingobs(false),
-                                                                _disterrorcalced(false),
-                                                                _angleerrorcalced(false),
-                                                                _zderrorcalced(false),
-                                                                _hderrorcalced(false),
-                                                                _angleerrorunits(AE_DEFAULT),
-                                                                _angleformat(AF_DEGREES),
-                                                                _vecerrorformat(CVR_TOPOCENTRIC),
-                                                                _owner(owner),
-                                                                _dateformat("YMDhms")
-{
+SnapCsvObs::CsvObservation::CsvObservation(SnapCsvObs* owner)
+    : _type("Data type"),
+      _fromstn("From station"),
+      _fromhgt("From inst height"),
+      _tostn("To station"),
+      _tohgt("To inst height"),
+      _value("Obs value"),
+      _error("Obs error"),
+      _time("Obs data/time"),
+      _errorfactor("Error factor"),
+      _obsid("Observation id"),
+      _projection("Projection"),
+      _note("Note"),
+      _setid("Observation set id"),
+      _rejected("Observation rejected"),
+      _ignoremissingobs(false),
+      _disterrorcalced(false),
+      _angleerrorcalced(false),
+      _zderrorcalced(false),
+      _hderrorcalced(false),
+      _angleerrorunits(AE_DEFAULT),
+      _angleformat(AF_DEGREES),
+      _vecerrorformat(CVR_TOPOCENTRIC),
+      _owner(owner),
+      _dateformat("YMDhms") {
     _parts.push_back(&_type);
     _parts.push_back(&_fromstn);
     _parts.push_back(&_fromhgt);
@@ -96,107 +93,81 @@ SnapCsvObs::CsvObservation::CsvObservation(SnapCsvObs *owner) : _type("Data type
     _parts.push_back(&_rejected);
 }
 
-datatypedef *SnapCsvObs::CsvObservation::getDataType()
-{
-    const std::string &obstype = _type.value();
+datatypedef* SnapCsvObs::CsvObservation::getDataType() {
+    const std::string& obstype = _type.value();
     return datatypedef_from_code(obstype);
 }
 
-void SnapCsvObs::CsvObservation::definitionError(const string &message)
-{
-    if (_owner != nullptr)
-    {
+void SnapCsvObs::CsvObservation::definitionError(const string& message) {
+    if (_owner != nullptr) {
         _owner->definitionError(message);
-    }
-    else
-    {
+    } else {
         throw RecordError(message);
     }
 }
 
-void SnapCsvObs::CsvObservation::runtimeError(const string &message)
-{
-    if (_owner != nullptr)
-    {
+void SnapCsvObs::CsvObservation::runtimeError(const string& message) {
+    if (_owner != nullptr) {
         _owner->runtimeError(message);
-    }
-    else
-    {
+    } else {
         throw RecordError(message);
     }
 }
 
-string SnapCsvObs::CsvObservation::missing()
-{
+string SnapCsvObs::CsvObservation::missing() {
     std::string missingparts;
     bool need_tostn = false;
-    datatypedef *type = getDataType();
-    if (type && !type->ispoint)
-    {
+    datatypedef* type = getDataType();
+    if (type && !type->ispoint) {
         need_tostn = true;
     }
 
-    if (!_type.hasValue())
-    {
+    if (!_type.hasValue()) {
         missingparts += "type, ";
     }
-    if (!_fromstn.hasValue())
-    {
+    if (!_fromstn.hasValue()) {
         missingparts += "from station, ";
     }
-    if (need_tostn && !_tostn.hasValue())
-    {
+    if (need_tostn && !_tostn.hasValue()) {
         missingparts += "to station, ";
     }
-    if (!_value.hasValue())
-    {
+    if (!_value.hasValue()) {
         missingparts += "value, ";
     }
-    if (!_error.hasValue())
-    {
+    if (!_error.hasValue()) {
         missingparts += "error, ";
     }
     if (!missingparts.empty()) {
         missingparts.resize(missingparts.size() - 2);
-}
+    }
     return missingparts;
 }
 
-void SnapCsvObs::CsvObservation::attach(CalcReader *reader)
-{
-    for (auto i = _parts.begin(); i < _parts.end(); i++)
-    {
+void SnapCsvObs::CsvObservation::attach(CalcReader* reader) {
+    for (auto i = _parts.begin(); i < _parts.end(); i++) {
         (*i)->attach(reader);
     }
-    for (auto i = _classifications.begin(); i < _classifications.end(); i++)
-    {
+    for (auto i = _classifications.begin(); i < _classifications.end(); i++) {
         (*i)->attach(reader);
     }
     _classCols.clear();
-    if (reader)
-    {
-        for (auto s = _classColNames.begin(); s != _classColNames.end(); s++)
-        {
+    if (reader) {
+        for (auto s = _classColNames.begin(); s != _classColNames.end(); s++) {
             findClassColumns(reader, *s);
         }
     }
 }
 
-void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std::string &colName)
-{
+void SnapCsvObs::CsvObservation::findClassColumns(CalcReader* reader, const std::string& colName) {
     int len = colName.size() - 1;
     if (len < 0) {
         return;
-}
-    if (colName[len] != '*')
-    {
-        Column *c = reader->findColumn(colName);
-        if (c)
-        {
+    }
+    if (colName[len] != '*') {
+        Column* c = reader->findColumn(colName);
+        if (c) {
             _classCols.emplace_back(colName, c);
-        }
-        else
-        {
+        } else {
             runtimeError(string("Classification column ") + colName + " is missing in " + reader->streamName());
         }
         return;
@@ -207,110 +178,88 @@ void SnapCsvObs::CsvObservation::findClassColumns(CalcReader *reader, const std:
     // prefix** means the classification does not include the matched prefix in the class name
 
     int offset = 0;
-    if (len > 1 && colName[len] == '*')
-    {
+    if (len > 1 && colName[len] == '*') {
         len--;
         offset = len;
     }
-    string const prefix = colName.substr(0, len);
+    const string prefix = colName.substr(0, len);
 
-    for (int col = 0; col < reader->columnCount(); col++)
-    {
-        const Column *c = &(reader->column(col));
+    for (int col = 0; col < reader->columnCount(); col++) {
+        const Column* c = &(reader->column(col));
         string name = c->name();
-        if (len > 0)
-        {
-            string const colprefix = name.substr(0, len);
+        if (len > 0) {
+            const string colprefix = name.substr(0, len);
             if (!boost::iequals(prefix, colprefix)) {
                 continue;
-}
+            }
             if (offset) {
                 name = name.substr(offset);
-}
+            }
         }
         _classCols.emplace_back(name, c);
     }
 }
 
-SnapCsvObs::CsvClassification *SnapCsvObs::CsvObservation::addClassification(const string &classname)
-{
-    CsvClassification *clsf = classification(classname);
-    if (clsf != nullptr)
-    {
+SnapCsvObs::CsvClassification* SnapCsvObs::CsvObservation::addClassification(const string& classname) {
+    CsvClassification* clsf = classification(classname);
+    if (clsf != nullptr) {
         definitionError(string("Classification ") + classname + " defined more than once");
-    }
-    else
-    {
+    } else {
         clsf = new CsvClassification(classname);
         _classifications.push_back(std::unique_ptr<CsvClassification>(clsf));
     }
     return clsf;
 }
 
-void SnapCsvObs::CsvObservation::addColumnClassification(const string &colname)
-{
+void SnapCsvObs::CsvObservation::addColumnClassification(const string& colname) {
     _classColNames.push_back(colname);
 }
 
-SnapCsvObs::CsvClassification *SnapCsvObs::CsvObservation::classification(const string &classname)
-{
-    for (auto c = _classifications.begin(); c < _classifications.end(); c++)
-    {
-        if (boost::iequals((*c)->name(), classname))
-        {
+SnapCsvObs::CsvClassification* SnapCsvObs::CsvObservation::classification(const string& classname) {
+    for (auto c = _classifications.begin(); c < _classifications.end(); c++) {
+        if (boost::iequals((*c)->name(), classname)) {
             return (*c).get();
         }
     }
     return nullptr;
 }
 
-void SnapCsvObs::CsvObservation::dataError(const std::string &message)
-{
+void SnapCsvObs::CsvObservation::dataError(const std::string& message) {
     ldt_cancel_inst();
     runtimeError(message);
 }
 
-bool SnapCsvObs::CsvObservation::loadObservation()
-{
-    datatypedef *type = getDataType();
-    if (!type)
-    {
+bool SnapCsvObs::CsvObservation::loadObservation() {
+    datatypedef* type = getDataType();
+    if (!type) {
         string message("Invalid datatype \"");
         message += _type.value();
         message += "\"";
         dataError(message);
         return false;
     }
-    const std::string &setid = _setid.value();
-    const std::string &fromcode = _fromstn.value();
+    const std::string& setid = _setid.value();
+    const std::string& fromcode = _fromstn.value();
     bool continued = false;
     // CSV format cannot handle covariance matrix for vector sets...
-    if (setid.empty() || type->isvector)
-    {
+    if (setid.empty() || type->isvector) {
         _owner->EndSet();
     }
-    if (_ignoremissingobs && _value.value().empty())
-    {
+    if (_ignoremissingobs && _value.value().empty()) {
         return false;
     }
-    if (!type->isvector)
-    {
+    if (!type->isvector) {
         continued = _owner->ContinueSet(setid, fromcode);
     }
-    if (_ignoremissingobs && _value.value().empty())
-    {
+    if (_ignoremissingobs && _value.value().empty()) {
         return false;
     }
     int idfrom = 0;
-    if (_fromstn.value().empty())
-    {
+    if (_fromstn.value().empty()) {
         dataError("From station code is missing");
-    }
-    else
-    {
+    } else {
         idfrom = ldt_get_id(ID_STATION, 0, _fromstn.value());
-        if (idfrom == 0)
-        {
+        if (idfrom == 0) {
             string message = "From station code ";
             message += _fromstn.value();
             message += " is invalid";
@@ -319,17 +268,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         _stnidfrom = idfrom;
     }
     int idto = 0;
-    if (!type->ispoint)
-    {
-        if (_tostn.value().empty())
-        {
+    if (!type->ispoint) {
+        if (_tostn.value().empty()) {
             dataError("To station code is missing");
-        }
-        else
-        {
+        } else {
             idto = ldt_get_id(ID_STATION, 0, _tostn.value());
-            if (idto == 0)
-            {
+            if (idto == 0) {
                 string message = "To station code ";
                 message += _tostn.value();
                 message += " is invalid";
@@ -342,351 +286,293 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     double tohgt = 0.0;
     if (_fromhgt.hasValue()) {
         _fromhgt >> fromhgt;
-}
+    }
     if (_tohgt.hasValue()) {
         _tohgt >> tohgt;
-}
+    }
     double value[3];
     double error[9];
     double errorfactor = 1.0;
     if (_errorfactor.hasValue()) {
         _errorfactor >> errorfactor;
-}
-    if (!type->isvector)
-    {
+    }
+    if (!type->isvector) {
         bool errseconds = _angleerrorunits == AE_SECONDS;
-        bool const ishorangle = type->id == HA || type->id == AZ || type->id == PB;
-        if (type->isangle)
-        {
-            if (_angleformat != AF_DEGREES) { errseconds = _angleerrorunits != AE_DEGREES;
-}
+        const bool ishorangle = type->id == HA || type->id == AZ || type->id == PB;
+        if (type->isangle) {
+            if (_angleformat != AF_DEGREES) {
+                errseconds = _angleerrorunits != AE_DEGREES;
+            }
             string sign;
             if (type->id == LT) {
                 sign = "NS";
-}
+            }
             if (type->id == LN) {
                 sign = "EW";
-}
-            try
-            {
-                value[0] = parseAngle(_angleformat, _value.value(), sign);
             }
-            catch (const ParseAngleException &e)
-            {
+            try {
+                value[0] = parseAngle(_angleformat, _value.value(), sign);
+            } catch (const ParseAngleException& e) {
                 dataError(string("Badly formatted angle: " + _value.value()));
             }
-        }
-        else
-        {
+        } else {
             _value >> value[0];
         }
-        if (_disterrorcalced && type->isdistance)
-        {
+        if (_disterrorcalced && type->isdistance) {
             double errcomp;
             error[0] = 0.0;
             string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
-            for (int i = 0; i < 2; i++)
-            {
+            for (int i = 0; i < 2; i++) {
                 istr >> errcomp >> component;
                 if (istr.fail()) {
                     break;
-}
+                }
                 double factor;
                 if (boost::iequals(component, "mm")) {
                     factor = 0.001;
                 } else if (boost::iequals(component, "ppm")) {
                     factor = value[0] * 0.000001;
-                } else
-                {
+                } else {
                     dataError(string("Invalid distance error component ") + component);
                     // ok = false;
                     break;
                 }
                 error[0] += (errcomp * errcomp * factor * factor);
             }
-            if (component.empty())
-            {
+            if (component.empty()) {
                 dataError(string("Missing distance error") + component);
                 // ok = false;
             }
 
             if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]);
-}
-        }
-        else if (_angleerrorcalced && ishorangle)
-        {
+            }
+        } else if (_angleerrorcalced && ishorangle) {
             double errcomp;
             double mmerr = 0.0;
             double secerr = 0.0;
-            double *pcomp;
+            double* pcomp;
             errseconds = false;
 
             string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
-            for (int i = 0; i < 2; i++)
-            {
+            for (int i = 0; i < 2; i++) {
                 istr >> errcomp >> component;
                 if (istr.fail()) {
                     break;
-}
-                if (boost::iequals(component, "mm"))
-                {
+                }
+                if (boost::iequals(component, "mm")) {
                     errcomp *= 0.001;
                     pcomp = &mmerr;
-                }
-                else if (boost::iequals(component, "sec"))
-                {
+                } else if (boost::iequals(component, "sec")) {
                     errcomp *= STOR;
                     pcomp = &secerr;
-                }
-                else
-                {
+                } else {
                     dataError(string("Invalid angle error component ") + component);
                     // ok = false;
                     break;
                 }
                 *pcomp += errcomp * errcomp;
             }
-            if (component.empty())
-            {
+            if (component.empty()) {
                 dataError(string("Missing angle error") + component);
                 // ok = false;
             }
 
-            if (mmerr > 0.0)
-            {
+            if (mmerr > 0.0) {
                 double hdist = ldt_calc_value(CALC_HDIST, _stnidfrom, _stnidto);
                 hdist *= hdist;
                 if (hdist < mmerr / 4.0) {
                     hdist = mmerr / 4.0;
-}
+                }
                 mmerr /= hdist;
             }
             error[0] = secerr + mmerr;
             if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]) * RTOD;
-}
-        }
-        else if (_hderrorcalced && type->id == LV)
-        {
+            }
+        } else if (_hderrorcalced && type->id == LV) {
             double errcomp;
             double runlen;
             double mmerr = 0.0;
             double ppmerr = 0.0;
-            double *pcomp;
+            double* pcomp;
 
             string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
-            for (int i = 0; i < 2; i++)
-            {
+            for (int i = 0; i < 2; i++) {
                 istr >> errcomp >> component;
                 if (istr.fail()) {
                     break;
-}
-                if (boost::iequals(component, "mm"))
-                {
+                }
+                if (boost::iequals(component, "mm")) {
                     errcomp *= 0.001;
                     pcomp = &mmerr;
-                }
-                else if (boost::iequals(component, "mmrkm"))
-                {
+                } else if (boost::iequals(component, "mmrkm")) {
                     istr >> component >> runlen;
-                    if (!istr.fail() && boost::iequals(component, "sqrt"))
-                    {
+                    if (!istr.fail() && boost::iequals(component, "sqrt")) {
                         runlen = sqrt(fabs(runlen) / 1000.0);
                         errcomp *= 0.001 * runlen;
                         pcomp = &ppmerr;
-                    }
-                    else
-                    {
-                        dataError(string("Invalid height difference distance error mmrkm component in \"") + _error.value() + string("\""));
+                    } else {
+                        dataError(string("Invalid height difference distance error mmrkm component in \"") +
+                                  _error.value() + string("\""));
                         // ok = false;
                         break;
                     }
-                }
-                else
-                {
+                } else {
                     dataError(string("Invalid height difference error component ") + component);
                     // ok = false;
                     break;
                 }
                 *pcomp += errcomp * errcomp;
             }
-            if (component.empty())
-            {
+            if (component.empty()) {
                 dataError(string("Missing height difference error"));
                 // ok = false;
             }
             error[0] = ppmerr + mmerr;
             if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]);
-}
-        }
-        else if (_zderrorcalced && type->id == ZD)
-        {
+            }
+        } else if (_zderrorcalced && type->id == ZD) {
             double errcomp;
             double mmverr = 0.0;
             double mmherr = 0.0;
             double secerr = 0.0;
-            double *pcomp;
+            double* pcomp;
             errseconds = false;
 
             string component;
             // bool ok = true;
             std::istringstream istr(_error.value());
-            for (int i = 0; i < 3; i++)
-            {
+            for (int i = 0; i < 3; i++) {
                 istr >> errcomp >> component;
                 if (istr.fail()) {
                     break;
-}
-                if (boost::iequals(component, "mmh"))
-                {
+                }
+                if (boost::iequals(component, "mmh")) {
                     errcomp *= 0.001;
                     pcomp = &mmherr;
-                }
-                else if (boost::iequals(component, "mmv"))
-                {
+                } else if (boost::iequals(component, "mmv")) {
                     errcomp *= 0.001;
                     pcomp = &mmverr;
-                }
-                else if (boost::iequals(component, "sec"))
-                {
+                } else if (boost::iequals(component, "sec")) {
                     errcomp *= STOR;
                     pcomp = &secerr;
-                }
-                else
-                {
+                } else {
                     dataError(string("Invalid zenith distance error component ") + component);
                     // ok = false;
                     break;
                 }
                 *pcomp += errcomp * errcomp;
             }
-            if (component.empty())
-            {
+            if (component.empty()) {
                 dataError(string("Missing angle error") + component);
                 // ok = false;
             }
 
-            if (mmherr > 0.0 || mmverr > 0.0)
-            {
+            if (mmherr > 0.0 || mmverr > 0.0) {
                 double distance = ldt_calc_value(CALC_DISTANCE, _stnidfrom, _stnidto);
-                double const zendist = value[0] * DTOR;
+                const double zendist = value[0] * DTOR;
                 distance *= distance;
                 if (mmherr < distance / 4) {
                     mmherr /= distance;
                 } else {
                     mmherr = 4.0;
-}
+                }
                 if (mmverr < distance / 4) {
                     mmverr /= distance;
                 } else {
                     mmverr = 4.0;
-}
+                }
                 mmherr *= cos(zendist) * cos(zendist);
                 mmverr *= sin(zendist) * sin(zendist);
             }
             error[0] = secerr + mmherr + mmverr;
             if (error[0] > 0.0) {
                 error[0] = sqrt(error[0]) * RTOD;
-}
-        }
-        else
-        {
+            }
+        } else {
             _error >> error[0];
         }
         error[0] *= errorfactor;
-        if (type->isangle)
-        {
-            if (errseconds) { error[0] /= 3600.0;
-}
+        if (type->isangle) {
+            if (errseconds) {
+                error[0] /= 3600.0;
+            }
             value[0] *= DTOR;
             error[0] *= DTOR;
         }
-    }
-    else
-    {
+    } else {
         std::istringstream istr;
 
         istr.str(_value.value());
         istr >> value[0];
         if (type->isvector) {
             istr >> value[1] >> value[2];
-}
+        }
         if (istr.fail() || !istr.eof()) {
-            dataError(string("Invalid observation value: ")+_value.value());
-}
+            dataError(string("Invalid observation value: ") + _value.value());
+        }
 
         istr.str(_error.value());
         istr.seekg(0);
         istr.clear();
-        if (_nvecerror > 0)
-        {
-
-            for (int i = 0; i < _nvecerror; i++)
-            {
+        if (_nvecerror > 0) {
+            for (int i = 0; i < _nvecerror; i++) {
                 istr >> error[i];
             }
             if (istr.fail()) {
-                dataError(string("Missing or invalid data in observation error: ")+_error.value());
-}
+                dataError(string("Missing or invalid data in observation error: ") + _error.value());
+            }
             if (!istr.eof()) {
-                dataError(string("Extraneous data in observation error: ")+_error.value());
-}
-            if (errorfactor != 1.0)
-            {
-                switch (_vecerrorformat)
-                {
-                case CVR_DEFAULT:
-                    break;
-                case CVR_FULL:
-                {
-                    double const factor = errorfactor * errorfactor;
-                    for (int i = 0; i < 6; i++) {
-                        error[i] *= factor;
-}
-                }
-                break;
-                case CVR_CORRELATION:
-                case CVR_ENU_CORRELATION:
-                case CVR_TOPOCENTRIC:
-                case CVR_DIAGONAL:
-                    error[0] *= errorfactor;
-                    error[1] *= errorfactor;
-                    error[2] *= errorfactor;
-                    break;
-                default:
-                    dataError("Error in CsvObservation::loadObservation - unknown error format");
+                dataError(string("Extraneous data in observation error: ") + _error.value());
+            }
+            if (errorfactor != 1.0) {
+                switch (_vecerrorformat) {
+                    case CVR_DEFAULT:
+                        break;
+                    case CVR_FULL: {
+                        const double factor = errorfactor * errorfactor;
+                        for (int i = 0; i < 6; i++) {
+                            error[i] *= factor;
+                        }
+                    } break;
+                    case CVR_CORRELATION:
+                    case CVR_ENU_CORRELATION:
+                    case CVR_TOPOCENTRIC:
+                    case CVR_DIAGONAL:
+                        error[0] *= errorfactor;
+                        error[1] *= errorfactor;
+                        error[2] *= errorfactor;
+                        break;
+                    default:
+                        dataError("Error in CsvObservation::loadObservation - unknown error format");
                 }
             }
-        }
-        else
-        {
+        } else {
             for (int i = 0; i < 9; i++) {
                 error[i] = 0;
-}
+            }
             double errcomp[3];
             string component;
             bool ok = true;
-            for (int i = 0; i < 2; i++)
-            {
+            for (int i = 0; i < 2; i++) {
                 istr >> errcomp[0] >> errcomp[1] >> errcomp[2] >> component;
                 if (istr.fail()) {
                     break;
-}
+                }
                 int offset = 0;
                 if (boost::iequals(component, "mm")) {
                     offset = 0;
                 } else if (boost::iequals(component, "ppm")) {
                     offset = 3;
-                } else
-                {
+                } else {
                     dataError(string("Invalid error component ") + component);
                     ok = false;
                     break;
@@ -697,11 +583,11 @@ bool SnapCsvObs::CsvObservation::loadObservation()
 
                 if (istr.eof()) {
                     break;
-}
+                }
             }
             if (ok && (istr.fail() || !istr.eof())) {
                 dataError(string("Invalid observation error ") + _error.value());
-}
+            }
         }
     }
 
@@ -709,21 +595,18 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     double snaptime = UNDEFINED_DATE;
     if (_obsid.hasValue() && !_obsid.value().empty()) {
         _obsid >> obsid;
-}
-    if (!_time.value().empty())
-    {
+    }
+    if (!_time.value().empty()) {
         snaptime = snap_datetime_parse(_time.value(), _dateformat);
         if (snaptime == 0.0) {
             dataError("Invalid date or date format");
-}
+        }
     }
     bool obsrejected = false;
-    if (_rejected.hasValue())
-    {
+    if (_rejected.hasValue()) {
         std::string rejstr = _rejected.value();
         boost::to_upper(rejstr);
-        if (rejstr == "Y" || rejstr == "YES")
-        {
+        if (rejstr == "Y" || rejstr == "YES") {
             obsrejected = true;
         }
     }
@@ -733,8 +616,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     ldt_lineno(_owner->reader()->lineNo());
 
     // Strange SNAP thing about vector point data ...
-    if (type->ispoint && type->isvector)
-    {
+    if (type->ispoint && type->isvector) {
         idto = idfrom;
         idfrom = 0;
         tohgt = fromhgt;
@@ -742,227 +624,174 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     if (!continued) {
         ldt_inststn(idfrom, fromhgt);
-}
+    }
     ldt_tgtstn(idto, tohgt);
     ldt_nextdata(type->id);
     ldt_obs_id(obsid);
     if (obsrejected) {
         ldt_unused();
-}
+    }
     ldt_value(value);
     if (!type->isvector) {
         ldt_error(error);
-}
+    }
     if (_time.hasValue()) {
         ldt_date(snaptime);
-}
-    for (auto c = _classifications.begin(); c < _classifications.end(); c++)
-    {
+    }
+    for (auto c = _classifications.begin(); c < _classifications.end(); c++) {
         ldt_classification((*c)->classId(), (*c)->classValue());
     }
-    for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
-    {
-        string const value = cc->value();
-        if (!value.empty())
-        {
-            int const idclass = cc->classId();
-            int const idvalue = ldt_get_id(ID_CLASSNAME, idclass, value);
+    for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++) {
+        const string value = cc->value();
+        if (!value.empty()) {
+            const int idclass = cc->classId();
+            const int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value);
             ldt_classification(idclass, idvalue);
         }
     }
-    if (type->isvector)
-    {
+    if (type->isvector) {
         ltmat cvr = ldt_covariance(_vecerrorformat, error);
-        if (cvr)
-        {
-            switch (_vecerrorformat)
-            {
-            case CVR_DEFAULT:
-                break;
-            case CVR_FULL:
-                for (int i3 = 0; i3 < 6; i3++) {
-                    cvr[i3] = error[i3];
-}
-                break;
+        if (cvr) {
+            switch (_vecerrorformat) {
+                case CVR_DEFAULT:
+                    break;
+                case CVR_FULL:
+                    for (int i3 = 0; i3 < 6; i3++) {
+                        cvr[i3] = error[i3];
+                    }
+                    break;
 
-            case CVR_CORRELATION:
-            case CVR_ENU_CORRELATION:
-                Lij(cvr, 0, 1) = error[3];
-                Lij(cvr, 0, 2) = error[4];
-                Lij(cvr, 1, 2) = error[5];
+                case CVR_CORRELATION:
+                case CVR_ENU_CORRELATION:
+                    Lij(cvr, 0, 1) = error[3];
+                    Lij(cvr, 0, 2) = error[4];
+                    Lij(cvr, 1, 2) = error[5];
 
-                // Then fall through to ...
+                    // Then fall through to ...
 
-            case CVR_TOPOCENTRIC:
-            case CVR_DIAGONAL:
-                Lij(cvr, 0, 0) = error[0];
-                Lij(cvr, 1, 1) = error[1];
-                Lij(cvr, 2, 2) = error[2];
-                break;
+                case CVR_TOPOCENTRIC:
+                case CVR_DIAGONAL:
+                    Lij(cvr, 0, 0) = error[0];
+                    Lij(cvr, 1, 1) = error[1];
+                    Lij(cvr, 2, 2) = error[2];
+                    break;
 
-            default:
-                dataError("Error in CsvObservation::loadObservation - unknown error format (2)");
+                default:
+                    dataError("Error in CsvObservation::loadObservation - unknown error format (2)");
             }
         }
     }
-    if (type->projctn && !_projection.value().empty())
-    {
-        int const id = ldt_get_id(ID_PROJCTN, 0, _projection.value());
+    if (type->projctn && !_projection.value().empty()) {
+        const int id = ldt_get_id(ID_PROJCTN, 0, _projection.value());
         ldt_projection(id);
     }
-    if (!_note.value().empty())
-    {
+    if (!_note.value().empty()) {
         ldt_note(_note.value());
     }
     if (!_owner->InSet()) {
         ldt_end_data();
-}
+    }
 
     return true;
 }
 
-bool SnapCsvObs::CsvObservation::setDistanceErrorMethod(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setDistanceErrorMethod(const string& format) {
     bool ok = true;
-    if (boost::iequals(format, "error"))
-    {
+    if (boost::iequals(format, "error")) {
         _disterrorcalced = false;
-    }
-    else if (boost::iequals(format, "calculated"))
-    {
+    } else if (boost::iequals(format, "calculated")) {
         _disterrorcalced = true;
-    }
-    else
-    {
+    } else {
         definitionError(string("Invalid distance error type ") + format);
         ok = false;
     }
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setAngleFormat(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setAngleFormat(const string& format) {
     bool ok = true;
-    try
-    {
+    try {
         _angleformat = parseAngleFormat(format);
-    }
-    catch (const ParseAngleException &e)
-    {
+    } catch (const ParseAngleException& e) {
         ok = false;
         definitionError(string("Invalid angle format ") + format);
     }
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setAngleErrorUnits(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setAngleErrorUnits(const string& format) {
     bool ok = true;
-    if (boost::iequals(format, "default"))
-    {
+    if (boost::iequals(format, "default")) {
         _angleerrorunits = AE_DEFAULT;
-    }
-    else if (boost::iequals(format, "degrees"))
-    {
+    } else if (boost::iequals(format, "degrees")) {
         _angleerrorunits = AE_DEGREES;
-    }
-    else if (boost::iequals(format, "seconds"))
-    {
+    } else if (boost::iequals(format, "seconds")) {
         _angleerrorunits = AE_SECONDS;
-    }
-    else
-    {
+    } else {
         definitionError(string("Invalid angle error units ") + format);
         ok = false;
     }
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setErrorMethod(const string &method, bool &calced, const string &quantity)
-{
+bool SnapCsvObs::CsvObservation::setErrorMethod(const string& method, bool& calced, const string& quantity) {
     bool ok = true;
-    if (boost::iequals(method, "value") || boost::iequals(method, "error"))
-    {
+    if (boost::iequals(method, "value") || boost::iequals(method, "error")) {
         calced = false;
-    }
-    else if (boost::iequals(method, "calculated"))
-    {
+    } else if (boost::iequals(method, "calculated")) {
         calced = true;
-    }
-    else
-    {
+    } else {
         definitionError(string("Invalid ") + quantity + " error method " + method);
         ok = false;
     }
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setAngleErrorMethod(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setAngleErrorMethod(const string& format) {
     return setErrorMethod(format, _angleerrorcalced, "angle");
 }
 
-bool SnapCsvObs::CsvObservation::setZenDistErrorMethod(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setZenDistErrorMethod(const string& format) {
     return setErrorMethod(format, _zderrorcalced, "zenith distance");
 }
 
-bool SnapCsvObs::CsvObservation::setHgtDiffErrorMethod(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setHgtDiffErrorMethod(const string& format) {
     return setErrorMethod(format, _hderrorcalced, "height difference");
 }
 
-bool SnapCsvObs::CsvObservation::setVectorErrorMethod(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setVectorErrorMethod(const string& format) {
     bool ok = true;
-    if (boost::iequals(format, "full"))
-    {
+    if (boost::iequals(format, "full")) {
         _vecerrorformat = CVR_FULL;
         _nvecerror = 6;
-    }
-    else if (boost::iequals(format, "correlation"))
-    {
+    } else if (boost::iequals(format, "correlation")) {
         _vecerrorformat = CVR_CORRELATION;
         _nvecerror = 6;
-    }
-    else if (boost::iequals(format, "diagonal"))
-    {
+    } else if (boost::iequals(format, "diagonal")) {
         _vecerrorformat = CVR_DIAGONAL;
         _nvecerror = 3;
-    }
-    else if (boost::iequals(format, "enu"))
-    {
+    } else if (boost::iequals(format, "enu")) {
         _vecerrorformat = CVR_TOPOCENTRIC;
         _nvecerror = 3;
-    }
-    else if (boost::iequals(format, "enu_correlation"))
-    {
+    } else if (boost::iequals(format, "enu_correlation")) {
         _vecerrorformat = CVR_ENU_CORRELATION;
         _nvecerror = 6;
-    }
-    else if (boost::iequals(format, "calculated"))
-    {
+    } else if (boost::iequals(format, "calculated")) {
         _vecerrorformat = CVR_DEFAULT;
         _nvecerror = 0;
-    }
-    else
-    {
+    } else {
         definitionError(string("Invalid vector error method ") + format);
         ok = false;
     }
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setDateTimeFormat(const string &format)
-{
+bool SnapCsvObs::CsvObservation::setDateTimeFormat(const string& format) {
     bool ok = true;
-    if (format.find_first_not_of("YMDhmsN ") != std::string::npos)
-    {
+    if (format.find_first_not_of("YMDhmsN ") != std::string::npos) {
         definitionError(string("Invalid date/time format ") + format);
         ok = false;
-    }
-    else
-    {
+    } else {
         _dateformat = format;
     }
     return ok;
@@ -971,285 +800,177 @@ bool SnapCsvObs::CsvObservation::setDateTimeFormat(const string &format)
 /////////////////////////////////////////////////////////////////
 // SnapCsvObs
 
-SnapCsvObs::SnapCsvObs(const std::string &name, const OptionString &config) : SnapCsvBase(name, config)
-{
-}
+SnapCsvObs::SnapCsvObs(const std::string& name, const OptionString& config) : SnapCsvBase(name, config) {}
 
-SnapCsvObs::~SnapCsvObs()
-= default;
+SnapCsvObs::~SnapCsvObs() = default;
 
-void SnapCsvObs::loadDefinitionCommand(const std::string &command, RecordStream &rs)
-{
-    if (command == "observation")
-    {
-        CsvObservation *obs = new CsvObservation(this);
+void SnapCsvObs::loadDefinitionCommand(const std::string& command, RecordStream& rs) {
+    if (command == "observation") {
+        CsvObservation* obs = new CsvObservation(this);
         _observations.push_back(std::unique_ptr<CsvObservation>(obs));
         loadObservationDefinition(rs, *obs);
-    }
-    else
-    {
+    } else {
         definitionError(string("Invalid option ") + command + " in CSV observation format definition");
     }
 }
 
-void SnapCsvObs::readerAttached()
-{
-    for (auto o = _observations.begin(); o != _observations.end(); o++)
-    {
+void SnapCsvObs::readerAttached() {
+    for (auto o = _observations.begin(); o != _observations.end(); o++) {
         (*o)->attach(reader());
     }
 }
 
-static std::string &unquoteString(std::string &value)
-{
-    if (value.size() > 1 && value[0] == '"' && value[value.size() - 1] == '"')
-    {
+static std::string& unquoteString(std::string& value) {
+    if (value.size() > 1 && value[0] == '"' && value[value.size() - 1] == '"') {
         value = value.substr(1, value.size() - 2);
     }
     return value;
 }
 
-void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs)
-{
+void SnapCsvObs::loadObservationDefinition(RecordStream& rs, CsvObservation& obs) {
     std::string command;
     // bool finished = false;
-    while (rs.readRecord())
-    {
+    while (rs.readRecord()) {
         rs.record() >> command;
         boost::to_lower(command);
-        if (command == "end_observation")
-        {
+        if (command == "end_observation") {
             // finished = true;
             break;
         }
-        if (command == "type")
-        {
+        if (command == "type") {
             loadValueDefinition(rs, obs.type());
-        }
-        else if (command == "set_id")
-        {
+        } else if (command == "set_id") {
             loadValueDefinition(rs, obs.setId());
-        }
-        else if (command == "rejected")
-        {
+        } else if (command == "rejected") {
             loadValueDefinition(rs, obs.rejected());
-        }
-        else if (command == "instrument_station")
-        {
+        } else if (command == "instrument_station") {
             loadValueDefinition(rs, obs.fromStn());
-        }
-        else if (command == "instrument_height")
-        {
+        } else if (command == "instrument_height") {
             loadValueDefinition(rs, obs.fromHgt());
-        }
-        else if (command == "target_station")
-        {
+        } else if (command == "target_station") {
             loadValueDefinition(rs, obs.toStn());
-        }
-        else if (command == "target_height")
-        {
+        } else if (command == "target_height") {
             loadValueDefinition(rs, obs.toHgt());
-        }
-        else if (command == "value")
-        {
+        } else if (command == "value") {
             loadValueDefinition(rs, obs.value());
-        }
-        else if (command == "error")
-        {
+        } else if (command == "error") {
             loadValueDefinition(rs, obs.error());
-        }
-        else if (command == "error_factor")
-        {
+        } else if (command == "error_factor") {
             loadValueDefinition(rs, obs.errorFactor());
-        }
-        else if (command == "datetime")
-        {
+        } else if (command == "datetime") {
             loadValueDefinition(rs, obs.time());
-        }
-        else if (command == "id")
-        {
+        } else if (command == "id") {
             loadValueDefinition(rs, obs.obsId());
-        }
-        else if (command == "note")
-        {
+        } else if (command == "note") {
             loadValueDefinition(rs, obs.note());
-        }
-        else if (command == "projection")
-        {
+        } else if (command == "projection") {
             loadValueDefinition(rs, obs.projection());
-        }
-        else if (command == "reference_frame")
-        {
+        } else if (command == "reference_frame") {
             loadCoefDefinition(rs, obs, COEF_CLASS_REFFRM);
-        }
-        else if (command == "refraction_coefficient")
-        {
+        } else if (command == "refraction_coefficient") {
             loadCoefDefinition(rs, obs, COEF_CLASS_REFCOEF);
-        }
-        else if (command == "bearing_orientation_error")
-        {
+        } else if (command == "bearing_orientation_error") {
             loadCoefDefinition(rs, obs, COEF_CLASS_BRNGREF);
-        }
-        else if (command == "distance_scale_factor")
-        {
+        } else if (command == "distance_scale_factor") {
             loadCoefDefinition(rs, obs, COEF_CLASS_DISTSF);
-        }
-        else if (command == "classification")
-        {
+        } else if (command == "classification") {
             string classname;
-            if (rs.record() >> classname)
-            {
-                CsvClassification *clsf = obs.addClassification(classname);
+            if (rs.record() >> classname) {
+                CsvClassification* clsf = obs.addClassification(classname);
                 loadValueDefinition(rs, *clsf);
+            } else {
             }
-            else
-            {
-            }
-        }
-        else if (command == "vector_error_type")
-        {
-            string const format = getConfigValue(command, rs);
-            if (!format.empty())
-            {
+        } else if (command == "vector_error_type") {
+            const string format = getConfigValue(command, rs);
+            if (!format.empty()) {
                 obs.setVectorErrorMethod(format);
-            }
-            else
-            {
+            } else {
                 definitionError(command + " value missing");
             }
-        }
-        else if (command == "distance_error_type")
-        {
-            string const format = getConfigValue(command, rs);
-            if (!format.empty())
-            {
+        } else if (command == "distance_error_type") {
+            const string format = getConfigValue(command, rs);
+            if (!format.empty()) {
                 obs.setDistanceErrorMethod(format);
-            }
-            else
-            {
+            } else {
                 definitionError(command + " value is missing");
             }
-        }
-        else if (command == "angle_format")
-        {
-            string const format = getConfigValue(command, rs);
-            if (!format.empty())
-            {
+        } else if (command == "angle_format") {
+            const string format = getConfigValue(command, rs);
+            if (!format.empty()) {
                 obs.setAngleFormat(format);
-            }
-            else
-            {
+            } else {
                 definitionError("Angle_format value is missing");
             }
-        }
-        else if (command == "angle_error_unit")
-        {
-            string const units = getConfigValue(command, rs);
-            if (!units.empty())
-            {
+        } else if (command == "angle_error_unit") {
+            const string units = getConfigValue(command, rs);
+            if (!units.empty()) {
                 obs.setAngleErrorUnits(units);
-            }
-            else
-            {
+            } else {
                 definitionError("Angle_error_units value is missing");
             }
-        }
-        else if (command == "angle_error_type")
-        {
+        } else if (command == "angle_error_type") {
             string format = getConfigValue(command, rs);
-            if (!format.empty())
-            {
+            if (!format.empty()) {
                 obs.setAngleErrorMethod(unquoteString(format));
-            }
-            else
-            {
+            } else {
                 definitionError(command + " value is missing");
             }
-        }
-        else if (command == "zenith_distance_error_type")
-        {
+        } else if (command == "zenith_distance_error_type") {
             string format = getConfigValue(command, rs);
-            if (!format.empty())
-            {
+            if (!format.empty()) {
                 obs.setZenDistErrorMethod(unquoteString(format));
-            }
-            else
-            {
+            } else {
                 definitionError(command + " value is missing");
             }
-        }
-        else if (command == "height_difference_error_type")
-        {
+        } else if (command == "height_difference_error_type") {
             string format = getConfigValue(command, rs);
-            if (!format.empty())
-            {
+            if (!format.empty()) {
                 obs.setHgtDiffErrorMethod(unquoteString(format));
-            }
-            else
-            {
+            } else {
                 definitionError(command + " value is missing");
             }
-        }
-        else if (command == "classification_columns")
-        {
+        } else if (command == "classification_columns") {
             string column;
-            while (rs.record() >> column)
-            {
+            while (rs.record() >> column) {
                 obs.addColumnClassification(column);
             }
-        }
-        else if (command == "datetime_format")
-        {
+        } else if (command == "datetime_format") {
             string format = getConfigValue(command, rs);
-            if (!format.empty())
-            {
+            if (!format.empty()) {
                 obs.setDateTimeFormat(unquoteString(format));
-            }
-            else
-            {
+            } else {
                 definitionError("Date/time format value missing");
             }
-        }
-        else if (command == "ignore_missing_observations")
-        {
+        } else if (command == "ignore_missing_observations") {
             obs.setIgnoreMissingObs();
-        }
-        else
-        {
+        } else {
             definitionError(string("Invalid component ") + command + " specified for observation");
         }
     }
 }
 
-void SnapCsvObs::loadCoefDefinition(RecordStream &rs, CsvObservation &obs, int coef)
-{
-    CsvClassification *clsf = obs.addClassification(std::string(coef_class(coef)->default_classname));
+void SnapCsvObs::loadCoefDefinition(RecordStream& rs, CsvObservation& obs, int coef) {
+    CsvClassification* clsf = obs.addClassification(std::string(coef_class(coef)->default_classname));
     loadValueDefinition(rs, *clsf);
 }
 
-void SnapCsvObs::initialiseLoadData()
-{
+void SnapCsvObs::initialiseLoadData() {
     _inset = false;
 }
 
-void SnapCsvObs::loadRecord()
-{
-    for (auto o = _observations.begin(); o != _observations.end(); o++)
-    {
+void SnapCsvObs::loadRecord() {
+    for (auto o = _observations.begin(); o != _observations.end(); o++) {
         (*o)->loadObservation();
     }
 }
 
-void SnapCsvObs::terminateLoadData()
-{
+void SnapCsvObs::terminateLoadData() {
     EndSet();
 }
 
-bool SnapCsvObs::ContinueSet(const std::string &setid, const std::string &fromcode)
-{
-    bool const continued = _inset && setid == _setId && fromcode == _setFromCode;
-    if (!continued)
-    {
+bool SnapCsvObs::ContinueSet(const std::string& setid, const std::string& fromcode) {
+    const bool continued = _inset && setid == _setId && fromcode == _setFromCode;
+    if (!continued) {
         _setId = setid;
         _setFromCode = fromcode;
         _inset = true;
@@ -1257,10 +978,8 @@ bool SnapCsvObs::ContinueSet(const std::string &setid, const std::string &fromco
     return continued;
 }
 
-void SnapCsvObs::EndSet()
-{
-    if (_inset)
-    {
+void SnapCsvObs::EndSet() {
+    if (_inset) {
         ldt_end_data();
         _inset = false;
     }
@@ -1270,15 +989,12 @@ void SnapCsvObs::EndSet()
 //
 // Global CSV load function
 
-int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_progress)(DATAFILE &df))
-{
-    try
-    {
-        OptionString const config(options);
-        std::string const format = config.valueOf("format", "obs");
+int load_snap_csv_obs(const std::string& options, DATAFILE& df, bool (*check_progress)(DATAFILE& df)) {
+    try {
+        const OptionString config(options);
+        const std::string format = config.valueOf("format", "obs");
         auto formatfile = find_file(format, ".dtf", df.file_name(), FF_TRYALL, CSVFORMAT_CONFIG);
-        if (!formatfile)
-        {
+        if (!formatfile) {
             std::ostringstream os;
             os << "Undefined delimited text file format " << format;
             handle_error(INVALID_DATA, os.str(), NO_MESSAGE);
@@ -1287,17 +1003,14 @@ int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_pro
         SnapCsvObs csvobs(*formatfile, config);
         DatafileInput dfi(df, check_progress);
         csvobs.load(dfi);
-        std::string const deffile = csvobs.definitionFilename();
-        if (!deffile.empty())
-        {
+        const std::string deffile = csvobs.definitionFilename();
+        if (!deffile.empty()) {
             record_filename(deffile, "csv_obs_format");
         }
         if (dfi.aborted()) {
             return OPERATION_ABORTED;
-}
-    }
-    catch (RecordError &error)
-    {
+        }
+    } catch (RecordError& error) {
         handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }

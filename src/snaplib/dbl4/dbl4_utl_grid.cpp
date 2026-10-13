@@ -59,25 +59,22 @@
 struct file_row;
 struct cache_row;
 
-struct file_row
-{
+struct file_row {
     INT4 fileloc;
-    cache_row *cacheloc;
+    cache_row* cacheloc;
 };
 
-struct cache_row
-{
+struct cache_row {
     std::vector<INT4> data;
-    file_row *lat;
-    cache_row *next;      /* For LRU cache */
-    cache_row *prev;
+    file_row* lat;
+    cache_row* next; /* For LRU cache */
+    cache_row* prev;
 };
 
-struct grid_def_crs
-{
+struct grid_def_crs {
     unsigned int magic;
     hBinSrc binsrc;
-    INT4   indexloc;
+    INT4 indexloc;
     double maxy;
     double miny;
     double maxx;
@@ -87,26 +84,25 @@ struct grid_def_crs
     double vres;
     short ngrdy;
     short ngrdx;
-    short ngrdval;    /**< Number of values at each point */
-    short latlon;     /**< True if is a lat/long grid */
-    short ncycle;     /**< Increments to get around the globe */
+    short ngrdval; /**< Number of values at each point */
+    short latlon;  /**< True if is a lat/long grid */
+    short ncycle;  /**< Increments to get around the globe */
     char global;
-    std::string desc1;   /**< Description line, only written to the trace output */
+    std::string desc1; /**< Description line, only written to the trace output */
     std::string desc2;
     std::string desc3;
-    std::string crdsys;  /**< Coordinate system code, only written to the trace output */
-    int  rowfmt;      /**< 1 for simple array of shorts, 2 for compressed longs */
-    int  rowsize;     /**< Size of a row in bytes */
-    int  maxcache;    /**< Maximum number of cache entries */
-    int  ncache;      /**< Current number of cache entries */
-    INT4 undef;       /**< Value used to represent missing data */
-    std::vector<file_row> rows;   /**< Definition of rows */
-    std::vector<cache_row> cache; /**< The cache, never resized so that its rows can point to each other */
-    cache_row *cache_mru;  /**< Most recently used */
-    cache_row *cache_lru;  /**< Least recently used */
-    std::vector<unsigned char> loadbuffer;  /**< Buffer for reading rows, allocated when first needed */
+    std::string crdsys;                    /**< Coordinate system code, only written to the trace output */
+    int rowfmt;                            /**< 1 for simple array of shorts, 2 for compressed longs */
+    int rowsize;                           /**< Size of a row in bytes */
+    int maxcache;                          /**< Maximum number of cache entries */
+    int ncache;                            /**< Current number of cache entries */
+    INT4 undef;                            /**< Value used to represent missing data */
+    std::vector<file_row> rows;            /**< Definition of rows */
+    std::vector<cache_row> cache;          /**< The cache, never resized so that its rows can point to each other */
+    cache_row* cache_mru;                  /**< Most recently used */
+    cache_row* cache_lru;                  /**< Least recently used */
+    std::vector<unsigned char> loadbuffer; /**< Buffer for reading rows, allocated when first needed */
 };
-
 
 /*************************************************************************
 ** Function name: delete_grid_def
@@ -120,12 +116,10 @@ struct grid_def_crs
 **************************************************************************
 */
 
-static void delete_grid_def( grid_def_crs *def)
-{
+static void delete_grid_def(grid_def_crs* def) {
     def->magic = 0;
     delete def;
 }
-
 
 /*************************************************************************
 ** Function name: check_header
@@ -143,56 +137,46 @@ static void delete_grid_def( grid_def_crs *def)
 **************************************************************************
 */
 
-static int check_header( hBinSrc binsrc, INT4 *indexloc)
-{
+static int check_header(hBinSrc binsrc, INT4* indexloc) {
     char buf[80];
     INT4 len;
     int version;
     Endian endian = Endian::Little;
     version = 0;
-    len = strlen( GRID_FILE_HEADER_1 );
-    if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) { return 0;
-}
+    len = strlen(GRID_FILE_HEADER_1);
+    if (utlBinSrcLoad1(binsrc, 0, len, buf) != STS_OK) {
+        return 0;
+    }
     buf[len] = 0;
-    TRACE_GRID(("Grid signature: %s",buf));
+    TRACE_GRID(("Grid signature: %s", buf));
 
-    if(  memcmp( buf, GRID_FILE_HEADER_1, len ) == 0 )
-    {
+    if (memcmp(buf, GRID_FILE_HEADER_1, len) == 0) {
         version = 1;
         endian = Endian::Little;
-    }
-    else if(  memcmp( buf, GRID_FILE_HEADER_2, len ) == 0 )
-    {
+    } else if (memcmp(buf, GRID_FILE_HEADER_2, len) == 0) {
         version = 2;
         endian = Endian::Little;
-    }
-    else if(  memcmp( buf, GRID_FILE_HEADER_3, len ) == 0 )
-    {
+    } else if (memcmp(buf, GRID_FILE_HEADER_3, len) == 0) {
         version = 2;
         endian = Endian::Big;
-    }
-    else if(  memcmp( buf, GRID_FILE_HEADER_4, len ) == 0 )
-    {
+    } else if (memcmp(buf, GRID_FILE_HEADER_4, len) == 0) {
         version = 3;
         endian = Endian::Little;
-    }
-    else if(  memcmp( buf, GRID_FILE_HEADER_5, len ) == 0 )
-    {
+    } else if (memcmp(buf, GRID_FILE_HEADER_5, len) == 0) {
         version = 3;
         endian = Endian::Big;
     }
-    utlBinSrcSetEndian( binsrc, endian );
+    utlBinSrcSetEndian(binsrc, endian);
 
-    if( utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, indexloc ) != STS_OK ) { return 0;
-}
-    TRACE_GRID(("Index location: %ld",(long)(*indexloc)));
-    if( ! *indexloc ) { version = 0;
-}
+    if (utlBinSrcLoad4(binsrc, BINSRC_CONTINUE, 1, indexloc) != STS_OK) {
+        return 0;
+    }
+    TRACE_GRID(("Index location: %ld", (long)(*indexloc)));
+    if (!*indexloc) {
+        version = 0;
+    }
     return version;
 }
-
-
-
 
 /*************************************************************************
 ** Function name: create_grid_def
@@ -209,9 +193,8 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
 **************************************************************************
 */
 
-static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
-{
-    grid_def_crs *def;
+static StatusType create_grid_def(grid_def_crs** defr, hBinSrc binsrc) {
+    grid_def_crs* def;
     int version;
     INT4 indexloc;
     INT2 ival;
@@ -219,11 +202,10 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     StatusType sts;
     TRACE_GRID(("Loading grid definition"));
     version = check_header(binsrc, &indexloc);
-    if( ! version )
-    {
+    if (!version) {
         RETURN_STATUS(STS_INVALID_DATA);
     }
-    TRACE_GRID(("Grid format version: %d",(int) version));
+    TRACE_GRID(("Grid format version: %d", (int)version));
     def = new grid_def_crs();
     def->indexloc = indexloc;
     def->rowfmt = version == 3 ? 2 : 1;
@@ -231,43 +213,41 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     def->binsrc = binsrc;
     sts = STS_OK;
 
-    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, indexloc, 1, (void *) (&(def->miny)) );
-}
-    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->maxy)) );
-}
-    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->minx)) );
-}
-    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->maxx)) );
-}
-    if( sts == STS_OK ) { sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, (void *) (&(def->vres)) );
-}
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoad8(binsrc, indexloc, 1, (void*)(&(def->miny)));
+    }
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoad8(binsrc, BINSRC_CONTINUE, 1, (void*)(&(def->maxy)));
+    }
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoad8(binsrc, BINSRC_CONTINUE, 1, (void*)(&(def->minx)));
+    }
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoad8(binsrc, BINSRC_CONTINUE, 1, (void*)(&(def->maxx)));
+    }
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoad8(binsrc, BINSRC_CONTINUE, 1, (void*)(&(def->vres)));
+    }
 
-    if( sts == STS_OK )
-    {
-        sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoad2(binsrc, BINSRC_CONTINUE, 1, &ival);
         def->ngrdy = ival;
     }
-    if( sts == STS_OK )
-    {
-        sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoad2(binsrc, BINSRC_CONTINUE, 1, &ival);
         def->ngrdx = ival;
     }
 
-    if( version > 1 )
-    {
-        if( sts == STS_OK )
-        {
-            sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+    if (version > 1) {
+        if (sts == STS_OK) {
+            sts = utlBinSrcLoad2(binsrc, BINSRC_CONTINUE, 1, &ival);
             def->ngrdval = ival;
         }
-        if( sts == STS_OK )
-        {
-            sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ival );
+        if (sts == STS_OK) {
+            sts = utlBinSrcLoad2(binsrc, BINSRC_CONTINUE, 1, &ival);
             def->latlon = ival;
         }
-    }
-    else
-    {
+    } else {
         def->ngrdval = 1;
         def->latlon = 1;
     }
@@ -278,64 +258,60 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
        info and the grid specifications (which is not required by the
        format strictly) */
 
-    if( sts == STS_OK && ( def->ngrdx < 2 || def->ngrdy < 2 )) SET_STATUS(sts,STS_INVALID_DATA);
+    if (sts == STS_OK && (def->ngrdx < 2 || def->ngrdy < 2))
+        SET_STATUS(sts, STS_INVALID_DATA);
 
-
-    if( sts == STS_OK ) {
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc1 );
-}
-    if( sts == STS_OK ) {
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc2 );
-}
-    if( sts == STS_OK ) {
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->desc3 );
-}
-    if( sts == STS_OK ) {
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, def->crdsys );
-}
-
-    if( sts == STS_OK )
-    {
-        def->rows.resize( boost::numeric_cast<size_t>( def->ngrdy ) );
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoadString(binsrc, BINSRC_CONTINUE, def->desc1);
+    }
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoadString(binsrc, BINSRC_CONTINUE, def->desc2);
+    }
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoadString(binsrc, BINSRC_CONTINUE, def->desc3);
+    }
+    if (sts == STS_OK) {
+        sts = utlBinSrcLoadString(binsrc, BINSRC_CONTINUE, def->crdsys);
     }
 
-    if( sts != STS_OK )
-    {
+    if (sts == STS_OK) {
+        def->rows.resize(boost::numeric_cast<size_t>(def->ngrdy));
+    }
+
+    if (sts != STS_OK) {
         delete_grid_def(def);
         RETURN_STATUS(sts);
     }
 
-    TRACE_GRID(("Grid loaded: %s",def->desc1.c_str()));
-    TRACE_GRID(("             %s",def->desc2.c_str()));
-    TRACE_GRID(("             %s",def->desc3.c_str()));
-    TRACE_GRID(("             %s",def->crdsys.c_str()));
-    TRACE_GRID(("        Size: = %d x %d",(int)(def->ngrdy),(int)(def->ngrdx)));
-    TRACE_GRID(("        Lat: %.8lf - %.8lf",def->miny,def->maxy));
-    TRACE_GRID(("        Lon: %.8lf - %.8lf",def->minx,def->maxx));
-    TRACE_GRID(("        Res: %.8lf",def->vres));
-    TRACE_GRID(("        Dim: %d",(int)(def->ngrdval)));
-    TRACE_GRID(("     LatLon: %d",(int)(def->latlon)));
+    TRACE_GRID(("Grid loaded: %s", def->desc1.c_str()));
+    TRACE_GRID(("             %s", def->desc2.c_str()));
+    TRACE_GRID(("             %s", def->desc3.c_str()));
+    TRACE_GRID(("             %s", def->crdsys.c_str()));
+    TRACE_GRID(("        Size: = %d x %d", (int)(def->ngrdy), (int)(def->ngrdx)));
+    TRACE_GRID(("        Lat: %.8lf - %.8lf", def->miny, def->maxy));
+    TRACE_GRID(("        Lon: %.8lf - %.8lf", def->minx, def->maxx));
+    TRACE_GRID(("        Res: %.8lf", def->vres));
+    TRACE_GRID(("        Dim: %d", (int)(def->ngrdval)));
+    TRACE_GRID(("     LatLon: %d", (int)(def->latlon)));
     TRACE_GRID2(("   Offsets:"));
 
-
-    for( i = 0; i < def->ngrdy; i++ )
-    {
-        if( sts == STS_OK ) { sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1,
-                                      (void *) (&(def->rows[i].fileloc)) );
-}
+    for (i = 0; i < def->ngrdy; i++) {
+        if (sts == STS_OK) {
+            sts = utlBinSrcLoad4(binsrc, BINSRC_CONTINUE, 1, (void*)(&(def->rows[i].fileloc)));
+        }
         def->rows[i].cacheloc = nullptr;
 
-        TRACE_GRID2(("            %03d %06ld",i,def->rows[i].fileloc));
+        TRACE_GRID2(("            %03d %06ld", i, def->rows[i].fileloc));
     }
 
     def->rowsize = def->ngrdx * def->ngrdval;
-    def->yres = (def->maxy - def->miny)/(def->ngrdy-1);
-    def->xres = (def->maxx - def->minx)/(def->ngrdx-1);
-    def->ncycle = (short) (360/def->xres+0.5);
+    def->yres = (def->maxy - def->miny) / (def->ngrdy - 1);
+    def->xres = (def->maxx - def->minx) / (def->ngrdx - 1);
+    def->ncycle = (short)(360 / def->xres + 0.5);
     def->global = (def->ncycle == def->ngrdx);
 
     def->maxcache = MAXCACHE;
-    def->cache.resize( boost::numeric_cast<size_t>( def->maxcache ) + 1 );
+    def->cache.resize(boost::numeric_cast<size_t>(def->maxcache) + 1);
     def->ncache = 0;
     def->cache_mru = nullptr;
     def->cache_lru = nullptr;
@@ -345,7 +321,6 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     *defr = def;
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: load_row1
@@ -362,31 +337,28 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
 **************************************************************************
 */
 
-static StatusType load_row1( grid_def_crs *def, long fileloc, INT4 *data )
-{
+static StatusType load_row1(grid_def_crs* def, long fileloc, INT4* data) {
     StatusType sts;
 
     /* Allocate a buffer for reading if not already done.  Make this
            the largest possible size */
 
-    if( def->loadbuffer.empty() )
-    {
-        def->loadbuffer.resize( boost::numeric_cast<size_t>( def->rowsize ) * 2 );
+    if (def->loadbuffer.empty()) {
+        def->loadbuffer.resize(boost::numeric_cast<size_t>(def->rowsize) * 2);
     }
     /* Format 1 rows - simply held as an array of shorts */
-    sts = utlBinSrcLoad2( def->binsrc, fileloc, def->rowsize, def->loadbuffer.data() );
+    sts = utlBinSrcLoad2(def->binsrc, fileloc, def->rowsize, def->loadbuffer.data());
     TRACE_GRID2(("Loading row using LINZ1 format"));
-    if( sts == STS_OK )
-    {
+    if (sts == STS_OK) {
         int i;
-        INT2 *sdata = reinterpret_cast<INT2 *>( def->loadbuffer.data() );
-        for( i = 0; i < def->rowsize; i++ )
-        {
+        INT2* sdata = reinterpret_cast<INT2*>(def->loadbuffer.data());
+        for (i = 0; i < def->rowsize; i++) {
             INT4 v = sdata[i];
-            if( v == 0x7FFF ) { v = def->undef;
-}
+            if (v == 0x7FFF) {
+                v = def->undef;
+            }
             data[i] = v;
-            TRACE_GRID3((" Column %d: value %ld",(int) i, (long) v ));
+            TRACE_GRID3((" Column %d: value %ld", (int)i, (long)v));
         }
     }
     return sts;
@@ -407,8 +379,7 @@ static StatusType load_row1( grid_def_crs *def, long fileloc, INT4 *data )
 **************************************************************************
 */
 
-static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
-{
+static StatusType load_row2_dim(grid_def_crs* def, long fileloc, INT4* data) {
     StatusType sts;
     INT2 fmt;
     INT2 bytes;
@@ -425,11 +396,10 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
     INT4 undef2;
     INT4 v = 0;
     int ndim;
-    INT1 *pc = nullptr;
-    INT2 *ps = nullptr;
-    INT4 *pl = nullptr;
+    INT1* pc = nullptr;
+    INT2* ps = nullptr;
+    INT4* pl = nullptr;
     hBinSrc binsrc;
-
 
     binsrc = def->binsrc;
     ndim = def->ngrdval;
@@ -440,11 +410,11 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
     cont = 1;
     undef = def->undef;
 
-    while(cont)
-    {
-        TRACE_GRID2(("Loading format2 row dimension from %ld",(long) fileloc ));
-        sts = utlBinSrcLoad2( binsrc, fileloc, 1, &fmt );
-        if( sts != STS_OK ) RETURN_STATUS(sts);
+    while (cont) {
+        TRACE_GRID2(("Loading format2 row dimension from %ld", (long)fileloc));
+        sts = utlBinSrcLoad2(binsrc, fileloc, 1, &fmt);
+        if (sts != STS_OK)
+            RETURN_STATUS(sts);
         fileloc = BINSRC_CONTINUE;
 
         /* subset=1 means that imin and imax are specified, this isn't the
@@ -459,168 +429,160 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
         /* Dif is 0, 1, or 2 to specify values defined as actual, first
            differences, or second differences */
 
-        dif = fmt>>2 & 3;
-        if( dif == 3 ) RETURN_STATUS(STS_INVALID_DATA);
+        dif = fmt >> 2 & 3;
+        if (dif == 3)
+            RETURN_STATUS(STS_INVALID_DATA);
 
         /* Bytes is the number of bytes to represent the each value/difference
           in the row, 1, 2, or 4 */
 
         bytes = fmt >> 4;
-        if( bytes != 1 && bytes != 2 && bytes != 4 ) RETURN_STATUS(STS_INVALID_DATA);
+        if (bytes != 1 && bytes != 2 && bytes != 4)
+            RETURN_STATUS(STS_INVALID_DATA);
 
         /* Doesn't make sense if this is continued (followed by another section),
            but not flagged as subset, so we use this as flag that all remaining
            values are undefined */
 
-        if( cont && ! subset ) { break;
-}
+        if (cont && !subset) {
+            break;
+        }
 
         /* Get the first and last value for this section */
 
-        i0 = imax+1;
+        i0 = imax + 1;
         imin = i0;
-        imax = def->ngrdx-1;
+        imax = def->ngrdx - 1;
 
-        if ( subset == 1 )
-        {
-            sts = utlBinSrcLoad2( binsrc, fileloc, 1, &imin );
-            if( sts != STS_OK ) RETURN_STATUS(sts);
-            sts = utlBinSrcLoad2( binsrc, fileloc, 1, &imax );
-            if( sts != STS_OK ) RETURN_STATUS(sts);
-            if( imin < i0  ) RETURN_STATUS(STS_INVALID_DATA);
-            if( imax < imin || imax >= def->ngrdx ) RETURN_STATUS(STS_INVALID_DATA );
+        if (subset == 1) {
+            sts = utlBinSrcLoad2(binsrc, fileloc, 1, &imin);
+            if (sts != STS_OK)
+                RETURN_STATUS(sts);
+            sts = utlBinSrcLoad2(binsrc, fileloc, 1, &imax);
+            if (sts != STS_OK)
+                RETURN_STATUS(sts);
+            if (imin < i0)
+                RETURN_STATUS(STS_INVALID_DATA);
+            if (imax < imin || imax >= def->ngrdx)
+                RETURN_STATUS(STS_INVALID_DATA);
         }
 
-        TRACE_GRID2(("Format: subset %d cont %d dif %d bytes %d imin %d imax %d",
-                     (int) subset, (int) cont, (int) dif, (int) bytes, (int) imin, (int) imax ));
+        TRACE_GRID2(("Format: subset %d cont %d dif %d bytes %d imin %d imax %d", (int)subset, (int)cont, (int)dif,
+                     (int)bytes, (int)imin, (int)imax));
 
-        undef2 = (1L << (bytes*8-1))-1;
+        undef2 = (1L << (bytes * 8 - 1)) - 1;
 
         /* Fill from the end of the last section to the start of this with
            undefined values */
 
-        if( imin > i0 )
-        {
-            for( i = i0; i < imin; i++, data += ndim ) { (*data) = undef;
-}
+        if (imin > i0) {
+            for (i = i0; i < imin; i++, data += ndim) {
+                (*data) = undef;
+            }
         }
 
         /* If first differences read first value, if second differences read
            first value and first first difference value - read slowly! */
 
         d1 = d2 = 0;
-        if( dif > 0 )
-        {
-            sts = utlBinSrcLoad4(binsrc,fileloc,1,&d1);
-            if( sts != STS_OK ) RETURN_STATUS(sts);
+        if (dif > 0) {
+            sts = utlBinSrcLoad4(binsrc, fileloc, 1, &d1);
+            if (sts != STS_OK)
+                RETURN_STATUS(sts);
         }
-        if( dif > 1 )
-        {
-            sts = utlBinSrcLoad4(binsrc,fileloc,1,&d2);
-            if( sts != STS_OK ) RETURN_STATUS(sts);
+        if (dif > 1) {
+            sts = utlBinSrcLoad4(binsrc, fileloc, 1, &d2);
+            if (sts != STS_OK)
+                RETURN_STATUS(sts);
         }
 
         /* Allocate a buffer for reading if not already done.  Make this
            the largest possible size */
 
-        if( def->loadbuffer.empty() )
-        {
-            def->loadbuffer.resize( boost::numeric_cast<size_t>( def->ngrdx ) * 4 );
+        if (def->loadbuffer.empty()) {
+            def->loadbuffer.resize(boost::numeric_cast<size_t>(def->ngrdx) * 4);
         }
 
         /* Read the values from the file */
 
-        if( bytes == 1 )
-        {
-            sts = utlBinSrcLoad1(binsrc,fileloc,imax+1-imin,def->loadbuffer.data());
-            pc = reinterpret_cast<INT1 *>( def->loadbuffer.data() );
+        if (bytes == 1) {
+            sts = utlBinSrcLoad1(binsrc, fileloc, imax + 1 - imin, def->loadbuffer.data());
+            pc = reinterpret_cast<INT1*>(def->loadbuffer.data());
+        } else if (bytes == 2) {
+            sts = utlBinSrcLoad2(binsrc, fileloc, imax + 1 - imin, def->loadbuffer.data());
+            ps = reinterpret_cast<INT2*>(def->loadbuffer.data());
+        } else {
+            sts = utlBinSrcLoad4(binsrc, fileloc, imax + 1 - imin, def->loadbuffer.data());
+            pl = reinterpret_cast<INT4*>(def->loadbuffer.data());
         }
-        else if ( bytes == 2 )
-        {
-            sts = utlBinSrcLoad2(binsrc,fileloc,imax+1-imin,def->loadbuffer.data());
-            ps = reinterpret_cast<INT2 *>( def->loadbuffer.data() );
-        }
-        else
-        {
-            sts = utlBinSrcLoad4(binsrc,fileloc,imax+1-imin,def->loadbuffer.data());
-            pl = reinterpret_cast<INT4 *>( def->loadbuffer.data() );
-        }
-        if( sts != STS_OK ) RETURN_STATUS(sts);
+        if (sts != STS_OK)
+            RETURN_STATUS(sts);
 
         /* Store the valyes in the data array, accounting for differences if
            appropriate */
 
-        if( dif )
-        {
+        if (dif) {
             (*data) = d1;
             imin++;
             data += ndim;
-            switch( bytes )
-            {
-            case 1:
-                v = *pc;
-                pc++;
-                break;
-            case 2:
-                v = *ps;
-                ps++;
-                break;
-            case 4:
-                v = *pl;
-                pl++;
-                break;
+            switch (bytes) {
+                case 1:
+                    v = *pc;
+                    pc++;
+                    break;
+                case 2:
+                    v = *ps;
+                    ps++;
+                    break;
+                case 4:
+                    v = *pl;
+                    pl++;
+                    break;
             }
         }
 
-        TRACE_GRID3(("Starting row: d1 %ld v %ld",(long) d1, (long) v));
-        for( i = imin; i <=imax; i++, data += ndim )
-        {
-            switch( bytes )
-            {
-            case 1:
-                v = *pc;
-                pc++;
-                break;
-            case 2:
-                v = *ps;
-                ps++;
-                break;
-            case 4:
-                v = *pl;
-                pl++;
-                break;
-            }
-            TRACE_GRID3(("Reading at %d: v %ld",(int) i, (long) v));
-            if( v == undef2 )
-            {
-                v = undef;
-            }
-            else
-            {
-                switch(dif)
-                {
-                case 0:
-                    break;
+        TRACE_GRID3(("Starting row: d1 %ld v %ld", (long)d1, (long)v));
+        for (i = imin; i <= imax; i++, data += ndim) {
+            switch (bytes) {
                 case 1:
-                    d1 += v;
-                    v = d1;
+                    v = *pc;
+                    pc++;
                     break;
                 case 2:
-                    d2 += v;
-                    d1 += d2;
-                    v = d1;
+                    v = *ps;
+                    ps++;
                     break;
+                case 4:
+                    v = *pl;
+                    pl++;
+                    break;
+            }
+            TRACE_GRID3(("Reading at %d: v %ld", (int)i, (long)v));
+            if (v == undef2) {
+                v = undef;
+            } else {
+                switch (dif) {
+                    case 0:
+                        break;
+                    case 1:
+                        d1 += v;
+                        v = d1;
+                        break;
+                    case 2:
+                        d2 += v;
+                        d1 += d2;
+                        v = d1;
+                        break;
                 }
             }
             (*data) = v;
-            TRACE_GRID3(("Value set to %ld", (long) v));
+            TRACE_GRID3(("Value set to %ld", (long)v));
         }
     }
 
     /* Set any values not yet set to undefined */
 
-    for( i = imax+1; i<def->ngrdx; i++, data += ndim )
-    {
+    for (i = imax + 1; i < def->ngrdx; i++, data += ndim) {
         (*data) = undef;
     }
 
@@ -641,15 +603,14 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
 **
 **************************************************************************
 */
-static StatusType load_row2( grid_def_crs *def, long fileloc, INT4 *data )
-{
-    int const ndim = def->ngrdval;
+static StatusType load_row2(grid_def_crs* def, long fileloc, INT4* data) {
+    const int ndim = def->ngrdval;
     int idim;
     StatusType sts;
-    for( idim = 0; idim < ndim; idim++ )
-    {
-        sts = load_row2_dim( def, fileloc, data+idim);
-        if( sts != STS_OK ) RETURN_STATUS(sts);
+    for (idim = 0; idim < ndim; idim++) {
+        sts = load_row2_dim(def, fileloc, data + idim);
+        if (sts != STS_OK)
+            RETURN_STATUS(sts);
         fileloc = BINSRC_CONTINUE;
     }
     return STS_OK;
@@ -670,37 +631,32 @@ static StatusType load_row2( grid_def_crs *def, long fileloc, INT4 *data )
 **************************************************************************
 */
 
-static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
-{
-    cache_row *cr;
-    file_row *fr;
-    StatusType sts=STS_OK;
+static StatusType get_row(grid_def_crs* def, short lat, INT4** row) {
+    cache_row* cr;
+    file_row* fr;
+    StatusType sts = STS_OK;
     INT4 fileloc;
     fr = &def->rows[lat];
     cr = fr->cacheloc;
-    TRACE_GRID2(("Retrieving row %d",(int)lat));
+    TRACE_GRID2(("Retrieving row %d", (int)lat));
 
-    if( !cr )
-    {
+    if (!cr) {
         TRACE_GRID2(("Row not in cache - loading from source"));
-        if( def->ncache < def->maxcache )
-        {
+        if (def->ncache < def->maxcache) {
             int loc;
             loc = ++(def->ncache);
             cr = &def->cache[loc];
-            cr->data.resize( boost::numeric_cast<size_t>( def->rowsize ) );
+            cr->data.resize(boost::numeric_cast<size_t>(def->rowsize));
             cr->next = def->cache_mru;
             cr->prev = nullptr;
-            if( cr->next )
-            {
+            if (cr->next) {
                 cr->next->prev = cr;
             }
             def->cache_mru = cr;
-            if( !def->cache_lru ) { def->cache_lru = cr;
-}
-        }
-        else
-        {
+            if (!def->cache_lru) {
+                def->cache_lru = cr;
+            }
+        } else {
             cr = def->cache_lru;
             cr->lat->cacheloc = nullptr;
         }
@@ -708,24 +664,16 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
         fr->cacheloc = cr;
         fileloc = def->rows[lat].fileloc;
 
-        if( def->rowfmt == 1 )
-        {
-            sts = load_row1( def, fileloc, cr->data.data() );
+        if (def->rowfmt == 1) {
+            sts = load_row1(def, fileloc, cr->data.data());
+        } else {
+            sts = load_row2(def, fileloc, cr->data.data());
         }
-        else
-        {
-            sts = load_row2( def, fileloc, cr->data.data() );
-        }
-
     }
-    if( def->cache_mru != cr )
-    {
-        if( cr->next )
-        {
+    if (def->cache_mru != cr) {
+        if (cr->next) {
             cr->next->prev = cr->prev;
-        }
-        else
-        {
+        } else {
             def->cache_lru = cr->prev;
         }
         cr->prev->next = cr->next;
@@ -737,8 +685,6 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
     *row = cr->data.data();
     return sts;
 }
-
-
 
 /*************************************************************************
 ** Function name: calc_cubic_factors
@@ -755,24 +701,21 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
 **************************************************************************
 */
 
-static void calc_cubic_factors( double x, double f[] )
-{
+static void calc_cubic_factors(double x, double f[]) {
     double x0;
     double x1;
     double x2;
     double x3;
-    x = 2*x-1;
-    x0 = x+3;
-    x1 = x+1;
-    x2 = x-1;
-    x3 = x-3;
-    f[0] = -(x1*x2*x3/48.0);
-    f[1] = x0*x2*x3/16.0;
-    f[2] = -(x0*x1*x3/16.0);
-    f[3] = x0*x1*x2/48.0;
+    x = 2 * x - 1;
+    x0 = x + 3;
+    x1 = x + 1;
+    x2 = x - 1;
+    x3 = x - 3;
+    f[0] = -(x1 * x2 * x3 / 48.0);
+    f[1] = x0 * x2 * x3 / 16.0;
+    f[2] = -(x0 * x1 * x3 / 16.0);
+    f[3] = x0 * x1 * x2 / 48.0;
 }
-
-
 
 /*************************************************************************
 ** Function name: calc_grid_cubic
@@ -789,9 +732,7 @@ static void calc_cubic_factors( double x, double f[] )
 **************************************************************************
 */
 
-static StatusType calc_grid_cubic( grid_def_crs *def, double x, double y,
-                                   double *value)
-{
+static StatusType calc_grid_cubic(grid_def_crs* def, double x, double y, double* value) {
     short ny;
     short nx;
     short xrow[4];
@@ -801,63 +742,67 @@ static StatusType calc_grid_cubic( grid_def_crs *def, double x, double y,
     int j;
     int v;
 
-    for( v = 0; v < def->ngrdval; v++ )
-    {
+    for (v = 0; v < def->ngrdval; v++) {
         value[v] = 0;
     }
-    y = (y-def->miny)/def->yres;
-    ny = (short) y;
-    if( ny < 1 || ny+2 >= def->ngrdy ) RETURN_STATUS(STS_INVALID_DATA);
-    x = (x-def->minx);
-    if( def->latlon )
-    {
-        while( x > 360.0 ) { x -= 360.0;
-}
-        while( x < 0.0 ) { x += 360.0;
-}
+    y = (y - def->miny) / def->yres;
+    ny = (short)y;
+    if (ny < 1 || ny + 2 >= def->ngrdy)
+        RETURN_STATUS(STS_INVALID_DATA);
+    x = (x - def->minx);
+    if (def->latlon) {
+        while (x > 360.0) {
+            x -= 360.0;
+        }
+        while (x < 0.0) {
+            x += 360.0;
+        }
     }
-    x = x/def->xres;
-    nx = (short) x;
-    if( !def->global && (nx < 1 || nx+2 >= def->ngrdx )) RETURN_STATUS(STS_INVALID_DATA);
-    calc_cubic_factors( y-ny, yfactor );
-    calc_cubic_factors( x-nx, xfactor );
+    x = x / def->xres;
+    nx = (short)x;
+    if (!def->global && (nx < 1 || nx + 2 >= def->ngrdx))
+        RETURN_STATUS(STS_INVALID_DATA);
+    calc_cubic_factors(y - ny, yfactor);
+    calc_cubic_factors(x - nx, xfactor);
     ny--;
-    if( nx ) { nx--;
-    } else { nx = def->ngrdx-1;
-}
-    for( i = 0; i < 4; i++ )
-    {
-        xrow[i] = nx*def->ngrdval;
-        nx++;
-        if( nx == def->ngrdx ) { nx = 0;
-}
+    if (nx) {
+        nx--;
+    } else {
+        nx = def->ngrdx - 1;
     }
-    for( i = 0; i < 4; i++, ny++ )
-    {
-        INT4 *row;
+    for (i = 0; i < 4; i++) {
+        xrow[i] = nx * def->ngrdval;
+        nx++;
+        if (nx == def->ngrdx) {
+            nx = 0;
+        }
+    }
+    for (i = 0; i < 4; i++, ny++) {
+        INT4* row;
         StatusType sts;
-        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) { continue;
-}
-        sts = get_row( def, ny, &row );
-        if( sts != STS_OK ) { return sts;
-}
-        for( v = 0; v < def->ngrdval; v++ )
-        {
+        if (yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8) {
+            continue;
+        }
+        sts = get_row(def, ny, &row);
+        if (sts != STS_OK) {
+            return sts;
+        }
+        for (v = 0; v < def->ngrdval; v++) {
             double sum = 0.0;
-            for( j = 0; j < 4; j++ )
-            {
+            for (j = 0; j < 4; j++) {
                 long rv;
-                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) { continue;
-}
-                rv = row[xrow[j]+v];
-                if( rv == def->undef ) RETURN_STATUS(STS_MISSING_DATA);
-                sum += rv*xfactor[j];
+                if (xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8) {
+                    continue;
+                }
+                rv = row[xrow[j] + v];
+                if (rv == def->undef)
+                    RETURN_STATUS(STS_MISSING_DATA);
+                sum += rv * xfactor[j];
             }
             value[v] += sum * yfactor[i];
         }
     }
-    for( v = 0; v < def->ngrdval; v++ )
-    {
+    for (v = 0; v < def->ngrdval; v++) {
         value[v] *= def->vres;
     }
 
@@ -878,18 +823,15 @@ static StatusType calc_grid_cubic( grid_def_crs *def, double x, double y,
 **************************************************************************
 */
 
-static void calc_linear_factors( double x, double f[] )
-{
+static void calc_linear_factors(double x, double f[]) {
     double x0;
     double x1;
-    x = 2*x-1;
-    x0 = x+1;
-    x1 = x-1;
-    f[0] = -x1/2;
-    f[1] = x0/2;
+    x = 2 * x - 1;
+    x0 = x + 1;
+    x1 = x - 1;
+    f[0] = -x1 / 2;
+    f[1] = x0 / 2;
 }
-
-
 
 /*************************************************************************
 ** Function name: calc_grid_linear
@@ -907,9 +849,7 @@ static void calc_linear_factors( double x, double f[] )
 **************************************************************************
 */
 
-static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
-                                    double *value)
-{
+static StatusType calc_grid_linear(grid_def_crs* def, double x, double y, double* value) {
     short ny;
     short nx;
     short xrow[2];
@@ -919,74 +859,78 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
     int j;
     int v;
 
-    for( v = 0; v < def->ngrdval; v++ )
-    {
+    for (v = 0; v < def->ngrdval; v++) {
         value[v] = 0;
     }
-    if( y < def->miny || y > def->maxy ) RETURN_STATUS(STS_CRD_RANGE_ERR);
-    y = (y-def->miny)/def->yres;
-    ny = (short) y;
-    if( ny < 0 ) { ny=0;
-}
-    if( ny >= def->ngrdy-1 ) { ny=def->ngrdy-2;
-}
-    x = (x-def->minx);
-    if( def->latlon )
-    {
-        while( x > 360.0 ) { x -= 360.0;
-}
-        while( x < 0.0 ) { x += 360.0;
-}
+    if (y < def->miny || y > def->maxy)
+        RETURN_STATUS(STS_CRD_RANGE_ERR);
+    y = (y - def->miny) / def->yres;
+    ny = (short)y;
+    if (ny < 0) {
+        ny = 0;
     }
-    if( ! def->global && x > (def->maxx-def->minx)) RETURN_STATUS(STS_CRD_RANGE_ERR);
-    x = x/def->xres;
-    nx = (short) x;
-    if( nx < 0 ) { nx=0;
-}
-    if( nx >= def->ngrdx-1 ) { nx=def->ngrdx-2;
-}
-    calc_linear_factors( y-ny, yfactor );
-    calc_linear_factors( x-nx, xfactor );
+    if (ny >= def->ngrdy - 1) {
+        ny = def->ngrdy - 2;
+    }
+    x = (x - def->minx);
+    if (def->latlon) {
+        while (x > 360.0) {
+            x -= 360.0;
+        }
+        while (x < 0.0) {
+            x += 360.0;
+        }
+    }
+    if (!def->global && x > (def->maxx - def->minx))
+        RETURN_STATUS(STS_CRD_RANGE_ERR);
+    x = x / def->xres;
+    nx = (short)x;
+    if (nx < 0) {
+        nx = 0;
+    }
+    if (nx >= def->ngrdx - 1) {
+        nx = def->ngrdx - 2;
+    }
+    calc_linear_factors(y - ny, yfactor);
+    calc_linear_factors(x - nx, xfactor);
 
-    for( i = 0; i < 2; i++ )
-    {
-        xrow[i] = nx*def->ngrdval;
+    for (i = 0; i < 2; i++) {
+        xrow[i] = nx * def->ngrdval;
         nx++;
-        if( nx == def->ngrdx ) { nx = 0;
-}
+        if (nx == def->ngrdx) {
+            nx = 0;
+        }
     }
-    for( i = 0; i < 2; i++, ny++ )
-    {
-        INT4 *row;
+    for (i = 0; i < 2; i++, ny++) {
+        INT4* row;
         StatusType sts;
-        if( yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8 ) { continue;
-}
-        sts = get_row( def, ny, &row );
-        if( sts != STS_OK ) { return sts;
-}
-        for( v = 0; v < def->ngrdval; v++ )
-        {
+        if (yfactor[i] < 1.0e-8 && yfactor[i] >= -1.0e-8) {
+            continue;
+        }
+        sts = get_row(def, ny, &row);
+        if (sts != STS_OK) {
+            return sts;
+        }
+        for (v = 0; v < def->ngrdval; v++) {
             double sum = 0.0;
-            for( j = 0; j < 2; j++ )
-            {
+            for (j = 0; j < 2; j++) {
                 long rv;
-                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) { continue;
-}
-                rv = row[xrow[j]+v];
-                if( rv == def->undef ) RETURN_STATUS(STS_MISSING_DATA);
-                sum += rv*xfactor[j];
+                if (xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8) {
+                    continue;
+                }
+                rv = row[xrow[j] + v];
+                if (rv == def->undef)
+                    RETURN_STATUS(STS_MISSING_DATA);
+                sum += rv * xfactor[j];
             }
             value[v] += sum * yfactor[i];
         }
     }
-    for( v = 0; v < def->ngrdval; v++ )
-    {
+    for (v = 0; v < def->ngrdval; v++) {
         value[v] *= def->vres;
     }
     return STS_OK;
 }
-
-
 
 /*************************************************************************
 ** Function name: grid_def_from_handle
@@ -1001,14 +945,15 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
 **************************************************************************
 */
 
-static grid_def_crs * grid_def_from_handle( void *handle)
-{
-    grid_def_crs *def;
-    if( ! handle ) { return nullptr;
-}
-    def = (grid_def_crs *) handle;
-    if( def->magic != MAGIC_NUMBER ) { return nullptr;
-}
+static grid_def_crs* grid_def_from_handle(void* handle) {
+    grid_def_crs* def;
+    if (!handle) {
+        return nullptr;
+    }
+    def = (grid_def_crs*)handle;
+    if (def->magic != MAGIC_NUMBER) {
+        return nullptr;
+    }
     return def;
 }
 
@@ -1028,17 +973,16 @@ static grid_def_crs * grid_def_from_handle( void *handle)
 **************************************************************************
 */
 
-StatusType utlCreateGrid( hBinSrc binsrc, hGrid *grid)
-{
-    grid_def_crs *def;
+StatusType utlCreateGrid(hBinSrc binsrc, hGrid* grid) {
+    grid_def_crs* def;
     StatusType sts;
     *grid = nullptr;
-    sts = create_grid_def( &def, binsrc );
-    if( sts == STS_OK ) { *grid =  (void *) def;
-}
+    sts = create_grid_def(&def, binsrc);
+    if (sts == STS_OK) {
+        *grid = (void*)def;
+    }
     return sts;
 }
-
 
 /*************************************************************************
 ** Function name: utlReleaseGrid
@@ -1052,15 +996,14 @@ StatusType utlCreateGrid( hBinSrc binsrc, hGrid *grid)
 **************************************************************************
 */
 
-StatusType utlReleaseGrid( hGrid grid)
-{
-    grid_def_crs *def;
-    def = grid_def_from_handle( grid );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
+StatusType utlReleaseGrid(hGrid grid) {
+    grid_def_crs* def;
+    def = grid_def_from_handle(grid);
+    if (!def)
+        RETURN_STATUS(STS_INVALID_HANDLE);
     delete_grid_def(def);
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: utlGridVectorDimension
@@ -1076,15 +1019,14 @@ StatusType utlReleaseGrid( hGrid grid)
 **************************************************************************
 */
 
-StatusType utlGridVectorDimension( hGrid grid, int *dimension)
-{
-    grid_def_crs *def;
-    def = grid_def_from_handle( grid );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
+StatusType utlGridVectorDimension(hGrid grid, int* dimension) {
+    grid_def_crs* def;
+    def = grid_def_from_handle(grid);
+    if (!def)
+        RETURN_STATUS(STS_INVALID_HANDLE);
     *dimension = def->ngrdval;
     return STS_OK;
 }
-
 
 /*************************************************************************
 ** Function name: utlCalcGridLinear
@@ -1104,23 +1046,21 @@ StatusType utlGridVectorDimension( hGrid grid, int *dimension)
 **************************************************************************
 */
 
-StatusType utlCalcGridLinear( hGrid grid, double x, double y, double *value)
-{
-    grid_def_crs *def;
+StatusType utlCalcGridLinear(hGrid grid, double x, double y, double* value) {
+    grid_def_crs* def;
     StatusType sts;
-    def = grid_def_from_handle( grid );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
+    def = grid_def_from_handle(grid);
+    if (!def)
+        RETURN_STATUS(STS_INVALID_HANDLE);
 
-    sts = calc_grid_linear( def, x, y, value );
+    sts = calc_grid_linear(def, x, y, value);
 
-    TRACE_GRID(("utlCalcGridLinear: %10.5lf %10.5lf value %12.8lf",x,y,*value));
-    if( def->ngrdval > 1)
-    {
-        TRACE_GRID(("utlCalcGridLinear: %27s %12.8f","",value[1]));
+    TRACE_GRID(("utlCalcGridLinear: %10.5lf %10.5lf value %12.8lf", x, y, *value));
+    if (def->ngrdval > 1) {
+        TRACE_GRID(("utlCalcGridLinear: %27s %12.8f", "", value[1]));
     }
     return sts;
 }
-
 
 /*************************************************************************
 ** Function name: utlCalcGridCubic
@@ -1140,21 +1080,19 @@ StatusType utlCalcGridLinear( hGrid grid, double x, double y, double *value)
 **************************************************************************
 */
 
-StatusType utlCalcGridCubic( hGrid grid, double x, double y, double *value)
-{
-    grid_def_crs *def;
+StatusType utlCalcGridCubic(hGrid grid, double x, double y, double* value) {
+    grid_def_crs* def;
     StatusType sts;
 
-    def = grid_def_from_handle( grid );
-    if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
+    def = grid_def_from_handle(grid);
+    if (!def)
+        RETURN_STATUS(STS_INVALID_HANDLE);
 
-    sts = calc_grid_cubic( def, x, y, value );
+    sts = calc_grid_cubic(def, x, y, value);
 
-    TRACE_GRID(("utlCalcGridCubic: %10.5lf %10.5lf value %12.8lf",x,y,*value));
-    if( def->ngrdval > 1)
-    {
-        TRACE_GRID(("utlCalcGridCubic: %27s %12.8f","",value[1]));
+    TRACE_GRID(("utlCalcGridCubic: %10.5lf %10.5lf value %12.8lf", x, y, *value));
+    if (def->ngrdval > 1) {
+        TRACE_GRID(("utlCalcGridCubic: %27s %12.8f", "", value[1]));
     }
     return sts;
 }
-

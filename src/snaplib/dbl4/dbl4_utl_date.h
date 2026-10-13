@@ -17,17 +17,16 @@
 #include "dbl4_types.h"
 #endif
 
-void utlSetDate( DateTimeType *dt, int year, int month, int day);
+void utlSetDate(DateTimeType* dt, int year, int month, int day);
 
-void utlSetDateTime( DateTimeType *dt, int year, int month, int day, int hour,
-                     int min, float sec);
+void utlSetDateTime(DateTimeType* dt, int year, int month, int day, int hour, int min, float sec);
 
-void utlCopyDate( DateTimeType *tgt, DateTimeType *src);
+void utlCopyDate(DateTimeType* tgt, DateTimeType* src);
 
-int utlCompareDate( DateTimeType *dt1, DateTimeType *dt2 );
+int utlCompareDate(DateTimeType* dt1, DateTimeType* dt2);
 
-int utlIsLeapYear( int date );
+int utlIsLeapYear(int date);
 
-double utlDateAsYear( DateTimeType *date );
+double utlDateAsYear(DateTimeType* date);
 
 #endif /* DBL4_UTL_DATE_H not defined */

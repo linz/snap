@@ -8,14 +8,13 @@
 #include "snap/snapglob.h"
 //}
 
-class ErrorOptionsDialog : public wxSimpleDialog
-{
-public:
-    ErrorOptionsDialog( wxHelpController *help = nullptr );
+class ErrorOptionsDialog : public wxSimpleDialog {
+ public:
+    ErrorOptionsDialog(wxHelpController* help = nullptr);
     void ReadData() override;
     void Apply() override;
 
-private:
+ private:
     int aPosteriori;
     int useConfLimit;
     double confLimit;
@@ -25,31 +24,23 @@ private:
     bool vrtAutoScale;
 };
 
-ErrorOptionsDialog::ErrorOptionsDialog( wxHelpController *help )
-    : wxSimpleDialog("Error options")
-{
-    AddRadioBox("For all errors and standardised residuals", aPosteriori,
-                "|Ap&riori errors|&Aposteriori errors" );
+ErrorOptionsDialog::ErrorOptionsDialog(wxHelpController* help) : wxSimpleDialog("Error options") {
+    AddRadioBox("For all errors and standardised residuals", aPosteriori, "|Ap&riori errors|&Aposteriori errors");
     AddSpacer();
     AddLabel("For coordinate error ellipses and height errors");
-    AddRadioBox("",useConfLimit,"|&Standard errors|&Confidence limits");
-    AddNumberBox("C&onfidence level (percent) or SE multipl",confLimit,true,3);
+    AddRadioBox("", useConfLimit, "|&Standard errors|&Confidence limits");
+    AddNumberBox("C&onfidence level (percent) or SE multipl", confLimit, true, 3);
     AddSpacer();
-    AddControls(3,
-                Label("&Horizontal error exaggeration"),
-                NumberBox( horErrorFactor,true,1),
-                CheckBox( "&Autoscale", horAutoScale ),
-                Label("&Vertical error exaggeration"),
-                NumberBox( vrtErrorFactor,true,1),
-                CheckBox( "A&utoscale", vrtAutoScale ),
-                0);
+    AddControls(3, Label("&Horizontal error exaggeration"), NumberBox(horErrorFactor, true, 1),
+                CheckBox("&Autoscale", horAutoScale), Label("&Vertical error exaggeration"),
+                NumberBox(vrtErrorFactor, true, 1), CheckBox("A&utoscale", vrtAutoScale), 0);
     AddButtonsAndSize();
-    if( help ) { SetupHelp( help,  HELPBASE "dlg_error_options.html"  );
-}
+    if (help) {
+        SetupHelp(help, HELPBASE "dlg_error_options.html");
+    }
 }
 
-void ErrorOptionsDialog::ReadData()
-{
+void ErrorOptionsDialog::ReadData() {
     aPosteriori = apriori ? 0 : 1;
     useConfLimit = errconflim ? 1 : 0;
     confLimit = errconfval;
@@ -58,31 +49,30 @@ void ErrorOptionsDialog::ReadData()
 
     double scl;
     int autoscl;
-    get_errell_exaggeration( &scl, &autoscl );
+    get_errell_exaggeration(&scl, &autoscl);
     horAutoScale = (autoscl != 0);
-    get_hgterr_exaggeration( &scl, &autoscl );
+    get_hgterr_exaggeration(&scl, &autoscl);
     vrtAutoScale = (autoscl != 0);
 }
 
-void ErrorOptionsDialog::Apply()
-{
-    apriori=aPosteriori ? 0 : 1;
-    errconflim=useConfLimit ? 1 : 0;
-    errconfval=confLimit;
+void ErrorOptionsDialog::Apply() {
+    apriori = aPosteriori ? 0 : 1;
+    errconflim = useConfLimit ? 1 : 0;
+    errconfval = confLimit;
     set_confidence_limit();
     double scl = horErrorFactor;
-    if( horAutoScale ) { scl = 1.1 * scl / calc_default_error_scale();
-}
-    set_errell_exaggeration( scl, horAutoScale ? 1 : 0 );
+    if (horAutoScale) {
+        scl = 1.1 * scl / calc_default_error_scale();
+    }
+    set_errell_exaggeration(scl, horAutoScale ? 1 : 0);
     scl = vrtErrorFactor;
-    if( vrtAutoScale ) { scl = 1.1 * scl / calc_default_height_error_scale();
-}
-    set_hgterr_exaggeration( scl, vrtAutoScale ? 1 : 0 );
+    if (vrtAutoScale) {
+        scl = 1.1 * scl / calc_default_height_error_scale();
+    }
+    set_hgterr_exaggeration(scl, vrtAutoScale ? 1 : 0);
 }
 
-
-bool SetupErrorOptions( wxHelpController *help )
-{
-    ErrorOptionsDialog dlg( help );
+bool SetupErrorOptions(wxHelpController* help) {
+    ErrorOptionsDialog dlg(help);
     return dlg.RunDialog();
 }

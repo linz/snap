@@ -16,24 +16,24 @@
 
 #define SECTION_NAME "Network"
 
-void dump_network_to_bin( network *net, BINARY_FILE *b )
-{
-    create_section( b, SECTION_NAME );
-    dump_network( net, b->f );
-    end_section( b );
+void dump_network_to_bin(network* net, BINARY_FILE* b) {
+    create_section(b, SECTION_NAME);
+    dump_network(net, b->f);
+    end_section(b);
 }
 
-int reload_network_from_bin( network *net, BINARY_FILE *b )
-{
-    network *nt;
+int reload_network_from_bin(network* net, BINARY_FILE* b) {
+    network* nt;
 
-    if( find_section( b, SECTION_NAME ) != OK ) { return MISSING_DATA;
-}
+    if (find_section(b, SECTION_NAME) != OK) {
+        return MISSING_DATA;
+    }
 
-    nt = reload_network( b->f );
+    nt = reload_network(b->f);
 
-    if( !nt || check_end_section(b) != OK ) { return INVALID_DATA;
-}
+    if (!nt || check_end_section(b) != OK) {
+        return INVALID_DATA;
+    }
 
     /* Move the globals read in to the network structure supplied. net is
        always freshly-constructed here (every real caller does
@@ -44,9 +44,8 @@ int reload_network_from_bin( network *net, BINARY_FILE *b )
        (empty) state afterward, safe to delete, while net ends up the
        sole owner of nt's real data. */
 
-    std::swap( *net, *nt );
+    std::swap(*net, *nt);
     delete nt;
 
     return OK;
 }
-

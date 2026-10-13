@@ -5,6 +5,6 @@
 
 #include "snap/deform.h"
 
-int create_grid_deformation( deformation_model **model, const std::string &pmodel, double pepoch );
+int create_grid_deformation(deformation_model** model, const std::string& pmodel, double pepoch);
 
 #endif

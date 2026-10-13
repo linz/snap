@@ -22,9 +22,8 @@
 #endif
 
 #define PROG_TEMP_MSG -1
-#define PROG_NO_BAR   -2
+#define PROG_NO_BAR -2
 
-StatusType utlShowProgress( std::string_view state, int percent );
+StatusType utlShowProgress(std::string_view state, int percent);
 
 #endif
-

@@ -8,31 +8,26 @@
 #include "resources/snap32_icon.xpm"
 #endif
 
-class SnapplotLoadLogger : public wxLog
-{
-public:
-    SnapplotLoadLogger( SnapplotLoadLog *logWindow );
-    void DoLogText(const wxString &msg) override;
-private:
-    SnapplotLoadLog *logWindow;
+class SnapplotLoadLogger : public wxLog {
+ public:
+    SnapplotLoadLogger(SnapplotLoadLog* logWindow);
+    void DoLogText(const wxString& msg) override;
 
+ private:
+    SnapplotLoadLog* logWindow;
 };
 
-SnapplotLoadLogger::SnapplotLoadLogger( SnapplotLoadLog *logWindow ) :
-    logWindow( logWindow )
-{
-}
+SnapplotLoadLogger::SnapplotLoadLogger(SnapplotLoadLog* logWindow) : logWindow(logWindow) {}
 
-void SnapplotLoadLogger::DoLogText(const wxString &msg)
-{
+void SnapplotLoadLogger::DoLogText(const wxString& msg) {
     // put the text into our window
-    wxTextCtrl *pText = logWindow->logText;
+    wxTextCtrl* pText = logWindow->logText;
 
     // remove selection (WriteText is in fact ReplaceSelection)
 #ifdef __WXMSW__
     wxTextPos nLen = pText->GetLastPosition();
     pText->SetSelection(nLen, nLen);
-#endif // Windows
+#endif  // Windows
 
     pText->AppendText(msg);
     pText->AppendText("\n");
@@ -43,35 +38,34 @@ void SnapplotLoadLogger::DoLogText(const wxString &msg)
 
 /////////////////////////////////////////////////////////////////////////////
 
-BEGIN_EVENT_TABLE( SnapplotLoadLog, wxFrame )
-    EVT_BUTTON( wxID_CLOSE, SnapplotLoadLog::OnCloseButton )
-    EVT_CLOSE( SnapplotLoadLog::OnClose )
+BEGIN_EVENT_TABLE(SnapplotLoadLog, wxFrame)
+EVT_BUTTON(wxID_CLOSE, SnapplotLoadLog::OnCloseButton)
+EVT_CLOSE(SnapplotLoadLog::OnClose)
 END_EVENT_TABLE()
 
-SnapplotLoadLog::SnapplotLoadLog() :
-    wxFrame( nullptr, wxID_ANY, "Loading Snapplot ... ", wxDefaultPosition, wxDefaultSize )
-{
+SnapplotLoadLog::SnapplotLoadLog()
+    : wxFrame(nullptr, wxID_ANY, "Loading Snapplot ... ", wxDefaultPosition, wxDefaultSize) {
     logging = false;
 
-    SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNFACE ) );
+    SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE));
     wxIconBundle icons;
 #ifdef __WXMSW__
     // snap.ico embeds 16/32/48/256px frames (for a crisp Explorer/shortcut icon), so an
     // explicit size is needed here to still get a distinct small and large icon -
     // wxICON()'s default load just returns whichever frame matches the system's
     // standard large-icon size for both calls.
-    icons.AddIcon( wxIcon(wxT("ICO_SNAP16"), wxBITMAP_TYPE_ICO_RESOURCE, 16, 16) );
-    icons.AddIcon( wxIcon(wxT("ICO_SNAP32"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32) );
+    icons.AddIcon(wxIcon(wxT("ICO_SNAP16"), wxBITMAP_TYPE_ICO_RESOURCE, 16, 16));
+    icons.AddIcon(wxIcon(wxT("ICO_SNAP32"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32));
 #else
-    icons.AddIcon( wxIcon(wxICON(ICO_SNAP16)) );
-    icons.AddIcon( wxIcon(wxICON(ICO_SNAP32)) );
+    icons.AddIcon(wxIcon(wxICON(ICO_SNAP16)));
+    icons.AddIcon(wxIcon(wxICON(ICO_SNAP32)));
 #endif
-    SetIcons( icons );
+    SetIcons(icons);
 
     wxSizerFlags flags1;
     flags1.Border();
 
-    wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
     /*
     wxBitmap bmpSplash(wxBITMAP(IDB_SPLASHSCREEN));
@@ -79,73 +73,67 @@ SnapplotLoadLog::SnapplotLoadLog() :
     sizer->AddSpacer( GetCharHeight() );
     */
 
-
     logText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition,
-                             wxSize( GetCharWidth()*80, GetCharHeight()*20 ),
-                             wxTE_MULTILINE  |
-                             wxHSCROLL       |
-                             // needed for Win32 to avoid 65Kb limit but it doesn't work well
-                             // when using RichEdit 2.0 which we always do in the Unicode build
+                             wxSize(GetCharWidth() * 80, GetCharHeight() * 20),
+                             wxTE_MULTILINE | wxHSCROLL |
+    // needed for Win32 to avoid 65Kb limit but it doesn't work well
+    // when using RichEdit 2.0 which we always do in the Unicode build
 #if !wxUSE_UNICODE
-                             wxTE_RICH       |
-#endif // !wxUSE_UNICODE
-                             wxTE_READONLY);
+                                 wxTE_RICH |
+#endif  // !wxUSE_UNICODE
+                                 wxTE_READONLY);
 
-    textLog = new SnapplotLoadLogger( this );
+    textLog = new SnapplotLoadLogger(this);
 
     wxSizerFlags flags2;
     flags2.Expand().Border().Proportion(1);
-    sizer->Add( logText, flags2 );
-    sizer->AddSpacer( GetCharHeight() );
+    sizer->Add(logText, flags2);
+    sizer->AddSpacer(GetCharHeight());
 
     flags1.Right();
-    closeButton = new wxButton( this, wxID_CLOSE );
-    sizer->Add( closeButton, flags1 );
+    closeButton = new wxButton(this, wxID_CLOSE);
+    sizer->Add(closeButton, flags1);
 
-    SetSizerAndFit( sizer );
+    SetSizerAndFit(sizer);
 }
 
-SnapplotLoadLog::~SnapplotLoadLog()
-{
+SnapplotLoadLog::~SnapplotLoadLog() {
     EndLogging();
     delete textLog;
 }
 
-void SnapplotLoadLog::StartLogging()
-{
-    if( logging ) { return;
-}
+void SnapplotLoadLog::StartLogging() {
+    if (logging) {
+        return;
+    }
     logging = true;
-    closeButton->Enable( false );
-    oldLog = wxLog::SetActiveTarget( textLog );
+    closeButton->Enable(false);
+    oldLog = wxLog::SetActiveTarget(textLog);
 }
 
-void SnapplotLoadLog::EndLogging()
-{
-    if( ! logging ) { return;
-}
+void SnapplotLoadLog::EndLogging() {
+    if (!logging) {
+        return;
+    }
     logging = false;
-    closeButton->Enable( true );
-    wxLog::SetActiveTarget( oldLog );
+    closeButton->Enable(true);
+    wxLog::SetActiveTarget(oldLog);
 }
 
-void SnapplotLoadLog::OnCloseButton( wxCommandEvent & WXUNUSED(event) )
-{
-    if( ! logging ) { Close();
-}
+void SnapplotLoadLog::OnCloseButton(wxCommandEvent& WXUNUSED(event)) {
+    if (!logging) {
+        Close();
+    }
 }
 
 // Event table handler: wxWidgets casts it to a non-const member function type, so it cannot be const
 // NOLINTNEXTLINE(readability-make-member-function-const)
-void SnapplotLoadLog::OnClose( wxCloseEvent &event )
-{
-    if( logging && event.CanVeto() )
-    {
+void SnapplotLoadLog::OnClose(wxCloseEvent& event) {
+    if (logging && event.CanVeto()) {
         event.Veto();
         return;
     }
-    
-            // Pass back ..
-        event.Skip();
-   
+
+    // Pass back ..
+    event.Skip();
 }

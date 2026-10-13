@@ -8,17 +8,16 @@
 
 */
 
-struct GnomicProjection
-{
-    double orglat, orglon;  /* Origin of coords */
-    double fe, fn;          /* False easting and northing */
-    double a;               /* Radius of sphere */
+struct GnomicProjection {
+    double orglat, orglon; /* Origin of coords */
+    double fe, fn;         /* False easting and northing */
+    double a;              /* Radius of sphere */
     double csolt, snolt;
 };
 
-void define_gnomic_projection( GnomicProjection *gp, double a, double rf,
-                               double orglat, double orglon, double fe, double fn );
-void gnomic_geod( GnomicProjection *gp, double ce, double cn, double *lat, double *lon);
-void geod_gnomic( GnomicProjection *gp, double lat, double lon, double *ce, double *cn );
+void define_gnomic_projection(GnomicProjection* gp, double a, double rf, double orglat, double orglon, double fe,
+                              double fn);
+void gnomic_geod(GnomicProjection* gp, double ce, double cn, double* lat, double* lon);
+void geod_gnomic(GnomicProjection* gp, double lat, double lon, double* ce, double* cn);
 
 #endif

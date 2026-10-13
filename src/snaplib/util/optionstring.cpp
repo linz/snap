@@ -6,101 +6,85 @@
 
 #include "util/optionstring.hpp"
 
-namespace LINZ
-{
+namespace LINZ {
 
-OptionString::OptionString( const std::string &options )
-{
+OptionString::OptionString(const std::string& options) {
     _load(options);
 }
 
-void OptionString::_load( const std::string &options )
-{
+void OptionString::_load(const std::string& options) {
     _options.clear();
     _invalid.clear();
 
-    RGX::regex const re(
-        "\\s*"   // Optional initial whitespace
+    const RGX::regex re(
+        "\\s*"  // Optional initial whitespace
         "(?:"
         "\\-([a-z_]\\w*)"  // negated option
         "|"
-        "([a-z_]\\w+)\\=" // start of option
+        "([a-z_]\\w+)\\="  // start of option
         "(?:"
-        "([^\\s\\\"]+)"                       // unquoted value
+        "([^\\s\\\"]+)"  // unquoted value
         "|"
-        "(?:\\\"((?:[^\\\"]|\\\"\\\")*)\\\")" // or quoted value
-        ")"                 // end of option, space or end of string
+        "(?:\\\"((?:[^\\\"]|\\\"\\\")*)\\\")"  // or quoted value
+        ")"                                    // end of option, space or end of string
         "|"
-        "(\\S+)"              // Catchall for invalid data
-        ")(?:\\s|$)",          // Terminator
-        RGX::regex_constants::icase
-    );
+        "(\\S+)"       // Catchall for invalid data
+        ")(?:\\s|$)",  // Terminator
+        RGX::regex_constants::icase);
     RGX::sregex_iterator match(options.begin(), options.end(), re);
-    RGX::sregex_iterator const end;
-    for( ; match != end; match++ )
-    {
+    const RGX::sregex_iterator end;
+    for (; match != end; match++) {
         bool valid = true;
         std::string key;
         std::string value;
 
         // Negated option
-        if( (*match)[1].length() > 0 )
-        {
+        if ((*match)[1].length() > 0) {
             key = (*match)[1];
             value = "N";
         }
         // Normal option
-        else if( (*match)[2].length() > 0 )
-        {
+        else if ((*match)[2].length() > 0) {
             key = (*match)[2];
             // Unquoted
-            if( (*match)[3].length() > 0 )
-            {
+            if ((*match)[3].length() > 0) {
                 value = (*match)[3];
             }
             // Quoted
-            else
-            {
-                value = RGX::regex_replace( (*match)[4].str(),RGX::regex("\\\"\\\""),std::string("\""));
+            else {
+                value = RGX::regex_replace((*match)[4].str(), RGX::regex("\\\"\\\""), std::string("\""));
             }
-        }
-        else
-        {
+        } else {
             valid = false;
         }
-        if( valid )
-        {
-            boost::to_lower( key );
+        if (valid) {
+            boost::to_lower(key);
             valid = _options.find(key) == _options.end();
-            if( valid ) { _options.insert( std::pair<const std::string, const std::string>(key,value));
-}
+            if (valid) {
+                _options.insert(std::pair<const std::string, const std::string>(key, value));
+            }
         }
-        if( ! valid )
-        {
-            _invalid.push_back( (*match)[0] );
+        if (!valid) {
+            _invalid.push_back((*match)[0]);
         }
     }
 }
 
-bool OptionString::defines( const std::string &option )
-{
-   std::string key = option;
-   boost::to_lower( key );
-   return _options.find(key) != _options.end();
+bool OptionString::defines(const std::string& option) {
+    std::string key = option;
+    boost::to_lower(key);
+    return _options.find(key) != _options.end();
 }
 
-const std::string &OptionString::valueOf( const std::string &option, const std::string &dflt ) const
-{
+const std::string& OptionString::valueOf(const std::string& option, const std::string& dflt) const {
     std::string key = option;
-    boost::to_lower( key );
+    boost::to_lower(key);
     auto match = _options.find(key);
-    if( match != _options.end())
-    {
+    if (match != _options.end()) {
         return match->second;
     }
-    
-            return dflt;
-   
+
+    return dflt;
 }
 
 }  // End of namespace LINZ

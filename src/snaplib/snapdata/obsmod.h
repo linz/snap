@@ -20,12 +20,12 @@
 #include <string>
 #include <string_view>
 
-#define OBS_MOD_IGNORE   1
-#define OBS_MOD_REJECT   2
+#define OBS_MOD_IGNORE 1
+#define OBS_MOD_REJECT 2
 #define OBS_MOD_REWEIGHT 4
 #define OBS_MOD_REWEIGHT_SET 8
-#define OBS_MOD_SET_OPTION  16 
-#define OBS_MOD_UNSET_OPTION  32 
+#define OBS_MOD_SET_OPTION 16
+#define OBS_MOD_UNSET_OPTION 32
 #define OBS_MOD_OFFSET_ERROR 64
 #define OBS_MOD_CENTROID_ERROR 128
 #define OBS_MOD_ANTENNA_OFFSET 256
@@ -34,28 +34,31 @@
  * so must remain valid for as long as the obs_modifications are used.
  */
 
-void *new_obs_modifications( network *nw, classifications *obs_classes );
-void delete_obs_modifications( void *obsmod );
-void set_obs_modifications_network( void *obsmod, network *nw );
+void* new_obs_modifications(network* nw, classifications* obs_classes);
+void delete_obs_modifications(void* obsmod);
+void set_obs_modifications_network(void* obsmod, network* nw);
 
 /* Crude fix to avoid snapdata dependency on snap.  Would be nicer with environment pointer.
  * For C++ rewrite! */
 
-using fileid_func = int (*)(std::string_view filename, file_context *context);
+using fileid_func = int (*)(std::string_view filename, file_context* context);
 using filename_func = std::string (*)(int ifile);
-void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc, filename_func namefunc );
+void set_obs_modifications_file_func(void* obsmod, fileid_func idfunc, filename_func namefunc);
 
 /* Add modifications based on a string specifying multiple criteria */
-int add_obs_modifications( CFG_FILE *cfg, void *obsmod, std::string_view modifications, int action, double errval1, double errval2 );
+int add_obs_modifications(CFG_FILE* cfg, void* obsmod, std::string_view modifications, int action, double errval1,
+                          double errval2);
 
 /* Set or unset observation modifications */
-int add_obs_option_modification( CFG_FILE *cfg, void *obsmod, std::string_view criteria, int set, int option );
+int add_obs_option_modification(CFG_FILE* cfg, void* obsmod, std::string_view criteria, int set, int option);
 
 /* Add modifications criteria based on a classification name and list of values */
-int add_obs_modifications_classification( CFG_FILE *cfg, void *obsmod, std::string_view classification, std::string_view value, int action, double err_factor, int missing_error );
+int add_obs_modifications_classification(CFG_FILE* cfg, void* obsmod, std::string_view classification,
+                                         std::string_view value, int action, double err_factor, int missing_error);
 
 /* Add modifications for data file error factor */
-int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *obsmod, int fileid, const std::string &filename, double factor );
+int add_obs_modifications_datafile_factor(CFG_FILE* cfg, void* obsmod, int fileid, const std::string& filename,
+                                          double factor);
 
 /* Determine the observation stations based upon the criteria.  Returns a flag specifying 
  * ignoring, rejecting, and reweighting observations, and the error factor
@@ -64,17 +67,17 @@ int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *obsmod, int file
  *
  * Returns the number of observations ignored by the modifications, or 0 if none removed
  */
-int apply_obs_modifications( void *obsmod, survdata *sd );
+int apply_obs_modifications(void* obsmod, survdata* sd);
 
 /* Check if a data file is to be completely ignored */
-bool obsmod_ignore_datafile( void *obsmod, int file_id );
+bool obsmod_ignore_datafile(void* obsmod, int file_id);
 
 /* Check if there are errors in observation modification station criteria - 
  * should be run after applying observation modifications (once station recoding
  * has already been done. */
-int check_obsmod_station_criteria_codes( void *pobsmod, network *nw );
+int check_obsmod_station_criteria_codes(void* pobsmod, network* nw);
 
 /* Summarise the observation modifications */
-void summarize_obs_modifications( void *obsmod, FILE *lst, const std::string &prefix );
+void summarize_obs_modifications(void* obsmod, FILE* lst, const std::string& prefix);
 
 #endif /* _OBSMOD_HPP */

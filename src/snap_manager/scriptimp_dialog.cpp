@@ -7,72 +7,57 @@
 
 using namespace Scripter;
 
-class ScriptDialogControl
-{
-public:
-    DialogControlToken *token;
-    wxWindow *control;
+class ScriptDialogControl {
+ public:
+    DialogControlToken* token;
+    wxWindow* control;
     Value initValue;
     bool boolVal;
     int intVal;
     wxString stringVal;
     wxString selector;
-    ScriptDialogControl() :
-        token(nullptr),
-        control(nullptr),
-        boolVal(false),
-        intVal(0),
-        stringVal(""),
-        selector("")
-    {}
+    ScriptDialogControl() : token(nullptr), control(nullptr), boolVal(false), intVal(0), stringVal(""), selector("") {}
 };
 
-class ScriptDialog : public wxSimpleDialog
-{
-public:
-    ScriptDialog( const wxString& label, Token *controls, long buttons );
+class ScriptDialog : public wxSimpleDialog {
+ public:
+    ScriptDialog(const wxString& label, Token* controls, long buttons);
     ~ScriptDialog() override;
     void ResetInitialValues();
 
-protected:
+ protected:
     void ReadData() override;
     void Apply() override;
 
-protected:
+ protected:
     bool Validate() override;
 
-private:
+ private:
     void AddControls();
-    wxString GetSelectorString( const wxString& selectorDefe );
-    int GetSelectedIndex( const wxString& selectorDef, const wxString& selected );
-    wxString GetSelectedValue( const wxString& selectorDef, int selected );
-    void HandleButton( wxEvent &event );
-    bool RunDialogProgram( Token *program, bool isValidation );
+    wxString GetSelectorString(const wxString& selectorDefe);
+    int GetSelectedIndex(const wxString& selectorDef, const wxString& selected);
+    wxString GetSelectedValue(const wxString& selectorDef, int selected);
+    void HandleButton(wxEvent& event);
+    bool RunDialogProgram(Token* program, bool isValidation);
     int nControls;
-    ScriptDialogControl *controls;
-    Value *initValues;
-
+    ScriptDialogControl* controls;
+    Value* initValues;
 };
 
-ScriptDialog::ScriptDialog( const wxString& label, Token *controllist, long buttons )
-    : wxSimpleDialog( label, buttons )
-{
+ScriptDialog::ScriptDialog(const wxString& label, Token* controllist, long buttons) : wxSimpleDialog(label, buttons) {
     controls = nullptr;
     nControls = controllist->Count();
-    if( nControls > 0 )
-    {
+    if (nControls > 0) {
         controls = new ScriptDialogControl[nControls];
 
-        DialogControlToken *ctk = static_cast<DialogControlToken *>(controllist);
-        for( int i = 0; i < nControls; i++ )
-        {
-            ScriptDialogControl &ctrl = controls[i];
+        DialogControlToken* ctk = static_cast<DialogControlToken*>(controllist);
+        for (int i = 0; i < nControls; i++) {
+            ScriptDialogControl& ctrl = controls[i];
             ctrl.token = ctk;
-            if( ctk->Variable() )
-            {
-                ctk->Variable()->GetValue( ctrl.initValue );
+            if (ctk->Variable()) {
+                ctk->Variable()->GetValue(ctrl.initValue);
             }
-            ctk = static_cast<DialogControlToken *>(ctk->Next());
+            ctk = static_cast<DialogControlToken*>(ctk->Next());
         }
     }
 
@@ -80,33 +65,27 @@ ScriptDialog::ScriptDialog( const wxString& label, Token *controllist, long butt
     AddButtonsAndSize();
 }
 
-ScriptDialog::~ScriptDialog()
-{
-    if( nControls > 0 )
-    {
-        delete [] controls;
+ScriptDialog::~ScriptDialog() {
+    if (nControls > 0) {
+        delete[] controls;
     }
 }
 
-void ScriptDialog::ResetInitialValues()
-{
-    for( int i = 0; i < nControls; i++ )
-    {
-        if( controls[i].token->Variable() )
-        {
-            controls[i].token->Variable()->SetOwnerValue( controls[i].initValue );
+void ScriptDialog::ResetInitialValues() {
+    for (int i = 0; i < nControls; i++) {
+        if (controls[i].token->Variable()) {
+            controls[i].token->Variable()->SetOwnerValue(controls[i].initValue);
         }
     }
 }
 
-void ScriptDialog::AddControls()
-{
+void ScriptDialog::AddControls() {
     wxString label;
     wxString info;
     wxString selector;
-    wxBoxSizer *rows = new wxBoxSizer( wxVERTICAL );
-    wxBoxSizer *columns = new wxBoxSizer( wxHORIZONTAL );
-    wxBoxSizer *sizer = new wxBoxSizer( wxVERTICAL );
+    wxBoxSizer* rows = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* columns = new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     rows->Add(columns);
     columns->Add(sizer);
 
@@ -114,13 +93,11 @@ void ScriptDialog::AddControls()
 
     sizerFlags.Left();
     // sizerFlags.Expand();
-    sizerFlags.Border( wxLEFT | wxRIGHT );
+    sizerFlags.Border(wxLEFT | wxRIGHT);
 
-    for( int i = 0; i < nControls; i++ )
-    {
-
-        ScriptDialogControl &control = controls[i];
-        DialogControlToken &ctk = *(control.token);
+    for (int i = 0; i < nControls; i++) {
+        ScriptDialogControl& control = controls[i];
+        DialogControlToken& ctk = *(control.token);
 
         wxString selectorString;
 
@@ -128,291 +105,268 @@ void ScriptDialog::AddControls()
         info.Clear();
         label.Clear();
 
-        if( ctk.Label() )
-        {
-            label = wxString(  ctk.Label()->GetValue().AsString() );
+        if (ctk.Label()) {
+            label = wxString(ctk.Label()->GetValue().AsString());
         }
 
-        if( ctk.Selector() )
-        {
+        if (ctk.Selector()) {
             control.selector = ctk.Selector()->GetValue().AsString();
             selector = control.selector;
         }
 
-        if( ctk.Info() )
-        {
-            info = wxString(  ctk.Info()->GetValue().AsString()  );
+        if (ctk.Info()) {
+            info = wxString(ctk.Info()->GetValue().AsString());
         }
 
-        Value v( false );
-        if( ctk.Variable() ) { ctk.Variable()->GetValue( v ); }
+        Value v(false);
+        if (ctk.Variable()) {
+            ctk.Variable()->GetValue(v);
+        }
 
-        wxControl *wxctrl = nullptr;
-        switch( ctk.Type() )
-        {
-        case ctLabel:
-            break;
+        wxControl* wxctrl = nullptr;
+        switch (ctk.Type()) {
+            case ctLabel:
+                break;
 
-        case ctTextBox:
-            // For text box the info string defines the number of columns, the
-            // number of rows, and the validation string.  These are entered as
-            //   n~v~d where ~ is a non numeric delimiter.
-        {
-            int nch = 32;
-            int nline = 1;
-            long number;
-            if( ! info.IsEmpty() )
-            {
-                wxString const numbers("0123456789");
-                wxString delim('~');
-                for( size_t i = 0; i < info.Len(); i++ )
+            case ctTextBox:
+                // For text box the info string defines the number of columns, the
+                // number of rows, and the validation string.  These are entered as
+                //   n~v~d where ~ is a non numeric delimiter.
                 {
-                    if( ! numbers.Contains( info[i] ) )
-                    {
-                        delim = info.Mid( i, 1 );
-                        break;
+                    int nch = 32;
+                    int nline = 1;
+                    long number;
+                    if (!info.IsEmpty()) {
+                        const wxString numbers("0123456789");
+                        wxString delim('~');
+                        for (size_t i = 0; i < info.Len(); i++) {
+                            if (!numbers.Contains(info[i])) {
+                                delim = info.Mid(i, 1);
+                                break;
+                            }
+                        }
+                        wxStringTokenizer tok(info, delim, wxTOKEN_RET_EMPTY);
+                        if (tok.GetNextToken().ToLong(&number) && number > 0) {
+                            nch = number;
+                        }
+                        if (tok.GetNextToken().ToLong(&number) && number > 0) {
+                            nline = number;
+                        }
+                        info = tok.GetString();
                     }
+                    wxctrl = TextBox(control.stringVal, nch, nline, info);
                 }
-                wxStringTokenizer tok( info, delim, wxTOKEN_RET_EMPTY );
-                if( tok.GetNextToken().ToLong( &number ) && number > 0 ) { nch = number;
-}
-                if( tok.GetNextToken().ToLong( &number ) && number > 0 ) { nline = number;
-}
-                info = tok.GetString();
-            }
-            wxctrl = TextBox( control.stringVal, nch, nline, info );
+                break;
+
+            case ctListBox: {
+                const wxRegEx extended("\\yextended\\y", wxRE_ADVANCED | wxRE_ICASE);
+                const wxRegEx multiple("\\ymultiple\\y", wxRE_ADVANCED | wxRE_ICASE);
+                const wxRegEx size("\\y(\\d+)x(\\d+)\\y", wxRE_ADVANCED | wxRE_ICASE);
+                int type = wxLB_SINGLE;
+                long width = -1;
+                long height = -1;
+                if (extended.Matches(info)) {
+                    type = wxLB_EXTENDED;
+                } else if (multiple.Matches(info)) {
+                    type = wxLB_MULTIPLE;
+                }
+                if (size.Matches(info)) {
+                    size.GetMatch(info, 1).ToLong(&width);
+                    size.GetMatch(info, 2).ToLong(&height);
+                    width = (long)(width * GetCharWidth());
+                    height = (long)(1.1 * height * GetCharHeight());
+                }
+                wxctrl = ListBox(control.stringVal, selector, type, (int)width, (int)height);
+            } break;
+
+            case ctCheckBox:
+                wxctrl = CheckBox(label, control.boolVal);
+                label.Clear();
+                break;
+
+            case ctRadioSelector:
+                selectorString = GetSelectorString(selector);
+                wxctrl = RadioBox(control.intVal, selectorString, label);
+                label.Clear();
+                break;
+
+            case ctDropDownSelector:
+                selectorString = GetSelectorString(selector);
+                wxctrl = DropDownBox(control.intVal, selectorString);
+                break;
+
+            case ctOpenFileSelector:
+                wxctrl = OpenFileBox(control.stringVal, label, selector, info);
+                break;
+
+            case ctSaveFileSelector:
+                wxctrl = SaveFileBox(control.stringVal, label, selector, info);
+                break;
+
+            case ctButton:
+                wxctrl = Button(label, (wxObjectEventFunction)&ScriptDialog::HandleButton);
+                control.intVal = wxctrl->GetId();
+                label.Clear();
+                break;
+
+            case ctSpacer:
+                sizer->AddSpacer(GetCharHeight());
+                break;
+
+            case ctNewRow:
+                columns = new wxBoxSizer(wxHORIZONTAL);
+                rows->Add(columns);
+                sizer = new wxBoxSizer(wxVERTICAL);
+                columns->AddSpacer(GetCharWidth() * 2);
+                columns->Add(sizer);
+                break;
+
+            case ctNewColumn:
+                sizer = new wxBoxSizer(wxVERTICAL);
+                columns->AddSpacer(GetCharWidth() * 2);
+                columns->Add(sizer);
+                break;
+
+            case ctValidator:
+                continue;
         }
-        break;
-
-        case ctListBox:
-        {
-            wxRegEx const extended("\\yextended\\y",wxRE_ADVANCED | wxRE_ICASE);
-            wxRegEx const multiple("\\ymultiple\\y",wxRE_ADVANCED | wxRE_ICASE);
-            wxRegEx const size("\\y(\\d+)x(\\d+)\\y",wxRE_ADVANCED | wxRE_ICASE);
-            int type = wxLB_SINGLE;
-            long width = -1;
-            long height = -1;
-            if( extended.Matches(info) ) { type = wxLB_EXTENDED;
-            } else if( multiple.Matches(info) ) { type = wxLB_MULTIPLE;
-}
-            if( size.Matches(info) )
-            {
-                size.GetMatch(info,1).ToLong(&width);
-                size.GetMatch(info,2).ToLong(&height);
-                width = (long) (width*GetCharWidth());
-                height = (long) (1.1*height*GetCharHeight());
-            }
-            wxctrl = ListBox( control.stringVal, selector, type, (int) width, (int) height );
+        if (!label.IsEmpty()) {
+            sizer->Add(Label(label), sizerFlags);
         }
-        break;
-
-        case ctCheckBox:
-            wxctrl = CheckBox( label, control.boolVal );
-            label.Clear();
-            break;
-
-        case ctRadioSelector:
-            selectorString = GetSelectorString( selector );
-            wxctrl = RadioBox( control.intVal, selectorString, label );
-            label.Clear();
-            break;
-
-        case ctDropDownSelector:
-            selectorString = GetSelectorString( selector );
-            wxctrl = DropDownBox( control.intVal, selectorString );
-            break;
-
-        case ctOpenFileSelector:
-            wxctrl = OpenFileBox( control.stringVal, label, selector, info  );
-            break;
-
-        case ctSaveFileSelector:
-            wxctrl = SaveFileBox( control.stringVal, label, selector, info );
-            break;
-
-        case ctButton:
-            wxctrl = Button( label, (wxObjectEventFunction) &ScriptDialog::HandleButton );
-            control.intVal = wxctrl->GetId();
-            label.Clear();
-            break;
-
-        case ctSpacer:
-            sizer->AddSpacer( GetCharHeight() );
-            break;
-
-        case ctNewRow:
-            columns = new wxBoxSizer( wxHORIZONTAL );
-            rows->Add(columns);
-            sizer = new wxBoxSizer( wxVERTICAL );
-            columns->AddSpacer( GetCharWidth()*2 );
-            columns->Add( sizer );
-            break;
-
-        case ctNewColumn:
-            sizer = new wxBoxSizer( wxVERTICAL );
-            columns->AddSpacer( GetCharWidth()*2 );
-            columns->Add( sizer );
-            break;
-
-        case ctValidator:
-            continue;
+        if (wxctrl) {
+            sizer->Add(wxctrl, sizerFlags);
+            control.control = wxctrl;
         }
-        if( ! label.IsEmpty() ) { sizer->Add( Label( label ), sizerFlags ); }
-        if( wxctrl ) { sizer->Add( wxctrl, sizerFlags ); control.control = wxctrl;  }
     }
-    AddSizer( rows );
+    AddSizer(rows);
 }
 
-void ScriptDialog::HandleButton( wxEvent &event )
-{
-    int const id = event.GetId();
-    for( int i = 0; i < nControls; i++ )
-    {
-        ScriptDialogControl  const&control = controls[i];
-        DialogControlToken &ctk = *(control.token);
-        if( ctk.Type() == ctButton && control.intVal == id )
-        {
-            Token *actions = ctk.Actions();
-            if( actions )
-            {
-                RunDialogProgram( actions, false );
+void ScriptDialog::HandleButton(wxEvent& event) {
+    const int id = event.GetId();
+    for (int i = 0; i < nControls; i++) {
+        const ScriptDialogControl& control = controls[i];
+        DialogControlToken& ctk = *(control.token);
+        if (ctk.Type() == ctButton && control.intVal == id) {
+            Token* actions = ctk.Actions();
+            if (actions) {
+                RunDialogProgram(actions, false);
             }
         }
     }
 }
 
-bool ScriptDialog::Validate()
-{
+bool ScriptDialog::Validate() {
     bool ok = wxSimpleDialog::Validate();
-    for( int i = 0;  ok && i < nControls; i++ )
-    {
-        DialogControlToken &ctk = *(controls[i].token);
-        if( ctk.Type() == ctValidator )
-        {
-            Token *validation = ctk.Actions();
-            if( validation )
-            {
-                ok = RunDialogProgram( validation, true );
+    for (int i = 0; ok && i < nControls; i++) {
+        DialogControlToken& ctk = *(controls[i].token);
+        if (ctk.Type() == ctValidator) {
+            Token* validation = ctk.Actions();
+            if (validation) {
+                ok = RunDialogProgram(validation, true);
             }
         }
     }
     return ok;
 }
 
-bool ScriptDialog::RunDialogProgram( Token *program, bool isValidation )
-{
-    RunPermission rp( program->Owner(), elExit );
-    if( ! rp.CanRun() ) { return true; // Must return true otherwise may never exit validator
-}
+bool ScriptDialog::RunDialogProgram(Token* program, bool isValidation) {
+    RunPermission rp(program->Owner(), elExit);
+    if (!rp.CanRun()) {
+        return true;  // Must return true otherwise may never exit validator
+    }
 
     TransferDataFromWindow();
     Apply();
 
-    Value const v = program->GetValue();
-    bool const result = v.AsBool();
+    const Value v = program->GetValue();
+    const bool result = v.AsBool();
 
-    if( ! isValidation )
-    {
-        ExitLevel const el = program->Owner()->GetExitLevel();
-        if( el == elExit || el == elReturn ) { EndModal( result ? wxID_OK : wxID_CANCEL );
-}
+    if (!isValidation) {
+        const ExitLevel el = program->Owner()->GetExitLevel();
+        if (el == elExit || el == elReturn) {
+            EndModal(result ? wxID_OK : wxID_CANCEL);
+        }
     }
     ReadData();
     TransferDataToWindow();
     return result;
 }
 
-void ScriptDialog::ReadData()
-{
-
+void ScriptDialog::ReadData() {
     Value v;
-    for( int i = 0; i < nControls; i++ )
-    {
-        ScriptDialogControl &control = controls[i];
-        DialogControlToken &ctk = *(control.token);
+    for (int i = 0; i < nControls; i++) {
+        ScriptDialogControl& control = controls[i];
+        DialogControlToken& ctk = *(control.token);
 
-        switch( ctk.Type() )
-        {
-        case ctTextBox:
-        case ctListBox:
-        case ctOpenFileSelector:
-        case ctSaveFileSelector:
-            ctk.Variable()->GetValue( v );
-            control.stringVal = v.AsString();
-            break;
+        switch (ctk.Type()) {
+            case ctTextBox:
+            case ctListBox:
+            case ctOpenFileSelector:
+            case ctSaveFileSelector:
+                ctk.Variable()->GetValue(v);
+                control.stringVal = v.AsString();
+                break;
 
-        case ctCheckBox:
-            ctk.Variable()->GetValue( v );
-            control.boolVal = v.AsBool();
-            break;
+            case ctCheckBox:
+                ctk.Variable()->GetValue(v);
+                control.boolVal = v.AsBool();
+                break;
 
-        case ctRadioSelector:
-        case ctDropDownSelector:
-            ctk.Variable()->GetValue( v );
-            control.intVal = GetSelectedIndex( control.selector, v.AsString() );
-            break;
+            case ctRadioSelector:
+            case ctDropDownSelector:
+                ctk.Variable()->GetValue(v);
+                control.intVal = GetSelectedIndex(control.selector, v.AsString());
+                break;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         // List may have their contents changed by a dialog program, so and
         // reset them if necessary ..
 
-        if( ctk.Type() == ctListBox || ctk.Type() == ctDropDownSelector )
-        {
-            if( ctk.Selector() )
-            {
-                wxString const selector = ctk.Selector()->GetValue().AsString();
-                if( selector != control.selector )
-                {
-                    if( ctk.Type() == ctListBox )
-                    {
-                        SetListBoxOptions( (wxListBox *) control.control, control.stringVal, selector );
-                    }
-                    else if( ctk.Type() == ctDropDownSelector )
-                    {
-                        SetControlWithItemsOptions( (wxControlWithItems *) control.control, control.intVal, GetSelectorString(selector) );
+        if (ctk.Type() == ctListBox || ctk.Type() == ctDropDownSelector) {
+            if (ctk.Selector()) {
+                const wxString selector = ctk.Selector()->GetValue().AsString();
+                if (selector != control.selector) {
+                    if (ctk.Type() == ctListBox) {
+                        SetListBoxOptions((wxListBox*)control.control, control.stringVal, selector);
+                    } else if (ctk.Type() == ctDropDownSelector) {
+                        SetControlWithItemsOptions((wxControlWithItems*)control.control, control.intVal,
+                                                   GetSelectorString(selector));
                     }
                     control.selector = selector;
                 }
             }
         }
-
     }
 }
 
-void ScriptDialog::Apply()
-{
+void ScriptDialog::Apply() {
+    for (int i = 0; i < nControls; i++) {
+        const ScriptDialogControl& control = controls[i];
+        DialogControlToken& ctk = *(control.token);
 
-    for( int i = 0; i < nControls; i++ )
-    {
-        ScriptDialogControl  const&control = controls[i];
-        DialogControlToken &ctk = *(control.token);
+        switch (ctk.Type()) {
+            case ctTextBox:
+            case ctListBox:
+            case ctOpenFileSelector:
+            case ctSaveFileSelector:
+                ctk.Variable()->SetOwnerValue(Value(control.stringVal));
+                break;
 
-        switch( ctk.Type() )
-        {
-        case ctTextBox:
-        case ctListBox:
-        case ctOpenFileSelector:
-        case ctSaveFileSelector:
-            ctk.Variable()->SetOwnerValue( Value(control.stringVal) );
-            break;
+            case ctCheckBox:
+                ctk.Variable()->SetOwnerValue(Value(control.boolVal));
+                break;
 
-        case ctCheckBox:
-            ctk.Variable()->SetOwnerValue( Value( control.boolVal ));
-            break;
+            case ctRadioSelector:
+            case ctDropDownSelector: {
+                const wxString selectorValue = GetSelectedValue(control.selector, control.intVal);
+                ctk.Variable()->SetOwnerValue(Value(selectorValue));
+            } break;
 
-        case ctRadioSelector:
-        case ctDropDownSelector:
-            {
-            wxString const selectorValue = GetSelectedValue( control.selector, control.intVal );
-            ctk.Variable()->SetOwnerValue( Value(selectorValue) );
-            }
-            break;
-
-        default:
-            break;
+            default:
+                break;
         }
     }
 }
@@ -421,52 +375,47 @@ void ScriptDialog::Apply()
 //   ~value~description~value~description
 // where ~ may be any delimiter character
 
-wxString ScriptDialog::GetSelectorString( const wxString& selectorDef )
-{
-    wxString const delim = selectorDef.Mid(0,1);
-    wxStringTokenizer tok( selectorDef, delim, wxTOKEN_RET_EMPTY_ALL );
+wxString ScriptDialog::GetSelectorString(const wxString& selectorDef) {
+    const wxString delim = selectorDef.Mid(0, 1);
+    wxStringTokenizer tok(selectorDef, delim, wxTOKEN_RET_EMPTY_ALL);
     wxString selectorString;
 
-    if( tok.CountTokens() > 2 )
-    {
+    if (tok.CountTokens() > 2) {
         tok.GetNextToken();  // Skip initial empty wxString
-        while( tok.CountTokens() > 1 )
-        {
-            wxString const indexValue = tok.GetNextToken();
+        while (tok.CountTokens() > 1) {
+            const wxString indexValue = tok.GetNextToken();
             selectorString.Append(delim);
-            selectorString.Append( tok.GetNextToken() );
+            selectorString.Append(tok.GetNextToken());
         }
     }
     return selectorString;
 }
 
-int ScriptDialog::GetSelectedIndex( const wxString& selectorDef, const wxString& selected )
-{
-    wxString const delim = selectorDef.Mid(0,1);
+int ScriptDialog::GetSelectedIndex(const wxString& selectorDef, const wxString& selected) {
+    const wxString delim = selectorDef.Mid(0, 1);
     int index;
     int result = 0;
-    wxStringTokenizer tok( selectorDef, delim, wxTOKEN_RET_EMPTY_ALL );
+    wxStringTokenizer tok(selectorDef, delim, wxTOKEN_RET_EMPTY_ALL);
 
     index = 0;
-    while( tok.CountTokens() > 1 )
-    {
+    while (tok.CountTokens() > 1) {
         tok.GetNextToken();
-        if( tok.GetNextToken().IsSameAs( selected ) ) { result = index; break; }
+        if (tok.GetNextToken().IsSameAs(selected)) {
+            result = index;
+            break;
+        }
         index++;
     }
     return result;
 }
 
-wxString ScriptDialog::GetSelectedValue( const wxString& selectorDef, int selected )
-{
-    wxString const delim = selectorDef.Mid(0,1);
+wxString ScriptDialog::GetSelectedValue(const wxString& selectorDef, int selected) {
+    const wxString delim = selectorDef.Mid(0, 1);
     wxString value;
-    wxStringTokenizer tok( selectorDef, delim, wxTOKEN_RET_EMPTY_ALL );
-    if( (int) tok.CountTokens() >= selected )
-    {
+    wxStringTokenizer tok(selectorDef, delim, wxTOKEN_RET_EMPTY_ALL);
+    if ((int)tok.CountTokens() >= selected) {
         // Skip to required token
-        for( int i = selected*2+1; i > 0; i-- )
-        {
+        for (int i = selected * 2 + 1; i > 0; i--) {
             tok.GetNextToken();
         }
         value = tok.GetNextToken();
@@ -476,61 +425,55 @@ wxString ScriptDialog::GetSelectedValue( const wxString& selectorDef, int select
 
 /////////////////////////////////////////////////////////////////////////////
 
-
-DialogToken::~DialogToken()
-{
+DialogToken::~DialogToken() {
     delete label;
 
     delete variable;
 
     delete controls;
-
 }
 
-Value DialogToken::evaluate()
-{
+Value DialogToken::evaluate() {
     wxString strOptions;
     long buttons = wxOK | wxCANCEL;
-    if( options )
-    {
+    if (options) {
         strOptions = options->GetValue().AsString();
-        if( strOptions.IsSameAs("ok",false)) { buttons=wxOK;
-}
-        if( strOptions.IsSameAs("cancel",false)) { buttons=wxCANCEL;
-}
-        if( strOptions.IsSameAs("none",false)) { buttons=0;
-}
+        if (strOptions.IsSameAs("ok", false)) {
+            buttons = wxOK;
+        }
+        if (strOptions.IsSameAs("cancel", false)) {
+            buttons = wxCANCEL;
+        }
+        if (strOptions.IsSameAs("none", false)) {
+            buttons = 0;
+        }
     }
 
-    ScriptDialog dialog( label->GetValue().AsString(), controls, buttons );
-    bool const ok = dialog.RunDialog();
+    ScriptDialog dialog(label->GetValue().AsString(), controls, buttons);
+    const bool ok = dialog.RunDialog();
 
     // Initial values may have been altered when running dialog programs
 
-    if( ! ok ) { dialog.ResetInitialValues();
-}
-    if( variable )
-    {
-        variable->SetOwnerValue(Value(ok));
+    if (!ok) {
+        dialog.ResetInitialValues();
     }
-    else if ( ! ok )
-    {
-        Owner()->SetExitLevel( elExit );
+    if (variable) {
+        variable->SetOwnerValue(Value(ok));
+    } else if (!ok) {
+        Owner()->SetExitLevel(elExit);
     }
     return ok;
 }
 
-void DialogToken::print( const wxString &prefix, ostream &str )
-{
+void DialogToken::print(const wxString& prefix, ostream& str) {
     str << prefix << "DialogControl" << endl;
-    PrintSubtoken( label, prefix, str );
-    PrintSubtoken( controls, prefix, str );
+    PrintSubtoken(label, prefix, str);
+    PrintSubtoken(controls, prefix, str);
 }
 
 // Evaluating Dialog token does nothing .. evaluation done by owning dialog
 
-DialogControlToken::~DialogControlToken()
-{
+DialogControlToken::~DialogControlToken() {
     delete variable;
 
     delete label;
@@ -538,28 +481,42 @@ DialogControlToken::~DialogControlToken()
     delete selector;
 
     delete info;
-
 }
 
-Value DialogControlToken::evaluate() { return Value(true); }
+Value DialogControlToken::evaluate() {
+    return Value(true);
+}
 
-void DialogControlToken::print( const wxString &prefix, ostream &str )
-{
-    const char *typeString = "unknown";
-    switch( type )
-    {
-        case ctLabel: typeString = "label"; break;
-        case ctTextBox: typeString = "text_box"; break;
-        case ctCheckBox: typeString = "check_box"; break;
-        case ctRadioSelector: typeString = "radio_selector"; break;
-        case ctDropDownSelector: typeString = "dropdown_selector"; break;
-        case ctOpenFileSelector: typeString = "open_file_selector"; break;
-        case ctSaveFileSelector: typeString = "save_file_selector"; break;
-        default: break;
+void DialogControlToken::print(const wxString& prefix, ostream& str) {
+    const char* typeString = "unknown";
+    switch (type) {
+        case ctLabel:
+            typeString = "label";
+            break;
+        case ctTextBox:
+            typeString = "text_box";
+            break;
+        case ctCheckBox:
+            typeString = "check_box";
+            break;
+        case ctRadioSelector:
+            typeString = "radio_selector";
+            break;
+        case ctDropDownSelector:
+            typeString = "dropdown_selector";
+            break;
+        case ctOpenFileSelector:
+            typeString = "open_file_selector";
+            break;
+        case ctSaveFileSelector:
+            typeString = "save_file_selector";
+            break;
+        default:
+            break;
     }
     str << prefix << "DialogControlToken: " << typeString << endl;
-    PrintSubtoken( variable, prefix, str );
-    PrintSubtoken( label, prefix, str );
-    PrintSubtoken( selector, prefix, str );
-    PrintSubtoken( info, prefix, str );
+    PrintSubtoken(variable, prefix, str);
+    PrintSubtoken(label, prefix, str);
+    PrintSubtoken(selector, prefix, str);
+    PrintSubtoken(info, prefix, str);
 }

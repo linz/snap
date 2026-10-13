@@ -26,9 +26,8 @@
 #include "util/errdef.h"
 #endif
 
-struct BINARY_FILE
-{
-    FILE *f;
+struct BINARY_FILE {
+    FILE* f;
     int64_t start;
     int64_t section_start;
     int32_t section_version;
@@ -36,12 +35,10 @@ struct BINARY_FILE
     char sigchar;
 };
 
-
 enum class BinFileOpenResult { NotFound, InvalidVersion, Ok };
 
-struct BinFileOpenOutcome
-{
-    BINARY_FILE *file;
+struct BinFileOpenOutcome {
+    BINARY_FILE* file;
     BinFileOpenResult result;
 };
 
@@ -51,9 +48,10 @@ struct BinFileOpenOutcome
 /// close_binary_file().
 /// \return the new file's handle, or nullptr if fname could not be opened
 ///         for writing.
-BINARY_FILE *create_binary_file(
-    const std::string &fname,       ///< path of the file to create
-    const std::string &header );    ///< the signature identifying this file's format/version, e.g. "SNAP binary file version 3.0"
+BINARY_FILE* create_binary_file(
+    const std::string& fname,  ///< path of the file to create
+    const std::string&
+        header);  ///< the signature identifying this file's format/version, e.g. "SNAP binary file version 3.0"
 
 /// Opens an existing binary file at fname for reading, verifying its
 /// stored signature matches header exactly, including the fixed trailer
@@ -61,55 +59,65 @@ BINARY_FILE *create_binary_file(
 /// \return the opened file and why it succeeded or failed - see
 ///         BinFileOpenResult.
 BinFileOpenOutcome open_binary_file(
-    const std::string &fname,       ///< path of the file to open
-    const std::string &header );    ///< the expected signature, e.g. "SNAP binary file version 3.0"
+    const std::string& fname,    ///< path of the file to open
+    const std::string& header);  ///< the expected signature, e.g. "SNAP binary file version 3.0"
 
 /// Finalizes and closes bin, completing its signature (see
 /// create_binary_file()) if it was opened for writing, then frees bin -
 /// bin must not be used again after this call.
-void close_binary_file( BINARY_FILE *bin );
+void close_binary_file(BINARY_FILE* bin);
 
 /// Starts a new named section in bin, ending whichever section (if any)
 /// is currently open first (see end_section()). Records version as the
 /// section's own version, if bin's own format version supports
 /// per-section versioning (bin->bf_version > 0).
-void create_section_ex(
-    BINARY_FILE *bin,
-    const std::string &section,     ///< the section's name, e.g. "STATION_COVARIANCES"
-    long version );                 ///< this section's version, ignored if bin->bf_version is 0
+void create_section_ex(BINARY_FILE* bin,
+                       const std::string& section,  ///< the section's name, e.g. "STATION_COVARIANCES"
+                       long version);               ///< this section's version, ignored if bin->bf_version is 0
 
 /// A thin wrapper over create_section_ex() for the common case of an
 /// unversioned section (version 0).
-void create_section(
-    BINARY_FILE *bin,
-    const std::string &section );   ///< the section's name, e.g. "STATION_COVARIANCES"
+void create_section(BINARY_FILE* bin,
+                    const std::string& section);  ///< the section's name, e.g. "STATION_COVARIANCES"
 
 /// Ends whichever section is currently open in bin, if any - writes the
 /// end-of-section marker and back-patches the section's recorded length.
 /// A no-op if no section is currently open (e.g. bin was only opened for
 /// reading).
-void end_section( BINARY_FILE *bin );
+void end_section(BINARY_FILE* bin);
 
 /// Searches bin for a section named section, leaving the file positioned
 /// to read its content (and bin->section_version updated) if found.
 /// \return OK if found, MISSING_DATA otherwise.
-int find_section(
-    BINARY_FILE *bin,
-    const std::string &section );   ///< the section's name to search for, e.g. "STATION_COVARIANCES"
+int find_section(BINARY_FILE* bin,
+                 const std::string& section);  ///< the section's name to search for, e.g. "STATION_COVARIANCES"
 
 /// Checks whether bin's current file position is immediately followed by
 /// the end-of-section marker create_section_ex()/end_section() write -
 /// consumes it if so, otherwise rewinds bin back to its original position.
 /// \return OK if the marker was found, INVALID_DATA otherwise.
-int check_end_section( BINARY_FILE *bin );
+int check_end_section(BINARY_FILE* bin);
 
-template<class T> inline void write_raw( FILE *f, const T &x ) { fwrite(&x, sizeof(T), 1, f); }
-template<class T> inline void read_raw( FILE *f, T &x )        { fread(&x, sizeof(T), 1, f); }
+template <class T>
+inline void write_raw(FILE* f, const T& x) {
+    fwrite(&x, sizeof(T), 1, f);
+}
+template <class T>
+inline void read_raw(FILE* f, T& x) {
+    fread(&x, sizeof(T), 1, f);
+}
 
-template<class Disk, class T> inline void write_raw_as( FILE *f, const T &x )
-{ const Disk d = static_cast<Disk>(x); write_raw(f, d); }
-template<class Disk, class T> inline void read_raw_as( FILE *f, T &x )
-{ Disk d; read_raw(f, d); x = static_cast<T>(d); }
+template <class Disk, class T>
+inline void write_raw_as(FILE* f, const T& x) {
+    const Disk d = static_cast<Disk>(x);
+    write_raw(f, d);
+}
+template <class Disk, class T>
+inline void read_raw_as(FILE* f, T& x) {
+    Disk d;
+    read_raw(f, d);
+    x = static_cast<T>(d);
+}
 
 // These BINARY_FILE-taking wrappers are a thin `b->f` unwrap around the FILE*-based
 // functions above, nothing more - BINARY_FILE (above) is a plain C struct with public
@@ -119,11 +127,23 @@ template<class Disk, class T> inline void read_raw_as( FILE *f, T &x )
 // every call site. Kept for now for that convenience and to match the existing
 // call-site vocabulary (create_section(b, ...), etc.) - not because inlining
 // write_raw_as<Disk>(b->f, x) at call sites would be wrong.
-template<class T> inline void dump_bin( BINARY_FILE *b, const T &x )   { write_raw(b->f, x); }
-template<class T> inline void reload_bin( BINARY_FILE *b, T &x )       { read_raw(b->f, x); }
+template <class T>
+inline void dump_bin(BINARY_FILE* b, const T& x) {
+    write_raw(b->f, x);
+}
+template <class T>
+inline void reload_bin(BINARY_FILE* b, T& x) {
+    read_raw(b->f, x);
+}
 
-template<class Disk, class T> inline void dump_bin_fixed( BINARY_FILE *b, const T &x )   { write_raw_as<Disk>(b->f, x); }
-template<class Disk, class T> inline void reload_bin_fixed( BINARY_FILE *b, T &x )       { read_raw_as<Disk>(b->f, x); }
+template <class Disk, class T>
+inline void dump_bin_fixed(BINARY_FILE* b, const T& x) {
+    write_raw_as<Disk>(b->f, x);
+}
+template <class Disk, class T>
+inline void reload_bin_fixed(BINARY_FILE* b, T& x) {
+    read_raw_as<Disk>(b->f, x);
+}
 
 // long -> int32_t is the one narrowing in this file format where the source type
 // (8 bytes on Linux/LP64) genuinely has more range than the disk representation
@@ -138,20 +158,22 @@ template<class Disk, class T> inline void reload_bin_fixed( BINARY_FILE *b, T &x
 // Throws std::overflow_error if x doesn't fit in int32_t, rather than silently
 // truncating it - a caller passing a genuinely >4-byte value wants to find out,
 // not get a corrupt .bin file.
-inline void write_raw_long32( FILE *f, const long x )
-{
+inline void write_raw_long32(FILE* f, const long x) {
     if (x < std::numeric_limits<int32_t>::min() || x > std::numeric_limits<int32_t>::max()) {
         throw std::overflow_error("value exceeds int32_t range while writing .bin file");
-}
+    }
     write_raw_as<int32_t>(f, x);
 }
-inline void read_raw_long32( FILE *f, long &x )
-{
-    read_raw_as<int32_t>(f, x);   // int32_t -> long always widens safely, no check needed
+inline void read_raw_long32(FILE* f, long& x) {
+    read_raw_as<int32_t>(f, x);  // int32_t -> long always widens safely, no check needed
 }
 
-inline void dump_bin_long32( BINARY_FILE *b, const long x )   { write_raw_long32(b->f, x); }
-inline void reload_bin_long32( BINARY_FILE *b, long &x )      { read_raw_long32(b->f, x); }
+inline void dump_bin_long32(BINARY_FILE* b, const long x) {
+    write_raw_long32(b->f, x);
+}
+inline void reload_bin_long32(BINARY_FILE* b, long& x) {
+    read_raw_long32(b->f, x);
+}
 
 // Shared vocabulary for the table-driven fixed-width dumps of survdata,
 // rfTransformation, station, and param. Each struct's own table, layout-
@@ -168,32 +190,33 @@ enum class FieldKind { Int32, UInt32, Int8, UInt8, Float64 };
 
 // In-memory size of the field's declared type. Fixed-width and identical across
 // every target compiler here, so this doubles as each kind's on-disk width too.
-inline constexpr size_t field_in_memory_size(const FieldKind kind)
-{
-    switch (kind)
-    {
-    case FieldKind::Float64: return sizeof(double);
-    case FieldKind::Int8:
-    case FieldKind::UInt8:   return sizeof(int8_t);
-    default:                 return sizeof(int32_t);
+inline constexpr size_t field_in_memory_size(const FieldKind kind) {
+    switch (kind) {
+        case FieldKind::Float64:
+            return sizeof(double);
+        case FieldKind::Int8:
+        case FieldKind::UInt8:
+            return sizeof(int8_t);
+        default:
+            return sizeof(int32_t);
     }
 }
 // Required alignment of the field's declared type - used to predict where a
 // compiler will place the *next* struct member, including any padding.
-inline constexpr size_t field_in_memory_alignment(const FieldKind kind)
-{
-    switch (kind)
-    {
-    case FieldKind::Float64: return alignof(double);
-    case FieldKind::Int8:
-    case FieldKind::UInt8:   return alignof(int8_t);
-    default:                 return alignof(int32_t);
+inline constexpr size_t field_in_memory_alignment(const FieldKind kind) {
+    switch (kind) {
+        case FieldKind::Float64:
+            return alignof(double);
+        case FieldKind::Int8:
+        case FieldKind::UInt8:
+            return alignof(int8_t);
+        default:
+            return alignof(int32_t);
     }
 }
 // Rounds `value` up to the next multiple of `alignment` - the same rule a
 // compiler uses to place a struct member after the one before it.
-inline constexpr size_t round_up(const size_t value, const size_t alignment)
-{
+inline constexpr size_t round_up(const size_t value, const size_t alignment) {
     return (value + alignment - 1) / alignment * alignment;
 }
 
@@ -202,7 +225,11 @@ inline constexpr size_t round_up(const size_t value, const size_t alignment)
 // StationDiskField, rfTransformation's RfTransDiskField, param's
 // ParamDiskField, ...) has always had exactly this shape - unified here so
 // for_each_disk_field (below) can walk any of them the same way.
-struct DiskField { FieldKind kind; size_t offset; size_t count; };
+struct DiskField {
+    FieldKind kind;
+    size_t offset;
+    size_t count;
+};
 
 // Calls `action(kind, value)` once per scalar element declared by `table`,
 // with `value` read from `base`'s memory as that field's real in-memory type
@@ -235,22 +262,28 @@ struct DiskField { FieldKind kind; size_t offset; size_t count; };
 // reference) because the real table is defined once, in one translation
 // unit, next to its own layout-contiguity check - a caller elsewhere sees it
 // only through an `extern` declaration with no compile-time-visible bound.
-template<class T, class Action>
-inline void for_each_disk_field( const T &base, const DiskField *table, size_t table_size, Action action )
-{
-    const char *b = reinterpret_cast<const char*>(&base);
-    for( size_t t = 0; t < table_size; ++t )
-    {
-        const DiskField &field = table[t];
-        for( size_t i = 0; i < field.count; ++i )
-        {
-            switch( field.kind )
-            {
-            case FieldKind::Int8:    action( field.kind, reinterpret_cast<const char*>(b+field.offset)[i] ); break;
-            case FieldKind::UInt8:   action( field.kind, reinterpret_cast<const unsigned char*>(b+field.offset)[i] ); break;
-            case FieldKind::UInt32:  action( field.kind, reinterpret_cast<const unsigned int*>(b+field.offset)[i] ); break;
-            case FieldKind::Float64: action( field.kind, reinterpret_cast<const double*>(b+field.offset)[i] ); break;
-            default:                 action( field.kind, reinterpret_cast<const int*>(b+field.offset)[i] ); break;
+template <class T, class Action>
+inline void for_each_disk_field(const T& base, const DiskField* table, size_t table_size, Action action) {
+    const char* b = reinterpret_cast<const char*>(&base);
+    for (size_t t = 0; t < table_size; ++t) {
+        const DiskField& field = table[t];
+        for (size_t i = 0; i < field.count; ++i) {
+            switch (field.kind) {
+                case FieldKind::Int8:
+                    action(field.kind, reinterpret_cast<const char*>(b + field.offset)[i]);
+                    break;
+                case FieldKind::UInt8:
+                    action(field.kind, reinterpret_cast<const unsigned char*>(b + field.offset)[i]);
+                    break;
+                case FieldKind::UInt32:
+                    action(field.kind, reinterpret_cast<const unsigned int*>(b + field.offset)[i]);
+                    break;
+                case FieldKind::Float64:
+                    action(field.kind, reinterpret_cast<const double*>(b + field.offset)[i]);
+                    break;
+                default:
+                    action(field.kind, reinterpret_cast<const int*>(b + field.offset)[i]);
+                    break;
             }
         }
     }
@@ -259,16 +292,24 @@ inline void for_each_disk_field( const T &base, const DiskField *table, size_t t
 // The binary-write action for_each_disk_field callers use: pins the on-disk
 // width by `kind`, same as every write_*_fixed_width used to do independently
 // in its own repeated switch.
-template<class T>
-inline void write_disk_field( FILE *f, FieldKind kind, const T &value )
-{
-    switch( kind )
-    {
-    case FieldKind::Int8:    write_raw_as<int8_t>(f, value); break;
-    case FieldKind::UInt8:   write_raw_as<uint8_t>(f, value); break;
-    case FieldKind::UInt32:  write_raw_as<uint32_t>(f, value); break;
-    case FieldKind::Float64: write_raw(f, value); break;
-    default:                 write_raw_as<int32_t>(f, value); break;
+template <class T>
+inline void write_disk_field(FILE* f, FieldKind kind, const T& value) {
+    switch (kind) {
+        case FieldKind::Int8:
+            write_raw_as<int8_t>(f, value);
+            break;
+        case FieldKind::UInt8:
+            write_raw_as<uint8_t>(f, value);
+            break;
+        case FieldKind::UInt32:
+            write_raw_as<uint32_t>(f, value);
+            break;
+        case FieldKind::Float64:
+            write_raw(f, value);
+            break;
+        default:
+            write_raw_as<int32_t>(f, value);
+            break;
     }
 }
 
@@ -278,22 +319,28 @@ inline void write_disk_field( FILE *f, FieldKind kind, const T &value )
 // below) instead of only observing it. Same table, same iteration order, so
 // a read_*_fixed_width built on this stays paired with its
 // write_*_fixed_width automatically.
-template<class T, class Action>
-inline void for_each_disk_field_mutable( T &base, const DiskField *table, size_t table_size, Action action )
-{
-    char *b = reinterpret_cast<char*>(&base);
-    for( size_t t = 0; t < table_size; ++t )
-    {
-        const DiskField &field = table[t];
-        for( size_t i = 0; i < field.count; ++i )
-        {
-            switch( field.kind )
-            {
-            case FieldKind::Int8:    action( field.kind, reinterpret_cast<char*>(b+field.offset)[i] ); break;
-            case FieldKind::UInt8:   action( field.kind, reinterpret_cast<unsigned char*>(b+field.offset)[i] ); break;
-            case FieldKind::UInt32:  action( field.kind, reinterpret_cast<unsigned int*>(b+field.offset)[i] ); break;
-            case FieldKind::Float64: action( field.kind, reinterpret_cast<double*>(b+field.offset)[i] ); break;
-            default:                 action( field.kind, reinterpret_cast<int*>(b+field.offset)[i] ); break;
+template <class T, class Action>
+inline void for_each_disk_field_mutable(T& base, const DiskField* table, size_t table_size, Action action) {
+    char* b = reinterpret_cast<char*>(&base);
+    for (size_t t = 0; t < table_size; ++t) {
+        const DiskField& field = table[t];
+        for (size_t i = 0; i < field.count; ++i) {
+            switch (field.kind) {
+                case FieldKind::Int8:
+                    action(field.kind, reinterpret_cast<char*>(b + field.offset)[i]);
+                    break;
+                case FieldKind::UInt8:
+                    action(field.kind, reinterpret_cast<unsigned char*>(b + field.offset)[i]);
+                    break;
+                case FieldKind::UInt32:
+                    action(field.kind, reinterpret_cast<unsigned int*>(b + field.offset)[i]);
+                    break;
+                case FieldKind::Float64:
+                    action(field.kind, reinterpret_cast<double*>(b + field.offset)[i]);
+                    break;
+                default:
+                    action(field.kind, reinterpret_cast<int*>(b + field.offset)[i]);
+                    break;
             }
         }
     }
@@ -301,16 +348,24 @@ inline void for_each_disk_field_mutable( T &base, const DiskField *table, size_t
 
 // The binary-read action for_each_disk_field_mutable callers use: mirrors
 // write_disk_field's on-disk width by `kind`.
-template<class T>
-inline void read_disk_field( FILE *f, FieldKind kind, T &value )
-{
-    switch( kind )
-    {
-    case FieldKind::Int8:    read_raw_as<int8_t>(f, value); break;
-    case FieldKind::UInt8:   read_raw_as<uint8_t>(f, value); break;
-    case FieldKind::UInt32:  read_raw_as<uint32_t>(f, value); break;
-    case FieldKind::Float64: read_raw(f, value); break;
-    default:                 read_raw_as<int32_t>(f, value); break;
+template <class T>
+inline void read_disk_field(FILE* f, FieldKind kind, T& value) {
+    switch (kind) {
+        case FieldKind::Int8:
+            read_raw_as<int8_t>(f, value);
+            break;
+        case FieldKind::UInt8:
+            read_raw_as<uint8_t>(f, value);
+            break;
+        case FieldKind::UInt32:
+            read_raw_as<uint32_t>(f, value);
+            break;
+        case FieldKind::Float64:
+            read_raw(f, value);
+            break;
+        default:
+            read_raw_as<int32_t>(f, value);
+            break;
     }
 }
 

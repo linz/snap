@@ -8,8 +8,7 @@
 
 */
 
-void register_tm_projection( void );
-projection *create_tm_projection(  double cm, double sf, double lto,
-                                   double fe, double fn, double utom );
+void register_tm_projection(void);
+projection* create_tm_projection(double cm, double sf, double lto, double fe, double fn, double utom);
 
 #endif

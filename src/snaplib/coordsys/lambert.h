@@ -10,32 +10,21 @@
 
 /* Header file for Lambert Conformal Conic projection code */
 
-struct LCCProjection
-{
-    double sp1, sp2;    /* Standard parallels of conic projection (rad) */
-    double lt0, ln0;    /* Origin of map lat/long (rad) */
-    double e0, n0;      /* False easting/northing (metres) */
-    double a, rf, e;        /* Ellipsoid semi-major axis, flattening */
-    double n, F;        /* Intermediate values used to facilitate calcs */
+struct LCCProjection {
+    double sp1, sp2; /* Standard parallels of conic projection (rad) */
+    double lt0, ln0; /* Origin of map lat/long (rad) */
+    double e0, n0;   /* False easting/northing (metres) */
+    double a, rf, e; /* Ellipsoid semi-major axis, flattening */
+    double n, F;     /* Intermediate values used to facilitate calcs */
     double r0;
-    int rev;            /* 1 or -1 .. inverts earth if mean of std parallels is south of equator */
+    int rev; /* 1 or -1 .. inverts earth if mean of std parallels is south of equator */
 };
 
+void defineLCCProjection(LCCProjection* lp, double a, double rf, double sp1, double sp2, double lt0, double ln0,
+                         double e0, double n0);
 
-void defineLCCProjection( LCCProjection *lp,
-                          double a, double rf,
-                          double sp1, double sp2,
-                          double lt0, double ln0,
-                          double e0, double n0 );
+void convertGeogToLCC(LCCProjection* lp, double lt, double ln, double* ce, double* cn, double* sf, double* cnv);
 
-void convertGeogToLCC( LCCProjection *lp,
-                       double lt, double ln,
-                       double *ce, double *cn,
-                       double *sf, double *cnv );
-
-void convertLCCToGeog( LCCProjection *lp,
-                       double ce, double cn, double *lt, double *ln );
-
+void convertLCCToGeog(LCCProjection* lp, double ce, double cn, double* lt, double* ln);
 
 #endif
-

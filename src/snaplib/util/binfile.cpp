@@ -55,7 +55,7 @@
 #endif
 
 #define SIG_TRAILER "\r\n\032"
-#define ENDSECTION  "End_of_Section"
+#define ENDSECTION "End_of_Section"
 #define VERSION_SECTION "\x01_BF_VERSION\x02"
 #define BF_VERSION 1
 
@@ -66,10 +66,9 @@
 constexpr size_t sig_trailer_length = sizeof(SIG_TRAILER) - 1;
 constexpr size_t end_section_length = sizeof(ENDSECTION) - 1;
 
-BINARY_FILE *create_binary_file( const std::string &fname, const std::string &signature )
-{
-    FILE *f = nullptr;
-    BINARY_FILE *b;
+BINARY_FILE* create_binary_file(const std::string& fname, const std::string& signature) {
+    FILE* f = nullptr;
+    BINARY_FILE* b;
     char zero = 0;
 
 #ifdef MS_LOCKING
@@ -83,24 +82,23 @@ BINARY_FILE *create_binary_file( const std::string &fname, const std::string &si
         shflag = _SH_DENYRW;
         pflag = _S_IREAD | _S_IWRITE;
 
-        fd = _sopen( fname.c_str(), oflag, shflag, pflag );
+        fd = _sopen(fname.c_str(), oflag, shflag, pflag);
 
-        if( fd != -1 )
-        {
-
-            f = _fdopen( fd, "w+b" );
+        if (fd != -1) {
+            f = _fdopen(fd, "w+b");
         }
     }
 #else
-    f = fopen( fname.c_str(), "w+b" );
+    f = fopen(fname.c_str(), "w+b");
 #endif
 
-    if( !f ) { return nullptr;
-}
+    if (!f) {
+        return nullptr;
+    }
 
     b = new BINARY_FILE;
-    fwrite(signature.data(), signature.size(), 1, f );
-    fwrite(SIG_TRAILER, sig_trailer_length, 1, f);      /* DOS eof character */
+    fwrite(signature.data(), signature.size(), 1, f);
+    fwrite(SIG_TRAILER, sig_trailer_length, 1, f); /* DOS eof character */
 
     b->f = f;
     b->start = ftell64(f);
@@ -109,24 +107,22 @@ BINARY_FILE *create_binary_file( const std::string &fname, const std::string &si
        only be valid if not closed properly */
 
     b->sigchar = signature[0];
-    fseek64(b->f,0,SEEK_SET);
-    fwrite( &zero, sizeof(char), 1, b->f );
-    fseek64( b->f, b->start, SEEK_SET );
+    fseek64(b->f, 0, SEEK_SET);
+    fwrite(&zero, sizeof(char), 1, b->f);
+    fseek64(b->f, b->start, SEEK_SET);
     b->section_start = 0L;
     b->section_version = 0L;
     b->bf_version = BF_VERSION;
 
-    create_section_ex( b, VERSION_SECTION, BF_VERSION );
+    create_section_ex(b, VERSION_SECTION, BF_VERSION);
     end_section(b);
 
     return b;
 }
 
-
-BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string &signature )
-{
-    FILE *f = nullptr;
-    BINARY_FILE *b;
+BinFileOpenOutcome open_binary_file(const std::string& fname, const std::string& signature) {
+    FILE* f = nullptr;
+    BINARY_FILE* b;
 
     /* Note: this implementation has
        removed write permissions for opening existing file,
@@ -145,25 +141,24 @@ BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string
         shflag = _SH_DENYWR;
         pflag = _S_IREAD | _S_IWRITE;
 
-        fd = _sopen( fname.c_str(), oflag, shflag, pflag );
+        fd = _sopen(fname.c_str(), oflag, shflag, pflag);
 
-        if( fd != -1 )
-        {
-            f = _fdopen( fd, "rb" );
+        if (fd != -1) {
+            f = _fdopen(fd, "rb");
         }
     }
 #else
-    f = fopen( fname.c_str(), "rb" );
+    f = fopen(fname.c_str(), "rb");
 #endif
-    if( !f ) { return { nullptr, BinFileOpenResult::NotFound };
-}
+    if (!f) {
+        return {nullptr, BinFileOpenResult::NotFound};
+    }
 
     const std::string expectedSignature = signature + SIG_TRAILER;
     std::string sig(expectedSignature.size(), '\0');
-    if( fread( sig.data(), sig.size(), 1, f ) != 1 || sig != expectedSignature )
-    {
+    if (fread(sig.data(), sig.size(), 1, f) != 1 || sig != expectedSignature) {
         fclose(f);
-        return { nullptr, BinFileOpenResult::InvalidVersion };
+        return {nullptr, BinFileOpenResult::InvalidVersion};
     }
 
     b = new BINARY_FILE;
@@ -176,85 +171,73 @@ BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string
        remain as 0. */
     b->bf_version = 1;
     b->sigchar = 0;
-    find_section(b,VERSION_SECTION);
+    find_section(b, VERSION_SECTION);
     b->bf_version = b->section_version;
-    return { b, BinFileOpenResult::Ok };
+    return {b, BinFileOpenResult::Ok};
 }
 
-
-void end_section( BINARY_FILE *b )
-{
+void end_section(BINARY_FILE* b) {
     int64_t end;
-    if( b->section_start )
-    {
-        fseek64( b->f, 0L, SEEK_END );
-        fwrite( ENDSECTION, end_section_length+1, 1, b->f );
-        end = ftell64( b->f );
-        fseek64( b->f, b->section_start, SEEK_SET );
-        fwrite( &end, sizeof(end), 1, b->f );
-        fseek64( b->f, 0L, SEEK_END );
+    if (b->section_start) {
+        fseek64(b->f, 0L, SEEK_END);
+        fwrite(ENDSECTION, end_section_length + 1, 1, b->f);
+        end = ftell64(b->f);
+        fseek64(b->f, b->section_start, SEEK_SET);
+        fwrite(&end, sizeof(end), 1, b->f);
+        fseek64(b->f, 0L, SEEK_END);
         b->section_start = 0L;
     }
 }
 
-
-void close_binary_file( BINARY_FILE *b )
-{
-    end_section( b );
+void close_binary_file(BINARY_FILE* b) {
+    end_section(b);
     /* Complete the signature of the file if properly closed */
-    if( b->sigchar )
-    {
-        fseek64( b->f, 0, SEEK_SET );
-        fwrite( &(b->sigchar), sizeof(char), 1, b->f );
+    if (b->sigchar) {
+        fseek64(b->f, 0, SEEK_SET);
+        fwrite(&(b->sigchar), sizeof(char), 1, b->f);
     }
-    fclose( b->f );
+    fclose(b->f);
     delete b;
 }
 
-
-void create_section( BINARY_FILE *b, const std::string &section )
-{
-    create_section_ex( b, section, 0L );
+void create_section(BINARY_FILE* b, const std::string& section) {
+    create_section_ex(b, section, 0L);
 }
 
-
-void create_section_ex( BINARY_FILE *b, const std::string &section, long version )
-{
+void create_section_ex(BINARY_FILE* b, const std::string& section, long version) {
     int64_t end;
     end = 0L;
-    end_section( b );
-    fseek64( b->f, 0L, SEEK_END );
-    b->section_start = ftell64( b->f );
+    end_section(b);
+    fseek64(b->f, 0L, SEEK_END);
+    b->section_start = ftell64(b->f);
     b->section_version = 0;
-    fwrite( &end, sizeof(end), 1, b->f );
-    fwrite( section.c_str(), section.size()+1, 1, b->f );
-    if( b->bf_version > 0 )
-    {
+    fwrite(&end, sizeof(end), 1, b->f);
+    fwrite(section.c_str(), section.size() + 1, 1, b->f);
+    if (b->bf_version > 0) {
         b->section_version = version;
-        fwrite( &(b->section_version), sizeof(b->section_version), 1, b->f );
+        fwrite(&(b->section_version), sizeof(b->section_version), 1, b->f);
     }
-    }
+}
 
-
-int find_section( BINARY_FILE *b, const std::string &section )
-{
+int find_section(BINARY_FILE* b, const std::string& section) {
     int64_t next;
     int sts;
 
-    const size_t nch = section.size()+1;
+    const size_t nch = section.size() + 1;
     std::string match(nch, '\0');
 
     next = b->start;
 
     sts = MISSING_DATA;
 
-    while( next )
-    {
-        fseek64( b->f, next, SEEK_SET );
-        if( fread( &next, sizeof(next), 1, b->f ) != 1 ) { break;
-}
-        if( fread( match.data(), nch, 1, b->f ) != 1 ) { break;
-}
+    while (next) {
+        fseek64(b->f, next, SEEK_SET);
+        if (fread(&next, sizeof(next), 1, b->f) != 1) {
+            break;
+        }
+        if (fread(match.data(), nch, 1, b->f) != 1) {
+            break;
+        }
         // match is always nch = section.size()+1 bytes long regardless of
         // what section name actually sits on disk at this position, so a
         // plain std::string equality against match itself (which compares
@@ -262,16 +245,14 @@ int find_section( BINARY_FILE *b, const std::string &section )
         // than section by construction. string_view(match.c_str())
         // truncates at the first embedded null, same as strcmp's own
         // stopping rule, to recover the real on-disk name for comparison.
-        if( std::string_view(match.c_str()) == section )
-        {
+        if (std::string_view(match.c_str()) == section) {
             /* b->section_start = next; This cannot be added without modifying
                                         end_section, as it results in writing an
                                         end of section when a file has been opened
                                         for reading only */
             b->section_version = 0;
-            if( b->bf_version > 0 )
-            {
-                fread( &(b->section_version), sizeof(b->section_version), 1, b->f );
+            if (b->bf_version > 0) {
+                fread(&(b->section_version), sizeof(b->section_version), 1, b->f);
             }
             sts = OK;
 
@@ -282,16 +263,15 @@ int find_section( BINARY_FILE *b, const std::string &section )
     return sts;
 }
 
-
-int check_end_section( BINARY_FILE *bin )
-{
+int check_end_section(BINARY_FILE* bin) {
     int64_t loc;
 
-    loc=ftell64(bin->f);
-    std::string endsec(end_section_length+1, '\0');
-    if( fread( endsec.data(), end_section_length+1, 1, bin->f ) == 1 &&
-            std::string_view(endsec.c_str()) == ENDSECTION ) { return OK;
-}
-    fseek64( bin->f, loc, SEEK_SET );
+    loc = ftell64(bin->f);
+    std::string endsec(end_section_length + 1, '\0');
+    if (fread(endsec.data(), end_section_length + 1, 1, bin->f) == 1 &&
+        std::string_view(endsec.c_str()) == ENDSECTION) {
+        return OK;
+    }
+    fseek64(bin->f, loc, SEEK_SET);
     return INVALID_DATA;
 }

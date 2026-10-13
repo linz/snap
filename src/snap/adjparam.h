@@ -8,10 +8,10 @@
 
 */
 
-void set_param_obseq( int p, void *hA, int irow, double v );
-void update_params( int get_covariance );
+void set_param_obseq(int p, void* hA, int irow, double v);
+void update_params(int get_covariance);
 
-void list_calculated_parameters( FILE *out );
-void print_adjusted_parameters( FILE *out );
+void list_calculated_parameters(FILE* out);
+void print_adjusted_parameters(FILE* out);
 
 #endif

@@ -22,104 +22,92 @@
 #include "util/geodetic.h"
 #include "util/pi.h"
 
-int refcoef_prm( std::string_view refcoef )
-{
-    return get_param( PRM_REFCOEF, refcoef, 1 );
+int refcoef_prm(std::string_view refcoef) {
+    return get_param(PRM_REFCOEF, refcoef, 1);
 }
 
-std::string_view refcoef_name( int rc )
-{
-    return param_type_name( PRM_REFCOEF, rc);
+std::string_view refcoef_name(int rc) {
+    return param_type_name(PRM_REFCOEF, rc);
 }
 
-
-double zd_ref_correction( int p, station *st1, station *st2, void *hA, int irow )
-{
+double zd_ref_correction(int p, station* st1, station* st2, void* hA, int irow) {
     vector3 vrt1;
     vector3 vrt2;
     double angle;
 
     /* Calculate the angle subtended by the verticals at the two stations */
 
-    st1->rTopo.rot_vertical( vrt1 );
-    st2->rTopo.rot_vertical( vrt2 );
+    st1->rTopo.rot_vertical(vrt1);
+    st2->rTopo.rot_vertical(vrt2);
 
-    angle = vecdot( vrt1, vrt2 );
-    angle = 1.0 - angle*angle;
-    if( angle > 0.0 ) { angle = sqrt(angle);
-}
+    angle = vecdot(vrt1, vrt2);
+    angle = 1.0 - angle * angle;
+    if (angle > 0.0) {
+        angle = sqrt(angle);
+    }
 
     /* Effect on zenith distance is negative */
 
     angle = -angle;
-    set_param_obseq( p, hA, irow, angle );
+    set_param_obseq(p, hA, irow, angle);
 
-    return angle * param_value( p );
+    return angle * param_value(p);
 }
 
 /*=============================================================*/
 /* Distance scale err specific bits                            */
 
-int distsf_prm( std::string_view distsf )
-{
-    return get_param( PRM_DISTSF, distsf, 1 );
+int distsf_prm(std::string_view distsf) {
+    return get_param(PRM_DISTSF, distsf, 1);
 }
 
-std::string_view distsf_name( int ds )
-{
+std::string_view distsf_name(int ds) {
     return param_type_name(PRM_DISTSF, ds);
 }
 
-
-double distsf_correction( int p, double dist, void *hA, int irow )
-{
-    if( !p ) { return 0;
-}
+double distsf_correction(int p, double dist, void* hA, int irow) {
+    if (!p) {
+        return 0;
+    }
     dist *= 1.0e-6;
-    set_param_obseq( p, hA, irow, dist );
-    return param_value( p ) * dist;
+    set_param_obseq(p, hA, irow, dist);
+    return param_value(p) * dist;
 }
 
 /*==============================================================*/
 /* Azimuth bias parameter                                       */
 
-int brngref_prm( std::string_view brngref )
-{
-    return get_param( PRM_BRNGREF, brngref, 1 );
+int brngref_prm(std::string_view brngref) {
+    return get_param(PRM_BRNGREF, brngref, 1);
 }
 
-std::string_view brngref_name( int br )
-{
+std::string_view brngref_name(int br) {
     return param_type_name(PRM_BRNGREF, br);
 }
 
-double brngref_correction( int br, void *hA, int irow )
-{
-    if( !br ) { return 0;
+double brngref_correction(int br, void* hA, int irow) {
+    if (!br) {
+        return 0;
+    }
+    set_param_obseq(br, hA, irow, STOR);
+    return param_value(br) * STOR;
 }
-    set_param_obseq( br, hA, irow, STOR );
-    return param_value( br ) * STOR;
-}
-
 
 /*==============================================================*/
 /* Systematic error parameter                                   */
 
-int syserr_prm( std::string_view syserr )
-{
-    return get_param( PRM_SYSERR, syserr, 1 );
+int syserr_prm(std::string_view syserr) {
+    return get_param(PRM_SYSERR, syserr, 1);
 }
 
-std::string_view syserr_name( int se )
-{
+std::string_view syserr_name(int se) {
     return param_type_name(PRM_SYSERR, se);
 }
 
-double syserr_correction( int se, double influence, void *hA, int irow )
-{
-    if( !se ) { return 0;
+double syserr_correction(int se, double influence, void* hA, int irow) {
+    if (!se) {
+        return 0;
+    }
+    set_param_obseq(se, hA, irow, influence);
+    return param_value(se) * influence;
 }
-    set_param_obseq( se, hA, irow, influence );
-    return param_value( se ) * influence;
-}
-

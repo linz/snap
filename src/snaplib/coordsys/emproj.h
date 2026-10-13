@@ -8,8 +8,7 @@
 
 */
 
-struct EMProjection
-{
+struct EMProjection {
     double cm;
     double rlat;
     double a;
@@ -18,9 +17,8 @@ struct EMProjection
     double c;
 };
 
-void define_EMProjection( EMProjection *em, double a, double rf, double cm, double rlat );
-void geod_em( EMProjection *em, double lat, double lon, double *ce, double *cn );
-void em_geod( EMProjection *em, double ce, double cn, double *lat, double *lon );
-
+void define_EMProjection(EMProjection* em, double a, double rf, double cm, double rlat);
+void geod_em(EMProjection* em, double lat, double lon, double* ce, double* cn);
+void em_geod(EMProjection* em, double ce, double cn, double* lat, double* lon);
 
 #endif

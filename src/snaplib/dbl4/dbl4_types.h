@@ -16,17 +16,14 @@
 **************************************************************************
 */
 
-
-
 /* Integer types */
 
 using IdType = long;
-using StatusType = int;        /* Used for function return values */
+using StatusType = int; /* Used for function return values */
 
 /* Date types */
 
-struct DateTimeType
-{
+struct DateTimeType {
     double years;
     float dtSec;
     short dtYear;
@@ -38,8 +35,8 @@ struct DateTimeType
 
 /* Database handle types */
 
-using DBHandle = void *;
-using DBRowHandle = void *;
+using DBHandle = void*;
+using DBRowHandle = void*;
 
 /* Integers of specific sizes */
 

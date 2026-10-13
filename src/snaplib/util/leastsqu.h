@@ -33,22 +33,22 @@ enum { LSQ_UNINIT, LSQ_READY, LSQ_SUMMING, LSQ_SOLVED, LSQ_INVERTED };
 
 /* Initialisation */
 
-void lsq_alloc( int nprm );
-void lsq_init( void );
+void lsq_alloc(int nprm);
+void lsq_init(void);
 
 /* Zero inverse is used to skip calculating the inverse    */
 /* normal equations and instead just set it to zero.  For  */
 /* fast pre-checking of adjustments with incomplete stats  */
 
-void lsq_set_use_zero_inverse( int use_zero );
-int lsq_using_zero_inverse( void );
+void lsq_set_use_zero_inverse(int use_zero);
+int lsq_using_zero_inverse(void);
 
 /* Sum the observation equations into the normal equations */
 /* Returns a non-zero value if an error occurs summing     */
 /* the Schreiber equation component.                       */
 
-int lsq_sum_obseqn( void *A );
-void lsq_zero_b_vector( void );
+int lsq_sum_obseqn(void* A);
+void lsq_zero_b_vector(void);
 
 /* Solve the normal equations.  Returns a non zero error   */
 /* code if fails to invert the normal matrix.  The error   */
@@ -58,9 +58,8 @@ void lsq_zero_b_vector( void );
 /* applies constraints to force a solution, and returns    */
 /* the number of constraints applied.                      */
 
-int lsq_solve_equations( int force_solution );
-void lsq_get_stats( long *nobs, int *nprm, long *nschp, long *dof,
-                    double *ssr, double *seu );
+int lsq_solve_equations(int force_solution);
+void lsq_get_stats(long* nobs, int* nprm, long* nschp, long* dof, double* ssr, double* seu);
 
 /* Get covariance row returns one row of the full covar     */
 /* matrix.  It must be called immediately before or after   */
@@ -68,40 +67,39 @@ void lsq_get_stats( long *nobs, int *nprm, long *nschp, long *dof,
 /* of doubles which is valid until another lsq_ routine is  */
 /* called.                                                  */
 
-double *lsq_get_covariance_row( int row );
+double* lsq_get_covariance_row(int row);
 
 /* Get the Cholesky decomposition of the normal matrix     */
 /* It must be called immediately before or after           */
 /* lsq_solve_equations, and may be invalidated by          */
 /* subsequent lsq_... calls                                */
 
-bltmatrix *lsq_get_decomposition( void );
+bltmatrix* lsq_get_decomposition(void);
 
 /* Get the covariance matrix                               */
 
-bltmatrix *lsq_get_covariance_matrix( void );
+bltmatrix* lsq_get_covariance_matrix(void);
 
 /* Return information from the adjustment - parameters and */
 /* their covariance for a range of parameters.  Note that  */
 /* the value and covariance are only returned if they are  */
 /* not set to NULL                                         */
 
-void lsq_invert_normal_equations( void );
+void lsq_invert_normal_equations(void);
 
-void lsq_get_params( const int row[], int nrow, double *value, ltmat covar );
+void lsq_get_params(const int row[], int nrow, double* value, ltmat covar);
 
-void lsq_calc_obs( void *hA, double *calc, double *res,
-                   double *schprm, double *schvar,
-                   char diagonal, ltmat calccvr, ltmat rescvr );
+void lsq_calc_obs(void* hA, double* calc, double* res, double* schprm, double* schvar, char diagonal, ltmat calccvr,
+                  ltmat rescvr);
 
 /* Return a pointer to the normal equations for managing the */
 /* bandwidth and other uses                                  */
 
-bltmatrix *lsq_normal_matrix( void );
+bltmatrix* lsq_normal_matrix(void);
 
 /* Print the normal equations - only generates output during summing phase */
 
-void lsq_print_normal_equations_json( FILE *out, int nprefix );
-void lsq_print_solution_vector_json( FILE *out, int print_cvr, int nprefix );
+void lsq_print_normal_equations_json(FILE* out, int nprefix);
+void lsq_print_solution_vector_json(FILE* out, int print_cvr, int nprefix);
 
 #endif

@@ -3,20 +3,21 @@
 
 #include "wxmapwindow.hpp"
 
-class SnapplotMapDragger : public wxMapScaleDragger
-{
-public:
-    SnapplotMapDragger( int tolerance = 10 );
+class SnapplotMapDragger : public wxMapScaleDragger {
+ public:
+    SnapplotMapDragger(int tolerance = 10);
     ~SnapplotMapDragger();
-    bool InitDrag( const wxMouseEvent &event ) override;
+    bool InitDrag(const wxMouseEvent& event) override;
     // virtual void SetDragCursor();
     void EndDrag() override;
-    void SetPickTolerance( int tolerance ) { pickTolerance = tolerance; }
+    void SetPickTolerance(int tolerance) {
+        pickTolerance = tolerance;
+    }
 
-protected:
-    void DrawDragger( wxDC &dc ) override;
+ protected:
+    void DrawDragger(wxDC& dc) override;
 
-private:
+ private:
     bool shiftStation;
     void DeleteConnections();
     int pickTolerance;
@@ -24,10 +25,7 @@ private:
     int istn;
     MapPoint from;
     int nConnections;
-    MapPoint *connections;
+    MapPoint* connections;
 };
 
-
 #endif
-
-

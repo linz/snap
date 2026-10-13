@@ -32,10 +32,10 @@
 #include "plotfunc.h"
 #endif
 
-void set_binary_data( int status );
-int have_binary_data( void );
-void add_survdata_connections( survdata *sd, int64_t bloc );
-void add_relative_covariance( int from, int to, double cvr[6] );
+void set_binary_data(int status);
+int have_binary_data(void);
+void add_survdata_connections(survdata* sd, int64_t bloc);
+void add_relative_covariance(int from, int to, double cvr[6]);
 
 #define DPEN_BY_TYPE -1
 #define DPEN_BY_FILE -2
@@ -49,100 +49,99 @@ enum { DISPLAYBY_DATATYPE = 0, DISPLAYBY_DATAFILE = -1, DISPLAYBY_OBSSTATUS = -2
 
 // Whether the given Display-by dimension (DISPLAYBY_* or a classification
 // id) is currently enabled as a filter - on by default, user-toggleable.
-bool is_displayby_enabled( int id );
-void set_displayby_enabled( int id, bool enabled );
+bool is_displayby_enabled(int id);
+void set_displayby_enabled(int id, bool enabled);
 
-void setup_data_pens( int pen_type );
-void select_data_pen_type( void );
-void setup_sres_pens( double max, int apost, int npens );
-void get_sres_pen_options( double *max, int *apost, int *npens );
-void setup_rfac_pens( int npens );
-void get_rfac_pen_options( int *npens );
+void setup_data_pens(int pen_type);
+void select_data_pen_type(void);
+void setup_sres_pens(double max, int apost, int npens);
+void get_sres_pen_options(double* max, int* apost, int* npens);
+void setup_rfac_pens(int npens);
+void get_rfac_pen_options(int* npens);
 
-int set_datapen_definition( std::string_view def );
+int set_datapen_definition(std::string_view def);
 std::string get_datapen_definition();
 
 /* Options for displaying highlights */
 
-#define PCONN_HIGHLIGHT_NONE           0
-#define PCONN_HIGHLIGHT_IF_EITHER      1
-#define PCONN_HIGHLIGHT_IF_BOTH        2
-#define PCONN_HIGHLIGHT_SRES           3
-#define PCONN_HIGHLIGHT_APOST_SRES     4
-#define PCONN_HIGHLIGHT_RFAC           5
-#define PCONN_HIGHLIGHT_REJECTED       6
-#define PCONN_HIGHLIGHT_UNUSED         7
+#define PCONN_HIGHLIGHT_NONE 0
+#define PCONN_HIGHLIGHT_IF_EITHER 1
+#define PCONN_HIGHLIGHT_IF_BOTH 2
+#define PCONN_HIGHLIGHT_SRES 3
+#define PCONN_HIGHLIGHT_APOST_SRES 4
+#define PCONN_HIGHLIGHT_RFAC 5
+#define PCONN_HIGHLIGHT_REJECTED 6
+#define PCONN_HIGHLIGHT_UNUSED 7
 
 /* Options for displaying more than one observation on a line */
 
-#define PCONN_ONE_CONNECTION  0
+#define PCONN_ONE_CONNECTION 0
 #define PCONN_DIFFERENT_TYPES 1
 #define PCONN_ALL_CONNECTIONS 2
-#define PCONN_MERGE_FLAGS     3
+#define PCONN_MERGE_FLAGS 3
 
 #define PCONN_SHOW_ONEWAY_OBS 4
 
 #define PCONN_REDRAW_HIGHLIGHT -1
 /* For colouring obs with highlight colour */
 
-void set_obs_highlight_option( int type, double value );
-void get_obs_highlight_option( int *type, double *value );
+void set_obs_highlight_option(int type, double value);
+void get_obs_highlight_option(int* type, double* value);
 
 /* For drawing a highlight box around an individual observation */
 
-double get_obs_highlight_offset( void );
+double get_obs_highlight_offset(void);
 
-
-int plot_connections( map_plotter *plotter, int first, int offset_opt, double offset, int redraw );
-void maximum_relative_covariance( double *h, double *v );
-int nearest_connection( double e, double n, double tol, int *from, int *to );
+int plot_connections(map_plotter* plotter, int first, int offset_opt, double offset, int redraw);
+void maximum_relative_covariance(double* h, double* v);
+int nearest_connection(double e, double n, double tol, int* from, int* to);
 
 long sres_index_count();
 std::string sres_list_header();
-std::string sres_item_description( long id );
-void sres_item_info( long id, PutTextInfo *jmp );
-void set_sres_display_option( int mode );
+std::string sres_item_description(long id);
+void sres_item_info(long id, PutTextInfo* jmp);
+void set_sres_display_option(int mode);
 int get_sres_display_option();
-void set_sres_sort_col( int col );
-void set_sres_sort_option( int option );
+void set_sres_sort_col(int col);
+void set_sres_sort_option(int option);
 int get_sres_sort_option();
 void init_displayed_fields();
-void set_displayed_fields( const int *fields, int nFields );
-int get_displayed_fields( int *fields, int maxFields );
-int get_display_field_code( std::string_view name );
-std::optional<std::string> get_display_field_name( int code );
-int read_display_fields_definition( std::string_view def );
+void set_displayed_fields(const int* fields, int nFields);
+int get_displayed_fields(int* fields, int maxFields);
+int get_display_field_code(std::string_view name);
+std::optional<std::string> get_display_field_name(int code);
+int read_display_fields_definition(std::string_view def);
 std::string write_display_fields_definition();
 
 /* Choice of data to display in the data list window */
 
-#define SRL_ALL      0
+#define SRL_ALL 0
 #define SRL_REJECTED 1
-#define SRL_UNUSED   2
-#define SRL_USED     3
+#define SRL_UNUSED 2
+#define SRL_USED 3
 
 /* Fields to display in the data list window */
 /* Can display any of these and also classifications */
 
-#define SRF_FROM   -1
-#define SRF_TO     -2
-#define SRF_TYPE   -3
+#define SRF_FROM -1
+#define SRF_TO -2
+#define SRF_TYPE -3
 #define SRF_STATUS -4
-#define SRF_SRES   -5
-#define SRF_RFAC   -6
+#define SRF_SRES -5
+#define SRF_RFAC -6
 #define SRF_LENGTH -7
-#define SRF_FILE   -8
+#define SRF_FILE -8
 #define SRF_LINENO -9
-#define SRF_OBSID  -10
-#define SRF_DATE   -11
+#define SRF_OBSID -10
+#define SRF_DATE -11
 
-int get_connection_count( int istn );
-int connection_observation_count(  int from, int index );
-int get_connected_station( int from, int index, char *visible );
+int get_connection_count(int istn);
+int connection_observation_count(int from, int index);
+int get_connected_station(int from, int index, char* visible);
 
-void list_connections( void *dest, PutTextFunc f, int istn );
-void list_observations( void *dest, PutTextFunc f, int from, int to );
-void list_single_observation( void *dest, PutTextFunc f, int from, int to, int obs_id );
+void list_connections(void* dest, PutTextFunc f, int istn);
+void list_observations(void* dest, PutTextFunc f, int from, int to);
+void list_single_observation(void* dest, PutTextFunc f, int from, int to, int obs_id);
 
 void free_connection_resources();
 

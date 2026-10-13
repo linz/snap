@@ -3,30 +3,24 @@
 
 #include "wxmapwindow.hpp"
 
-DEFINE_EVENT_TYPE( WX_MAPWINDOW_POSITION );
-DEFINE_EVENT_TYPE( WX_MAPWINDOW_CLICKED );
-DEFINE_EVENT_TYPE( WX_MAPWINDOW_REPAINTED);
-DEFINE_EVENT_TYPE( WX_MAPWINDOW_REDRAWMAP);
-
+DEFINE_EVENT_TYPE(WX_MAPWINDOW_POSITION);
+DEFINE_EVENT_TYPE(WX_MAPWINDOW_CLICKED);
+DEFINE_EVENT_TYPE(WX_MAPWINDOW_REPAINTED);
+DEFINE_EVENT_TYPE(WX_MAPWINDOW_REDRAWMAP);
 
 // wxMapWindowClicked definition
 
-wxMapWindowEvent::wxMapWindowEvent( wxEventType eventType, int id, const wxMouseEvent &me, MapPoint pt ) :
-    wxEvent( id, eventType ),
-    mouseEvent(me),
-    pt(pt)
-{
-    SetEventType( eventType );
+wxMapWindowEvent::wxMapWindowEvent(wxEventType eventType, int id, const wxMouseEvent& me, MapPoint pt)
+    : wxEvent(id, eventType), mouseEvent(me), pt(pt) {
+    SetEventType(eventType);
     SetId(id);
 }
 
-wxMapWindowEvent::wxMapWindowEvent( const wxMapWindowEvent &event ) 
-= default;
+wxMapWindowEvent::wxMapWindowEvent(const wxMapWindowEvent& event) = default;
 
 // wxMapDragger definition
 
-wxMapDragger::wxMapDragger()
-{
+wxMapDragger::wxMapDragger() {
     mapWindow = nullptr;
     dragging = false;
     canDrag = false;
@@ -37,114 +31,94 @@ wxMapDragger::wxMapDragger()
     overlayResetPending = false;
 }
 
-wxMapDragger::~wxMapDragger()
-{
-    if( mapWindow ) { mapWindow->SetDragger(nullptr);
-}
+wxMapDragger::~wxMapDragger() {
+    if (mapWindow) {
+        mapWindow->SetDragger(nullptr);
+    }
 }
 
-void wxMapDragger::AttachToMapWindow( wxMapWindow *newWindow )
-{
-    if( mapWindow != newWindow )
-    {
-        if( mapWindow ) { mapWindow->SetDragger(nullptr);
-}
+void wxMapDragger::AttachToMapWindow(wxMapWindow* newWindow) {
+    if (mapWindow != newWindow) {
+        if (mapWindow) {
+            mapWindow->SetDragger(nullptr);
+        }
         mapWindow = newWindow;
     }
 }
 
-void wxMapDragger::SetMinDragLength( int length )
-{
+void wxMapDragger::SetMinDragLength(int length) {
     minDragLength = length;
 }
 
-void wxMapDragger::SetRBDragMode( RBDragMode newMode )
-{
+void wxMapDragger::SetRBDragMode(RBDragMode newMode) {
     dragMode = newMode;
 }
 
-void wxMapDragger::SetMoveOriginOnShift( bool newState )
-{
+void wxMapDragger::SetMoveOriginOnShift(bool newState) {
     moveOriginOnShift = newState;
 }
 
-bool wxMapDragger::InitDrag( const wxMouseEvent & WXUNUSED(event) )
-{
+bool wxMapDragger::InitDrag(const wxMouseEvent& WXUNUSED(event)) {
     return true;
 }
 
-void wxMapDragger::EndDrag()
-{
+void wxMapDragger::EndDrag() {}
+
+void wxMapDragger::SetDragCursor() {
+    SetMapCursor(wxCursor(wxCURSOR_CROSS));
 }
 
-void wxMapDragger::SetDragCursor()
-{
-    SetMapCursor( wxCursor( wxCURSOR_CROSS ) );
+void wxMapDragger::SetMapCursor(const wxCursor& cursor) {
+    mapWindow->SetCursor(cursor);
 }
 
-void wxMapDragger::SetMapCursor( const wxCursor & cursor )
-{
-    mapWindow->SetCursor( cursor );
-}
+void wxMapDragger::ProcessMouseEvent(wxMouseEvent& event) {
+    if (!mapWindow) {
+        return;
+    }
 
-void wxMapDragger::ProcessMouseEvent( wxMouseEvent &event )
-{
-    if( ! mapWindow ) { return;
-}
-
-    if( ! dragging )
-    {
+    if (!dragging) {
         // Record the start of the event ...
 
-        if( event.ButtonDown() )
-        {
+        if (event.ButtonDown()) {
             dragStartPoint = event.GetPosition();
             canDrag = true;
         }
 
         // If it is a button up event, then record this as a non-drag mouse event
 
-        if( event.ButtonUp() )
-        {
-            if( event.GetButton() == dragCancelButton ) {
+        if (event.ButtonUp()) {
+            if (event.GetButton() == dragCancelButton) {
                 dragCancelButton = wxMOUSE_BTN_NONE;
-            }
-            else if( mapWindow ) {
-                mapWindow->ForwardMouseEvent( WX_MAPWINDOW_CLICKED, event  );
+            } else if (mapWindow) {
+                mapWindow->ForwardMouseEvent(WX_MAPWINDOW_CLICKED, event);
             }
         }
 
         // If this is a dragging event, then confirm that this is a valid
         // state for starting dragging.
 
-        if( event.Dragging() )
-        {
-            wxPoint const dragOffset = event.GetPosition() - dragStartPoint;
-            if( abs(dragOffset.x) + abs(dragOffset.y) >= minDragLength )
-            {
-                if( canDrag && InitDrag( event ) )
-                {
+        if (event.Dragging()) {
+            const wxPoint dragOffset = event.GetPosition() - dragStartPoint;
+            if (abs(dragOffset.x) + abs(dragOffset.y) >= minDragLength) {
+                if (canDrag && InitDrag(event)) {
                     dragEndPoint = event.GetPosition();
                     savedCursor = mapWindow->GetCursor();
                     SetDragCursor();
                     {
-                        wxClientDC dc( mapWindow );
-                        wxDCOverlay dcOverlay( overlay, &dc );
+                        wxClientDC dc(mapWindow);
+                        wxDCOverlay dcOverlay(overlay, &dc);
                         dcOverlay.Clear();
-                        DrawDragger( dc );
+                        DrawDragger(dc);
                     }
                     mapWindow->CaptureMouse();
                     dragging = true;
-                }
-                else
-                {
+                } else {
                     canDrag = false;
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         // Button down events effectively cancel dragging, so can hit
         // second mouse button to cancel operation.
 
@@ -153,64 +127,57 @@ void wxMapDragger::ProcessMouseEvent( wxMouseEvent &event )
         // events.  May also need to include timing, as mouse up event long after mouse down isn't
         // really of interest, as down may have occurred in a different window when not capturing mouse.
 
-        if( event.ButtonUp() || event.ButtonDown() )
-        {
+        if (event.ButtonUp() || event.ButtonDown()) {
             mapWindow->ReleaseMouse();
             dragging = false;
             canDrag = false;
-            mapWindow->SetCursor( savedCursor );
-            if( event.ButtonUp() ) {
+            mapWindow->SetCursor(savedCursor);
+            if (event.ButtonUp()) {
                 dragCancelButton = wxMOUSE_BTN_NONE;
                 EndDrag();
                 // EndDrag() may have changed the view - wait for the next
                 // real repaint (see CheckPendingOverlayReset) before hiding
                 // the drag preview, rather than reveal stale content now.
                 overlayResetPending = true;
-            }
-            else {
+            } else {
                 dragCancelButton = event.GetButton();
                 // Nothing changed - safe to hide the drag preview right away.
                 overlay.Reset();
             }
-        }
-        else
-        {
-            wxPoint const newEndPoint = event.GetPosition();
+        } else {
+            const wxPoint newEndPoint = event.GetPosition();
 
-            if( moveOriginOnShift && event.ShiftDown() )
-            {
-                int const dx = newEndPoint.x - dragEndPoint.x;
-                int const dy = newEndPoint.y - dragEndPoint.y;
+            if (moveOriginOnShift && event.ShiftDown()) {
+                const int dx = newEndPoint.x - dragEndPoint.x;
+                const int dy = newEndPoint.y - dragEndPoint.y;
 
-                dragStartPoint = wxPoint( dragStartPoint.x + dx, dragStartPoint.y + dy );
+                dragStartPoint = wxPoint(dragStartPoint.x + dx, dragStartPoint.y + dy);
             }
             dragEndPoint = newEndPoint;
 
-            wxClientDC dc( mapWindow );
-            wxDCOverlay dcOverlay( overlay, &dc );
+            wxClientDC dc(mapWindow);
+            wxDCOverlay dcOverlay(overlay, &dc);
             dcOverlay.Clear();
-            DrawDragger( dc );
+            DrawDragger(dc);
         }
     }
 }
 
-void wxMapDragger::ProcessMouseCaptureLostEvent(wxMouseCaptureLostEvent & WXUNUSED(event))
-{
-    if( ! mapWindow ) { return;
-}
+void wxMapDragger::ProcessMouseCaptureLostEvent(wxMouseCaptureLostEvent& WXUNUSED(event)) {
+    if (!mapWindow) {
+        return;
+    }
 
     // No EndDrag() here - the view never changed, so unlike the end/cancel
     // path in ProcessMouseEvent there's no pending repaint to wait for.
     overlay.Reset();
 
     dragging = false;
-    mapWindow->SetCursor( savedCursor );
+    mapWindow->SetCursor(savedCursor);
 }
 
-void wxMapDragger::CheckPendingOverlayReset()
-{
-    if( overlayResetPending )
-    {
+void wxMapDragger::CheckPendingOverlayReset() {
+    if (overlayResetPending) {
         overlayResetPending = false;
         // The real repaint has been issued, but may not be actually
         // presented on screen yet - start a settle timer instead of
@@ -218,362 +185,311 @@ void wxMapDragger::CheckPendingOverlayReset()
         // A compositor frame is typically ~16ms at 60Hz, so this should be
         // several frames of margin - designed to reliably eliminate any
         // repaint gap to the main window while still feeling responsive.
-        mapWindow->StartOverlayResetTimer( 50 );
+        mapWindow->StartOverlayResetTimer(50);
     }
 }
 
-void wxMapDragger::ResetOverlayNow()
-{
+void wxMapDragger::ResetOverlayNow() {
     overlay.Reset();
 }
 
-void wxMapDragger::DrawDragger( wxDC &dc )
-{
-    if( dragMode == rbmRect )
-    {
-        if( dragStartPoint == dragEndPoint )
-        {
-            dc.DrawLine( dragStartPoint.x-10, dragStartPoint.y, dragStartPoint.x+11, dragStartPoint.y );
-            dc.DrawLine( dragStartPoint.x, dragStartPoint.y-10, dragStartPoint.x, dragStartPoint.y+11 );
-        }
-        else
-        {
-            dc.DrawLine( dragStartPoint.x, dragStartPoint.y, dragStartPoint.x, dragEndPoint.y );
-            dc.DrawLine( dragStartPoint.x, dragEndPoint.y, dragEndPoint.x, dragEndPoint.y );
-            if( dragEndPoint.x != dragStartPoint.x && dragEndPoint.y != dragStartPoint.y )
-            {
-                dc.DrawLine( dragEndPoint.x, dragEndPoint.y, dragEndPoint.x, dragStartPoint.y );
-                dc.DrawLine( dragEndPoint.x, dragStartPoint.y, dragStartPoint.x, dragStartPoint.y );
+void wxMapDragger::DrawDragger(wxDC& dc) {
+    if (dragMode == rbmRect) {
+        if (dragStartPoint == dragEndPoint) {
+            dc.DrawLine(dragStartPoint.x - 10, dragStartPoint.y, dragStartPoint.x + 11, dragStartPoint.y);
+            dc.DrawLine(dragStartPoint.x, dragStartPoint.y - 10, dragStartPoint.x, dragStartPoint.y + 11);
+        } else {
+            dc.DrawLine(dragStartPoint.x, dragStartPoint.y, dragStartPoint.x, dragEndPoint.y);
+            dc.DrawLine(dragStartPoint.x, dragEndPoint.y, dragEndPoint.x, dragEndPoint.y);
+            if (dragEndPoint.x != dragStartPoint.x && dragEndPoint.y != dragStartPoint.y) {
+                dc.DrawLine(dragEndPoint.x, dragEndPoint.y, dragEndPoint.x, dragStartPoint.y);
+                dc.DrawLine(dragEndPoint.x, dragStartPoint.y, dragStartPoint.x, dragStartPoint.y);
             }
         }
     }
 }
 
-void wxMapDragger::PaintMapOnto( wxDC &dc )
-{
-    dc.SetBackground( wxBrush( mapWindow->GetBackgroundColour() ) );
+void wxMapDragger::PaintMapOnto(wxDC& dc) {
+    dc.SetBackground(wxBrush(mapWindow->GetBackgroundColour()));
     dc.Clear();
-    mapWindow->PaintMap( dc );
+    mapWindow->PaintMap(dc);
 }
 
-wxBitmap wxMapDragger::CaptureMapBitmap()
-{
-    wxSize const size = mapWindow->GetClientSize();
-    wxBitmap bitmap( size.GetWidth(), size.GetHeight() );
-    wxMemoryDC memDC( bitmap );
-    PaintMapOnto( memDC );
+wxBitmap wxMapDragger::CaptureMapBitmap() {
+    const wxSize size = mapWindow->GetClientSize();
+    wxBitmap bitmap(size.GetWidth(), size.GetHeight());
+    wxMemoryDC memDC(bitmap);
+    PaintMapOnto(memDC);
     return bitmap;
 }
 
-
 // Map scale dragger class
 
-wxMapScaleDragger::wxMapScaleDragger()
-{
+wxMapScaleDragger::wxMapScaleDragger() {
     zoomMode = zdmZoom;
     autoZoomPanMode = false;
 }
 
-bool wxMapScaleDragger::InitDrag( const wxMouseEvent &event )
-{
-    if( zoomMode == zdmNone ) { return false;
-}
-    if( ! mapWindow->GetScale().IsValid() ) { return false;
-}
+bool wxMapScaleDragger::InitDrag(const wxMouseEvent& event) {
+    if (zoomMode == zdmNone) {
+        return false;
+    }
+    if (!mapWindow->GetScale().IsValid()) {
+        return false;
+    }
 
-    if( ! event.LeftIsDown() ) { return false;
-}
+    if (!event.LeftIsDown()) {
+        return false;
+    }
 
-    if( autoZoomPanMode )
-    {
+    if (autoZoomPanMode) {
         zoomMode = event.ShiftDown() ? zdmPan : zdmZoom;
     }
 
-    if( zoomMode == zdmZoom )
-    {
-        SetMoveOriginOnShift( true );
-        SetRBDragMode( rbmRect );
-    }
-    else
-    {
-        SetMoveOriginOnShift( false );
+    if (zoomMode == zdmZoom) {
+        SetMoveOriginOnShift(true);
+        SetRBDragMode(rbmRect);
+    } else {
+        SetMoveOriginOnShift(false);
         panBitmap = CaptureMapBitmap();
     }
     return true;
 }
 
-void wxMapScaleDragger::DrawDragger( wxDC &dc )
-{
-    if( zoomMode == zdmPan )
-    {
+void wxMapScaleDragger::DrawDragger(wxDC& dc) {
+    if (zoomMode == zdmPan) {
         // The shifted bitmap doesn't cover the whole window once dragged far
         // enough - fill with the background colour first so the revealed
         // edge shows plain background rather than the leftover, unshifted
         // view.
-        dc.SetBackground( wxBrush( mapWindow->GetBackgroundColour() ) );
+        dc.SetBackground(wxBrush(mapWindow->GetBackgroundColour()));
         dc.Clear();
-        if( panBitmap.IsOk() )
-        {
-            wxPoint const offset = dragEndPoint - dragStartPoint;
-            dc.DrawBitmap( panBitmap, offset.x, offset.y );
+        if (panBitmap.IsOk()) {
+            const wxPoint offset = dragEndPoint - dragStartPoint;
+            dc.DrawBitmap(panBitmap, offset.x, offset.y);
         }
-    }
-    else
-    {
-        wxMapDragger::DrawDragger( dc );
+    } else {
+        wxMapDragger::DrawDragger(dc);
     }
 }
 
-void wxMapScaleDragger::SetDragCursor()
-{
-    if( zoomMode == zdmZoom )
-    {
-        SetMapCursor( wxCursor( wxCURSOR_MAGNIFIER ) );
-    }
-    else if( zoomMode == zdmPan )
-    {
-        SetMapCursor( wxCursor( wxCURSOR_HAND ) );
-    }
-    else
-    {
+void wxMapScaleDragger::SetDragCursor() {
+    if (zoomMode == zdmZoom) {
+        SetMapCursor(wxCursor(wxCURSOR_MAGNIFIER));
+    } else if (zoomMode == zdmPan) {
+        SetMapCursor(wxCursor(wxCURSOR_HAND));
+    } else {
         wxMapDragger::SetDragCursor();
     }
 }
 
-void wxMapScaleDragger::EndDrag()
-{
-    if( zoomMode == zdmZoom || zoomMode == zdmPan )
-    {
-        wxMapScale &scale = mapWindow->GetScale();
+void wxMapScaleDragger::EndDrag() {
+    if (zoomMode == zdmZoom || zoomMode == zdmPan) {
+        wxMapScale& scale = mapWindow->GetScale();
         MapPoint ptStart;
         MapPoint ptEnd;
-        scale.PlotToWorld( dragStartPoint, ptStart );
-        scale.PlotToWorld( dragEndPoint, ptEnd );
+        scale.PlotToWorld(dragStartPoint, ptStart);
+        scale.PlotToWorld(dragEndPoint, ptEnd);
         MapRect newWindow;
-        if( zoomMode == zdmZoom )
-        {
-            if( ptStart.x > ptEnd.x ) { double const tmp = ptStart.x; ptStart.x = ptEnd.x; ptEnd.x = tmp; }
-            if( ptStart.y > ptEnd.y ) { double const tmp = ptStart.y; ptStart.y = ptEnd.y; ptEnd.y = tmp; }
-            newWindow = MapRect( ptStart, ptEnd );
+        if (zoomMode == zdmZoom) {
+            if (ptStart.x > ptEnd.x) {
+                const double tmp = ptStart.x;
+                ptStart.x = ptEnd.x;
+                ptEnd.x = tmp;
+            }
+            if (ptStart.y > ptEnd.y) {
+                const double tmp = ptStart.y;
+                ptStart.y = ptEnd.y;
+                ptEnd.y = tmp;
+            }
+            newWindow = MapRect(ptStart, ptEnd);
+        } else {
+            const double dx = ptStart.x - ptEnd.x;
+            const double dy = ptStart.y - ptEnd.y;
+            newWindow = scale.GetWorldExtents().Shift(dx, dy);
         }
-        else
-        {
-            double const dx = ptStart.x - ptEnd.x;
-            double const dy = ptStart.y - ptEnd.y;
-            newWindow = scale.GetWorldExtents().Shift(dx,dy);
-        }
-        scale.ZoomTo( newWindow );
+        scale.ZoomTo(newWindow);
     }
     panBitmap = wxBitmap();
 }
 
-void wxMapScaleDragger::SetZoomDragMode( ZoomDragMode newMode )
-{
+void wxMapScaleDragger::SetZoomDragMode(ZoomDragMode newMode) {
     zoomMode = newMode;
 }
 
-void wxMapScaleDragger::SetAutoZoomPanMode( bool newMode )
-{
+void wxMapScaleDragger::SetAutoZoomPanMode(bool newMode) {
     autoZoomPanMode = newMode;
 }
 
 // Map window class
 
-
 // wxMapWindow class definition
 
-wxMapWindow::wxMapWindow()
-{
+wxMapWindow::wxMapWindow() {
     SetupMapWindow();
 }
 
-wxMapWindow::wxMapWindow ( wxWindow *parent, wxWindowID id ):
-    wxWindow( parent, id, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER )
-{
+wxMapWindow::wxMapWindow(wxWindow* parent, wxWindowID id)
+    : wxWindow(parent, id, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER) {
     SetupMapWindow();
 }
 
-void wxMapWindow::SetupMapWindow()
-{
-    scale.SetNotifyWindowId( GetId() );
-    SetBackgroundColour( *wxWHITE );
-    SetCursor( wxCursor(wxCURSOR_CROSS) );
+void wxMapWindow::SetupMapWindow() {
+    scale.SetNotifyWindowId(GetId());
+    SetBackgroundColour(*wxWHITE);
+    SetCursor(wxCursor(wxCURSOR_CROSS));
     dragger = nullptr;
     map = nullptr;
     symbology = nullptr;
     sendPositionEvent = false;
-    overlayResetTimer.SetOwner( this );
+    overlayResetTimer.SetOwner(this);
 }
 
-void wxMapWindow::StartOverlayResetTimer( int delayMilliseconds )
-{
-    overlayResetTimer.StartOnce( delayMilliseconds );
+void wxMapWindow::StartOverlayResetTimer(int delayMilliseconds) {
+    overlayResetTimer.StartOnce(delayMilliseconds);
 }
 
-void wxMapWindow::OnOverlayResetTimer( wxTimerEvent & WXUNUSED(event) )
-{
-    if( dragger ) {
+void wxMapWindow::OnOverlayResetTimer(wxTimerEvent& WXUNUSED(event)) {
+    if (dragger) {
         dragger->ResetOverlayNow();
     }
 }
 
-
-wxMapWindow::~wxMapWindow()
-{
-    SetDragger( nullptr );
+wxMapWindow::~wxMapWindow() {
+    SetDragger(nullptr);
 }
 
-IMPLEMENT_DYNAMIC_CLASS( wxMapWindow, wxWindow );
+IMPLEMENT_DYNAMIC_CLASS(wxMapWindow, wxWindow);
 
 BEGIN_EVENT_TABLE(wxMapWindow, wxWindow)
-    EVT_PAINT( wxMapWindow::OnPaint )
-    EVT_MOUSE_EVENTS( wxMapWindow::OnMouseEvent )
-    EVT_MOUSE_CAPTURE_LOST( wxMapWindow::OnMouseCaptureLost )
-    EVT_SIZE( wxMapWindow::OnSizeEvent )
-    EVT_SIMPLE_EVENT( WX_MAPWINDOW_SCALE_CHANGED, wxMapWindow::OnScaleChangeEvent )
-    EVT_SIMPLE_EVENT( WX_MAPWINDOW_REDRAWMAP, wxMapWindow::OnRedrawMap )
-    EVT_TIMER( wxID_ANY, wxMapWindow::OnOverlayResetTimer )
+EVT_PAINT(wxMapWindow::OnPaint)
+EVT_MOUSE_EVENTS(wxMapWindow::OnMouseEvent)
+EVT_MOUSE_CAPTURE_LOST(wxMapWindow::OnMouseCaptureLost)
+EVT_SIZE(wxMapWindow::OnSizeEvent)
+EVT_SIMPLE_EVENT(WX_MAPWINDOW_SCALE_CHANGED, wxMapWindow::OnScaleChangeEvent)
+EVT_SIMPLE_EVENT(WX_MAPWINDOW_REDRAWMAP, wxMapWindow::OnRedrawMap)
+EVT_TIMER(wxID_ANY, wxMapWindow::OnOverlayResetTimer)
 END_EVENT_TABLE()
 
-void wxMapWindow::SetDragger( wxMapDragger *newDragger )
-{
-    wxMapDragger *oldDragger = dragger;
+void wxMapWindow::SetDragger(wxMapDragger* newDragger) {
+    wxMapDragger* oldDragger = dragger;
     dragger = newDragger;
-    if( oldDragger ) { oldDragger->AttachToMapWindow( nullptr );
-}
-    if( dragger ) { dragger->AttachToMapWindow( this );
-}
+    if (oldDragger) {
+        oldDragger->AttachToMapWindow(nullptr);
+    }
+    if (dragger) {
+        dragger->AttachToMapWindow(this);
+    }
 }
 
-void wxMapWindow::SetSendPositionEvent( bool sendPosition )
-{
+void wxMapWindow::SetSendPositionEvent(bool sendPosition) {
     sendPositionEvent = sendPosition;
 }
 
-void wxMapWindow::SetSymbology( Symbology *symbology )
-{
+void wxMapWindow::SetSymbology(Symbology* symbology) {
     this->symbology = symbology;
     Refresh();
 }
 
-void wxMapWindow::SetMap( wxMap *map )
-{
+void wxMapWindow::SetMap(wxMap* map) {
     this->map = map;
-    if( map )
-    {
+    if (map) {
         MapRect mapExtents;
-        map->GetMapExtents( mapExtents );
-        scale.SetMapExtents( mapExtents );
+        map->GetMapExtents(mapExtents);
+        scale.SetMapExtents(mapExtents);
     }
     Refresh();
 }
 
-void wxMapWindow::OnMouseEvent( wxMouseEvent &event )
-{
-    if( scale.IsValid() )
-    {
-        wxPoint const mousePoint( event.GetX(), event.GetY() );
-        scale.PlotToWorld( mousePoint, cursorPosition );
-        if( sendPositionEvent ) { ForwardMouseEvent( WX_MAPWINDOW_POSITION, event );
-}
-        if( dragger )
-        {
-            dragger->ProcessMouseEvent( event );
+void wxMapWindow::OnMouseEvent(wxMouseEvent& event) {
+    if (scale.IsValid()) {
+        const wxPoint mousePoint(event.GetX(), event.GetY());
+        scale.PlotToWorld(mousePoint, cursorPosition);
+        if (sendPositionEvent) {
+            ForwardMouseEvent(WX_MAPWINDOW_POSITION, event);
         }
-        else if( event.ButtonUp() )
-        {
-            ForwardMouseEvent( WX_MAPWINDOW_CLICKED, event );
+        if (dragger) {
+            dragger->ProcessMouseEvent(event);
+        } else if (event.ButtonUp()) {
+            ForwardMouseEvent(WX_MAPWINDOW_CLICKED, event);
         }
     }
 }
 
-void wxMapWindow::OnMouseCaptureLost(wxMouseCaptureLostEvent &event)
-{
-    if( dragger ) { dragger->ProcessMouseCaptureLostEvent( event );
-}
-}
-
-void wxMapWindow::ForwardMouseEvent( wxEventType type, const wxMouseEvent &event )
-{
-    wxMapWindowEvent mwevent( type, GetId(), event, cursorPosition );
-    mwevent.SetEventObject( this );
-    AddPendingEvent( mwevent );
+void wxMapWindow::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+    if (dragger) {
+        dragger->ProcessMouseCaptureLostEvent(event);
+    }
 }
 
-void wxMapWindow::OnSizeEvent( wxSizeEvent & WXUNUSED(event) )
-{
-    GetScale().SetWindowExtents( GetClientRect() );
+void wxMapWindow::ForwardMouseEvent(wxEventType type, const wxMouseEvent& event) {
+    wxMapWindowEvent mwevent(type, GetId(), event, cursorPosition);
+    mwevent.SetEventObject(this);
+    AddPendingEvent(mwevent);
 }
 
-void wxMapWindow::OnScaleChangeEvent( wxSimpleEvent & WXUNUSED(event) )
-{
+void wxMapWindow::OnSizeEvent(wxSizeEvent& WXUNUSED(event)) {
+    GetScale().SetWindowExtents(GetClientRect());
+}
+
+void wxMapWindow::OnScaleChangeEvent(wxSimpleEvent& WXUNUSED(event)) {
     RefreshCursorPosition();
     DoRedrawMap();
 }
 
-void wxMapWindow::RefreshCursorPosition()
-{
+void wxMapWindow::RefreshCursorPosition() {
     // A zoom/pan changes the scale without the mouse moving, so the position
     // readout (only ever recomputed from a real mouse event) would otherwise
     // keep showing the coordinate under the old scale until the next move.
-    if( ! scale.IsValid() ) { return;
-}
+    if (!scale.IsValid()) {
+        return;
+    }
 
-    wxPoint const mousePoint = ScreenToClient( wxGetMousePosition() );
-    scale.PlotToWorld( mousePoint, cursorPosition );
-    if( sendPositionEvent )
-    {
-        wxMouseEvent mouseEvent( wxEVT_MOTION );
-        mouseEvent.SetPosition( mousePoint );
-        ForwardMouseEvent( WX_MAPWINDOW_POSITION, mouseEvent );
+    const wxPoint mousePoint = ScreenToClient(wxGetMousePosition());
+    scale.PlotToWorld(mousePoint, cursorPosition);
+    if (sendPositionEvent) {
+        wxMouseEvent mouseEvent(wxEVT_MOTION);
+        mouseEvent.SetPosition(mousePoint);
+        ForwardMouseEvent(WX_MAPWINDOW_POSITION, mouseEvent);
     }
 }
 
-void wxMapWindow::OnRedrawMap( wxSimpleEvent & WXUNUSED(event) )
-{
+void wxMapWindow::OnRedrawMap(wxSimpleEvent& WXUNUSED(event)) {
     DoRedrawMap();
 }
 
-void wxMapWindow::DoRedrawMap()
-{
+void wxMapWindow::DoRedrawMap() {
     // For the moment just refresh.  Could implement differently if
     // buffering the map...
     Refresh();
 }
 
-void wxMapWindow::RedrawMap()
-{
-    wxSimpleEvent const event(WX_MAPWINDOW_REDRAWMAP);
-    AddPendingEvent( event );
+void wxMapWindow::RedrawMap() {
+    const wxSimpleEvent event(WX_MAPWINDOW_REDRAWMAP);
+    AddPendingEvent(event);
 }
 
-void wxMapWindow::PaintMap(  wxDC &dc )
-{
-    if( map && symbology )
-    {
-        wxCursor const saved = GetCursor();
-        SetCursor( *wxHOURGLASS_CURSOR );
-        wxMapDrawer drawer( dc, scale, *symbology );
-        map->DrawMap( drawer );
+void wxMapWindow::PaintMap(wxDC& dc) {
+    if (map && symbology) {
+        const wxCursor saved = GetCursor();
+        SetCursor(*wxHOURGLASS_CURSOR);
+        wxMapDrawer drawer(dc, scale, *symbology);
+        map->DrawMap(drawer);
         drawer.FlushMap();
-        SetCursor( saved );
+        SetCursor(saved);
     }
-    if( dragger ) {
+    if (dragger) {
         dragger->CheckPendingOverlayReset();
     }
 }
 
-void wxMapWindow::OnPaint( wxPaintEvent & WXUNUSED(event) )
-{
-    #if wxUSE_GRAPHICS_CONTEXT
+void wxMapWindow::OnPaint(wxPaintEvent& WXUNUSED(event)) {
+#if wxUSE_GRAPHICS_CONTEXT
     wxPaintDC const pdc(this);
-    wxGCDC dc( pdc ) ;
-    #else
+    wxGCDC dc(pdc);
+#else
     wxPaintDC dc(this);
-    #endif
+#endif
 
     PaintMap(dc);
 }
-
-
-

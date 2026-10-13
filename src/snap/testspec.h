@@ -17,57 +17,59 @@
 
 */
 
-
-struct SpecDef
-{
+struct SpecDef {
     /// name is upper-cased, matching the original's _strupr(), since spec
     /// names are matched case-insensitively but stored upper-case.
-    SpecDef( std::string_view name, double conf,
-             int goth, double habs, double hppm, double hmax,
-             int gotv, double vabs, double vppm, double vmax ) :
-        next(nullptr), name(boost::algorithm::to_upper_copy(std::string(name))), confidence(conf),
-        gothtol(goth), htolabs(habs), htolppm(hppm), htolmax(hmax), htolfactor(0.0),
-        gotvtol(gotv), vtolabs(vabs), vtolppm(vppm), vtolmax(vmax), vtolfactor(0.0),
-        testid(0)
-    {
-    }
+    SpecDef(std::string_view name, double conf, int goth, double habs, double hppm, double hmax, int gotv, double vabs,
+            double vppm, double vmax)
+        : next(nullptr),
+          name(boost::algorithm::to_upper_copy(std::string(name))),
+          confidence(conf),
+          gothtol(goth),
+          htolabs(habs),
+          htolppm(hppm),
+          htolmax(hmax),
+          htolfactor(0.0),
+          gotvtol(gotv),
+          vtolabs(vabs),
+          vtolppm(vppm),
+          vtolmax(vmax),
+          vtolfactor(0.0),
+          testid(0) {}
 
-    struct SpecDef * next;          ///< mutated later, appending a new node
+    struct SpecDef* next;  ///< mutated later, appending a new node
     const std::string name;
     const double confidence;
     const int gothtol;
     const double htolabs;
     const double htolppm;
     const double htolmax;
-    double htolfactor;              ///< computed later, at test time
+    double htolfactor;  ///< computed later, at test time
     const int gotvtol;
     const double vtolabs;
     const double vtolppm;
     const double vtolmax;
-    double vtolfactor;              ///< computed later, at test time
-    int testid;                     ///< lazily assigned on first use
+    double vtolfactor;  ///< computed later, at test time
+    int testid;         ///< lazily assigned on first use
 };
 
-int define_spec( std::string_view name, double conf,
-                 int goth, double habs, double hppm, double hmax,
-                 int gotv, double vabs, double vppm, double vmax );
+int define_spec(std::string_view name, double conf, int goth, double habs, double hppm, double hmax, int gotv,
+                double vabs, double vppm, double vmax);
 
-void set_spec_apriori( int isapriori );
+void set_spec_apriori(int isapriori);
 
-void set_spec_listoption( int option );
+void set_spec_listoption(int option);
 
-int get_spec_testid( std::string_view name, int *testid );
+int get_spec_testid(std::string_view name, int* testid);
 
-int set_station_spec_testid( int stnid, int testid, int add );
+int set_station_spec_testid(int stnid, int testid, int add);
 
-void test_specifications( void );
+void test_specifications(void);
 
 extern int do_accuracy_tests;
 
 #define SPEC_LIST_NONE 0
 #define SPEC_LIST_FAIL 1
-#define SPEC_LIST_ALL  2
+#define SPEC_LIST_ALL 2
 
-
-#endif  /* TESTSPEC_H defined */
-
+#endif /* TESTSPEC_H defined */

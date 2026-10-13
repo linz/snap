@@ -39,11 +39,20 @@ This includes managing reference frames, ellipsoids, and projections.
 #define CRDSYSENV "COORDSYSDEF"
 
 #define CRDSYS_CODE_LEN 20
-#define CRDCNV_CODE_LEN (CRDSYS_CODE_LEN+CRDSYS_CODE_LEN+CRDSYS_CODE_LEN+5)
+#define CRDCNV_CODE_LEN (CRDSYS_CODE_LEN + CRDSYS_CODE_LEN + CRDSYS_CODE_LEN + 5)
 #define CRDSYS_NAME_LEN 128
 
 enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
-enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_NOTE, CS_VDATUM, CS_COORDSYS_COUNT, CS_INVALID };
+enum {
+    CS_ELLIPSOID,
+    CS_REF_FRAME,
+    CS_COORDSYS,
+    CS_REF_FRAME_NOTE,
+    CS_COORDSYS_NOTE,
+    CS_VDATUM,
+    CS_COORDSYS_COUNT,
+    CS_INVALID
+};
 
 /* Default epoch for low accuracy coordinate conversions between coordinate systems.
    Use this to allow conversions where an epoch is required but is not available.
@@ -58,11 +67,10 @@ enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_N
 /// Always fully-formed once constructed (no default constructor, all
 /// fields const) - copy freely via the compiler-generated copy
 /// constructor, never assign.
-struct ellipsoid
-{
+struct ellipsoid {
     /// Uppercases code (matching every existing ellipsoid code convention)
     /// and derives b/a2/b2/a2b2 from a/rf.
-    ellipsoid( const std::string &code, const std::string &name, double a, double rf );
+    ellipsoid(const std::string& code, const std::string& name, double a, double rf);
 
     const std::string code;  ///< Code for the ellipsoid
     const std::string name;  ///< Name of the ellipsoid
@@ -95,40 +103,38 @@ struct ref_deformation;
 /// trans/csrot/snrot/sclfct are a lazily-recomputed cache (see
 /// init_ref_frame); defepoch is mutated by define_deformation_model_epoch().
 /// None of these five are const, for those reasons.
-struct ref_frame
-{
-    ref_frame( const std::string &code, const std::string &name, ellipsoid *el,
-               std::optional<std::string> refcode, const double txyz[3], const double rxyz[3], double scale,
-               double refdate, double dtxyz[3], double drxyz[3], double dscale,
-               ref_frame_func *func = nullptr, ref_deformation *def = nullptr,
-               int use_iersunits = 0 );
-    ref_frame( const ref_frame& ) = delete;
+struct ref_frame {
+    ref_frame(const std::string& code, const std::string& name, ellipsoid* el, std::optional<std::string> refcode,
+              const double txyz[3], const double rxyz[3], double scale, double refdate, double dtxyz[3],
+              double drxyz[3], double dscale, ref_frame_func* func = nullptr, ref_deformation* def = nullptr,
+              int use_iersunits = 0);
+    ref_frame(const ref_frame&) = delete;
     ~ref_frame();
 
-    const std::string code;        ///< Code for the reference frame
-    const std::string name;        ///< Name of the frame
-    ellipsoid * const el;          ///< Ellipsoid defined for the frame (nullptr if none)
-    double txyz[3];    /* The translation components (m) */
-    double rxyz[3];    /* The rotation components (sec)  */
-    const double scale;      /* The scale factor (ppm)         */
-    double dtxyz[3];   /* The rate of change of translation components (m/yr) */
-    double drxyz[3];   /* The rate of change of rotation components (sec/yr)  */
-    const double dscale;     /* The rate of change of scale factor (ppm/yr) */
-    const double refdate;    /* The date at which the translation,
+    const std::string code;                    ///< Code for the reference frame
+    const std::string name;                    ///< Name of the frame
+    ellipsoid* const el;                       ///< Ellipsoid defined for the frame (nullptr if none)
+    double txyz[3];                            /* The translation components (m) */
+    double rxyz[3];                            /* The rotation components (sec)  */
+    const double scale;                        /* The scale factor (ppm)         */
+    double dtxyz[3];                           /* The rate of change of translation components (m/yr) */
+    double drxyz[3];                           /* The rate of change of rotation components (sec/yr)  */
+    const double dscale;                       /* The rate of change of scale factor (ppm/yr) */
+    const double refdate;                      /* The date at which the translation,
                           rotation, and scale apply (years) */
-    double calcdate;   /* Date at which the calculation values apply */
-    double trans[3];   /* Translations applying at the date */
-    double csrot[3];   /* Cosine of rotations at calculation date */
-    double snrot[3];   /* Sine of rotations at calculation date */
-    double sclfct;     /* Scale factor applying at calculation date */
-    const bool use_rates;     /* True if have time dependent transformations */
-    const int use_iersunits; /* Non-zero if using IERS units mm, mas, ppb */
-    const std::optional<std::string> refcode;     ///< Base system code, or nullopt
-    ref_frame *refrf;  /* Base system reference frame definition */
-    ref_frame_func *func;
+    double calcdate;                           /* Date at which the calculation values apply */
+    double trans[3];                           /* Translations applying at the date */
+    double csrot[3];                           /* Cosine of rotations at calculation date */
+    double snrot[3];                           /* Sine of rotations at calculation date */
+    double sclfct;                             /* Scale factor applying at calculation date */
+    const bool use_rates;                      /* True if have time dependent transformations */
+    const int use_iersunits;                   /* Non-zero if using IERS units mm, mas, ppb */
+    const std::optional<std::string> refcode;  ///< Base system code, or nullopt
+    ref_frame* refrf;                          /* Base system reference frame definition */
+    ref_frame_func* func;
     /* Non-standard reference frame conversion function */
-    double defepoch;      /* The reference epoch of the deformation model */
-    ref_deformation * const def; /* Deformation function */
+    double defepoch;            /* The reference epoch of the deformation model */
+    ref_deformation* const def; /* Deformation function */
 };
 
 /// Always fully-formed once constructed (no default constructor, all
@@ -141,31 +147,31 @@ struct ref_frame
 /// public destruction API of its own. Exactly one concrete implementation
 /// exists today (the grid transform in crdsys_rffunc_grid.cpp), reached
 /// only through create_rf_grid_func().
-struct ref_frame_func
-{
+struct ref_frame_func {
     /// type/description are taken by value and moved into the member,
     /// not by const&: both are stored verbatim with no transformation, so
     /// a caller passing a temporary (e.g. the string literal "GRID")
     /// avoids the extra copy const& would still require.
-    ref_frame_func( std::string type, std::optional<std::string> description, void *data,
-                     void (*delete_data)(void *data),
-                     int (*describe_func)(ref_frame *rf, output_string_def *os),
-                     void *(*copy_data)(void *data),
-                     int (*identical)(void *data1, void *data2),
-                     int (*xyz_to_std_func)( ref_frame *rf, double xyz[3], double date ),
-                     int (*std_to_xyz_func)( ref_frame *rf, double xyz[3], double date ) );
-    ref_frame_func( const ref_frame_func& ) = delete;
+    ref_frame_func(std::string type, std::optional<std::string> description, void* data,
+                   void (*delete_data)(void* data), int (*describe_func)(ref_frame* rf, output_string_def* os),
+                   void* (*copy_data)(void* data), int (*identical)(void* data1, void* data2),
+                   int (*xyz_to_std_func)(ref_frame* rf, double xyz[3], double date),
+                   int (*std_to_xyz_func)(ref_frame* rf, double xyz[3], double date));
+    ref_frame_func(const ref_frame_func&) = delete;
     ~ref_frame_func();
 
-    const std::string type;                      ///< Discriminator tag for the concrete implementation, e.g. "GRID"
-    const std::optional<std::string> description; ///< Human-readable description used in reporting, or nullopt
-    void * const data;                            ///< Opaque payload for the concrete implementation, freed by delete_data
-    void (* const delete_data)(void *data);       ///< Frees the object pointed to by this struct's own data member
-    int (* const describe_func)(ref_frame *rf, output_string_def *os ); ///< Writes a human-readable description of the transform
-    void *(* const copy_data)(void *data);        ///< Deep-copies this struct's own data member
-    int (* const identical)(void *data1, void *data2); ///< Compares two data payloads for equality
-    int (* const xyz_to_std_func)( ref_frame *rf, double xyz[3], double date ); ///< Overrides the standard xyz->std transform
-    int (* const std_to_xyz_func)( ref_frame *rf, double xyz[3], double date ); ///< Overrides the standard std->xyz transform
+    const std::string type;                        ///< Discriminator tag for the concrete implementation, e.g. "GRID"
+    const std::optional<std::string> description;  ///< Human-readable description used in reporting, or nullopt
+    void* const data;                       ///< Opaque payload for the concrete implementation, freed by delete_data
+    void (*const delete_data)(void* data);  ///< Frees the object pointed to by this struct's own data member
+    int (*const describe_func)(ref_frame* rf,
+                               output_string_def* os);  ///< Writes a human-readable description of the transform
+    void* (*const copy_data)(void* data);               ///< Deep-copies this struct's own data member
+    int (*const identical)(void* data1, void* data2);   ///< Compares two data payloads for equality
+    int (*const xyz_to_std_func)(ref_frame* rf, double xyz[3],
+                                 double date);  ///< Overrides the standard xyz->std transform
+    int (*const std_to_xyz_func)(ref_frame* rf, double xyz[3],
+                                 double date);  ///< Overrides the standard std->xyz transform
 };
 
 /// Always fully-formed once constructed (no default constructor, all
@@ -181,30 +187,32 @@ struct ref_frame_func
 /// crdsys_rfdef_*.cpp. apply_llh is the one field that is genuinely,
 /// deliberately null for a real implementation (linzdef) - every other
 /// function pointer is unconditionally set by all 3 implementations.
-struct ref_deformation
-{
+struct ref_deformation {
     /// type is taken by value and moved into the member, not by const&:
     /// it's stored verbatim with no transformation, so a caller passing a
     /// temporary (e.g. a string literal type tag) avoids the extra copy
     /// const& would still require.
-    ref_deformation( std::string type, void *data,
-                      void (*delete_data)(void *data),
-                      void *(*copy_data)(void *data),
-                      int (*identical)(void *data1, void *data2),
-                      int (*describe_func)( ref_frame *rf, output_string_def *os ),
-                      int (*calc_denu)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]),
-                      int (*apply_llh)( ref_frame *rf, double llh[3], double epochfrom, double epochto ) );
-    ref_deformation( const ref_deformation& ) = delete;
+    ref_deformation(std::string type, void* data, void (*delete_data)(void* data), void* (*copy_data)(void* data),
+                    int (*identical)(void* data1, void* data2),
+                    int (*describe_func)(ref_frame* rf, output_string_def* os),
+                    int (*calc_denu)(ref_frame* rf, double lon, double lat, double epoch, double denu[3]),
+                    int (*apply_llh)(ref_frame* rf, double llh[3], double epochfrom, double epochto));
+    ref_deformation(const ref_deformation&) = delete;
     ~ref_deformation();
 
-    const std::string type;                       ///< Discriminator tag for the concrete implementation, e.g. "LINZDEF"
-    void * const data;                             ///< Opaque payload for the concrete implementation, freed by delete_data
-    void (* const delete_data)(void *data);        ///< Frees the object pointed to by this struct's own data member
-    void *(* const copy_data)(void *data);         ///< Deep-copies this struct's own data member
-    int (* const identical)(void *data1, void *data2); ///< Compares two data payloads for equality
-    int (* const describe_func)( ref_frame *rf, output_string_def *os ); ///< Writes a human-readable description of the deformation model
-    int (* const calc_denu)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]); ///< Computes the east/north/up offset the model predicts at a given epoch
-    int (* const apply_llh)( ref_frame *rf, double llh[3], double epochfrom, double epochto ); ///< Applies the deformation between two epochs directly to llh, or nullptr to use the generic calc_denu-difference fallback
+    const std::string type;                 ///< Discriminator tag for the concrete implementation, e.g. "LINZDEF"
+    void* const data;                       ///< Opaque payload for the concrete implementation, freed by delete_data
+    void (*const delete_data)(void* data);  ///< Frees the object pointed to by this struct's own data member
+    void* (*const copy_data)(void* data);   ///< Deep-copies this struct's own data member
+    int (*const identical)(void* data1, void* data2);  ///< Compares two data payloads for equality
+    int (*const describe_func)(
+        ref_frame* rf, output_string_def* os);  ///< Writes a human-readable description of the deformation model
+    int (*const calc_denu)(ref_frame* rf, double lon, double lat, double epoch,
+                           double denu[3]);  ///< Computes the east/north/up offset the model predicts at a given epoch
+    int (*const apply_llh)(
+        ref_frame* rf, double llh[3], double epochfrom,
+        double
+            epochto);  ///< Applies the deformation between two epochs directly to llh, or nullptr to use the generic calc_denu-difference fallback
 };
 
 /* A projection.  projection_type is defined in a private header file,
@@ -212,19 +220,18 @@ struct ref_deformation
 
 struct projection_type;
 
-struct projection
-{
-    projection_type * const type;   ///< The type of the projection, which defines how its data is used
-    void *data;                     ///< The data of the projection, whose layout is defined by its type
+struct projection {
+    projection_type* const type;  ///< The type of the projection, which defines how its data is used
+    void* data;                   ///< The data of the projection, whose layout is defined by its type
 
     projection() = delete;
-    projection &operator=( const projection & ) = delete;
+    projection& operator=(const projection&) = delete;
 
     /// Creates a projection of the given type, with its data created by the type
-    explicit projection( projection_type &projtype );
+    explicit projection(projection_type& projtype);
 
     /// Creates a copy of a projection, with its own copy of the data
-    projection( const projection &other );
+    projection(const projection& other);
 
     ~projection();
 };
@@ -240,25 +247,22 @@ struct vdatum_func;
 /// one recursively deletes basehrs/rf/func. Exactly one of basehrs/rf is
 /// ever set - which constructor is used decides which, structurally
 /// (not validated at runtime).
-struct vdatum
-{
+struct vdatum {
     /// Based on another vertical datum (basehrs), not a reference frame.
-    vdatum( const std::string &code, const std::string &name,
-            vdatum *basehrs, vdatum_func *hrf,
-            std::optional<std::string> source = std::nullopt );
+    vdatum(const std::string& code, const std::string& name, vdatum* basehrs, vdatum_func* hrf,
+           std::optional<std::string> source = std::nullopt);
     /// Based directly on a reference frame (rf), not another vertical datum.
-    vdatum( const std::string &code, const std::string &name,
-            ref_frame *rf, vdatum_func *hrf,
-            std::optional<std::string> source = std::nullopt );
-    vdatum( const vdatum& ) = delete;
+    vdatum(const std::string& code, const std::string& name, ref_frame* rf, vdatum_func* hrf,
+           std::optional<std::string> source = std::nullopt);
+    vdatum(const vdatum&) = delete;
     ~vdatum();
 
-    const std::string code;                  ///< Code for the vertical datum
-    const std::string name;                  ///< Name of the surface
-    const std::optional<std::string> source; ///< Where the vdatum was loaded from
-    vdatum * const basehrs;                  ///< Base reference surface pointer
-    ref_frame * const rf;                    ///< The underlying reference frame
-    vdatum_func * const func;                ///< Function surface height relative base
+    const std::string code;                   ///< Code for the vertical datum
+    const std::string name;                   ///< Name of the surface
+    const std::optional<std::string> source;  ///< Where the vdatum was loaded from
+    vdatum* const basehrs;                    ///< Base reference surface pointer
+    ref_frame* const rf;                      ///< The underlying reference frame
+    vdatum_func* const func;                  ///< Function surface height relative base
                                               ///< surface, or to ellipsoidal if basehrscode is null
 };
 
@@ -274,69 +278,65 @@ struct vdatum
 /// gotrange/emin.../ltmax are mutated by define_coordsys_range(); hunits/
 /// hmult/vunits/vmult are mutated by define_coordsys_units(); ownsrf/setrf
 /// are mutated alongside rf. None of these are const, for those reasons.
-struct coordsys
-{
-    coordsys( const std::string &code, const std::string &name, int type,
-              ref_frame *rf, projection *prj,
-              std::optional<std::string> source = std::nullopt );
-    coordsys( const coordsys& ) = delete;
+struct coordsys {
+    coordsys(const std::string& code, const std::string& name, int type, ref_frame* rf, projection* prj,
+             std::optional<std::string> source = std::nullopt);
+    coordsys(const coordsys&) = delete;
     ~coordsys();
 
-    const std::string code;        ///< The code for the coordinate system
-    const std::string name;        ///< The name of the coordinate system
-    const std::optional<std::string> source; ///< Where the coordsys was loaded from
-    ref_frame *rf;     /* The reference frame                */
-    projection * const prj;   /* The projection - if any            */
-    vdatum *hrs;   /* Vertical datum, if any   */
-    char crdtype;      /* As per CSTP_ enum above            */
-    char gotrange;     /* Defines whether a valid range has  */
-    char ownsrf;       /* If true then CS owns rf            */
-    char setrf;        /* If true then original rf is overridden */
-    double emin, nmin; /* Easting northing limits - if defined */
+    const std::string code;                   ///< The code for the coordinate system
+    const std::string name;                   ///< The name of the coordinate system
+    const std::optional<std::string> source;  ///< Where the coordsys was loaded from
+    ref_frame* rf;                            /* The reference frame                */
+    projection* const prj;                    /* The projection - if any            */
+    vdatum* hrs;                              /* Vertical datum, if any   */
+    char crdtype;                             /* As per CSTP_ enum above            */
+    char gotrange;                            /* Defines whether a valid range has  */
+    char ownsrf;                              /* If true then CS owns rf            */
+    char setrf;                               /* If true then original rf is overridden */
+    double emin, nmin;                        /* Easting northing limits - if defined */
     double emax, nmax;
-    double ltmin, lnmin;  /* Latitude/longitude range */
+    double ltmin, lnmin; /* Latitude/longitude range */
     double ltmax, lnmax;
 
     /* NOTE: units information is a placeholder at present - not used */
 
-    std::string hunits;  /* Name of horizontal units */
-    double hmult;        /* Multiplier for horizontal units */
-    std::string vunits;  /* Name of vertical units */
-    double vmult;        /* Multiplier for vertical units */
+    std::string hunits; /* Name of horizontal units */
+    double hmult;       /* Multiplier for horizontal units */
+    std::string vunits; /* Name of vertical units */
+    double vmult;       /* Multiplier for vertical units */
 };
 
 /* Definition of a coordinate conversion */
 
 #define CONVMAXRF 10
 
-struct coord_conversion_rf
-{
-    ref_frame *rf;        /* Reference frame in which conversion is defined */
-    char xyz_to_std;      /* Direction, 1 for xyz->base, 0 for base->xyz */
-    char def_only;        /* Set if only need to apply deformation, not rf axes trans */
-    char need_xyz;        /* Need geocentric at end of step (next rf has different ellipsoid ) */
+struct coord_conversion_rf {
+    ref_frame* rf;   /* Reference frame in which conversion is defined */
+    char xyz_to_std; /* Direction, 1 for xyz->base, 0 for base->xyz */
+    char def_only;   /* Set if only need to apply deformation, not rf axes trans */
+    char need_xyz;   /* Need geocentric at end of step (next rf has different ellipsoid ) */
 };
 
 /// A conversion between two coordinate systems.  A default constructed
 /// conversion is not valid.  Redefine one by assigning a new conversion to it.
-struct coord_conversion
-{
-    coordsys *from=nullptr;    ///< Source reference frame
-    coordsys *to=nullptr;      ///< Target reference frame
-    char     valid=0;          ///< Flags whether a conversion is possible
-    double   epochconv=0.0;    ///< Conversion epoch
-    char     needsepoch=0;     ///< Flags whether the conversion needs an epoch defined
-    char     from_prj=0;       ///< Need projection of from system
-    char     to_prj=0;         ///< Need to convert coords back to projection
-    char     from_geoc=0;      ///< Input system is geocentric
-    char     to_geoc=0;        ///< Output system is geocentric
-    char     need_xyz=0;       ///< Need xyz before first reference frame tfm
-    std::string errmsg;        ///< Last error message
-    coord_conversion_rf crf[CONVMAXRF]={}; ///< Conversion rf steps
-    int      ncrf=0;           ///< Number of steps used
-    vdatum_func *hrf[CONVMAXRF]={}; ///< Vertical datum functions
-    int      nhrf_from=0;      ///< Number of vertical datum functions from source
-    int      nhrf_to=0;        ///< Number of vertical datum functions to target
+struct coord_conversion {
+    coordsys* from = nullptr;                 ///< Source reference frame
+    coordsys* to = nullptr;                   ///< Target reference frame
+    char valid = 0;                           ///< Flags whether a conversion is possible
+    double epochconv = 0.0;                   ///< Conversion epoch
+    char needsepoch = 0;                      ///< Flags whether the conversion needs an epoch defined
+    char from_prj = 0;                        ///< Need projection of from system
+    char to_prj = 0;                          ///< Need to convert coords back to projection
+    char from_geoc = 0;                       ///< Input system is geocentric
+    char to_geoc = 0;                         ///< Output system is geocentric
+    char need_xyz = 0;                        ///< Need xyz before first reference frame tfm
+    std::string errmsg;                       ///< Last error message
+    coord_conversion_rf crf[CONVMAXRF] = {};  ///< Conversion rf steps
+    int ncrf = 0;                             ///< Number of steps used
+    vdatum_func* hrf[CONVMAXRF] = {};         ///< Vertical datum functions
+    int nhrf_from = 0;                        ///< Number of vertical datum functions from source
+    int nhrf_to = 0;                          ///< Number of vertical datum functions to target
 
     coord_conversion() = default;
 
@@ -345,43 +345,41 @@ struct coord_conversion
     /// applies for conversions involving two different deformation models,
     /// where it is the epoch at which the reference frame transformation is
     /// applied).  Check valid and errmsg to see whether it is possible.
-    coord_conversion(
-        coordsys *fromCoordsys,         ///< source coordinate system
-        coordsys *toCoordsys,           ///< target coordinate system
-        double convepoch=0.0,           ///< conversion epoch
-        bool ellipsoidal=false );       ///< true to convert ellipsoidal coordinates, ignoring vertical datums
+    coord_conversion(coordsys* fromCoordsys,     ///< source coordinate system
+                     coordsys* toCoordsys,       ///< target coordinate system
+                     double convepoch = 0.0,     ///< conversion epoch
+                     bool ellipsoidal = false);  ///< true to convert ellipsoidal coordinates, ignoring vertical datums
 
-private:
+ private:
     /// The conversion epoch, taken from the reference frames' deformation
     /// epochs if convepoch is undefined and they agree.
-    [[nodiscard]] double _defaultEpoch( double convepoch ) const;
+    [[nodiscard]] double _defaultEpoch(double convepoch) const;
 
     /// Finds the common base reference frame by following the reference
     /// frame chains from the source and target systems.  Returns false if
     /// there is none.
     bool _findCommonReferenceFrame(
-        int &nfrom,               ///< number of steps up from the source reference frame
-        int &nto,                 ///< number of steps up from the target reference frame
-        bool &changeepoch ) const; ///< true if the common frames have different deformation epochs
+        int& nfrom,                ///< number of steps up from the source reference frame
+        int& nto,                  ///< number of steps up from the target reference frame
+        bool& changeepoch) const;  ///< true if the common frames have different deformation epochs
 
     /// Defines the reference frame steps of the conversion.
-    void _defineReferenceFrameSteps(
-        int nfrom,                ///< number of steps up from the source reference frame
-        int nto,                  ///< number of steps up from the target reference frame
-        bool changeepoch,         ///< true if the common frames have different deformation epochs
-        double convepoch );       ///< conversion epoch
+    void _defineReferenceFrameSteps(int nfrom,          ///< number of steps up from the source reference frame
+                                    int nto,            ///< number of steps up from the target reference frame
+                                    bool changeepoch,   ///< true if the common frames have different deformation epochs
+                                    double convepoch);  ///< conversion epoch
 
     /// Defines the vertical datum steps of the conversion.
     void _defineVerticalDatumSteps(
-        bool refFrameChanges );   ///< true if the conversion has reference frame steps or changes ellipsoid
+        bool refFrameChanges);  ///< true if the conversion has reference frame steps or changes ellipsoid
 };
 
 /*====================================================================*/
 /* #defines to locate coordinates in arrays                           */
 
-#define CRD_X  0
-#define CRD_Y  1
-#define CRD_Z  2
+#define CRD_X 0
+#define CRD_Y 1
+#define CRD_Z 2
 
 #define CRD_LON 0
 #define CRD_LAT 1
@@ -396,31 +394,30 @@ private:
 /* Routines relating to reference frames.  NOTE: The reference frame takes
    over ownership of the ellipsoid.  */
 
-ref_frame *copy_ref_frame( ref_frame *rf );
+ref_frame* copy_ref_frame(ref_frame* rf);
 
-ref_frame_func *copy_ref_frame_func( ref_frame_func *rff );
+ref_frame_func* copy_ref_frame_func(ref_frame_func* rff);
 
-ref_deformation *copy_ref_deformation( ref_deformation *rdf );
+ref_deformation* copy_ref_deformation(ref_deformation* rdf);
 
-void init_ref_frame( ref_frame *rf, double convepoch );
+void init_ref_frame(ref_frame* rf, double convepoch);
 
 /* Routines relating to projections */
 /* This could go to a private header file */
 
-projection_type *register_projection_type( projection_type *tp );
-projection_type *find_projection_type( const std::string &code );
+projection_type* register_projection_type(projection_type* tp);
+projection_type* find_projection_type(const std::string& code);
 
-void set_projection_ellipsoid( projection *prj, ellipsoid *el );
-
+void set_projection_ellipsoid(projection* prj, ellipsoid* el);
 
 /* Routines relating to coordinate systems */
 /* NOTE: coordsys's constructor copies the pointers to the component
   features only. If the calling routines needs to retain ownership it
   should make copies before constructing the coordsys */
 
-coordsys *copy_coordsys( coordsys *cs );
-coordsys *related_coordsys( coordsys *cs, int type );
-int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf );
+coordsys* copy_coordsys(coordsys* cs);
+coordsys* related_coordsys(coordsys* cs, int type);
+int set_coordsys_ref_frame(coordsys* cs, ref_frame* rf);
 
 /* Set the vertical datum for the coordinate system.  The 
  * coordinate system takes ownership of the vertical datum
@@ -429,26 +426,24 @@ int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf );
  * set_coordsys_vdatum will delete it.
  */
 
-bool coordsys_vdatum_compatible( coordsys *cs, vdatum *hrs );
-vdatum *coordsys_vdatum( coordsys *cs );
-int set_coordsys_vdatum( coordsys *cs, vdatum *hrs );
-void set_coordsys_geoid( coordsys *cs, const std::string &geoidfile );
-bool coordsys_heights_orthometric( coordsys *cs );
+bool coordsys_vdatum_compatible(coordsys* cs, vdatum* hrs);
+vdatum* coordsys_vdatum(coordsys* cs);
+int set_coordsys_vdatum(coordsys* cs, vdatum* hrs);
+void set_coordsys_geoid(coordsys* cs, const std::string& geoidfile);
+bool coordsys_heights_orthometric(coordsys* cs);
 
 /* Define the reference epoch for the coordinate system deformation model */
 
-void define_deformation_model_epoch( coordsys *cs, double epoch );
+void define_deformation_model_epoch(coordsys* cs, double epoch);
 
 /* For projection coordinate systems emin, nmin, emax, and nmax are
    obvious.  For geodetic coordinate systems the parameters are
    (cs, lonmin, latmin, lonmax, latmax ) */
 
-void define_coordsys_range( coordsys *cs,
-                            double emin, double nmin, double emax, double nmax );
+void define_coordsys_range(coordsys* cs, double emin, double nmin, double emax, double nmax);
 
-void define_coordsys_units( coordsys *cs,
-                            const std::string &hunit, double hmult,
-                            const std::string &vunit, double vmult );
+void define_coordsys_units(coordsys* cs, const std::string& hunit, double hmult, const std::string& vunit,
+                           double vmult);
 
 /* For projection coordinate systems checks that xyz[CRD_EAST] lies in the
    range emin to emax, and xyz[CRD_NORTH] lies in the range nmin to nmax.
@@ -459,23 +454,23 @@ void define_coordsys_units( coordsys *cs,
    Return codes are one of OK, INCONSISTENT_DATA (valid after shifting
    longitude), and INVALID_DATA (out of range) */
 
-int check_coordsys_range( coordsys *cs, double xyz[3] );
+int check_coordsys_range(coordsys* cs, double xyz[3]);
 
 /* Routines relating to vertical datum systems */
 
-vdatum *geoid_vdatum( const std::string &geoidfile, ref_frame *rf );
-vdatum *copy_vdatum( vdatum *hrs );
-int identical_vdatum( vdatum *hrs1, vdatum *hrs2 );
-int calc_vdatum_offset( vdatum *hrs, double llh[3], double *height, double *exu );
+vdatum* geoid_vdatum(const std::string& geoidfile, ref_frame* rf);
+vdatum* copy_vdatum(vdatum* hrs);
+int identical_vdatum(vdatum* hrs1, vdatum* hrs2);
+int calc_vdatum_offset(vdatum* hrs, double llh[3], double* height, double* exu);
 
 /* Calculate geoid information from coordinate info.  If exu is not null
  * it is assumed to be a double[3] and receives the coordinates and
- * deflection of the vertical */ 
+ * deflection of the vertical */
 
-int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu );
+int coordsys_geoid_exu(coordsys* cs, double llh[3], double* height, double* exu);
 
-vdatum *base_vdatum( vdatum *hrs );
-ref_frame *vdatum_ref_frame( vdatum *hrs );
+vdatum* base_vdatum(vdatum* hrs);
+ref_frame* vdatum_ref_frame(vdatum* hrs);
 
 /*=====================================================================*/
 /* Creating coordinate system components from definitions in a char    */
@@ -484,23 +479,19 @@ ref_frame *vdatum_ref_frame( vdatum *hrs );
 /* error may come from the calls to calls to *getel and *getrf for     */
 /* the reference frame and coordinate system routines.                 */
 
-ellipsoid  *parse_ellipsoid_def ( input_string_def &is, int embedded );
-ref_frame  *parse_ref_frame_def ( input_string_def &is,
-                                  ellipsoid *(*getel)(std::string_view code ),
-                                  ref_frame *(*getrf)(std::string_view code, int loadref ),
-                                  int embedded, int loadref );
-int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff );
-int parse_ref_deformation_def ( input_string_def &is, ref_deformation **rdf );
+ellipsoid* parse_ellipsoid_def(input_string_def& is, int embedded);
+ref_frame* parse_ref_frame_def(input_string_def& is, ellipsoid* (*getel)(std::string_view code),
+                               ref_frame* (*getrf)(std::string_view code, int loadref), int embedded, int loadref);
+int parse_ref_frame_func_def(input_string_def& is, ref_frame_func** rff);
+int parse_ref_deformation_def(input_string_def& is, ref_deformation** rdf);
 
-projection *parse_projection_def( input_string_def &is );
-coordsys   *parse_coordsys_def  ( input_string_def &is,
-                                  ref_frame *(*getrf)(std::string_view code, int loadref ));
+projection* parse_projection_def(input_string_def& is);
+coordsys* parse_coordsys_def(input_string_def& is, ref_frame* (*getrf)(std::string_view code, int loadref));
 
-bool parse_crdsys_epoch( std::string_view epochstr, double &epoch );
+bool parse_crdsys_epoch(std::string_view epochstr, double& epoch);
 
-vdatum *parse_vdatum_def ( input_string_def &is,
-                                  ref_frame *(*getrf)(std::string_view code, int loadref ),
-                                  vdatum *(*gethrs)(std::string_view code, int loadref ));
+vdatum* parse_vdatum_def(input_string_def& is, ref_frame* (*getrf)(std::string_view code, int loadref),
+                         vdatum* (*gethrs)(std::string_view code, int loadref));
 
 /*=====================================================================*/
 /* Getting information about components of coordinate systems.         */
@@ -513,28 +504,28 @@ vdatum *parse_vdatum_def ( input_string_def &is,
 /* the units of the coordinate system.                                 */
 /*=====================================================================*/
 
-int  related_coordinate_systems( coordsys *c1, coordsys *c2 );
-int  identical_coordinate_systems( coordsys *c1, coordsys *c2 );
-int  identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 );
-int  identical_datum( ref_frame *rf1, ref_frame *rf2 );
-int  identical_ref_frame_func( ref_frame_func *rff1, ref_frame_func *rff2 );
-int  identical_ref_deformation( ref_deformation *def1, ref_deformation *def2 );
-int  identical_ellipsoids( ellipsoid *el1, ellipsoid *el2 );
-int  identical_projections( projection *prj1, projection *prj2 );
+int related_coordinate_systems(coordsys* c1, coordsys* c2);
+int identical_coordinate_systems(coordsys* c1, coordsys* c2);
+int identical_ref_frame_axes(ref_frame* rf1, ref_frame* rf2);
+int identical_datum(ref_frame* rf1, ref_frame* rf2);
+int identical_ref_frame_func(ref_frame_func* rff1, ref_frame_func* rff2);
+int identical_ref_deformation(ref_deformation* def1, ref_deformation* def2);
+int identical_ellipsoids(ellipsoid* el1, ellipsoid* el2);
+int identical_projections(projection* prj1, projection* prj2);
 
-int is_projection( coordsys *cs );
-int is_geodetic( coordsys *cs );
-int is_geocentric( coordsys *cs );
+int is_projection(coordsys* cs);
+int is_geodetic(coordsys* cs);
+int is_geocentric(coordsys* cs);
 
-int has_deformation_model( coordsys *cs );
-double deformation_model_epoch( coordsys *cs );
+int has_deformation_model(coordsys* cs);
+double deformation_model_epoch(coordsys* cs);
 
 /* Coordinates in range check functions.  Note that the latitude/longitude
    functions take pointers to the lat and long, as the longitude may be
    shifted by a multiple of 2*PI to get into range */
 
-int en_coords_in_range( coordsys *cs, double e, double n );
-int ll_coords_in_range( coordsys *cs, double *lon, const double *lat );
+int en_coords_in_range(coordsys* cs, double e, double n);
+int ll_coords_in_range(coordsys* cs, double* lon, const double* lat);
 
 /*=====================================================================*/
 /* Routines to do coordinate conversions                               */
@@ -542,35 +533,30 @@ int ll_coords_in_range( coordsys *cs, double *lon, const double *lat );
 /* Conversion of geocentric coordinates to and from the standard
   reference frame */
 
-int xyz_to_std( ref_frame *rf, double xyz[3], double date );
-int std_to_xyz( ref_frame *rf, double xyz[3], double date );
+int xyz_to_std(ref_frame* rf, double xyz[3], double date);
+int std_to_xyz(ref_frame* rf, double xyz[3], double date);
 
 /* Deformation calculations */
 
-int ref_deformation_at_epoch( ref_frame *rf, double llh[3],
-                              double epoch, double denu[3] );
-int apply_ref_deformation_llh( ref_frame *rf, double llh[3],
-                               double epochfrom, double epochto );
+int ref_deformation_at_epoch(ref_frame* rf, double llh[3], double epoch, double denu[3]);
+int apply_ref_deformation_llh(ref_frame* rf, double llh[3], double epochfrom, double epochto);
 
 /* Utility function for deformation implementations */
 
-int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], const double denu[3] );
+int rf_apply_enu_deformation_to_llh(ref_frame* rf, double llh[3], const double denu[3]);
 
 /* Conversions geodetic (lon, lat, ellipsoidal height) <=> geocentric */
 /* Lat, long in radians.  dNdLT and dEdLn may be NULL.  The new array */
 /* may overwrite the old if required (i.e. llh == xyz is OK)          */
 
-double *llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
-                    double *dEdLn, double *dNdLt);
+double* llh_to_xyz(ellipsoid* el, double llh[3], double xyz[3], double* dEdLn, double* dNdLt);
 
-double *xyz_to_llh( ellipsoid *el, double xyz[3], double llh[3] );
+double* xyz_to_llh(ellipsoid* el, double xyz[3], double llh[3]);
 
 /* Conversion from latitude/longitude <=> projection coordinates */
 
-int geog_to_proj( projection *prj, double lon, double lat,
-                   double *easting, double *northing );
-int proj_to_geog( projection *prj, double easting, double northing,
-                   double *lon, double *lat );
+int geog_to_proj(projection* prj, double lon, double lat, double* easting, double* northing);
+int proj_to_geog(projection* prj, double easting, double northing, double* lon, double* lat);
 
 /* Conversion of coordinates from one coordinate system to another     */
 /* Converts coordinates, deflections, and undulations.  Input coords   */
@@ -582,38 +568,36 @@ int proj_to_geog( projection *prj, double easting, double northing,
 /* If the input or output coordinate systems are geocentric, then the  */
 /* gravitational components are ignored.                               */
 
-int convert_coords( coord_conversion *conv,
-                    const double *fenh, const double *fexu,
-                    double *tenh, double *texu );
+int convert_coords(coord_conversion* conv, const double* fenh, const double* fexu, double* tenh, double* texu);
 
-coordsys *conversion_from_coordsys( coord_conversion *conv );
-coordsys *conversion_to_coordsys( coord_conversion *conv );
+coordsys* conversion_from_coordsys(coord_conversion* conv);
+coordsys* conversion_to_coordsys(coord_conversion* conv);
 
 /*=======================================================================*/
 /* Write a description of the item                                       */
 /* Will probably write versions that goes directly to a string at some   */
 /* point.                                                                */
 
-int  describe_ref_frame( output_string_def *os, ref_frame *rf );
-int  describe_deformation_model( output_string_def *os, ref_frame *rf );
-int  describe_ellipsoid( output_string_def *os, ellipsoid *el );
-int  describe_projection( output_string_def *os, projection *prj );
-int  describe_vdatum( output_string_def *os, coordsys *cs );
-int  describe_coordsys( output_string_def *os, coordsys *cs );
+int describe_ref_frame(output_string_def* os, ref_frame* rf);
+int describe_deformation_model(output_string_def* os, ref_frame* rf);
+int describe_ellipsoid(output_string_def* os, ellipsoid* el);
+int describe_projection(output_string_def* os, projection* prj);
+int describe_vdatum(output_string_def* os, coordsys* cs);
+int describe_coordsys(output_string_def* os, coordsys* cs);
 
 /*=======================================================================*/
 /* Maintenance of lists of coordinate systems                            */
 
 /* Install coordinates systems for selection using hard-coded parameters */
 
-void install_crdsys_nzgd49( void );
-void install_crdsys_wgs84( void );
-void install_crdsys_nzmg( void );
-void install_crdsys_nz_metre_circuits( void );
+void install_crdsys_nzgd49(void);
+void install_crdsys_wgs84(void);
+void install_crdsys_nzmg(void);
+void install_crdsys_nz_metre_circuits(void);
 
 /* Get definitions from a file */
 
-int install_crdsys_file( std::string_view file_name );
+int install_crdsys_file(std::string_view file_name);
 
 /// Locates the default coordinate system definition file: first the
 /// CRDSYSENV environment variable (used verbatim, not checked to exist),
@@ -623,57 +607,55 @@ int install_crdsys_file( std::string_view file_name );
 std::optional<std::string> get_default_crdsys_file();
 
 int install_default_crdsys_file();
-void  install_default_projections( void );
+void install_default_projections(void);
 
 /* Clear the list of definitions */
 
-void uninstall_crdsys_lists( void );
+void uninstall_crdsys_lists(void);
 
 /* Functions to process the list of installed definitions */
 
-int ref_frame_list_count( void );
-const std::string &ref_frame_list_code( int item );
-const std::string &ref_frame_list_desc( int item );
-ref_frame * ref_frame_from_list( int item );
-ref_frame * load_ref_frame( std::string_view code );
+int ref_frame_list_count(void);
+const std::string& ref_frame_list_code(int item);
+const std::string& ref_frame_list_desc(int item);
+ref_frame* ref_frame_from_list(int item);
+ref_frame* load_ref_frame(std::string_view code);
 
-
-int ellipsoid_list_count( void );
-const std::string &ellipsoid_list_code( int item );
-const std::string &ellipsoid_list_desc( int item );
-ellipsoid * ellipsoid_from_list( int item );
-ellipsoid * load_ellipsoid( std::string_view code );
+int ellipsoid_list_count(void);
+const std::string& ellipsoid_list_code(int item);
+const std::string& ellipsoid_list_desc(int item);
+ellipsoid* ellipsoid_from_list(int item);
+ellipsoid* load_ellipsoid(std::string_view code);
 
 /* Note - load_coordsys handles vertical datum also as cscode/hrscode */
 
-int coordsys_list_count( void);
-const std::string &coordsys_list_code( int item );
-const std::string &coordsys_list_desc( int item );
-coordsys * coordsys_from_list( int item );
-coordsys * load_coordsys( std::string_view code );
+int coordsys_list_count(void);
+const std::string& coordsys_list_code(int item);
+const std::string& coordsys_list_desc(int item);
+coordsys* coordsys_from_list(int item);
+coordsys* load_coordsys(std::string_view code);
 /* coordsys_load_code returns the code a coordinate system including potential hrs
  * can be loaded as. */
-std::string coordsys_load_code( coordsys *cs );
+std::string coordsys_load_code(coordsys* cs);
 
-int vdatum_list_count( void);
-const std::string &vdatum_list_code( int item );
-const std::string &vdatum_list_desc( int item );
-vdatum * vdatum_from_list( int item );
-vdatum * load_vdatum( std::string_view code );
+int vdatum_list_count(void);
+const std::string& vdatum_list_code(int item);
+const std::string& vdatum_list_desc(int item);
+vdatum* vdatum_from_list(int item);
+vdatum* load_vdatum(std::string_view code);
 
-int get_notes( int type, std::string_view code, output_string_def *os );
-int get_crdsys_notes( coordsys *cs, output_string_def *os );
-int get_conv_code_notes( int type, std::string_view code1, std::string_view code2, output_string_def *os );
-int get_conv_notes( coord_conversion *conv, output_string_def *os );
+int get_notes(int type, std::string_view code, output_string_def* os);
+int get_crdsys_notes(coordsys* cs, output_string_def* os);
+int get_conv_code_notes(int type, std::string_view code1, std::string_view code2, output_string_def* os);
+int get_conv_notes(coord_conversion* conv, output_string_def* os);
 
 /// Searches every installed coordinate system source (crdsys_source_def's
 /// getcsfile callback, e.g. get_csfile in crdsys_src_csdef.cpp - relative
 /// to that source's own file, not the current file context or project)
 /// for filename+extension, trying each source in turn until one succeeds.
 /// Returns nullopt if none do.
-std::optional<std::string> get_crdsys_file(
-    const std::string &filename,   ///< base filename to search for
-    const std::string &extension );///< extension (incl. the leading '.') to try
+std::optional<std::string> get_crdsys_file(const std::string& filename,    ///< base filename to search for
+                                           const std::string& extension);  ///< extension (incl. the leading '.') to try
 
 /// General purpose search for a coordinate-system-related data file (e.g.
 /// a datum grid), trying local/project search strategies first (via
@@ -682,7 +664,7 @@ std::optional<std::string> get_crdsys_file(
 /// finally the COORDSYS_CONFIG_SECTION config subdirectory (via find_file
 /// again). Returns nullopt if none succeed.
 std::optional<std::string> find_coordsys_data_file(
-    const std::string &filename,   ///< base filename to search for
-    const std::string &extension );///< extension (incl. the leading '.') to try
+    const std::string& filename,    ///< base filename to search for
+    const std::string& extension);  ///< extension (incl. the leading '.') to try
 
 #endif /* COORDSYS_H defined */

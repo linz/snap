@@ -8,8 +8,7 @@
 
 */
 
-void register_ps_projection( void );
-projection *create_ps_projection(  double cm, double sf,
-                                   double fe, double fn, char south );
+void register_ps_projection(void);
+projection* create_ps_projection(double cm, double sf, double fe, double fn, char south);
 
 #endif
