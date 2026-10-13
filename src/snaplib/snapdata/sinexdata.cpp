@@ -40,8 +40,8 @@ public:
     void loadObservations(RecordInputBase &dfi);
 
 private:
-    double readSinexDate(const std::string datestr);
-    bool findSection(RecordInputBase &dfi, const std::string section, bool raiseError = true);
+    double readSinexDate(const std::string& datestr);
+    bool findSection(RecordInputBase &dfi, const std::string& section, bool raiseError = true);
     int findSection(RecordInputBase &dfi, const std::vector<std::string> &sections, bool raiseError = true);
     std::string ref_frame;
     bool use_point_code;
@@ -277,7 +277,7 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     }
 }
 
-bool SinexDataReader::findSection(RecordInputBase &dfi, const std::string section, bool raiseError)
+bool SinexDataReader::findSection(RecordInputBase &dfi, const std::string& section, bool raiseError)
 {
     std::vector<std::string> sections;
     sections.push_back(section);
@@ -306,7 +306,7 @@ int SinexDataReader::findSection(RecordInputBase &dfi, const std::vector<std::st
     return -1;
 }
 
-double SinexDataReader::readSinexDate(const std::string datestr)
+double SinexDataReader::readSinexDate(const std::string& datestr)
 {
     RGX::regex re("^\\s*(\\d\\d?)\\:(\\d\\d\\d)\\:(\\d\\d\\d\\d\\d)\\s*$");
     RGX::smatch match;

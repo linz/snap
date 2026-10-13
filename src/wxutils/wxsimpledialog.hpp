@@ -79,26 +79,26 @@ private:
 class wxSimpleDialog : public wxDialog
 {
 public:
-    wxSimpleDialog( wxString title, long buttonFlags  = wxOK | wxCANCEL | wxHELP );
+    wxSimpleDialog( const wxString& title, long buttonFlags  = wxOK | wxCANCEL | wxHELP );
     ~wxSimpleDialog() override;
 
     // Stuff for creating controls
 
-    wxStaticText *Label( wxString text, wxWindow *window = nullptr );
+    wxStaticText *Label( const wxString& text, wxWindow *window = nullptr );
     wxTextCtrl *TextBox( wxString &string, int nch = 20, int nlines = 1, wxString validChar = wxEmptyString );
     wxTextCtrl *NumberBox( int &value, bool positive = true, int nch = 10 );
     wxTextCtrl *NumberBox( double &value, bool positive = true, int ndp = 2, int nch = 12 );
 
     // Options defined as ~value1~value2~... corresponding to 0,1,...
-    wxRadioBox *RadioBox( int &value, wxString options, wxString label = wxEmptyString, bool horizontal = false );
-    wxRadioBox *RadioBox( int &value, const std::vector<ListControlOption> &options, wxString label = wxEmptyString, bool horizontal = false );
+    wxRadioBox *RadioBox( int &value, wxString options, const wxString& label = wxEmptyString, bool horizontal = false );
+    wxRadioBox *RadioBox( int &value, const std::vector<ListControlOption> &options, const wxString& label = wxEmptyString, bool horizontal = false );
     wxListBox *ListBox( wxString &value, wxString options, int type, int width=-1, int height=-1 );
     wxChoice *DropDownBox( int &value, wxString options );
     wxChoice *DropDownBox( int &value, const std::vector<ListControlOption> &options );
-    wxCheckBox *CheckBox( wxString label, bool &value );
-    wxFilePickerCtrl *OpenFileBox( wxString &filename, wxString label, wxString wildcard, wxString message = wxEmptyString );
-    wxFilePickerCtrl *SaveFileBox( wxString &filename, wxString label, wxString wildcard, wxString message = wxEmptyString );
-    wxButton *Button( wxString label, wxObjectEventFunction function );
+    wxCheckBox *CheckBox( const wxString& label, bool &value );
+    wxFilePickerCtrl *OpenFileBox( wxString &filename, const wxString& label, const wxString& wildcard, const wxString& message = wxEmptyString );
+    wxFilePickerCtrl *SaveFileBox( wxString &filename, const wxString& label, const wxString& wildcard, const wxString& message = wxEmptyString );
+    wxButton *Button( const wxString& label, wxObjectEventFunction function );
 
     // Declare button function in dialog class as..
     // void MyFunc( wxCommandEvent &event );
@@ -109,20 +109,20 @@ public:
     // Stuff for adding controls in the constructor
 
     void AddSpacer();
-    wxStaticText *AddLabel(wxString label, wxWindow *window = nullptr );
-    wxTextCtrl *AddTextBox(wxString label, wxString &string, int nch = 20, int nlines = 1, wxString validChar = wxEmptyString );
-    wxListBox *AddListBox( wxString label, wxString &string, wxString options, int type, int width=-1, int height=-1 );
-    wxTextCtrl *AddNumberBox(wxString label, int &value, bool positive = true, int nch = 10 );
-    wxTextCtrl *AddNumberBox(wxString label, double &value, bool positive = true, int ndp = 2, int nch = 12 );
-    wxRadioBox *AddRadioBox(wxString label, int &value, wxString options, bool horizontal = false  );
-    wxRadioBox *AddRadioBox(wxString label, int &value, const std::vector<ListControlOption> &options, bool horizontal = false );
-    wxChoice *AddDropDownBox(wxString label, int &value, const std::vector<ListControlOption> &options );
-    wxChoice *AddDropDownBox(wxString label, int &value, wxString options );
-    wxCheckBox *AddCheckBox(wxString label, bool &value );
-    wxButton *AddButton( wxString label, wxObjectEventFunction function );
-    wxFilePickerCtrl *AddOpenFileBox( wxString label, wxString &string, wxString wildcard, wxString message = wxEmptyString );
-    wxFilePickerCtrl *AddSaveFileBox( wxString label, wxString &string, wxString wildcard, wxString message = wxEmptyString );
-    void AddControl(wxString label, wxWindow *window );
+    wxStaticText *AddLabel(const wxString& label, wxWindow *window = nullptr );
+    wxTextCtrl *AddTextBox(const wxString& label, wxString &string, int nch = 20, int nlines = 1, wxString validChar = wxEmptyString );
+    wxListBox *AddListBox( const wxString& label, wxString &string, wxString options, int type, int width=-1, int height=-1 );
+    wxTextCtrl *AddNumberBox(const wxString& label, int &value, bool positive = true, int nch = 10 );
+    wxTextCtrl *AddNumberBox(const wxString& label, double &value, bool positive = true, int ndp = 2, int nch = 12 );
+    wxRadioBox *AddRadioBox(const wxString& label, int &value, wxString options, bool horizontal = false  );
+    wxRadioBox *AddRadioBox(const wxString& label, int &value, const std::vector<ListControlOption> &options, bool horizontal = false );
+    wxChoice *AddDropDownBox(const wxString& label, int &value, const std::vector<ListControlOption> &options );
+    wxChoice *AddDropDownBox(const wxString& label, int &value, wxString options );
+    wxCheckBox *AddCheckBox(const wxString& label, bool &value );
+    wxButton *AddButton( const wxString& label, wxObjectEventFunction function );
+    wxFilePickerCtrl *AddOpenFileBox( const wxString& label, wxString &string, const wxString& wildcard, const wxString& message = wxEmptyString );
+    wxFilePickerCtrl *AddSaveFileBox( const wxString& label, wxString &string, const wxString& wildcard, const wxString& message = wxEmptyString );
+    void AddControl(const wxString& label, wxWindow *window );
 
     // Note: calls to these functions must be terminated with a null parameter
     // ie AddControls( ctrl1, ctrl2, ..., 0 );

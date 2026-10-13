@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <map>
 #include <memory>
@@ -75,7 +76,7 @@ public:
 
     NamedValue &setDefault( CalcValue *dfltValue );
     NamedValue &setDefault( const CalcValue &dfltValue ) { return setDefault( dfltValue.clone() ); }
-    NamedValue &setDefault( const std::string dfltValue ) { return setDefault( new StringValue(dfltValue)); }
+    NamedValue &setDefault( const std::string& dfltValue ) { return setDefault( new StringValue(dfltValue)); }
     void bind( const BindSource *binder ) override;
     void calcValue( string &value ) override;
 private:
@@ -120,11 +121,11 @@ public:
     ~LookupValue() override;
     [[nodiscard]] LookupValue *clone() const override;
     LookupMap map() { return _map; }
-    LookupValue &setMap( LookupMap map ) { _map = map; return *this; }
+    LookupValue &setMap( LookupMap map ) { _map = std::move(map); return *this; }
     // Assigning pointer transfers ownership
     LookupValue &setSource( CalcValue *source );
     LookupValue &setSource( const CalcValue &source ) { return setSource( source.clone() ); }
-    LookupValue &setSource( const std::string source ) { return setSource( new NamedValue(source)); }
+    LookupValue &setSource( const std::string& source ) { return setSource( new NamedValue(source)); }
 
     void bind( const BindSource *binder ) override;
     void calcValue( string &value ) override;
@@ -152,7 +153,7 @@ public:
     // Using a pointer transfers ownership
     ConcatValue &setDefault( CalcValue *dfltValue );
     ConcatValue &setDefault( const CalcValue &dfltValue ) { return setDefault( dfltValue.clone() ); }
-    ConcatValue &setDefault( const std::string dfltValue ) { return setDefault( new StringValue(dfltValue)); }
+    ConcatValue &setDefault( const std::string& dfltValue ) { return setDefault( new StringValue(dfltValue)); }
 
     bool hasValue() { return !_components.empty(); }
 
@@ -187,7 +188,7 @@ class CalcReader : public Reader
     };
 
 public:
-    CalcReader( const string filename, const Format &parser = Format::Csv, const Options &options = Options() )
+    CalcReader( const string& filename, const Format &parser = Format::Csv, const Options &options = Options() )
         : Reader( filename, parser, options ) {}
     CalcReader( istream &is, const Format &parser = Format::Csv, const Options &options = Options() )
         : Reader( is, parser, options ) {}

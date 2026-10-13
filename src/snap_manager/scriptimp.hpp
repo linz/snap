@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <utility>
 #include <vector>
 
 
@@ -75,7 +76,7 @@ public:
 class IdToken : public Token
 {
 public:
-    IdToken( ScriptImp *owner, wxString id ) : Token(owner), id(id) {}
+    IdToken( ScriptImp *owner, wxString id ) : Token(owner), id(std::move(id)) {}
     Value evaluate() override;
     void print( const wxString &prefix, ostream &str ) override;
     wxString id;
@@ -84,7 +85,7 @@ public:
 class VariableToken : public Token
 {
 public:
-    VariableToken( ScriptImp *owner, wxString name ) : Token(owner), name(name) {}
+    VariableToken( ScriptImp *owner, wxString name ) : Token(owner), name(std::move(name)) {}
     bool GetValue( Value &v );
     wxString &Name() { return name; }
     Value evaluate() override;
@@ -98,7 +99,7 @@ private:
 class FunctionToken : public Token
 {
 public:
-    FunctionToken( ScriptImp *owner, wxString name, Token *params = nullptr ) : Token( owner ), name(name), params(params) {}
+    FunctionToken( ScriptImp *owner, wxString name, Token *params = nullptr ) : Token( owner ), name(std::move(name)), params(params) {}
     ~FunctionToken() override;
     Value evaluate() override;
     void print( const wxString &prefix, ostream &str ) override;
@@ -334,7 +335,7 @@ class FunctionDef : public Token
 {
 public:
     FunctionDef( ScriptImp *owner, wxString name, Token *parameters, Token *actions ) :
-        Token(owner), name(name), parameters(parameters), actions(actions), inuse(false) {}
+        Token(owner), name(std::move(name)), parameters(parameters), actions(actions), inuse(false) {}
     ~FunctionDef() override;
     Value evaluate() override;
     void print( const wxString &prefix, ostream &str ) override;

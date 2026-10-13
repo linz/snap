@@ -25,7 +25,8 @@ Checks: >
   readability-else-after-return,
   modernize-use-nodiscard,
   performance-unnecessary-copy-initialization,
-  readability-make-member-function-const
+  readability-make-member-function-const,
+  performance-unnecessary-value-param
 CheckOptions:
   # string_view("") is not the same as string_view(): data() of the second is a null pointer, which
   # printf-style code cannot take.  Only std::string is checked.

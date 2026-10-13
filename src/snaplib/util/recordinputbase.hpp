@@ -60,7 +60,7 @@ public:
     virtual int lineNumber();
     virtual int recordNumber();
     // Return true if the error is handled
-    void raiseError( const std::string message );
+    void raiseError( const std::string& message );
     virtual bool handleError( const RecordError &error );
 protected:
     void setName( const std::string &name ){ _name=name; }

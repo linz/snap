@@ -25,7 +25,7 @@ using namespace SNAP;
 SnapCsvBase::CsvValue::~CsvValue()
 = default;
 
-void SnapCsvBase::CsvValue::setName(const std::string name)
+void SnapCsvBase::CsvValue::setName(const std::string& name)
 {
     _name = name;
     if (_column != nullptr) {

@@ -17,7 +17,7 @@ const CsvFormat Format::PipeDelimited( '|', '\\', 0 );
 const CsvFormat Format::TabDelimited( '\t' );
 const WhitespaceFormat Format::WhitespaceDelimited;
 
-void Format::runtimeError( const std::string message ) const
+void Format::runtimeError( const std::string& message ) const
 {
     if( _dlt )
     {
@@ -170,7 +170,7 @@ Reader::Reader( RecordInputBase &input, const Format &parser, const Options &opt
     setup( parser );
 }
 
-Reader::Reader( const std::string filename, const Format &parser, const Options &options ) :
+Reader::Reader( const std::string& filename, const Format &parser, const Options &options ) :
     _input(nullptr),
     _ownInput( false ),
     _options( options )

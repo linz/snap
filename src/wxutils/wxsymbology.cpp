@@ -139,7 +139,7 @@ int ColourPalette::PaletteBitmapSize() const
 
 // SymbologyBase ... nothing really in it!
 
-SymbologyBase::SymbologyBase(wxString np)
+SymbologyBase::SymbologyBase(const wxString& np)
 {
     int i = np.Find('|');
     if( i == wxNOT_FOUND )
@@ -210,12 +210,12 @@ SymbologyBase *SymbologyList::GetSymbology( int i ) const
     return nullptr;
 }
 
-SymbologyBase *SymbologyList::GetSymbology( wxString name ) const
+SymbologyBase *SymbologyList::GetSymbology( const wxString& name ) const
 {
     return GetSymbology( GetSymbologyId( name ));
 }
 
-int SymbologyList::GetSymbologyId( wxString name ) const
+int SymbologyList::GetSymbologyId( const wxString& name ) const
 {
     for( int i = 0; i < size; i++ )
     {
@@ -225,7 +225,7 @@ int SymbologyList::GetSymbologyId( wxString name ) const
     return -1;
 }
 
-int SymbologyList::GetSymbologyByIdentifier( wxString uid ) const
+int SymbologyList::GetSymbologyByIdentifier( const wxString& uid ) const
 {
     for( int i = 0; i < size; i++ )
     {
@@ -238,7 +238,7 @@ int SymbologyList::GetSymbologyByIdentifier( wxString uid ) const
 
 // LayerSymbology. Simple class defining a symbology.
 
-LayerSymbology::LayerSymbology(wxString name, int type, int colourId, bool show, const bool isControlCheckbox, const bool colourEditable) :
+LayerSymbology::LayerSymbology(const wxString& name, int type, int colourId, bool show, const bool isControlCheckbox, const bool colourEditable) :
     SymbologyBase(name),
     type(type),
     colourId(colourId),
@@ -346,7 +346,7 @@ void TextAlign::SetAlignment( float alignX, float alignY )
     textY = (textY - 1)/2;
 }
 
-void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, wxString string ) const
+void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, const wxString& string ) const
 {
     int twidth;
     int theight;
@@ -361,7 +361,7 @@ void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, wxString strin
 
 // TextStyle : Used to plot text
 
-TextStyle::TextStyle(wxString name, const wxFont &font, const wxColour &colour ) :
+TextStyle::TextStyle(const wxString& name, const wxFont &font, const wxColour &colour ) :
     SymbologyBase(name)
 {
     SetFont( font, colour );
@@ -378,7 +378,7 @@ void TextStyle::SetFont( const wxFont &font, const wxColour &colour )
     this->colour = colour;
 }
 
-void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &alignment, int refSize, const wxColour &defaultColour)
+void TextStyle::Render(wxDC &dc, wxPoint &pt, const wxString& string, const TextAlign &alignment, int refSize, const wxColour &defaultColour)
 {
     if( refSize != fontRefSize )
     {
@@ -402,7 +402,7 @@ void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &
 
 // TODO: Use symmetry to avoid rounding errors making unsymmetric symbols
 
-PointSymbology::PointSymbology( wxString name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
+PointSymbology::PointSymbology( const wxString& name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
     SymbologyBase( name )
 {
     pointOffsets = nullptr;
@@ -571,7 +571,7 @@ void Symbology::InitialisePalette( const ColourPalette &basepalette )
     }
 }
 
-int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool display, const bool isControlCheckbox, const bool colourEditable )
+int Symbology::AddLayer(const wxString& name, int type, const wxColour &colour, bool display, const bool isControlCheckbox, const bool colourEditable )
 {
     int colourId = 0;
     if( colour.IsOk() ) { colourId= palette.AddColour( colour );
@@ -580,7 +580,7 @@ int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool di
     return layers.AddSymbology( s );
 }
 
-void Symbology::AddTitle( wxString name )
+void Symbology::AddTitle( const wxString& name )
 {
     AddLayer( name, LayerSymbology::label, wxColour(0,0,0), true );
 }
@@ -595,12 +595,12 @@ int Symbology::LayerCount() const
     return layers.Size();
 }
 
-int Symbology::GetLayerByName( wxString name ) const
+int Symbology::GetLayerByName( const wxString& name ) const
 {
     return layers.GetSymbologyId( name );
 }
 
-int Symbology::GetLayerByIdentifier( wxString uid ) const
+int Symbology::GetLayerByIdentifier( const wxString& uid ) const
 {
     return layers.GetSymbologyByIdentifier( uid );
 }
@@ -637,7 +637,7 @@ int Symbology::AddPointSymbol( PointSymbology *ptsym )
     return pointSymbols.AddSymbology( ptsym );
 }
 
-int Symbology::GetPointSymbolId( wxString name ) const
+int Symbology::GetPointSymbolId( const wxString& name ) const
 {
     return pointSymbols.GetSymbologyId( name );
 }
@@ -652,7 +652,7 @@ int Symbology::AddTextStyle( TextStyle *txtsym )
     return textStyles.AddSymbology( txtsym );
 }
 
-int Symbology::GetTextStyleId( wxString name ) const
+int Symbology::GetTextStyleId( const wxString& name ) const
 {
     return textStyles.GetSymbologyId( name );
 }
