@@ -509,8 +509,9 @@ IWYU_NEVER_REMOVE = re.compile(r'#include (?:<wx/|[<"](?:snapconfig\.(?:h|hpp)|w
 IWYU_GUARD_ONLY = re.compile(r"#include \S+\s+// for _[A-Z0-9_]+_H(?:, _[A-Z0-9_]+_H)*$")
 
 # IWYU analyses the Linux build only, so in a file with a Windows branch it cannot see the includes
-# that the other branch needs.
-IWYU_PLATFORM_BRANCH = re.compile(r"WIN32|_MSC_VER|__MINGW32__")
+# that the other branch needs.  The names are the compiler's (_WIN32, _MSC_VER, __MINGW32__) and
+# wxWidgets' (__WXMSW__, __WINDOWS__), which the wx sources test.
+IWYU_PLATFORM_BRANCH = re.compile(r"WIN32|_MSC_VER|__MINGW32__|__WXMSW__|__WINDOWS__")
 
 # The header of each part of IWYU's output: "<file> should add these lines:" or "... remove ...".
 IWYU_SECTION = re.compile(r"^(/.+?) should (add|remove) these lines:$")
