@@ -168,7 +168,7 @@ ref_deformation *rfdef_parse_griddef( input_string_def &is )
     gridfile = find_relative_file( is.sourcename, filename, ".grd" );
     if( ! gridfile )
     {
-        std::string errmess = "Cannot open VELGRID deformation grid file " + filename;
+        std::string const errmess = "Cannot open VELGRID deformation grid file " + filename;
         report_string_error(is, FILE_OPEN_ERROR, errmess );
         return nullptr;
     }

@@ -166,7 +166,7 @@ StationHighlightDialog::StationHighlightDialog( bool hideShow, wxHelpController 
     box2->AddSpacer( GetCharHeight() );
 
     wxBoxSizer *box3 = new wxBoxSizer( wxHORIZONTAL );
-    int buttonSpace = GetCharWidth();
+    int const buttonSpace = GetCharWidth();
     wxButton *defaultButton = Button( "&Add", wxCommandEventHandler( StationHighlightDialog::OnAddStations ));
     box3->Add( defaultButton );
     box3->AddSpacer(buttonSpace);
@@ -235,8 +235,8 @@ void StationHighlightDialog::ReadData()
 
     for( int i = 0; i < stationSelector->StationCount(); i++ )
     {
-        int istn = stationSelector->StationNumber( i );
-        bool select = hideShow ? (station_hidden(istn) != 0) : (station_highlighted( istn ) != 0);
+        int const istn = stationSelector->StationNumber( i );
+        bool const select = hideShow ? (station_hidden(istn) != 0) : (station_highlighted( istn ) != 0);
         stationSelector->Select( i, select  );
     }
 
@@ -261,7 +261,7 @@ void StationHighlightDialog::ApplyChanges()
 
     for( int i = 0; i < stationSelector->StationCount(); i++ )
     {
-        int istn = stationSelector->StationNumber( i );
+        int const istn = stationSelector->StationNumber( i );
         if( stationSelector->IsSelected(i) )
         {
             if( hideShow ) { hide_station(istn); }
@@ -311,14 +311,14 @@ void StationHighlightDialog::SelectStations( bool select )
     }
     else if( stnSelOpt == scOrder )
     {
-        wxString strOrder = txtSelValue->GetValue().Trim().Trim(false);
+        wxString const strOrder = txtSelValue->GetValue().Trim().Trim(false);
         iorder = net->order_id( strOrder.ToStdString(), 0 );
         if( iorder <= 0 ) { return;
 }
     }
     else
     {
-        wxString strValue = txtSelValue->GetValue();
+        wxString const strValue = txtSelValue->GetValue();
         if( ! strValue.ToDouble( & value ) )
         {
             wxMessageBox("Threshold value must be a number","Error",wxOK | wxICON_EXCLAMATION );
@@ -333,13 +333,13 @@ void StationHighlightDialog::SelectStations( bool select )
     for( i= 0; i < stationSelector->StationCount(); i++ )
     {
         // No point testing station if status won't be changed..
-        bool selected = stationSelector->IsSelected(i);
+        bool const selected = stationSelector->IsSelected(i);
         if( selected == select ) { continue;
 }
 
         station *st = nullptr;
         stn_adjustment *sa = nullptr;
-        int istn = stationSelector->StationNumber( i );
+        int const istn = stationSelector->StationNumber( i );
         st = stnptr( istn );
 
         if( ! st ) { continue;
@@ -383,7 +383,7 @@ void StationHighlightDialog::SelectStations( bool select )
         }
         else if( stnSelOpt == scOrder )
         {
-            int orderid = st->get_class( net->orderclsid );
+            int const orderid = st->get_class( net->orderclsid );
             if( orderid != iorder ) { continue;
 }
         }
@@ -446,7 +446,7 @@ void StationHighlightDialog::OnIdle( wxIdleEvent & WXUNUSED(event) )
     if( nSel == nSelected ) { return;
 }
     nSelected = nSel;
-    wxString labelStr = wxString::Format("%d/%d stations %s",
+    wxString const labelStr = wxString::Format("%d/%d stations %s",
                                          nSelected, stationSelector->StationCount(),
                                          hideShow ? " are hidden" : " are highlighted" );
     lbStationCount->SetLabel( labelStr );

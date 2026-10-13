@@ -69,14 +69,14 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
     {
         char out[256];
         char unitstr[20];
-        double uf=rf->use_iersunits ? 1000.0 : 1.0;
-        double af=rf->use_iersunits ? -1000.0 : 1.0;
+        double const uf=rf->use_iersunits ? 1000.0 : 1.0;
+        double const af=rf->use_iersunits ? -1000.0 : 1.0;
         const std::array<std::string_view,3> *components=rf->use_iersunits ? &iers_components : &std_components;
         const std::array<std::string_view,3> *units=rf->use_iersunits ? &iers_units : &std_units;
         const char *format1="    %-14s %8s  %10.5lf %10.5lf %10.5lf\n";
         const char *format2="    %-14s %8s  %10.5lf\n";
         const char *format3="    %-14s %8s  %7.2lf\n";
-        int rates = rf->use_rates;
+        int const rates = rf->use_rates;
 
         write_output_string( os, "  Relative to ");
         write_output_string( os, *rf->refcode );

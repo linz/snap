@@ -66,7 +66,7 @@ void check_at_end()
     check( scanner.remainder() == "  def  ", "atEnd: does not consume anything" );
     scanner.next();
     check( scanner.atEnd(), "atEnd: true when only trailing whitespace is left" );
-    FieldScanner empty( "" );
+    FieldScanner const empty( "" );
     check( empty.atEnd(), "atEnd: true on an empty input" );
 }
 
@@ -254,13 +254,13 @@ void check_span_preserves_multiple_spaces()
     scanner.next();
     scanner.next();
     auto stop = scanner.remainder();
-    std::string captured( start.data(), stop.data() - start.data() );
+    std::string const captured( start.data(), stop.data() - start.data() );
     check( captured == "one  two", "remainder(): verbatim text, multi-space run untouched" );
 }
 
 void check_quoted_value_single_field()
 {
-    std::string text="key=\"short\" next";
+    std::string const text="key=\"short\" next";
     FieldScanner scanner( text );
     auto field=scanner.next();
     auto equalsPos=field->find('=');
@@ -272,7 +272,7 @@ void check_quoted_value_single_field()
 
 void check_quoted_value_spans_fields()
 {
-    std::string text="key=\"a  b\" next";
+    std::string const text="key=\"a  b\" next";
     FieldScanner scanner( text );
     auto field=scanner.next();
     auto equalsPos=field->find('=');
@@ -284,7 +284,7 @@ void check_quoted_value_spans_fields()
 
 void check_quoted_value_unterminated()
 {
-    std::string text="key=\"never closes";
+    std::string const text="key=\"never closes";
     FieldScanner scanner( text );
     auto field=scanner.next();
     auto equalsPos=field->find('=');
@@ -295,7 +295,7 @@ void check_quoted_value_unterminated()
 
 void check_quoted_value_not_followed_by_whitespace()
 {
-    std::string text="key=\"abc\"trailing next";
+    std::string const text="key=\"abc\"trailing next";
     FieldScanner scanner( text );
     auto field=scanner.next();
     auto equalsPos=field->find('=');
@@ -306,7 +306,7 @@ void check_quoted_value_not_followed_by_whitespace()
 
 void check_quoted_value_lenient()
 {
-    std::string text="key=\"abc\"trailing next";
+    std::string const text="key=\"abc\"trailing next";
     FieldScanner scanner( text );
     auto field=scanner.next();
     auto equalsPos=field->find('=');
@@ -318,23 +318,23 @@ void check_quoted_value_lenient()
 
 void check_is_quoted()
 {
-    std::string_view doubleQuoted="\"abc";
+    std::string_view const doubleQuoted="\"abc";
     check( FieldScanner::isQuoted(doubleQuoted,false) == doubleQuoted.begin(), "isQuoted: double-quoted field" );
 
-    std::string_view singleQuoted="'abc";
+    std::string_view const singleQuoted="'abc";
     check( FieldScanner::isQuoted(singleQuoted,false) == singleQuoted.begin(), "isQuoted: single-quoted field, both quote characters accepted" );
     check( FieldScanner::isQuoted(singleQuoted,true) == singleQuoted.end(), "isQuoted: single quote rejected when onlyDoubleQuote is set" );
 
-    std::string_view plain="abc";
+    std::string_view const plain="abc";
     check( FieldScanner::isQuoted(plain,false) == plain.end(), "isQuoted: plain field, not quoted" );
 
-    std::string_view empty="";
+    std::string_view const empty="";
     check( FieldScanner::isQuoted(empty,false) == empty.end(), "isQuoted: empty field, not quoted" );
 }
 
 void check_and_recover_quoted_value()
 {
-    std::string text="ANS \"Australian National Spheroid (ANS)\" 6378160 298.25";
+    std::string const text="ANS \"Australian National Spheroid (ANS)\" 6378160 298.25";
     FieldScanner scanner( text );
     auto first=scanner.checkAndRecoverQuotedValue( true, std::nullopt );
     check( first.has_value() && *first == "ANS", "checkAndRecoverQuotedValue: plain field, read via next()" );

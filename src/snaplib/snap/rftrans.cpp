@@ -616,7 +616,7 @@ void rftrans_correct_vector( int rfid, double vd[3], double date )
     if( rf->userates )
     {
         double vr[3];
-        double factor=date_as_year(date)-rf->refepoch;
+        double const factor=date_as_year(date)-rf->refepoch;
         premult3( DS rf->invtmatrate, vd, vr, 1 );
         premult3( DS rf->invtmat, vd, vd, 1 );
         vecadd2( vd, 1, vr, factor, vd );
@@ -632,7 +632,7 @@ void rftrans_correct_point( int rfid, double vd[3], double date )
     if( rf->userates )
     {
         double vr[3];
-        double factor=date_as_year(date)-rf->refepoch;
+        double const factor=date_as_year(date)-rf->refepoch;
         premult3( DS rf->invtmatrate, vd, vr, 1 );
         premult3( DS rf->invtmat, vd, vd, 1 );
         vecadd2( vd, 1, vr, factor, vd );

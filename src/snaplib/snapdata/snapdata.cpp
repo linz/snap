@@ -1475,7 +1475,7 @@ static void setup_cvr_rows( snapfile_def *sd )
         }
         else
         {
-            int r = (ve->nvecobs - 1)*3;
+            int const r = (ve->nvecobs - 1)*3;
             row[i3] = r; row[i3+1] = r+1; row[i3+2] = r+2;
         }
     }
@@ -1566,7 +1566,7 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
         else
         {
             const int *row = sd->cvrrow.data();
-            int nvecrow = sd->nvecobs*3;
+            int const nvecrow = sd->nvecobs*3;
 
             for( i3 = 0; i3 < nvecrow; i3++ )
             {
@@ -1589,7 +1589,7 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
 
                 for( j3 = j3min; j3 <= j3max; j3++ )
                 {
-                    int rj = row[j3];
+                    int const rj = row[j3];
 
                     while( sd->scanner().atEnd() )
                     {

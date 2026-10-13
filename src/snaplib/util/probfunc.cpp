@@ -17,13 +17,13 @@ using boost::math::fisher_f;
 
 double normal_distn( double value )
 {
-    normal n;
+    normal const n;
     return 1.0-cdf(n,value);
 }
 
 double inv_normal_distn( double prob )
 {
-    normal n;
+    normal const n;
     return quantile(n,1.0-prob);
 }
 
@@ -33,27 +33,27 @@ double chi2_distn( double value, long dof )
 }
     if( value < 0.0 ) { return 0.0;
 }
-    chi_squared chi2(dof);
+    chi_squared const chi2(dof);
     return 1.0-cdf(chi2,value);
 }
 
 double inv_chi2_distn( double prob, long dof )
 {
-    chi_squared chi2(dof);
+    chi_squared const chi2(dof);
     return quantile( chi2, 1.0-prob );
 }
 
 
 double students_t_distn( double value, long dof )
 {
-    students_t st(dof);
+    students_t const st(dof);
     return 1.0-cdf(st,value);
 }
 
 
 double inv_students_t_distn( double prob, long dof )
 {
-    students_t st(dof);
+    students_t const st(dof);
     return quantile(st,1.0-prob);
 }
 
@@ -69,7 +69,7 @@ double f_distn( double value, long dofn, long dofd )
 }
     if( value<=0.0) { return 0.0;
 }
-    fisher_f f(dofn,dofd); 
+    fisher_f const f(dofn,dofd); 
     return 1.0-cdf(f,value);
 }
 
@@ -79,7 +79,7 @@ double inv_f_distn( double prob, long dofn, long dofd )
 }
     if( dofd == 0 ) {  return inv_chi2_distn( prob, dofn )/dofn;
 }
-    fisher_f f(dofn,dofd); 
+    fisher_f const f(dofn,dofd); 
     return quantile(f,1.0-prob);
 }
 

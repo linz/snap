@@ -204,8 +204,8 @@ int main( int argc, char *argv[] )
     }
     if( clearbaseorders && base->orderclsid > 0)
     {
-        int nstn= number_of_stations( base );
-        int clsid = base->orderclsid;
+        int const nstn= number_of_stations( base );
+        int const clsid = base->orderclsid;
         for( int istn = 1; istn <= nstn; istn++ )
         {
             station *st = station_ptr( base, istn );
@@ -222,8 +222,8 @@ int main( int argc, char *argv[] )
     }
     if( cleardataorders && data->orderclsid > 0)
     {
-        int nstn= number_of_stations( data );
-        int clsid = data->orderclsid;
+        int const nstn= number_of_stations( data );
+        int const clsid = data->orderclsid;
         for( int istn = 1; istn <= nstn; istn++ )
         {
             station *st = station_ptr( data, istn );

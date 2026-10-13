@@ -59,7 +59,7 @@ int print_double6( output_string_def *os, void *address )
 int print_radians( output_string_def *os, void *address )
 {
     char buf[40];
-    double deg = *(double *)(address) * RTOD;
+    double const deg = *(double *)(address) * RTOD;
     sprintf( buf, "%.6lf", deg );
     return (*os->write)(buf,os->sink);
 }

@@ -510,8 +510,8 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
         int nTimeModel=1;
         int iref=0;
         int i;
-        double refyear=utlDateAsYear(&(cmp->refdate));
-        int isvel = seq->valtype == defValueVelocity;
+        double const refyear=utlDateAsYear(&(cmp->refdate));
+        int const isvel = seq->valtype == defValueVelocity;
 
         if( sts == STS_OK && version == 1 ) { sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &usebefore );
 }
@@ -866,8 +866,8 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
                 }
                 else if( nextcmp )
                 {
-                    double y0=utlDateAsYear(&(cmp->refdate));
-                    double y1=utlDateAsYear(&(nextcmp->refdate));
+                    double const y0=utlDateAsYear(&(cmp->refdate));
+                    double const y1=utlDateAsYear(&(nextcmp->refdate));
                     if( y1 > y0 ) 
                     {
                         tmi->year=utlDateAsYear(&(seq->startdate));
@@ -885,8 +885,8 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
                 }
                 else if( lastcmp )
                 {
-                    double y0=utlDateAsYear(&(cmp->refdate));
-                    double y1=utlDateAsYear(&(lastcmp->refdate));
+                    double const y0=utlDateAsYear(&(cmp->refdate));
+                    double const y1=utlDateAsYear(&(lastcmp->refdate));
                     if( y1 < y0 ) 
                     {
                         tmi->year=utlDateAsYear(&(seq->enddate));

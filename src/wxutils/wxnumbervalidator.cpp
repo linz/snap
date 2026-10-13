@@ -48,7 +48,7 @@ wxNumberValidator::wxNumberValidator( const wxNumberValidator &validator )
 bool wxNumberValidator::TransferFromWindow()
 {
     wxTextCtrl *ctrl = static_cast<wxTextCtrl *>(GetWindow());
-    wxString strval = ctrl->GetValue();
+    wxString const strval = ctrl->GetValue();
     bool result;
     if( isInteger )
     {
@@ -90,7 +90,7 @@ bool wxNumberValidator::Validate( wxWindow * WXUNUSED(parent) )
     double tempval;
     void *saveptr = value;
     value = &tempval;
-    bool result = TransferFromWindow();
+    bool const result = TransferFromWindow();
     value = saveptr;
     if( ! result )
     {

@@ -23,8 +23,8 @@ public:
     MapRect() = default;
     [[nodiscard]] MapRect ExpandBy( double factor ) const
     {
-        double dx = (max.x-min.x)*(factor-1);
-        double dy = (max.y-min.y)*(factor-1);
+        double const dx = (max.x-min.x)*(factor-1);
+        double const dy = (max.y-min.y)*(factor-1);
         return MapRect(min.x - dx, min.y - dy, max.x + dx, max.y + dy );
     }
     [[nodiscard]] MapRect Shift( double dx, double dy ) const

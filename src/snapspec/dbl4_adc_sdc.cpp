@@ -201,7 +201,7 @@ inline size_t SDC_KDTreeAdaptor::kdtree_get_point_count() const
 
 inline double SDC_KDTreeAdaptor::kdtree_get_pt( size_t idx, size_t dim ) const
 {
-    int istn = (int)(sdci->sdc->pfStationId)( sdci->sdc->env, (int)idx );
+    int const istn = (int)(sdci->sdc->pfStationId)( sdci->sdc->env, (int)idx );
     return station_ptr( net, istn )->XYZ[dim];
 }
 
@@ -212,7 +212,7 @@ inline size_t SDC_CtlKDTreeAdaptor::kdtree_get_point_count() const
 
 inline double SDC_CtlKDTreeAdaptor::kdtree_get_pt( size_t k, size_t dim ) const
 {
-    int istn = (int)(sdci->sdc->pfStationId)( sdci->sdc->env, ctl_sdc_idx[k] );
+    int const istn = (int)(sdci->sdc->pfStationId)( sdci->sdc->env, ctl_sdc_idx[k] );
     return station_ptr( net, istn )->XYZ[dim];
 }
 
@@ -311,7 +311,7 @@ static void sdcTimeStamp( SDCTestImp *sdci, std::string_view status );
 static inline void nibble_set(unsigned char *data, int k, unsigned char val)
 {
     /* 0 for even k (lower nibble), 4 for odd k (upper nibble). */
-    int shift = (k & 1) << 2;
+    int const shift = (k & 1) << 2;
     /* Clear nibble, OR in val. */
     data[k >> 1] = (data[k >> 1] & ~(0x0Fu << shift)) | ((unsigned char)val << shift);
 }
@@ -937,7 +937,7 @@ static StatusType sdcFillCtlDistKDTree( SDCTestImp *sdci )
         if( stns[istn].role == SDC_IGNORE_MARK ) { continue;
 }
 
-        long snap_id = (sdc->pfStationId)(sdc->env, istn);
+        long const snap_id = (sdc->pfStationId)(sdc->env, istn);
         double query[3] = {
             station_ptr(net, (int)snap_id)->XYZ[0],
             station_ptr(net, (int)snap_id)->XYZ[1],
@@ -990,7 +990,7 @@ static StatusType sdcFindNearestControl( SDCTestImp *sdci)
 }
                 if( stns[istn].role != SDC_IGNORE_MARK )
                 {
-                    float dist = (float) (sdc->pfDistance2)(sdc->env,ictl, istn );
+                    float const dist = (float) (sdc->pfDistance2)(sdc->env,ictl, istn );
                     if( first || dist < stns[istn].ctldist2 )
                     {
                         stns[istn].ctldist2 = dist;
@@ -1073,8 +1073,8 @@ static StatusType sdcApplyAbsAccuracy( SDCTestImp *sdci, SDCOrderTest *test,
     char testvrt = 0;
     int nhfail = 0;
     int nhdfail = 0;
-    int nvfail = 0;
-    int nvdfail = 0;
+    int const nvfail = 0;
+    int const nvdfail = 0;
     int npass = 0;
     StatusType sts = STS_OK;
 
@@ -1134,7 +1134,7 @@ static StatusType sdcApplyAbsAccuracy( SDCTestImp *sdci, SDCOrderTest *test,
     for( i = 0; sts == STS_OK && i < sdc->nmark; i++ )
     {
         SDCStation *s = & stns[i];
-        long sdcstni=sdcStationId(sdci,i);
+        long const sdcstni=sdcStationId(sdci,i);
         if( i % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort();
 }
         if( s->status == SDC_STS_UNKNOWN )
@@ -1306,7 +1306,7 @@ static StatusType sdcCreateRelTest( SDCTestImp *sdci)
 
     for( i = 0; i < sdc->nmark; i++ )
     {
-        int nr = stns[i].nrelrow;
+        int const nr = stns[i].nrelrow;
         if( nr >= 0 ) { sdci->lookup[nr] = i;
 }
     }
@@ -1357,8 +1357,8 @@ static StatusType sdcApplyRelTest( SDCTestImp *sdci, SDCOrderTest *test)
         std::vector<SDCStation> &stns = sdci->stns;
         for( int i = 1; i < sdci->nreltest; i++ )
         {
-            int istni = sdci->lookup[i];
-            long sdcstni=sdcStationId(sdci,istni);
+            int const istni = sdci->lookup[i];
+            long const sdcstni=sdcStationId(sdci,istni);
             SDCStation *stni = &(stns[istni]);
             sdcWriteCompactLog( sdci, sdcstni,stni->status,SDC_TEST_RAIS,"",-1,-1,"");
         }
@@ -1439,7 +1439,7 @@ static StatusType sdcApplyRelTestPass( SDCTestImp *sdci, int *pnpass)
 {
     std::vector<SDCStation> &stns = sdci->stns;
     SDCTest *sdc = sdci->sdc;
-    int nmark = sdc -> nmark;
+    int const nmark = sdc -> nmark;
     int npass = 0;
     int istn;
     StatusType sts = STS_OK;
@@ -1449,7 +1449,7 @@ static StatusType sdcApplyRelTestPass( SDCTestImp *sdci, int *pnpass)
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
         SDCStation *stni = &(stns[istn]);
-        long sdcstni = sdcStationId(sdci,istn);
+        long const sdcstni = sdcStationId(sdci,istn);
         if( istn % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort();
 }
 
@@ -1493,7 +1493,7 @@ static StatusType sdcApplyRelTestFail( SDCTestImp *sdci, SDCOrderTest *test,
         int *pnfailacc, int *pnfailcount )
 {
     std::vector<SDCStation> &stns = sdci->stns;
-    int nmark = sdci->sdc->nmark;
+    int const nmark = sdci->sdc->nmark;
     int nfailacc = 0;
     int nfailcnt = 0;
     int istn;
@@ -1505,7 +1505,7 @@ static StatusType sdcApplyRelTestFail( SDCTestImp *sdci, SDCOrderTest *test,
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
         SDCStation *stni = &(stns[istn]);
-        long sdcstni = sdcStationId( sdci, istn );
+        long const sdcstni = sdcStationId( sdci, istn );
         if( istn % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort();
 }
         if( stni->status == SDC_STS_UNKNOWN && stni->nrelfail )
@@ -1525,7 +1525,7 @@ static StatusType sdcApplyRelTestFail( SDCTestImp *sdci, SDCOrderTest *test,
         for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
         {
             SDCStation *stni = &(stns[istn]);
-            long sdcstni = sdcStationId( sdci, istn );
+            long const sdcstni = sdcStationId( sdci, istn );
             if( istn % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort();
 }
             if( stni->status == SDC_STS_UNKNOWN && stni->nreltest < test->iMinRelAcc )
@@ -1568,7 +1568,7 @@ static StatusType sdcSeekRelTestFail( SDCTestImp *sdci, SDCOrderTest *test, int 
 {
     SDCTest *sdc = sdci->sdc;
     std::vector<SDCStation> &stns = sdci->stns;
-    int nmark = sdci->sdc->nmark;
+    int const nmark = sdci->sdc->nmark;
     int istnfail = -1;
     int priority = 0;
     int testorder = 0;
@@ -1581,7 +1581,7 @@ static StatusType sdcSeekRelTestFail( SDCTestImp *sdci, SDCOrderTest *test, int 
     /* float verror; */
     int istn;
     StatusType sts = STS_OK;
-    float herrmult = test->blnTestHor ? 1.0 : 0.0;
+    float const herrmult = test->blnTestHor ? 1.0 : 0.0;
     /* float verrmult = test->blnTestVrt ? test->dblVertHorRatio*test->dblVertHorRatio : 0.0; */
 
     /*> Seek the station with the maximum percentage of failed tests,
@@ -1675,9 +1675,9 @@ static void sdcSetRelTestStatus( SDCTestImp *sdci, int istn, char status)
 {
     std::vector<SDCStation> &stns = sdci->stns;
     unsigned char *relstatus;
-    int nreltest = sdci->nreltest;
+    int const nreltest = sdci->nreltest;
     int col0;
-    int nrelrow = stns[istn].nrelrow;
+    int const nrelrow = stns[istn].nrelrow;
     int i;
 
     /*> Set the station status */
@@ -1774,7 +1774,7 @@ static unsigned char sdcTestPairAccuracy(
     if( cfg->testhor )
     {
         double error = 0.0;
-        double tolij = cfg->ftol + cfg->dtol * dist;
+        double const tolij = cfg->ftol + cfg->dtol * dist;
 
         if( cfg->usemaxdistance && dist > cfg->maxtestdist )
         {
@@ -1866,9 +1866,9 @@ static unsigned char sdcTestPairAccuracy(
 
     if( cfg->testvrt && stsij != SDC_STS_FAIL )
     {
-        double tolij = cfg->ftolv + cfg->dtolv * dist;
+        double const tolij = cfg->ftolv + cfg->dtolv * dist;
         double error = 0.0;
-        char needcvr = stsij == SDC_STS_NEED_CVR;
+        char const needcvr = stsij == SDC_STS_NEED_CVR;
 
         stsij = SDC_STS_UNKNOWN;
 
@@ -1997,20 +1997,20 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
     double dtolv;
     double maxtestdist = 0.0;
     double maxtestdistv = 0.0;
-    int nmark = sdc->nmark;
-    int options = sdc->options;
+    int const nmark = sdc->nmark;
+    int const options = sdc->options;
     int i;
     int j;
-    char shortcircuit = ! (options & SDC_OPT_NO_SHORTCIRCUIT_CVR);
-    char strictcovar = options & SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
+    char const shortcircuit = ! (options & SDC_OPT_NO_SHORTCIRCUIT_CVR);
+    char const strictcovar = options & SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
     char needcovariances = 0;
     char usemaxdistance = 0;
     char usemaxdistancev = 0;
-    char logcalcs = (sdci->loglevel & (SDC_LOG_CALCS | SDC_LOG_CALCS2)) ? 1 : 0;
-    char logcalcs2 = (sdci->loglevel & SDC_LOG_CALCS2) ? 1 : 0;
-    char logcompact = (sdci->loglevel & SDC_LOG_COMPACT) ? 1 : 0;
-    char testhor = test->blnTestHor;
-    char testvrt = test->blnTestVrt;
+    char const logcalcs = (sdci->loglevel & (SDC_LOG_CALCS | SDC_LOG_CALCS2)) ? 1 : 0;
+    char const logcalcs2 = (sdci->loglevel & SDC_LOG_CALCS2) ? 1 : 0;
+    char const logcompact = (sdci->loglevel & SDC_LOG_COMPACT) ? 1 : 0;
+    char const testhor = test->blnTestHor;
+    char const testvrt = test->blnTestVrt;
 
     StatusType sts = STS_OK;
 
@@ -2110,11 +2110,11 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
     {
         unsigned char *relstatus = nullptr;
 
-        int istni = sdci->lookup[i];
-        long sdcstni=sdcStationId(sdci,istni);
+        int const istni = sdci->lookup[i];
+        long const sdcstni=sdcStationId(sdci,istni);
         SDCStation *stni = &(stns[istni]);
-        char stsi = stni->status;
-        char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
+        char const stsi = stni->status;
+        char const passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
 
         if( i % ABORT_FREQUENCY == 0 )
@@ -2137,12 +2137,12 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
         struct JCand { int j; double dist2; };
         std::vector<JCand> jcands;
         int relstatus_col0 = 0;
-        bool kdtree_j = userange && sdci->kdtree;
+        bool const kdtree_j = userange && sdci->kdtree;
 
         if( kdtree_j )
         {
             /* Build sorted candidate list via KD-tree radius search */
-            long snap_id_i = (sdc->pfStationId)(sdc->env, istni);
+            long const snap_id_i = (sdc->pfStationId)(sdc->env, istni);
             double query[3] = {
                 station_ptr(net, (int)snap_id_i)->XYZ[0],
                 station_ptr(net, (int)snap_id_i)->XYZ[1],
@@ -2153,7 +2153,7 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
 
             for( auto &h : hits )
             {
-                int jk = stns[(int)h.first].nrelrow;
+                int const jk = stns[(int)h.first].nrelrow;
                 if( jk >= 0 && jk < i ) {
                     jcands.push_back({jk, h.second});
 }
@@ -2170,7 +2170,7 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
             }
         }
 
-        int jlim = kdtree_j ? (int)jcands.size() : i;
+        int const jlim = kdtree_j ? (int)jcands.size() : i;
 
         for( int jidx = 0; jidx < jlim; jidx++ )
         {
@@ -2183,11 +2183,11 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
                 j = jidx;
             }
 
-            int istnj = sdci->lookup[j];
-            long sdcstnj=sdcStationId(sdci,istnj);
+            int const istnj = sdci->lookup[j];
+            long const sdcstnj=sdcStationId(sdci,istnj);
             SDCStation *stnj = &(stns[istnj]);
-            char stsj = stnj->status;
-            char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
+            char const stsj = stnj->status;
+            char const passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
             double dist;
             unsigned char stsij;
 
@@ -2259,12 +2259,12 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
         for( i = 1; i < sdci->nreltest; i++ )
         {
             unsigned char *relstatus = sdci->relstatus[i];
-            int col0=sdci->relcol0[i];
-            int istni = sdci->lookup[i];
-            long sdcstni=sdcStationId(sdci,istni);
+            int const col0=sdci->relcol0[i];
+            int const istni = sdci->lookup[i];
+            long const sdcstni=sdcStationId(sdci,istni);
             SDCStation *stni = &(stns[istni]);
-            char stsi = stni->status;
-            char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
+            char const stsi = stni->status;
+            char const passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
             if( i % ABORT_FREQUENCY == 0 )
             {
@@ -2281,11 +2281,11 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
 
             for( j = col0; j < i; j++ )
             {
-                int istnj = sdci->lookup[j];
-                long sdcstnj=sdcStationId(sdci,istnj);
+                int const istnj = sdci->lookup[j];
+                long const sdcstnj=sdcStationId(sdci,istnj);
                 SDCStation *stnj = &(stns[istnj]);
-                char stsj = stnj->status;
-                char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
+                char const stsj = stnj->status;
+                char const passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
 
                 if( j % ABORT_FREQUENCY == 0 )
                 {
@@ -2346,12 +2346,12 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
     for( i = 1; i < sdci->nreltest; i++ )
     {
         unsigned char *relstatus = sdci->relstatus[i];
-        int col0=sdci->relcol0[i];
+        int const col0=sdci->relcol0[i];
 
-        int istni = sdci->lookup[i];
+        int const istni = sdci->lookup[i];
         SDCStation *stni = &(stns[istni]);
-        char stsi = stni->status;
-        char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
+        char const stsi = stni->status;
+        char const passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
         if( i % ABORT_FREQUENCY == 0 )
         {
@@ -2367,10 +2367,10 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
 
         for( j = col0; j < i; j++ )
         {
-            int istnj = sdci->lookup[j];
+            int const istnj = sdci->lookup[j];
             SDCStation *stnj = &(stns[istnj]);
-            char stsj = stnj->status;
-            char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
+            char const stsj = stnj->status;
+            char const passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
 
             if( j % ABORT_FREQUENCY == 0 )
             {
@@ -2378,7 +2378,7 @@ static StatusType sdcSetupRelAccuracyStatus( SDCTestImp *sdci, SDCOrderTest *tes
                 if( sts != STS_OK ) { return sts;
 }
             }
-            unsigned char stsij_rel = nibble_get(relstatus, j - col0);
+            unsigned char const stsij_rel = nibble_get(relstatus, j - col0);
             if( stsij_rel == SDC_STS_SKIP ) { continue;
 }
 
@@ -2448,7 +2448,7 @@ static StatusType sdcUpdateOrders( SDCTestImp *sdci, int itest, int apply )
 {
     SDCTest *sdc = sdci->sdc;
     std::vector<SDCStation> &stns = sdci->stns;
-    int nmark = sdc->nmark;
+    int const nmark = sdc->nmark;
     int istn;
     StatusType sts = STS_OK;
 
@@ -2504,7 +2504,7 @@ static StatusType sdcApplyDefaultOrder( SDCTestImp *sdci)
 {
     SDCTest *sdc = sdci->sdc;
     std::vector<SDCStation> &stns = sdci->stns;
-    int nmark = sdc->nmark;
+    int const nmark = sdc->nmark;
     int istn;
     StatusType sts = STS_OK;
 

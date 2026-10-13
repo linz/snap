@@ -326,7 +326,7 @@ static void copy_layer( Symbology *sym, int id, Symbology *oldsym, int oldid )
 
     if( l.HasColour() && ol.HasColour() )
     {
-        int colourid = sym->GetPalette()->AddColour( oldsym->GetPalette()->Colour( ol.ColourId() ) );
+        int const colourid = sym->GetPalette()->AddColour( oldsym->GetPalette()->Colour( ol.ColourId() ) );
         l.SetColourId( colourid );
     }
     l.SetStatus( ol.Status() );
@@ -377,7 +377,7 @@ static void setup_station_class_layers( int class_id )
         return;
     }
 
-    int nlayer = net->class_count( class_id );
+    int const nlayer = net->class_count( class_id );
     if( nlayer <= 0 )
     {
         station_user_layers = nullptr;
@@ -464,7 +464,7 @@ static void save_and_invalidate_layer_state( layer_list *layers )
         if( l.lyr_id < 0 ) {
             continue;
         }
-        LayerSymbology &ls = symbology->GetLayer( l.lyr_id );
+        LayerSymbology  const&ls = symbology->GetLayer( l.lyr_id );
         l.savedStatus = ls.Status();
         if( ls.HasColour() ) {
             l.savedColour = symbology->GetPalette()->Colour( ls.ColourId() );
@@ -691,7 +691,7 @@ static void setup_background_layers()
 {
     if( ! background_layers.empty() ) {  return;
 }
-    int nlayer = background_layer_count();
+    int const nlayer = background_layer_count();
     if( nlayer <= 0 ) { return;
 }
     background_layers.reserve( nlayer );
@@ -703,9 +703,9 @@ static void setup_background_layers()
 
 static void remove_unwanted_layers( layer_list &layers )
 {
-    bool got_hor = dimension == 2 || dimension == 3;
-    bool got_vrt = dimension == 1 || dimension == 3;
-    bool got_cvr = (got_covariances() != 0);
+    bool const got_hor = dimension == 2 || dimension == 3;
+    bool const got_vrt = dimension == 1 || dimension == 3;
+    bool const got_cvr = (got_covariances() != 0);
 
     for( layer_s &l : layers )
     {
@@ -720,7 +720,7 @@ static void remove_unwanted_layers( layer_list &layers )
 
 static void add_layer_to_symbology( Symbology *symbology, layer_s &l, Symbology *oldSymbology, const bool colourEditable = true )
 {
-    int oldid = l.lyr_id;
+    int const oldid = l.lyr_id;
     l.lyr_id = -1;
 
     if( l.pen_id == UNUSED_LAYER_PEN_ID ) { return;
@@ -733,8 +733,8 @@ static void add_layer_to_symbology( Symbology *symbology, layer_s &l, Symbology 
 }
 
     // dfltColour views a literal, so data() is null terminated (or null if there is no colour)
-    wxColour colour = wxColour( l.dfltColour.data() );
-    bool display = true;
+    wxColour const colour = wxColour( l.dfltColour.data() );
+    bool const display = true;
 
     l.lyr_id = symbology->AddLayer( l.name, type, colour, display, l.is_control_checkbox, colourEditable );
     if( oldSymbology && oldid >= 0 ) { copy_layer( symbology, l.lyr_id, oldSymbology, oldid );
@@ -947,7 +947,7 @@ static void build_station_symbols()
         if( ! sym.fillColour.empty() ) { fillColour = wxColour(sym.fillColour.data());
 }
         PointSymbology *ptsym = new PointSymbology( sym.name.data(), sym.nNodes, sym.size, 0.0, borderColour, fillColour );
-        int idSym = symbology->AddPointSymbol( ptsym );
+        int const idSym = symbology->AddPointSymbol( ptsym );
         symbol_lookup[sym.id] = idSym;
     }
 }
@@ -970,7 +970,7 @@ int station_class_pen( int cvalue )
 
 int get_pen( int item )
 {
-    int np = basepenid[ item ];
+    int const np = basepenid[ item ];
     return np < 0 ? 0 : np;
 }
 
@@ -993,7 +993,7 @@ int get_symbol_points( int symbol_id, symbolpoint *ptlist, int maxpts )
     PointSymbology *symbol = symbology->GetPointSymbol(symbol_id);
     if( ! symbol ) { return -1;
 }
-    int npts = symbol->NPoints();
+    int const npts = symbol->NPoints();
     if( maxpts < symbol->NPoints() || maxpts < 1 ) { return -1;
 }
     if( npts == 0 )
@@ -1018,7 +1018,7 @@ void set_pen_colour_range( )
     for( const layer_s &l : *data_user_layers )
     {
         LayerSymbology &ls = symbology->GetLayer( l.lyr_id );
-        int colourid = symbology->GetPalette()->AddColour(
+        int const colourid = symbology->GetPalette()->AddColour(
             wxColour(range_colours[std::min(colourIdx, range_colours.size()-1)].data()) );
         ls.SetColourId( colourid );
         colourIdx++;
@@ -1155,7 +1155,7 @@ int read_key_definition( std::string_view def )
             const std::string colourName( *fld );
             wxString colname( colourName );
             colname.Replace("_"," ");
-            wxColour c = wxColour(colname);
+            wxColour const c = wxColour(colname);
             pen = symbology->GetPalette()->AddColour( c );
             // TODO: Need some handling here of invalid colour
         }
@@ -1187,7 +1187,7 @@ void print_key( FILE *out, const std::string_view prefix )
             }
             if( type & LayerSymbology::hasColour )
             {
-                wxColour colour = symbology->GetPalette()->Colour( ls.ColourId());
+                wxColour const colour = symbology->GetPalette()->Colour( ls.ColourId());
                 wxString colname = wxTheColourDatabase->FindName( colour );
                 if( colname.IsEmpty() ) { colname = colour.GetAsString(wxC2S_CSS_SYNTAX);
 }

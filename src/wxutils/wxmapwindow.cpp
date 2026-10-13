@@ -119,7 +119,7 @@ void wxMapDragger::ProcessMouseEvent( wxMouseEvent &event )
 
         if( event.Dragging() )
         {
-            wxPoint dragOffset = event.GetPosition() - dragStartPoint;
+            wxPoint const dragOffset = event.GetPosition() - dragStartPoint;
             if( abs(dragOffset.x) + abs(dragOffset.y) >= minDragLength )
             {
                 if( canDrag && InitDrag( event ) )
@@ -175,12 +175,12 @@ void wxMapDragger::ProcessMouseEvent( wxMouseEvent &event )
         }
         else
         {
-            wxPoint newEndPoint = event.GetPosition();
+            wxPoint const newEndPoint = event.GetPosition();
 
             if( moveOriginOnShift && event.ShiftDown() )
             {
-                int dx = newEndPoint.x - dragEndPoint.x;
-                int dy = newEndPoint.y - dragEndPoint.y;
+                int const dx = newEndPoint.x - dragEndPoint.x;
+                int const dy = newEndPoint.y - dragEndPoint.y;
 
                 dragStartPoint = wxPoint( dragStartPoint.x + dx, dragStartPoint.y + dy );
             }
@@ -258,7 +258,7 @@ void wxMapDragger::PaintMapOnto( wxDC &dc )
 
 wxBitmap wxMapDragger::CaptureMapBitmap()
 {
-    wxSize size = mapWindow->GetClientSize();
+    wxSize const size = mapWindow->GetClientSize();
     wxBitmap bitmap( size.GetWidth(), size.GetHeight() );
     wxMemoryDC memDC( bitmap );
     PaintMapOnto( memDC );
@@ -314,7 +314,7 @@ void wxMapScaleDragger::DrawDragger( wxDC &dc )
         dc.Clear();
         if( panBitmap.IsOk() )
         {
-            wxPoint offset = dragEndPoint - dragStartPoint;
+            wxPoint const offset = dragEndPoint - dragStartPoint;
             dc.DrawBitmap( panBitmap, offset.x, offset.y );
         }
     }
@@ -352,14 +352,14 @@ void wxMapScaleDragger::EndDrag()
         MapRect newWindow;
         if( zoomMode == zdmZoom )
         {
-            if( ptStart.x > ptEnd.x ) { double tmp = ptStart.x; ptStart.x = ptEnd.x; ptEnd.x = tmp; }
-            if( ptStart.y > ptEnd.y ) { double tmp = ptStart.y; ptStart.y = ptEnd.y; ptEnd.y = tmp; }
+            if( ptStart.x > ptEnd.x ) { double const tmp = ptStart.x; ptStart.x = ptEnd.x; ptEnd.x = tmp; }
+            if( ptStart.y > ptEnd.y ) { double const tmp = ptStart.y; ptStart.y = ptEnd.y; ptEnd.y = tmp; }
             newWindow = MapRect( ptStart, ptEnd );
         }
         else
         {
-            double dx = ptStart.x - ptEnd.x;
-            double dy = ptStart.y - ptEnd.y;
+            double const dx = ptStart.x - ptEnd.x;
+            double const dy = ptStart.y - ptEnd.y;
             newWindow = scale.GetWorldExtents().Shift(dx,dy);
         }
         scale.ZoomTo( newWindow );
@@ -472,7 +472,7 @@ void wxMapWindow::OnMouseEvent( wxMouseEvent &event )
 {
     if( scale.IsValid() )
     {
-        wxPoint mousePoint( event.GetX(), event.GetY() );
+        wxPoint const mousePoint( event.GetX(), event.GetY() );
         scale.PlotToWorld( mousePoint, cursorPosition );
         if( sendPositionEvent ) { ForwardMouseEvent( WX_MAPWINDOW_POSITION, event );
 }
@@ -519,7 +519,7 @@ void wxMapWindow::RefreshCursorPosition()
     if( ! scale.IsValid() ) { return;
 }
 
-    wxPoint mousePoint = ScreenToClient( wxGetMousePosition() );
+    wxPoint const mousePoint = ScreenToClient( wxGetMousePosition() );
     scale.PlotToWorld( mousePoint, cursorPosition );
     if( sendPositionEvent )
     {
@@ -543,7 +543,7 @@ void wxMapWindow::DoRedrawMap()
 
 void wxMapWindow::RedrawMap()
 {
-    wxSimpleEvent event(WX_MAPWINDOW_REDRAWMAP);
+    wxSimpleEvent const event(WX_MAPWINDOW_REDRAWMAP);
     AddPendingEvent( event );
 }
 
@@ -551,7 +551,7 @@ void wxMapWindow::PaintMap(  wxDC &dc )
 {
     if( map && symbology )
     {
-        wxCursor saved = GetCursor();
+        wxCursor const saved = GetCursor();
         SetCursor( *wxHOURGLASS_CURSOR );
         wxMapDrawer drawer( dc, scale, *symbology );
         map->DrawMap( drawer );
@@ -566,7 +566,7 @@ void wxMapWindow::PaintMap(  wxDC &dc )
 void wxMapWindow::OnPaint( wxPaintEvent & WXUNUSED(event) )
 {
     #if wxUSE_GRAPHICS_CONTEXT
-    wxPaintDC pdc(this);
+    wxPaintDC const pdc(this);
     wxGCDC dc( pdc ) ;
     #else
     wxPaintDC dc(this);

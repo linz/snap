@@ -12,16 +12,16 @@
 
 wxString wxTabbedTextSource::GetText()
 {
-    int nrow = GetRowCount();
+    int const nrow = GetRowCount();
     wxString text( GetHeader() );
 
     // Guesstimate an allocation amount
-    int nchar = (int) ((text.Len()+1) * (nrow+1) * 1.1);
+    int const nchar = (int) ((text.Len()+1) * (nrow+1) * 1.1);
     text.Alloc( nchar );
     text.Trim( true );
     text.Trim( false );
 
-    wxRegEx re( " *\t *");
+    wxRegEx const re( " *\t *");
     re.ReplaceAll( &text, "\t" );
 
     text.Append('\n');
@@ -265,11 +265,11 @@ void wxTabbedTextGrid::SetTabbedTextSource( wxTabbedTextSource *source )
 
     for( int col = 0; col < table->GetNumberCols(); col++ )
     {
-        bool right = table->GetColRightJustify( col );
+        bool const right = table->GetColRightJustify( col );
         wxGridCellAttr *attr = new wxGridCellAttr();
         attr->SetAlignment( right ? wxALIGN_RIGHT : wxALIGN_LEFT, wxALIGN_TOP );
         SetColAttr( col, attr );
-        int nchar = table->GetColWidth( col );
+        int const nchar = table->GetColWidth( col );
         SetColSize( col, (nchar+2)*GetCharWidth() );
     }
 
@@ -297,7 +297,7 @@ void wxTabbedTextGrid::OnRangeSelect( wxGridRangeSelectEvent &event )
 {
     if( ! event.Selecting() ) { return;
 }
-    int row = event.GetBottomRow();
+    int const row = event.GetBottomRow();
     if( row != event.GetTopRow() )
     {
         SelectRow( event.GetBottomRow() );

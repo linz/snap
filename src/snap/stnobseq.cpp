@@ -150,7 +150,7 @@ int add_station_colocation_constraints()
             {
                 continue;
             }
-            int idto=find_station( net, recode->codeto );
+            int const idto=find_station( net, recode->codeto );
             station *stto=stnptr(idto);
             bool usestn=false;
             if( stto )
@@ -211,7 +211,7 @@ int add_station_colocation_constraints()
             {
                 continue;
             }
-            int idto=find_station( net, recode->codeto );
+            int const idto=find_station( net, recode->codeto );
             station *stto=stnptr(idto);
             bool usestn=false;
             if( stto )
@@ -385,12 +385,12 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
 static int float_station_obseq( station *st, void *hA )
 {
     stn_adjustment *sa = stnadj( st );
-    int nrow=(sa->flag.float_h ? 2 : 0) + (sa->flag.float_v ? 1 : 0);
+    int const nrow=(sa->flag.float_h ? 2 : 0) + (sa->flag.float_v ? 1 : 0);
     if( nrow == 0 ) { return nrow;
 }
 
-    int hprm0=sa->hrowno;
-    int vprm0=sa->vrowno;
+    int const hprm0=sa->hrowno;
+    int const vprm0=sa->vrowno;
     int hprm1=0;
     int vprm1=0;
     int ncol=1;
@@ -422,7 +422,7 @@ static int float_station_obseq( station *st, void *hA )
     int vrow=1;
     if( sa->flag.float_h )
     {
-        double var=sa->herror*sa->herror;
+        double const var=sa->herror*sa->herror;
         oe_value( hA, 1, de );
         if( hprm0 ) oe_param( hA, 1, hprm0, 1.0 );
         if( hprm1 ) oe_param( hA, 1, hprm1, -1.0 );
@@ -437,7 +437,7 @@ static int float_station_obseq( station *st, void *hA )
     }
     if( sa->flag.float_v )
     {
-        double var=sa->verror*sa->verror;
+        double const var=sa->verror*sa->verror;
         oe_value( hA, vrow, dh );
         if( vprm0 ) oe_param( hA, vrow, vprm0, 1.0 );
         if( vprm1 ) oe_param( hA, vrow, vprm1, -1.0 );
@@ -473,7 +473,7 @@ void sum_floating_stations( int iteration )
     for( istn = 0; istn++ < maxstn; )
     {
         st = stnptr( istn );
-        int nfprm=float_station_obseq(st,hA);
+        int const nfprm=float_station_obseq(st,hA);
         if( ! nfprm ) { continue;
 }
         lsq_sum_obseqn( hA );
@@ -1157,7 +1157,7 @@ void write_station_csv()
                     csv->writeNullField();
                 }
                 
-                int nfprm=float_station_obseq( st, hA );
+                int const nfprm=float_station_obseq( st, hA );
                 double calc[3];
                 double calccvr[6];
                 double res[3]={0.0,0.0,0.0};
@@ -1171,8 +1171,8 @@ void write_station_csv()
                 {
                     vrow=2;
                     calc_error_ellipse( cvr, &emax, &emin, &brng );
-                    double cs=cos(brng);
-                    double sn=sin(brng);
+                    double const cs=cos(brng);
+                    double const sn=sin(brng);
                     brng *= RTOD;
                     while(brng < 0) { brng += 180;
 }
@@ -1189,7 +1189,7 @@ void write_station_csv()
                         dmax=(dmax*dmax)/(emax*emax);
                         if( emin > 1.0e-5 )
                         {
-                            double dmin=sn*res[0]-cs*res[1];
+                            double const dmin=sn*res[0]-cs*res[1];
                             dmax += (dmin*dmin)/(emin*emin);
                         }
                         dmax=sqrt(dmax);
@@ -1207,7 +1207,7 @@ void write_station_csv()
                 if( nfprm == 1 || nfprm == 3 )
                 {
                     csv->writeDouble(-res[vrow],coord_precision);
-                    double verr=sqrt(fabs(Lij(cvr,vrow,vrow)));
+                    double const verr=sqrt(fabs(Lij(cvr,vrow,vrow)));
                     csv->writeDouble(verr,coord_precision);
                     if( verr < 1.0e-5 )
                     {
@@ -1227,7 +1227,7 @@ void write_station_csv()
 
         for( int i = 0; i < net->classification_count(); i++ )
         {
-            int iclass = st->get_class( i+1 );
+            int const iclass = st->get_class( i+1 );
             csv->writeString( net->class_value(i+1, iclass) );
         }
 
@@ -1310,12 +1310,12 @@ void print_floated_stations( FILE *out )
     for( reset_station_list(net,(int)output_sorted_stations);
             nullptr != (st = next_station(net)); )
     {
-        int nfprm=float_station_obseq(st,hA);
+        int const nfprm=float_station_obseq(st,hA);
         if( ! nfprm ) { continue;
 }
     
-        int axis0=nfprm==1 ? 2 : 0;
-        int axis1=nfprm==2 ? 2 : 3;
+        int const axis0=nfprm==1 ? 2 : 0;
+        int const axis1=nfprm==2 ? 2 : 3;
 
         lsq_calc_obs( hA, calc, res, nullptr, nullptr, 0, calccvr, rescvr );
         sa=stnadj(st);
@@ -1330,8 +1330,8 @@ void print_floated_stations( FILE *out )
         {
             if( rowno==0 ) { fprintf( out, "\n");
 }
-            double resval=res[rowno];
-            double ser=sqrt(fabs(Lij(rescvr,rowno,rowno)))*semult;
+            double const resval=res[rowno];
+            double const ser=sqrt(fabs(Lij(rescvr,rowno,rowno)))*semult;
             fprintf( out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ",
                      stn_name_width, (rowno==0 ? st->Code.c_str() : ""),
                      relative_floating ? stn_name_width+1 : 0,
@@ -1342,7 +1342,7 @@ void print_floated_stations( FILE *out )
                      -resval, ser);
             if( ser > 1.0e-5 )
             {
-                double stres = fabs(resval)/ ser;
+                double const stres = fabs(resval)/ ser;
                 fprintf( out, "%8.2lf %s\n", stres, std::string( residual_flag( 0, 1, stres ) ).c_str());
             }
             else

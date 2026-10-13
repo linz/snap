@@ -501,7 +501,7 @@ void print_coord_sinex( void )
 
     {
         constexpr std::array<std::string_view,3> params={"STAX","STAY","STAZ"};
-        double epoch=(maxdate+mindate)/2;
+        double const epoch=(maxdate+mindate)/2;
         int nprm = 0;
 
         fprintf(f,"+SOLUTION/ESTIMATE\n");
@@ -580,7 +580,7 @@ void print_coord_sinex( void )
 
                 for( row=0; row < 3; row++ )
                 {
-                    int ncol = istn==jstn ? row : 2;
+                    int const ncol = istn==jstn ? row : 2;
                     fprintf(f," %5d %5d",nprmi+row,nprmj);
                     for( col=0; col<=ncol; col++ )
                     {

@@ -70,7 +70,7 @@ int add_data_file( const std::string &name, int format, const std::optional<std:
 
     if( context )
     {
-        std::string filename = build_filespec(context->dir,name,"");
+        std::string const filename = build_filespec(context->dir,name,"");
         if( path_exists(filename) ) { resolved_name = filename;
 }
     }
@@ -127,7 +127,7 @@ int survey_data_file_id( std::string_view name, file_context *context )
 
     if( context )
     {
-        std::string filename = build_filespec(context->dir,std::string(name),"");
+        std::string const filename = build_filespec(context->dir,std::string(name),"");
         if( path_exists(filename) ) { matchName=filename;
 }
     }
@@ -150,13 +150,13 @@ int survey_data_file_id( std::string_view name, file_context *context )
     /* Path insensitive match (but path delimiter character sensitive) */
     if( matchid < 0 )
     {
-        size_t matchlen=matchName.size();
+        size_t const matchlen=matchName.size();
         for( i=0; i < nsdindx; i++ )
         {
             const std::string &dfname=sdindx[i]->name;
             if( dfname.size() > matchlen )
             {
-                size_t offset=dfname.size()-matchlen;
+                size_t const offset=dfname.size()-matchlen;
                 if( boost::algorithm::iequals( dfname.substr(offset), matchName ) &&
                     (dfname[offset-1]=='/' || dfname[offset-1]=='\\'))
                 {

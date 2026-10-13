@@ -629,7 +629,7 @@ static int read_obs_listing_order_command( CFG_FILE *, std::string_view string, 
 {
     FieldScanner scanner(string);
     auto fld = scanner.next();
-    int order = fld ? get_display_field_code( *fld ) : 0;
+    int const order = fld ? get_display_field_code( *fld ) : 0;
     set_sres_sort_option( order );
     return OK;
 }
@@ -835,11 +835,11 @@ static int process_station_list( CFG_FILE *cfg, std::string_view string, void *,
 
             if( boost::algorithm::istarts_with( f, "order=" ) )
             {
-                int orderId = net->order_id( std::string(f.substr(6)), 0 );
+                int const orderId = net->order_id( std::string(f.substr(6)), 0 );
                 for( istn = number_of_stations(net); istn; istn-- )
                 {
                     station *st = stnptr(istn);
-                    int iorder = st->get_class( net->orderclsid );
+                    int const iorder = st->get_class( net->orderclsid );
                     if( iorder == orderId )
                     {
                         set_station_mode( istn, mode );

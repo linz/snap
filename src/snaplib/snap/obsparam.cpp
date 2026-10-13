@@ -167,7 +167,7 @@ int get_obs_param_used( int prmid )
 
 int get_survdata_obs_param_rowno( survdata *sd, int prmno, double *value )
 {
-    int oprmid=sd->prmid+prmno;
+    int const oprmid=sd->prmid+prmno;
     obs_param *oprm = get_obs_param(oprmid);
     if( oprm ) 
     {
@@ -193,7 +193,7 @@ int assign_obs_param_to_stations( int *pnstnobs )
 }
     if( get_obs_param_count() <= 0 ) { return nobsprm;
 }
-    int nstn=number_of_stations(net);
+    int const nstn=number_of_stations(net);
     for( int istn = 0; istn++ < nstn; )
     {
         stnadj(stnptr(istn))->nobsprm=0;
@@ -205,8 +205,8 @@ int assign_obs_param_to_stations( int *pnstnobs )
         if( get_bindata( SURVDATA, b ) != OK ) { break;
 }
         survdata *sd = b.survey_data();
-        int nprm=sd->nprms;
-        int prmid=sd->prmid;
+        int const nprm=sd->nprms;
+        int const prmid=sd->prmid;
         if( nprm <= 0 || prmid <= 0 ) { continue;
 }
         if( ! get_obs_param(prmid)->used ) { continue;
@@ -235,7 +235,7 @@ int assign_obs_param_to_stations( int *pnstnobs )
             }
         }
         nobsprm += nprm;
-        int obsid=get_trgtdata(sd,0)->obsid;
+        int const obsid=get_trgtdata(sd,0)->obsid;
         for( int iprm=0; iprm < nprm; iprm++ )
         {
             obs_param *oprm=get_obs_param(prmid+iprm);
@@ -267,12 +267,12 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
     int *rownoptr=nullptr;
     std::vector<int> strn;
     std::vector<int> stno;
-    int nstn=number_of_stations(net);
+    int const nstn=number_of_stations(net);
     for( obs_param &oprm : obs_params )
     {
         if( ! oprm.used ) { continue;
 }
-        int istn=oprm.rowno;
+        int const istn=oprm.rowno;
         if( istn <= 0 || istn > nstn )
         {
             rownoptr=&nxtprm;

@@ -45,7 +45,7 @@ bool SnapplotApp::OnInit()
     loadlog->Show();
 
 
-    bool success = (snapplot_load( argc, argv ) != 0);
+    bool const success = (snapplot_load( argc, argv ) != 0);
     loadlog->EndLogging();
 
     if( success )

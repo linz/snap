@@ -127,7 +127,7 @@ bool wxSimpleListBoxValidator::TransferToWindow()
     wxStringTokenizer tok( *value, wxString(delimiter) );
     while( tok.HasMoreTokens() )
     {
-        wxString selValue = tok.GetNextToken();
+        wxString const selValue = tok.GetNextToken();
         lb->SetStringSelection( selValue );
     }
     return true;
@@ -145,8 +145,8 @@ bool wxSimpleListBoxValidator::TransferFromWindow()
 
     for( int i = 0; i < (int) selections.Count(); i++ )
     {
-        int is = selections.Item(i);
-        wxString selValue = lb->GetString( is );
+        int const is = selections.Item(i);
+        wxString const selValue = lb->GetString( is );
         if( result.Length() > 0 ) { result.Append(delimiter);
 }
         result.Append(selValue);
@@ -263,7 +263,7 @@ wxTextCtrl *wxSimpleDialog::TextBox( wxString &string, int nch, int nlines, wxSt
         nlines = 1;
     }
 
-    wxRegexpStringValidator v( &string, validChar );
+    wxRegexpStringValidator const v( &string, validChar );
 
     wxTextCtrl *ctrl = new wxTextCtrl(
         this,
@@ -308,7 +308,7 @@ wxTextCtrl *wxSimpleDialog::NumberBox( double &value, bool positive, int ndp, in
 
 wxListBox *wxSimpleDialog::ListBox( wxString &value, wxString options, int type, int width, int height )
 {
-    wxArrayString arrLabels;
+    wxArrayString const arrLabels;
 
     wxListBox *ctrl = new wxListBox( this,
                                      wxID_ANY,
@@ -325,8 +325,8 @@ wxListBox *wxSimpleDialog::ListBox( wxString &value, wxString options, int type,
 wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxString options, const wxString& label, bool horizontal )
 {
     wxArrayString arrLabels;
-    wxString delim=options[0];
-    wxString strLabels=options.Mid(1);
+    wxString const delim=options[0];
+    wxString const strLabels=options.Mid(1);
     wxStringTokenizer tok( strLabels, delim );
 
     while( tok.HasMoreTokens() )
@@ -372,7 +372,7 @@ wxRadioBox *wxSimpleDialog::RadioBox( int &value, const std::vector<ListControlO
 
 wxChoice *wxSimpleDialog::DropDownBox( int &value, wxString options )
 {
-    wxArrayString arrLabels;
+    wxArrayString const arrLabels;
 
     wxChoice *ctrl = new wxChoice(this,
                                   wxID_ANY,
@@ -388,7 +388,7 @@ wxChoice *wxSimpleDialog::DropDownBox( int &value, wxString options )
 
 wxChoice *wxSimpleDialog::DropDownBox( int &value, const std::vector<ListControlOption> &options )
 {
-    wxArrayString arrLabels;
+    wxArrayString const arrLabels;
 
     wxChoice *ctrl = new wxChoice(this,
                                   wxID_ANY,
@@ -454,7 +454,7 @@ wxFilePickerCtrl *wxSimpleDialog::SaveFileBox( wxString &filename, const wxStrin
 
 wxButton *wxSimpleDialog::Button( const wxString& label, wxObjectEventFunction function )
 {
-    int id = nextId++;
+    int const id = nextId++;
     wxButton *button = new wxButton(
         this,
         id,
@@ -606,7 +606,7 @@ void wxSimpleDialog::AddSizer( wxSizer *subSizer, const wxSizerFlags &flags )
 
 wxWindow *wxSimpleDialog::ResetTabOrder( wxSizer *sizer, wxWindow *last )
 {
-    wxSizerItemList &children = sizer->GetChildren();
+    wxSizerItemList  const&children = sizer->GetChildren();
     for( size_t i = 0; i < children.GetCount(); i++ )
     {
         wxSizerItem *item = children.Item( i )->GetData();
@@ -636,7 +636,7 @@ void wxSimpleDialog::AddButtonsAndSize()
 
         // See if we have a help button
 
-        wxSizerItemList &buttons = buttonSizer->GetChildren();
+        wxSizerItemList  const&buttons = buttonSizer->GetChildren();
         for( size_t i = 0; i < buttons.GetCount(); i++ )
         {
             wxWindow *window = buttons.Item(i)->GetData()->GetWindow();
@@ -710,8 +710,8 @@ bool wxSimpleDialog::RunDialog()
         helpButton->Show( help != nullptr );
     }
     ReadData();
-    int result = ShowModal();
-    bool apply = result == wxID_OK;
+    int const result = ShowModal();
+    bool const apply = result == wxID_OK;
     if( apply ) { Apply();
 }
     return apply;
@@ -720,8 +720,8 @@ bool wxSimpleDialog::RunDialog()
 
 void wxSimpleDialog::SetListBoxOptions( wxListBox *lb, wxString &string, wxString options )
 {
-    wxString delim=options[0];
-    wxString strLabels=options.Mid(1);
+    wxString const delim=options[0];
+    wxString const strLabels=options.Mid(1);
     wxStringTokenizer tok( strLabels, delim );
 
     lb->Clear();
@@ -735,8 +735,8 @@ void wxSimpleDialog::SetListBoxOptions( wxListBox *lb, wxString &string, wxStrin
 
 void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &value, wxString options )
 {
-    wxString delim=options[0];
-    wxString strLabels=options.Mid(1);
+    wxString const delim=options[0];
+    wxString const strLabels=options.Mid(1);
     wxStringTokenizer tok( strLabels, delim );
 
     ctrl->Clear();

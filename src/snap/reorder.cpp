@@ -100,7 +100,7 @@ int init_connections( int nnodes )
 
 static void grow_connection_list( int nnodes )
 {
-    int maxconn0=maxconnlst;
+    int const maxconn0=maxconnlst;
     while( nnodes > maxconnlst ) { maxconnlst += CONNLIST_INC;
 }
     if( maxconnlst > maxconn0 )
@@ -177,7 +177,7 @@ void add_connection( int stn1, int stn2 )
 }
     if( stn1 > nconnlst || stn2 > nconnlst )
     {
-        int maxstn=stn1 > stn2 ? stn1 : stn2;
+        int const maxstn=stn1 > stn2 ? stn1 : stn2;
         lastnode=nconnlst=maxstn;
         if( maxstn > maxconnlst ) { grow_connection_list( maxstn );
 }

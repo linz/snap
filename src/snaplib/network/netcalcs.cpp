@@ -227,7 +227,7 @@ double calc_msl_distance( station *st1, station *st2,
                           vector3 dst1, vector3 dst2 )
 {
     double edist;
-    double gdiff = (st1->GUnd - st2->GUnd)/2.0;
+    double const gdiff = (st1->GUnd - st2->GUnd)/2.0;
 
     edist = calc_distance( st1, -st1->OHgt-gdiff, st2, -st2->OHgt+gdiff, dst1, dst2 );
     edist *= ellipsoidal_distance_correction( st1, st2 );

@@ -252,7 +252,7 @@ void wxMainProgWindow::DoEndMeter()
         progressGauge->SetValue(0);
         if( reportTimes )
         {
-            double time = (double)(clock()-startTime) / CLOCKS_PER_SEC;
+            double const time = (double)(clock()-startTime) / CLOCKS_PER_SEC;
             AppendString( wxString::Format("     ... duration %.2lf seconds\n",time) );
         }
     }

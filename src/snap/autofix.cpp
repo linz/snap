@@ -232,7 +232,7 @@ int station_autofix_constraints( int istn )
     if( istn > 0 && istn <= max_station_autodata )
     {
         autofix_data *afx=&(station_autodata[istn]);
-        int flags = afx->flags;
+        int const flags = afx->flags;
         /* Horizontal fixes */
         if( !(flags & HAS_PDOBS) )
         {
@@ -262,7 +262,7 @@ int station_autofix_reject( int istn )
         station *st=stnptr(istn);
         stn_adjustment *sa=stnadj(st);
         autofix_data *afx=&(station_autodata[istn]);
-        int flags = afx->flags;
+        int const flags = afx->flags;
         /* Horizontal fixes */
         if( sa->flag.adj_h && ! sa->flag.float_h && 
              ((flags & (HAS_LAT | HAS_LON)) != (HAS_LAT | HAS_LON))  &&

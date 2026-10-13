@@ -53,7 +53,7 @@ int init_deformation( deformation_model *deformation )
 int calc_deformation( deformation_model *deformation, station *st, double date, double denu[3] )
 {
     int sts = OK;
-    int hasoffset=station_has_offset(st);
+    int const hasoffset=station_has_offset(st);
 
     if( hasoffset && station_offset_is_deformation(st) ) 
     {

@@ -210,7 +210,7 @@ void check_record_start()
 void check_seekable()
 {
     std::istringstream file( "a\n" );
-    LineReader fileReader( file );
+    LineReader const fileReader( file );
     check( fileReader.seekable(), "seekable: a stream that can seek" );
 
     PipeBuffer pipeBuffer( "a\n" );

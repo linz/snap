@@ -56,7 +56,7 @@ void SnapplotObsList::Reload()
 
 void SnapplotObsList::OnCellLeftClick( wxGridEvent &event )
 {
-    int row = event.GetRow();
+    int const row = event.GetRow();
     SelectRow(row);
 
     if( event.ShiftDown() )
@@ -72,13 +72,13 @@ void SnapplotObsList::OnCellLeftClick( wxGridEvent &event )
 
 void SnapplotObsList::OnCellLeftDClick( wxGridEvent & WXUNUSED(event) )
 {
-    wxCommandEvent evt( wxEVT_COMMAND_MENU_SELECTED, CMD_VIEW_DETAILS );
+    wxCommandEvent const evt( wxEVT_COMMAND_MENU_SELECTED, CMD_VIEW_DETAILS );
     AddPendingEvent( evt );
 }
 
 void SnapplotObsList::OnRowSelected( wxCommandEvent &event )
 {
-    int row = event.GetInt();
+    int const row = event.GetInt();
     PutTextInfo jump;
     sres_item_info( row, &jump );
 
@@ -102,7 +102,7 @@ void SnapplotObsList::OnRowSelected( wxCommandEvent &event )
 
 void SnapplotObsList::OnLabelLeftClick( wxGridEvent &event )
 {
-    int colid = event.GetCol();
+    int const colid = event.GetCol();
     set_sres_sort_col( colid );
     Refresh();
 }
@@ -111,7 +111,7 @@ void SnapplotObsList::OnLabelRightClick( wxGridEvent & WXUNUSED(event) )
 {
     // Send a display options command message ...
 
-    wxCommandEvent evt( wxEVT_COMMAND_MENU_SELECTED, CMD_DATA_LISTOPTIONS);
+    wxCommandEvent const evt( wxEVT_COMMAND_MENU_SELECTED, CMD_DATA_LISTOPTIONS);
     AddPendingEvent( evt );
 }
 

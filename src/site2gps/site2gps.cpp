@@ -81,9 +81,9 @@ int check_list( int *stn, int nstns, double maxlen, double minlen, double *dst, 
     dst[1] = calc_distance( s1, 0.0, s2, 0.0, nullptr, nullptr );
     for( i = 2; i < istn; i++ )
     {
-        int si = stn[i];
+        int const si = stn[i];
         int j;
-        double d = calc_distance( s1, 0.0, station_ptr(net, si), 0.0, nullptr, nullptr );
+        double const d = calc_distance( s1, 0.0, station_ptr(net, si), 0.0, nullptr, nullptr );
         j = i-1;
         if( j > nmax ) { j = nmax;
 }
@@ -256,7 +256,7 @@ int main( int argc, char *argv[] )
         if( baselines )
         {
             int i;
-            char need_all = nmax < nstns;
+            char const need_all = nmax < nstns;
             for( i = 0; i < nstns; i++ )
             {
                 int j;

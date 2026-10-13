@@ -66,7 +66,7 @@ int test_next_string_field( FieldScanner &scanner, std::string_view test )
 int double_from_string( FieldScanner &scanner, void *value )
 {
     std::string_view field;
-    int sts = read_next_field_status( scanner, field );
+    int const sts = read_next_field_status( scanner, field );
     if( sts != OK ) { return sts;
 }
     auto parsed = parse_double( field );

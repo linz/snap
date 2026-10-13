@@ -63,8 +63,8 @@ void define_tmprojection( tmprojection *tm, double a, double rf,
 
 static double meridian_arc( tmprojection *tm, double lt )
 {
-    double e2 = tm->e2;
-    double a = tm->a;
+    double const e2 = tm->e2;
+    double const a = tm->a;
     double e4;
     double e6;
     double A0;
@@ -101,8 +101,8 @@ static double meridian_arc( tmprojection *tm, double lt )
 
 static double foot_point_lat( tmprojection *tm, double m )
 {
-    double f = tm->f;
-    double a = tm->a;
+    double const f = tm->f;
+    double const a = tm->a;
     double n;
     double n2;
     double n3;
@@ -150,14 +150,14 @@ static double foot_point_lat( tmprojection *tm, double m )
 void tm_geod( tmprojection *tm,
               double ce, double cn, double *ln, double *lt )
 {
-    double fn = tm->falsen;
-    double fe = tm->falsee;
-    double sf = tm->scalef;
-    double e2 = tm->e2;
-    double a = tm->a;
-    double cm = tm->meridian;
-    double om = tm->om;
-    double utom = tm->utom;
+    double const fn = tm->falsen;
+    double const fe = tm->falsee;
+    double const sf = tm->scalef;
+    double const e2 = tm->e2;
+    double const a = tm->a;
+    double const cm = tm->meridian;
+    double const om = tm->om;
+    double const utom = tm->utom;
     double cn1;
     double fphi;
     double slt;
@@ -247,14 +247,14 @@ void tm_geod( tmprojection *tm,
 void geod_tm( tmprojection *tm,
               double ln, double lt, double *ce, double *cn)
 {
-    double fn = tm->falsen;
-    double fe = tm->falsee;
-    double sf = tm->scalef;
-    double e2 = tm->e2;
-    double a = tm->a;
-    double cm = tm->meridian;
-    double om = tm->om;
-    double utom = tm->utom;
+    double const fn = tm->falsen;
+    double const fe = tm->falsee;
+    double const sf = tm->scalef;
+    double const e2 = tm->e2;
+    double const a = tm->a;
+    double const cm = tm->meridian;
+    double const om = tm->om;
+    double const utom = tm->utom;
     double dlon;
     double m;
     double slt;

@@ -9,7 +9,7 @@ void filter_line( std::string &line, const CommentRule &comment )
     bool iscmt = false;
     std::size_t writePos = 0;
 
-    for( char c : line )
+    for( char const c : line )
     {
         if( cmnt && c == *cmnt ) { iscmt = true;
 }

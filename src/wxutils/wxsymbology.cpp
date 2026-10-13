@@ -33,7 +33,7 @@ void ColourPalette::Item::CreateBitmap()
     if( bitmap ) { return;
 }
 
-    int size = palette->PaletteBitmapSize();
+    int const size = palette->PaletteBitmapSize();
     bitmap = new wxBitmap( size, size );
     wxMemoryDC dc;
     dc.SelectObject( *bitmap );
@@ -141,7 +141,7 @@ int ColourPalette::PaletteBitmapSize() const
 
 SymbologyBase::SymbologyBase(const wxString& np)
 {
-    int i = np.Find('|');
+    int const i = np.Find('|');
     if( i == wxNOT_FOUND )
     {
         name = np;
@@ -353,8 +353,8 @@ void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, const wxString
 
     dc.GetTextExtent( string, &twidth, &theight );
 
-    int dx = (int) (twidth*textX + refSize*paddingX);
-    int dy = (int) (theight*textY + refSize*paddingY);
+    int const dx = (int) (twidth*textX + refSize*paddingX);
+    int const dy = (int) (theight*textY + refSize*paddingY);
 
     dc.DrawText( string, refPoint.x + dx, refPoint.y + dy );
 }
@@ -382,7 +382,7 @@ void TextStyle::Render(wxDC &dc, wxPoint &pt, const wxString& string, const Text
 {
     if( refSize != fontRefSize )
     {
-        int size = (baseSize * refSize)/10;
+        int const size = (baseSize * refSize)/10;
         font.SetPointSize(size);
         fontRefSize = refSize;
     }
@@ -444,13 +444,13 @@ void PointSymbology::SetSymbol( int nNodes, double size, double indent, const wx
     }
     else
     {
-        bool haveIndent = indent != 0.0;
+        bool const haveIndent = indent != 0.0;
 
         npt = nNodes > 0 ? nNodes : -nNodes;
         if( haveIndent ) { npt += npt;
 }
 
-        double angle = (atan(1.0)*8.0)/npt;
+        double const angle = (atan(1.0)*8.0)/npt;
         cosAngle = cos(angle);
         sinAngle = sin(angle);
         cosStart = 1.0;
@@ -539,7 +539,7 @@ void PointSymbology::Render(wxDC &dc, const wxPoint &pt, int refSize, const wxCo
 
     if( npt == 0 )
     {
-        int radius = floor( size * refSize  + 0.5 );
+        int const radius = floor( size * refSize  + 0.5 );
         dc.DrawCircle( pt, radius );
     }
     else
@@ -563,7 +563,7 @@ Symbology::~Symbology()
 
 void Symbology::InitialisePalette( const ColourPalette &basepalette )
 {
-    int psize = basepalette.Size();
+    int const psize = basepalette.Size();
 
     for( int i = 0; i < psize; i++ )
     {

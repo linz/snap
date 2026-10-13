@@ -599,7 +599,7 @@ static void init_obs_stations_criterion( obs_stations_criterion &stations, netwo
 {
     void *psc=new_station_criteria();
     set_error_location( stations.config_loc );
-    int sts=compile_station_criteria( psc, nw,
+    int const sts=compile_station_criteria( psc, nw,
             stations.station_list,
             stations.config_filename );
     set_error_location( NO_MESSAGE );
@@ -629,8 +629,8 @@ static bool obs_stations_match( obs_stations_criterion &stations, obsmod_context
         init_obs_stations_criterion( stations, nw  );
     }
 
-    int fromstn=oac->sd->from;
-    int tostn = oac->tgt->to;
+    int const fromstn=oac->sd->from;
+    int const tostn = oac->tgt->to;
 
     bool matchfrom=true;
     bool matchuse=false;
@@ -891,7 +891,7 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, std::string_vi
         return -1;
     }
 
-    int file_id = obsmod->get_fileid( datafile, current_file_context() );
+    int const file_id = obsmod->get_fileid( datafile, current_file_context() );
     if( file_id < 0 && missing_error != OK )
     {
         char errmess[120];
@@ -923,7 +923,7 @@ static bool parse_key_value_criterion(
     if( key.empty() || valuePart.empty() )
     {
         char errmess[100];
-        std::string fieldText(field);
+        std::string const fieldText(field);
         sprintf(errmess,"Invalid observation selection criteria \"%.40s\"",fieldText.c_str());
         send_config_error(cfg,INVALID_DATA,errmess);
         return false;
@@ -939,7 +939,7 @@ static bool parse_key_value_criterion(
     {
         static const std::optional<std::vector<QuoteFollowOption>> quoteMustBeFollowedBy{
             std::vector<QuoteFollowOption>{ QuoteFollowOption::Whitespace, QuoteFollowOption::End } };
-        char quoteChar=*quoteStart;
+        char const quoteChar=*quoteStart;
         auto beforeQuote=scanner.remainder();
         auto quotedResult=scanner.quotedValue( quoteStart+1, quoteChar, quoteMustBeFollowedBy );
         if( ! quotedResult )
@@ -953,7 +953,7 @@ static bool parse_key_value_criterion(
             // Whichever remainder is shorter is further along.
             auto afterQuote = scanner.remainder();
             auto messageEnd = afterQuote.size() < beforeQuote.size() ? afterQuote : beforeQuote;
-            std::string fieldText( field.data(), messageEnd.data() - field.data() );
+            std::string const fieldText( field.data(), messageEnd.data() - field.data() );
             sprintf(errmess,"Invalid observation selection criteria for \"%.40s\"",fieldText.c_str());
             send_config_error(cfg,INVALID_DATA,errmess);
             return false;
@@ -1015,7 +1015,7 @@ static bool parse_stations_criterion(
         stationField = scanner.next();
     }
     auto stop = stationField ? stationField->data() : scanner.remainder().data();
-    std::string stationList( start, stop - start );
+    std::string const stationList( start, stop - start );
     add_obs_stations_criterion( cfg, between, stationList, criteria );
     return true;
 }
@@ -1055,7 +1055,7 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, std::string_
             }
             else
             {
-                std::string dateText(*dateField);
+                std::string const dateText(*dateField);
                 added=add_obs_date_criterion( cfg, obs_date_criterion_type::before, dateText, ocr.criteria );
             }
         }
@@ -1069,7 +1069,7 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, std::string_
             }
             else
             {
-                std::string dateText(*dateField);
+                std::string const dateText(*dateField);
                 added=add_obs_date_criterion( cfg, obs_date_criterion_type::after, dateText, ocr.criteria );
             }
         }
@@ -1086,7 +1086,7 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, std::string_
         else
         {
             char errmess[120];
-            std::string fieldText(*field);
+            std::string const fieldText(*field);
             sprintf(errmess,"Invalid specification %.50s in observation selection criteria",fieldText.c_str());
             send_config_error(cfg,INVALID_DATA,errmess);
             sts=INVALID_DATA;
@@ -1124,7 +1124,7 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, std::string_view criter
 
 int add_obs_option_modification( CFG_FILE *cfg, void *pobsmod, std::string_view criteria, int set, int option )
 {
-    int action=set ? OBS_MOD_SET_OPTION : OBS_MOD_UNSET_OPTION;
+    int const action=set ? OBS_MOD_SET_OPTION : OBS_MOD_UNSET_OPTION;
     return add_obs_modifications_imp( cfg, pobsmod, criteria,action,option,1.0,0.0);
 }
 
@@ -1140,7 +1140,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, std::str
     }
     else if( boost::algorithm::iequals(classification,"data_file") )
     {
-        int file_id=get_file_id( obsmod, cfg, value, missing_error );
+        int const file_id=get_file_id( obsmod, cfg, value, missing_error );
         if( file_id >= 0 )
         {
             add_obs_datafile_criterion( false, file_id, std::string(value), ocr.criteria );
@@ -1376,7 +1376,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
     {
         vecdata *vd;
         obsmod->offsets.clear();
-        int obstype=sd->obs.vdata[0].tgt.type;
+        int const obstype=sd->obs.vdata[0].tgt.type;
 
         for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
         {
@@ -1484,7 +1484,7 @@ int check_obsmod_station_criteria_codes( void *pobsmod, network *nw )
             if( stations && stations->criteria )
             {
                 set_error_location( stations->config_loc );
-                int sts=check_station_criteria_codes( stations->criteria, nw );
+                int const sts=check_station_criteria_codes( stations->criteria, nw );
                 set_error_location( NO_MESSAGE );
                 if( sts != OK ) { return_sts=sts;
 }
@@ -1502,14 +1502,14 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const std::string &p
 
     for( int modtype=0; modtype < 7; modtype++ )
     {
-        int action= modtype==0 ? OBS_MOD_IGNORE : 
+        int const action= modtype==0 ? OBS_MOD_IGNORE : 
                     modtype==1 ? OBS_MOD_REJECT :
                     modtype==2 ? OBS_MOD_REWEIGHT :
                     modtype==3 ? OBS_MOD_REWEIGHT_SET :
                     modtype==4 ? OBS_MOD_OFFSET_ERROR :
                     modtype==5 ? OBS_MOD_CENTROID_ERROR :
                     OBS_MOD_ANTENNA_OFFSET;
-        int ordered=modtype > 1;
+        int const ordered=modtype > 1;
         bool firsterr=true;
         double minerrfct=0.0;
         double minerrfct2=0.0;

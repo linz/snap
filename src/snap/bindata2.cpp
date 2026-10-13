@@ -513,11 +513,11 @@ static void print_title( FILE *out )
         ncolumn = listing_format->ncolumn;
         for( ; ncolumn--; column++ )
         {
-            int width = column->width;
-            std::optional<std::string_view> titleOpt = (ipass == 0) ? column->title1 : column->title2;
+            int const width = column->width;
+            std::optional<std::string_view> const titleOpt = (ipass == 0) ? column->title1 : column->title2;
             if( column->title2 ) { needpass2 = 1;
 }
-            std::string_view source = titleOpt.value_or(blank);
+            std::string_view const source = titleOpt.value_or(blank);
             if( column->column == SPACE_FIELD )
             {
                 fprintf(out,"%-*s",width," ");
@@ -861,7 +861,7 @@ void print_residual_line( FILE *out )
     constexpr std::string_view lftjst = "%-*s";
     constexpr std::string_view rgtjst = "%*s";
     listing_column *col;
-    int ncolumn = listing_format->ncolumn;
+    int const ncolumn = listing_format->ncolumn;
     int need_space = 0;
     int i;
     for( i = 0, col = listing_format->col; i<ncolumn; i++, col++ )
@@ -1084,7 +1084,7 @@ static void setup_data_field_widths( int itype )
     for( icol = 0; icol < format->ncolumn; icol++ )
     {
         int width = format->col[icol].width;
-        int width0 = width;
+        int const width0 = width;
         // if( width > 0 ) continue;
         switch( format->col[icol].column )
         {
@@ -1527,7 +1527,7 @@ static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trg
         double et=0;
         double nt=0;
         projection *prj = is_projection(net->crdsys) ? net->crdsys->prj : nullptr;
-        int ndp = prj ? 4 : 9;
+        int const ndp = prj ? 4 : 9;
         if( prj )
         {
             geog_to_proj( prj, from->ELon, from->ELat, &ef, &nf );
@@ -1674,11 +1674,11 @@ void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, doub
     double rescvr[6];
     vecdata *vd = &(sd->obs.vdata[iobs]);
     trgtdata *t = &(vd->tgt);
-    int ndp = obs_precision[t->type];
+    int const ndp = obs_precision[t->type];
     constexpr std::array<std::string_view,3> xyzcomp = {"X","Y","Z"};
     constexpr std::array<std::string_view,3> topocomp = {"X-E","Y-N","Z-U"};
     const std::array<std::string_view,3> *comp = output_csv_vecenu ? &topocomp : &xyzcomp;
-    int topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
+    int const topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
 
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, nullptr);
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC | topo,nullptr,veccvr);
@@ -1689,7 +1689,7 @@ void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, doub
     if( output_csv_veccomp )
     {
         int dim;
-        int cvridx[3] = {0,2,5};
+        int const cvridx[3] = {0,2,5};
         for( dim = 0; dim < 3; dim++ )
         {
             write_observation_csv_common_start( csv, sd, t, (*comp)[dim] );
@@ -1746,9 +1746,9 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
     double rescvr[6];
     vecdata *vd = &(sd->obs.vdata[iobs]);
     trgtdata *t = &(vd->tgt);
-    int ndp = obs_precision[t->type];
-    int cvridx[3] = {0,2,5};
-    int topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
+    int const ndp = obs_precision[t->type];
+    int const cvridx[3] = {0,2,5};
+    int const topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
 
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, nullptr);
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC | topo,nullptr,veccvr);
@@ -1759,7 +1759,7 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
     write_observation_csv_common_start( csv, sd, t, {} );
     if( output_csv_vecsum )
     {
-        double length = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
+        double const length = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
         csv.writeDouble(length, ndp);
     }
     csv.writeDouble( vec[0], ndp );
@@ -1779,7 +1779,7 @@ void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double s
     }
     if( output_csv_vecsum )
     {
-        double length = sqrt(res[0]*res[0]+res[1]*res[1]+res[2]*res[2]);
+        double const length = sqrt(res[0]*res[0]+res[1]*res[1]+res[2]*res[2]);
         csv.writeDouble(length,ndp);
     }
     csv.writeDouble( res[0], ndp );

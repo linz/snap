@@ -371,7 +371,7 @@ static int dxf_colour_id( unsigned char red, unsigned char green, unsigned char 
     int colour = 1;
     for( dxfcolour *c = colourtable; c->id > 0; c++ )
     {
-        int dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
+        int const dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
         if( dist < distance ) { colour = c->id; distance = dist; }
     }
     return colour;
@@ -408,7 +408,7 @@ int open_dxf_file( const std::string &dxfname )
     {
         /* Initialise layers etc.. */
 
-        int usedlayers = setup_dxf_layers( );
+        int const usedlayers = setup_dxf_layers( );
         fprintf(dxf,"  0\nSECTION\n");
         fprintf(dxf,"  2\nHEADER\n");
         fprintf(dxf,"  9\n$LTSCALE\n");
@@ -798,7 +798,7 @@ void write_dxf_title_block( map_plotter * )
     double yt;
     double xs;
     char text[80];
-    double oldsymsize = stn_symbol_size;
+    double const oldsymsize = stn_symbol_size;
 
     pen = nlayer + 1;  /* Not one of the defined layers - text goes to default */
 

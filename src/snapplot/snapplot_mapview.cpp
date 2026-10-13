@@ -68,7 +68,7 @@ void SnapplotMapView::OnClickEvent( wxMapWindowEvent &event )
     {
         if( me.ControlDown() && me.ShiftDown() )
         {
-            int istn = FindStation( event.GetMapPoint() );
+            int const istn = FindStation( event.GetMapPoint() );
             if( istn )
             {
                 double dx;
@@ -117,8 +117,8 @@ void SnapplotMapView::ZoomToLine( int from, int to )
     if( to && to != from )
     {
         get_station_coordinates( to, &x2, &y2 );
-        double dx = fabs( x1 - x2 );
-        double dy = fabs( y1 - y2 );
+        double const dx = fabs( x1 - x2 );
+        double const dy = fabs( y1 - y2 );
         if( dx > 0.0 || dy > 0.0 )
         {
             x1 = (x1+x2)/2.0;
@@ -133,7 +133,7 @@ void SnapplotMapView::ZoomToLine( int from, int to )
     x2 = xm = x1; y2 = ym = y1;
     while( nconnect-- )
     {
-        int cto = get_connected_station( from, nconnect, nullptr );
+        int const cto = get_connected_station( from, nconnect, nullptr );
         if( !cto ) { continue;
 }
         if( ! connection_observation_count( from, nconnect ) ) { continue;
@@ -173,7 +173,7 @@ void SnapplotMapView::ZoomToLine( int from, int to )
         double emax;
         double nmax;
         get_station_range( &emin, &nmin, &emax, &nmax );
-        int nstns = used_station_count();
+        int const nstns = used_station_count();
         double stnarea = (emax-emin)*(nmax-nmin);
         if( nstns ) { stnarea /= nstns;
 }
@@ -186,18 +186,18 @@ void SnapplotMapView::ZoomToLine( int from, int to )
 
 int SnapplotMapView::FindStation( const MapPoint &pt )
 {
-    double tolerance = pickTolerance * GetScale().GetScale();
+    double const tolerance = pickTolerance * GetScale().GetScale();
     return nearest_station( pt.x, pt.y, tolerance );
 }
 
 void SnapplotMapView::ShowInfo( const MapPoint &pt, bool zoom )
 {
-    wxMapScale &mscale = GetScale();
+    wxMapScale  const&mscale = GetScale();
     if( ! mscale.IsValid() ) { return;
 }
 
 
-    int istn = FindStation( pt );
+    int const istn = FindStation( pt );
     if( istn )
     {
         /*
@@ -236,7 +236,7 @@ void SnapplotMapView::ShowInfo( const MapPoint &pt, bool zoom )
     {
         int from ;
         int to;
-        double tolerance = pickTolerance * mscale.GetScale();
+        double const tolerance = pickTolerance * mscale.GetScale();
         if( nearest_connection( pt.x, pt.y, tolerance, &from, &to ) )
         {
             SetLocatorLocked( false );
@@ -317,7 +317,7 @@ void SnapplotMapView::SetLocatorLocked( bool locked )
 void SnapplotMapView::SaveMapImage()
 {
     wxClientDC dc(this);
-    wxSize size(dc.GetSize());
+    wxSize const size(dc.GetSize());
     if( this->savedMap && this->savedMap->GetSize() != size)
     {
         DropSavedMap();
@@ -336,7 +336,7 @@ void SnapplotMapView::RestoreMapImage( wxDC &dc )
 {
     if( this->savedMap )
     {
-        wxSize size(dc.GetSize());
+        wxSize const size(dc.GetSize());
         wxMemoryDC bdc(*(this->savedMap));
         dc.Blit(0,0,size.GetWidth(),size.GetHeight(),&bdc,0,0);
     }
@@ -366,8 +366,8 @@ void SnapplotMapView::DrawLocator( wxDC &dc )
 {
     if( locatorFrom == 0 ) { return;
 }
-    wxColour locatorCol = GetSymbology()->LayerColour( get_pen( SELECTED_PEN ) );
-    wxColour backCol = GetSymbology()->LayerColour( get_pen( BACKGROUND_PEN ) );
+    wxColour const locatorCol = GetSymbology()->LayerColour( get_pen( SELECTED_PEN ) );
+    wxColour const backCol = GetSymbology()->LayerColour( get_pen( BACKGROUND_PEN ) );
 
     if( ! locatorTo )
     {
@@ -400,7 +400,7 @@ void SnapplotMapView::DrawLocator( wxDC &dc )
             bool start;
             get_station_coordinates( locatorFrom, &e, &n );
             scale.AddPoint( MapPoint(e,n), true );
-            bool gotFromPoint = scale.GetPoint( ptStart, start );
+            bool const gotFromPoint = scale.GetPoint( ptStart, start );
             get_station_coordinates( locatorTo, &e, &n );
             scale.AddPoint( MapPoint(e,n), false );
             dc.SetPen(wxPen(locatorCol, locatorPenWidth) );
@@ -409,12 +409,12 @@ void SnapplotMapView::DrawLocator( wxDC &dc )
             if( ( gotFromPoint || scale.GetPoint( ptStart, start )) && scale.GetPoint( ptEnd, start ) )
             {
                 wxPoint pts[]={ptStart,ptEnd};
-                double xdiff=ptEnd.x-ptStart.x;
-                double ydiff=ptEnd.y-ptStart.y;
-                double len=sqrt(xdiff*xdiff+ydiff*ydiff);
-                int xoffset= -(int)round(locatorWidth*ydiff/len);
-                int yoffset= (int)round(locatorWidth*xdiff/len);
-                wxPoint offset(xoffset,yoffset);
+                double const xdiff=ptEnd.x-ptStart.x;
+                double const ydiff=ptEnd.y-ptStart.y;
+                double const len=sqrt(xdiff*xdiff+ydiff*ydiff);
+                int const xoffset= -(int)round(locatorWidth*ydiff/len);
+                int const yoffset= (int)round(locatorWidth*xdiff/len);
+                wxPoint const offset(xoffset,yoffset);
                 dc.DrawLines( 2, pts,xoffset, yoffset);
                 dc.DrawLines( 2, pts, -xoffset, -yoffset);
                 dc.DrawArc(ptStart-offset,ptStart+offset,ptStart);
@@ -444,20 +444,20 @@ void SnapplotMapView::OnIdle( wxIdleEvent & WXUNUSED(event)  )
 
     // If we get some idle time, then update the coordinates display
 
-    wxMapScale &mscale = GetScale();
+    wxMapScale  const&mscale = GetScale();
     if( ! mscale.IsValid() ) { return;
 }
     if( ! positionChanged ) { return;
 }
     positionChanged = false;
 
-    MapPoint pt = GetCursorPosition();
+    MapPoint const pt = GetCursorPosition();
 
     coordString.Empty();
     coordString.Append(format_plot_coords( pt.x, pt.y ).c_str());
 
-    double tolerance = pickTolerance * mscale.GetScale();
-    int istn = nearest_station( pt.x, pt.y, tolerance );
+    double const tolerance = pickTolerance * mscale.GetScale();
+    int const istn = nearest_station( pt.x, pt.y, tolerance );
 
     if( istn )
     {
@@ -482,7 +482,7 @@ void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
     //wxPaintDC dc(this);
     //#endif
     wxPaintDC dc(this);
-    bool locatorOnly = locatorOnlyRepaint && savedMap;
+    bool const locatorOnly = locatorOnlyRepaint && savedMap;
     locatorOnlyRepaint = false;
     if( locatorOnly )
     {
@@ -501,7 +501,7 @@ void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
 
 wxBitmap SnapplotMapView::CreateImage()
 {
-    wxSize mapSize = GetClientSize();
+    wxSize const mapSize = GetClientSize();
     wxBitmap bmp( mapSize.GetWidth(), mapSize.GetHeight() );
     wxMemoryDC bmpDC( bmp );
     wxMapScale scale( GetScale() );

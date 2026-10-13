@@ -300,7 +300,7 @@ StatusType utlBinSrcSetEndian( hBinSrc binsrc, const Endian endian)
 int utlBinSrcLoad1( hBinSrc binsrc, long offset, int nval, void *data)
 {
     StatusType sts;
-    int size = nval;
+    int const size = nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
     if( sts != STS_OK ) { return sts;
@@ -329,7 +329,7 @@ int utlBinSrcLoad2( hBinSrc binsrc, long offset, int nval, void *data)
 {
     StatusType sts;
     unsigned char *b;
-    int size = 2*nval;
+    int const size = 2*nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
     if( sts != STS_OK ) { return sts;
@@ -367,7 +367,7 @@ int utlBinSrcLoad4( hBinSrc binsrc, long offset, int nval, void *data)
 {
     StatusType sts;
     unsigned char *b;
-    int size = 4*nval;
+    int const size = 4*nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
     if( sts != STS_OK ) { return sts;
@@ -405,7 +405,7 @@ int utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data)
 {
     StatusType sts;
     unsigned char *b;
-    int size = 8*nval;
+    int const size = 8*nval;
     offset = utlSetOffset( binsrc, offset );
     sts = utlBlobReadAt( binsrc->blob, offset, size, data );
     if( sts != STS_OK ) { return sts;

@@ -19,7 +19,7 @@ void OptionString::_load( const std::string &options )
     _options.clear();
     _invalid.clear();
 
-    RGX::regex re(
+    RGX::regex const re(
         "\\s*"   // Optional initial whitespace
         "(?:"
         "\\-([a-z_]\\w*)"  // negated option
@@ -36,7 +36,7 @@ void OptionString::_load( const std::string &options )
         RGX::regex_constants::icase
     );
     RGX::sregex_iterator match(options.begin(), options.end(), re);
-    RGX::sregex_iterator end;
+    RGX::sregex_iterator const end;
     for( ; match != end; match++ )
     {
         bool valid = true;

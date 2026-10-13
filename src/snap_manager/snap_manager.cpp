@@ -122,7 +122,7 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
     for( int i=fileHistory.GetCount(); i--; )
     {
-        wxString filename=fileHistory.GetHistoryFile(i);
+        wxString const filename=fileHistory.GetHistoryFile(i);
         if( ! wxFileName(filename).FileExists() )
         {
             fileHistory.RemoveFileFromHistory(i);
@@ -236,7 +236,7 @@ void SnapMgrFrame::ClearLog()
 
 void SnapMgrFrame::OnFileHistory( wxCommandEvent &event )
 {
-    wxString jobFile(fileHistory.GetHistoryFile(event.GetId() - wxID_FILE1));
+    wxString const jobFile(fileHistory.GetHistoryFile(event.GetId() - wxID_FILE1));
     if( ! jobFile.IsEmpty() )
     {
         scriptenv->LoadJob( jobFile );
@@ -255,7 +255,7 @@ void SnapMgrFrame::OnJobUpdated( wxCommandEvent &event )
     SnapJob *job = scriptenv->Job();
     if( job )
     {
-        wxString jobfile= job->GetFullFilename();
+        wxString const jobfile= job->GetFullFilename();
         fileHistory.AddFileToHistory( jobfile );
         wxString label("SNAP - ");
         label.Append( scriptenv->Job()->GetFilename() );

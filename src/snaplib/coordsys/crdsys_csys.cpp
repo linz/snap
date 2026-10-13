@@ -115,7 +115,7 @@ vdatum *coordsys_vdatum( coordsys *cs )
 
 int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf )
 {
-    int sts=OK;
+    int const sts=OK;
     if( cs->ownsrf ) { delete cs->rf;
 }
     cs->ownsrf=1;

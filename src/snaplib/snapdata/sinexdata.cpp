@@ -62,7 +62,7 @@ SinexDataReader::SinexDataReader(const OptionString &config)
     std::string code = config.valueOf("code", "SITE");
     boost::to_upper(code);
     use_point_code = code == "POINT";
-    std::string datestr = config.valueOf("name", "");
+    std::string const datestr = config.valueOf("name", "");
     obsdate = UNDEFINED_DATE;
     if (!datestr.empty())
     {
@@ -85,9 +85,9 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     if (input.size() < 69 || input.substr(0, 5) != "%=SNX") {
         dfi.raiseError("Invalid SINEX header");
 }
-    double startdate = readSinexDate(input.substr(32, 12));
-    double enddate = readSinexDate(input.substr(45, 12));
-    double nprm = atoi(input.substr(60, 5).c_str());
+    double const startdate = readSinexDate(input.substr(32, 12));
+    double const enddate = readSinexDate(input.substr(45, 12));
+    double const nprm = atoi(input.substr(60, 5).c_str());
     if (startdate == UNDEFINED_DATE || enddate == UNDEFINED_DATE) {
         dfi.raiseError("Invalid start/end date in SINEX header");
 }
@@ -177,9 +177,9 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
 }
 
         // Store the ordinate
-        double value = strtod(input.substr(47, 21).c_str(), nullptr);
+        double const value = strtod(input.substr(47, 21).c_str(), nullptr);
         points[id]->xyz[ord] = value;
-        int prmid = atoi(input.substr(1, 5).c_str());
+        int const prmid = atoi(input.substr(1, 5).c_str());
 
         // Store the mapping from SINEX param number to cvr row number
         if (prmid < 1 || prmid > nprm) {
@@ -191,8 +191,8 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     // Try creating the record
 
     // coef_class_info *ci=coef_class( COEF_CLASS_REFFRM );
-    int classid = ldt_get_id(ID_COEFCLASS, COEF_CLASS_REFFRM, {});
-    int idreffrm = ldt_get_id(ID_CLASSNAME, classid, ref_frame);
+    int const classid = ldt_get_id(ID_COEFCLASS, COEF_CLASS_REFFRM, {});
+    int const idreffrm = ldt_get_id(ID_CLASSNAME, classid, ref_frame);
 
     ldt_inststn(0, 0.0);
     ldt_date(obsdate);
@@ -200,7 +200,7 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     {
         for (auto pt = points.begin(); pt != points.end(); pt++)
         {
-            int tgtid = ldt_get_id(ID_STATION, 0, (*pt)->code);
+            int const tgtid = ldt_get_id(ID_STATION, 0, (*pt)->code);
             if (tgtid == 0) {
                 dfi.raiseError(std::string("Undefined station ") + (*pt)->code);
 }
@@ -218,12 +218,12 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
             std::vector<std::string> cova_sections;
             cova_sections.emplace_back("SOLUTION/MATRIX_ESTIMATE L COVA");
             cova_sections.emplace_back("SOLUTION/MATRIX_ESTIMATE U COVA");
-            int section = findSection(dfi, cova_sections, false);
+            int const section = findSection(dfi, cova_sections, false);
             if (section < 0)
             {
                 dfi.raiseError(std::string("Cannot find SINEX file SOLUTION/MATRIX_ESTIMATE (U|L) COVA block"));
             }
-            bool lcova = section == 0;
+            bool const lcova = section == 0;
 
             while (dfi.getNextLine(input))
             {
@@ -233,11 +233,11 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
                 if (input[0] != ' ') {
                     continue;
 }
-                int prm1 = atoi(input.substr(1, 5).c_str());
+                int const prm1 = atoi(input.substr(1, 5).c_str());
                 if (prm1 < 1 || prm1 > nprm) {
                     continue;
 }
-                int icvr = prmMap[prm1];
+                int const icvr = prmMap[prm1];
                 if (icvr < 0) {
                     continue;
 }
@@ -246,14 +246,14 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
                     continue;
 }
                 int col = 13;
-                int prm2end = lcova ? prm1 : nprm;
+                int const prm2end = lcova ? prm1 : nprm;
                 for (; prm2 <= prm2end && col < 78; prm2++, col += 22)
                 {
-                    int jcvr = prmMap[prm2];
+                    int const jcvr = prmMap[prm2];
                     if (jcvr < 0) {
                         continue;
 }
-                    double value = strtod(input.substr(col, 21).c_str(), nullptr);
+                    double const value = strtod(input.substr(col, 21).c_str(), nullptr);
                     int pcvr;
                     if (icvr > jcvr)
                     {
@@ -294,7 +294,7 @@ int SinexDataReader::findSection(RecordInputBase &dfi, const std::vector<std::st
 }
         for (int i = 0; i < (int)sections.size(); i++)
         {
-            int len = sections[i].size();
+            int const len = sections[i].size();
             if (sections[i] == input.substr(1, len)) {
                 return i;
 }
@@ -308,15 +308,15 @@ int SinexDataReader::findSection(RecordInputBase &dfi, const std::vector<std::st
 
 double SinexDataReader::readSinexDate(const std::string& datestr)
 {
-    RGX::regex re("^\\s*(\\d\\d?)\\:(\\d\\d\\d)\\:(\\d\\d\\d\\d\\d)\\s*$");
+    RGX::regex const re("^\\s*(\\d\\d?)\\:(\\d\\d\\d)\\:(\\d\\d\\d\\d\\d)\\s*$");
     RGX::smatch match;
     if (!RGX::regex_match(datestr.begin(), datestr.end(), match, re))
     {
         return UNDEFINED_DATE;
     }
     int yy = atoi(match[1].str().c_str());
-    int ddd = atoi(match[2].str().c_str());
-    int sec = atoi(match[3].str().c_str());
+    int const ddd = atoi(match[2].str().c_str());
+    int const sec = atoi(match[3].str().c_str());
     yy += (yy < 50 ? 2000 : 1900);
     return snap_yds(yy, ddd, sec);
 }
@@ -335,7 +335,7 @@ int load_sinex_obs(const std::string &options, DATAFILE &df, bool (*check_progre
 {
     try
     {
-        OptionString config(options);
+        OptionString const config(options);
         LINZ::SNAP::SinexDataReader snx(config);
         DatafileInput dfi(df, check_progress);
         try

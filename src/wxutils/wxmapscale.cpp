@@ -63,7 +63,7 @@ void ZoomStack::PushZoomRect( const MapRect &rect )
 
 bool ZoomStack::PopZoomRect( MapRect &rect )
 {
-    bool canPop = stackSize > 0 && stackTop != stackBottom;
+    bool const canPop = stackSize > 0 && stackTop != stackBottom;
     if( canPop )
     {
         rect = zoomStack[stackTop];
@@ -302,9 +302,9 @@ bool wxMapScale::TrimLine( const MapPoint &mpFrom, const MapPoint &mpTo,
 {
     AddPoint( mpFrom, true );
     bool start;
-    bool gotPoint = GetPoint( ptFrom, start );
+    bool const gotPoint = GetPoint( ptFrom, start );
     AddPoint( mpTo, false );
-    bool gotLine = (gotPoint || GetPoint( ptFrom, start )) && GetPoint( ptTo, start );
+    bool const gotLine = (gotPoint || GetPoint( ptFrom, start )) && GetPoint( ptTo, start );
     return gotLine;
 }
 
@@ -410,7 +410,7 @@ void wxMapScale::NotifyWindow() const
         wxWindow *window = wxWindow::FindWindowById( windowId );
         if( window != nullptr )
         {
-            wxSimpleEvent evt( WX_MAPWINDOW_SCALE_CHANGED );
+            wxSimpleEvent const evt( WX_MAPWINDOW_SCALE_CHANGED );
             window->GetEventHandler()->AddPendingEvent( evt );
         }
 

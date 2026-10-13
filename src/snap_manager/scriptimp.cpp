@@ -100,7 +100,7 @@ void BooleanToken::print( const wxString &prefix, ostream &str )
 
 Value StringToken::evaluate()
 {
-    Value v(text);
+    Value const v(text);
     LOG(("Evaluated %s as %s\n","StringToken",v.AsString()));
     return v;
 }
@@ -129,7 +129,7 @@ void IdToken::print( const wxString &prefix, ostream &str )
 Value VariableToken::evaluate()
 {
     Value v;
-    bool result = Owner()->GetValue( name, v );
+    bool const result = Owner()->GetValue( name, v );
     if( ! result )
     {
         Owner()->error("No value defined for variable \"%s\"", (const char *)(name.mb_str()));
@@ -213,10 +213,10 @@ Value ConditionalBranch::evaluate()
     }
     if( iterate )
     {
-        RunPermission rp( Owner(), elLoop );
+        RunPermission const rp( Owner(), elLoop );
         while( Owner()->CanRun() && maxIterations-- > 0 && condition->GetValue().AsBool() )
         {
-            RunPermission rp1( Owner(), elLoopInner );
+            RunPermission const rp1( Owner(), elLoopInner );
             v = actions->GetValue();
         }
     }
@@ -278,7 +278,7 @@ ForeachToken::~ForeachToken()
 
 Value ForeachToken::evaluate()
 {
-    Value v;
+    Value const v;
     VariableToken *var = static_cast<VariableToken *>( variable );
 
     wxString del("\n");
@@ -287,7 +287,7 @@ Value ForeachToken::evaluate()
     // Use a regular expression if the delimiter is explicitely defined, or if there is just
     // one variable..
     
-    bool usere = delimiter || ! (string->Next());
+    bool const usere = delimiter || ! (string->Next());
     if( delimiter ) { del = delimiter->GetValue().AsString();
 }
     if( usere && ! re.Compile(del,wxRE_ADVANCED) )
@@ -311,7 +311,7 @@ Value ForeachToken::evaluate()
         }
 
         int start = 0;
-        wxString str = strtok->GetValue().AsString();
+        wxString const str = strtok->GetValue().AsString();
 
         while( rp.CanRun() && re.Matches( str.Mid(start) ) )
         {
@@ -366,7 +366,7 @@ Value ForeachToken::evaluate()
 
 void ForeachToken::RunLoop()
 {
-    RunPermission rp(Owner(),elLoopInner);
+    RunPermission const rp(Owner(),elLoopInner);
     actions->GetValue();
 }
 
@@ -393,7 +393,7 @@ AssignmentToken::~AssignmentToken()
 
 Value AssignmentToken::evaluate()
 {
-    Value v = value->GetValueList();
+    Value const v = value->GetValueList();
     variable->SetOwnerValue( v );
     return v;
 }
@@ -534,7 +534,7 @@ FunctionDef::~FunctionDef()
 Value FunctionDef::evaluate()
 {
     Value v;
-    bool wasinuse = inuse;
+    bool const wasinuse = inuse;
     inuse = true;
     // Strictly should put try ... finally round this ...
     v = actions->GetValue();
@@ -594,7 +594,7 @@ static int compValue( const Value &value1, const Value &value2 )
     wxString s2=value2.AsString();
     double v1=0.0;
     double v2=0.0;
-    wxRegEx reNumber("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)");
+    wxRegEx const reNumber("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)");
     if( reNumber.Matches(s1) )
     {
         double v;
@@ -671,29 +671,29 @@ Value Operator::evaluate()
 
     case opPlus:
         {
-            double dval = result.AsDouble() + operand2->GetValue().AsDouble();
+            double const dval = result.AsDouble() + operand2->GetValue().AsDouble();
             result = Value( dval );
         }
         break;
 
     case opMinus:
         {
-            double dval = result.AsDouble() - operand2->GetValue().AsDouble();
+            double const dval = result.AsDouble() - operand2->GetValue().AsDouble();
             result = Value( dval );
         }
         break;
 
     case opMultiply:
         {
-            double dval = result.AsDouble() * operand2->GetValue().AsDouble();
+            double const dval = result.AsDouble() * operand2->GetValue().AsDouble();
             result = Value( dval );
         }
         break;
 
     case opDivide:
         {
-            double dval = result.AsDouble();
-            double dval2 =  operand2->GetValue().AsDouble();
+            double const dval = result.AsDouble();
+            double const dval2 =  operand2->GetValue().AsDouble();
             if( dval2 == 0.0 )
             {
                 Owner()->error("Cannot divide by 0");
@@ -879,7 +879,7 @@ bool ScriptImp::ExecuteScript( const std::string &filename )
         source = &scriptFile;
         program = nullptr;
         sourceFile = wxString(filename);
-        int parse_result = parse();
+        int const parse_result = parse();
         sourceFile = wxString("");
         Token *prog = program;
         program = nullptr;
@@ -926,7 +926,7 @@ Value ScriptImp::Run( Token *program )
     if( PushStack() )
     {
         exitLevel = elOk;
-        RunPermission rp(this, elExit);
+        RunPermission const rp(this, elExit);
         errorMessage.empty();
         result = program->GetValue();
         PopStack();
@@ -961,7 +961,7 @@ void ScriptImp::EnableMenuItems()
     it++ )
     {
         MenuItem *mi=(*it);
-        bool valid=mi->IsValid();
+        bool const valid=mi->IsValid();
         environment.EnableMenuItem( mi->MenuName(), valid );
     }
 }
@@ -1055,7 +1055,7 @@ void ScriptImp::RemoveMenuItem( const wxString &name )
             while( rest.Contains(delimiter) )
             {
                 rest=rest.BeforeLast(delimiter[0]);
-                wxString menuname=match+rest;
+                wxString const menuname=match+rest;
                 if( eraseMenus.Index(menuname) == wxNOT_FOUND )
                 {
                     eraseMenus.Add(menuname);
@@ -1099,14 +1099,14 @@ void ScriptImp::RemoveMenuItem( const wxString &name )
 bool ScriptImp::AddFunction( FunctionDef *func )
 {
     bool result = false;
-    wxString name = func->Name();
+    wxString const name = func->Name();
 
     // Is the function already defined ... if so then either delete and
     // replace the function if it is not currently executing, or delete
     // the new definition if it is.  If it is not defined, then just add
     // it...
 
-    map<wxString,FunctionDef *>::iterator function_ptr = functions.find(name);
+    map<wxString,FunctionDef *>::iterator const function_ptr = functions.find(name);
     if( function_ptr != functions.end() )
     {
         FunctionDef *f = function_ptr->second;
@@ -1145,7 +1145,7 @@ Token *ScriptImp::InterpolateString(const wxString &dtext )
 {
     // Remove initial and final quote marks
 
-    bool interpolate = dtext[0] == '"';
+    bool const interpolate = dtext[0] == '"';
     wxString text;
     if( dtext[0] == '"' || dtext[0] == '\'' )
     {
@@ -1165,7 +1165,7 @@ Token *ScriptImp::InterpolateString(const wxString &dtext )
 
         bool escape = false;
         bool invariable = false;
-        int last = text.size();
+        int const last = text.size();
         for( int i = 0; i <= last; i++ )
         {
             char c = i < last ? text.at(i) : 0;
@@ -1342,7 +1342,7 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
 
     if( status == fsBadFunction )
     {
-        map<wxString,FunctionDef *>::iterator function_ptr = functions.find(name);
+        map<wxString,FunctionDef *>::iterator const function_ptr = functions.find(name);
         if( function_ptr != functions.end() )
         {
             status = fsOk;
@@ -1354,7 +1354,7 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
 
                 if( f->Parameters()) { f->Parameters()->SetOwnerValue( params ? *params : Value() );
 }
-                RunPermission rp( this, elReturn );
+                RunPermission const rp( this, elReturn );
                 result = f->evaluate();
                 PopStack();
             }

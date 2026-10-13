@@ -256,7 +256,7 @@ static bool polygon_criterion_match( const criterion &c, station *stn )
         lon *= RTOD;
     }
     isinside=polygon_contains_point( poly.polygon, lon, lat ) != 0;
-    bool ok=isinside == poly.inside;
+    bool const ok=isinside == poly.inside;
     return ok;
 }
 
@@ -385,13 +385,13 @@ static bool criterion_frame_match( const std::vector<criterion> &criteria, size_
     // It equals size() when there is nothing left, including an empty list.
     if( pos >= criteria.size() ) { return false;
 }
-    bool invert=criteria[pos].crit_operator == criterion_operator::except;
+    bool const invert=criteria[pos].crit_operator == criterion_operator::except;
     bool match=invert;
-    int stacklevel=criteria[pos].stacklevel;
+    int const stacklevel=criteria[pos].stacklevel;
     while( pos < criteria.size() && criteria[pos].stacklevel >= stacklevel )
     {
         const criterion &crt=criteria[pos];
-        criterion_operator op=crt.crit_operator;
+        criterion_operator const op=crt.crit_operator;
         /* Can we skip this frame */
         if( (op == criterion_operator::line && match) ||
                 (op == criterion_operator::except && ! match) ||
@@ -490,7 +490,7 @@ int check_station_criteria_codes( void *psc, network *nw )
 }
         if( code->id == CRIT_ID_UNKNOWN )
         {
-            int id=find_station(nw, code->code );
+            int const id=find_station(nw, code->code );
             if( id )
             {
                 code->id=id;
@@ -600,7 +600,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             {
                 if( curop )
                 {
-                    std::string fieldText(*field);
+                    std::string const fieldText(*field);
                     sprintf(errmess,"\"%s\" out of place in %.100s",fieldText.c_str(),src.c_str());
                     break;
                 }
@@ -661,7 +661,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             const auto pgnfileField=scanner.next();
             if( ! pgnfileField )
             {
-                std::string fieldText(*field);
+                std::string const fieldText(*field);
                 sprintf(errmess,"Invalid \"%s\" option in %s requires coord sys code and wkt file name",fieldText.c_str(),src.c_str());
                 break;
             }
@@ -754,13 +754,13 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
         else if( (*field)[0] != '\\' && field->find('-',1) != std::string_view::npos )
         {
             const auto dashPos=field->find('-',1);
-            std::string fromCode( field->substr(0,dashPos) );
-            std::string toCode( field->substr(dashPos+1) );
+            std::string const fromCode( field->substr(0,dashPos) );
+            std::string const toCode( field->substr(dashPos+1) );
             c.emplace( new_code_range_criterion( fromCode, toCode, op, stacklevel ) );
         }
         else if( (*field)[0] != '\\' && has_wildcard( *field ) )
         {
-            std::string fieldStr(*field);
+            std::string const fieldStr(*field);
             c.emplace( new_code_match_criterion( fieldStr, op, stacklevel ) );
         }
         else
@@ -772,7 +772,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
 }
             if( codeField.empty() ) { continue;
 }
-            std::string codeStr(codeField);
+            std::string const codeStr(codeField);
             c.emplace( new_code_criterion(codeStr, missing_error, op, stacklevel) );
         }
 

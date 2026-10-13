@@ -53,7 +53,7 @@ bool SnapJobFile::Updated()
 
 bool SnapJobFile::Update()
 {
-    bool updated = Updated();
+    bool const updated = Updated();
     if( updated )
     {
         if( Exists() )
@@ -238,12 +238,12 @@ bool SnapJob::Load()
 
 bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
 {
-    size_t errcount = errors.GetCount();
+    size_t const errcount = errors.GetCount();
     wxTextFile cmds;
-    wxString cmdfile=sourceFile->GetFullFilename();
+    wxString const cmdfile=sourceFile->GetFullFilename();
     bool OpenOk;
     {
-        wxLogNull noLog;
+        wxLogNull const noLog;
         OpenOk = cmds.Open( cmdfile );
     }
     if( OpenOk )
@@ -254,7 +254,7 @@ bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
             tok.SetString( cmds.GetLine(i) );
             if( tok.HasMoreTokens() )
             {
-                wxString cmd = tok.GetNextToken();
+                wxString const cmd = tok.GetNextToken();
                 if( cmd.IsSameAs("title",false) )
                 {
                     title = tok.GetString().Trim();

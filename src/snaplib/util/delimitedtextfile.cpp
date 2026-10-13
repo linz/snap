@@ -66,7 +66,7 @@ bool CsvFormat::parseRecord()
     {
         std::string &value = getNextValue();
 
-        bool inQuote = start < end && *start == _quote;
+        bool const inQuote = start < end && *start == _quote;
         if( inQuote ) { start++;
 }
 
@@ -283,7 +283,7 @@ void Reader::readHeader()
 
 std::string &Reader::getNextValue()
 {
-    int index = _colno;
+    int const index = _colno;
     _colno++;
     if( index > (int) _columns.size())
     {
@@ -396,7 +396,7 @@ void Reader::warning( const std::string &message ) const
 }
 void Reader::handleError( const RecordError &error ) const
 {
-    RecordErrorType type = error.type();
+    RecordErrorType const type = error.type();
     if( type != FatalError && _input && _input->handleError(error)) { return;
 }
     if( type != Warning ) { throw error;

@@ -135,14 +135,14 @@ FILE *set_error_file(FILE *err)
 
 int set_error_level(int level)
 {
-    int oldlevel = error_level;
+    int const oldlevel = error_level;
     error_level = level;
     return oldlevel;
 }
 
 int set_error_prefix(int prefix)
 {
-    int oldprefix = use_prefix;
+    int const oldprefix = use_prefix;
     use_prefix = prefix;
     return oldprefix;
 }
@@ -157,7 +157,7 @@ errhandler_type set_error_handler(errhandler_type errhndler)
 
 int get_error_count(void)
 {
-    int errc = error_count;
+    int const errc = error_count;
     // error_count = 0;
     return errc;
 }

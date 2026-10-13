@@ -140,7 +140,7 @@ void wxMapDrawer::PlotEllipse(const MapPoint &pt, double majorAxis, double minor
 
     // Calculate the number of points required to display the ellipse
 
-    double pixelSize = scale.GetScale();
+    double const pixelSize = scale.GetScale();
     int npt = (int) (1.6*sqrt((majorAxis+minorAxis)/(4.0*pixelSize)));
     if( npt < 2 )
     {
@@ -151,24 +151,24 @@ void wxMapDrawer::PlotEllipse(const MapPoint &pt, double majorAxis, double minor
         npt = 18;
     }
     npt *= 4;
-    double angle = atan(1.0)*8.0/npt;
-    double cosa = cos(angle);
-    double sina = sin(angle);
-    double coso = cos(orientation);
-    double sino = sin(orientation);
+    double const angle = atan(1.0)*8.0/npt;
+    double const cosa = cos(angle);
+    double const sina = sin(angle);
+    double const coso = cos(orientation);
+    double const sino = sin(orientation);
     double cs = 1.0;
     double sn = 0.0;
 
-    MapPoint pt0 = pt.Shift( majorAxis * coso, majorAxis * sino );
+    MapPoint const pt0 = pt.Shift( majorAxis * coso, majorAxis * sino );
     MoveTo( pt0 );
 
     for( int ipt = 1; ipt < npt; ipt++ )
     {
-        double tmp = cs*cosa + sn*sina;
+        double const tmp = cs*cosa + sn*sina;
         sn = sn*cosa - cs*sina;
         cs = tmp;
-        double ex = cs*majorAxis;
-        double ey = sn*minorAxis;
+        double const ex = cs*majorAxis;
+        double const ey = sn*minorAxis;
 
         LineTo( pt.Shift( ex*coso + ey*sino, ex*sino - ey*coso ));
 
@@ -239,7 +239,7 @@ void wxMapDrawer::DrawSymbol( const wxPoint &pt )
     else
     {
         dc.SetPen( currentColour );
-        int size = refSize / 2;
+        int const size = refSize / 2;
         dc.DrawLine( pt.x - size, pt.y, pt.x + size + 1, pt.y );
         dc.DrawLine( pt.x, pt.y - size, pt.x, pt.y + size + 1 );
     }

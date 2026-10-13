@@ -35,7 +35,7 @@ void wxPalettePopup::SetPalette(ColourPalette *newPalette)
 
 void wxPalettePopup::LayoutPalette( int rows )
 {
-    int nPalette = palette ? palette->Size() : 0;
+    int const nPalette = palette ? palette->Size() : 0;
     if( nPalette <= 0 ) { return;
 }
 
@@ -49,15 +49,15 @@ void wxPalettePopup::LayoutPalette( int rows )
     nrow = rows;
     ncol = ((nPalette-1)/nrow)+1;
 
-    int width = ncol * (bitmapsize + spacing) + spacing;
-    int height = nrow * (bitmapsize + spacing) + spacing;
+    int const width = ncol * (bitmapsize + spacing) + spacing;
+    int const height = nrow * (bitmapsize + spacing) + spacing;
     SetClientSize( width, height );
 }
 
 wxPoint wxPalettePopup::GetBitmapPosition( int colourId, bool centre ) const
 {
-    int row = colourId / ncol;
-    int col = colourId - row * ncol;
+    int const row = colourId / ncol;
+    int const col = colourId - row * ncol;
     int offset = centre ? bitmapsize/2 : 0;
     offset += spacing;
     wxPoint pt( (bitmapsize + spacing)*col + offset, (bitmapsize + spacing)*row + offset );
@@ -66,11 +66,11 @@ wxPoint wxPalettePopup::GetBitmapPosition( int colourId, bool centre ) const
 
 int wxPalettePopup::ColourIdFromPosition( const wxPoint &position )
 {
-    int colpx = position.x - spacing;
-    int rowpx = position.y - spacing;
-    int gridsize = bitmapsize + spacing;
-    int col = colpx / gridsize;
-    int row = rowpx / gridsize;
+    int const colpx = position.x - spacing;
+    int const rowpx = position.y - spacing;
+    int const gridsize = bitmapsize + spacing;
+    int const col = colpx / gridsize;
+    int const row = rowpx / gridsize;
 
     if( col < 0 || col >= ncol || row < 0 || row >= nrow ) { return -1;
 }
@@ -79,7 +79,7 @@ int wxPalettePopup::ColourIdFromPosition( const wxPoint &position )
     if( rowpx - row*gridsize >= bitmapsize ) { return -1;
 }
 
-    int colourId = row * ncol + col;
+    int const colourId = row * ncol + col;
     if( colourId >= palette->Size() ) { return -1;
 }
     return colourId;
@@ -107,8 +107,8 @@ void wxPalettePopup::SetSelectedColour( int colourId )
 
 void wxPalettePopup::PositionWindow()
 {
-    wxPoint mousePosition = wxGetMousePosition();
-    wxSize size = GetSize();
+    wxPoint const mousePosition = wxGetMousePosition();
+    wxSize const size = GetSize();
 
     wxPoint bitmapPosition;
     if( selectedColour >= 0 )
@@ -121,9 +121,9 @@ void wxPalettePopup::PositionWindow()
     }
     bitmapPosition = ClientToScreen( bitmapPosition );
 
-    wxPoint windowPosition = GetPosition();
+    wxPoint const windowPosition = GetPosition();
 
-    wxRect topWindowRect = wxTheApp->GetTopWindow()->GetScreenRect();
+    wxRect const topWindowRect = wxTheApp->GetTopWindow()->GetScreenRect();
 
     int x = windowPosition.x + mousePosition.x - bitmapPosition.x;
     int y = windowPosition.y + mousePosition.y - bitmapPosition.y;
@@ -159,7 +159,7 @@ void wxPalettePopup::OnPaint( wxPaintEvent & WXUNUSED(event) )
     // Drawn explicitly rather than relying on the wxBORDER_SIMPLE window style: the popup can
     // sit right over the panel it opened from, and against a background the same colour, a
     // native border isn't always visible enough to tell the two apart.
-    wxSize clientSize = GetClientSize();
+    wxSize const clientSize = GetClientSize();
     dc.SetPen( wxSystemSettings::GetColour( wxSYS_COLOUR_3DSHADOW ) );
     dc.SetBrush( *wxTRANSPARENT_BRUSH );
     dc.DrawRectangle( 0, 0, clientSize.GetWidth(), clientSize.GetHeight() );
@@ -176,7 +176,7 @@ void wxPalettePopup::OnPaint( wxPaintEvent & WXUNUSED(event) )
                 dc.SetBrush( highlightColour );
                 dc.DrawRectangle( highlightRect.GetPosition(), highlightRect.GetSize() );
             }
-            wxPoint pt = GetBitmapPosition( i, false );
+            wxPoint const pt = GetBitmapPosition( i, false );
             const wxBitmap &bitmap = palette->Bitmap( i );
             dc.DrawBitmap( bitmap, pt.x, pt.y, false );
         }
@@ -187,7 +187,7 @@ void wxPalettePopup::OnMouseEvent( wxMouseEvent &event )
 {
     if( event.LeftDown() || event.LeftUp() )
     {
-        int newColourId = ColourIdFromPosition( event.GetPosition() );
+        int const newColourId = ColourIdFromPosition( event.GetPosition() );
         if( newColourId >= 0 ) { SetSelectedColour( newColourId ); }
     }
 
@@ -221,7 +221,7 @@ void wxPalettePopup::OnCaptureLost( wxMouseCaptureLostEvent & WXUNUSED(event) )
 // after showing can itself generate a spurious, immediate capture-lost notification.
 bool wxPalettePopup::IgnoreAsOpeningClick()
 {
-    bool ignore = ignoreNextButtonUp || ( wxGetLocalTimeMillis() - shownTime ) < 175;
+    bool const ignore = ignoreNextButtonUp || ( wxGetLocalTimeMillis() - shownTime ) < 175;
     ignoreNextButtonUp = false;
     return ignore;
 }
@@ -270,7 +270,7 @@ bool wxPalettePopup::SelectColour( int &colourId )
 
     if( selectedColour < 0 ) { selectedColour = colourId;
 }
-    bool colourChanged = selectedColour != colourId;
+    bool const colourChanged = selectedColour != colourId;
     colourId = selectedColour;
     return colourChanged;
 }

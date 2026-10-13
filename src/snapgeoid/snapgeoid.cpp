@@ -216,7 +216,7 @@ int main( int argc, char *argv[] )
     if( list_only )
     {
         int i;
-        int nhrf=vdatum_list_count();
+        int const nhrf=vdatum_list_count();
         for( i=0; i < nhrf; i++)
         {
             const std::string &code=vdatum_list_code(i);
@@ -278,7 +278,7 @@ int main( int argc, char *argv[] )
             printf("Unable to load vertical datum %s\n",csyshrs->c_str());
             return 2;
         }
-        int sts=set_coordsys_vdatum( net.crdsys, hrs );
+        int const sts=set_coordsys_vdatum( net.crdsys, hrs );
         if( sts != OK )
         {
             return 2;
@@ -291,7 +291,7 @@ int main( int argc, char *argv[] )
 
     if( calc_crdsys_geoid || calc_geoid_opt == CALC_CRDSYS )
     {
-        int sts=calc_station_geoid_info_from_coordsys( &net, net.crdsys,
+        int const sts=calc_station_geoid_info_from_coordsys( &net, net.crdsys,
                 orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) { return 2;
 }
@@ -356,7 +356,7 @@ int main( int argc, char *argv[] )
         }
 
         sprintf(geoid_msg,"Geoid undulations from %.80s",std::string( get_geoid_model( gd ) ).c_str());
-        int sts = set_network_geoid_def( &net, gd, orthometric_fixed, errlevel );
+        int const sts = set_network_geoid_def( &net, gd, orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) { return 2;
 }
     }

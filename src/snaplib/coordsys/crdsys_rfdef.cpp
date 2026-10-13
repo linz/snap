@@ -66,7 +66,7 @@ int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
         }
         else
         {
-            std::string errmsg = "Invalid DEFORMATION type " + type;
+            std::string const errmsg = "Invalid DEFORMATION type " + type;
             report_string_error(is, INVALID_DATA, errmsg);
             return INVALID_DATA;
         }

@@ -213,7 +213,7 @@ void test_specifications( void )
 
     for( i = 0; i<ntestid; i++ )
     {
-        int testid = 1 << i;
+        int const testid = 1 << i;
         SpecDef *spec;
         for( spec = spechead; spec; spec = spec->next )
         {
@@ -290,8 +290,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, const std::vector
     int istnmaxh;
     double maxvratio;
     int istnmaxv;
-    int printall = listopts & SPEC_LIST_ALL;
-    int printfail = listopts & SPEC_LIST_FAIL;
+    int const printall = listopts & SPEC_LIST_ALL;
+    int const printfail = listopts & SPEC_LIST_FAIL;
     long nstntest;
     double hratio;
     double vratio;

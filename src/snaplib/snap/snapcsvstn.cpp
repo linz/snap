@@ -133,7 +133,7 @@ void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName
         len--;
         offset = len;
     }
-    string prefix = colName.substr(0, len);
+    string const prefix = colName.substr(0, len);
 
     for (int col = 0; col < reader->columnCount(); col++)
     {
@@ -141,7 +141,7 @@ void SnapCsvStn::findClassColumns(CalcReader *reader, const std::string &colName
         string name = c->name();
         if (len > 0)
         {
-            string colprefix = name.substr(0, len);
+            string const colprefix = name.substr(0, len);
             if (!boost::iequals(prefix, colprefix)) { continue;
 }
             if (offset) { name = name.substr(offset);
@@ -268,7 +268,7 @@ void SnapCsvStn::loadDefinitionCommand(const string &command, RecordStream &rs)
     }
     else if (command == "angle_format")
     {
-        string format = getConfigValue(command, rs);
+        string const format = getConfigValue(command, rs);
         if (!format.empty())
         {
             try
@@ -333,7 +333,7 @@ void SnapCsvStn::loadRecord()
             _geocentric = (bool)is_geocentric(_net->crdsys);
         }
     }
-    bool geodetic = !(_projection || _geocentric);
+    bool const geodetic = !(_projection || _geocentric);
 
     if (!_cs) { return;
 }
@@ -479,11 +479,11 @@ void SnapCsvStn::loadRecord()
     }
     for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
     {
-        string value = cc->value();
+        string const value = cc->value();
         if (!value.empty())
         {
-            int idclass = cc->classId();
-            int idvalue = _net->class_value_id(idclass, value, 1);
+            int const idclass = cc->classId();
+            int const idvalue = _net->class_value_id(idclass, value, 1);
             st->set_class(idclass, idvalue);
         }
     }
@@ -528,8 +528,8 @@ int load_snap_csv_stations(network *net, const std::string &filename, const std:
     int sts = OK;
     try
     {
-        OptionString config(options);
-        std::string format = config.valueOf("format", "stn");
+        OptionString const config(options);
+        std::string const format = config.valueOf("format", "stn");
         auto formatfile = find_file(format, ".dtf", filename, FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
@@ -538,12 +538,12 @@ int load_snap_csv_stations(network *net, const std::string &filename, const std:
             handle_error(INVALID_DATA, os.str(), NO_MESSAGE);
             return INVALID_DATA;
         }
-        string netname = "Read from " + filename;
+        string const netname = "Read from " + filename;
         set_network_name(net, netname);
         SnapCsvStn csvstn(net, *formatfile, config);
         DatafileInput dfi(filename, "station coordinate file");
         csvstn.load(dfi);
-        std::string deffile = csvstn.definitionFilename();
+        std::string const deffile = csvstn.definitionFilename();
         if (!deffile.empty())
         {
             record_filename(deffile, "csv_station_format");

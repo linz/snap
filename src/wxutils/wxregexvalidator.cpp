@@ -40,11 +40,11 @@ wxRegexpStringValidator::wxRegexpStringValidator( wxString *value, const wxStrin
         wxArrayString includes;
         for( size_t i = 0; i < validChars.Len(); i++ )
         {
-            wxChar ch = validChars.GetChar(i);
+            wxChar const ch = validChars.GetChar(i);
             if( ch == '-' && i > 0 && i < validChars.Len()-1)
             {
                 wxChar c0 = validChars.GetChar(i-1);
-                wxChar c1 = validChars.GetChar(i+1);
+                wxChar const c1 = validChars.GetChar(i+1);
                 while(c0 < c1)
                 {
                     c0++;
@@ -76,7 +76,7 @@ bool wxRegexpStringValidator::Validate( wxWindow * WXUNUSED(parent) )
     if( haveRegex )
     {
         wxTextCtrl *txt = static_cast<wxTextCtrl *>( GetWindow() );
-        wxString value = txt->GetValue();
+        wxString const value = txt->GetValue();
         if( ! regex.Matches(value) )
         {
             if( showMessage )

@@ -136,7 +136,7 @@ void SnapplotDetailsView::AddInfoText( void *win, PutTextInfo *jump, const std::
 
 void SnapplotDetailsView::OnHtmlLinkClicked( wxHtmlLinkEvent &event )
 {
-    PutTextInfoWriter pti( event.GetLinkInfo().GetHref() );
+    PutTextInfoWriter const pti( event.GetLinkInfo().GetHref() );
     if( pti.type != ptfNone )
     {
         const wxMouseEvent *me = event.GetLinkInfo().GetEvent();
@@ -144,7 +144,7 @@ void SnapplotDetailsView::OnHtmlLinkClicked( wxHtmlLinkEvent &event )
         {
             Show( pti );
 
-            bool zoom = me && me->ShiftDown();
+            bool const zoom = me && me->ShiftDown();
             JumpTo( pti, zoom );
         }
     }

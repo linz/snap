@@ -159,10 +159,10 @@ static int create_grid_def( grid_def **defr, const std::string &filename, short 
     if( !bin ) { return FILE_OPEN_ERROR;
 }
     long indexloc;
-    int version = check_header( bin, &indexloc );
+    int const version = check_header( bin, &indexloc );
     if( ! version ) { fclose(bin); return INVALID_DATA; }
     fseek( bin, indexloc, SEEK_SET );
-    int rowfmt = version == 3 ? 2 : 1;
+    int const rowfmt = version == 3 ? 2 : 1;
 
     double miny;
     double maxy;
@@ -447,7 +447,7 @@ static short load_row2_dim( grid_def *def, long *data )
 
 static short load_row2( grid_def *def, long *data )
 {
-    int ndim = def->ngrdval;
+    int const ndim = def->ngrdval;
     int idim;
     short sts;
     for( idim = 0; idim < ndim; idim++ )
@@ -764,8 +764,8 @@ void grd_print_grid_data( grid_def *grd, FILE *out, char showGrid )
     fprintf(out,"  Global longitude extents? : %s\n",grd->global ? "Yes" : "No" );
     if( showGrid )
     {
-        double lonInc = (grd->maxx - grd->minx)/(grd->ngrdx-1);
-        double latInc = (grd->maxy - grd->miny)/(grd->ngrdy-1);
+        double const lonInc = (grd->maxx - grd->minx)/(grd->ngrdx-1);
+        double const latInc = (grd->maxy - grd->miny)/(grd->ngrdy-1);
         double lat;
         double lon;
         short i;
@@ -781,7 +781,7 @@ void grd_print_grid_data( grid_def *grd, FILE *out, char showGrid )
                 fprintf( out,"  %8.4lf  %8.4lf",lat,lon);
                 for( k = 0; k < grd->ngrdval; k++ )
                 {
-                    long v = (*data);
+                    long const v = (*data);
                     if( v == grd->undef ) { fprintf(out,"     *   ");
                     } else { fprintf( out,"  %8.4lf", (double)(v*grd->vres) );
 }

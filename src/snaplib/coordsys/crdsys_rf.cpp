@@ -23,7 +23,7 @@
 void init_ref_frame( ref_frame *rf, double convepoch )
 {
     int i;
-    double dfactor=convepoch-rf->refdate;
+    double const dfactor=convepoch-rf->refdate;
     for( i=0; i < 3; i++ )
     {
         double rot;

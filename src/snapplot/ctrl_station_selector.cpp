@@ -18,12 +18,12 @@ void wxStationSelectorTable::Setup()
 }
 
     id = new int[nrows];
-    int nstns = number_of_stations(net);
+    int const nstns = number_of_stations(net);
     selected = new bool[nstns+1];
 
     for( int i = 0; i < nrows; i++ )
     {
-        int istn = sorted_station_number(i);
+        int const istn = sorted_station_number(i);
         id[i] = istn;
         selected[istn] = false;
     }
@@ -71,7 +71,7 @@ bool wxStationSelectorTable::IsEmptyCell( int WXUNUSED(row), int WXUNUSED(col) )
 
 wxString wxStationSelectorTable::GetValue( int row, int col )
 {
-    int istn = id[row];
+    int const istn = id[row];
     station *stn = stnptr(istn);
     return col == 0 ? stn->Code.c_str() : stn->Name.c_str();
 }
@@ -184,8 +184,8 @@ void wxStationSelectorGrid::OnGridRangeSelect( wxGridRangeSelectEvent &event )
     if( event.Selecting() )
     {
         ClearSelection();
-        int rowMin = event.GetTopRow();
-        int rowMax = event.GetBottomRow();
+        int const rowMin = event.GetTopRow();
+        int const rowMax = event.GetBottomRow();
         for( int row = rowMin; row <= rowMax; row++ )
         {
             table->Select( row, ! table->IsSelected(row) );
@@ -197,7 +197,7 @@ void wxStationSelectorGrid::OnGridRangeSelect( wxGridRangeSelectEvent &event )
 
 void wxStationSelectorGrid::OnGridLabelLeftClick( wxGridEvent &event )
 {
-    int col = event.GetCol();
+    int const col = event.GetCol();
     if( col == 0 ) { SortByCode();
 }
     if( col == 1 ) { SortByName();

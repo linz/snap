@@ -643,7 +643,7 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
 */
 static StatusType load_row2( grid_def_crs *def, long fileloc, INT4 *data )
 {
-    int ndim = def->ngrdval;
+    int const ndim = def->ngrdval;
     int idim;
     StatusType sts;
     for( idim = 0; idim < ndim; idim++ )
