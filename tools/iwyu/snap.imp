@@ -1,0 +1,9 @@
+# Mappings for include-what-you-use, in addition to boost-all.imp (see the iwyu target in build.py).
+#
+# The C library's names (FILE, size_t, printf) are not mapped here: IWYU asks for the C header
+# (<stdio.h>) for them whatever is mapped, so build.py turns those suggestions into the C++ header
+# (<cstdio>) that the code includes.
+[
+  # std::array is declared in <array>, not <tuple>.
+  { "symbol": ["std::array", "private", "<array>", "public"] }
+]
