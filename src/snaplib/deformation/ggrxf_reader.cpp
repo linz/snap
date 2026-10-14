@@ -293,6 +293,13 @@ ScalarGridContent parseScalarGridContent(const netcdf::NetcdfGroup& gridGroup,
         throw std::runtime_error("ggrxf_reader: '" + gridGroup.name() + "'.displacement has " +
                                  std::to_string(dims.size()) + " dimensions, expected 3");
     }
+    // NetcdfScalarNodeValueSource indexes the array with iNodeCount/jNodeCount,
+    // so a smaller or differently shaped array would be read out of bounds.
+    if (dims[0] != iNodeCount || dims[1] != jNodeCount) {
+        throw std::runtime_error("ggrxf_reader: '" + gridGroup.name() + "'.displacement is " + std::to_string(dims[0]) +
+                                 " x " + std::to_string(dims[1]) + " nodes, but iNodeCount x jNodeCount is " +
+                                 std::to_string(iNodeCount) + " x " + std::to_string(jNodeCount));
+    }
     // This grid's own displacement-axis count comes from the file's own
     // stored array; canonicalAxisIndices comes from this grid's own
     // layer's own gridParameters attribute - a separately-sourced count
@@ -501,6 +508,16 @@ std::size_t raggedLayerAxisCount(const netcdf::NetcdfGroup& layerGroup) {
     return layerGroup.hasVariable("segment_count_u") ? 3 : 2;
 }
 
+// Throws if a layer-wide array does not have the length that the arrays it
+// is indexed alongside imply, since every later read indexes it unchecked.
+void requireArrayLength(const netcdf::NetcdfGroup& layerGroup, const std::string& name, std::size_t actual,
+                        std::size_t expected) {
+    if (actual != expected) {
+        throw std::runtime_error("ggrxf_reader: '" + layerGroup.name() + "'." + name + " has " +
+                                 std::to_string(actual) + " entries, expected " + std::to_string(expected));
+    }
+}
+
 // Reads layerGroup's own consolidated grid/node/segment arrays in full -
 // see RaggedLayerArrays' own class comment. Every grid's own affineCoeffs
 // entry is canonicalized to (latitude, longitude) axis order in place here
@@ -524,6 +541,10 @@ RaggedLayerArrays readRaggedLayerArrays(const netcdf::NetcdfGroup& layerGroup, b
     arrays.parentGridIndex = layerGroup.variable("parent_grid_index").readValues<std::uint32_t>();
 
     const std::size_t gridCount = arrays.iNodeCount.size();
+    requireArrayLength(layerGroup, "jNodeCount", arrays.jNodeCount.size(), gridCount);
+    requireArrayLength(layerGroup, "gridPriority", arrays.gridPriority.size(), gridCount);
+    requireArrayLength(layerGroup, "parent_grid_index", arrays.parentGridIndex.size(), gridCount);
+    requireArrayLength(layerGroup, "affineCoeffs", arrays.affineCoeffs.size(), gridCount * 6);
     arrays.gridNodeOffset.assign(gridCount + 1, 0);
     for (std::size_t grid = 0; grid < gridCount; ++grid) {
         arrays.gridNodeOffset[grid + 1] =
@@ -532,8 +553,10 @@ RaggedLayerArrays readRaggedLayerArrays(const netcdf::NetcdfGroup& layerGroup, b
 
     arrays.referenceDay = layerGroup.variable("reference_day").readValues<std::uint32_t>();
     const std::size_t nodeCount = arrays.referenceDay.size();
+    requireArrayLength(layerGroup, "reference_day", nodeCount, arrays.gridNodeOffset.back());
     if (layerGroup.hasVariable("has_end_day")) {
         const auto raw = layerGroup.variable("has_end_day").readValues<std::uint8_t>();
+        requireArrayLength(layerGroup, "has_end_day", raw.size(), nodeCount);
         arrays.hasEndDayPerNode.resize(raw.size());
         for (std::size_t node = 0; node < raw.size(); ++node) {
             arrays.hasEndDayPerNode[node] = raw[node] != 0;
@@ -549,6 +572,7 @@ RaggedLayerArrays readRaggedLayerArrays(const netcdf::NetcdfGroup& layerGroup, b
     for (std::size_t axis = 0; axis < arrays.axisCount; ++axis) {
         const std::string suffix(1, kComponentLetters[axis]);
         const auto counts = layerGroup.variable("segment_count_" + suffix).readValues<std::uint16_t>();
+        requireArrayLength(layerGroup, "segment_count_" + suffix, counts.size(), nodeCount);
 
         // The CSR-style offsets into segments_{suffix}/function_type_{suffix}
         // for each node's own slice - a running sum of counts,
@@ -566,6 +590,13 @@ RaggedLayerArrays readRaggedLayerArrays(const netcdf::NetcdfGroup& layerGroup, b
         arrays.segmentScaleFactors[axis] =
             layerGroup.variable("segments_" + suffix).readCompoundField<std::int16_t>("segment_scale_factor");
         arrays.segmentFunctionTypes[axis] = layerGroup.variable("function_type_" + suffix).readValues<std::uint8_t>();
+
+        // Each is one entry per segment, so as long as the counts' total. The three
+        // compound fields come from one variable, so they share one length.
+        const std::size_t segmentTotal = arrays.nodeSegmentOffset[axis].back();
+        requireArrayLength(layerGroup, "segments_" + suffix, arrays.segmentStartValues[axis].size(), segmentTotal);
+        requireArrayLength(layerGroup, "function_type_" + suffix, arrays.segmentFunctionTypes[axis].size(),
+                           segmentTotal);
     }
     return arrays;
 }
