@@ -27,7 +27,7 @@ using boost::numeric_cast;
 #include "util/pi.h"
 
 /* The longest word read from an offset file - longer words are cut short */
-static constexpr size_t WORDLEN = 32;
+static constexpr std::size_t WORDLEN = 32;
 
 void add_stn_offset_comp_to_station(station* st, stn_offset_comp comp, const int isdeformation) {
     if (!st->ts) {
@@ -118,8 +118,8 @@ int read_network_station_offsets(network* nw, std::string_view filename) {
         while (!scanner.atEnd()) {
             stn_tspoint* tsp = &basepoint;
             if (ists >= 0) {
-                if (static_cast<size_t>(ists) >= tsdata.size()) {
-                    tsdata.resize(std::max<size_t>(32, tsdata.size() * 2));
+                if (static_cast<std::size_t>(ists) >= tsdata.size()) {
+                    tsdata.resize(std::max<std::size_t>(32, tsdata.size() * 2));
                 }
                 tsp = &tsdata[ists];
             }
@@ -165,7 +165,7 @@ int read_network_station_offsets(network* nw, std::string_view filename) {
             continue;
         }
         station* stn = station_ptr(nw, stnid);
-        stn_offset_comp component(mode, isxyz, numeric_cast<size_t>(ists));
+        stn_offset_comp component(mode, isxyz, numeric_cast<std::size_t>(ists));
         component.basepoint = basepoint;
         std::copy(tsdata.begin(), tsdata.begin() + ists, component.tspoints.begin());
         add_stn_offset_comp_to_station(stn, std::move(component), isdef);

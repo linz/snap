@@ -234,7 +234,7 @@ int compare_ignoring_case(std::string_view string1,   ///< the first string
 /// full, so it sorts before a longer string that it is a prefix of.
 int compare_ignoring_case(std::string_view string1,  ///< the first string
                           std::string_view string2,  ///< the second string
-                          size_t maxLength);         ///< the maximum number of characters to compare
+                          std::size_t maxLength);         ///< the maximum number of characters to compare
 
 /// Tests whether two names are the same, ignoring case and treating spaces,
 /// underscores, control characters and characters outside ASCII as
@@ -257,7 +257,7 @@ enum class FieldResult {
 /// one field. A field longer than maxlength is cut short without error.
 FieldResult read_string_field(FieldScanner& scanner,  ///< the scanner to read from
                               std::string& value,     ///< set to the field when the result is Ok
-                              size_t maxlength);      ///< the most characters to keep
+                              std::size_t maxlength);      ///< the most characters to keep
 
 /// Reads the next field from scanner as a number, treating a quoted value as
 /// one field. The whole field must be the number.
@@ -270,7 +270,7 @@ FieldResult read_double_field(FieldScanner& scanner,  ///< the scanner to read f
 /// error.
 FieldResult read_remaining_text(FieldScanner& scanner,  ///< the scanner to read from
                                 std::string& value,     ///< set to the remaining text when the result is Ok
-                                size_t maxlength);      ///< the most characters to keep
+                                std::size_t maxlength);      ///< the most characters to keep
 
 /// Reads the next field from scanner as a whole number, treating a quoted
 /// value as one field. The whole field must be the number.

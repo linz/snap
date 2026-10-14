@@ -99,9 +99,9 @@ bool wxTabbedTextTable::IsEmptyCell(int WXUNUSED(row), int WXUNUSED(col)) {
 
 std::vector<std::string_view> wxTabbedTextTable::_splitColumns(const std::string_view line) {
     std::vector<std::string_view> columns;
-    size_t start = 0;
+    std::size_t start = 0;
     while (true) {
-        const size_t tab = line.find('\t', start);
+        const std::size_t tab = line.find('\t', start);
         if (tab == std::string_view::npos) {
             columns.push_back(line.substr(start));
             break;
@@ -113,7 +113,7 @@ std::vector<std::string_view> wxTabbedTextTable::_splitColumns(const std::string
 }
 
 std::string_view wxTabbedTextTable::_trimBlanks(std::string_view column) {
-    const size_t first = column.find_first_not_of(' ');
+    const std::size_t first = column.find_first_not_of(' ');
     if (first == std::string_view::npos) {
         return std::string_view();
     }
@@ -187,7 +187,7 @@ void wxTabbedTextTable::GetRow(int nrow) {
     const std::vector<std::string_view> columns = _splitColumns(row);
 
     // A row with too few columns leaves the remaining ones empty, and extra columns are ignored
-    for (size_t i = 0; i < rowData.size(); i++) {
+    for (std::size_t i = 0; i < rowData.size(); i++) {
         rowData[i] = i < columns.size() ? std::string(_trimBlanks(columns[i])) : std::string();
     }
 

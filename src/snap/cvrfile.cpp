@@ -74,7 +74,7 @@ void print_coord_covariance(void) {
 
     maxstn = number_of_stations(net);
     ncrd = maxstn * 3;
-    std::vector<int> rownos(numeric_cast<size_t>(ncrd), -1);
+    std::vector<int> rownos(numeric_cast<std::size_t>(ncrd), -1);
 
     projection_coords = is_projection(net->crdsys) ? 1 : 0;
     const DmsFormat latitudeFormat(3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S");
@@ -168,7 +168,7 @@ void print_coord_covariance_json(void) {
 
     maxstn = number_of_stations(net);
     ncrd = maxstn * 3;
-    std::vector<int> rownos(numeric_cast<size_t>(ncrd), -1);
+    std::vector<int> rownos(numeric_cast<std::size_t>(ncrd), -1);
 
     projection_coords = is_projection(net->crdsys) ? 1 : 0;
     geocentric_coords = is_geocentric(net->crdsys) ? 1 : 0;

@@ -100,7 +100,7 @@ void wxMapDragger::ProcessMouseEvent(wxMouseEvent& event) {
 
         if (event.Dragging()) {
             const wxPoint dragOffset = event.GetPosition() - dragStartPoint;
-            if (abs(dragOffset.x) + abs(dragOffset.y) >= minDragLength) {
+            if (std::abs(dragOffset.x) + std::abs(dragOffset.y) >= minDragLength) {
                 if (canDrag && InitDrag(event)) {
                     dragEndPoint = event.GetPosition();
                     savedCursor = mapWindow->GetCursor();

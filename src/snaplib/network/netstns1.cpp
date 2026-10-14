@@ -77,7 +77,7 @@ constexpr DiskField STATION_DISK_FIELDS[] = {
     {FieldKind::Float64, offsetof(station, dNdLt), 1},
     {FieldKind::Float64, offsetof(station, dEdLn), 1},
 };
-constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof(STATION_DISK_FIELDS[0]);
+constexpr std::size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof(STATION_DISK_FIELDS[0]);
 
 // Verifies STATION_DISK_FIELDS has no gap relative to station's actual
 // memory layout. Uses the same rounded-up-to-next-alignment check as
@@ -87,17 +87,17 @@ constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof
 // must, by the same rule, be immediately followed by the first
 // excluded member (classval).
 static constexpr bool station_disk_fields_contiguous() {
-    for (size_t i = 0; i + 1 < STATION_DISK_FIELD_COUNT; ++i) {
+    for (std::size_t i = 0; i + 1 < STATION_DISK_FIELD_COUNT; ++i) {
         const DiskField& field = STATION_DISK_FIELDS[i];
-        const size_t end = field.offset + field_in_memory_size(field.kind) * field.count;
-        const size_t expected_next = round_up(end, field_in_memory_alignment(STATION_DISK_FIELDS[i + 1].kind));
+        const std::size_t end = field.offset + field_in_memory_size(field.kind) * field.count;
+        const std::size_t expected_next = round_up(end, field_in_memory_alignment(STATION_DISK_FIELDS[i + 1].kind));
         if (expected_next != STATION_DISK_FIELDS[i + 1].offset) {
             return false;
         }
     }
     const DiskField& last = STATION_DISK_FIELDS[STATION_DISK_FIELD_COUNT - 1];
-    const size_t last_end = last.offset + field_in_memory_size(last.kind) * last.count;
-    const size_t expected_classval = round_up(last_end, alignof(decltype(station::classval)));
+    const std::size_t last_end = last.offset + field_in_memory_size(last.kind) * last.count;
+    const std::size_t expected_classval = round_up(last_end, alignof(decltype(station::classval)));
     return expected_classval == offsetof(station, classval);
 }
 // Runs entirely at compile time, same as survdata_disk_fields_contiguous()
@@ -167,7 +167,7 @@ static void reload_station_offset(station* st, std::FILE* f) {
         std::fread(&mode, sizeof(int), 1, f);
         std::fread(&isxyz, sizeof(int), 1, f);
         std::fread(&ntspoints, sizeof(int), 1, f);
-        stn_offset_comp comp(mode, isxyz, boost::numeric_cast<size_t>(ntspoints));
+        stn_offset_comp comp(mode, isxyz, boost::numeric_cast<std::size_t>(ntspoints));
         std::fread(&(comp.basepoint), sizeof(stn_tspoint), 1, f);
         if (ntspoints > 0) {
             std::fread(comp.tspoints.data(), sizeof(stn_tspoint), ntspoints, f);

@@ -563,7 +563,7 @@ void blt_chol_inv(bltmatrix* blt) {
          read from the other (aliasing), and would refuse to vectorise the inner
          loop.  Distinct allocations give it that guarantee. */
     const int nrow = blt->nrow;
-    const size_t cachesize = static_cast<size_t>(nrow) * BLT_INV_CACHE_SIZE;
+    const std::size_t cachesize = static_cast<std::size_t>(nrow) * BLT_INV_CACHE_SIZE;
     double* tmpcol = new double[cachesize];
     double* sumcol = new double[cachesize];
     int* dosum = new int[nrow];

@@ -145,7 +145,7 @@ int DATAFILE::skip_to_blank_line() {
 static bool append_line(std::FILE* f, std::string& text) {
     char chunk[256];
     while (std::fgets(chunk, sizeof(chunk), f)) {
-        const size_t len = std::strlen(chunk);
+        const std::size_t len = std::strlen(chunk);
         if (!len) {
             return true;
         }
@@ -171,7 +171,7 @@ int DATAFILE::read_record() {
         _reclineno = 0;
 
         while (continued && !eof) {
-            const size_t lineoffset = _inrec.size();
+            const std::size_t lineoffset = _inrec.size();
             if (!append_line(_f, _inrec)) {
                 eof = true;
             }
@@ -181,7 +181,7 @@ int DATAFILE::read_record() {
             }
             // Remove everything after a comment character
             if (_comment_char) {
-                const size_t end = _inrec.find(_comment_char, lineoffset);
+                const std::size_t end = _inrec.find(_comment_char, lineoffset);
                 if (end != std::string::npos) {
                     _inrec.erase(end);
                 }
@@ -191,7 +191,7 @@ int DATAFILE::read_record() {
                 _inrec.pop_back();
             }
             // Check for line continuation
-            const size_t nch = _inrec.size() - lineoffset;
+            const std::size_t nch = _inrec.size() - lineoffset;
             if (nch >= 2 && _inrec.back() == _continuation_char && isWhitespaceOrCtrlZ(_inrec[_inrec.size() - 2])) {
                 _inrec.pop_back();
             } else {

@@ -304,7 +304,7 @@ int get_station_font_id() {
 }
 
 static void set_station_layer_colourflag(bool on) {
-    for (size_t i = 0; i < station_layers_pens.size(); i++) {
+    for (std::size_t i = 0; i < station_layers_pens.size(); i++) {
         // i+1 to skip the "Station types" header row added at index 0
         station_layers[i + 1].pen_id = on ? station_layers_pens[i] : UNUSED_PEN_ID;
     }
@@ -467,7 +467,7 @@ static layer_list* get_or_build_data_mode_layers(const std::vector<std::string>&
 // setup_classification_pens_layers() and get_classification_filter_layers().
 // Returns false if class_type has no values, leaving header/names untouched.
 static constexpr std::string_view classificationPrefix = "OC_";
-static constexpr size_t CLASSIFICATION_LABEL_SIZE = 64;
+static constexpr std::size_t CLASSIFICATION_LABEL_SIZE = 64;
 
 static bool build_classification_pen_names(const int class_type, std::string& header, std::vector<std::string>& names) {
     const int npens = obs_classes.value_count(class_type);
@@ -927,7 +927,7 @@ int get_symbol_points(int symbol_id, symbolpoint* ptlist, int maxpts) {
 }
 
 void set_pen_colour_range() {
-    size_t colourIdx = 0;
+    std::size_t colourIdx = 0;
     if (!data_user_layers) {
         return;
     }
@@ -1029,14 +1029,14 @@ int read_key_definition(std::string_view def) {
     int on = -1;
     int pen = -1;
 
-    const size_t start = def.find_first_not_of(" \t");
+    const std::size_t start = def.find_first_not_of(" \t");
     if (start == std::string_view::npos) {
         return INVALID_DATA;
     }
     def.remove_prefix(start);
     const char delim = def.front();
     def.remove_prefix(1);
-    const size_t itemEnd = def.find(delim);
+    const std::size_t itemEnd = def.find(delim);
     if (itemEnd == std::string_view::npos) {
         return INVALID_DATA;
     }

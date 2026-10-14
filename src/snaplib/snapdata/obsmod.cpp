@@ -1166,8 +1166,8 @@ void obs_modifications::_prepare_criteria() {
     }
     std::sort(_grouped_criteria_order.begin(), _grouped_criteria_order.end(),
               [this](const int classification1, const int classification2) {
-                  const size_t nbuckets1 = _grouped_criteria.at(classification1).size();
-                  const size_t nbuckets2 = _grouped_criteria.at(classification2).size();
+                  const std::size_t nbuckets1 = _grouped_criteria.at(classification1).size();
+                  const std::size_t nbuckets2 = _grouped_criteria.at(classification2).size();
                   if (nbuckets1 != nbuckets2) {
                       return nbuckets1 > nbuckets2;
                   }
@@ -1351,8 +1351,8 @@ void summarize_obs_modifications(void* pobsmod, std::FILE* lst, const std::strin
         double minerrfct = 0.0;
         double minerrfct2 = 0.0;
         const auto criteria_end = obsmod->criteria.cend();
-        size_t ncriteria = 0;
-        const size_t maxcriteria = obsmod->criteria.size();
+        std::size_t ncriteria = 0;
+        const std::size_t maxcriteria = obsmod->criteria.size();
 
         while (true) {
             auto match = criteria_end;

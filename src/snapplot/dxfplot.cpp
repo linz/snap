@@ -172,7 +172,7 @@ static int dxf_colour_id(unsigned char red, unsigned char green, unsigned char b
     int distance = 256 * 3;
     int colour = 1;
     for (dxfcolour* c = colourtable; c->id > 0; c++) {
-        const int dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
+        const int dist = std::abs(red - c->R) + std::abs(green - c->G) + std::abs(blue - c->B);
         if (dist < distance) {
             colour = c->id;
             distance = dist;

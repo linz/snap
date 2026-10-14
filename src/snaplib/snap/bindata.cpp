@@ -108,7 +108,7 @@ constexpr DiskField SURVDATA_DISK_FIELDS[] = {
     {FieldKind::Int32, offsetof(survdata, nsyserr), 1},  {FieldKind::Int32, offsetof(survdata, options), 1},
     {FieldKind::Int32, offsetof(survdata, nprms), 1},    {FieldKind::Int32, offsetof(survdata, prmid), 1},
 };
-constexpr size_t SURVDATA_DISK_FIELD_COUNT = sizeof(SURVDATA_DISK_FIELDS) / sizeof(SURVDATA_DISK_FIELDS[0]);
+constexpr std::size_t SURVDATA_DISK_FIELD_COUNT = sizeof(SURVDATA_DISK_FIELDS) / sizeof(SURVDATA_DISK_FIELDS[0]);
 
 // Verifies SURVDATA_DISK_FIELDS has no gap relative to survdata's actual memory
 // layout: each field's end, rounded up to the next field's required alignment,
@@ -121,16 +121,16 @@ constexpr size_t SURVDATA_DISK_FIELD_COUNT = sizeof(SURVDATA_DISK_FIELDS) / size
 // the one case where that field's size exactly equals the alignment gap it sits
 // in - a narrower residual risk than not checking at all.
 static constexpr bool survdata_disk_fields_contiguous() {
-    for (size_t i = 0; i + 1 < SURVDATA_DISK_FIELD_COUNT; ++i) {
-        const size_t end = SURVDATA_DISK_FIELDS[i].offset + field_in_memory_size(SURVDATA_DISK_FIELDS[i].kind);
-        const size_t expected_next = round_up(end, field_in_memory_alignment(SURVDATA_DISK_FIELDS[i + 1].kind));
+    for (std::size_t i = 0; i + 1 < SURVDATA_DISK_FIELD_COUNT; ++i) {
+        const std::size_t end = SURVDATA_DISK_FIELDS[i].offset + field_in_memory_size(SURVDATA_DISK_FIELDS[i].kind);
+        const std::size_t expected_next = round_up(end, field_in_memory_alignment(SURVDATA_DISK_FIELDS[i + 1].kind));
         if (expected_next != SURVDATA_DISK_FIELDS[i + 1].offset) {
             return false;
         }
     }
     const DiskField& last = SURVDATA_DISK_FIELDS[SURVDATA_DISK_FIELD_COUNT - 1];
-    const size_t last_end = last.offset + field_in_memory_size(last.kind);
-    const size_t expected_obs = round_up(last_end, alignof(decltype(survdata::obs)));
+    const std::size_t last_end = last.offset + field_in_memory_size(last.kind);
+    const std::size_t expected_obs = round_up(last_end, alignof(decltype(survdata::obs)));
     return expected_obs == offsetof(survdata, obs);
 }
 // Runs entirely at compile time: if this ever fails, the build fails rather than
@@ -143,14 +143,14 @@ static_assert(survdata_disk_fields_contiguous(),
 // Disk footprint of the fixed-width portion: the sum of each field's on-disk
 // width (all int32_t/double here, both fixed across every target), independent
 // of any in-memory padding between them.
-static size_t survdata_disk_fixed_width_size() {
-    size_t total = 0;
+static std::size_t survdata_disk_fixed_width_size() {
+    std::size_t total = 0;
     for (const auto& field : SURVDATA_DISK_FIELDS) {
         total += field_in_memory_size(field.kind);
     }
     return total;
 }
-static const size_t SURVDATA_DISK_FIXED_WIDTH_SIZE = survdata_disk_fixed_width_size();
+static const std::size_t SURVDATA_DISK_FIXED_WIDTH_SIZE = survdata_disk_fixed_width_size();
 
 // Writes the 16 tracked fields in table order through the fixed-width disk-cast
 // templates from binfile.h - the only part of survdata serialized field-by-field;
@@ -207,10 +207,10 @@ int get_bindata(int bintype, bindata& b) {
                                            (b.size - static_cast<std::int64_t>(SURVDATA_DISK_FIXED_WIDTH_SIZE))
                                      : b.size;
 
-    if (b.buffer.size() < boost::numeric_cast<size_t>(reqsize)) {
+    if (b.buffer.size() < boost::numeric_cast<std::size_t>(reqsize)) {
         // The old contents are not needed, so empty the buffer first to avoid copying them
         b.buffer.clear();
-        b.buffer.resize(boost::numeric_cast<size_t>(reqsize));
+        b.buffer.resize(boost::numeric_cast<std::size_t>(reqsize));
     }
 
     if (b.bintype == SURVDATA) {
@@ -263,7 +263,7 @@ void update_bindata(bindata& b) {
     fseek64(bindata_file, loc, SEEK_SET);
 }
 
-bindata::bindata() : buffer(maxsize > 0 ? boost::numeric_cast<size_t>(maxsize) : 0) {}
+bindata::bindata() : buffer(maxsize > 0 ? boost::numeric_cast<std::size_t>(maxsize) : 0) {}
 
 /* Routines for saving the survdata structure.
    All routines save

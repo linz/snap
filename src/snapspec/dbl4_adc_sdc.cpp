@@ -84,8 +84,8 @@ struct SDCTestImp;
 struct SDC_KDTreeAdaptor {
     const SDCTestImp* sdci;
 
-    [[nodiscard]] size_t kdtree_get_point_count() const;
-    [[nodiscard]] double kdtree_get_pt(size_t idx, size_t dim) const;
+    [[nodiscard]] std::size_t kdtree_get_point_count() const;
+    [[nodiscard]] double kdtree_get_pt(std::size_t idx, std::size_t dim) const;
 
     template <class BBOX>
     bool kdtree_get_bbox(BBOX&) const {
@@ -121,8 +121,8 @@ struct SDC_CtlKDTreeAdaptor {
     const SDCTestImp* sdci;
     std::vector<int> ctl_sdc_idx; /* SDC station indices of control marks */
 
-    [[nodiscard]] size_t kdtree_get_point_count() const;
-    [[nodiscard]] double kdtree_get_pt(size_t k, size_t dim) const;
+    [[nodiscard]] std::size_t kdtree_get_point_count() const;
+    [[nodiscard]] double kdtree_get_pt(std::size_t k, std::size_t dim) const;
 
     template <class BBOX>
     bool kdtree_get_bbox(BBOX&) const {
@@ -157,7 +157,7 @@ struct SDCTestImp {
     std::vector<unsigned char*> relstatus; /**< Array of arrays of status (forming lower triangle array) */
     std::vector<int> relcol0;              /**< Array of first used column of status array */
     std::deque<RABlock> relalloc; /**< Relative accuracy array allocations, a deque so rows keep their addresses */
-    size_t curalloc = 0;          /**< Index in relalloc of the allocation being used */
+    std::size_t curalloc = 0;          /**< Index in relalloc of the allocation being used */
     int allocsize;                /**< Size used for each new block allocation */
     std::vector<int> lookup;      /**< Lookup from relative accuracy order to station order */
     float maxctldist2;            /**< The maximum distance to nearest control squared */
@@ -187,20 +187,20 @@ struct SDCTestImp {
 inline SDCTestImp::~SDCTestImp() = default;
 
 /* Adaptor method bodies — defined here where SDCTestImp is complete. */
-inline size_t SDC_KDTreeAdaptor::kdtree_get_point_count() const {
-    return (size_t)sdci->sdc->nmark;
+inline std::size_t SDC_KDTreeAdaptor::kdtree_get_point_count() const {
+    return (std::size_t)sdci->sdc->nmark;
 }
 
-inline double SDC_KDTreeAdaptor::kdtree_get_pt(size_t idx, size_t dim) const {
+inline double SDC_KDTreeAdaptor::kdtree_get_pt(std::size_t idx, std::size_t dim) const {
     const int istn = (int)(sdci->sdc->pfStationId)(sdci->sdc->env, (int)idx);
     return station_ptr(net, istn)->XYZ[dim];
 }
 
-inline size_t SDC_CtlKDTreeAdaptor::kdtree_get_point_count() const {
+inline std::size_t SDC_CtlKDTreeAdaptor::kdtree_get_point_count() const {
     return ctl_sdc_idx.size();
 }
 
-inline double SDC_CtlKDTreeAdaptor::kdtree_get_pt(size_t k, size_t dim) const {
+inline double SDC_CtlKDTreeAdaptor::kdtree_get_pt(std::size_t k, std::size_t dim) const {
     const int istn = (int)(sdci->sdc->pfStationId)(sdci->sdc->env, ctl_sdc_idx[k]);
     return station_ptr(net, istn)->XYZ[dim];
 }
@@ -310,7 +310,7 @@ SDCOrderTest::SDCOrderTest(const IdType order, const std::string_view code) : id
 SDCTest::SDCTest(const int orderCapacity) : maxorder(orderCapacity) {
     // Tests are added one per order command and pointers to them are held
     // while later commands add more, so the vector must never reallocate.
-    tests.reserve(boost::numeric_cast<size_t>(orderCapacity));
+    tests.reserve(boost::numeric_cast<std::size_t>(orderCapacity));
 }
 
 int SDCTest::norder() const {
@@ -657,8 +657,8 @@ static void sdcRAInitAllocRow(SDCTestImp* sdci) {
     if (nrow < 2) {
         return;
     }
-    sdci->relstatus.assign(boost::numeric_cast<size_t>(nrow), nullptr);
-    sdci->relcol0.assign(boost::numeric_cast<size_t>(nrow), 0);
+    sdci->relstatus.assign(boost::numeric_cast<std::size_t>(nrow), nullptr);
+    sdci->relcol0.assign(boost::numeric_cast<std::size_t>(nrow), 0);
     for (RABlock& block : sdci->relalloc) {
         block.alloc = 0;
     }
@@ -688,7 +688,7 @@ static unsigned char* sdcRAAllocRow(SDCTestImp* sdci, int row, int col0) {
 
     /* Use the first block from the current one onwards that has room, else add a new block */
 
-    size_t iblock = sdci->curalloc;
+    std::size_t iblock = sdci->curalloc;
     while (iblock < sdci->relalloc.size() && sdci->relalloc[iblock].alloc + nalloc > sdci->relalloc[iblock].size) {
         iblock++;
     }
@@ -728,7 +728,7 @@ static StatusType sdcLoadSDCStations(SDCTestImp* sdci) {
     int i;
 
     /*> Allocate an array of SDCStation objects */
-    sdci->stns.resize(boost::numeric_cast<size_t>(sdc->nmark));
+    sdci->stns.resize(boost::numeric_cast<std::size_t>(sdc->nmark));
 
     /*> Initialise each with the role, status, and max error ellipse */
     /*> Only calculate the ellipse semi-major if it will be required for
@@ -1180,7 +1180,7 @@ static StatusType sdcCreateRelTest(SDCTestImp* sdci) {
     /*> Allocate the tables for vector information, status information,
         and reverse lookup of row numbers */
 
-    sdci->lookup.assign(boost::numeric_cast<size_t>(nrow), 0);
+    sdci->lookup.assign(boost::numeric_cast<std::size_t>(nrow), 0);
     sdci->nreltest = nrow;
 
     /*> Initialise the reverse lookup from rel test code to station code */

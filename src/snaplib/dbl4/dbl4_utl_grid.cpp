@@ -275,7 +275,7 @@ static StatusType create_grid_def(grid_def_crs** defr, hBinSrc binsrc) {
     }
 
     if (sts == STS_OK) {
-        def->rows.resize(boost::numeric_cast<size_t>(def->ngrdy));
+        def->rows.resize(boost::numeric_cast<std::size_t>(def->ngrdy));
     }
 
     if (sts != STS_OK) {
@@ -311,7 +311,7 @@ static StatusType create_grid_def(grid_def_crs** defr, hBinSrc binsrc) {
     def->global = (def->ncycle == def->ngrdx);
 
     def->maxcache = MAXCACHE;
-    def->cache.resize(boost::numeric_cast<size_t>(def->maxcache) + 1);
+    def->cache.resize(boost::numeric_cast<std::size_t>(def->maxcache) + 1);
     def->ncache = 0;
     def->cache_mru = nullptr;
     def->cache_lru = nullptr;
@@ -344,7 +344,7 @@ static StatusType load_row1(grid_def_crs* def, long fileloc, INT4* data) {
            the largest possible size */
 
     if (def->loadbuffer.empty()) {
-        def->loadbuffer.resize(boost::numeric_cast<size_t>(def->rowsize) * 2);
+        def->loadbuffer.resize(boost::numeric_cast<std::size_t>(def->rowsize) * 2);
     }
     /* Format 1 rows - simply held as an array of shorts */
     sts = utlBinSrcLoad2(def->binsrc, fileloc, def->rowsize, def->loadbuffer.data());
@@ -500,7 +500,7 @@ static StatusType load_row2_dim(grid_def_crs* def, long fileloc, INT4* data) {
            the largest possible size */
 
         if (def->loadbuffer.empty()) {
-            def->loadbuffer.resize(boost::numeric_cast<size_t>(def->ngrdx) * 4);
+            def->loadbuffer.resize(boost::numeric_cast<std::size_t>(def->ngrdx) * 4);
         }
 
         /* Read the values from the file */
@@ -646,7 +646,7 @@ static StatusType get_row(grid_def_crs* def, short lat, INT4** row) {
             int loc;
             loc = ++(def->ncache);
             cr = &def->cache[loc];
-            cr->data.resize(boost::numeric_cast<size_t>(def->rowsize));
+            cr->data.resize(boost::numeric_cast<std::size_t>(def->rowsize));
             cr->next = def->cache_mru;
             cr->prev = nullptr;
             if (cr->next) {

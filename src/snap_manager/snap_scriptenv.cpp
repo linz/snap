@@ -42,7 +42,7 @@ SnapMgrScriptEnv::~SnapMgrScriptEnv() {
     frameWindow->PopEventHandler();
     UnloadJob(false);
     uninstall_crdsys_lists();
-    for (size_t i = 0; i < tmpFiles.Count(); i++) {
+    for (std::size_t i = 0; i < tmpFiles.Count(); i++) {
         ::wxRemoveFile(tmpFiles[i]);
     }
     delete script;
@@ -187,7 +187,7 @@ void SnapMgrScriptEnv::InsertPath(const wxString& path, const wxString& envvar) 
     } else {
         wxArrayString paths = ::wxStringTokenize(envval, envsep);
         envval = pathval;
-        for (size_t i = 0; i < paths.Count(); i++) {
+        for (std::size_t i = 0; i < paths.Count(); i++) {
             if (paths[i] != pathval) {
                 envval.Append(PATHENV_SEP);
                 envval.Append(paths[i]);
@@ -246,7 +246,7 @@ void SnapMgrScriptEnv::ReportError(const wxString& error) {
 }
 
 wxMenuItem* SnapMgrScriptEnv::GetMenuItemByLabel(wxMenu* menu, const wxString& label, bool wantSubMenu) {
-    for (size_t i = 0; i < menu->GetMenuItemCount(); i++) {
+    for (std::size_t i = 0; i < menu->GetMenuItemCount(); i++) {
         wxMenuItem* mi = menu->FindItemByPosition(i);
         if (wantSubMenu && !mi->GetSubMenu()) {
             continue;
@@ -261,8 +261,8 @@ wxMenuItem* SnapMgrScriptEnv::GetMenuItemByLabel(wxMenu* menu, const wxString& l
     return nullptr;
 }
 
-size_t SnapMgrScriptEnv::GetMenuInsertPosition(wxMenu* menu) {
-    size_t insertPos;
+std::size_t SnapMgrScriptEnv::GetMenuInsertPosition(wxMenu* menu) {
+    std::size_t insertPos;
     for (insertPos = 0; insertPos < menu->GetMenuItemCount(); insertPos++) {
         if (menu->FindItemByPosition(insertPos)->GetId() == wxID_SEPARATOR) {
             break;
@@ -540,7 +540,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction(const wxString& functionName, 
         if (multiple) {
             wxArrayString paths;
             dlg.GetPaths(paths);
-            for (size_t i = 0; i < paths.Count(); i++) {
+            for (std::size_t i = 0; i < paths.Count(); i++) {
                 if (i > 0) {
                     result.Append("\n");
                 }
@@ -805,7 +805,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction(const wxString& functionName, 
     frameWindow->SetCursor(wxNullCursor);
     wxString outputString;
     if (result != -1) {
-        size_t i;
+        std::size_t i;
         for (i = 0; i < output.Count(); i++) {
             outputString.Append(output[i]);
             outputString.Append("\n");
@@ -855,8 +855,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction(const wxString& functionName, 
     wxString result;
     wxRegEx re;
     if (re.Compile(STRPRM(1), wxRE_ADVANCED) && re.Matches(STRPRM(0))) {
-        size_t start;
-        size_t len;
+        std::size_t start;
+        std::size_t len;
         int nGroup = 0;
         long nm = 0;
         if (nParams == 3 && STRPRM(2).ToLong(&nm)) {
@@ -880,10 +880,10 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction(const wxString& functionName, 
     }
     wxRegEx re;
     if (re.Compile(STRPRM(1), wxRE_ADVANCED)) {
-        size_t index = 0;
+        std::size_t index = 0;
         while (re.Matches(text.Mid(index))) {
-            const size_t nMatch = re.GetMatchCount();
-            for (size_t nm = 1; nm < nMatch; nm++) {
+            const std::size_t nMatch = re.GetMatchCount();
+            for (std::size_t nm = 1; nm < nMatch; nm++) {
                 if (nm == 1) {
                     result.SetValue(re.GetMatch(text, nm));
                 } else {
@@ -893,8 +893,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction(const wxString& functionName, 
             if (!global) {
                 break;
             }
-            size_t start;
-            size_t len;
+            std::size_t start;
+            std::size_t len;
             re.GetMatch(&start, &len);
             if (start + len <= 0) {
                 break;
@@ -975,8 +975,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction(const wxString& functionName, 
 
     DEFINE_FUNCTION2("SubString", 2, 3)
     const wxString value = STRPRM(0);
-    size_t start = 0;
-    size_t length = wxString::npos;
+    std::size_t start = 0;
+    std::size_t length = wxString::npos;
     long nm;
     if (STRPRM(1).ToLong(&nm)) {
         start = nm;

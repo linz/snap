@@ -8,7 +8,7 @@
 /// A string of at most MaxChars characters.  Constructing or assigning a
 /// longer value truncates it.  The base is private so that the other
 /// std::string members, which could break the limit, are not available.
-template <size_t MaxChars>
+template <std::size_t MaxChars>
 class StringLimited : private std::string {
  public:
     StringLimited() = default;

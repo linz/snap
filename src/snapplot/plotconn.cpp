@@ -157,7 +157,7 @@ struct fconn_ptr {
 class ConnRecord {
  public:
     /// Sets the size of the record in bytes
-    void resize(const size_t size) {
+    void resize(const std::size_t size) {
         _bytes.assign(size, 0);
     }
 
@@ -225,12 +225,12 @@ static double hlt_offset = 0.0; /* Used to show individual connections */
 
 static void init_connection_list(void) {
     const int maxstn = number_of_stations(net) + 1;
-    connlst.assign(boost::numeric_cast<size_t>(maxstn), fconn_ptr());
+    connlst.assign(boost::numeric_cast<std::size_t>(maxstn), fconn_ptr());
 
     nclass = obs_classes.count();
     conn_data_size = sizeof(conn_data) + (nclass - 1) * sizeof(int);
-    connection.resize(boost::numeric_cast<size_t>(conn_data_size));
-    connection2.resize(boost::numeric_cast<size_t>(conn_data_size));
+    connection.resize(boost::numeric_cast<std::size_t>(conn_data_size));
+    connection2.resize(boost::numeric_cast<std::size_t>(conn_data_size));
     conn_pool.clear();
     ndata = 0;
 }
@@ -1077,7 +1077,7 @@ int plot_connections(map_plotter* plotter, int first, int offset_opt, double off
     }
 
     if (pens.empty()) {
-        pens.resize(boost::numeric_cast<size_t>(max_obs));
+        pens.resize(boost::numeric_cast<std::size_t>(max_obs));
     }
 
     if (first < 0) {
@@ -1732,8 +1732,8 @@ static void create_sres_index(void) {
         return;
     }
     srList.resize(ndata);
-    srIndex.assign(boost::numeric_cast<size_t>(ndata), 0);
-    srIndex2.assign(boost::numeric_cast<size_t>(ndata), 0);
+    srIndex.assign(boost::numeric_cast<std::size_t>(ndata), 0);
+    srIndex2.assign(boost::numeric_cast<std::size_t>(ndata), 0);
     srListCount = 0;
     srIndexCount = 0;
     for (from = 1; from <= number_of_stations(net); from++) {
@@ -2033,7 +2033,7 @@ std::string sres_list_header() {
             header += ' ';
         }
         header += data;
-        header.append(numeric_cast<size_t>(datalen) - data.size(), ' ');
+        header.append(numeric_cast<std::size_t>(datalen) - data.size(), ' ');
     }
     return header;
 }

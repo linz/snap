@@ -274,7 +274,7 @@ static void dump_stnadj_text(std::ostream& out) {
 // unconditionally, on every call - that's the entire difference between the
 // binary and text paths through for_each_disk_field.
 template <class T>
-static void dump_disk_fields_text(std::ostream& out, const T& base, const DiskField* table, size_t table_size) {
+static void dump_disk_fields_text(std::ostream& out, const T& base, const DiskField* table, std::size_t table_size) {
     for_each_disk_field(base, table, table_size, [&out](FieldKind kind, auto value) {
         if (kind == FieldKind::Float64) {
             dump_bare_value(out, static_cast<double>(value));
@@ -375,8 +375,8 @@ static void dump_parameters_text(std::ostream& out) {
 }
 
 static void dump_station_covariances_text(std::ostream& out, const StationCovariances& cvr) {
-    for (size_t i = 0; i < cvr.rows.size(); i++) {
-        for (size_t j = 0; j < cvr.rows[i].size(); j++) {
+    for (std::size_t i = 0; i < cvr.rows.size(); i++) {
+        for (std::size_t j = 0; j < cvr.rows[i].size(); j++) {
             dump_value(out, "STATION_COVARIANCES[" + std::to_string(i) + "][" + std::to_string(j) + "]",
                        cvr.rows[i][j]);
         }
@@ -384,11 +384,11 @@ static void dump_station_covariances_text(std::ostream& out, const StationCovari
 }
 
 static void dump_relative_covariances_text(std::ostream& out, const RelativeCovariances& rc) {
-    for (size_t i = 0; i < rc.entries.size(); i++) {
+    for (std::size_t i = 0; i < rc.entries.size(); i++) {
         const std::string p = "STATION_RELATIVE_COVARIANCES[" + std::to_string(i) + "].";
         dump_value(out, p + "from", static_cast<long>(rc.entries[i].from));
         dump_value(out, p + "to", static_cast<long>(rc.entries[i].to));
-        for (size_t j = 0; j < rc.entries[i].cvr.size(); j++) {
+        for (std::size_t j = 0; j < rc.entries[i].cvr.size(); j++) {
             dump_value(out, p + "cvr[" + std::to_string(j) + "]", rc.entries[i].cvr[j]);
         }
     }
@@ -558,7 +558,7 @@ static void dump_observations_text(std::ostream& out, BINARY_FILE* in) {
             const unsigned char* note = bd.buffer.data();
             dump_bare_value(out, static_cast<long long>(note[0]));
             const std::int64_t nch = bd.size - 3;
-            out << std::string(reinterpret_cast<const char*>(note + 1), static_cast<size_t>(nch)) << "\n";
+            out << std::string(reinterpret_cast<const char*>(note + 1), static_cast<std::size_t>(nch)) << "\n";
             continue;
         }
 

@@ -54,7 +54,7 @@ struct TestSurvey {
         sd.nobs = static_cast<int>(values.size());
         odata.resize(values.size());
         clsf.resize(2 * values.size());
-        for (size_t i = 0; i < values.size(); ++i) {
+        for (std::size_t i = 0; i < values.size(); ++i) {
             clsf[2 * i].class_id = equip;
             clsf[2 * i].name_id = classes.value_id(equip, values[i].first, 1);
             clsf[2 * i + 1].class_id = obsr;

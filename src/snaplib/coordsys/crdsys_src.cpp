@@ -272,7 +272,7 @@ int get_notes(int type, std::string_view code, output_string_def* os) {
     int sts = MISSING_DATA;
 
     /* Look for an @ character, defining an deformation model reference epoch */
-    const size_t nch = std::min(code.find('@'), code.size());
+    const std::size_t nch = std::min(code.find('@'), code.size());
     if (nch < code.size() && !parse_crdsys_epoch(code.substr(nch + 1), epoch)) {
         return INVALID_DATA;
     }

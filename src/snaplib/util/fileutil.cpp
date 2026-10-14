@@ -101,9 +101,9 @@ static std::string normalize_path(const std::string& path) {
     const bool absolute = !path.empty() && (path.front() == PATH_SEPARATOR || path.front() == PATH_SEPARATOR2);
 
     std::vector<std::string> segments;
-    size_t pos = 0;
+    std::size_t pos = 0;
     while (pos <= path.size()) {
-        size_t next = pos;
+        std::size_t next = pos;
         while (next < path.size() && path[next] != PATH_SEPARATOR && path[next] != PATH_SEPARATOR2) {
             next++;
         }
@@ -125,7 +125,7 @@ static std::string normalize_path(const std::string& path) {
     if (absolute) {
         result += PATH_SEPARATOR;
     }
-    for (size_t i = 0; i < segments.size(); i++) {
+    for (std::size_t i = 0; i < segments.size(); i++) {
         if (i > 0) {
             result += PATH_SEPARATOR;
         }
@@ -265,7 +265,7 @@ static const std::forward_list<std::string>& config_dirs() {
     if (const char* snapenv = std::getenv(SNAPENV)) {
         std::string_view remaining(snapenv);
         while (!remaining.empty()) {
-            const size_t end = std::min(remaining.find(PATHENV_SEP), remaining.size());
+            const std::size_t end = std::min(remaining.find(PATHENV_SEP), remaining.size());
             const std::string path(remaining.substr(0, end));
             if (!path.empty() && path_exists(path)) {
                 last = config_dir_list->insert_after(last, path);
@@ -388,9 +388,9 @@ file_context* recreate_context(const std::string_view context_def) {
         return context;
     }
     set_file_context(context);
-    size_t start = 0;
+    std::size_t start = 0;
     while (start < context_def.size()) {
-        const size_t end = std::min(context_def.find("//", start), context_def.size());
+        const std::size_t end = std::min(context_def.find("//", start), context_def.size());
         const std::string reldir(context_def.substr(start, end - start));
         const std::string absdir = absolute_filename(reldir, context->dir);
         push_file_context(absdir);

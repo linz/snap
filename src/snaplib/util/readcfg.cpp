@@ -199,11 +199,11 @@ int read_config_file(CFG_FILE* cfg, config_item item[]) {
         /* If blank line or comment then skip */
 
         const std::string_view content(line.content);
-        const size_t opt_start = content.find_first_not_of(FIELD_DELIMS);
+        const std::size_t opt_start = content.find_first_not_of(FIELD_DELIMS);
         if (opt_start == std::string_view::npos) {
             continue;
         }
-        const size_t opt_end = content.find_first_of(FIELD_DELIMS, opt_start);
+        const std::size_t opt_end = content.find_first_of(FIELD_DELIMS, opt_start);
         std::string opt(content.substr(opt_start, opt_end == std::string_view::npos ? opt_end : opt_end - opt_start));
 
         /* Is the record too long?  If so then send error and skip */
@@ -271,7 +271,7 @@ int read_config_file(CFG_FILE* cfg, config_item item[]) {
         std::string val;
         if (opt_end != std::string_view::npos) {
             std::string_view rest = content.substr(opt_end);
-            const size_t val_start = rest.find_first_not_of(FIELD_DELIMS);
+            const std::size_t val_start = rest.find_first_not_of(FIELD_DELIMS);
             if (val_start != std::string_view::npos) {
                 rest.remove_prefix(val_start);
                 val = rest.substr(0, rest.find_last_not_of(" \t") + 1);

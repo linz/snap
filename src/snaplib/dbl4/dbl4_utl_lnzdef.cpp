@@ -510,7 +510,7 @@ static StatusType load_component(int version, hDefSeq seq, hBinSrc binsrc, hDefC
             cmp->timeModel[2].factor = useafter ? cmp->timeModel[2].year - refyear : 0.0;
         } else {
             cmp->factor0 = cmp->beforemode == defEvalFixed ? 1.0 : 0.0;
-            cmp->timeModel.resize(boost::numeric_cast<size_t>(nTimeModel));
+            cmp->timeModel.resize(boost::numeric_cast<std::size_t>(nTimeModel));
             for (i = 0; i < nTimeModel; i++) {
                 TimeModelPoint* tmi = &(cmp->timeModel[i]);
                 tmi->year = refyear;
@@ -539,7 +539,7 @@ static StatusType load_component(int version, hDefSeq seq, hBinSrc binsrc, hDefC
         }
         if (sts == STS_OK && nTimeModel > 0) {
             INT2 i;
-            cmp->timeModel.resize(boost::numeric_cast<size_t>(nTimeModel));
+            cmp->timeModel.resize(boost::numeric_cast<std::size_t>(nTimeModel));
             for (i = 0; i < nTimeModel; i++) {
                 DateTimeType eventDate;
                 TimeModelPoint* tmi = &(cmp->timeModel[i]);

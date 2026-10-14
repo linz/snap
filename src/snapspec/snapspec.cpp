@@ -290,7 +290,7 @@ static int relacc_create_blt_req(stn_relacc_array* ra) {
         int nrow_saved = 0;
         if (ra->blt) {
             nrow_saved = blt_nrows(ra->blt);
-            saved_col.resize(boost::numeric_cast<size_t>(nrow_saved));
+            saved_col.resize(boost::numeric_cast<std::size_t>(nrow_saved));
             for (int i = 0; i < nrow_saved; i++) {
                 saved_col[i] = ra->blt->row[i].col;
             }
@@ -1352,7 +1352,7 @@ static MaxControlOrder get_max_control_order(const SDCTest& hsdc, stn_relacc_arr
        to the SDC test orders */
 
     nnetorder = net->order_count();
-    std::vector<int> order_lookup(boost::numeric_cast<size_t>(nnetorder + 1));
+    std::vector<int> order_lookup(boost::numeric_cast<std::size_t>(nnetorder + 1));
 
     /* Orders will be defined as -2: undefined, -1 less than lowest test, >=0 control order */
     /* Note that network order 0 is the default "undefined" order, ie "-", and so is always
@@ -1990,7 +1990,7 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
                 parts[ifld] = tok ? std::string(*tok) : std::string();
             }
         } else {
-            size_t pos = 0;
+            std::size_t pos = 0;
             while (nfield < 3) {
                 while (pos < line.size() && (line[pos] == ' ' || line[pos] == '\n' || line[pos] == '\t')) {
                     pos++;
@@ -1998,7 +1998,7 @@ static int read_station_config_file(const std::string& filename, stn_relacc_arra
                 if (pos >= line.size()) {
                     break;
                 }
-                const size_t start = pos;
+                const std::size_t start = pos;
                 while (pos < line.size() && line[pos] != ' ' && line[pos] != '\n' && line[pos] != '\t') {
                     pos++;
                 }

@@ -151,7 +151,7 @@ struct survdata {
 // exists elsewhere," letting bindata.cpp's one real array be linked from
 // here.
 extern const DiskField SURVDATA_DISK_FIELDS[];
-extern const size_t SURVDATA_DISK_FIELD_COUNT;
+extern const std::size_t SURVDATA_DISK_FIELD_COUNT;
 
 /* Flag bits set in the unused flag */
 

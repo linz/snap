@@ -572,10 +572,10 @@ static void list_ref_frame_with_pause(void) {
 }
 
 static void list_coordsys_and_exit(const std::vector<std::string>& codes) {
-    size_t ncs = 0;
+    std::size_t ncs = 0;
     if (!codes.empty()) {
         const int maxhrs = vdatum_list_count();
-        for (size_t i = 0; i < codes.size(); i++) {
+        for (std::size_t i = 0; i < codes.size(); i++) {
             int sts;
             if (i && !pause_output()) {
                 break;
@@ -813,7 +813,7 @@ static void process_command_line_options() {
    typed on the line is ignored.  An empty answer is an empty string.  The
    program stops if there is no more input. */
 
-static std::string read_answer(const size_t maxLength) {
+static std::string read_answer(const std::size_t maxLength) {
     std::string answer;
     bool isspace;
     const TokenResult result = keyboard.readToken(DEFAULT_SEPARATOR, false, isspace, answer, maxLength);
@@ -1661,7 +1661,7 @@ static bool find_next_data_line(void) {
 
 static void read_point_id(void) {
     bool isspace;
-    crdin->readToken(separator, false, isspace, id, numeric_cast<size_t>(id_length));
+    crdin->readToken(separator, false, isspace, id, numeric_cast<std::size_t>(id_length));
 }
 
 /*-------------------------------------------------------------------*/

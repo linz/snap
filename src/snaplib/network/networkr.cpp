@@ -31,7 +31,7 @@
 #include "util/pi.h"
 
 /* The longest field read from a station coordinate file - longer fields are cut short */
-static constexpr size_t MAXFIELDLEN = 255;
+static constexpr std::size_t MAXFIELDLEN = 255;
 
 /* Worker function used to delete duplicate stations */
 

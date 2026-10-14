@@ -25,7 +25,7 @@
 
 using boost::numeric_cast;
 
-static constexpr size_t NAMELEN = 20;
+static constexpr std::size_t NAMELEN = 20;
 
 static const struct {
     std::string_view code;

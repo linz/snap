@@ -239,7 +239,7 @@ void add_default_configuration_files(void) {
 int process_configuration_file_list(void) {
     int sts = OK;
 
-    for (size_t i = 0; i < cfg_list.size(); i++) {
+    for (std::size_t i = 0; i < cfg_list.size(); i++) {
         // A copy, as reading a file can add to cfg_list and reallocate it
         // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         const std::string fname = cfg_list[i];
@@ -1023,7 +1023,7 @@ int config_menu_item_count() {
 }
 
 static const config_menu_item* get_config_menu(int i) {
-    if (i < 0 || static_cast<size_t>(i) >= config_menu.size()) {
+    if (i < 0 || static_cast<std::size_t>(i) >= config_menu.size()) {
         return nullptr;
     }
     return &config_menu[i];

@@ -231,7 +231,7 @@ static int load_row1(grid_def* def, long* data) {
 
     /* Format 1 rows - simply held as an array of shorts */
 
-    if (std::fread(data, sizeof(short), def->rowsize, def->bin) != (size_t)def->rowsize) {
+    if (std::fread(data, sizeof(short), def->rowsize, def->bin) != (std::size_t)def->rowsize) {
         return INVALID_DATA;
     }
     sdata = (short*)data;
@@ -380,7 +380,7 @@ static short load_row2_dim(grid_def* def, long* data) {
         /* Read the values from the file */
 
         i = imax + 1 - imin;
-        if (std::fread(def->loadbuffer, bytes, i, def->bin) != (size_t)i) {
+        if (std::fread(def->loadbuffer, bytes, i, def->bin) != (std::size_t)i) {
             return INVALID_DATA;
         }
         if (bytes == 1) {

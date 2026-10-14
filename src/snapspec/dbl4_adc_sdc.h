@@ -24,7 +24,7 @@
 #include "util/stringlimited.hpp"
 
 /// The most characters in an order code
-inline constexpr size_t ORDER_CODE_LEN = 4;
+inline constexpr std::size_t ORDER_CODE_LEN = 4;
 
 using OrderCode = StringLimited<ORDER_CODE_LEN>;
 

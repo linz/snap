@@ -27,7 +27,7 @@ wxOptionValidatorBase::wxOptionValidatorBase(const wxOptionValidatorBase& valida
 bool wxOptionValidatorBase::TransferToWindow() {
     const int optVal = _value ? *_value : _optValues[0];
     SetSelectedIndex(0);
-    for (size_t i = 0; i < _optValues.size(); i++) {
+    for (std::size_t i = 0; i < _optValues.size(); i++) {
         if (_optValues[i] == optVal) {
             SetSelectedIndex(boost::numeric_cast<int>(i));
             break;
@@ -457,7 +457,7 @@ void wxSimpleDialog::AddSizer(wxSizer* subSizer, const wxSizerFlags& flags) {
 
 wxWindow* wxSimpleDialog::ResetTabOrder(wxSizer* sizer, wxWindow* last) {
     const wxSizerItemList& children = sizer->GetChildren();
-    for (size_t i = 0; i < children.GetCount(); i++) {
+    for (std::size_t i = 0; i < children.GetCount(); i++) {
         wxSizerItem* item = children.Item(i)->GetData();
         if (item->IsWindow()) {
             wxWindow* window = item->GetWindow();
@@ -481,7 +481,7 @@ void wxSimpleDialog::AddButtonsAndSize() {
         // See if we have a help button
 
         const wxSizerItemList& buttons = buttonSizer->GetChildren();
-        for (size_t i = 0; i < buttons.GetCount(); i++) {
+        for (std::size_t i = 0; i < buttons.GetCount(); i++) {
             wxWindow* window = buttons.Item(i)->GetData()->GetWindow();
             if (window && window->GetId() == wxID_HELP) {
                 helpButton = window;

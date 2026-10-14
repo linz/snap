@@ -245,7 +245,7 @@ void SnapMgrFrame::OnJobUpdated(wxCommandEvent& event) {
                 wxLogMessage("Job title:    %s", job->Title());
                 wxLogMessage("Coordinate file: %s", job->CoordinateFilename());
             } else {
-                for (size_t i = 0; i < job->Errors().Count(); i++) {
+                for (std::size_t i = 0; i < job->Errors().Count(); i++) {
                     wxLogMessage("%s\n", job->Errors()[i]);
                 }
             }

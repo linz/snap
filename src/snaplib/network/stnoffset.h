@@ -27,7 +27,7 @@ struct stn_offset_comp {
     std::vector<stn_tspoint> tspoints;  ///< The points of a time series, in date order
 
     /// Creates a component with room for the given number of time series points
-    stn_offset_comp(const int tsmode, const int tsxyz, const size_t npoints)
+    stn_offset_comp(const int tsmode, const int tsxyz, const std::size_t npoints)
         : mode(tsmode), isxyz(tsxyz), tspoints(npoints) {}
 };
 

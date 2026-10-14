@@ -168,7 +168,7 @@ class rfTransformation : public RfTransformationData {
 // its own translation unit - this declares "a definition exists
 // elsewhere," letting rftrndmp.cpp's one real array be linked from here.
 extern const DiskField RFTRANS_DISK_FIELDS[];
-extern const size_t RFTRANS_DISK_FIELD_COUNT;
+extern const std::size_t RFTRANS_DISK_FIELD_COUNT;
 
 #define REFFRAMELEN 20
 

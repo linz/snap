@@ -122,7 +122,7 @@ static void make_crdsys_lists(void) {
 
 static const crdsys_list_item* crdsys_item_at(const crdsys_list& cl, int item) {
     make_crdsys_lists();
-    if (item < 0 || numeric_cast<size_t>(item) >= cl.size()) {
+    if (item < 0 || numeric_cast<std::size_t>(item) >= cl.size()) {
         return nullptr;
     }
     return &cl[item];

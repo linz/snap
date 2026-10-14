@@ -164,7 +164,7 @@ wxString SnapJob::DataFiles() {
 
 wxString SnapJob::LoadErrors() {
     wxString errorString;
-    for (size_t i = 0; i < errors.Count(); i++) {
+    for (std::size_t i = 0; i < errors.Count(); i++) {
         if (i > 0) {
             errorString.Append("\n");
         }
@@ -193,7 +193,7 @@ bool SnapJob::Load() {
 }
 
 bool SnapJob::LoadCommands(SnapJobFile* sourceFile, wxArrayString& errors) {
-    const size_t errcount = errors.GetCount();
+    const std::size_t errcount = errors.GetCount();
     wxTextFile cmds;
     const wxString cmdfile = sourceFile->GetFullFilename();
     bool OpenOk;
@@ -203,7 +203,7 @@ bool SnapJob::LoadCommands(SnapJobFile* sourceFile, wxArrayString& errors) {
     }
     if (OpenOk) {
         wxStringTokenizer tok;
-        for (size_t i = 0; i < cmds.GetLineCount(); i++) {
+        for (std::size_t i = 0; i < cmds.GetLineCount(); i++) {
             tok.SetString(cmds.GetLine(i));
             if (tok.HasMoreTokens()) {
                 const wxString cmd = tok.GetNextToken();

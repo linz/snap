@@ -139,7 +139,7 @@ void ScriptDialog::AddControls() {
                     if (!info.IsEmpty()) {
                         const wxString numbers("0123456789");
                         wxString delim('~');
-                        for (size_t i = 0; i < info.Len(); i++) {
+                        for (std::size_t i = 0; i < info.Len(); i++) {
                             if (!numbers.Contains(info[i])) {
                                 delim = info.Mid(i, 1);
                                 break;

@@ -180,7 +180,7 @@ void save_residual(int from, int to, int id, int type, int file, int line, char 
 
     /* Insert after any residuals at least as large, then drop the smallest if over the limit */
 
-    const size_t limit = boost::numeric_cast<size_t>(maxworst);
+    const std::size_t limit = boost::numeric_cast<std::size_t>(maxworst);
     std::vector<residual>& worst = worstlst[used][rank];
     if (worst.empty()) {
         worst.reserve(limit + 1);
@@ -209,7 +209,7 @@ void save_residual(int from, int to, int id, int type, int file, int line, char 
 
 void print_worst_residuals(std::FILE* out) {
     double prob[2][MAXRANK];
-    size_t index[2][MAXRANK];
+    std::size_t index[2][MAXRANK];
     const residual* ws;
     double maxprob;
     int i;

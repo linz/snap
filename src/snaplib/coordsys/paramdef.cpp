@@ -100,14 +100,14 @@ int read_param_list(input_string_def& is, param_def* prms, int nprm, void* base)
 
 void print_param_list(output_string_def* os, param_def* prms, int nprm, void* base, const std::string_view prefix) {
     int iprm;
-    size_t maxlen = 0;
+    std::size_t maxlen = 0;
     for (iprm = 0; iprm < nprm; iprm++) {
         if (!prms[iprm].print) {
             continue;
         }
         maxlen = std::max(maxlen, prms[iprm].name.size());
     }
-    maxlen = std::min(maxlen, static_cast<size_t>(80));
+    maxlen = std::min(maxlen, static_cast<std::size_t>(80));
     for (iprm = 0; iprm < nprm; iprm++) {
         param_def* pd = prms + iprm;
         if (!pd->print) {

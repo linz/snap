@@ -51,7 +51,7 @@ static constexpr std::string_view null_bpname = "null";
 static int use_datum_trans = 1;
 
 static int find_bproj(std::string_view name) {
-    for (size_t nbp = 0; nbp < bplist.size(); nbp++) {
+    for (std::size_t nbp = 0; nbp < bplist.size(); nbp++) {
         if (compare_ignoring_case(bplist[nbp]->name, name) == 0) {
             return numeric_cast<int>(nbp + 1);
         }

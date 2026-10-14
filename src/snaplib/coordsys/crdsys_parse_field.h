@@ -31,7 +31,7 @@ inline int field_status(FieldResult result)  ///< the outcome of the read
 inline int read_crdsys_string(FieldScanner& scanner,       ///< the scanner to read from
                               int status,                  ///< the status so far, which is returned unchanged if not OK
                               std::string& value,          ///< set to the field if it is read
-                              size_t maxlength,            ///< the most characters to keep
+                              std::size_t maxlength,            ///< the most characters to keep
                               std::string_view fieldname,  ///< the name to report if the read fails
                               std::string_view& bad)       ///< set to fieldname if a read is attempted
 {
@@ -48,7 +48,7 @@ inline int read_crdsys_string(FieldScanner& scanner,       ///< the scanner to r
 inline int read_crdsys_string(FieldScanner& scanner,  ///< the scanner to read from
                               int status,             ///< the status so far, which is returned unchanged if not OK
                               std::string& value,     ///< set to the field if it is read
-                              size_t maxlength)       ///< the most characters to keep
+                              std::size_t maxlength)       ///< the most characters to keep
 {
     std::string_view bad;
     return read_crdsys_string(scanner, status, value, maxlength, std::string_view(), bad);

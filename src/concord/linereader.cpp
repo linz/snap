@@ -63,7 +63,7 @@ void LineReader::rewindToRecord() {
 }
 
 TokenResult LineReader::readToken(const char separator, bool usespace, bool& isspace, std::string& token,
-                                  const size_t maxLength) {
+                                  const std::size_t maxLength) {
     token.clear();
     isspace = false;
     _loadLine();
@@ -93,7 +93,7 @@ TokenResult LineReader::readToken(const char separator, bool usespace, bool& iss
         return endsWithNewline() ? TokenResult::EndOfLine : TokenResult::EndOfInput;
     }
 
-    const size_t stored = std::min(field->size(), maxLength);
+    const std::size_t stored = std::min(field->size(), maxLength);
     token.assign(field->substr(0, stored));
     while (!token.empty() && is_blank(token.back())) {
         token.pop_back();

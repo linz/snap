@@ -41,7 +41,7 @@
 
 static void print_help(void);
 
-inline constexpr size_t MAXFILES = 20;
+inline constexpr std::size_t MAXFILES = 20;
 
 int snapplot_load(int argc, char* argv[]) {
     int sts;
@@ -51,7 +51,7 @@ int snapplot_load(int argc, char* argv[]) {
     std::vector<std::string> cfgfile;
     std::optional<std::string> projection;
     coordsys* projcs = nullptr;
-    size_t nbkgfiles = 0;
+    std::size_t nbkgfiles = 0;
     int syntax_error = 0;
     int narg;
     int use_command_file = 1;

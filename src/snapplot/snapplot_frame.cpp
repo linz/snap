@@ -407,7 +407,7 @@ void SnapplotFrame::CreateMenu() {
             wxButton* allButton = new wxButton(popup, wxID_ANY, "All");
             wxButton* noneButton = new wxButton(popup, wxID_ANY, "None");
             allButton->Bind(wxEVT_BUTTON, [this, checkboxes, dimensions](wxCommandEvent&) {
-                for (size_t i = 0; i < checkboxes.size(); i++) {
+                for (std::size_t i = 0; i < checkboxes.size(); i++) {
                     checkboxes[i]->SetValue(true);
                     set_displayby_enabled(dimensions[i].id, true);
                 }
@@ -415,7 +415,7 @@ void SnapplotFrame::CreateMenu() {
                 SetupSymbology();
             });
             noneButton->Bind(wxEVT_BUTTON, [this, checkboxes, dimensions](wxCommandEvent&) {
-                for (size_t i = 0; i < checkboxes.size(); i++) {
+                for (std::size_t i = 0; i < checkboxes.size(); i++) {
                     checkboxes[i]->SetValue(false);
                     set_displayby_enabled(dimensions[i].id, false);
                 }

@@ -43,7 +43,7 @@ struct param {
 // definition exists elsewhere," letting genparam.cpp's one real array be
 // linked from here.
 extern const DiskField PARAM_DISK_FIELDS[];
-extern const size_t PARAM_DISK_FIELD_COUNT;
+extern const std::size_t PARAM_DISK_FIELD_COUNT;
 
 #define PRM_ADJUST 0x01 /* Flags that parameter is to be adjusted */
 #define PRM_USED 0x02   /* Flags that data have been used... */

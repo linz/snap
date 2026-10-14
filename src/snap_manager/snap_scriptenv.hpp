@@ -48,7 +48,7 @@ class SnapMgrScriptEnv : public wxEvtHandler, public Scripter::EnvBase {
     // GetMenuItem - creates parents if parent is not null
     wxMenuItem* GetMenuItem(const wxString& name, wxMenu** parent = nullptr, bool createParents = false);
     wxMenuItem* GetMenuItemByLabel(wxMenu* menu, const wxString& label, bool wantSubMenu);
-    size_t GetMenuInsertPosition(wxMenu* menu);
+    std::size_t GetMenuInsertPosition(wxMenu* menu);
 
     wxFrame* frameWindow;
     Scripter::Script* script;

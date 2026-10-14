@@ -88,7 +88,7 @@ StatusType utlReadBlobDB(void* blob, long lngOffset, long lngBufSize, void* pvBu
 }
 
 StatusType utlWriteBlobDB(void* blob, long lngBufSize, void* pvBuffer) {
-    if (!std::fwrite(pvBuffer, (size_t)lngBufSize, 1, (std::FILE*)blob))
+    if (!std::fwrite(pvBuffer, (std::size_t)lngBufSize, 1, (std::FILE*)blob))
         RETURN_STATUS(STS_INVALID_DATA);
     return STS_OK;
 }

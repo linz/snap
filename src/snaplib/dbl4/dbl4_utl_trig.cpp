@@ -623,11 +623,11 @@ static short create_trig_def(hTrigDef* ptrig, hBinSrc binsrc) {
         the object */
 
     if (sts == STS_OK) {
-        const size_t npts = boost::numeric_cast<size_t>(trig->npts);
+        const std::size_t npts = boost::numeric_cast<std::size_t>(trig->npts);
         trig->ptxy.resize(2 * npts);
-        trig->ptdata.resize(boost::numeric_cast<size_t>(trig->ndim) * npts);
+        trig->ptdata.resize(boost::numeric_cast<std::size_t>(trig->ndim) * npts);
         trig->pttopoidx.resize(npts);
-        trig->topodata.resize(boost::numeric_cast<size_t>(trig->narray));
+        trig->topodata.resize(boost::numeric_cast<std::size_t>(trig->narray));
     }
 
     if (sts == STS_OK) {
