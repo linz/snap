@@ -89,7 +89,6 @@ class NamedValue : public CalcValue {
     const BindSource* _binder;
 };
 
-
 class LookupMapImp : public map<const string, const string> {
     friend class LookupMap;
 
