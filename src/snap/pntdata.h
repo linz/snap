@@ -16,6 +16,10 @@
 #ifndef _PNTDATA_H
 #define _PNTDATA_H
 
+#include <cstdio>
+
+struct lsdata;
+struct survdata;
 #ifndef _LOADDATA_H
 #include "snapdata/loaddata.h"
 #endif

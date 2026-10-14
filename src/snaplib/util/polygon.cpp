@@ -1,10 +1,6 @@
 
-#include <iostream>
-#include <iomanip>
 #include <fstream>
 #include <vector>
-#include <cstring>
-
 #include "util/polygon.h"
 
 using namespace std;

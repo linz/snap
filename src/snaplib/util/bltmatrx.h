@@ -22,6 +22,8 @@
 #ifndef _BLTMATRIX_H
 #define _BLTMATRIX_H
 
+#include <cstdio>
+#include <optional>
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h" /* For definition of ltmat */
 #endif
@@ -43,6 +45,7 @@ struct bltmatrix {
 
 #ifdef CHECKBLT
 #include "util/errdef.h"
+
 #define BLT(b, i, j)                                                                                               \
     (*(((i) > (j))                                                                                                 \
            ? b->row[(i)].address + ((j) < b->row[i].col ? handle_error(FATAL_ERROR, "Bandwidth error", NO_MESSAGE) \

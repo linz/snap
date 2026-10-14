@@ -6,7 +6,7 @@
 //
 
 #include <boost/numeric/conversion/cast.hpp>
-
+#include <cstddef>
 #include "wx_includes.hpp"
 #include "wxtabbedtextgrid.hpp"
 

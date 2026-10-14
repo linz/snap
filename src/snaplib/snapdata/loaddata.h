@@ -12,6 +12,10 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include "snapdata/datatype.h"
+#include "symmatrx.h"
+
+struct survdata;
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"

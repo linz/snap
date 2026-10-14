@@ -15,6 +15,10 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <cstddef>
+
+struct BINARY_FILE;
+struct DiskField;
 
 // hash..identical (everything but `name`) are dumped to the .bin file via a
 // fixed-width table, PARAM_DISK_FIELDS in genparam.cpp - adding, removing, or

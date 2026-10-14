@@ -15,6 +15,10 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include "snapdata/survdata.h"
+#include "snapplot/infowin.h"
+
+struct map_plotter;
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"

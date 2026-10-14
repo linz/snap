@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "geodetic.h"
 /*
    $Log: netcalcs.c,v $
    Revision 1.2  2001/11/22 00:31:36  ccrook
@@ -9,9 +11,7 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
-
 #include "network/network.h"
 
 /*

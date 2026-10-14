@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "classify.h"
 /*
    $Log: network.c,v $
    Revision 1.2  1998/05/21 04:00:26  ccrook
@@ -10,12 +11,9 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
-#include <utility>
-
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <cstdio>
+#include <utility>
 #include "network/network.h"
 
 /*=============================================================*/

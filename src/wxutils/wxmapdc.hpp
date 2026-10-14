@@ -6,6 +6,8 @@
 #include "wx_includes.hpp"
 #include "wxmapscale.hpp"
 
+class MapPoint;
+
 //---------------------------------------------------------------------------
 //  MapCanvas: Simple combination of a scale with a canvas to facilitate
 // plotting of objects on the canvas using real world coordinates

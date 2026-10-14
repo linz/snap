@@ -9,11 +9,9 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
 
 #define _PLOTSCAL_C
-#include "plotpens.h"
 #include "plotconn.h"
 #include "plotscal.h"
 #include "plotstns.h"

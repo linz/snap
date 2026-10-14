@@ -36,24 +36,20 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
-#include <cstdlib>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <utility>
 #include "dbl4_utl_lnzdef.h"
 #include "dbl4_utl_trig.h"
 #include "dbl4_utl_grid.h"
 #include "dbl4_utl_date.h"
-
 #include "dbl4_utl_error.h"
 #include "util/stringlimited.hpp"
+#include "dbl4_utl_trace.h"
 
 /* Note: code below assumes headers are all the same length */
 

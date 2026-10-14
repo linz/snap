@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <cstddef>
 
 /// Which characters may immediately follow a quoted value's closing quote
 /// for FieldScanner::quotedValue() to accept it - see quotedValue() itself.

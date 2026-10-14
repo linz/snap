@@ -2,6 +2,10 @@
 #define _PLOTSTNS_H
 
 #include <string>
+#include "binfile.h"
+#include "coordsys/coordsys.h"
+
+struct map_plotter;
 
 /*
    $Log: plotstns.h,v $

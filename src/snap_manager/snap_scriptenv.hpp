@@ -1,9 +1,11 @@
 #ifndef SNAP_SCRIPTENV_HPP
 #define SNAP_SCRIPTENV_HPP
+#include <cstddef>
 #include "wx_includes.hpp"
-
 #include "script.hpp"
 #include "snapjob.hpp"
+
+class SnapJob;
 
 using namespace Scripter;
 

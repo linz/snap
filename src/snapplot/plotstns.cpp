@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "errdef.h"
+#include "network/network.h"
+#include "snapplot/infowin.h"
 /*
    $Log: plotstns.c,v $
    Revision 1.2  1996/07/12 20:33:24  CHRIS
@@ -10,7 +13,6 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
@@ -20,12 +22,9 @@
 #include <string_view>
 #include <variant>
 #include <vector>
-
-#include "util/geodetic.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/textformat.hpp"
-
 #include "util/binfile.h"
 #include "snap/stnadj.h"
 #include "snap/snapglob.h" /* For dimension, coord_precision */

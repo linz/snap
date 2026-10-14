@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /*
    $Log: networkw.c,v $
    Revision 1.1  1995/12/22 17:38:10  CHRIS
@@ -6,15 +7,12 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <string>
-
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <cstdio>
+#include <string>
+#include <optional>
+#include <string_view>
 #include "network/network.h"
-#include "util/datafile.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/errdef.h"

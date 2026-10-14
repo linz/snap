@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "network/network.h"
+#include "snap/survfile.h"
 /*
 
 These routines apply the following modifications to data as it is loaded
@@ -52,17 +54,16 @@ into SNAP
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
 #include <forward_list>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <boost/numeric/conversion/cast.hpp>
+#include <cstdint>
+
 using boost::numeric_cast;
 
-#include "adjparam.h"
 #include "coefs.h"
 #include "loadsnap.h"
 #include "notedata.h"
@@ -82,15 +83,11 @@ using boost::numeric_cast;
 #include "snap/stnadj.h"
 #include "snap/survfilr.h"
 #include "snapdata/datatype.h"
-#include "snapdata/gpscvr.h"
 #include "snapdata/loaddata.h"
 #include "snapdata/survdata.h"
-#include "snapdata/survdata.h"
-#include "util/classify.h"
 #include "util/classify.h"
 #include "util/dateutil.h"
 #include "util/errdef.h"
-#include "util/symmatrx.h"
 
 /*********************************************************************/
 /* Code to manage a list of missing stations...                      */

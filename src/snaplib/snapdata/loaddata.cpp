@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snapdata/obsmod.h"
 /* loaddata.h: Routines to load observations into the structures defined
    in loaddata.h.
 
@@ -16,8 +17,7 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <cmath>
 #include <algorithm>
@@ -25,7 +25,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
+
 using boost::numeric_cast;
 
 #include "util/symmatrx.h"
@@ -34,7 +34,6 @@ using boost::numeric_cast;
 #include "snapdata/survdata.h"
 #include "util/errdef.h"
 #include "util/dateutil.h"
-#include "util/dstring.h"
 
 #define INC_SIZE 5 /* Increment for data blocks */
 

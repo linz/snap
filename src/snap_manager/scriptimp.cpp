@@ -1,9 +1,11 @@
-#include "snapconfig.h"
 #include <cstdio>
 #include <cstdarg>
 #include <fstream>
+#include "snapconfig.h"
 #include "util/snapctype.h"
 #include "scriptimp.hpp"
+#include "snap_manager/script.hpp"
+#include "wx_includes.hpp"
 
 using namespace Scripter;
 using namespace std;

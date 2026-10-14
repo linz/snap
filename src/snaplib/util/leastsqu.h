@@ -1,6 +1,10 @@
 #ifndef _LEASTSQU_H
 #define _LEASTSQU_H
 
+#include <cstdio>
+#include "symmatrx.h"
+
+struct bltmatrix;
 /*
    $Log: leastsqu.h,v $
    Revision 1.3  1998/06/15 02:26:46  ccrook

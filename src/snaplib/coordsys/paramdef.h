@@ -13,8 +13,11 @@
 #endif
 
 #include <string_view>
-
 #include <cstddef>
+
+class FieldScanner;
+struct input_string_def;
+struct output_string_def;
 
 /* Definition of parameters of an object.  Used to create lists of parameters which
    can be used for input or output of a system definition */

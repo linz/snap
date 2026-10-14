@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "network/network.h"
 /*
    $Log: plotconn.c,v $
    Revision 1.6  2001/07/26 00:46:36  ccrook
@@ -25,6 +26,10 @@
 
 */
 
+#include <boost/algorithm/string.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -36,8 +41,9 @@
 #include <string>
 #include <variant>
 #include <vector>
-#include <boost/algorithm/string.hpp>
-#include <boost/numeric/conversion/cast.hpp>
+#include <charconv>
+#include <utility>
+
 using boost::numeric_cast;
 #include "util/snapctype.h"
 #include "util/fieldscanner.hpp"
@@ -45,6 +51,7 @@ using boost::numeric_cast;
 
 #ifdef _WIN32
 #include <crtdbg.h>
+
 #define assert _ASSERTE
 #else
 #include <cassert>

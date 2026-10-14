@@ -1,4 +1,9 @@
 #include "snapconfig.h"
+#include "binfile.h"
+#include "classify.h"
+#include "network/network.h"
+#include "snapdata/datatype.h"
+#include "symmatrx.h"
 
 /*
    $Log: bindata.c,v $
@@ -7,11 +12,10 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cmath>
 #include <boost/numeric/conversion/cast.hpp>
+#include <stddef.h>
+#include <cstdio>
+#include <cstring>
 
 #define BINDATA_C
 #include "snapdata/survdata.h"
@@ -26,6 +30,7 @@
 #include "util/errdef.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
+
 #undef BINDATA_C
 
 static std::int64_t start_loc;

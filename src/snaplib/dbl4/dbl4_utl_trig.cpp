@@ -39,20 +39,14 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
-#include <cstdio>
-#include <cstdlib>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <cmath>
 #include <string>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "dbl4_utl_trig.h"
-
 #include "dbl4_utl_error.h"
+#include "dbl4_utl_trace.h"
 
 /* Maximum number of rows stored in triangle block cache */
 

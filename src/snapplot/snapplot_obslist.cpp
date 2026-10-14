@@ -1,9 +1,10 @@
 #include "snapconfig.h"
 #include "snapplot_obslist.hpp"
 #include "snapplot_event.hpp"
-
 //extern "C" {
 #include "plotconn.h"
+#include "snapplot/infowin.h"
+#include "snapplot/snapplot_eventids.hpp"
 //}
 
 SnapplotObsSource::SnapplotObsSource() = default;

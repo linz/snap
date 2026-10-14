@@ -10,6 +10,7 @@
 
 #include <optional>
 #include <string_view>
+#include <cstdio>
 
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"

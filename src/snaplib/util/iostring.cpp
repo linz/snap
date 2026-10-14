@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "fieldscanner.hpp"
 /* Routines used with input_string_def objects */
 
 /* iostring.c:  Code for parsing character strings to extract quoted strings,
@@ -14,12 +15,11 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
 #include <boost/algorithm/string/predicate.hpp>
+#include <cstdio>
+#include <optional>
+#include <vector>
 #include "util/snapctype.h"
-
-#include "util/pi.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
 

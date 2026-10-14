@@ -1,7 +1,7 @@
-#include "snapconfig.h"
-
 #include <cstdio>
-
+#include <optional>
+#include <string>
+#include "snapconfig.h"
 #include "coordsys/coordsys.h"
 #include "geoid/geoid.h"
 #include "network/network.h"

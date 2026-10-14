@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "network/network.h"
+#include "snapdata/obsmod.h"
 /*
    $Log: plotcmd.c,v $
    Revision 1.4  1998/06/15 02:17:21  ccrook
@@ -15,38 +18,29 @@
 
 */
 
-#include <cstdio>
-
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <cstdio>
+#include <cctype>
+#include <optional>
+#include <filesystem>
+#include <fstream>
+#include <limits>
+#include <string>
+#include <string_view>
+#include <vector>
 #include "util/errdef.h"
-
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
 #include "util/readcfg.h"
 #include "snap/cfgprocs.h"
 #include "plotconn.h"
-#include "loadplot.h"
 #include "backgrnd.h"
 #include "plotstns.h"
 #include "plotscal.h"
 #include "plotpens.h"
-#include "plotconn.h"
 #include "plotcmd.h"
 #include "util/fileutil.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
-
-#include <cctype>
-#include <optional>
-#include <cstdio>
-#include <filesystem>
-#include <fstream>
-#include <limits>
-#include <string>
-#include <cstring>
-#include <string_view>
-#include <vector>
 
 #define COMMENT_CHAR '!'
 

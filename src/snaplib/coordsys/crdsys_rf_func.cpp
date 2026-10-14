@@ -13,10 +13,8 @@
 
 */
 
-#include <cstdio>
 #include "coordsys/coordsys.h"
 #include "util/errdef.h"
-#include "util/pi.h"
 
 /* Routines to convert to and from the standard reference frame used to
    define reference frame position, orientation, and scale */

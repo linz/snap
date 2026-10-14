@@ -10,9 +10,7 @@
 */
 
 #include <cmath>
-
 #include "coordsys/gnproj.h"
-#include "coordsys/isometrc.h"
 #include "util/pi.h"
 
 // #pragma warning (disable : 4100)

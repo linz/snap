@@ -1,4 +1,10 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "iostring.h"
+#include "network/network.h"
+#include "snapdata/datatype.h"
+#include "symmatrx.h"
+#include "writecsv.h"
 /*
    $Log: stnobseq.c,v $
    Revision 1.6  2005/08/02 00:37:39  ccrook
@@ -24,14 +30,15 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <array>
 #include <iterator>
 #include <sstream>
 #include <string>
 #include <string_view>
-
+#include <forward_list>
+#include <memory>
+#include <optional>
 #include "stnobseq.h"
 #include "adjparam.h"
 #include "autofix.h"
@@ -43,7 +50,6 @@
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "snapdata/stnrecode.h"
-#include "snapdata/survdata.h" /* For UNDEFINED_DATE */
 #include "util/binfile.h"
 #include "util/dateutil.h"
 #include "util/dms.h"

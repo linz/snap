@@ -1,6 +1,7 @@
 #ifndef _GPSCVR_H
 #define _GPSCVR_H
 
+struct survdata;
 /*
    $Log: gpscvr.h,v $
    Revision 1.1  1995/12/22 18:46:18  CHRIS

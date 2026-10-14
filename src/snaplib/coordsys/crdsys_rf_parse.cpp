@@ -1,4 +1,9 @@
+#include <optional>
+#include <string>
+#include <string_view>
 #include "snapconfig.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
 
 /*
    $Log: crdsysr3.c,v $
@@ -17,9 +22,6 @@
    Initial revision
 
 */
-
-#include <cstdio>
-#include <cstring>
 
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"

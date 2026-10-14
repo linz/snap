@@ -27,18 +27,13 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
-#include <cstdlib>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <string>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "dbl4_utl_grid.h"
-
 #include "dbl4_utl_error.h"
+#include "dbl4_utl_trace.h"
 
 /* Note: code below assumes headers are all the same length */
 
@@ -56,7 +51,6 @@
 
 #define MAGIC_NUMBER 0xA1387B59
 
-struct file_row;
 struct cache_row;
 
 struct file_row {

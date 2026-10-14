@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "errdef.h"
 /* Routines to read a configuration file */
 /* The syntax of the file is assumed to be of the form
 
@@ -49,16 +50,16 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
 #include <cstring>
-#include <boost/algorithm/string/predicate.hpp>
 #include <charconv>
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include "util/snapctype.h"
-
 #include "util/readcfg.h"
 #include "util/readcfg_internal.h"
 #include "util/fileutil.h"

@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
 /*
    $Log: networkr.c,v $
    Revision 1.2  1998/05/21 04:00:27  ccrook
@@ -13,20 +16,16 @@
 
 */
 
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-
+#include <optional>
 #include "network/network.h"
 #include "util/datafile.h"
-#include "util/filelist.h"
-#include "util/dms.h"
 #include "util/errdef.h"
 #include "util/pi.h"
 

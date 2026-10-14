@@ -1,6 +1,9 @@
 #ifndef PLOTBIN_H
 #define PLOTBIN_H
 
+#include <cstdint>
+
+struct survdata;
 /*
    $Log: plotbin.h,v $
    Revision 1.3  1997/04/28 10:59:57  CHRIS

@@ -1,9 +1,11 @@
 
+#include <cstddef>
+#include <ostream>
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "wxsimpledialog.hpp"
-
 #include "scriptimp.hpp"
+#include "snap_manager/script.hpp"
 
 using namespace Scripter;
 

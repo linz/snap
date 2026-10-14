@@ -1,6 +1,9 @@
 #ifndef _CRDSYSR5_H
 #define _CRDSYSR5_H
 
+#include <string>
+
+struct ref_frame_func;
 /* crdsysr5.c:  Grid reference frame function header
 */
 

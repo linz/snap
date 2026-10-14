@@ -9,6 +9,10 @@
 */
 
 #include <cstdint>
+#include <cstddef>
+#include "snapdata/datatype.h"
+
+struct DiskField;
 
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"

@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "snap/filenames.h"
+#include "snapdata/datatype.h"
 
 /*
    $Log: snaplist.c,v $
@@ -23,26 +25,22 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
 #include <cmath>
 #include <algorithm>
-#include <array>
-#include <charconv>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <variant>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
+#include <iterator>
+#include <utility>
 #include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
-
 #include "util/errdef.h"
 #include "util/fileutil.h"
-
 #include "util/binfile.h"
 #include "snapdata/survdata.h"
 #include "snap/bindata.h"
@@ -56,11 +54,9 @@
 #include "network/network.h"
 #include "coordsys/coordsys.h"
 #include "util/readcfg.h"
-#include "util/dstring.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/textformat.hpp"
-#include "util/getversion.h"
 
 using boost::numeric_cast;
 

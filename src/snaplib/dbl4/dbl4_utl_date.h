@@ -1,5 +1,6 @@
 #ifndef DBL4_UTL_DATE_H
 #define DBL4_UTL_DATE_H
+struct DateTimeType;
 /*************************************************************************
 **
 **  Filename:    %M%

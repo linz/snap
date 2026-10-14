@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "network/network.h"
+#include "snap/stnadj.h"
 /* Station reordering is done to minimise matrix bandwidth.  The algorithm
    used is from
 
@@ -22,22 +24,19 @@
 
 #ifndef TEST
 
-#include "snap/snapglob.h"
 #include "snap/obsparam.h"
 #include "snap/genparam.h"
-#include "snapdata/survdata.h"
 #include "stnobseq.h"
 #include "output.h"
-#include "util/geodetic.h"
 #include "util/xprintf.h"
 #include "util/leastsqu.h"
 #include "util/bltmatrx.h"
-#include "adjparam.h"
 
 #endif
 
 #define REORDER_C
 #include "reorder.h"
+
 #undef REORDER_C
 
 #define NO_CONNECTIONS 10

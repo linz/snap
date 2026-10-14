@@ -3,6 +3,8 @@
 
 #include <string>
 
+struct network;
+
 int load_snap_csv_stations(network* net, const std::string& filename, const std::string& options);
 
 #endif

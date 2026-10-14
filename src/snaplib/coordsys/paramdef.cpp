@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "iostring.h"
 /*
    $Log: paramdef.c,v $
    Revision 1.2  2004/04/22 02:34:22  ccrook
@@ -13,13 +14,15 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <algorithm>
 #include <string>
+#include <optional>
 #include "util/errdef.h"
 #include "coordsys/paramdef.h"
 #include "util/dms.h"
 #include "util/pi.h"
+
+class FieldScanner;
 
 #define DO_PRINT(fmt, type)                  \
     char buf[40];                            \

@@ -8,8 +8,6 @@
 
 */
 
-#include <cstdio>
-
 #include "coordsys/coordsys.h"
 #include "coordsys/nzmgr.h"
 #include "coordsys/tmprojr.h"

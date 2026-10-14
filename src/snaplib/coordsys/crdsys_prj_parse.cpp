@@ -1,13 +1,14 @@
+#include <string>
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "coordsys/paramdef.h"
+#include "iostring.h"
 /*
    $Log: crdsysp3.c,v $
    Revision 1.1  1995/12/22 16:40:53  CHRIS
    Initial revision
 
 */
-
-#include <cstdio>
-#include <cstring>
 
 #include "util/errdef.h"
 #include "util/fieldscanner.hpp"

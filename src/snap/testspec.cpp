@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "network/network.h"
 /*
 
   $Log: testspec.c,v $
@@ -31,12 +32,10 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
-
 #include "testspec.h"
 #include "relerror.h"
 #include "snap/stnadj.h"

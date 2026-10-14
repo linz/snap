@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "geodetic.h"
 /* networkt.c: functions handling the network topocentre */
 
 /*
@@ -8,9 +10,7 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
-
 #include "network/network.h"
 
 static void calc_topocentre(network* nw) {

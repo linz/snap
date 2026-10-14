@@ -16,15 +16,13 @@
 */
 
 #include <cstdio>
-#include <cstdlib>
 #include <new>
 #include <optional>
 #include <string>
-#include "util/fileutil.h"
 #include <cstring>
+#include <utility>
 #include "util/errdef.h"
 #include "geoid/griddata.h"
-#include "util/pi.h"
 
 // Reads exactly one value of type T from bin. Returns true on success -
 // callers decide what a failed read means for bin's lifetime (see LOAD

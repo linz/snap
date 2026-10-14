@@ -1,12 +1,13 @@
 #include "snapconfig.h"
 #include "snapplot_util.hpp"
+#include "wx_includes.hpp"
 
 // print_log captures output intended for command line user ..
 
-#include "snapplot_util.hpp"
 #include <cstdio>
 #include <cstdarg>
-
+#include <string>
+#include <string_view>
 //extern "C" {
 #include "snapplot_util.h"
 #include "util/errdef.h"

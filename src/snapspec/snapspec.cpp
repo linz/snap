@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snap/filenames.h"
 
 /*
    $Log: snapspec.c,v $
@@ -19,8 +20,9 @@
 
 #define TEST_SMALL_CVR 1
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
@@ -31,35 +33,25 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-#include "util/snapctype.h"
-
+#include <charconv>
+#include <utility>
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/bltmatrx.h"
 #include "util/bltmatrx_mt.h"
-
 #include "util/binfile.h"
-#include "snapdata/survdata.h"
-#include "snap/survfile.h"
-#include "snap/bindata.h"
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
 #include "snap/snapglob_bin.h"
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "util/readcfg.h"
-#include "util/dstring.h"
 #include "util/probfunc.h"
 #include "util/get_date.h"
-#include "util/dms.h"
 #include "util/pi.h"
-#include "util/bltmatrx_mt.h"
 #include "util/getversion.h"
 #include "util/writecsv.h"
 #include "util/fieldscanner.hpp"
-
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_error.h"
 

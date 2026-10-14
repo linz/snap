@@ -16,6 +16,8 @@
 #include <string>
 #include <string_view>
 
+struct map_plotter;
+
 void add_background_file(std::string_view fname, std::optional<std::string_view> crdsysdef = std::nullopt,
                          std::optional<std::string_view> layer = std::nullopt);
 void load_background_files(void);

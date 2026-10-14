@@ -1,6 +1,8 @@
 #ifndef _SNAPMAIN_H
 #define _SNAPMAIN_H
 
+#include <optional>
+#include <string>
 /*
    $Log: snapmain.h,v $
    Revision 1.6  2003/11/27 00:15:16  ccrook

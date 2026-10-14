@@ -8,19 +8,16 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
-#include <cctype>
-#include <string_view>
 #include <boost/numeric/conversion/cast.hpp>
+#include <cstdlib>
+#include <algorithm>
+#include <string_view>
+#include <optional>
+
 using boost::numeric_cast;
 #include <cassert>
-
 #include "network/network.h"
 #include "util/fieldscanner.hpp"
-#include "util/errdef.h"
 
 #define STNLIST_INIT_INDEX_SIZE 1024
 

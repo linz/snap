@@ -1,19 +1,21 @@
-#include "snapconfig.hpp"
-
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include <iostream>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <algorithm>
 #include <memory>
 #include <sstream>
 #include <vector>
-
+#include <optional>
+#include <utility>
+#include "snapconfig.hpp"
 #include "snapdata/snapcsvbase.hpp"
-
 #include "util/calcdltfile.hpp"
 #include "util/errdef.h"
 #include "util/recordstream.hpp"
 #include "util/snapregex.hpp"
+#include "delimitedtextfile.hpp"
+#include "optionstring.hpp"
 
 using namespace LINZ;
 using namespace DelimitedTextFile;

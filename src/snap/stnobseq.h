@@ -16,6 +16,11 @@
 */
 
 #include <string_view>
+#include <cstdio>
+#include "binfile.h"
+#include "geodetic.h"
+
+struct station;
 
 #ifndef _STNADJ_H
 #include "snap/stnadj.h"

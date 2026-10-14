@@ -1,20 +1,17 @@
 #include "snapconfig.h"
+#include "iostring.h"
 /* crdsyshrs.c:  Routines to manage vertical datums */
 
 #include <cstdio>
-#include <cstring>
-#include <cmath>
 #include <filesystem>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <optional>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
 #include "geoid/geoid.h"
 #include "util/errdef.h"
-#include "util/fileutil.h"
-#include "util/geodetic.h"
-#include "util/pi.h"
 
 /*========================================================================================*/
 /* Offset vertical datum function routine                                               */

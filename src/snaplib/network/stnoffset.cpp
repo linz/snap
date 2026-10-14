@@ -1,8 +1,5 @@
-#include "snapconfig.h"
-
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <algorithm>
 #include <initializer_list>
 #include <memory>
@@ -11,20 +8,18 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
+#include "snapconfig.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
 
 using boost::numeric_cast;
 
 #include "network/network.h"
 #include "network/stnoffset.h"
-#include "util/dstring.h"
 #include "util/datafile.h"
 #include "util/dateutil.h"
-#include "util/fileutil.h"
 #include "util/geodetic.h"
-#include "util/dms.h"
 #include "util/errdef.h"
-#include "util/pi.h"
 
 /* The longest word read from an offset file - longer words are cut short */
 static constexpr std::size_t WORDLEN = 32;

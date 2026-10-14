@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "network/network.h"
 /* autofix.c - compiles data to provide a crude check of which stations can be adjusted and how.
  * For example if only have height data then cannot calculate horizontal position.
  * This is not a rigorous test of which stations can be calculated but handles common cases such as stations
@@ -7,7 +8,7 @@
 
 #include <cstdio>
 #include <vector>
-
+#include <optional>
 #include "autofix.h"
 #include "snap/bindata.h"
 #include "snap/stnadj.h"

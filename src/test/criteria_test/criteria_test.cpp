@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <initializer_list>
 
 #ifndef _WIN32
 #include <unistd.h>

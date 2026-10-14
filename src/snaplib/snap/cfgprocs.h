@@ -9,8 +9,9 @@
 */
 
 #include <string_view>
-
 #include "util/readcfg.h"
+
+struct CFG_FILE;
 
 int load_coordinate_file(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);
 int add_coordinate_file(CFG_FILE* cfg, std::string_view string, void* value, int len, int code);

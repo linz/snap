@@ -1,13 +1,21 @@
+#include <cmath>
+#include <string>
 #include "snapconfig.h"
 #include "snapplot_mapview.hpp"
 #include "snapplot_event.hpp"
-#include <cmath>
-
 //extern "C" {
 #include "plotpens.h"
 #include "plotstns.h"
 #include "plotconn.h"
 #include "snap/stnadj.h"
+#include "mapdefs.hpp"
+#include "network/network.h"
+#include "snapplot/snapplot_dragger.hpp"
+#include "wx_includes.hpp"
+#include "wxmap.hpp"
+#include "wxmapdrawer.hpp"
+#include "wxmapscale.hpp"
+#include "wxsymbology.hpp"
 //}
 
 DEFINE_EVENT_TYPE(WX_MAPVIEW_DISPLAY_COORDS)

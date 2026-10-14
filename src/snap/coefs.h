@@ -15,6 +15,8 @@
 
 #include <string_view>
 
+struct station;
+
 int refcoef_prm(std::string_view refcoef);
 std::string_view refcoef_name(int rc);
 double zd_ref_correction(int rc, station* st1, station* st2, void* hA, int irow);

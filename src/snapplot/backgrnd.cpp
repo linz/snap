@@ -15,25 +15,20 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstring>
-
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <utility>
 #include "coordsys/coordsys.h"
 #include "backgrnd.h"
 #include "plotstns.h"
 #include "plotpens.h"
-#include "plotscal.h"
 #include "plotfunc.h"
 #include "util/errdef.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/pi.h"
 #include "util/progress.h"

@@ -1,9 +1,10 @@
 #ifndef SNAPPLOT_DETAILSVIEW_HPP
 #define SNAPPLOT_DETAILSVIEW_HPP
 
+#include <string>
 #include "wx_includes.hpp"
-
 #include "snapplot_event.hpp"
+#include "snapplot/infowin.h"
 
 // Class to convert PutTextInfo address to and from string,
 

@@ -6,7 +6,6 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
 #include "coordsys/coordsys.h"
 

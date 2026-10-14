@@ -1,15 +1,18 @@
 #include "snapconfig.h"
+#include "wxsymbology.hpp"
 // wxLayerKey: A wxGrid for displaying a symbology list
 //
 // Requires a Symbology defining the symbologies to display, "tickon" and "tickoff" icons for
 // show/hide display.
 //
 
+#include <wx/renderer.h>
+#include <limits>
+#include <cstddef>
+#include <utility>
 #include "wxlayerkey.hpp"
 #include "wxsimpleevent.hpp"
 #include "wxpalettepopup.hpp"
-#include <wx/renderer.h>
-#include <limits>
 
 DEFINE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED)
 

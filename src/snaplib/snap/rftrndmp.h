@@ -1,6 +1,7 @@
 #ifndef _RFTRNDMP_H
 #define _RFTRNDMP_H
 
+#include "binfile.h"
 /*
    $Log: rftrndmp.h,v $
    Revision 1.1  1995/12/22 17:47:38  CHRIS

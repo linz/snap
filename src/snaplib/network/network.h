@@ -22,6 +22,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <cstdio>
 
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
@@ -36,6 +37,9 @@
 #endif
 
 #include <string>
+
+struct DiskField;
+struct geoid_def;
 
 #define DFLTSTLIST_EXT ".stl"
 #define DFLTSTOFFS_EXT ".sts"

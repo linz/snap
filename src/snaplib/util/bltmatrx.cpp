@@ -64,10 +64,8 @@
 */
 
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <cmath>
-
 #include "util/bltmatrx.h"
 #include "util/progress.h"
 #include "util/errdef.h"

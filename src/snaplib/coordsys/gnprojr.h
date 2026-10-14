@@ -1,6 +1,7 @@
 #ifndef GNPROJR_H
 #define GNPROJR_H
 
+struct projection;
 /*
    $Log: gnprojr.h,v $
    Revision 1.1  1995/12/22 16:53:59  CHRIS

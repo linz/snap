@@ -1,10 +1,14 @@
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "snapplot_mapprinter.hpp"
-
 //extern "C"
 //{
 #include "snap/snapglob.h"
+#include "wxmap.hpp"
+#include "wxmapdrawer.hpp"
+#include "wxmapscale.hpp"
+
+class Symbology;
 //}
 
 SnapplotMapPrinter::SnapplotMapPrinter(const wxString& title, wxMap* map, wxMapScale* scale, Symbology* symbology)

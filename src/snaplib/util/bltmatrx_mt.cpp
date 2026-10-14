@@ -1,17 +1,10 @@
 
-#include "snapconfig.h"
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cmath>
 #include <thread>
 #include <vector>
-
+#include "snapconfig.h"
 #include "util/bltmatrx.h"
 #include "bltmatrx_mt.h"
 #include "util/progress.h"
-#include "util/errdef.h"
 
 enum { BLT_UNINIT, BLT_ROWS, BLT_READY };
 

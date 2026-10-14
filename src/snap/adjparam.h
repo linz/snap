@@ -1,6 +1,7 @@
 #ifndef _ADJPARAM_H
 #define _ADJPARAM_H
 
+#include <cstdio>
 /*
    $Log: adjparam.h,v $
    Revision 1.1  1996/01/03 21:55:55  CHRIS

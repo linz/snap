@@ -1,19 +1,23 @@
 #ifndef SNAPPLOT_FRAME_HPP
 #define SNAPPLOT_FRAME_HPP
 
+#include <string>
 #include "wx_includes.hpp"
-
 #include "wxsymbology.hpp"
 #include "wxlayerkey.hpp"
 #include "wxmapwindow.hpp"
 #include "wxmap.hpp"
 #include "wxtabbedtextgrid.hpp"
-
 #include "snapplot_detailsview.hpp"
 #include "snapplot_stationlist.hpp"
 #include "snapplot_obslist.hpp"
 #include "snapplot_event.hpp"
 #include "snapplot_mapview.hpp"
+
+class SnapplotDetailsView;
+class SnapplotMapView;
+class SnapplotObsList;
+class SnapplotStationList;
 
 // Add miscellaneous functions for testing during building ..
 

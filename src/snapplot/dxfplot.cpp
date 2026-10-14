@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /* Routines for plotting obstacles to a DXF file */
 
 /*
@@ -11,20 +12,18 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
-
 #include <string>
 #include <vector>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "dxfplot.h"
 #include "snap/snapglob.h"
-#include "snap/stnadj.h"
 #include "plotscal.h"
 #include "plotstns.h"
 #include "plotconn.h"
@@ -32,8 +31,6 @@
 #include "plotfunc.h"
 #include "backgrnd.h"
 #include "trimmer.h"
-
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/pi.h"
 

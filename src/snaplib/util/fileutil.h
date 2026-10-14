@@ -18,6 +18,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <cstdio>
 
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'

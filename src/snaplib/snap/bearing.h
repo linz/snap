@@ -21,6 +21,9 @@
 
 #include <string>
 #include <string_view>
+#include "geodetic.h"
+
+struct station;
 
 struct brngProjection {
     std::string name;           /* The name of the reference frame     */

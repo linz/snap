@@ -1,17 +1,9 @@
-#include "snapconfig.h"
-
-/*
-   $Log: datatype.c,v $
-   Revision 1.1  1995/12/22 18:41:13  CHRIS
-   Initial revision
-
-*/
-#include <cstdio>
 #include <string_view>
+#include <optional>
+#include "snapconfig.h"
 #include "snapdata/datatype.h"
 #include "util/errdef.h"
 #include "util/fieldscanner.hpp"
-#include <cstring>
 
 /* Definition of survey datatypes. */
 

@@ -5,9 +5,8 @@
 // snapplot windows/C++ code and utility functions from
 // snap C library.
 
-#include "wx_includes.hpp"
-
 #include <cstdarg>
+#include "wx_includes.hpp"
 
 void ImplementErrorHandler();
 wxString GetLogMessages();

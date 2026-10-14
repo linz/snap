@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snapdata/stnrecode.h"
 /* Code to manage the list of survey data files */
 
 /*
@@ -8,19 +9,16 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstring>
 #include <algorithm>
 #include <string_view>
-
 #include "util/dstring.h"
 #include "util/binfile.h"
 #include "snap/survfile.h"
-#include "snapdata/obsmod.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/dateutil.h"
-#include <boost/algorithm/string/predicate.hpp>
 
 static survey_data_file** sdindx = nullptr;
 static int nsdindx = 0;

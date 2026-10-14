@@ -14,6 +14,9 @@
 #endif
 
 #include <string_view>
+#include <cstdio>
+
+struct station;
 
 /* Structure for general deformation model */
 

@@ -1,10 +1,10 @@
 #include "snapconfig.h"
 #include "snapplot_stationlist.hpp"
 #include "snapplot_event.hpp"
-
 //extern "C" {
 #include "plotstns.h"
 #include "infowin.h"
+#include "snapplot/snapplot_eventids.hpp"
 //}
 
 SnapplotStationSource::SnapplotStationSource() = default;

@@ -8,6 +8,8 @@
 
 #include "util/geodetic.h"
 
+struct station;
+
 #define STN_TS_STEP 0
 #define STN_TS_SERIES 1
 #define STN_TS_VELOCITY 2

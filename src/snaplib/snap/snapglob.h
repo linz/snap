@@ -27,6 +27,9 @@
 
 #include <optional>
 #include <string>
+#include "classify.h"
+
+struct deformation_model;
 
 #ifndef _GET_DATA_H
 #include "util/get_date.h" /* For definition of GETDATELEN  */

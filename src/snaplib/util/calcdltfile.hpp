@@ -9,10 +9,11 @@
 #include <map>
 #include <memory>
 #include <stdexcept>
-
 #include "delimitedtextfile.hpp"
 
 namespace LINZ {
+class RecordInputBase;
+
 namespace DelimitedTextFile {
 
 using namespace LINZ;

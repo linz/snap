@@ -16,6 +16,11 @@
 
 #include <optional>
 #include <string>
+#include <cstdint>
+#include "binfile.h"
+#include "network/network.h"
+
+struct stn_recode_map;
 
 #ifndef _NETWORK_H
 #include "network/network.h"

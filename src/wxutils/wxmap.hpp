@@ -17,6 +17,9 @@
 #include "wxsymbology.hpp"
 #include "wxmapdrawer.hpp"
 
+class MapRect;
+class Symbology;
+
 class wxMap {
  public:
     wxMap();

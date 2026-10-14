@@ -1,4 +1,6 @@
 #define GETVERSION_SET_PROGRAM_DATE
+#include <cstddef>
+#include <string>
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "wx/fs_zip.h"
@@ -6,6 +8,7 @@
 #include "snapjob.hpp"
 #include "snap_scriptenv.hpp"
 #include "util/getversion.h"
+#include "snapversion.h"
 
 #ifdef __WXGTK__
 #include "resources/snap16_icon.xpm"

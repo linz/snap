@@ -1,5 +1,4 @@
-#include "snapconfig.h"
-
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <fstream>
 #include <iomanip>
@@ -9,8 +8,13 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <cstdint>
+#include <exception>
+#include <optional>
+#include <variant>
+#include "snapconfig.h"
+#include "snapdata/survdata.h"
 
-#include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 
 #include "util/errdef.h"

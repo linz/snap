@@ -1,6 +1,10 @@
 #ifndef _VECDATA_H
 #define _VECDATA_H
 
+#include <cstdio>
+#include "bindata2.h"
+
+struct survdata;
 /*
    $Log: vecdata.h,v $
    Revision 1.2  2003/11/25 01:30:00  ccrook

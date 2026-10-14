@@ -1,13 +1,12 @@
+#include <wx/tokenzr.h>
+#include <boost/numeric/conversion/cast.hpp>
+#include <cstdarg>
+#include <utility>
+#include <cstddef>
 #include "snapconfig.h"
 #include "wxsimpledialog.hpp"
 #include "wxregexvalidator.hpp"
 #include "wxnumbervalidator.hpp"
-#include <wx/tokenzr.h>
-
-#include <cstdarg>
-
-#include <boost/numeric/conversion/cast.hpp>
-#include <utility>
 
 wxOptionValidatorBase::wxOptionValidatorBase(const std::vector<ListControlOption>& options, int* const value)
     : _value(value) {

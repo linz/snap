@@ -11,7 +11,7 @@
 
 #include <cstdio>
 #include <cmath>
-
+#include <string>
 #include "util/leastsqu.h"
 #include "util/lsobseq.h"
 #include "output.h"

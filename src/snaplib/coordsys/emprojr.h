@@ -1,6 +1,7 @@
 #ifndef EMPROJR_H
 #define EMPROJR_H
 
+struct projection;
 /*
    $Log: emprojr.h,v $
    Revision 1.1  1995/12/22 16:52:09  CHRIS

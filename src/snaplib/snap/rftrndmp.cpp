@@ -8,7 +8,9 @@
 
 #include <cstdio>
 #include <cstddef>
-
+#include <cstdint>
+#include <string>
+#include <utility>
 #include "util/errdef.h"
 #include "util/binfile.h"
 #include "snap/rftrndmp.h"

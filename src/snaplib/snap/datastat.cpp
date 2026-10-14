@@ -8,11 +8,9 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
 #include "util/probfunc.h"
 #include "snap/snapglob.h"
-
 #include "snap/datastat.h"
 
 static double mde_value_used = 0.0;

@@ -12,6 +12,8 @@
 #ifndef _SYMMATRX_H
 #define _SYMMATRX_H
 
+#include <cstdio>
+
 using ltmat = double*;
 using const_ltmat = const double*; /* The same, for a matrix that is only read */
 

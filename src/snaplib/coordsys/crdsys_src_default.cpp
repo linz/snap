@@ -19,15 +19,10 @@ The coordinate system file is located in one of the following places.
 
 */
 
-#include <cstdio>
 #include <cstdlib>
-#include <cstring>
-
+#include <optional>
+#include <string>
 #include "coordsys/coordsys.h"
-#include "coordsys/nzmgr.h"
-#include "coordsys/tmprojr.h"
-#include "coordsys/lambertr.h"
-#include "coordsys/psprojr.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 

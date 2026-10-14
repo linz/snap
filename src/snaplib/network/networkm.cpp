@@ -6,11 +6,8 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <string>
-
+#include <optional>
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"
 #include "network/network.h"

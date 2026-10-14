@@ -1,6 +1,8 @@
 #ifndef BLTMATRX_MT_H
 #define BLTMATRX_MT_H
 
+struct bltmatrix;
+
 #define BLT_DEFAULT_NTHREAD -1
 
 void blt_set_number_of_threads(int threadcount);

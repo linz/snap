@@ -19,14 +19,10 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
-
 #include <string>
-
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "util/errdef.h" /* Error code definitions */
 
 static errhandler_type user_error_handler = (errhandler_type) nullptr;

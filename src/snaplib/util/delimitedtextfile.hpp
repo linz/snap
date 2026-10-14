@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 #include <stdexcept>
-
 #include "util/recordinputbase.hpp"
 
 namespace LINZ {

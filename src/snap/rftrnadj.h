@@ -1,6 +1,7 @@
 #ifndef _RFTRNADJ_H
 #define _RFTRNADJ_H
 
+#include <cstdio>
 /*
    $Log: rftrnadj.h,v $
    Revision 1.1  1996/01/03 22:08:51  CHRIS

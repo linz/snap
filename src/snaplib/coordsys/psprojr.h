@@ -1,6 +1,7 @@
 #ifndef PSPROJR_H
 #define PSPROJR_H
 
+struct projection;
 /*
    $Log: psprojr.h,v $
    Revision 1.1  1995/12/22 17:00:57  CHRIS

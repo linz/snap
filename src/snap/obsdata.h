@@ -1,6 +1,10 @@
 #ifndef _OBSDATA_H
 #define _OBSDATA_H
 
+#include <cstdio>
+
+struct lsdata;
+struct survdata;
 /*
    $Log: obsdata.h,v $
    Revision 1.2  2003/11/25 01:29:58  ccrook

@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "network/network.h"
+#include "snapdata/datatype.h"
 /* Maintain and print a list of the worst residuals */
 /* Actually it maintains a separate list of the n worst residuals for
    each probability distribution.  When they are printed it takes values
@@ -29,22 +31,19 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <algorithm>
 #include <array>
 #include <string>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "output.h"
 #include "residual.h"
 #include "util/probfunc.h"
-#include "util/binfile.h"
 #include "notedata.h"
 #include "snap/datastat.h"
 

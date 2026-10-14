@@ -1,12 +1,17 @@
+#include <string>
 #include "snapconfig.h"
 #include "snapplot_map.hpp"
-
 //extern "C" {
 #include "plotpens.h"
 #include "plotscal.h"
 #include "plotstns.h"
 #include "plotconn.h"
 #include "backgrnd.h"
+#include "mapdefs.hpp"
+#include "snapplot/plotfunc.h"
+#include "wxmapdrawer.hpp"
+#include "wxmapscale.hpp"
+#include "wxsymbology.hpp"
 //}
 
 // Functions used by map_plotter object based on wxMapDrawer object

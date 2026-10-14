@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /*
    $Log: crdsysp2.c,v $
    Revision 1.1  1995/12/22 16:40:21  CHRIS
@@ -6,7 +7,6 @@
 
 */
 
-#include <cstdio>
 #include "coordsys/crdsys_prj.h"
 #include "util/errdef.h"
 

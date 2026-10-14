@@ -1,4 +1,8 @@
 #include "snapconfig.h"
+#include "network/network.h"
+#include "snap/stnadj.h"
+#include "snapdata/datatype.h"
+#include "snapdata/survdata.h"
 
 /* Code for managing vector data */
 
@@ -26,13 +30,10 @@
 */
 
 #include <cstdio>
-#include <cmath>
-#include <cstring>
 #include <array>
 #include <string>
 #include <string_view>
-#include <array>
-
+#include <optional>
 #include "bindata2.h"
 #include "coefs.h"
 #include "notedata.h"
@@ -43,7 +44,6 @@
 #include "snap/obsparam.h"
 #include "snap/rftrans.h"
 #include "snap/snapglob.h"
-#include "snap/survfile.h"
 #include "snapdata/gpscvr.h"
 #include "stnobseq.h"
 #include "util/classify.h"

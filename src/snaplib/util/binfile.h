@@ -21,6 +21,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <cstdio>
 
 #ifndef _ERRDEF_H
 #include "util/errdef.h"

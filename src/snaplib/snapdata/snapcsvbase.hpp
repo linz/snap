@@ -8,12 +8,17 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <memory>
 #include "util/calcdltfile.hpp"
 #include "util/datafile.h"
 #include "util/delimitedtextfile.hpp"
 #include "util/optionstring.hpp"
 #include "util/recordstream.hpp"
+#include "recordinputbase.hpp"
+
+namespace LINZ {
+class RecordStream;
+}  // namespace LINZ
 
 #define CSVFORMAT_CONFIG "format"
 

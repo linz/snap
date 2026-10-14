@@ -13,13 +13,10 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
-#include "util/snapctype.h"
-
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
 #include "util/dateutil.h"

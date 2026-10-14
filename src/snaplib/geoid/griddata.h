@@ -16,6 +16,7 @@
 
 #include <optional>
 #include <string>
+#include <cstdio>
 
 #define GRID_FILE_HEADER_1 "SNAP geoid binary file\r\n\x1A"
 #define GRID_FILE_HEADER_2 "SNAP grid binary v1.0 \r\n\x1A"

@@ -8,7 +8,6 @@
 #include <optional>
 #include <sstream>
 #include <string>
-
 #include "util/recordinputbase.hpp"
 #include "util/datafile.h"
 

@@ -20,14 +20,9 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
-#include <cstdlib>
-#include <cstring>
 #include <algorithm>
-
+#include <utility>
 #include "dbl4_utl_binsrc.h"
-
 #include "dbl4_utl_error.h"
 #include "dbl4_utl_blob.h"
 

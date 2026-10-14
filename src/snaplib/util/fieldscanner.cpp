@@ -1,12 +1,12 @@
-#include "snapconfig.hpp"
-
-#include "util/fieldscanner.hpp"
-#include "util/snapctype.h"
-#include "util/pi.h"
 #include <algorithm>
 #include <cctype>
 #include <charconv>
-#include <cstring>
+#include <iterator>
+#include <system_error>
+#include "snapconfig.hpp"
+#include "util/fieldscanner.hpp"
+#include "util/snapctype.h"
+#include "util/pi.h"
 
 std::optional<std::string_view> FieldScanner::next() {
     _pos = std::find_if(_pos, _text.end(), [](const char c) { return !ISSPACE(c); });

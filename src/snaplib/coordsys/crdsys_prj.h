@@ -18,6 +18,9 @@
 
 #include <string>
 
+struct ellipsoid;
+struct param_def;
+
 /* Definition of a projection.  This is defined in two components.  First is
 	a projection type, such as Transverse Mercator, or NZMG.  This defines a
 	set of function pointers used to process the projection.  These functions

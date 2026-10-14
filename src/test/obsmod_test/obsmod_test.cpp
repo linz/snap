@@ -1,4 +1,5 @@
 #include "snapconfig.hpp"
+#include "snapdata/datatype.h"
 
 // Standalone unit test for the observation modifications in
 // snapdata/obsmod.cpp. A set of observations is modified by criteria of every
@@ -16,11 +17,14 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <string_view>
+#include <utility>
 #include "snapdata/obsmod.h"
 #include "snapdata/survdata.h"
 #include "util/classify.h"
 #include "util/errdef.h"
+
+struct file_context;
 
 namespace {
 

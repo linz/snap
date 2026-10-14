@@ -1,4 +1,7 @@
+#include <string>
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "coordsys/paramdef.h"
 /* Routines to register New Zealand Map Grid as a projection */
 
 /*
@@ -7,11 +10,6 @@
    Initial revision
 
 */
-
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cmath>
 
 #include "coordsys/crdsys_prj.h"
 #include "util/errdef.h"

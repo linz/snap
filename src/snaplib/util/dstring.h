@@ -13,6 +13,7 @@
 
 #include <string>
 #include <optional>
+#include <cstdio>
 
 /* Length-prefixed on-disk strings. There is no null-vs-empty distinction in the
  * std::string versions - callers with a genuine optional string need

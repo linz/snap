@@ -15,8 +15,7 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cstdarg>
@@ -25,14 +24,12 @@
 #include <deque>
 #include <memory>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <algorithm>
+#include <utility>
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_yield.h"
 #include "dbl4_utl_progress.h"
 #include "dbl4_utl_error.h"
-
 #include "snap/stnadj.h"
 #include "network/network.h"
 #include "nanoflann/nanoflann.hpp"

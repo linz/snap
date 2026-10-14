@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snapdata/stnrecode.h"
 /*
    $Log: cfgprocs.c,v $
    Revision 1.2  2004/04/22 02:34:47  ccrook
@@ -9,13 +10,12 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
 #include <boost/algorithm/string/predicate.hpp>
-#include <charconv>
+#include <cstdio>
 #include <string_view>
-#include "util/snapctype.h"
-
+#include <optional>
+#include <string>
+#include <vector>
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "snap/cfgprocs.h"
@@ -23,7 +23,6 @@
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "snapdata/obsmod.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/iostring.h"
 #include "util/dateutil.h"

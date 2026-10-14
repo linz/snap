@@ -1,8 +1,7 @@
-#include "snapconfig.h"
-
-#include "wxpalettepopup.hpp"
-
 #include <wx/evtloop.h>
+#include "snapconfig.h"
+#include "wxpalettepopup.hpp"
+#include "wxsymbology.hpp"
 
 wxPalettePopup::wxPalettePopup(ColourPalette* thisPalette, wxWindow* parent, wxWindowID id)
     : wxPopupTransientWindow(parent, wxBORDER_SIMPLE) {

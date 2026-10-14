@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include "snapdata/survdata.h"
 
 #ifndef _SURVDATA_H
 #include "snapdata/survdata.h"

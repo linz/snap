@@ -11,15 +11,17 @@
 
 */
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <utility>
 #ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
 #include <share.h>
+
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -33,7 +35,6 @@
 #include <forward_list>
 #include <system_error>
 #include <vector>
-
 #include "util/fileutil.h"
 #include "util/dstring.h"
 #include "util/errdef.h"

@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "coordsys/paramdef.h"
+#include "iostring.h"
 /* Routines to register New Zealand Map Grid as a projection */
 
 /*
@@ -8,16 +11,14 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cmath>
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <string>
 #include "coordsys/crdsys_prj.h"
 #include "util/errdef.h"
 #include "coordsys/psproj.h"
 #include "coordsys/psprojr.h"
+
+class FieldScanner;
 
 static int read_north_south(FieldScanner& scanner, void* address);
 static int print_north_south(output_string_def* os, void* address);

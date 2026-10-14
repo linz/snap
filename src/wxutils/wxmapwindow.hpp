@@ -7,6 +7,8 @@
 #include "wxmapscale.hpp"
 #include "wxmap.hpp"
 
+class Symbology;
+
 DECLARE_EVENT_TYPE(WX_MAPWINDOW_POSITION, -1)
 DECLARE_EVENT_TYPE(WX_MAPWINDOW_CLICKED, -1)
 DECLARE_EVENT_TYPE(WX_MAPWINDOW_REPAINTED, -1)

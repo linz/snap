@@ -8,18 +8,15 @@
 
 */
 
-#include <cstdio>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <cmath>
 #include <algorithm>
 #include <memory>
 #include <vector>
-
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <utility>
 #include "snap/rftrans.h"
-#include "util/dstring.h"
 #include "util/geodetic.h"
 #include "util/dateutil.h"
 #include "util/fieldscanner.hpp"

@@ -1,9 +1,11 @@
-#include "snapconfig.hpp"
-
 #include <boost/numeric/conversion/cast.hpp>
-
+#include "snapconfig.hpp"
 #include "util/datafileinput.hpp"
 #include "util/errdef.h"
+#include "datafile.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
+#include "recordinputbase.hpp"
 
 using namespace LINZ;
 using boost::numeric_cast;

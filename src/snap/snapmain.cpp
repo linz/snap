@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "snap/filenames.h"
+#include "snap/survfile.h"
+#include "writecsv.h"
 /* Adjustment program main section */
 
 /*
@@ -42,17 +45,18 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
 #include <cstring>
 #include <string>
-#include <cstdlib>
 #include <ctime>
 #include <exception>
 #include <filesystem>
 #include <iomanip>
 #include <optional>
 #include <sstream>
-#include <boost/algorithm/string/predicate.hpp>
+#include <memory>
+#include <string_view>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -87,12 +91,9 @@
 #include "snap/snapglob.h"
 #include "snap/snapglob_bin.h"
 #include "snapdata/obsmod.h"
-#include "snapdata/survdata.h"
 #include "util/binfile.h"
 #include "util/bltmatrx.h"
 #include "util/bltmatrx_mt.h"
-#include "util/classify.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/filelist.h"

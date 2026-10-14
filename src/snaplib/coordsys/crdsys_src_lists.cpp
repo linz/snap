@@ -11,14 +11,14 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <forward_list>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
 

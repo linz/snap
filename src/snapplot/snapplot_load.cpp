@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "network/network.h"
 /* A program to look at data used in a SNAP adjustment, either before an
    adjustment is done, using the configuration file, or after the
    adjustment is done, using the binary file.  In the latter case the
@@ -8,8 +9,6 @@
 */
 
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
 #include <optional>
 #include <string>
 #include <vector>
@@ -24,16 +23,13 @@
 #include "snap/survfile.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
-#include "util/getversion.h"
 #include "plotbin.h"
 #include "loadplot.h"
 #include "plotscal.h"
 #include "plotstns.h"
-#include "plotpens.h"
 #include "plotconn.h"
 #include "plotcmd.h"
 #include "backgrnd.h"
-
 #include "snapplot_load.h"
 #include "snapplot_util.h"
 

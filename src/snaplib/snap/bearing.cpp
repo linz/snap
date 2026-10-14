@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "errdef.h"
 /* Code for managing a list of reference frame transformations */
 
 /*
@@ -11,24 +12,23 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <algorithm>
 #include <cctype>
 #include <memory>
 #include <string_view>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
+#include <utility>
+
 using boost::numeric_cast;
 
 #include "snap/bearing.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "network/network.h"
 /* #include "errdef.h" */
 #include "snap/stnadj.h"
-#include "util/pi.h"
 
 #define DIST_TOL 1.0e-5
 #define DIST_TOL_2 (DIST_TOL * DIST_TOL)

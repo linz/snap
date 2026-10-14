@@ -12,7 +12,7 @@
 #include <string>
 #include <filesystem>
 #include <fstream>
-
+#include <optional>
 #include "util/fileutil.h"
 
 namespace {

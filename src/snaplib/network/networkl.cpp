@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "classify.h"
+#include "coordsys/coordsys.h"
 /* netlist2.c: Station list functions accessed via network */
 
 /*
@@ -12,20 +14,17 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <variant>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
+#include <utility>
 #include "util/snapctype.h"
-
 #include "network/network.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/fileutil.h"
 #include "util/filelist.h"

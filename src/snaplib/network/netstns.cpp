@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "geodetic.h"
 /*
    $Log: netstns.c,v $
    Revision 1.1  1995/12/22 17:31:03  CHRIS
@@ -6,16 +8,14 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
+#include <optional>
+#include <string_view>
+#include <vector>
 #include "network/network.h"
 #include "network/stnoffset.h"
 #include "util/errdef.h"
-#include "util/dstring.h"
-
-#include <boost/numeric/conversion/cast.hpp>
 
 using boost::numeric_cast;
 

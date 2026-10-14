@@ -1,12 +1,8 @@
-#include <iostream>
+#include <boost/algorithm/string/trim.hpp>
 #include <fstream>
 #include <string>
 #include <algorithm>
-#include <locale>
 #include <cctype>
-
-#include <boost/algorithm/string.hpp>
-
 #include "recordstream.hpp"
 
 using namespace LINZ;

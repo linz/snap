@@ -19,6 +19,12 @@
 
 #include <string>
 #include <string_view>
+#include <cstdio>
+
+struct CFG_FILE;
+struct classifications;
+struct network;
+struct survdata;
 
 #define OBS_MOD_IGNORE 1
 #define OBS_MOD_REJECT 2

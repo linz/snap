@@ -1,6 +1,6 @@
+#include <cstddef>
 #include "snapconfig.h"
 #include "snapjob.hpp"
-#include "util/fileutil.h"
 
 // SnapJobFile type
 

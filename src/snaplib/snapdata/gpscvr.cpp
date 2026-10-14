@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snapdata/survdata.h"
 /* gpscvr.c: Code to create and maintain a covariance matrix for GPS data */
 /* External routines required is:
      station_vertical( int stn, double vert[3] );
@@ -12,7 +13,6 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
 #include <cstring>
 
@@ -23,7 +23,6 @@
 #endif
 
 #include <cassert>
-
 #include "snapdata/gpscvr.h"
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"

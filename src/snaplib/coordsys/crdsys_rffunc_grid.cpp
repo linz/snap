@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "iostring.h"
 
 /* crdsysr5.c:  Reference frame function definition for 2d lat/lon
    conversion - still uses 7 param transformation for height conversion.
@@ -19,13 +20,14 @@
 
 */
 
-#include <cstdio>
+#include <boost/algorithm/string/predicate.hpp>
+#include <optional>
+#include <utility>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rffunc_grid.h"
 #include "geoid/griddata.h"
 #include "util/errdef.h"
 #include "util/pi.h"
-#include <boost/algorithm/string/predicate.hpp>
 
 enum { NULL_GRID, SNAP2D_GRID };
 

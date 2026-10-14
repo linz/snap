@@ -18,21 +18,20 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <boost/numeric/conversion/cast.hpp>
 #include "util/fileutil.h"
-#include <cstring>
 #include "util/errdef.h"
-#include "util/dstring.h"
 #include "geoid/geoid.h"
 #include "geoid/griddata.h"
 #include "util/geodetic.h"
 #include "util/pi.h"
+#include "coordsys/coordsys.h"
 
 static std::string get_geoid_filename(const std::optional<std::string>& geoidname) {
     std::string geoid = "geoid";

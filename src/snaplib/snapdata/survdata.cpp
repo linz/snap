@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
 #include "util/classify.h"

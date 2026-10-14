@@ -6,16 +6,18 @@
 */
 
 #define GETVERSION_SET_PROGRAM_DATE
-#include "snapconfig.h"
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <string>
+#include "snapconfig.h"
 #include "snap/stnadj.h"
 #include "util/errdef.h"
 #include "util/dateutil.h"
-#include "util/fileutil.h"
-#include "snap/filenames.h"
 #include "util/getversion.h"
+#include "coordsys/coordsys.h"
+#include "geodetic.h"
+#include "network/network.h"
 
 void print_gps_baselines(std::FILE* out, int* stn, int nstns) {
     int j;

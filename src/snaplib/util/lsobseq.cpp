@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "symmatrx.h"
 /*
    $Log: lsobseq.c,v $
    Revision 1.3  2004/04/22 02:35:43  ccrook
@@ -12,12 +13,10 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstdlib>
 #include <cmath>
 #include <algorithm>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "util/lsobseq.h"
 
 #define ROW_INC 5

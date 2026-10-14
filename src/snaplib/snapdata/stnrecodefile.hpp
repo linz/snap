@@ -2,8 +2,13 @@
 #ifndef _STNRECODEFILE_HPP
 #define _STNRECODEFILE_HPP
 
+#include <string>
+#include <vector>
 #include "snapdata/snapcsvbase.hpp"
 #include "snapdata/stnrecode.h"
+#include "delimitedtextfile.hpp"
+
+struct stn_recode_map;
 
 namespace LINZ {
 namespace SNAP {

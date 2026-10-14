@@ -3,6 +3,9 @@
 
 #include <string>
 
+struct output_string_def;
+struct vdatum;
+
 /// Always fully-formed once constructed (no default constructor, all
 /// fields const except hrs) - copy via copy_vdatum_func() (a real deep
 /// copy: this struct's own data member is deep-copied via copy_data),

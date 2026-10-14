@@ -1,19 +1,16 @@
 #include "snapconfig.h"
+#include "snapplot/snapplot_event.hpp"
 // Module supports a window that can be used to display information about the
 // stations, connections, or individual observations...
 
 #include <string>
-
+#include <cstdio>
 #include "snapplot_detailsview.hpp"
-
 //extern "C" {
 #include "snap/snapglob.h"
 #include "plotstns.h"
 #include "plotconn.h"
 #include "plotscal.h"
-#include "snap/stnadj.h"
-#include "util/dms.h"
-#include "util/pi.h"
 #include "util/textformat.hpp"
 //};
 

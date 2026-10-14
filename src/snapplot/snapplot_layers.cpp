@@ -1,14 +1,6 @@
-#include "snapconfig.h"
-#include "snapplot_layers.hpp"
-#include "wxsymbology.hpp"
-
-#include "util/snapctype.h"
-#include "util/fieldscanner.hpp"
-
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <boost/range/iterator_range.hpp>
-
+#include <boost/range/iterator_range_core.hpp>
 #include <algorithm>
 #include <array>
 #include <map>
@@ -18,6 +10,14 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
+#include <cstdio>
+#include <utility>
+#include "snapconfig.h"
+#include "snapplot_layers.hpp"
+#include "wxsymbology.hpp"
+#include "util/fieldscanner.hpp"
+#include "network/network.h"
+#include "wx_includes.hpp"
 
 // Provides a crude interface to existing C code by replacing functions
 // defined in plotpens.h
@@ -32,7 +32,6 @@
 #include "plotstns.h"
 #include "backgrnd.h"
 #include "util/classify.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 //}
 

@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "iostring.h"
 /* Routines for reading a data file.  These routines provide the following
    facilities:
 

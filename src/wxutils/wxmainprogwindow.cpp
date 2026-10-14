@@ -1,11 +1,12 @@
+#include <cstdio>
+#include <string>
 #include "snapconfig.h"
 #include "wxmainprogwindow.hpp"
-
 // extern "C" {
 #include "util/progress.h"
 #include "util/xprintf.h"
 #include "util/errdef.h"
-#include "util/xprintf.h"
+#include "wx_includes.hpp"
 // }
 
 #ifdef __WXGTK__

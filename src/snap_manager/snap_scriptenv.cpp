@@ -1,4 +1,7 @@
 #include <cstdio>
+#include <ios>
+#include <optional>
+#include <string>
 #include "snapconfig.h"
 #include "util/fileutil.h"
 #include "coordsys/coordsys.h"
@@ -7,6 +10,8 @@
 #include "wx_includes.hpp"
 #include "snap_scriptenv.hpp"
 #include "fstream"
+#include "snap_manager/script.hpp"
+#include "snap_manager/snapjob.hpp"
 
 using namespace std;
 

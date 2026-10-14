@@ -1,6 +1,7 @@
 #ifndef NZMGR_H
 #define NZMGR_H
 
+struct projection;
 /*
    $Log: nzmgr.h,v $
    Revision 1.1  1995/12/22 16:57:52  CHRIS

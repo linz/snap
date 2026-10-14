@@ -1,8 +1,12 @@
 #include "snapconfig.h"
+#include "iostring.h"
 /* Program concord - front end to coordinate conversion routines */
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 /* Note: this 1980s code due for rewrite                         */
 
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -14,9 +18,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
+#include <utility>
+#include <vector>
 #include "util/snapctype.h"
 
 #if defined(_WIN32)

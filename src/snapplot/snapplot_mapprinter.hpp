@@ -5,6 +5,8 @@
 #include "wxmapscale.hpp"
 #include "wxsymbology.hpp"
 
+class Symbology;
+
 class SnapplotMapPrinter : public wxPrintout {
  public:
     SnapplotMapPrinter(const wxString& title, wxMap* map, wxMapScale* scale, Symbology* symbology);

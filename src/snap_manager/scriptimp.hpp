@@ -5,9 +5,8 @@
 #include <map>
 #include <utility>
 #include <vector>
-
 #include <iostream>
-
+#include <string>
 #include "script.hpp"
 
 namespace Scripter {

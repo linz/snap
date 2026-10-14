@@ -1,4 +1,17 @@
 #include "snapconfig.h"
+#include "network/network.h"
+#include "snapplot/infowin.h"
+#include "snapplot/snapplot_detailsview.hpp"
+#include "snapplot/snapplot_event.hpp"
+#include "snapplot/snapplot_mapview.hpp"
+#include "snapplot/snapplot_obslist.hpp"
+#include "snapplot/snapplot_stationlist.hpp"
+#include "snapversion.h"
+#include "wxlayerkey.hpp"
+#include "wxmap.hpp"
+#include "wxmapscale.hpp"
+#include "wxsimpleevent.hpp"
+#include "wxsymbology.hpp"
 /////////////////////////////////////////////////////////////////////////////
 // Name:        snapplot_frame
 // Purpose:     Main window for snapplot application
@@ -14,19 +27,18 @@
 // headers
 // ----------------------------------------------------------------------------
 
-#include "wx_includes.hpp"
 #include <wx/popupwin.h>
-
 #include <string_view>
 #include <vector>
-
+#include <cstddef>
+#include <optional>
+#include "wx_includes.hpp"
 #include "snapplot_frame.hpp"
 #include "snapplot_eventids.hpp"
 #include "snapplot_layers.hpp"
 #include "snapplot_map.hpp"
 #include "snapplot_mapprinter.hpp"
 #include "snapplot_help.hpp"
-
 #include "wxhelpabout.hpp"
 
 #ifdef __WXGTK__
@@ -41,7 +53,6 @@
 #include "dlg_error_options.hpp"
 #include "dlg_station_highlight.hpp"
 #include "dlg_findstation.hpp"
-
 //extern "C"
 //{
 #include "util/errdef.h"

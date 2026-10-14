@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /* Management of a list of coordinate types */
 
 /*
@@ -8,11 +9,12 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <string>
+#include <utility>
 #include "coordsys/crdsys_prj.h"
+
+struct param_def;
 
 /// A registered projection_type is permanent for the life of the process
 /// - never copied or freed (see projection_type's own doc comment) - so

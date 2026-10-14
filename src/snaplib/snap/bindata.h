@@ -14,8 +14,11 @@
 #include <optional>
 #include <string>
 #include <vector>
-
+#include <cstdio>
 #include "snapdata/survdata.h"
+
+struct survdata;
+struct trgtdata;
 
 struct bindata {
     std::int64_t loc = 0;   ///< Location of structure on the file

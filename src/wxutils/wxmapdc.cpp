@@ -1,8 +1,11 @@
 #include "snapconfig.h"
+#include "wx_includes.hpp"
+#include "wxmapscale.hpp"
 // wxmapdc: Code related to the drawing a map, scaling etc.
 
 #include "wxmapdc.hpp"
-#include <cmath>
+
+class MapPoint;
 
 //---------------------------------------------------------------------------
 // wxMapDC bit.. mainly inline functions, but include code here for

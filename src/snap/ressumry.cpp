@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "network/network.h"
 /* Code to form summaries of residuals */
 
 /*
@@ -11,18 +12,18 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cmath>
-
 #include <algorithm>
 #include <cassert>
 #include <utility>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
+#include <optional>
+#include <string_view>
 #include "util/fieldscanner.hpp"
-
 #include "ressumry.h"
 
 using boost::numeric_cast;

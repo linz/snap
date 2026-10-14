@@ -24,8 +24,12 @@
 
 #include <optional>
 #include <string_view>
-
+#include <cstdio>
 #include "util/dms.h"
+#include "snapdata/survdata.h"
+#include "symmatrx.h"
+
+class DmsFormat;
 
 enum { HDR_OBSDATA, HDR_VECDATA, HDR_PNTDATA };
 

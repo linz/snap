@@ -8,8 +8,9 @@
 
 */
 
-#include "coordsys/coordsys.h"
 #include <boost/algorithm/string/case_conv.hpp>
+#include <string>
+#include "coordsys/coordsys.h"
 
 ellipsoid::ellipsoid(const std::string& code_, const std::string& name_, const double a_, const double rf_)
     : code(boost::algorithm::to_upper_copy(code_)),

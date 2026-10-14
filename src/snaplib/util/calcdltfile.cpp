@@ -1,4 +1,6 @@
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <sstream>
 #include "calcdltfile.hpp"
 
 namespace LINZ {

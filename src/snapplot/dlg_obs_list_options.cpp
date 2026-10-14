@@ -1,13 +1,17 @@
-#include "snapconfig.h"
-#include "wxsimpledialog.hpp"
 #include <wx/checklst.h>
 #include <boost/numeric/conversion/cast.hpp>
+#include <cstddef>
+#include <string>
+#include <vector>
+#include "snapconfig.h"
+#include "wxsimpledialog.hpp"
 #include "snapplot_help.hpp"
-
 //extern "C"
 //{
 #include "snap/snapglob.h"
 #include "plotconn.h"
+#include "classify.h"
+#include "wx_includes.hpp"
 //}
 
 static const std::vector<ListControlOption> obsListOptions = {{"All observations", SRL_ALL},

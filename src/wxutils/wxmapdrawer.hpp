@@ -5,6 +5,8 @@
 #include "wxmapscale.hpp"
 #include "wxsymbology.hpp"
 
+class MapPoint;
+
 class wxMapDrawer {
  public:
     wxMapDrawer(wxDC& dc, wxMapScale& scale, Symbology& symbology);

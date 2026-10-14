@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
 /* Routines for reading SNAP format data files */
 
 /* Tidy up handling of errors, especially use of group_err and
@@ -34,18 +36,17 @@
 
 */
 
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <algorithm>
 #include <iterator>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-#include "util/snapctype.h"
+#include <utility>
 
 #ifndef DEBUG
 #ifndef NDEBUG
@@ -53,9 +54,7 @@
 #endif
 #endif
 #include <cassert>
-
 #include "snapdata/snapdata.h"
-#include "util/dstring.h"
 #include "snapdata/datatype.h"
 #include "util/datafile.h"
 #include "snapdata/loaddata.h"
@@ -63,7 +62,6 @@
 #include "util/dateutil.h"
 #include "util/errdef.h"
 #include "util/symmatrx.h"
-#include "util/progress.h"
 #include "util/pi.h"
 
 /* Some useful names and numbers */

@@ -25,6 +25,12 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include "iostring.h"
+
+struct coordsys;
+struct ellipsoid;
+struct ref_frame;
+struct vdatum;
 
 #ifndef _COORDSYS_H
 #include "coordsys/coordsys.h"

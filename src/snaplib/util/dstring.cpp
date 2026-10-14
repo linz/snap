@@ -12,11 +12,8 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <limits>
 #include <stdexcept>
-#include "util/snapctype.h"
-
 #include "util/dstring.h"
 
 // Throws std::overflow_error if string.size() doesn't fit in the int32_t length

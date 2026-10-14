@@ -1,7 +1,13 @@
+#include <cstdlib>
 #include "snapconfig.h"
+#include "wxmap.hpp"
+#include "wxmapdrawer.hpp"
+#include "wxsimpleevent.hpp"
 // wxmapwindow: Code related to the drawing a map, scaling etc.
 
 #include "wxmapwindow.hpp"
+
+class Symbology;
 
 DEFINE_EVENT_TYPE(WX_MAPWINDOW_POSITION);
 DEFINE_EVENT_TYPE(WX_MAPWINDOW_CLICKED);

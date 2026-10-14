@@ -1,9 +1,10 @@
 #include <snapconfig.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <string>
 #include <map>
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
+#include <utility>
 #include "util/snapregex.hpp"
-
 #include "util/optionstring.hpp"
 
 namespace LINZ {

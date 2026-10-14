@@ -2,10 +2,6 @@
 #include "wxsimpledialog.hpp"
 #include "dlg_pen_options.hpp"
 #include "snapplot_help.hpp"
-
-//extern "C"
-//{
-#include "plotscal.h"
 #include "plotconn.h"
 //}
 

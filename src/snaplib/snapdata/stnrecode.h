@@ -22,7 +22,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
-
+#include <cstdio>
 #include "snapdata/loaddata.h"
 
 /// A recode target starting with this character marks the station as rejected, e.g. "*ABCD"

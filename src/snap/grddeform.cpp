@@ -2,19 +2,21 @@
 #include <cstdio>
 #include <cmath>
 #include <string>
-
-#include "snap/snapglob.h"
+#include <initializer_list>
+#include <optional>
+#include <string_view>
 #include "snap/deform.h"
 #include "util/dateutil.h"
-#include "util/fileutil.h"
 #include "geoid/griddata.h"
 #include "coordsys/coordsys.h"
 #include "snap/stnadj.h"
-
 #include "grddeform.h"
+#include "errdef.h"
+#include "network/network.h"
 
 #ifndef M_PI
 #include "util/pi.h"
+
 #define M_PI PI
 #endif
 

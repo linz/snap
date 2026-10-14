@@ -1,4 +1,11 @@
 #include "snapconfig.h"
+#include "bltmatrx.h"
+#include "coordsys/coordsys.h"
+#include "errdef.h"
+#include "geodetic.h"
+#include "network/network.h"
+#include "snap/deform.h"
+#include "snap/filenames.h"
 /* Code to support printing of covariance information to files for
    subsequent use by other programs */
 
@@ -16,15 +23,14 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <array>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
+#include <optional>
 
 using boost::numeric_cast;
 

@@ -14,6 +14,9 @@
 
 #include <string>
 #include <string_view>
+#include <cstddef>
+
+struct DiskField;
 
 using tmatrix = double[3][3]; /* Vector transformation matrix */
 

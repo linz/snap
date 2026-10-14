@@ -50,9 +50,8 @@ The procedure requires the following sequence of calls
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cmath>
-#include <cstring>
 #include <cstddef>
 #include <algorithm>
 #include <array>
@@ -61,9 +60,7 @@ The procedure requires the following sequence of calls
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <utility>
 #include "util/dstring.h"
 #include "snap/genparam.h"
 #include "util/binfile.h"

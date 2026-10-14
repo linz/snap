@@ -1,10 +1,11 @@
 #include "snapconfig.h"
+#include "classify.h"
+#include "fileutil.h"
+#include "readcfg.h"
 /* Routines for managing observation selection criteria */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cmath>
 #include <algorithm>
 #include <array>
 #include <deque>
@@ -14,8 +15,8 @@
 #include <string_view>
 #include <variant>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
-
+#include <iterator>
+#include <utility>
 #include "snapdata/obsmod.h"
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
@@ -23,9 +24,7 @@
 #include "network/network.h"
 #include "util/errdef.h"
 #include "util/dateutil.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
-#include "util/snapctype.h"
 #include "util/wildcard.h"
 
 #define FILE_IGNORE_ERROR OK

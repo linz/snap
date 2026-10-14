@@ -19,6 +19,9 @@
 */
 
 #include <vector>
+#include "binfile.h"
+
+struct SpecDef;
 
 #ifndef _BINFILE_H
 #include "util/binfile.h"
