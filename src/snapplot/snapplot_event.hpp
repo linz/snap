@@ -2,11 +2,9 @@
 #define SNAPPLOT_EVENT_HPP
 
 #include "wx_includes.hpp"
-#include "snapplot_event.hpp"
 #include "snapplot_eventids.hpp"
 //extern "C" {
 #include "infowin.h"
-#include "snapplot/snapplot_event.hpp"
 //}
 
 // Declares an custom event type for SNAPPLOT events, which require defining
