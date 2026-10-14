@@ -249,7 +249,7 @@ std::vector<std::size_t> NetcdfVariable::dimensionLengths() const {
 template <typename T>
 std::vector<T> NetcdfVariable::readValues() const {
     std::size_t total = 1;
-    for (std::size_t const length : dimensionLengths()) {
+    for (const std::size_t length : dimensionLengths()) {
         total *= length;
     }
 
@@ -333,7 +333,7 @@ std::vector<NetcdfGroup> NetcdfGroup::subgroups() const {
 
     std::vector<NetcdfGroup> groups;
     groups.reserve(childIds.size());
-    for (int const childId : childIds) {
+    for (const int childId : childIds) {
         char nameBuffer[NC_MAX_NAME + 1] = {};
         status = nc_inq_grpname(childId, nameBuffer);
         if (status != NC_NOERR) {

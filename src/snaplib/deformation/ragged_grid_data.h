@@ -105,7 +105,8 @@ class RaggedGridData {
     // One corner node's own value at queryDayCount, for one axis: the last
     // segment whose own startDay is at or before queryDayCount (0.0 if none
     // is, including an empty segment chain).
-    [[nodiscard]] double evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis, std::int64_t queryDayCount) const;
+    [[nodiscard]] double evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis,
+                                      std::int64_t queryDayCount) const;
 
     std::unique_ptr<RaggedNodeValueSource> values_;
 };

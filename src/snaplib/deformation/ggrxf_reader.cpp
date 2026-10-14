@@ -806,7 +806,7 @@ std::unique_ptr<Layer> parseLayer(const netcdf::NetcdfGroup& layerGroup, bool la
 }  // namespace
 
 GgrxfFile parseGgrxfFile(const std::string& path) {
-    netcdf::NetcdfFile const file(path);
+    const netcdf::NetcdfFile file(path);
     const auto rootGroup = file.rootGroup();
 
     // interpolationCrsWkt is required (GGRXF_DEFORMATION_FORMAT.md

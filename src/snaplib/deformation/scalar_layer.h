@@ -66,7 +66,8 @@ class ScalarLayer : public Layer {
     // axisCount() entries meaningful), scaled by the summed time functions
     // - or std::nullopt if no root grid (or none of its descendants)
     // contains the point, or the picked grid has missing data there.
-    [[nodiscard]] std::optional<std::array<double, 3>> evaluate(double c0, double c1, double queryDateDays) const override;
+    [[nodiscard]] std::optional<std::array<double, 3>> evaluate(double c0, double c1,
+                                                                double queryDateDays) const override;
 
  private:
     std::vector<std::unique_ptr<Grid<ScalarGridData>>>

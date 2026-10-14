@@ -93,7 +93,8 @@ class TimeFunction {
     // GGRXF specification's named time-function shapes table, before
     // scaleFactor or the functionReferenceDate zeroing subtraction are
     // applied.
-    [[nodiscard]] double refFunc(double delta) const;  // delta is deltaAt()'s own return value - a day count difference, not a date
+    [[nodiscard]] double refFunc(
+        double delta) const;  // delta is deltaAt()'s own return value - a day count difference, not a date
 
     Params params_;  // this function's own shape and parameters, as validated by the constructor
 };
