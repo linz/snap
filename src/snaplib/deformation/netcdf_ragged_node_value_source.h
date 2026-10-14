@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <vector>
-
+#include <cstddef>
 #include "ragged_grid_data.h"
 
 namespace deformation {

@@ -1,10 +1,9 @@
 #include "deformation/grid.h"
-
 #include <stdexcept>
 #include <string>
-
 #include "deformation/scalar_grid_data.h"
 #include "deformation/ragged_grid_data.h"
+#include "deformation/grid_geometry.h"
 
 namespace deformation {
 

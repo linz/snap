@@ -1,10 +1,14 @@
 #include "deformation/ragged_layer.h"
-
 #include <algorithm>
 #include <cmath>
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <array>
+#include <utility>
+#include "deformation/grid.h"
+#include "deformation/grid_geometry.h"
+#include "deformation/ragged_grid_data.h"
 
 namespace deformation {
 

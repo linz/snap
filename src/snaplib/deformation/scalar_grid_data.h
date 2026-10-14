@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
-
-#include "grid_geometry.h"
+#include <cstddef>
 
 namespace deformation {
+struct Cell;
 
 // Supplies the raw, unscaled values stored at one ScalarGridData's nodes. One
 // instance is bound to a single ScalarGridData's own node storage - a

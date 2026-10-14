@@ -1,13 +1,12 @@
 #pragma once
 
-#include <array>
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <unordered_map>
 #include <vector>
-
+#include <cstddef>
 #include "grid.h"
 #include "layer.h"
 #include "ragged_grid_data.h"

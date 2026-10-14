@@ -1,10 +1,9 @@
 #pragma once
 
-#include <array>
 #include <memory>
 #include <optional>
 #include <vector>
-
+#include <cstddef>
 #include "grid.h"
 #include "layer.h"
 #include "scalar_grid_data.h"

@@ -1,7 +1,13 @@
 #include "deformation/scalar_layer.h"
-
 #include <stdexcept>
 #include <string>
+#include <array>
+#include <functional>
+#include <utility>
+#include "deformation/grid.h"
+#include "deformation/grid_geometry.h"
+#include "deformation/scalar_grid_data.h"
+#include "deformation/time_function.h"
 
 namespace deformation {
 

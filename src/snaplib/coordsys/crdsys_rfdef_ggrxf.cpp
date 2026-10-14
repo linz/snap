@@ -6,7 +6,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
+#include <array>
+#include <utility>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_ggrxf.h"
 #include "deformation/ggrxf_reader.h"
@@ -15,6 +16,7 @@
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/pi.h"
+#include "iostring.h"
 
 // Matches crdsys_rfdef_linzdef.cpp's own VERSIONLEN - both files parse the
 // same trailing version token syntax on a DEFORMATION line.

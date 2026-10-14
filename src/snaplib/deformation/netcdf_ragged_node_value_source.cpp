@@ -1,6 +1,6 @@
 #include "deformation/netcdf_ragged_node_value_source.h"
-
 #include <utility>
+#include "deformation/ragged_grid_data.h"
 
 namespace deformation {
 

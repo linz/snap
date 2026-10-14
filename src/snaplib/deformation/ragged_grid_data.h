@@ -3,11 +3,10 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include <vector>
-
-#include "grid_geometry.h"
+#include <cstddef>
 
 namespace deformation {
+struct Cell;
 
 // One linear-shaped segment of a single node's own time series (GGRXF's
 // only implemented ragged segment shape - see RaggedNodeValueSource): from

@@ -1,7 +1,8 @@
 #include "deformation/ragged_grid_data.h"
-
 #include <stdexcept>
 #include <string>
+#include <utility>
+#include "deformation/grid_geometry.h"
 
 namespace deformation {
 

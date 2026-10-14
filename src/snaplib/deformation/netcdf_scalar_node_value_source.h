@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
-
+#include <cstddef>
 #include "scalar_grid_data.h"
 
 namespace deformation {

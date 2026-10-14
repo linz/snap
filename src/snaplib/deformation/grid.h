@@ -6,14 +6,16 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-
+#include <cstddef>
 #include "grid_geometry.h"
+
+// Grid is generic over NodeData, whose complete type each includer provides.
+// IWYU pragma: no_include "deformation/scalar_grid_data.h"
 
 namespace deformation {
 
 template <typename NodeData>
 class Grid;
-
 template <typename NodeData>
 class GridParent;
 

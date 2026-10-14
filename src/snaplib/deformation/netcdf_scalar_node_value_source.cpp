@@ -1,6 +1,6 @@
 #include "deformation/netcdf_scalar_node_value_source.h"
-
 #include <utility>
+#include <array>
 
 namespace deformation {
 

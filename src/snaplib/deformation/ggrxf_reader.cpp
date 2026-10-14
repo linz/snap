@@ -1,5 +1,4 @@
 #include "deformation/ggrxf_reader.h"
-
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -10,7 +9,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
+#include <cstddef>
 #include "deformation/ggrxf_date.h"
 #include "deformation/grid_geometry.h"
 #include "deformation/netcdf_ragged_node_value_source.h"
@@ -21,6 +20,8 @@
 #include "deformation/scalar_grid_data.h"
 #include "deformation/scalar_layer.h"
 #include "deformation/time_function.h"
+#include "deformation/grid.h"
+#include "deformation/layer.h"
 
 namespace deformation {
 
