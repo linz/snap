@@ -26,6 +26,13 @@ TARGET (default: all):
                the full report is written there
     tidy-fix   Apply clang-tidy's fixes to the sources in place (debug only; requires a clean git
                tree), then run tidy to confirm that nothing is left. Same requirements as tidy
+    iwyu       Report the #includes that include-what-you-use suggests adding or removing, after
+               dropping the suggestions it gets wrong for this code base (debug only). A report
+               only: it exits 0 whatever it finds. Needs the include-what-you-use built on
+               clang 21 (the version CI uses; see BUILD.md), wxWidgets 3.2 and the C++ build
+               dependencies, but not clang-tidy. Configures its own compile database in
+               build-tidy, in the same way as tidy, and writes iwyu-report.txt (sorted by file)
+               and iwyu-raw.txt there
     format     Report which sources clang-format would change (the style in .clang-format), changing
                nothing; exits 1 if there are any. Needs clang-format 21 (the version CI uses). The
                build type is ignored, as nothing is built
@@ -34,7 +41,7 @@ TARGET (default: all):
 
 Options:
     --no-gui         Skip wxWidgets GUI targets (snap_manager, snapadjust, snapplot); not allowed
-                     with tidy or tidy-fix
+                     with tidy, tidy-fix or iwyu
     --jobs N         Parallel jobs (default: all cores)
     --build-dir DIR  Build output directory (default: build-{type}); for package,
                      sets SNAP_BUILD_DIR passed to debuild/debian/rules
@@ -52,6 +59,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import json
 import os
 import platform
 import re
@@ -289,17 +297,12 @@ def find_run_clang_tidy() -> str:
     sys.exit(1)
 
 
-def _tidy(fix: bool, jobs: int | None, build_d: Path) -> None:
-    """Runs clang-tidy over the C++ sources, with the checks enabled in .clang-tidy, writing the
-    full report to build_d.  Only tidy_dry_run and tidy_fix call this.
+def configure_for_analysis(build_d: Path) -> None:
+    """Runs cmake's configure step for build_d, writing the compile database that the static
+    analysers (tidy, tidy-fix and iwyu) read.  Nothing is compiled, so the result depends only on the
+    sources and CMakeLists.txt, not on file times or on what an earlier run left in build_d.
 
-    Without fix nothing is changed: it prints the number of findings per file and exits 1 if there
-    are any.  With fix it rewrites the sources in place and exits 0.  In both cases, if clang-tidy
-    itself fails (a compile error, a crash) it exits with clang-tidy's own return code."""
-    clang_tidy = find_clang_tidy()
-    run_clang_tidy = find_run_clang_tidy()
-
-    # Always the GUI build: it is the configuration that compiles the most source files.
+    Always the GUI build: it is the configuration that compiles the most source files."""
     run(
         [
             "cmake",
@@ -313,6 +316,19 @@ def _tidy(fix: bool, jobs: int | None, build_d: Path) -> None:
             "-DSNAP_EFENCE=OFF",
         ]
     )
+
+
+def _tidy(fix: bool, jobs: int | None, build_d: Path) -> None:
+    """Runs clang-tidy over the C++ sources, with the checks enabled in .clang-tidy, writing the
+    full report to build_d.  Only tidy_dry_run and tidy_fix call this.
+
+    Without fix nothing is changed: it prints the number of findings per file and exits 1 if there
+    are any.  With fix it rewrites the sources in place and exits 0.  In both cases, if clang-tidy
+    itself fails (a compile error, a crash) it exits with clang-tidy's own return code."""
+    clang_tidy = find_clang_tidy()
+    run_clang_tidy = find_run_clang_tidy()
+
+    configure_for_analysis(build_d)
 
     cmd: list[str | Path] = [run_clang_tidy, "-p", build_d, "-clang-tidy-binary", clang_tidy, "-quiet"]
     if jobs:
@@ -464,6 +480,166 @@ def format_fix() -> None:
     _format(False)
 
 
+# What the iwyu target writes into the build directory: everything that iwyu_tool.py printed, and the
+# report left after the filters below.
+IWYU_RAW_REPORT = "iwyu-raw.txt"
+IWYU_REPORT = "iwyu-report.txt"
+
+# No wxWidgets header or class is suggested.  The sources get wx from wx_includes.hpp, the project's
+# umbrella header, so single wx headers would only duplicate it.  IWYU also suggests the header of the
+# one wx port that it analysed (wx/gtk/frame.h for wxFrame), which does not exist on the other
+# ports, so applying it would break the Windows build.
+IWYU_WX = re.compile(r'#include [<"]wx/|class wx\w+;')
+
+# The Boost headers that IWYU suggests despite boost-all.imp, which are implementation details.
+IWYU_BOOST_INTERNAL = re.compile(r"#include <boost/(?:regex/v5|.*/detail)/")
+
+# snapconfig.h is the configuration header that every source file includes first: it defines UNIX and
+# the macros that stand in for the Windows names, which later headers test, so no use of a symbol in
+# it is what IWYU can see.  wx headers are only suggested for removal because the platform header
+# replaces them.  wx_includes.hpp is the project's wxWidgets umbrella header, which is kept for the
+# same reason as the wx headers, instead of the many single wx headers that IWYU would put in its place.
+IWYU_NEVER_REMOVE = re.compile(r'#include (?:<wx/|[<"](?:snapconfig\.(?:h|hpp)|wx_includes\.hpp)[>"])')
+
+# After each include that it suggests adding, IWYU comments the symbols that the file uses from it:
+#     add    #include "symmatrx.h"    // for ltmat, _SYMMATRX_H
+# It counts an include guard (_SYMMATRX_H) among them, though that is no use of the header.  So a
+# suggestion is dropped only when guards are all that the comment lists, as in "// for _SYMMATRX_H".
+# One that also names a real symbol (ltmat), or whose list is cut short ("..."), is kept.
+IWYU_GUARD_ONLY = re.compile(r"#include \S+\s+// for _[A-Z0-9_]+_H(?:, _[A-Z0-9_]+_H)*$")
+
+# IWYU analyses the Linux build only, so in a file with a Windows branch it cannot see the includes
+# that the other branch needs.  The names are the compiler's (_WIN32, _MSC_VER, __MINGW32__) and
+# wxWidgets' (__WXMSW__, __WINDOWS__), which the wx sources test.
+IWYU_PLATFORM_BRANCH = re.compile(r"WIN32|_MSC_VER|__MINGW32__|__WXMSW__|__WINDOWS__")
+
+# The header of each part of IWYU's output: "<file> should add these lines:" or "... remove ...".
+IWYU_SECTION = re.compile(r"^(/.+?) should (add|remove) these lines:$")
+
+
+def find_iwyu() -> Path:
+    """Finds the include-what-you-use (IWYU) that is built on clang REQUIRED_CLANG_VERSION, or aborts.
+    Each IWYU release is built for one clang, and its --version says which ("include-what-you-use 0.25
+    (git:791e69e) based on Ubuntu clang version 21.1.8"), so that is what ties it to the clang that
+    tidy and format require, and no IWYU version number is kept here.  IWYU_BINARY names it, as it
+    does for iwyu_tool.py; otherwise it is the one on the PATH."""
+    candidate = os.environ.get("IWYU_BINARY") or shutil.which("include-what-you-use")
+    if candidate:
+        result = subprocess.run([candidate, "--version"], capture_output=True, text=True, check=False)
+        clang = re.search(r"include-what-you-use \d+\.\d+ .*? clang version (\d+)\.", result.stdout + result.stderr)
+        if clang and int(clang.group(1)) == REQUIRED_CLANG_VERSION:
+            return Path(candidate).resolve()
+    print(f"ABORTED: include-what-you-use built on clang {REQUIRED_CLANG_VERSION} is required - see BUILD.md")
+    sys.exit(1)
+
+
+def parse_iwyu_output(output: str) -> dict[Path, set[tuple[str, str]]]:
+    """The suggestions in IWYU's output, for each file, as pairs of "add" or "remove" and the line
+    suggested.  A file that several sources include is reported once for each of them, so the
+    suggestions are a set.  Each part of the output runs to the next blank line, which leaves out the
+    full include-list that follows."""
+    suggestions: dict[Path, set[tuple[str, str]]] = {}
+    section: tuple[Path, str] | None = None
+    for line in output.splitlines():
+        header = IWYU_SECTION.match(line)
+        if header:
+            section = (Path(header.group(1)), header.group(2))
+            suggestions.setdefault(section[0], set())
+        elif not line.strip():
+            section = None
+        elif section:
+            suggestions[section[0]].add((section[1], line.removeprefix("- ")))
+    return suggestions
+
+
+def wanted_iwyu_suggestions(path: Path, suggestions: set[tuple[str, str]]) -> list[tuple[str, str]]:
+    """The suggestions for path that are left after dropping the ones that IWYU gets wrong about
+    this code base (see IWYU_WX and the other IWYU_ patterns), in the order that the report lists
+    them."""
+    try:
+        text = path.read_text(errors="replace")
+    except OSError:
+        text = None
+    # A file that cannot be read cannot be checked for a Windows branch, so its removals are dropped.
+    may_remove = text is not None and not IWYU_PLATFORM_BRANCH.search(text)
+    wanted = []
+    for kind, line in sorted(suggestions):
+        if kind == "add":
+            wrong_adds = (IWYU_WX, IWYU_BOOST_INTERNAL, IWYU_GUARD_ONLY)
+            if any(wrong.match(line) for wrong in wrong_adds):
+                continue
+        elif not may_remove or IWYU_NEVER_REMOVE.match(line):
+            continue
+        wanted.append((kind, line))
+    return wanted
+
+
+def iwyu_report(jobs: int | None, build_d: Path) -> None:
+    """Runs include-what-you-use over the C++ sources that tidy checks, with the Boost mapping that
+    comes with it and the project's own, tools/iwyu/snap.imp, and writes the suggestions that remain
+    after the filters to build_d.  The raw
+    output is kept next to it.  This is a report only: it exits 0 whatever IWYU suggests, and exits
+    with an error only if IWYU itself fails (a compile error) or analyses nothing."""
+    iwyu = find_iwyu()
+    iwyu_tool = iwyu.parent / "iwyu_tool.py"
+    boost_mapping = iwyu.parent.parent / "share" / "include-what-you-use" / "boost-all.imp"
+    snap_mapping = REPO_ROOT / "tools" / "iwyu" / "snap.imp"
+    for needed in (iwyu_tool, boost_mapping, snap_mapping):
+        if not needed.is_file():
+            print(f"ABORTED: {needed} is missing - see BUILD.md")
+            sys.exit(1)
+
+    configure_for_analysis(build_d)
+    database = json.loads((build_d / "compile_commands.json").read_text())
+    files = sorted({entry["file"] for entry in database if re.match(TIDY_FILE_REGEX, entry["file"])})
+    if not files:
+        print("ABORTED: no sources to analyse, check TIDY_FILE_REGEX against the compile database")
+        sys.exit(1)
+
+    # iwyu_tool.py exits 0 whatever IWYU suggests, and non-zero if IWYU failed on a file.
+    cmd = [sys.executable, str(iwyu_tool), "-p", str(build_d), "-j", str(jobs or os.cpu_count() or 1)]
+    cmd += [*files, "--"]
+    for mapping in (boost_mapping, snap_mapping):
+        cmd += ["-Xiwyu", f"--mapping_file={mapping}"]
+    raw_report = build_d / IWYU_RAW_REPORT
+    print("+", " ".join(cmd[:6]), f"<{len(files)} files> --", " ".join(cmd[-4:]), ">", raw_report)
+    env = {**os.environ, "IWYU_BINARY": str(iwyu)}
+    with raw_report.open("w") as raw_file:
+        result = subprocess.run(cmd, cwd=REPO_ROOT, env=env, stdout=raw_file, stderr=subprocess.STDOUT, check=False)
+    output = raw_report.read_text()
+
+    # A compile error, or IWYU stopping on its own assertion (a mapping file that it does not accept).
+    errors = [line for line in output.splitlines() if " error: " in line or "Assertion failed" in line]
+    if errors:
+        for line in errors[:10]:
+            print(line)
+        print(f"include-what-you-use failed with {len(errors)} errors; see {raw_report}")
+        sys.exit(1)
+    if result.returncode != 0:
+        print(f"include-what-you-use failed with exit status {result.returncode}; see {raw_report}")
+        sys.exit(1)
+    suggestions = parse_iwyu_output(output)
+    if not suggestions and "has correct #includes/fwd-decls" not in output:
+        print(f"ABORTED: include-what-you-use analysed no files; see {raw_report}")
+        sys.exit(1)
+
+    report: list[str] = []
+    counts = Counter[str]()
+    for path in sorted(suggestions):
+        wanted = wanted_iwyu_suggestions(path, suggestions[path])
+        if wanted:
+            report.append(str(path.relative_to(REPO_ROOT) if path.is_relative_to(REPO_ROOT) else path))
+            report += [f"    {kind:<7}{line}" for kind, line in wanted]
+            counts.update(kind for kind, _line in wanted)
+    report_path = build_d / IWYU_REPORT
+    report_path.write_text("\n".join(report) + "\n")
+    print(
+        f"include-what-you-use suggests {counts['add']} additions and {counts['remove']} removals, "
+        f"after the filters, in {sum(not line.startswith(' ') for line in report)} files (the {len(files)} "
+        f"sources analysed and the headers they include); full report in {report_path}"
+    )
+
+
 def check_version_changelog() -> None:
     """Aborts if debian/changelog's latest entry doesn't match VERSION."""
     version = (REPO_ROOT / "VERSION").read_text().strip()
@@ -486,7 +662,19 @@ def main() -> None:  # pylint: disable=too-many-branches
         "target",
         nargs="?",
         default="all",
-        choices=["all", "snap_cmd", "test", "install", "package", "clean", "tidy", "tidy-fix", "format", "format-fix"],
+        choices=[
+            "all",
+            "snap_cmd",
+            "test",
+            "install",
+            "package",
+            "clean",
+            "tidy",
+            "tidy-fix",
+            "iwyu",
+            "format",
+            "format-fix",
+        ],
         help="Build target (default: all)",
     )
     parser.add_argument(
@@ -526,7 +714,7 @@ def main() -> None:  # pylint: disable=too-many-branches
             format_fix()
         return
 
-    if args.target in ("tidy", "tidy-fix"):
+    if args.target in ("tidy", "tidy-fix", "iwyu"):
         if args.type != "debug":
             print(f"{args.target} target only supported for debug builds")
             sys.exit(1)
@@ -536,8 +724,10 @@ def main() -> None:  # pylint: disable=too-many-branches
         tidy_build_d = args.build_dir if args.build_dir else TIDY_BUILD_DIR
         if args.target == "tidy":
             tidy_dry_run(args.jobs, tidy_build_d)
-        else:
+        elif args.target == "tidy-fix":
             tidy_fix(args.jobs, tidy_build_d)
+        else:
+            iwyu_report(args.jobs, tidy_build_d)
         return
 
     if args.target == "package":

@@ -298,6 +298,55 @@ the vendored `src/third_party`, `src/snapplot/resource.h` and the generated `scr
 `tools/lapg` is outside `src/` and is not formatted. A plain `clang-format` run (clang-format 21
 does) reads the same ignore file, so editors skip those files too.
 
+**Include analysis (include-what-you-use)**
+
+`build.py` can run include-what-you-use (IWYU), which reports the `#include`s that each file should
+add and the ones it does not need. It is a report only: it changes nothing and exits 0 whatever it
+finds (it fails only if IWYU itself fails). Nothing in CI enforces it.
+
+Requirements, on Ubuntu 24.04 (Noble):
+
+- The Linux prerequisites above, including `libwxgtk3.2-dev`. The analysis configures a build
+  directory in the same way as `tidy` does, with the GUI sources always included (so `--no-gui` is
+  rejected), and reads the compile database from it. It uses `build-tidy/` by default, like `tidy`,
+  but needs neither clang-tidy nor a previous `tidy` run.
+- An IWYU built on clang 21. Each IWYU release is built for one clang, and `build.py` checks
+  that the one it finds reports the same clang version as `REQUIRED_CLANG_VERSION`. CI builds IWYU
+  from source, from the `clang_21` branch of
+  https://github.com/include-what-you-use/include-what-you-use at the commit named in
+  `lint-cpp.yml`, currently `791e69ea4662cb3e74e8128fd5fd69bd7f4ea6b3`. It needs
+  `clang-21`, `libclang-21-dev` and `llvm-21-dev` from the LLVM apt repository (`clang-21` provides
+  the `ClangConfig.cmake` that cmake looks for), and
+  `cmake -S <source> -B <build> -DCMAKE_PREFIX_PATH=/usr/lib/llvm-21 -DClang_DIR=/usr/lib/llvm-21/lib/cmake/clang -DLLVM_DIR=/usr/lib/llvm-21/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release`,
+  then `cmake --build <build> --parallel` and `cmake --install <build>`. The two `_DIR` settings
+  stop cmake from picking up another LLVM that is installed, such as the one on a GitHub runner.
+
+```
+python3 build.py debug iwyu       # writes the report; exits 0 unless IWYU fails
+```
+
+It needs the `debug` build type. `build.py` uses the `include-what-you-use` on the `PATH`, or the
+one that `IWYU_BINARY` names. The report is `build-tidy/iwyu-report.txt`, sorted by file, with
+each suggested line marked `add` or `remove`; `build-tidy/iwyu-raw.txt` is everything that IWYU
+printed.
+
+The report is IWYU's output with the suggestions that are wrong for this code base left out:
+
+- No wxWidgets header or class is suggested: the sources get wx from `src/wxutils/wx_includes.hpp`.
+  That header marks its includes `// IWYU pragma: begin_exports`, so IWYU does not ask for them
+  to be removed.
+- Boost headers that are implementation details, and headers suggested only because of their
+  include guard, are left out.
+- IWYU analyses the Linux build only, so a file with a Windows branch gets no removals, and
+  `snapconfig.h` (which every source includes first) and wx headers are never suggested for removal.
+
+The sources write the C library's names with `std::` (`std::printf`, `std::FILE`, `std::size_t`),
+which is why IWYU suggests the C++ headers (`<cstdio>`, `<cstddef>`). A name written without
+`std::` makes it suggest the C header instead (`<stdio.h>`).
+
+`tools/iwyu/snap.imp` is the mapping file that IWYU reads, in addition to the Boost mapping that
+comes with it.
+
 
 
 

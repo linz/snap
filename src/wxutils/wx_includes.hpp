@@ -1,6 +1,7 @@
 #ifndef WX_INCLUDES_HPP
 #define WX_INCLUDES_HPP
 
+// IWYU pragma: begin_exports
 #include <wx/wx.h>
 
 #include <wx/debug.h>
@@ -70,5 +71,6 @@
 #include <wx/process.h>
 
 #include <wx/arrstr.h>
+// IWYU pragma: end_exports
 
 #endif

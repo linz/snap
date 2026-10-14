@@ -40,3 +40,60 @@ jobs:
           sudo apt-get install -y clang-format-21
       - name: Check the formatting
         run: python3 build.py debug format
+
+  iwyu:
+    runs-on: ubuntu-24.04
+    env:
+      # The commit of the clang_21 branch of include-what-you-use; BUILD.md names the same one.
+      IWYU_COMMIT: 791e69ea4662cb3e74e8128fd5fd69bd7f4ea6b3
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7.0.1
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libwxgtk3.2-dev perl python3
+      - name: Install clang 21 and its development libraries
+        # REQUIRED_CLANG_VERSION in build.py must name the same version. clang-21 provides the
+        # ClangConfig.cmake that building include-what-you-use needs; without it cmake uses the
+        # clang 18 that the runner image has.
+        run: |
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc > /dev/null
+          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" | sudo tee /etc/apt/sources.list.d/llvm.list
+          sudo apt-get update
+          sudo apt-get install -y clang-21 libclang-21-dev llvm-21-dev
+      - name: Cache the include-what-you-use build
+        # Both directories: cmake --install copies iwyu_tool.py and the mapping files from the source
+        # directory, and a fresh checkout would be newer than the cached objects and be rebuilt.
+        uses: actions/cache@v6.1.0
+        with:
+          path: |
+            ~/iwyu
+            ~/iwyu-build
+          key: iwyu-${{ env.IWYU_COMMIT }}-clang21-noble
+      - name: Build include-what-you-use
+        run: |
+          if [ ! -d ~/iwyu-build ]; then
+            git clone -q --branch clang_21 https://github.com/include-what-you-use/include-what-you-use.git ~/iwyu
+            git -C ~/iwyu checkout -q "$IWYU_COMMIT"
+            cmake -S ~/iwyu -B ~/iwyu-build -DCMAKE_PREFIX_PATH=/usr/lib/llvm-21 -DClang_DIR=/usr/lib/llvm-21/lib/cmake/clang -DLLVM_DIR=/usr/lib/llvm-21/lib/cmake/llvm -DCMAKE_BUILD_TYPE=Release
+            cmake --build ~/iwyu-build --parallel
+          fi
+          sudo cmake --install ~/iwyu-build
+      - name: Run include-what-you-use
+        run: |
+          set -o pipefail
+          python3 build.py debug iwyu | tee iwyu-summary.txt
+      - name: Show the summary
+        # The last line that build.py printed: the counts.
+        run: tail -n 1 iwyu-summary.txt >> "$GITHUB_STEP_SUMMARY"
+      - name: Show the report
+        run: |
+          echo "::group::iwyu-report.txt"
+          cat build-tidy/iwyu-report.txt
+          echo "::endgroup::"
+      - name: Upload the report
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: iwyu-report
+          path: build-tidy/iwyu-report.txt
