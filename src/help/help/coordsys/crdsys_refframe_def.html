@@ -109,10 +109,11 @@ DEFORMATION <i>type</i> <i>parameters</i>
 </code></pre>
 
 <p>Here <i>type</i> is the type of deformation model to use.  
-There are currently four model types supported by concord and SNAP. These are <p>
+There are currently four model types supported by concord and SNAP, plus the experimental GGRXF model. These are <p>
 <pre><code>
 VELGRID <i>grid_file_name</i> <i>reference_epoch</i><br />
 LINZDEF <i>def_model_file</i> [<i>version</i>]
+GGRXF <i>def_model_file</i> [<i>version</i>]
 BW14 <i>reference_epoch dTx dTy dTz dRx dRy dRz dS</i> 
 EULER <i>reference_epoch Plon Plat rate</i>
 NONE
@@ -132,6 +133,16 @@ Some LINZDEF files hold more than one edition (version) of the model
 format</a>.  The optional <i>version</i> parameter pins the coordinate
 system to one specific version by its identifier.  If omitted, SNAP
 uses the file's most recent version.
+</p>
+<p>
+The GGRXF model is an experimental model held in a
+<a href="ggrxffile.html">GGRXF netCDF file</a>, in which each grid can carry an independent time
+series for each node.  Its required parameter is the name of the model file, which is looked for
+in the same directory as the coordinate system definition file (the extension <code>.nc</code> is
+tried first).  The optional <i>version</i> parameter is the model version that the file is expected
+to hold.  If it is given and does not match the model version recorded in the file, the model is
+reported as invalid.  Evaluating the model for a date or position that is not covered by any of its
+layers is also an error.
 </p>
 <p>The BW14 and EULER models are both equivalent to 14 parameter Bursa Wolf transformations and can be implemented in the transformation
 definition section (with RATES or IERS_ETSR).  The EULER model does provide a convenient alternative formulation however.

@@ -166,6 +166,16 @@ description.  Version 3 file format
 (little-endian, <code>LINZDEF3L</code>) is the current preferred format
 for SNAP.</p>
 
+<div class="Indented">
+<h4>Experimental</h4>
+<p>The <a href="ggrxffile.html">GGRXF format</a>
+is not a new version of the LINZDEF format.  It is a netCDF-4 format that extends
+the GGXF (Gridded Geodetic data eXchange Format) standard where a single grid can
+carry an independent time series for each node.  It is used in place of a LINZDEF file
+with the <code>DEFORMATION GGRXF</code> definition described in the
+<a href="crdsys_refframe_def.html">reference frame definition format</a>.</p>
+</div>
+
 <div class="SeeAlso">
 <h3>See also:</h3>
 <p><a href="linzdefmodel.html">The LINZ deformation model</a></p>
