@@ -18,10 +18,6 @@
 #include "util/pi.h"
 #include "iostring.h"
 
-// Matches crdsys_rfdef_linzdef.cpp's own VERSIONLEN - both files parse the
-// same trailing version token syntax on a DEFORMATION line.
-#define VERSIONLEN 8
-
 namespace {
 
 // GGRXF displacement values are always stored in millimetres
@@ -250,9 +246,12 @@ ref_deformation* rfdef_parse_ggrxf(input_string_def& is) {
 
     // The trailing version token is optional, the same as
     // rfdef_parse_linzdef's own version argument - absence means "don't
-    // check the file's own modelVersion" (see loadGgrxfModel()).
+    // check the file's own modelVersion" (see loadGgrxfModel()). Unlike
+    // LINZDEF's date versions, modelVersion is an unstructured string, so the
+    // whole token is kept: a truncated version could be rejected, or match a
+    // file whose version is only its prefix.
     std::string version;
-    if (next_string_field(is.scanner, version, VERSIONLEN) != OK) {
+    if (next_string_field(is.scanner, version, std::string::npos) != OK) {
         version.clear();
     }
 
