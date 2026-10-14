@@ -52,6 +52,7 @@
 // va_copy not defined on Visual Studio pre 2008
 #include <cstdarg>
 #include <cstdio>
+#include <cstring>
 #define ftell64 _ftelli64
 #define fseek64 _fseeki64
 #ifndef va_copy
