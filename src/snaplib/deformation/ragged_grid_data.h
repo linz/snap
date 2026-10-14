@@ -34,10 +34,10 @@ struct RaggedSegment {
 struct RaggedSegmentRange {
     RaggedSegmentRange(const RaggedSegment* begin, const RaggedSegment* end) : begin_(begin), end_(end) {}
 
-    const RaggedSegment* begin() const {
+    [[nodiscard]] const RaggedSegment* begin() const {
         return begin_;
     }
-    const RaggedSegment* end() const {
+    [[nodiscard]] const RaggedSegment* end() const {
         return end_;
     }
 
@@ -55,7 +55,7 @@ class RaggedNodeValueSource {
 
     // The number of displacement axes stored at each node - see
     // ScalarNodeValueSource::axisCount().
-    virtual std::size_t axisCount() const = 0;
+    [[nodiscard]] virtual std::size_t axisCount() const = 0;
 
     // True if node (i, j) has a real own end day (GGRXF's own_end_day/
     // has_end_day terminal-node supersession, shared across every axis at
@@ -63,14 +63,14 @@ class RaggedNodeValueSource {
     // std::runtime_error if this is ever true, matching the real Python
     // reference reader's own NotImplementedError-at-query-time behaviour,
     // rather than silently ignoring it.
-    virtual bool hasEndDay(std::uint32_t i, std::uint32_t j) const = 0;
+    [[nodiscard]] virtual bool hasEndDay(std::uint32_t i, std::uint32_t j) const = 0;
 
     // Node (i, j)'s own segment chain for displacement axis `axis` (0 <=
     // axis < axisCount()), in chronological startDay order. Empty if this
     // node has no active segment there at all - a genuine gap (e.g. the
     // edge of a quadtree-tiled InSAR patch), not an error; see
     // RaggedGridData::evaluate() for how that resolves.
-    virtual RaggedSegmentRange segments(std::uint32_t i, std::uint32_t j, std::size_t axis) const = 0;
+    [[nodiscard]] virtual RaggedSegmentRange segments(std::uint32_t i, std::uint32_t j, std::size_t axis) const = 0;
 };
 
 // One ragged_segments grid's own per-node value computation - the sibling
@@ -95,17 +95,17 @@ class RaggedGridData {
     // real 0.0, not a missing value (see RaggedNodeValueSource::segments()).
     // Throws std::runtime_error if any of the 4 corner nodes has a real
     // hasEndDay() - see RaggedNodeValueSource::hasEndDay().
-    std::array<double, 3> evaluate(const Cell& cell, std::int64_t queryDayCount) const;
+    [[nodiscard]] std::array<double, 3> evaluate(const Cell& cell, std::int64_t queryDayCount) const;
 
     // The number of displacement axes this grid's own RaggedNodeValueSource
     // returns per node (and hence per evaluate() call).
-    std::size_t axisCount() const;
+    [[nodiscard]] std::size_t axisCount() const;
 
  private:
     // One corner node's own value at queryDayCount, for one axis: the last
     // segment whose own startDay is at or before queryDayCount (0.0 if none
     // is, including an empty segment chain).
-    double evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis, std::int64_t queryDayCount) const;
+    [[nodiscard]] double evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis, std::int64_t queryDayCount) const;
 
     std::unique_ptr<RaggedNodeValueSource> values_;
 };

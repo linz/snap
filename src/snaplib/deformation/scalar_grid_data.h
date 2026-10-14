@@ -23,12 +23,12 @@ class ScalarNodeValueSource {
     // `displacementCount`, LINZDEF's `ngrdval`) - at most 3, the real bound
     // both formats share. Only the first axisCount() entries nodeValues()
     // returns are meaningful; the rest are unspecified.
-    virtual std::size_t axisCount() const = 0;
+    [[nodiscard]] virtual std::size_t axisCount() const = 0;
 
     // Returns the raw, unscaled values stored at node (i, j) (only the
     // first axisCount() entries are meaningful), or std::nullopt if that
     // node is marked as missing/undefined data.
-    virtual std::optional<std::array<double, 3>> nodeValues(
+    [[nodiscard]] virtual std::optional<std::array<double, 3>> nodeValues(
         std::uint32_t i,  // node index along the grid's first axis, 0 <= i < iNodeCount
         std::uint32_t j   // node index along the grid's second axis, 0 <= j < jNodeCount
     ) const = 0;
@@ -45,7 +45,7 @@ class ScalarNodeValueSource {
     // the equivalent effect (an existing ramp component cut off where a
     // newer dataset takes over) is achieved instead by rescaling and
     // truncating that ramp's own end_date directly.
-    virtual bool hasEndDay() const = 0;
+    [[nodiscard]] virtual bool hasEndDay() const = 0;
 };
 
 // One scalar_with_time_function grid's own per-node value computation - the
@@ -66,11 +66,11 @@ class ScalarGridData {
     // axisCount() entries of the result are meaningful; entries beyond that
     // are always exactly 0.0. Returns std::nullopt if any of the 4 corner
     // nodes is missing data.
-    std::optional<std::array<double, 3>> interpolate(const Cell& cell) const;
+    [[nodiscard]] std::optional<std::array<double, 3>> interpolate(const Cell& cell) const;
 
     // The number of displacement axes this grid's own ScalarNodeValueSource
     // returns per node (and hence per interpolate() call).
-    std::size_t axisCount() const;
+    [[nodiscard]] std::size_t axisCount() const;
 
  private:
     double scaleFactor_;                             // applied once, after interpolate()'s weighted sum

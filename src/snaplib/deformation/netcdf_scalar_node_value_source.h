@@ -48,9 +48,9 @@ class NetcdfScalarNodeValueSource : public ScalarNodeValueSource {
     // doesn't carry a raw file axis for simply reads as 0.0 (a real,
     // meaningful "this layer contributes nothing on that axis", not
     // "unknown") - see canonicalAxisIndices above.
-    std::size_t axisCount() const override;
-    std::optional<std::array<double, 3>> nodeValues(std::uint32_t i, std::uint32_t j) const override;
-    bool hasEndDay() const override;
+    [[nodiscard]] std::size_t axisCount() const override;
+    [[nodiscard]] std::optional<std::array<double, 3>> nodeValues(std::uint32_t i, std::uint32_t j) const override;
+    [[nodiscard]] bool hasEndDay() const override;
 
  private:
     std::uint32_t jNodeCount_;                       // needed to convert (i, j) into displacement_'s own flat offset

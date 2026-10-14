@@ -81,23 +81,23 @@ class Grid {
     // when it's actually a GridParent underneath.
     virtual ~Grid() = default;
 
-    const GridGeometry& geometry() const;
-    const NodeData& data() const;
+    [[nodiscard]] const GridGeometry& geometry() const;
+    [[nodiscard]] const NodeData& data() const;
 
     // Forwards to geometry().locate() - see GridGeometry.
-    std::optional<Cell> locate(double c0, double c1) const;
+    [[nodiscard]] std::optional<Cell> locate(double c0, double c1) const;
 
     // Forwards to data().axisCount() - see ScalarGridData/RaggedGridData. Kept
     // here too since GridParent::addChild()'s own validation needs it, and a
     // caller holding a Grid often wants it without going via data() just to
     // ask.
-    std::size_t axisCount() const;
+    [[nodiscard]] std::size_t axisCount() const;
 
     // A type-safe "does this grid actually have children" check, with no
     // RTTI: returns this grid itself, viewed as a GridParent, if it is one -
     // std::nullptr otherwise (an ordinary leaf Grid). GridParent overrides
     // this to return `this`.
-    virtual const GridParent<NodeData>* asParent() const {
+    [[nodiscard]] virtual const GridParent<NodeData>* asParent() const {
         return nullptr;
     }
 
@@ -158,7 +158,7 @@ class GridParent : public Grid<NodeData> {
 
     // This grid's own child grids, in the order they were added (see
     // addChild()). Never contains null entries.
-    const std::vector<std::unique_ptr<Grid<NodeData>>>& children() const;
+    [[nodiscard]] const std::vector<std::unique_ptr<Grid<NodeData>>>& children() const;
 
     // Picks among this grid's own children() at (c0, c1) - a linear scan
     // that returns the *last* covering entry, not the first: children_ is
@@ -166,9 +166,9 @@ class GridParent : public Grid<NodeData> {
     // the highest-priority covering entry is the one that should win.
     // Returns std::nullopt if none of this grid's own children contains the
     // point.
-    std::optional<Resolution<NodeData>> resolveChild(double c0, double c1) const;
+    [[nodiscard]] std::optional<Resolution<NodeData>> resolveChild(double c0, double c1) const;
 
-    const GridParent<NodeData>* asParent() const override {
+    [[nodiscard]] const GridParent<NodeData>* asParent() const override {
         return this;
     }
 

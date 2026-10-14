@@ -80,20 +80,20 @@ class TimeFunction {
     // Params above), refFunc(Δ) is scaled by scaleFactor, and if
     // functionReferenceDateDays is set, refFunc(Δ at functionReferenceDateDays)
     // is subtracted from the result first.
-    double evaluate(
+    [[nodiscard]] double evaluate(
         double queryDateDays) const;  // query date, as a day count in the same epoch as every Params field above
 
  private:
     // Δ at dateDays, relative to this shape's own required date parameter
     // (functionReferenceDateDays for Linear, eventDateDays for Step,
     // startDateDays for Ramp).
-    double deltaAt(double dateDays) const;  // a day count in the same epoch as every Params field above
+    [[nodiscard]] double deltaAt(double dateDays) const;  // a day count in the same epoch as every Params field above
 
     // This shape's own refFunc(delta) - the per-shape formula from the
     // GGRXF specification's named time-function shapes table, before
     // scaleFactor or the functionReferenceDate zeroing subtraction are
     // applied.
-    double refFunc(double delta) const;  // delta is deltaAt()'s own return value - a day count difference, not a date
+    [[nodiscard]] double refFunc(double delta) const;  // delta is deltaAt()'s own return value - a day count difference, not a date
 
     Params params_;  // this function's own shape and parameters, as validated by the constructor
 };

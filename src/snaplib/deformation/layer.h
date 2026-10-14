@@ -23,7 +23,7 @@ class Layer {
     // (GGRXF spec: "this layer contributes exactly 0 at this point") - a
     // caller summing multiple layers treats a std::nullopt the same as an
     // all-zero contribution.
-    virtual std::optional<std::array<double, 3>> evaluate(
+    [[nodiscard]] virtual std::optional<std::array<double, 3>> evaluate(
         double c0,  // coordinate on this layer's first axis (same units/order as every root grid's own affineCoeffs c0)
         double c1,  // coordinate on this layer's second axis
         double queryDateDays  // query date, as a day count in the same epoch as every TimeFunction::Params field

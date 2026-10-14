@@ -26,10 +26,10 @@ class NetcdfVariable {
  public:
     NetcdfVariable(int ncid, int varid, std::string name);
 
-    const std::string& name() const;
+    [[nodiscard]] const std::string& name() const;
 
     // This variable's own dimension lengths, outermost first.
-    std::vector<std::size_t> dimensionLengths() const;
+    [[nodiscard]] std::vector<std::size_t> dimensionLengths() const;
 
     // Reads this variable's own full contents as a flat, row-major array of
     // T, its own exact stored type - no numeric conversion, so an integer
@@ -38,7 +38,7 @@ class NetcdfVariable {
     // match T (supported T: std::int32_t, std::uint32_t, std::uint16_t,
     // std::uint8_t, double).
     template <typename T>
-    std::vector<T> readValues() const;
+    [[nodiscard]] std::vector<T> readValues() const;
 
     // Reads one named field out of every record of this compound-typed
     // variable's own flat array. T's own stored netCDF type must exactly
@@ -47,18 +47,18 @@ class NetcdfVariable {
     // field's real stored type; this class has no notion of what any
     // particular field means, only how to pull it out generically.
     template <typename T>
-    std::vector<T> readCompoundField(const std::string& fieldName) const;
+    [[nodiscard]] std::vector<T> readCompoundField(const std::string& fieldName) const;
 
     // True if this variable itself carries an attribute of this name (as
     // opposed to the group it lives in - see NetcdfGroup::hasAttribute()).
-    bool hasAttribute(const std::string& attributeName) const;
+    [[nodiscard]] bool hasAttribute(const std::string& attributeName) const;
 
     // Reads a numeric attribute attached to this variable itself (not its
     // own group) - e.g. GGRXF's displacement.scale_factor/.missing_value.
     // Same T constraint and exact-type-match behaviour as
     // NetcdfGroup::readNumericAttribute() below.
     template <typename T>
-    std::vector<T> readNumericAttribute(const std::string& attributeName) const;
+    [[nodiscard]] std::vector<T> readNumericAttribute(const std::string& attributeName) const;
 
  private:
     int ncid_;
@@ -73,24 +73,24 @@ class NetcdfGroup {
  public:
     NetcdfGroup(int ncid, std::string name);
 
-    const std::string& name() const;
+    [[nodiscard]] const std::string& name() const;
 
     // This group's own direct child groups.
-    std::vector<NetcdfGroup> subgroups() const;
+    [[nodiscard]] std::vector<NetcdfGroup> subgroups() const;
 
     // True if this group itself carries an attribute of this name.
-    bool hasAttribute(const std::string& attributeName) const;
+    [[nodiscard]] bool hasAttribute(const std::string& attributeName) const;
 
     // Throws NetcdfError if attributeName is absent or not a text
     // attribute.
-    std::string readTextAttribute(const std::string& attributeName) const;
+    [[nodiscard]] std::string readTextAttribute(const std::string& attributeName) const;
 
     // Reads a string-list attribute, whether it's actually stored as an
     // NC_STRING array or (a real netCDF4-python write-time quirk for a
     // length-1 list) a plain NC_CHAR text attribute - the latter returns as
     // a length-1 vector. Throws NetcdfError if attributeName is absent or
     // stored as neither.
-    std::vector<std::string> readStringListAttribute(const std::string& attributeName) const;
+    [[nodiscard]] std::vector<std::string> readStringListAttribute(const std::string& attributeName) const;
 
     // Reads a numeric attribute of this group, as its own exact stored
     // type, returned as a vector of its real length (a scalar attribute
@@ -100,12 +100,12 @@ class NetcdfGroup {
     // (supported T: std::int32_t, std::uint32_t, std::uint16_t,
     // std::uint8_t, double).
     template <typename T>
-    std::vector<T> readNumericAttribute(const std::string& attributeName) const;
+    [[nodiscard]] std::vector<T> readNumericAttribute(const std::string& attributeName) const;
 
-    bool hasVariable(const std::string& variableName) const;
+    [[nodiscard]] bool hasVariable(const std::string& variableName) const;
 
     // Throws NetcdfError if variableName does not exist in this group.
-    NetcdfVariable variable(const std::string& variableName) const;
+    [[nodiscard]] NetcdfVariable variable(const std::string& variableName) const;
 
  private:
     int ncid_;
@@ -124,7 +124,7 @@ class NetcdfFile {
     NetcdfFile(NetcdfFile&& other) noexcept;
     NetcdfFile& operator=(NetcdfFile&& other) noexcept;
 
-    NetcdfGroup rootGroup() const;
+    [[nodiscard]] NetcdfGroup rootGroup() const;
 
  private:
     int ncid_;

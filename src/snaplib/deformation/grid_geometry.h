@@ -54,7 +54,7 @@ class GridGeometry {
     // returns the clamped base corner and bilinear weights as a Cell.
     // Returns std::nullopt if (c0, c1) is outside this grid's own extent,
     // even with tolerance.
-    std::optional<Cell> locate(
+    [[nodiscard]] std::optional<Cell> locate(
         double c0,  // coordinate on this grid's first axis (same units/order as affineCoeffs' own c0)
         double c1   // coordinate on this grid's second axis
     ) const;
@@ -67,18 +67,18 @@ class GridGeometry {
     // confirm the whole of `other` is contained, not just its corners.
     // Used by GridParent::addChild() to validate the "a child's extent must be a
     // subset of its parent's" invariant nesting depends on.
-    bool containsExtentOf(const GridGeometry& other) const;
+    [[nodiscard]] bool containsExtentOf(const GridGeometry& other) const;
 
     // Grid extent along the first/second axis (see the constructor).
-    std::uint32_t iNodeCount() const;
-    std::uint32_t jNodeCount() const;
+    [[nodiscard]] std::uint32_t iNodeCount() const;
+    [[nodiscard]] std::uint32_t jNodeCount() const;
 
     // This grid's own affine coefficients and boundary tolerance (see the
     // constructor) - exposed for a caller that needs to reconstruct this
     // grid's own lattice position directly (e.g. RaggedLayer's own
     // root-grid index), rather than only test containment via locate().
-    const std::array<double, 6>& affineCoeffs() const;
-    double cellTolerance() const;
+    [[nodiscard]] const std::array<double, 6>& affineCoeffs() const;
+    [[nodiscard]] double cellTolerance() const;
 
  private:
     std::array<double, 6> affineCoeffs_;

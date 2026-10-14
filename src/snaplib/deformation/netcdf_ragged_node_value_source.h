@@ -48,15 +48,15 @@ class NetcdfRaggedNodeValueSource : public RaggedNodeValueSource {
                                 std::vector<std::vector<std::size_t>> segmentOffsetsByAxis,
                                 std::vector<std::vector<RaggedSegment>> segmentsByAxis);
 
-    std::size_t axisCount() const override;
-    bool hasEndDay(std::uint32_t i, std::uint32_t j) const override;
-    RaggedSegmentRange segments(std::uint32_t i, std::uint32_t j, std::size_t axis) const override;
+    [[nodiscard]] std::size_t axisCount() const override;
+    [[nodiscard]] bool hasEndDay(std::uint32_t i, std::uint32_t j) const override;
+    [[nodiscard]] RaggedSegmentRange segments(std::uint32_t i, std::uint32_t j, std::size_t axis) const override;
 
  private:
     // Node (i, j)'s own flat offset into hasEndDayPerNode_/each axis's own
     // entry in segmentOffsetsByAxis_ - matching the file's own node_index
     // convention (row-major over (i, j), not stored as a 2D array).
-    std::size_t nodeIndex(std::uint32_t i, std::uint32_t j) const;
+    [[nodiscard]] std::size_t nodeIndex(std::uint32_t i, std::uint32_t j) const;
 
     std::uint32_t jNodeCount_;
     std::size_t axisCount_;
