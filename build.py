@@ -453,7 +453,13 @@ def _format(fix: bool) -> None:
         sys.exit(result.returncode)
 
     if fix:
-        print(f"clang-format applied to {len(files)} files (see git diff --stat)")
+        # format_fix has checked that the tree was committed, so the changes are clang-format's.
+        changed = subprocess.run(
+            ["git", "diff", "--name-only"], cwd=REPO_ROOT, capture_output=True, text=True, check=True
+        ).stdout.splitlines()
+        print(f"clang-format changed {len(changed)} of {len(files)} files")
+        for path in changed:
+            print(f"  {path}")
         return
 
     # clang-format reports each path as it was given, which is relative to REPO_ROOT, not to the current directory.
