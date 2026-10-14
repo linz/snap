@@ -14,9 +14,11 @@ struct Cell;
 // (queryDay - startDay), until superseded by whichever later segment (if
 // any) in the same chain has the next-highest startDay. startDay is already
 // the file's own reference_day + day_delta, combined by whichever front end
-// builds this from the file - the core never needs the two separately.
+// builds this from the file - the core never needs the two separately. It is a
+// whole number of days, held as a double so that it is compared and subtracted
+// directly against the fractional queryDay.
 struct RaggedSegment {
-    std::int64_t startDay;
+    double startDay;
     double startValue;
     double ratePerDay;
 };
@@ -87,25 +89,24 @@ class RaggedGridData {
     explicit RaggedGridData(std::unique_ptr<RaggedNodeValueSource> values);
 
     // 4-corner-independent-time-evaluation then bilinear interpolation over
-    // `cell` (from a prior GridGeometry::locate() call), at `queryDayCount`
-    // (a day count in the same epoch as every RaggedSegment's own
-    // startDay). Unlike ScalarGridData::interpolate(), this never returns
+    // `cell` (from a prior GridGeometry::locate() call), at `queryDay` (a number
+    // of days, including any fraction of a day, in the same epoch as every
+    // RaggedSegment's own startDay). Unlike ScalarGridData::interpolate(), this never returns
     // std::nullopt - a node with no active segment at all contributes a
     // real 0.0, not a missing value (see RaggedNodeValueSource::segments()).
     // Throws std::runtime_error if any of the 4 corner nodes has a real
     // hasEndDay() - see RaggedNodeValueSource::hasEndDay().
-    [[nodiscard]] std::array<double, 3> evaluate(const Cell& cell, std::int64_t queryDayCount) const;
+    [[nodiscard]] std::array<double, 3> evaluate(const Cell& cell, double queryDay) const;
 
     // The number of displacement axes this grid's own RaggedNodeValueSource
     // returns per node (and hence per evaluate() call).
     [[nodiscard]] std::size_t axisCount() const;
 
  private:
-    // One corner node's own value at queryDayCount, for one axis: the last
-    // segment whose own startDay is at or before queryDayCount (0.0 if none
+    // One corner node's own value at queryDay, for one axis: the last
+    // segment whose own startDay is at or before queryDay (0.0 if none
     // is, including an empty segment chain).
-    [[nodiscard]] double evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis,
-                                      std::int64_t queryDayCount) const;
+    [[nodiscard]] double evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis, double queryDay) const;
 
     std::unique_ptr<RaggedNodeValueSource> values_;
 };

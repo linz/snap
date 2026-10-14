@@ -31,19 +31,18 @@ std::size_t RaggedGridData::axisCount() const {
     return values_->axisCount();
 }
 
-double RaggedGridData::evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis,
-                                    std::int64_t queryDayCount) const {
+double RaggedGridData::evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis, double queryDay) const {
     double value = 0.0;
     for (const auto& segment : values_->segments(i, j, axis)) {
-        if (segment.startDay > queryDayCount) {
+        if (segment.startDay > queryDay) {
             break;
         }
-        value = segment.startValue + segment.ratePerDay * static_cast<double>(queryDayCount - segment.startDay);
+        value = segment.startValue + segment.ratePerDay * (queryDay - segment.startDay);
     }
     return value;
 }
 
-std::array<double, 3> RaggedGridData::evaluate(const Cell& cell, std::int64_t queryDayCount) const {
+std::array<double, 3> RaggedGridData::evaluate(const Cell& cell, double queryDay) const {
     checkNoEndDay(*values_, cell.bi, cell.bj);
     checkNoEndDay(*values_, cell.bi + 1, cell.bj);
     checkNoEndDay(*values_, cell.bi, cell.bj + 1);
@@ -57,10 +56,10 @@ std::array<double, 3> RaggedGridData::evaluate(const Cell& cell, std::int64_t qu
     std::array<double, 3> result{};  // value-initialized: every entry starts at 0.0, including any beyond axisCount()
     const std::size_t n = axisCount();
     for (std::size_t a = 0; a < n; ++a) {
-        const double v00 = evaluateNode(cell.bi, cell.bj, a, queryDayCount);
-        const double v10 = evaluateNode(cell.bi + 1, cell.bj, a, queryDayCount);
-        const double v01 = evaluateNode(cell.bi, cell.bj + 1, a, queryDayCount);
-        const double v11 = evaluateNode(cell.bi + 1, cell.bj + 1, a, queryDayCount);
+        const double v00 = evaluateNode(cell.bi, cell.bj, a, queryDay);
+        const double v10 = evaluateNode(cell.bi + 1, cell.bj, a, queryDay);
+        const double v01 = evaluateNode(cell.bi, cell.bj + 1, a, queryDay);
+        const double v11 = evaluateNode(cell.bi + 1, cell.bj + 1, a, queryDay);
         result[a] = w00 * v00 + w10 * v10 + w01 * v01 + w11 * v11;
     }
     return result;

@@ -666,8 +666,8 @@ RaggedGridContent parseRaggedGridContent(const RaggedLayerArrays& arrays, std::s
                                              " is not implemented (only linear, code 0, is)");
                 }
                 RaggedSegment& segment = flatSegments[offsets[local] + (k - globalStart)];
-                segment.startDay = static_cast<std::int64_t>(arrays.referenceDay[absNode]) +
-                                   static_cast<std::int64_t>(arrays.segmentDayDeltas[axis][k]);
+                segment.startDay = static_cast<double>(arrays.referenceDay[absNode]) +
+                                   static_cast<double>(arrays.segmentDayDeltas[axis][k]);
                 segment.startValue = static_cast<double>(arrays.segmentStartValues[axis][k]) * kSegmentStartValueScale;
                 segment.ratePerDay =
                     static_cast<double>(arrays.segmentScaleFactors[axis][k]) * kSegmentScaleFactorLinearScale;

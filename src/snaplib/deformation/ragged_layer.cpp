@@ -184,8 +184,8 @@ std::optional<std::array<double, 3>> RaggedLayer::evaluate(double c0, double c1,
     }
     resolution = descendToLeaf(*resolution, c0, c1);
 
-    const std::int64_t queryDayCount = static_cast<std::int64_t>(queryDateDays - referenceDateDays_);
-    return resolution->grid.get().data().evaluate(resolution->cell, queryDayCount);
+    const double queryDay = queryDateDays - referenceDateDays_;
+    return resolution->grid.get().data().evaluate(resolution->cell, queryDay);
 }
 
 }  // namespace deformation
