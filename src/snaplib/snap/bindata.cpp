@@ -13,7 +13,7 @@
 */
 
 #include <boost/numeric/conversion/cast.hpp>
-#include <stddef.h>
+#include <cstddef>
 #include <cstdio>
 #include <cstring>
 
