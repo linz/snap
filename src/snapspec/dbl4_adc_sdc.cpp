@@ -157,7 +157,7 @@ struct SDCTestImp {
     std::vector<unsigned char*> relstatus; /**< Array of arrays of status (forming lower triangle array) */
     std::vector<int> relcol0;              /**< Array of first used column of status array */
     std::deque<RABlock> relalloc; /**< Relative accuracy array allocations, a deque so rows keep their addresses */
-    std::size_t curalloc = 0;          /**< Index in relalloc of the allocation being used */
+    std::size_t curalloc = 0;     /**< Index in relalloc of the allocation being used */
     int allocsize;                /**< Size used for each new block allocation */
     std::vector<int> lookup;      /**< Lookup from relative accuracy order to station order */
     float maxctldist2;            /**< The maximum distance to nearest control squared */

@@ -22,7 +22,7 @@
 struct param_def {
     std::string_view name; /* Name of parameter - used for descriptive output */
     std::string_view code; /* Code - not used at present */
-    std::size_t offset;         /* Offset into the objects data structure */
+    std::size_t offset;    /* Offset into the objects data structure */
 
     /* Read, write, and print functions.  print is a nicely formatted
        version of write.  Read and write are inverse operations.

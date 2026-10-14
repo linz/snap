@@ -433,7 +433,8 @@ void wxLayerKey::OnLeftClick(wxGridEvent& event) {
 
 wxLayerKey::MasterLookup wxLayerKey::FindMasterRange(const int layerIndex) const {
     for (std::size_t r = 0; r < masterRanges.size(); r++) {
-        const int rangeIndex = r <= static_cast<std::size_t>(std::numeric_limits<int>::max()) ? static_cast<int>(r) : -1;
+        const int rangeIndex =
+            r <= static_cast<std::size_t>(std::numeric_limits<int>::max()) ? static_cast<int>(r) : -1;
         if (masterRanges[r].master == layerIndex) {
             return MasterLookup{rangeIndex, true};
         }
