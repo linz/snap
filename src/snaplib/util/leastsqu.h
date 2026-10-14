@@ -18,10 +18,6 @@ struct bltmatrix;
 
 */
 
-#ifndef _BLTMATRX_H
-#include "bltmatrx.h"
-#endif
-
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
 #endif

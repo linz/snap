@@ -37,7 +37,6 @@
 #include <cstdio>
 #include <memory>
 #include "util/errdef.h"
-#include "util/readcfg.h"
 #include "util/writecsv.h"
 
 struct CFG_FILE;

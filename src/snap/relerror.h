@@ -20,8 +20,7 @@
 
 #include <vector>
 #include "binfile.h"
-
-struct SpecDef;
+#include "testspec.h"
 
 #ifndef _BINFILE_H
 #include "util/binfile.h"

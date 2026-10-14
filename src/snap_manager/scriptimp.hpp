@@ -1,7 +1,6 @@
 #ifndef SCRIPTIMP_HPP
 #define SCRIPTIMP_HPP
 
-#include <list>
 #include <map>
 #include <utility>
 #include <vector>

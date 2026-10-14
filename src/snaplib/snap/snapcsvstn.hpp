@@ -5,7 +5,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "network/network.h"
 #include "snapdata/snapcsvbase.hpp"
 #include "util/parseangle.hpp"
 #include "calcdltfile.hpp"

@@ -16,6 +16,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include "iostring.h"
 
 #ifndef IOSTRING_H
 #include "util/iostring.h"

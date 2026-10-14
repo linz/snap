@@ -2,6 +2,7 @@
 #define PLOTBIN_H
 
 #include <cstdint>
+#include "snapplot/infowin.h"
 
 struct survdata;
 /*
@@ -16,10 +17,6 @@ struct survdata;
    Initial revision
 
 */
-
-#ifndef _SURVDATA_H
-#include "snapdata/survdata.h"
-#endif
 
 #ifndef INFOWIN_H
 #include "infowin.h"

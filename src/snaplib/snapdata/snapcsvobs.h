@@ -2,7 +2,6 @@
 #define _SNAPCSVOBS_H
 
 #include <string>
-#include "util/datafile.h"
 
 class DATAFILE;
 

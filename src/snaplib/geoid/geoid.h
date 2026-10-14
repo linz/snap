@@ -25,8 +25,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include "geoid/griddata.h"
-#include "coordsys/coordsys.h"
 
 struct coordsys;
 struct grid_def;

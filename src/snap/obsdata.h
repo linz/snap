@@ -16,14 +16,6 @@ struct survdata;
 
 */
 
-#ifndef _LOADDATA_H
-#include "snapdata/loaddata.h" /* For definitions of data structures */
-#endif
-
-#ifndef _BINDATA2_H
-#include "bindata2.h" /* For definition of lsdata */
-#endif
-
 void apply_obsdata_options(survdata* o);
 void list_obsdata(std::FILE* out, survdata* o);
 int obsdata_obseq(survdata* o, void* hA, int nextra);

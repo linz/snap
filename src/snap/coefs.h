@@ -7,12 +7,6 @@
    Initial revision
 
 */
-
-#ifndef _NETWORK_H
-#include "network/network.h"
-#include "snap/genparam.h"
-#endif
-
 #include <string_view>
 
 struct station;

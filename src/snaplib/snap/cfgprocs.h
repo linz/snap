@@ -9,7 +9,6 @@
 */
 
 #include <string_view>
-#include "util/readcfg.h"
 
 struct CFG_FILE;
 

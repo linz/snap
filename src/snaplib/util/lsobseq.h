@@ -11,6 +11,7 @@
 #include <optional>
 #include <string_view>
 #include <cstdio>
+#include "symmatrx.h"
 
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"

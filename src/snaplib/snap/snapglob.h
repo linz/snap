@@ -28,19 +28,12 @@
 #include <optional>
 #include <string>
 #include "classify.h"
+#include "snapdata/datatype.h"
 
 struct deformation_model;
 
-#ifndef _GET_DATA_H
-#include "util/get_date.h" /* For definition of GETDATELEN  */
-#endif
-
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h" /* For definition of NOBSTYPE    */
-#endif
-
-#ifndef _DEFORM_H
-#include "snap/deform.h"
 #endif
 
 #ifndef _CLASSIFY_H
@@ -49,10 +42,6 @@ struct deformation_model;
 
 #ifndef _FILENAMES_H
 #include "snap/filenames.h"
-#endif
-
-#ifndef _OBSMOD_H
-#include "snapdata/obsmod.h"
 #endif
 
 /// The command file a program is run with, and the names derived from it.

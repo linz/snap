@@ -3,10 +3,8 @@
 #define _SNAP_DATAFILEINPUT_HPP
 
 #include <functional>
-#include <iostream>
 #include <memory>
 #include <optional>
-#include <sstream>
 #include <string>
 #include "util/recordinputbase.hpp"
 #include "util/datafile.h"

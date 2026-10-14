@@ -8,9 +8,6 @@
 
 */
 
-#include "network/network.h"
-#include "util/binfile.h"
-
 struct BINARY_FILE;
 struct network;
 

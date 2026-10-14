@@ -14,10 +14,6 @@ struct DateTimeType;
 **************************************************************************
 */
 
-#ifndef DBL4_TYPES_H
-#include "dbl4_types.h"
-#endif
-
 void utlSetDate(DateTimeType* dt, int year, int month, int day);
 
 void utlSetDateTime(DateTimeType* dt, int year, int month, int day, int hour, int min, float sec);

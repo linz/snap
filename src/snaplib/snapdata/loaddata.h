@@ -14,17 +14,13 @@
 #include <string_view>
 #include "snapdata/datatype.h"
 #include "symmatrx.h"
-
-struct survdata;
+#include "snapdata/survdata.h"
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
 #endif
 #ifndef _SURVDATA_H
 #include "snapdata/survdata.h"
-#endif
-#ifndef _OBSMOD_H
-#include "snapdata/obsmod.h"
 #endif
 
 /* Init load data takes the addresses of three callback functions which

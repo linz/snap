@@ -3,7 +3,6 @@
 #include <cstddef>
 #include "wx_includes.hpp"
 #include "script.hpp"
-#include "snapjob.hpp"
 
 class SnapJob;
 

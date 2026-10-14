@@ -24,9 +24,6 @@
 
 #include <cstdio>
 #include <optional>
-#ifndef _SYMMATRX_H
-#include "util/symmatrx.h" /* For definition of ltmat */
-#endif
 
 struct bltrow {
     double* address; /* Address of first element of row */

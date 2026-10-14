@@ -32,10 +32,6 @@ struct ellipsoid;
 struct ref_frame;
 struct vdatum;
 
-#ifndef _COORDSYS_H
-#include "coordsys/coordsys.h"
-#endif
-
 #define CS_ID_UNAVAILABLE -1
 
 struct crdsys_source_def {

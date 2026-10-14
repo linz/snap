@@ -32,10 +32,6 @@ struct map_plotter;
 #include "infowin.h"
 #endif
 
-#ifndef _PLOTFUNC_H
-#include "plotfunc.h"
-#endif
-
 void set_binary_data(int status);
 int have_binary_data(void);
 void add_survdata_connections(survdata* sd, std::int64_t bloc);

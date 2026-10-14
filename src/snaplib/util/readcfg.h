@@ -17,9 +17,9 @@
 
 #include <cstddef>
 #include <fstream>
-#include <optional>
 #include <string>
 #include <string_view>
+#include "errdef.h"
 
 /* Header file for readcfg.c  - code to read a configuration file */
 

@@ -14,11 +14,6 @@
 #ifndef _COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif
-
-#ifndef _NETWORK_H
-#include "network/network.h"
-#endif
-
 #include <string>
 #include <string_view>
 #include "geodetic.h"

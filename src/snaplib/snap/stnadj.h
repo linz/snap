@@ -26,10 +26,6 @@ struct stn_recode_map;
 #include "network/network.h"
 #endif
 
-#ifndef _STNRECODE_H
-#include "snapdata/stnrecode.h"
-#endif
-
 #ifndef _BINFILE_H
 #include "util/binfile.h"
 #endif

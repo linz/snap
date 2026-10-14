@@ -12,17 +12,13 @@
 #ifndef _COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif
-
-#ifndef _GEOID_H
-#include "geoid/geoid.h"
-#endif
-
 #include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <cstdio>
+#include "classify.h"
 
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
@@ -31,13 +27,6 @@
 #ifndef _CLASSIFY_H
 #include "util/classify.h"
 #endif
-
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
-
-#include <string>
-
 struct DiskField;
 struct geoid_def;
 

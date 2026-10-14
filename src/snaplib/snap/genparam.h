@@ -7,11 +7,6 @@
    Initial revision
 
 */
-
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
-
 #include <optional>
 #include <string>
 #include <string_view>

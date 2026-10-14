@@ -23,10 +23,6 @@
 #include <string>
 #include <cstdio>
 
-#ifndef _ERRDEF_H
-#include "util/errdef.h"
-#endif
-
 struct BINARY_FILE {
     std::FILE* f;
     std::int64_t start;

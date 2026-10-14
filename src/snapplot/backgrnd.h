@@ -7,11 +7,6 @@
    Initial revision
 
 */
-
-#ifndef _PLOTFUNC_H
-#include "plotfunc.h"
-#endif
-
 #include <optional>
 #include <string>
 #include <string_view>

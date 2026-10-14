@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 #include <cstdio>
-#include "snapdata/survdata.h"
 
 struct survdata;
 struct trgtdata;

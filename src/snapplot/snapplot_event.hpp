@@ -2,7 +2,6 @@
 #define SNAPPLOT_EVENT_HPP
 
 #include "wx_includes.hpp"
-#include "snapplot_eventids.hpp"
 //extern "C" {
 #include "infowin.h"
 //}

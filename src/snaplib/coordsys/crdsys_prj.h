@@ -11,14 +11,9 @@
 #ifndef COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif
-
-#ifndef PARAMDEF_H
-#include "coordsys/paramdef.h"
-#endif
-
 #include <string>
+#include "coordsys/coordsys.h"
 
-struct ellipsoid;
 struct param_def;
 
 /* Definition of a projection.  This is defined in two components.  First is

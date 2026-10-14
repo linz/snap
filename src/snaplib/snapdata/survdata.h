@@ -22,10 +22,6 @@ struct DiskField;
 #include "snapdata/datatype.h"
 #endif
 
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
-
 /* Data formats used by loaddata routines */
 
 enum { SD_OBSDATA, SD_VECDATA, SD_PNTDATA };

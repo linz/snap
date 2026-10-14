@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include "snapdata/snapcsvbase.hpp"
-#include "snapdata/stnrecode.h"
 #include "delimitedtextfile.hpp"
 
 struct stn_recode_map;

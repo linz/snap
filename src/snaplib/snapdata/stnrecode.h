@@ -8,10 +8,6 @@
 
 */
 
-#ifndef _DATAFILE_H
-#include "util/datafile.h"
-#endif
-
 #ifndef _NETWORK_H
 #include "network/network.h"
 #endif

@@ -5,7 +5,6 @@
 
 #include <string_view>
 #include <string>
-#include "snapdata/stnrecode.h"
 
 struct stn_recode_map;
 

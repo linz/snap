@@ -22,10 +22,6 @@
 
 struct station;
 
-#ifndef _STNADJ_H
-#include "snap/stnadj.h"
-#endif
-
 #ifndef _BINFILE_H
 #include "util/binfile.h"
 #endif

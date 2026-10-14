@@ -2,7 +2,6 @@
 #define _LNZDEFORM_H
 
 #include <string>
-#include "snap/deform.h"
 
 struct deformation_model;
 

@@ -20,13 +20,6 @@
 
 struct lsdata;
 struct survdata;
-#ifndef _LOADDATA_H
-#include "snapdata/loaddata.h"
-#endif
-
-#ifndef _BINDATA2_h
-#include "bindata2.h"
-#endif
 
 void apply_pntdata_options(survdata* p);
 int pntdata_obseq(survdata* p, void* hA, int nextra);

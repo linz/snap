@@ -5,10 +5,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "snapdata/datatype.h"
 #include "snapdata/snapcsvbase.hpp"
 #include "util/parseangle.hpp"
-#include "util/snapregex.hpp"
 #include "calcdltfile.hpp"
 #include "delimitedtextfile.hpp"
 #include "optionstring.hpp"

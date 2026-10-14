@@ -15,8 +15,6 @@
 #include <string_view>
 #include <optional>
 #include "snapdata/datatype.h"
-#include "snapdata/stnrecode.h"
-#include "util/fileutil.h"
 #include "binfile.h"
 
 struct file_context;
