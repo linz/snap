@@ -20,8 +20,7 @@
 #include "geodetic.h"
 
 struct station;
-
-#include "util/binfile.h"
+struct BINARY_FILE;
 
 void count_stn_obs(int type, int stn, char unused);
 int init_station_rowno(void);

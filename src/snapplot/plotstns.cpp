@@ -2,6 +2,7 @@
 #include "errdef.h"
 #include "network/network.h"
 #include "snapplot/infowin.h"
+#include "coordsys/coordsys.h"
 /*
    $Log: plotstns.c,v $
    Revision 1.2  1996/07/12 20:33:24  CHRIS

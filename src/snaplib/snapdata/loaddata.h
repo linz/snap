@@ -14,8 +14,8 @@
 #include <string_view>
 #include "symmatrx.h"
 
-#include "snapdata/datatype.h"
-#include "snapdata/survdata.h"
+struct datatypedef;
+struct survdata;
 
 /* Init load data takes the addresses of three callback functions which
    act as translators between names (of stations, refraction coeffs,

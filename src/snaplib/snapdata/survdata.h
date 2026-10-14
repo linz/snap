@@ -12,12 +12,11 @@
 #include <cstddef>
 
 struct DiskField;
+struct datatypedef;
 
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
 #endif
-
-#include "snapdata/datatype.h"
 
 /* Data formats used by loaddata routines */
 

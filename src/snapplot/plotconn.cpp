@@ -1,5 +1,6 @@
 #include "snapconfig.h"
 #include "network/network.h"
+#include "snapplot/infowin.h"
 /*
    $Log: plotconn.c,v $
    Revision 1.6  2001/07/26 00:46:36  ccrook

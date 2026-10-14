@@ -10,7 +10,7 @@
 
 #include "util/symmatrx.h"
 
-#include "snapdata/survdata.h"
+struct survdata;
 
 using VRTFUNC = void (*)(int id, double vrt[3]);
 using XFMFUNC = double* (*)(int reffrm, int inverse);

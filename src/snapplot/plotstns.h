@@ -5,6 +5,7 @@
 #include "binfile.h"
 
 struct map_plotter;
+struct coordsys;
 
 /*
    $Log: plotstns.h,v $
@@ -15,8 +16,6 @@ struct map_plotter;
    Initial revision
 
 */
-
-#include "coordsys/coordsys.h"
 
 #include "infowin.h"
 

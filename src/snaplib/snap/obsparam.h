@@ -6,7 +6,7 @@
 #include <string>
 #include <string_view>
 
-#include "snapdata/survdata.h"
+struct survdata;
 
 /* Record observation parameters.  nprm is number of parameters.  description is
  * name of observation parameters

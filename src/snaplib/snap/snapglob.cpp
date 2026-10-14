@@ -2,6 +2,7 @@
 #include "errdef.h"
 #include "snap/filenames.h"
 #include "snapdata/obsmod.h"
+#include "classify.h"
 /*
    $Log: snapglob.c,v $
    Revision 1.5  2003/11/24 01:34:13  ccrook

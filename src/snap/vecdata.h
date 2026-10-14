@@ -4,6 +4,7 @@
 #include <cstdio>
 
 struct survdata;
+struct lsdata;
 /*
    $Log: vecdata.h,v $
    Revision 1.2  2003/11/25 01:30:00  ccrook
@@ -14,8 +15,6 @@ struct survdata;
    Initial revision
 
 */
-
-#include "bindata2.h"
 
 /* Define whether midpoint used to define gps vertical, or topocentre used */
 

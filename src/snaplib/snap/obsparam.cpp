@@ -7,6 +7,7 @@
 #include <vector>
 #include "snapconfig.h"
 #include "network/network.h"
+#include "snapdata/survdata.h"
 
 using boost::numeric_cast;
 

@@ -17,12 +17,11 @@
 #include <string_view>
 
 struct map_plotter;
+struct survdata;
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
 #endif
-
-#include "snapdata/survdata.h"
 
 #include "infowin.h"
 
