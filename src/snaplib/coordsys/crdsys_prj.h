@@ -8,11 +8,8 @@
 
 */
 
-#ifndef COORDSYS_H
 #include "coordsys/coordsys.h"
-#endif
 #include <string>
-#include "coordsys/coordsys.h"
 
 struct param_def;
 

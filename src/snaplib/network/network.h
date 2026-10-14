@@ -18,15 +18,12 @@
 #include <string_view>
 #include <vector>
 #include <cstdio>
-#include "classify.h"
 
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
 #endif
 
-#ifndef _CLASSIFY_H
 #include "util/classify.h"
-#endif
 struct DiskField;
 struct geoid_def;
 

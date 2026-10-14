@@ -10,7 +10,6 @@
 
 #include <cstdint>
 #include <cstddef>
-#include "snapdata/datatype.h"
 
 struct DiskField;
 
@@ -18,9 +17,7 @@ struct DiskField;
 #include "util/symmatrx.h"
 #endif
 
-#ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
-#endif
 
 /* Data formats used by loaddata routines */
 

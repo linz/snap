@@ -16,11 +16,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include "iostring.h"
 
-#ifndef IOSTRING_H
 #include "util/iostring.h"
-#endif
 
 inline constexpr char DATAFILE_CONTINUATION_CHR = '&';
 inline constexpr char DATAFILE_COMMENT_CHR = '!';

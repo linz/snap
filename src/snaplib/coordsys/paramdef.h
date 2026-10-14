@@ -8,13 +8,10 @@
 
 */
 
-#ifndef IOSTRING_H
 #include "util/iostring.h"
-#endif
 
 #include <string_view>
 #include <cstddef>
-#include "iostring.h"
 
 class FieldScanner;
 

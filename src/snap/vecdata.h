@@ -2,7 +2,6 @@
 #define _VECDATA_H
 
 #include <cstdio>
-#include "bindata2.h"
 
 struct survdata;
 /*
@@ -16,9 +15,7 @@ struct survdata;
 
 */
 
-#ifndef _BINDATA2_H
 #include "bindata2.h"
-#endif
 
 /* Define whether midpoint used to define gps vertical, or topocentre used */
 

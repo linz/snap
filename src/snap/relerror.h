@@ -19,16 +19,10 @@
 */
 
 #include <vector>
-#include "binfile.h"
-#include "testspec.h"
 
-#ifndef _BINFILE_H
 #include "util/binfile.h"
-#endif
 
-#ifndef TESTSPEC_H
 #include "testspec.h"
-#endif
 
 void dump_relative_covariances(BINARY_FILE* b, int dumpall);
 

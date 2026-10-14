@@ -27,18 +27,12 @@
 
 #include <optional>
 #include <string>
-#include "classify.h"
-#include "snapdata/datatype.h"
 
 struct deformation_model;
 
-#ifndef _DATATYPE_H
 #include "snapdata/datatype.h" /* For definition of NOBSTYPE    */
-#endif
 
-#ifndef _CLASSIFY_H
-#include "snap/classify.h"
-#endif
+#include "util/classify.h"
 
 #ifndef _FILENAMES_H
 #include "snap/filenames.h"

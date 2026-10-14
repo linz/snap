@@ -15,8 +15,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include "snapdata/survdata.h"
-#include "snapplot/infowin.h"
 
 struct map_plotter;
 
@@ -24,13 +22,9 @@ struct map_plotter;
 #include "snapdata/datatype.h"
 #endif
 
-#ifndef _SURVDATA_H
 #include "snapdata/survdata.h"
-#endif
 
-#ifndef INFOWIN_H
 #include "infowin.h"
-#endif
 
 void set_binary_data(int status);
 int have_binary_data(void);

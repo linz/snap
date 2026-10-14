@@ -17,14 +17,11 @@
 
 #include <string_view>
 #include <cstdio>
-#include "binfile.h"
 #include "geodetic.h"
 
 struct station;
 
-#ifndef _BINFILE_H
 #include "util/binfile.h"
-#endif
 
 void count_stn_obs(int type, int stn, char unused);
 int init_station_rowno(void);

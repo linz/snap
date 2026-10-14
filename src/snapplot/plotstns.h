@@ -3,8 +3,6 @@
 
 #include <string>
 #include "binfile.h"
-#include "coordsys/coordsys.h"
-#include "snapplot/infowin.h"
 
 struct map_plotter;
 
@@ -18,13 +16,9 @@ struct map_plotter;
 
 */
 
-#ifndef COORDSYS_H
 #include "coordsys/coordsys.h"
-#endif
 
-#ifndef INFOWIN_H
 #include "infowin.h"
-#endif
 
 /* Useful numbers */
 

@@ -11,15 +11,12 @@
 
 */
 
-#ifndef _ERRDEF_H
 #include "util/errdef.h"
-#endif
 
 #include <cstddef>
 #include <fstream>
 #include <string>
 #include <string_view>
-#include "errdef.h"
 
 /* Header file for readcfg.c  - code to read a configuration file */
 

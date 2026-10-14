@@ -5,11 +5,8 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include "snapdata/survdata.h"
 
-#ifndef _SURVDATA_H
 #include "snapdata/survdata.h"
-#endif
 
 /* Record observation parameters.  nprm is number of parameters.  description is
  * name of observation parameters

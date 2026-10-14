@@ -2,7 +2,6 @@
 #define PLOTBIN_H
 
 #include <cstdint>
-#include "snapplot/infowin.h"
 
 struct survdata;
 /*
@@ -18,9 +17,7 @@ struct survdata;
 
 */
 
-#ifndef INFOWIN_H
 #include "infowin.h"
-#endif
 
 int reload_binary_data();
 void load_observations_from_binary(void);

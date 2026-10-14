@@ -1,8 +1,6 @@
 #ifndef _GPSCVR_H
 #define _GPSCVR_H
 
-#include "snapdata/survdata.h"
-#include "symmatrx.h"
 /*
    $Log: gpscvr.h,v $
    Revision 1.1  1995/12/22 18:46:18  CHRIS
@@ -10,13 +8,9 @@
 
 */
 
-#ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
-#endif
 
-#ifndef _SURVDATA_H
 #include "snapdata/survdata.h"
-#endif
 
 using VRTFUNC = void (*)(int id, double vrt[3]);
 using XFMFUNC = double* (*)(int reffrm, int inverse);

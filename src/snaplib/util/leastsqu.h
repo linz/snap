@@ -2,7 +2,6 @@
 #define _LEASTSQU_H
 
 #include <cstdio>
-#include "symmatrx.h"
 
 struct bltmatrix;
 /*
@@ -18,9 +17,7 @@ struct bltmatrix;
 
 */
 
-#ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
-#endif
 
 #ifndef _LSOBSEQ_H
 #include "lsobseq.h"
