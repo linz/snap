@@ -738,6 +738,7 @@ std::unique_ptr<Layer> parseRaggedLayer(const netcdf::NetcdfGroup& layerGroup, b
     }
 
     std::vector<std::unique_ptr<Grid<RaggedGridData>>> rootGrids;
+    std::size_t reachedGrids = 0;  // a count of the root grids, plus every grid nested under them
     for (std::size_t grid = 0; grid < gridCount; ++grid) {
         if (arrays.parentGridIndex[grid] != kRaggedRootSentinel) {
             continue;  // not a root - collected as a descendant of whichever root it traces back to, below
@@ -749,6 +750,7 @@ std::unique_ptr<Layer> parseRaggedLayer(const netcdf::NetcdfGroup& layerGroup, b
             // RaggedLayerArrays' own class comment) - not read here, unlike
             // a nest root's below.
             rootGrids.push_back(parseRaggedLeafGrid(arrays, grid));
+            ++reachedGrids;
             continue;
         }
 
@@ -762,8 +764,17 @@ std::unique_ptr<Layer> parseRaggedLayer(const netcdf::NetcdfGroup& layerGroup, b
 
         std::vector<DescendantEntry<RaggedGridData>> descendants;
         collectRaggedDescendants(grid, arrays, childrenOf, descendants);
+        reachedGrids += 1 + descendants.size();  // this root, plus the grids nested under it
         validateAndAddDescendants(*root, std::move(descendants));
         rootGrids.push_back(std::move(root));
+    }
+
+    // Every grid should be a root grid, or be nested under one directly or through other nested grids. A grid
+    // not counted above is neither, because its parent_grid_index does not lead to a root grid.
+    if (reachedGrids != gridCount) {
+        throw std::runtime_error("ggrxf_reader: '" + layerGroup.name() + "' has " +
+                                 std::to_string(gridCount - reachedGrids) + " of " + std::to_string(gridCount) +
+                                 " grids that are neither a root grid nor nested under one");
     }
 
     // RaggedLayer looks up a root grid of size S at coordinate c via:
