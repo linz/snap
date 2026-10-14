@@ -1,22 +1,16 @@
-#include "snapconfig.hpp"
-
-#include <iostream>
 #include <sstream>
-#include <memory>
-#include <regex>
 #include <vector>
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
-
+#include <optional>
+#include "snapconfig.hpp"
 #include "util/fileutil.h"
 #include "util/dateutil.h"
-#include "util/datafile.h"
 #include "util/recordinputbase.hpp"
 #include "util/datafileinput.hpp"
-
 #include "snapdata/stnrecodefile.hpp"
 #include "snapdata/stnrecodefile.h"
-#include "network/network.h"
+#include "calcdltfile.hpp"
+#include "errdef.h"
+#include "snapdata/stnrecode.h"
 
 using namespace LINZ;
 using namespace DelimitedTextFile;
@@ -98,8 +92,6 @@ void SnapCsvRecode::dataError(const std::string& message) {
 /////////////////////////////////////////////////////////////////////////////
 //
 // Global CSV load function
-
-#include "snap/stnadj.h"
 
 int read_station_recode_file(stn_recode_map* stt, std::string_view filename, std::string_view basefile) {
     int sts = OK;

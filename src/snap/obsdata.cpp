@@ -1,4 +1,9 @@
 #include "snapconfig.h"
+#include "geodetic.h"
+#include "network/network.h"
+#include "snapdata/datatype.h"
+#include "snapdata/survdata.h"
+#include "symmatrx.h"
 /*
    $Log: obsdata.c,v $
    Revision 1.6  2004/04/22 02:35:43  ccrook
@@ -23,16 +28,14 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <string>
 #include <string_view>
 #include <cmath>
-
+#include <optional>
 #include "snap/snapglob.h"
 #include "output.h"
 #include "obsdata.h"
 #include "bindata2.h"
-#include "snapdata/loaddata.h"
 #include "snap/stnadj.h"
 #include "stnobseq.h"
 #include "util/classify.h"

@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /*
    $Log: snapconv.c,v $
    Revision 1.6  2004/02/02 03:27:28  ccrook
@@ -23,14 +24,9 @@
 */
 
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cmath>
 #include <string>
 #include "util/errdef.h"
 #include "network/network.h"
-#include "util/fileutil.h"
-#include "snap/filenames.h"
 #include "util/getversion.h"
 
 enum { SET_HGTTYPE_DEFAULT = 0, SET_HGTTYPE_ELLIPSOIDAL, SET_HGTTYPE_ORTHOMETRIC };

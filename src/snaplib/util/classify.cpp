@@ -27,18 +27,16 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <charconv>
+#include <optional>
 #include "util/snapctype.h"
-
 #include "util/binfile.h"
 #include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/classify.h"
-
 #include "util/errdef.h"
 
-#include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 
 #ifdef DEBUG

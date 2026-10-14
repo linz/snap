@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "binfile.h"
+#include "network/network.h"
 /* Routines to save and restore the network data to a BINARY_FILE */
 
 /*
@@ -8,9 +10,8 @@
 
 */
 
-#include <cstdio>
 #include <utility>
-
+#include <string>
 #include "network/networkb.h"
 #include "util/errdef.h"
 

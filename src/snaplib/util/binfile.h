@@ -21,10 +21,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
-
-#ifndef _ERRDEF_H
-#include "util/errdef.h"
-#endif
+#include <cstdio>
 
 struct BINARY_FILE {
     std::FILE* f;
@@ -190,7 +187,7 @@ enum class FieldKind { Int32, UInt32, Int8, UInt8, Float64 };
 
 // In-memory size of the field's declared type. Fixed-width and identical across
 // every target compiler here, so this doubles as each kind's on-disk width too.
-inline constexpr size_t field_in_memory_size(const FieldKind kind) {
+inline constexpr std::size_t field_in_memory_size(const FieldKind kind) {
     switch (kind) {
         case FieldKind::Float64:
             return sizeof(double);
@@ -203,7 +200,7 @@ inline constexpr size_t field_in_memory_size(const FieldKind kind) {
 }
 // Required alignment of the field's declared type - used to predict where a
 // compiler will place the *next* struct member, including any padding.
-inline constexpr size_t field_in_memory_alignment(const FieldKind kind) {
+inline constexpr std::size_t field_in_memory_alignment(const FieldKind kind) {
     switch (kind) {
         case FieldKind::Float64:
             return alignof(double);
@@ -216,7 +213,7 @@ inline constexpr size_t field_in_memory_alignment(const FieldKind kind) {
 }
 // Rounds `value` up to the next multiple of `alignment` - the same rule a
 // compiler uses to place a struct member after the one before it.
-inline constexpr size_t round_up(const size_t value, const size_t alignment) {
+inline constexpr std::size_t round_up(const std::size_t value, const std::size_t alignment) {
     return (value + alignment - 1) / alignment * alignment;
 }
 
@@ -227,8 +224,8 @@ inline constexpr size_t round_up(const size_t value, const size_t alignment) {
 // for_each_disk_field (below) can walk any of them the same way.
 struct DiskField {
     FieldKind kind;
-    size_t offset;
-    size_t count;
+    std::size_t offset;
+    std::size_t count;
 };
 
 // Calls `action(kind, value)` once per scalar element declared by `table`,
@@ -263,11 +260,11 @@ struct DiskField {
 // unit, next to its own layout-contiguity check - a caller elsewhere sees it
 // only through an `extern` declaration with no compile-time-visible bound.
 template <class T, class Action>
-inline void for_each_disk_field(const T& base, const DiskField* table, size_t table_size, Action action) {
+inline void for_each_disk_field(const T& base, const DiskField* table, std::size_t table_size, Action action) {
     const char* b = reinterpret_cast<const char*>(&base);
-    for (size_t t = 0; t < table_size; ++t) {
+    for (std::size_t t = 0; t < table_size; ++t) {
         const DiskField& field = table[t];
-        for (size_t i = 0; i < field.count; ++i) {
+        for (std::size_t i = 0; i < field.count; ++i) {
             switch (field.kind) {
                 case FieldKind::Int8:
                     action(field.kind, reinterpret_cast<const char*>(b + field.offset)[i]);
@@ -320,11 +317,11 @@ inline void write_disk_field(std::FILE* f, FieldKind kind, const T& value) {
 // a read_*_fixed_width built on this stays paired with its
 // write_*_fixed_width automatically.
 template <class T, class Action>
-inline void for_each_disk_field_mutable(T& base, const DiskField* table, size_t table_size, Action action) {
+inline void for_each_disk_field_mutable(T& base, const DiskField* table, std::size_t table_size, Action action) {
     char* b = reinterpret_cast<char*>(&base);
-    for (size_t t = 0; t < table_size; ++t) {
+    for (std::size_t t = 0; t < table_size; ++t) {
         const DiskField& field = table[t];
-        for (size_t i = 0; i < field.count; ++i) {
+        for (std::size_t i = 0; i < field.count; ++i) {
             switch (field.kind) {
                 case FieldKind::Int8:
                     action(field.kind, reinterpret_cast<char*>(b + field.offset)[i]);

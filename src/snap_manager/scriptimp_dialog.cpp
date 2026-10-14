@@ -1,9 +1,11 @@
 
+#include <cstddef>
+#include <ostream>
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "wxsimpledialog.hpp"
-
 #include "scriptimp.hpp"
+#include "snap_manager/script.hpp"
 
 using namespace Scripter;
 
@@ -139,7 +141,7 @@ void ScriptDialog::AddControls() {
                     if (!info.IsEmpty()) {
                         const wxString numbers("0123456789");
                         wxString delim('~');
-                        for (size_t i = 0; i < info.Len(); i++) {
+                        for (std::size_t i = 0; i < info.Len(); i++) {
                             if (!numbers.Contains(info[i])) {
                                 delim = info.Mid(i, 1);
                                 break;

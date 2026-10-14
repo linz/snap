@@ -1,13 +1,14 @@
+#include <cmath>
+#include <string>
+#include <vector>
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "wxsimpledialog.hpp"
 #include "ctrl_station_selector.hpp"
 #include "dlg_station_highlight.hpp"
 #include "snapplot_help.hpp"
-
 //extern "C" {
 #include "snap/stnadj.h"
-#include "snap/snapglob.h"
 #include "network/network.h"
 #include "plotscal.h"
 #include "plotstns.h"

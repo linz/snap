@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "snap/filenames.h"
+#include "snapdata/obsmod.h"
+#include "snapdata/stnrecode.h"
 /*
    $Log: stnadj.c,v $
    Revision 1.1  1995/12/22 17:49:40  CHRIS
@@ -7,18 +10,13 @@
 */
 
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cmath>
 #include <string>
 #include <sstream>
 #include <filesystem>
-
 #include "network/networkb.h"
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
 #include "snap/snapcsvstn.h"
-#include "util/dstring.h"
 #include "util/binfile.h"
 #include "util/fileutil.h"
 #include "util/filelist.h"

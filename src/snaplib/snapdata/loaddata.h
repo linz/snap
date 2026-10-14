@@ -12,16 +12,10 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include "symmatrx.h"
 
-#ifndef _DATATYPE_H
-#include "snapdata/datatype.h"
-#endif
-#ifndef _SURVDATA_H
-#include "snapdata/survdata.h"
-#endif
-#ifndef _OBSMOD_H
-#include "snapdata/obsmod.h"
-#endif
+struct datatypedef;
+struct survdata;
 
 /* Init load data takes the addresses of three callback functions which
    act as translators between names (of stations, refraction coeffs,

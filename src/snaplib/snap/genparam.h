@@ -7,14 +7,13 @@
    Initial revision
 
 */
-
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
-
 #include <optional>
 #include <string>
 #include <string_view>
+#include <cstddef>
+
+struct BINARY_FILE;
+struct DiskField;
 
 // hash..identical (everything but `name`) are dumped to the .bin file via a
 // fixed-width table, PARAM_DISK_FIELDS in genparam.cpp - adding, removing, or
@@ -43,7 +42,7 @@ struct param {
 // definition exists elsewhere," letting genparam.cpp's one real array be
 // linked from here.
 extern const DiskField PARAM_DISK_FIELDS[];
-extern const size_t PARAM_DISK_FIELD_COUNT;
+extern const std::size_t PARAM_DISK_FIELD_COUNT;
 
 #define PRM_ADJUST 0x01 /* Flags that parameter is to be adjusted */
 #define PRM_USED 0x02   /* Flags that data have been used... */

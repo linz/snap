@@ -1,6 +1,7 @@
 #ifndef _SURVFILR_H
 #define _SURVFILR_H
 
+#include <cstdio>
 /*
    $Log: survfilr.h,v $
    Revision 1.2  1998/06/15 02:26:14  ccrook

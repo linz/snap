@@ -2,12 +2,11 @@
 /* Cumulative probability functions and inverse functions using boost
 */
 
-#include <cstdio>
-#include <cmath>
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/math/distributions/fisher_f.hpp>
+#include <cmath>
 #include "util/probfunc.h"
 
 using boost::math::chi_squared;

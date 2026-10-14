@@ -1,9 +1,11 @@
-#include "snapconfig.h"
 #include <cstdio>
 #include <cstdarg>
 #include <fstream>
+#include "snapconfig.h"
 #include "util/snapctype.h"
 #include "scriptimp.hpp"
+#include "snap_manager/script.hpp"
+#include "wx_includes.hpp"
 
 using namespace Scripter;
 using namespace std;
@@ -265,8 +267,8 @@ Value ForeachToken::evaluate() {
         const wxString str = token->GetValue().AsString();
 
         while (rp.CanRun() && re.Matches(str.Mid(start))) {
-            size_t mstart;
-            size_t mlen;
+            std::size_t mstart;
+            std::size_t mlen;
             int nmatch;
             re.GetMatch(&mstart, &mlen, 0);
             nmatch = re.GetMatchCount();
@@ -285,8 +287,8 @@ Value ForeachToken::evaluate() {
 
             if (nmatch > 1) {
                 for (int i = 1; rp.CanRun() && i < nmatch; i++) {
-                    size_t sstart;
-                    size_t slen;
+                    std::size_t sstart;
+                    std::size_t slen;
                     re.GetMatch(&sstart, &slen, i);
                     var->SetOwnerValue(str.Mid(start + sstart, slen));
                     {

@@ -3,8 +3,9 @@
 
 #include "snapplot_event.hpp"
 #include "snapplot_dragger.hpp"
-
 #include "wxmapwindow.hpp"
+
+class MapPoint;
 
 DECLARE_EVENT_TYPE(WX_MAPVIEW_DISPLAY_COORDS, -1)
 

@@ -9,10 +9,12 @@
 #include <map>
 #include <memory>
 #include <stdexcept>
-
+#include <iterator>
 #include "delimitedtextfile.hpp"
 
 namespace LINZ {
+class RecordInputBase;
+
 namespace DelimitedTextFile {
 
 using namespace LINZ;
@@ -86,8 +88,6 @@ class NamedValue : public CalcValue {
     CalcValue* _default;
     const BindSource* _binder;
 };
-
-class LookupMap;
 
 class LookupMapImp : public map<const string, const string> {
     friend class LookupMap;

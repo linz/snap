@@ -1,6 +1,10 @@
 #ifndef _VECDATA_H
 #define _VECDATA_H
 
+#include <cstdio>
+
+struct survdata;
+struct lsdata;
 /*
    $Log: vecdata.h,v $
    Revision 1.2  2003/11/25 01:30:00  ccrook
@@ -11,14 +15,6 @@
    Initial revision
 
 */
-
-#ifndef _LOADDATA_H
-#include "snapdata/loaddata.h"
-#endif
-
-#ifndef _BINDATA2_H
-#include "bindata2.h"
-#endif
 
 /* Define whether midpoint used to define gps vertical, or topocentre used */
 

@@ -1,4 +1,9 @@
 #include "snapconfig.h"
+#include "bltmatrx.h"
+#include "network/network.h"
+#include "readcfg.h"
+#include "snap/filenames.h"
+#include "writecsv.h"
 /* Output file maintenance .. */
 
 /*
@@ -31,19 +36,17 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+#include <cstdio>
 #include <filesystem>
 #include <initializer_list>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <algorithm>
-#include <cmath>
+#include <optional>
 #include "util/fieldscanner.hpp"
-#include "util/snapctype.h"
 
 #define OUTPUT_C
 
@@ -57,20 +60,13 @@
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "stnobseq.h"
-#include "util/dateutil.h"
-#include "util/dms.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/filelist.h"
 #include "util/leastsqu.h"
-#include "util/license.h"
-#include "util/pi.h"
 #include "util/probfunc.h"
 #include "util/xprintf.h"
 #include "util/getversion.h"
-
-#include <boost/numeric/conversion/cast.hpp>
 
 using boost::numeric_cast;
 

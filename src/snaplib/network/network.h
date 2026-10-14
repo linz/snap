@@ -12,30 +12,20 @@
 #ifndef _COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif
-
-#ifndef _GEOID_H
-#include "geoid/geoid.h"
-#endif
-
 #include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
+#include <cstdio>
 
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
 #endif
 
-#ifndef _CLASSIFY_H
 #include "util/classify.h"
-#endif
-
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
-
-#include <string>
+struct DiskField;
+struct geoid_def;
 
 #define DFLTSTLIST_EXT ".stl"
 #define DFLTSTOFFS_EXT ".sts"
@@ -60,14 +50,14 @@ class StationCode {
     /// Replaces the code, truncating it to STNCODELEN characters.
     void assign(const std::string_view code)  ///< The new code
     {
-        const size_t length = std::min(code.size(), _capacity - 1);
+        const std::size_t length = std::min(code.size(), _capacity - 1);
         code.copy(_chars, length);
         std::fill(_chars + length, _chars + _capacity, '\0');
     }
 
     /// The number of characters before the terminating NUL
-    [[nodiscard]] size_t size() const {
-        const size_t end = std::string_view(_chars, _capacity).find('\0');
+    [[nodiscard]] std::size_t size() const {
+        const std::size_t end = std::string_view(_chars, _capacity).find('\0');
         return end == std::string_view::npos ? _capacity : end;
     }
 
@@ -85,7 +75,7 @@ class StationCode {
     }
 
  private:
-    static constexpr size_t _capacity = STNCODELEN + 1;
+    static constexpr std::size_t _capacity = STNCODELEN + 1;
     char _chars[_capacity] = {};
 };
 
@@ -168,7 +158,7 @@ struct station {
 // declaration, no visibility into it at all). Same pattern as `extern
 // datatypedef datatype[]` in snapdata/datatype.h.
 extern const DiskField STATION_DISK_FIELDS[];
-extern const size_t STATION_DISK_FIELD_COUNT;
+extern const std::size_t STATION_DISK_FIELD_COUNT;
 
 /*------------------------------------------------------------------------
 

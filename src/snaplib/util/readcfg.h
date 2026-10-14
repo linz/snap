@@ -11,13 +11,10 @@
 
 */
 
-#ifndef _ERRDEF_H
 #include "util/errdef.h"
-#endif
 
 #include <cstddef>
 #include <fstream>
-#include <optional>
 #include <string>
 #include <string_view>
 

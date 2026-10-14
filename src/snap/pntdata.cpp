@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "bindata2.h"
+#include "network/network.h"
+#include "snapdata/datatype.h"
 
 /* Header file for routines managing point data - lats, longs, doppler, etc */
 
@@ -31,18 +34,16 @@
 #include <cstdio>
 #include <string>
 #include <string_view>
-
+#include <optional>
 #include "coefs.h"
 #include "notedata.h"
 #include "output.h"
 #include "pntdata.h"
 #include "residual.h"
-#include "snap/bindata.h"
 #include "snap/datastat.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "snapdata/survdata.h"
-#include "sortobs.h"
 #include "stnobseq.h"
 #include "util/classify.h"
 #include "util/dms.h"

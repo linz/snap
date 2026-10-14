@@ -1,13 +1,11 @@
 #ifndef SCRIPTIMP_HPP
 #define SCRIPTIMP_HPP
 
-#include <list>
 #include <map>
 #include <utility>
 #include <vector>
-
 #include <iostream>
-
+#include <string>
 #include "script.hpp"
 
 namespace Scripter {

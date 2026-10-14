@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
 /* Routines for reading SNAP format data files */
 
 /* Tidy up handling of errors, especially use of group_err and
@@ -34,18 +36,17 @@
 
 */
 
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <algorithm>
 #include <iterator>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-#include "util/snapctype.h"
+#include <utility>
 
 #ifndef DEBUG
 #ifndef NDEBUG
@@ -53,9 +54,7 @@
 #endif
 #endif
 #include <cassert>
-
 #include "snapdata/snapdata.h"
-#include "util/dstring.h"
 #include "snapdata/datatype.h"
 #include "util/datafile.h"
 #include "snapdata/loaddata.h"
@@ -63,7 +62,6 @@
 #include "util/dateutil.h"
 #include "util/errdef.h"
 #include "util/symmatrx.h"
-#include "util/progress.h"
 #include "util/pi.h"
 
 /* Some useful names and numbers */
@@ -72,11 +70,11 @@
 
 /* The most characters read for each kind of word - longer words are cut short */
 
-static constexpr size_t MAX_COMMAND_LEN = 79;
-static constexpr size_t MAX_NOTE_LEN = 79;
-static constexpr size_t MAX_NAME_LEN = 19;
-static constexpr size_t MAX_DATE_FIELD_LEN = 31;
-static constexpr size_t MAX_WORD_LEN = 9;
+static constexpr std::size_t MAX_COMMAND_LEN = 79;
+static constexpr std::size_t MAX_NOTE_LEN = 79;
+static constexpr std::size_t MAX_NAME_LEN = 19;
+static constexpr std::size_t MAX_DATE_FIELD_LEN = 31;
+static constexpr std::size_t MAX_WORD_LEN = 9;
 
 #define COMMAND_PREFIX '#'
 #define REJECT_CHAR '*'
@@ -311,7 +309,7 @@ static snap_data_type* obstype_from_code(std::string_view code) {
 /* Management of classifications                                 */
 
 static int get_classification(snapfile_def* sd, std::string_view cclass) {
-    for (size_t i = 0; i < sd->clsf.size(); i++) {
+    for (std::size_t i = 0; i < sd->clsf.size(); i++) {
         if (boost::algorithm::iequals(cclass, sd->clsf[i].name)) {
             return numeric_cast<int>(i);
         }
@@ -381,7 +379,7 @@ static int read_data_classification(snapfile_def* sd, data_field* fld) {
     }
 
     assert(fld->type == DFT_CLASS);
-    assert(fld->id >= 0 && static_cast<size_t>(fld->id) <= sd->clsf.size());
+    assert(fld->id >= 0 && static_cast<std::size_t>(fld->id) <= sd->clsf.size());
 
     data_class& cd = sd->clsf[fld->id];
     if (!boost::algorithm::iequals(name, "none")) {
@@ -403,7 +401,7 @@ static void load_data_classifications(snapfile_def* sd) {
 /* Management of systematic errors                            */
 
 static int get_syserr(snapfile_def* sd, std::string_view sename) {
-    for (size_t i = 0; i < sd->syserr.size(); i++) {
+    for (std::size_t i = 0; i < sd->syserr.size(); i++) {
         if (boost::algorithm::iequals(sename, sd->syserr[i].name)) {
             return numeric_cast<int>(i);
         }
@@ -442,7 +440,7 @@ static void init_data_syserrs(snapfile_def* sd) {
 
 static int read_data_syserr(snapfile_def* sd, data_field* fld) {
     assert(fld->type == DFT_SYSERR);
-    assert(fld->id >= 0 && static_cast<size_t>(fld->id) <= sd->syserr.size());
+    assert(fld->id >= 0 && static_cast<std::size_t>(fld->id) <= sd->syserr.size());
 
     data_syserr& ds = sd->syserr[fld->id];
     ds.defined = true;
@@ -1093,7 +1091,7 @@ static int read_classification(snapfile_def* sd, int, std::string_view cmd) {
 static int read_classify_command(snapfile_def* sd, int, std::string_view cmd) {
     FieldScanner& scanner = sd->scanner();
     std::string fields[3];
-    size_t nfields = 0;
+    std::size_t nfields = 0;
 
     while (nfields < 3 && read_string_field(scanner, fields[nfields], MAX_NAME_LEN) == FieldResult::Ok) {
         nfields++;
@@ -1116,7 +1114,7 @@ static int read_classify_command(snapfile_def* sd, int, std::string_view cmd) {
         std::string_view types(fields[0]);
         bool end = false;
         while (!end) {
-            const size_t slash = types.find('/');
+            const std::size_t slash = types.find('/');
             end = slash == std::string_view::npos;
             const std::string_view code = types.substr(0, slash);
             snap_data_type* obstype = obstype_from_code(code);
@@ -1167,7 +1165,7 @@ static void next_data_field(snapfile_def* sd, int dftype, int id, int sec_id) {
 static int read_data_command(snapfile_def* sd, int id, std::string_view cmd) {
     int nobs = 0;
     int oneonly = 0;
-    size_t startno = 0;
+    std::size_t startno = 0;
     snap_data_type* obstype = nullptr;
     std::string name;
 
@@ -1371,7 +1369,7 @@ static void setup_cvr_rows(snapfile_def* sd) {
     }
     int* row = sd->cvrrow.data();
     for (i = sd->nvecobs, i3 = 0; i--; i3 += 3) {
-        const size_t ive = numeric_cast<size_t>(sd->nvecobs - i - 1);
+        const std::size_t ive = numeric_cast<std::size_t>(sd->nvecobs - i - 1);
         const vecerr_def* ve = ive < sd->vecerrlst.size() ? &sd->vecerrlst[ive] : nullptr;
         if (!ve || ve->nvecobs < 0) {
             row[i3] = row[i3 + 1] = row[i3 + 2] = -1;
@@ -1423,7 +1421,7 @@ static int read_vector_covariance(snapfile_def* sd, int data_available) {
     if (cvrused && !sd->vecerrlst.empty() && sd->nveccvr) {
         for (i = sd->nvecobs, i3 = 0; i--; i3 += 3) {
             const double* vcvr;
-            const vecerr_def* vecerr = &sd->vecerrlst[numeric_cast<size_t>(sd->nvecobs - i - 1)];
+            const vecerr_def* vecerr = &sd->vecerrlst[numeric_cast<std::size_t>(sd->nvecobs - i - 1)];
             if (!vecerr->nvecobs) {
                 continue;
             }
@@ -1518,7 +1516,7 @@ static void init_read_vector_error(snapfile_def* sd) {
 static void start_vector_error(snapfile_def* sd) {
     sd->nvecobs++;
 
-    const size_t ivecerr = numeric_cast<size_t>(sd->nvecobs - 1);
+    const std::size_t ivecerr = numeric_cast<std::size_t>(sd->nvecobs - 1);
     if (ivecerr >= sd->vecerrlst.size()) {
         sd->vecerrlst.emplace_back();
     }

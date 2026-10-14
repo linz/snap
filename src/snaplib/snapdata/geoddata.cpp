@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
 /* Routines for reading geodetic branch format data files */
 
 /*
@@ -8,13 +10,11 @@
 
 */
 
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <string>
 #include <string_view>
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-#include "util/snapctype.h"
-
 #include "snapdata/geoddata.h"
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"
@@ -25,7 +25,7 @@
 
 using boost::numeric_cast;
 
-static constexpr size_t NAMELEN = 20;
+static constexpr std::size_t NAMELEN = 20;
 
 static const struct {
     std::string_view code;

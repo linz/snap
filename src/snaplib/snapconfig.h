@@ -10,6 +10,7 @@
 #if defined(UNIX)
 // unix version of functions
 #include "util/snapctype.h"
+#include <strings.h>
 #include <unistd.h>
 #define _fileno fileno
 #define _unlink unlink
@@ -51,6 +52,7 @@
 // va_copy not defined on Visual Studio pre 2008
 #include <cstdarg>
 #include <cstdio>
+#include <cstring>
 #define ftell64 _ftelli64
 #define fseek64 _fseeki64
 #ifndef va_copy

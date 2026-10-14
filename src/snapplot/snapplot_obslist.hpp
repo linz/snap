@@ -1,6 +1,7 @@
 #ifndef SNAPPLOT_OBSLIST_HPP
 #define SNAPPLOT_OBSLIST_HPP
 
+#include <string>
 #include "wxtabbedtextgrid.hpp"
 
 class SnapplotObsSource : public wxTabbedTextSource {

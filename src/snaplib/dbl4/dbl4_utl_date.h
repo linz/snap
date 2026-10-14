@@ -1,5 +1,6 @@
 #ifndef DBL4_UTL_DATE_H
 #define DBL4_UTL_DATE_H
+struct DateTimeType;
 /*************************************************************************
 **
 **  Filename:    %M%
@@ -12,10 +13,6 @@
 **
 **************************************************************************
 */
-
-#ifndef DBL4_TYPES_H
-#include "dbl4_types.h"
-#endif
 
 void utlSetDate(DateTimeType* dt, int year, int month, int day);
 

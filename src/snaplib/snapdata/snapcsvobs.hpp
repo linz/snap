@@ -2,12 +2,20 @@
 #ifndef _SNAP_SNAPCSVOBS_HPP
 #define _SNAP_SNAPCSVOBS_HPP
 
-#include "snapdata/datatype.h"
+#include <memory>
+#include <string>
+#include <vector>
 #include "snapdata/snapcsvbase.hpp"
-
 #include "util/parseangle.hpp"
-#include "util/snapregex.hpp"
+#include "calcdltfile.hpp"
+#include "delimitedtextfile.hpp"
+#include "optionstring.hpp"
+
+struct datatypedef;
+
 namespace LINZ {
+class RecordStream;
+
 namespace SNAP {
 
 using namespace LINZ;

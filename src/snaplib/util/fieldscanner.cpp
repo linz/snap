@@ -1,12 +1,12 @@
-#include "snapconfig.hpp"
-
-#include "util/fieldscanner.hpp"
-#include "util/snapctype.h"
-#include "util/pi.h"
 #include <algorithm>
 #include <cctype>
 #include <charconv>
-#include <cstring>
+#include <iterator>
+#include <system_error>
+#include "snapconfig.hpp"
+#include "util/fieldscanner.hpp"
+#include "util/snapctype.h"
+#include "util/pi.h"
 
 std::optional<std::string_view> FieldScanner::next() {
     _pos = std::find_if(_pos, _text.end(), [](const char c) { return !ISSPACE(c); });
@@ -207,7 +207,7 @@ int compare_ignoring_case(std::string_view string1, std::string_view string2) {
                                                                                                                     : 0;
 }
 
-int compare_ignoring_case(std::string_view string1, std::string_view string2, size_t maxLength) {
+int compare_ignoring_case(std::string_view string1, std::string_view string2, std::size_t maxLength) {
     return compare_ignoring_case(string1.substr(0, maxLength), string2.substr(0, maxLength));
 }
 
@@ -250,7 +250,7 @@ static FieldResult read_field(FieldScanner& scanner,    ///< the scanner to read
     return FieldResult::Ok;
 }
 
-FieldResult read_string_field(FieldScanner& scanner, std::string& value, size_t maxlength) {
+FieldResult read_string_field(FieldScanner& scanner, std::string& value, std::size_t maxlength) {
     std::string_view field;
     const FieldResult result = read_field(scanner, field);
     if (result == FieldResult::Ok) {
@@ -273,7 +273,7 @@ FieldResult read_double_field(FieldScanner& scanner, double& value) {
     return FieldResult::Ok;
 }
 
-FieldResult read_remaining_text(FieldScanner& scanner, std::string& value, size_t maxlength) {
+FieldResult read_remaining_text(FieldScanner& scanner, std::string& value, std::size_t maxlength) {
     if (scanner.atEnd()) {
         return FieldResult::NoMoreData;
     }
@@ -352,7 +352,7 @@ FieldResult read_hp_angle_field(FieldScanner& scanner, double& radians) {
         return result;
     }
 
-    const size_t point = field.find('.');
+    const std::size_t point = field.find('.');
     if (point == std::string_view::npos) {
         return FieldResult::InvalidValue;
     }

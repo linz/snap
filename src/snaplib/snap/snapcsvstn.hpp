@@ -2,9 +2,17 @@
 #ifndef _SNAP_SNAPCSVSTN_HPP
 #define _SNAP_SNAPCSVSTN_HPP
 
-#include "network/network.h"
+#include <memory>
+#include <string>
+#include <vector>
 #include "snapdata/snapcsvbase.hpp"
 #include "util/parseangle.hpp"
+#include "calcdltfile.hpp"
+#include "delimitedtextfile.hpp"
+#include "optionstring.hpp"
+
+struct coordsys;
+struct network;
 
 namespace LINZ {
 namespace SNAP {

@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "classify.h"
 /*
    $Log: network.c,v $
    Revision 1.2  1998/05/21 04:00:26  ccrook
@@ -10,12 +11,9 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
-#include <utility>
-
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <cstdio>
+#include <utility>
 #include "network/network.h"
 
 /*=============================================================*/
@@ -95,12 +93,12 @@ void set_network_initstn_func(network* nw, stationfunc initfunc, stationfunc uni
 
 void set_network_name(network* nw, const std::string& n) {
     nw->name = std::nullopt;
-    const size_t start = n.find_first_not_of(" \n");
+    const std::size_t start = n.find_first_not_of(" \n");
     if (start == std::string::npos) {
         return;
     }
     std::string name = n.substr(start);
-    const size_t nl = name.find('\n');
+    const std::size_t nl = name.find('\n');
     if (nl != std::string::npos) {
         name.resize(nl);
     }

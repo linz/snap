@@ -1,6 +1,7 @@
 #ifndef _REORDER_H
 #define _REORDER_H
 
+#include <cstdio>
 /*
    $Log: reorder.h,v $
    Revision 1.1  1996/01/03 22:06:11  CHRIS

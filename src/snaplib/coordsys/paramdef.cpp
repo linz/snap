@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "iostring.h"
 /*
    $Log: paramdef.c,v $
    Revision 1.2  2004/04/22 02:34:22  ccrook
@@ -13,13 +14,15 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <algorithm>
 #include <string>
+#include <optional>
 #include "util/errdef.h"
 #include "coordsys/paramdef.h"
 #include "util/dms.h"
 #include "util/pi.h"
+
+class FieldScanner;
 
 #define DO_PRINT(fmt, type)                  \
     char buf[40];                            \
@@ -100,14 +103,14 @@ int read_param_list(input_string_def& is, param_def* prms, int nprm, void* base)
 
 void print_param_list(output_string_def* os, param_def* prms, int nprm, void* base, const std::string_view prefix) {
     int iprm;
-    size_t maxlen = 0;
+    std::size_t maxlen = 0;
     for (iprm = 0; iprm < nprm; iprm++) {
         if (!prms[iprm].print) {
             continue;
         }
         maxlen = std::max(maxlen, prms[iprm].name.size());
     }
-    maxlen = std::min(maxlen, static_cast<size_t>(80));
+    maxlen = std::min(maxlen, static_cast<std::size_t>(80));
     for (iprm = 0; iprm < nprm; iprm++) {
         param_def* pd = prms + iprm;
         if (!pd->print) {

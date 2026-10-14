@@ -1,6 +1,7 @@
 #ifndef _PROGRESS_H
 #define _PROGRESS_H
 
+#include <cstdio>
 /*
    $Log: progress.h,v $
    Revision 1.2  2004/04/22 02:35:27  ccrook

@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snapdata/stnrecode.h"
 /* Code to manage the list of survey data files */
 
 /*
@@ -8,19 +9,16 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstring>
 #include <algorithm>
 #include <string_view>
-
 #include "util/dstring.h"
 #include "util/binfile.h"
 #include "snap/survfile.h"
-#include "snapdata/obsmod.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/dateutil.h"
-#include <boost/algorithm/string/predicate.hpp>
 
 static survey_data_file** sdindx = nullptr;
 static int nsdindx = 0;
@@ -145,11 +143,11 @@ int survey_data_file_id(std::string_view name, file_context* context) {
 
     /* Path insensitive match (but path delimiter character sensitive) */
     if (matchid < 0) {
-        const size_t matchlen = matchName.size();
+        const std::size_t matchlen = matchName.size();
         for (i = 0; i < nsdindx; i++) {
             const std::string& dfname = sdindx[i]->name;
             if (dfname.size() > matchlen) {
-                const size_t offset = dfname.size() - matchlen;
+                const std::size_t offset = dfname.size() - matchlen;
                 if (boost::algorithm::iequals(dfname.substr(offset), matchName) &&
                     (dfname[offset - 1] == '/' || dfname[offset - 1] == '\\')) {
                     if (matchid < 0) {

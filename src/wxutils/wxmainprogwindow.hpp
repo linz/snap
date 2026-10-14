@@ -1,13 +1,12 @@
 #ifndef WXMAINPROGWINDOW_HPP
 #define WXMAINPROGWINDOW_HPP
 
-#include "wx_includes.hpp"
-
-#include "util/errdef.h"
-
 #include <cstdarg>
 #include <ctime>
 #include <vector>
+#include <string_view>
+#include "wx_includes.hpp"
+#include "util/errdef.h"
 
 class wxMainProgWindow : public wxDialog {
  public:

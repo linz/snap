@@ -1,4 +1,8 @@
+#include <string>
+#include <string_view>
+#include <vector>
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /* netlist2.c: Station list functions accessed via network */
 
 /*
@@ -12,17 +16,8 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include "util/snapctype.h"
-
 #include "network/network.h"
-#include "util/dstring.h"
-#include "util/fileutil.h"
 #include "util/errdef.h"
-#include "util/polygon.h"
-#include "util/pi.h"
 
 #define COMMENT_CHAR '!'
 

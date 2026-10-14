@@ -1,4 +1,8 @@
 #include "snapconfig.h"
+#include "errdef.h"
+#include "snap/filenames.h"
+#include "snapdata/obsmod.h"
+#include "classify.h"
 /*
    $Log: snapglob.c,v $
    Revision 1.5  2003/11/24 01:34:13  ccrook
@@ -20,18 +24,17 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <array>
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <initializer_list>
 
 #define _SNAPGLOB_C
 #include "util/binfile.h"
 #include "snap/snapglob.h"
 #include "snap/survfile.h"
 #include "snap/stnadj.h"
-#include "util/dstring.h"
 #include "util/fileutil.h"
 #include "util/get_date.h"
 

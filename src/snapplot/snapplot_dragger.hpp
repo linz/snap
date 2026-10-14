@@ -2,6 +2,7 @@
 #define SNAPPLOT_DRAGGER_HPP
 
 #include "wxmapwindow.hpp"
+#include "mapdefs.hpp"
 
 class SnapplotMapDragger : public wxMapScaleDragger {
  public:

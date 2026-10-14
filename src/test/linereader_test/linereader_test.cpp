@@ -8,9 +8,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include <streambuf>
 #include <string>
-
+#include <string_view>
 #include "linereader.hpp"
 
 namespace {
@@ -38,7 +37,7 @@ class PipeBuffer : public std::streambuf {
 
 /// Reads a field from the reader, returning what was found.
 TokenResult read(LineReader& reader, std::string& token, const char separator = 0, const bool usespace = false,
-                 const size_t maxLength = 100) {
+                 const std::size_t maxLength = 100) {
     bool isspace = false;
     return reader.readToken(separator, usespace, isspace, token, maxLength);
 }

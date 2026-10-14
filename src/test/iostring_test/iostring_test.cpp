@@ -1,4 +1,5 @@
 #include "snapconfig.hpp"
+#include "fieldscanner.hpp"
 
 // Standalone unit test for util/iostring.cpp's input_string_def-based
 // functions. Awaiting migration to CTest - until then, failures are
@@ -8,7 +9,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-
+#include <string_view>
 #include "util/errdef.h"
 #include "util/iostring.h"
 

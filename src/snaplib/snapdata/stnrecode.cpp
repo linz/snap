@@ -2,34 +2,22 @@
 
 /* Routines for managing station code translations */
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cmath>
-#include "util/snapctype.h"
 #include <algorithm>
 #include <iterator>
 #include <optional>
 #include <string>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <initializer_list>
 #include "snapdata/stnrecode.h"
 #include "snapdata/stnrecodefile.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
-#include "snapdata/datatype.h"
-#include "util/datafile.h"
 #include "snapdata/loaddata.h"
-#include "snapdata/survdata.h"
 #include "util/dateutil.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
-#include "util/symmatrx.h"
 #include "util/textformat.hpp"
-#include "util/progress.h"
-#include "util/pi.h"
 
 using boost::numeric_cast;
 

@@ -8,13 +8,9 @@
 
 */
 
-#ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
-#endif
 
-#ifndef _SURVDATA_H
-#include "snapdata/survdata.h"
-#endif
+struct survdata;
 
 using VRTFUNC = void (*)(int id, double vrt[3]);
 using XFMFUNC = double* (*)(int reffrm, int inverse);

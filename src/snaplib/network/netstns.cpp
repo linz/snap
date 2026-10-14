@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "geodetic.h"
 /*
    $Log: netstns.c,v $
    Revision 1.1  1995/12/22 17:31:03  CHRIS
@@ -6,16 +8,14 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
+#include <optional>
+#include <string_view>
+#include <vector>
 #include "network/network.h"
 #include "network/stnoffset.h"
 #include "util/errdef.h"
-#include "util/dstring.h"
-
-#include <boost/numeric/conversion/cast.hpp>
 
 using boost::numeric_cast;
 
@@ -30,11 +30,11 @@ void delete_station(station* st) {
 }
 
 void station::set_class_count(const int count) {
-    classval.resize(count > 0 ? numeric_cast<size_t>(count) : 0);
+    classval.resize(count > 0 ? numeric_cast<std::size_t>(count) : 0);
 }
 
 void station::set_class(const int class_id, const int value) {
-    if (class_id > 0 && numeric_cast<size_t>(class_id) <= classval.size()) {
+    if (class_id > 0 && numeric_cast<std::size_t>(class_id) <= classval.size()) {
         classval[class_id - 1] = value;
     } else {
         handle_error(INCONSISTENT_DATA, "Invalid class id in set_station_class", NO_MESSAGE);
@@ -42,7 +42,7 @@ void station::set_class(const int class_id, const int value) {
 }
 
 int station::get_class(const int class_id) const {
-    if (class_id > 0 && numeric_cast<size_t>(class_id) <= classval.size()) {
+    if (class_id > 0 && numeric_cast<std::size_t>(class_id) <= classval.size()) {
         return classval[class_id - 1];
     }
     // handle_error( INCONSISTENT_DATA, "Invalid class id in get_station_class",NO_MESSAGE);

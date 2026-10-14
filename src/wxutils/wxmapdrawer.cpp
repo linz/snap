@@ -1,5 +1,8 @@
+#include <cmath>
 #include "snapconfig.h"
 #include "wxmapdrawer.hpp"
+#include "mapdefs.hpp"
+#include "wxmapscale.hpp"
 
 // wxMapDrawer class ... used to interface the map with the symbology,
 // scale, etc...

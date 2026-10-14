@@ -7,6 +7,8 @@
 #include "wxmapscale.hpp"
 #include "wxmap.hpp"
 
+class Symbology;
+
 DECLARE_EVENT_TYPE(WX_MAPWINDOW_POSITION, -1)
 DECLARE_EVENT_TYPE(WX_MAPWINDOW_CLICKED, -1)
 DECLARE_EVENT_TYPE(WX_MAPWINDOW_REPAINTED, -1)
@@ -40,7 +42,7 @@ using wxMapWindowEventFunction = void (wxEvtHandler::*)(wxMapWindowEvent&);
 #define EVT_MAPWINDOW_EVENT(eventtype, fn) \
     DECLARE_EVENT_TABLE_ENTRY(             \
         eventtype, wxID_ANY, -1,           \
-        (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxMapWindowEventFunction, &fn), (wxObject*)NULL),
+        (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxMapWindowEventFunction, &fn), (wxObject*)nullptr),
 
 //---------------------------------------------------------------------------
 

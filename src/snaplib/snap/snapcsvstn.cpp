@@ -1,27 +1,24 @@
-#include "snapconfig.hpp"
-
-#include <algorithm>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <array>
-#include <boost/algorithm/string.hpp>
-#include <iostream>
 #include <memory>
-#include <regex>
 #include <sstream>
 #include <string_view>
 #include <vector>
-
-#include "util/datafile.h"
-#include "util/dateutil.h"
+#include <optional>
+#include "snapconfig.hpp"
 #include "util/filelist.h"
 #include "util/fileutil.h"
 #include "util/pi.h"
-
 #include "network/network.h"
 #include "snap/snapcsvstn.h"
 #include "snap/snapcsvstn.hpp"
-#include "snap/snapglob.h"
-#include "snap/stnadj.h"
 #include "util/datafileinput.hpp"
+#include "coordsys/coordsys.h"
+#include "errdef.h"
+#include "parseangle.hpp"
+#include "recordinputbase.hpp"
+#include "recordstream.hpp"
 
 using namespace LINZ;
 using namespace DelimitedTextFile;
@@ -421,8 +418,6 @@ void SnapCsvStn::terminateLoadData() {
 /////////////////////////////////////////////////////////////////////////////
 //
 // Global CSV load function
-
-#include "snap/stnadj.h"
 
 int load_snap_csv_stations(network* net, const std::string& filename, const std::string& options) {
     int sts = OK;

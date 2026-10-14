@@ -1,4 +1,11 @@
 #include "snapconfig.h"
+#include "bltmatrx.h"
+#include "coordsys/coordsys.h"
+#include "errdef.h"
+#include "geodetic.h"
+#include "network/network.h"
+#include "snap/deform.h"
+#include "snap/filenames.h"
 /* Code to support printing of covariance information to files for
    subsequent use by other programs */
 
@@ -16,15 +23,14 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <array>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
+#include <optional>
 
 using boost::numeric_cast;
 
@@ -74,7 +80,7 @@ void print_coord_covariance(void) {
 
     maxstn = number_of_stations(net);
     ncrd = maxstn * 3;
-    std::vector<int> rownos(numeric_cast<size_t>(ncrd), -1);
+    std::vector<int> rownos(numeric_cast<std::size_t>(ncrd), -1);
 
     projection_coords = is_projection(net->crdsys) ? 1 : 0;
     const DmsFormat latitudeFormat(3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S");
@@ -168,7 +174,7 @@ void print_coord_covariance_json(void) {
 
     maxstn = number_of_stations(net);
     ncrd = maxstn * 3;
-    std::vector<int> rownos(numeric_cast<size_t>(ncrd), -1);
+    std::vector<int> rownos(numeric_cast<std::size_t>(ncrd), -1);
 
     projection_coords = is_projection(net->crdsys) ? 1 : 0;
     geocentric_coords = is_geocentric(net->crdsys) ? 1 : 0;

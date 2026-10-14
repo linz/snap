@@ -36,24 +36,20 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
-#include <cstdlib>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <utility>
 #include "dbl4_utl_lnzdef.h"
 #include "dbl4_utl_trig.h"
 #include "dbl4_utl_grid.h"
 #include "dbl4_utl_date.h"
-
 #include "dbl4_utl_error.h"
 #include "util/stringlimited.hpp"
+#include "dbl4_utl_trace.h"
 
 /* Note: code below assumes headers are all the same length */
 
@@ -510,7 +506,7 @@ static StatusType load_component(int version, hDefSeq seq, hBinSrc binsrc, hDefC
             cmp->timeModel[2].factor = useafter ? cmp->timeModel[2].year - refyear : 0.0;
         } else {
             cmp->factor0 = cmp->beforemode == defEvalFixed ? 1.0 : 0.0;
-            cmp->timeModel.resize(boost::numeric_cast<size_t>(nTimeModel));
+            cmp->timeModel.resize(boost::numeric_cast<std::size_t>(nTimeModel));
             for (i = 0; i < nTimeModel; i++) {
                 TimeModelPoint* tmi = &(cmp->timeModel[i]);
                 tmi->year = refyear;
@@ -539,7 +535,7 @@ static StatusType load_component(int version, hDefSeq seq, hBinSrc binsrc, hDefC
         }
         if (sts == STS_OK && nTimeModel > 0) {
             INT2 i;
-            cmp->timeModel.resize(boost::numeric_cast<size_t>(nTimeModel));
+            cmp->timeModel.resize(boost::numeric_cast<std::size_t>(nTimeModel));
             for (i = 0; i < nTimeModel; i++) {
                 DateTimeType eventDate;
                 TimeModelPoint* tmi = &(cmp->timeModel[i]);

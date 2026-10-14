@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "network/network.h"
+#include "writecsv.h"
 
 /*
    $Log: bindata2.c,v $
@@ -23,9 +26,9 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <cmath>
 #include <array>
 #include <forward_list>
@@ -34,16 +37,15 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <cstdint>
+#include <memory>
+#include <utility>
 
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 
 #include "snap/snapglob.h"
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
-#include "snap/bearing.h"
-#include "snap/rftrans.h"
 #include "snap/bindata.h"
 #include "bindata2.h"
 #include "obsdata.h"
@@ -52,7 +54,6 @@ using boost::numeric_cast;
 #include "util/classify.h"
 #include "snapdata/gpscvr.h"
 #include "snapdata/stnrecode.h"
-#include "adjparam.h"
 #include "util/errdef.h"
 #include "output.h"
 #include "util/leastsqu.h"
@@ -60,15 +61,11 @@ using boost::numeric_cast;
 #include "snap/survfile.h"
 #include "sortobs.h"
 #include "util/progress.h"
-#include "residual.h"
 #include "snap/stnadj.h"
-#include "snap/genparam.h"
-#include "stnobseq.h"
 #include "coefs.h"
 #include "snap/datastat.h"
 #include "util/dms.h"
 #include "util/dateutil.h"
-#include "util/dstring.h"
 #include "util/pi.h"
 #include "util/textformat.hpp"
 

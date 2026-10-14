@@ -2,10 +2,6 @@
 #define SNAPPLOT_EVENT_HPP
 
 #include "wx_includes.hpp"
-
-#include "snapplot_event.hpp"
-#include "snapplot_eventids.hpp"
-
 //extern "C" {
 #include "infowin.h"
 //}
@@ -48,6 +44,6 @@ using wxSnapplotEventFunction = void (wxEvtHandler::*)(wxSnapplotEvent&);
 #define EVT_SNAPPLOT_EVENT(eventtype, fn)                                                                              \
     DECLARE_EVENT_TABLE_ENTRY(eventtype, wxID_ANY, -1,                                                                 \
                               (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxSnapplotEventFunction, &fn), \
-                              (wxObject*)NULL),
+                              (wxObject*)nullptr),
 
 #endif

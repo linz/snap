@@ -11,14 +11,14 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <forward_list>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
 
@@ -122,7 +122,7 @@ static void make_crdsys_lists(void) {
 
 static const crdsys_list_item* crdsys_item_at(const crdsys_list& cl, int item) {
     make_crdsys_lists();
-    if (item < 0 || numeric_cast<size_t>(item) >= cl.size()) {
+    if (item < 0 || numeric_cast<std::size_t>(item) >= cl.size()) {
         return nullptr;
     }
     return &cl[item];

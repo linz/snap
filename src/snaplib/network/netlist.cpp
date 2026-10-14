@@ -8,19 +8,16 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
-#include <cctype>
-#include <string_view>
 #include <boost/numeric/conversion/cast.hpp>
+#include <cstdlib>
+#include <algorithm>
+#include <string_view>
+#include <optional>
+
 using boost::numeric_cast;
 #include <cassert>
-
 #include "network/network.h"
 #include "util/fieldscanner.hpp"
-#include "util/errdef.h"
 
 #define STNLIST_INIT_INDEX_SIZE 1024
 
@@ -121,16 +118,16 @@ void sl_remove_station(station_list* sl, station* st) {
 int stncodecmp(std::string_view s1,  ///< the first station code
                std::string_view s2)  ///< the second station code
 {
-    const size_t digits1 = std::find_if(s1.begin(), s1.end(), is_digit) - s1.begin();
-    const size_t digits2 = std::find_if(s2.begin(), s2.end(), is_digit) - s2.begin();
+    const std::size_t digits1 = std::find_if(s1.begin(), s1.end(), is_digit) - s1.begin();
+    const std::size_t digits2 = std::find_if(s2.begin(), s2.end(), is_digit) - s2.begin();
     if (digits1 == digits2 && digits1 < s1.size() && digits1 < s2.size() &&
         compare_ignoring_case(s1.substr(0, digits1), s2.substr(0, digits1)) == 0) {
         // The digits of a run without its leading zeros. A longer run is a
         // larger number, and runs of equal length compare as text, so the
         // comparison needs no integer type and cannot overflow.
         const auto significantDigits = [](const std::string_view text) {
-            const size_t end = std::find_if_not(text.begin(), text.end(), is_digit) - text.begin();
-            const size_t zeros =
+            const std::size_t end = std::find_if_not(text.begin(), text.end(), is_digit) - text.begin();
+            const std::size_t zeros =
                 std::find_if_not(text.begin(), text.begin() + end, [](const char ch) { return ch == '0'; }) -
                 text.begin();
             return text.substr(zeros, end - zeros);

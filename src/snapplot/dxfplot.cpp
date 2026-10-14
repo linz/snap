@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /* Routines for plotting obstacles to a DXF file */
 
 /*
@@ -11,20 +12,18 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
-
 #include <string>
 #include <vector>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "dxfplot.h"
 #include "snap/snapglob.h"
-#include "snap/stnadj.h"
 #include "plotscal.h"
 #include "plotstns.h"
 #include "plotconn.h"
@@ -32,8 +31,6 @@
 #include "plotfunc.h"
 #include "backgrnd.h"
 #include "trimmer.h"
-
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/pi.h"
 
@@ -172,7 +169,7 @@ static int dxf_colour_id(unsigned char red, unsigned char green, unsigned char b
     int distance = 256 * 3;
     int colour = 1;
     for (dxfcolour* c = colourtable; c->id > 0; c++) {
-        const int dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
+        const int dist = std::abs(red - c->R) + std::abs(green - c->G) + std::abs(blue - c->B);
         if (dist < distance) {
             colour = c->id;
             distance = dist;
@@ -549,8 +546,8 @@ int close_dxf_file() {
     return OK;
 }
 
-#define NOTE(txt)                           \
-    dxf_text(NULL, xt, yt, size, pen, txt); \
+#define NOTE(txt)                              \
+    dxf_text(nullptr, xt, yt, size, pen, txt); \
     yt += spacing
 
 void write_dxf_title_block(map_plotter*) {

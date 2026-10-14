@@ -1,6 +1,9 @@
 #ifndef PLOTBIN_H
 #define PLOTBIN_H
 
+#include <cstdint>
+
+struct survdata;
 /*
    $Log: plotbin.h,v $
    Revision 1.3  1997/04/28 10:59:57  CHRIS
@@ -14,13 +17,7 @@
 
 */
 
-#ifndef _SURVDATA_H
-#include "snapdata/survdata.h"
-#endif
-
-#ifndef INFOWIN_H
 #include "infowin.h"
-#endif
 
 int reload_binary_data();
 void load_observations_from_binary(void);

@@ -453,7 +453,13 @@ def _format(fix: bool) -> None:
         sys.exit(result.returncode)
 
     if fix:
-        print(f"clang-format applied to {len(files)} files (see git diff --stat)")
+        # format_fix has checked that the tree was committed, so the changes are clang-format's.
+        changed = subprocess.run(
+            ["git", "diff", "--name-only"], cwd=REPO_ROOT, capture_output=True, text=True, check=True
+        ).stdout.splitlines()
+        print(f"clang-format changed {len(changed)} of {len(files)} files")
+        for path in changed:
+            print(f"  {path}")
         return
 
     # clang-format reports each path as it was given, which is relative to REPO_ROOT, not to the current directory.
@@ -490,6 +496,12 @@ IWYU_REPORT = "iwyu-report.txt"
 # one wx port that it analysed (wx/gtk/frame.h for wxFrame), which does not exist on the other
 # ports, so applying it would break the Windows build.
 IWYU_WX = re.compile(r'#include [<"]wx/|class wx\w+;')
+
+# The project has classes of its own that start with wx (wxMap, wxSimpleEvent).  IWYU suggests the
+# forward declaration of such a class in place of the include of the header that defines it, so where
+# IWYU_WX drops the declaration and the removal is applied, the class is unknown.  A file where one was
+# dropped therefore keeps its includes.
+IWYU_WX_DECLARATION = re.compile(r"class wx\w+;")
 
 # The Boost headers that IWYU suggests despite boost-all.imp, which are implementation details.
 IWYU_BOOST_INTERNAL = re.compile(r"#include <boost/(?:regex/v5|.*/detail)/")
@@ -562,6 +574,8 @@ def wanted_iwyu_suggestions(path: Path, suggestions: set[tuple[str, str]]) -> li
         text = None
     # A file that cannot be read cannot be checked for a Windows branch, so its removals are dropped.
     may_remove = text is not None and not IWYU_PLATFORM_BRANCH.search(text)
+    if any(kind == "add" and IWYU_WX_DECLARATION.match(line) for kind, line in suggestions):
+        may_remove = False
     wanted = []
     for kind, line in sorted(suggestions):
         if kind == "add":

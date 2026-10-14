@@ -1,6 +1,10 @@
 #ifndef _OBSDATA_H
 #define _OBSDATA_H
 
+#include <cstdio>
+
+struct lsdata;
+struct survdata;
 /*
    $Log: obsdata.h,v $
    Revision 1.2  2003/11/25 01:29:58  ccrook
@@ -11,14 +15,6 @@
    Initial revision
 
 */
-
-#ifndef _LOADDATA_H
-#include "snapdata/loaddata.h" /* For definitions of data structures */
-#endif
-
-#ifndef _BINDATA2_H
-#include "bindata2.h" /* For definition of lsdata */
-#endif
 
 void apply_obsdata_options(survdata* o);
 void list_obsdata(std::FILE* out, survdata* o);

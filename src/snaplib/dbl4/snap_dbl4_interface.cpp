@@ -1,19 +1,18 @@
-#include "snapconfig.h"
-
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <cstdarg>
 #include <iostream>
 #include <string>
 #include <string_view>
+#include "snapconfig.h"
 #include "dbl4_utl_error.h"
-#include "dbl4_utl_trace.h"
 #include "dbl4_utl_yield.h"
 #include "dbl4_utl_progress.h"
 #include "dbl4_utl_blob.h"
 #include "util/errdef.h"
 #include "dbl4/snap_dbl4_interface.h"
+#include "dbl4_types.h"
+#include "mi.h"
 
 static int lastpercent = 0;
 static std::string laststate;
@@ -88,7 +87,7 @@ StatusType utlReadBlobDB(void* blob, long lngOffset, long lngBufSize, void* pvBu
 }
 
 StatusType utlWriteBlobDB(void* blob, long lngBufSize, void* pvBuffer) {
-    if (!std::fwrite(pvBuffer, (size_t)lngBufSize, 1, (std::FILE*)blob))
+    if (!std::fwrite(pvBuffer, (std::size_t)lngBufSize, 1, (std::FILE*)blob))
         RETURN_STATUS(STS_INVALID_DATA);
     return STS_OK;
 }

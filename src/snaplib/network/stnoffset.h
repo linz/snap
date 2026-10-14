@@ -8,6 +8,8 @@
 
 #include "util/geodetic.h"
 
+struct station;
+
 #define STN_TS_STEP 0
 #define STN_TS_SERIES 1
 #define STN_TS_VELOCITY 2
@@ -27,7 +29,7 @@ struct stn_offset_comp {
     std::vector<stn_tspoint> tspoints;  ///< The points of a time series, in date order
 
     /// Creates a component with room for the given number of time series points
-    stn_offset_comp(const int tsmode, const int tsxyz, const size_t npoints)
+    stn_offset_comp(const int tsmode, const int tsxyz, const std::size_t npoints)
         : mode(tsmode), isxyz(tsxyz), tspoints(npoints) {}
 };
 

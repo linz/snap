@@ -10,6 +10,7 @@
 
 #include <string>
 #include <string_view>
+#include <cstdio>
 
 int read_plot_command_file(const std::string& fname, int got_data);
 

@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "snap/filenames.h"
+#include "snapplot/infowin.h"
 
 /*
    $Log: plotbin.c,v $
@@ -16,27 +18,22 @@
 #include <filesystem>
 #include <optional>
 #include <string>
-#include <cstdlib>
-#include <cmath>
-
 #include "util/errdef.h"
 #include "util/fileutil.h"
-
 #include "plotbin.h"
 #include "snap/genparam.h"
 #include "util/binfile.h"
-#include "snapdata/survdata.h"
 #include "snap/survfile.h"
 #include "snap/bindata.h"
 #include "snap/stnadj.h"
 #include "snap/rftrndmp.h"
 #include "snap/snapglob.h"
 #include "snap/snapglob_bin.h"
-#include "util/classify.h"
-#include "snap/survfile.h"
 #include "plotconn.h"
 #include "plotstns.h"
 #include "snapplot_util.h"
+
+struct survdata;
 
 static int reload_observations(BINARY_FILE* b);
 static int reload_relative_covariances(BINARY_FILE* b);

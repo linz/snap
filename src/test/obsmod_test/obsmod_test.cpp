@@ -1,4 +1,5 @@
 #include "snapconfig.hpp"
+#include "snapdata/datatype.h"
 
 // Standalone unit test for the observation modifications in
 // snapdata/obsmod.cpp. A set of observations is modified by criteria of every
@@ -16,11 +17,14 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include <string_view>
+#include <utility>
 #include "snapdata/obsmod.h"
 #include "snapdata/survdata.h"
 #include "util/classify.h"
 #include "util/errdef.h"
+
+struct file_context;
 
 namespace {
 
@@ -54,7 +58,7 @@ struct TestSurvey {
         sd.nobs = static_cast<int>(values.size());
         odata.resize(values.size());
         clsf.resize(2 * values.size());
-        for (size_t i = 0; i < values.size(); ++i) {
+        for (std::size_t i = 0; i < values.size(); ++i) {
             clsf[2 * i].class_id = equip;
             clsf[2 * i].name_id = classes.value_id(equip, values[i].first, 1);
             clsf[2 * i + 1].class_id = obsr;

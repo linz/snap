@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "iostring.h"
 /* crdsysfl.c:  Reading of coordinate system definitions from file of
    definitions.
 
@@ -16,22 +17,21 @@ that the file had not been modified in the mean time - tricky .
 
 */
 
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <string>
-#include <vector>
-
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
-
+#include <string>
+#include <vector>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <string_view>
+#include <utility>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
 #include "util/errdef.h"
 #include "util/datafile.h"
 #include "util/fileutil.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 
 #define MAXRECLEN 512

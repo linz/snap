@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "classify.h"
+#include "coordsys/coordsys.h"
 /* netlist2.c: Station list functions accessed via network */
 
 /*
@@ -12,20 +14,17 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <variant>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
+#include <utility>
 #include "util/snapctype.h"
-
 #include "network/network.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/fileutil.h"
 #include "util/filelist.h"
@@ -103,7 +102,7 @@ struct criterion {
     const int stacklevel;
     // Index into station_criteria::sources, or nullopt if the criterion
     // did not come from a station list file.
-    std::optional<size_t> source;
+    std::optional<std::size_t> source;
 };
 
 struct station_criteria {
@@ -123,7 +122,7 @@ static unsigned char check_criteria_cache(const std::vector<unsigned char>& cach
     if (id < 0) {
         return CRIT_STATUS_UNKNOWN;
     }
-    const size_t index = id;
+    const std::size_t index = id;
     return index < cache.size() ? cache[index] : CRIT_STATUS_UNKNOWN;
 }
 
@@ -131,9 +130,9 @@ static void set_criteria_cache(std::vector<unsigned char>& cache, int id, unsign
     if (id < 0) {
         return;
     }
-    const size_t index = id;
+    const std::size_t index = id;
     if (index >= cache.size()) {
-        const size_t newsize = std::max({cache.size() * 2, index + index / 10 + 1, size_t(1024)});
+        const std::size_t newsize = std::max({cache.size() * 2, index + index / 10 + 1, std::size_t(1024)});
         cache.resize(newsize, CRIT_STATUS_UNKNOWN);
     }
     cache[index] = match;
@@ -297,7 +296,7 @@ void setup_station_criteria_cache(void* psc, int maxstn) {
 }
 
 // Returns the index of file in sc->sources, adding it if it is not there.
-static size_t station_criteria_source_index(station_criteria* sc, const std::string& file) {
+static std::size_t station_criteria_source_index(station_criteria* sc, const std::string& file) {
     const auto found = std::find(sc->sources.begin(), sc->sources.end(), file);
     if (found != sc->sources.end()) {
         return found - sc->sources.begin();
@@ -323,7 +322,7 @@ static void delete_all_station_criteria(station_criteria* sc) {
     sc->all_code_criteria = true;
 }
 
-static void add_station_criterion(station_criteria* sc, criterion c, std::optional<size_t> source) {
+static void add_station_criterion(station_criteria* sc, criterion c, std::optional<std::size_t> source) {
     /* Optimisation for simple list of codes */
     if (!(std::holds_alternative<code_criterion>(c.type) || std::holds_alternative<frame_start>(c.type)) ||
         (c.crit_operator != criterion_operator::line && c.crit_operator != criterion_operator::or_)) {
@@ -336,7 +335,7 @@ static void add_station_criterion(station_criteria* sc, criterion c, std::option
 
 // The frame functions take pos, the index of the criterion to start at, and
 // leave it at the first criterion after the frame.
-static void skip_criterion_frame(const std::vector<criterion>& criteria, size_t& pos, int stacklevel,
+static void skip_criterion_frame(const std::vector<criterion>& criteria, std::size_t& pos, int stacklevel,
                                  criterion_operator op) {
     while (pos < criteria.size() && (criteria[pos].stacklevel > stacklevel ||
                                      (criteria[pos].stacklevel == stacklevel && criteria[pos].crit_operator >= op))) {
@@ -344,7 +343,7 @@ static void skip_criterion_frame(const std::vector<criterion>& criteria, size_t&
     }
 }
 
-static bool criterion_frame_match(const std::vector<criterion>& criteria, size_t& pos, station* stn) {
+static bool criterion_frame_match(const std::vector<criterion>& criteria, std::size_t& pos, station* stn) {
     // pos must be strictly less than criteria.size() to index criteria[pos].
     // It equals size() when there is nothing left, including an empty list.
     if (pos >= criteria.size()) {
@@ -388,7 +387,7 @@ bool station_criteria_match(void* psc, station* stn) {
     }
     if (status == CRIT_STATUS_UNKNOWN) {
         /* Match if any criteria match, except may be undone by reverse criteria */
-        size_t pos = 0;
+        std::size_t pos = 0;
         status = criterion_frame_match(sc->criteria, pos, stn) ? CRIT_STATUS_PASS : CRIT_STATUS_FAIL;
         if (sc->cache) {
             set_criteria_cache(*sc->cache, stn->id, status);
@@ -466,7 +465,7 @@ int check_station_criteria_codes(void* psc, network* nw) {
 // source is the index in sc->sources of the station list file select was read
 // from, if any. missing_error is the default for stations that do not exist.
 static int compile_station_criteria1(station_criteria* sc, network* nw, std::string_view select,
-                                     const std::string& basefile, int stacklevel, std::optional<size_t> source,
+                                     const std::string& basefile, int stacklevel, std::optional<std::size_t> source,
                                      int missing_error);
 
 static int compile_station_list_file_criteria(station_criteria* sc, network* nw, const std::string& file,
@@ -491,7 +490,7 @@ static int compile_station_list_file_criteria(station_criteria* sc, network* nw,
 
     skip_utf8_bom(list_file);
 
-    const size_t source = station_criteria_source_index(sc, file);
+    const std::size_t source = station_criteria_source_index(sc, file);
     while (sts == OK && std::fgets(buf, 2048, list_file)) {
         char* b = buf;
         while (*b && ISSPACE(*b)) {
@@ -506,7 +505,7 @@ static int compile_station_list_file_criteria(station_criteria* sc, network* nw,
 }
 
 static int compile_station_criteria1(station_criteria* sc, network* nw, std::string_view select,
-                                     const std::string& basefile, int stacklevel, std::optional<size_t> source,
+                                     const std::string& basefile, int stacklevel, std::optional<std::size_t> source,
                                      int missing_error) {
     char errmess[200];
     int sts = OK;
@@ -667,7 +666,7 @@ static int compile_station_criteria1(station_criteria* sc, network* nw, std::str
             const std::string_view values = field->substr(eqPos + 1);
             // The first value uses the operator read, the rest are ored with it
             criterion_operator valueOp = op;
-            for (size_t pos = 0; pos < values.size();) {
+            for (std::size_t pos = 0; pos < values.size();) {
                 const auto slashPos = values.find('/', pos);
                 const auto valueEnd = slashPos == std::string_view::npos ? values.size() : slashPos;
                 const std::string value(values.substr(pos, valueEnd - pos));

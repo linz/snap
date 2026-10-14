@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "coordsys/paramdef.h"
+#include "iostring.h"
 /* Routines to print a description of the coordinate system to a file */
 
 /*
@@ -13,13 +16,12 @@
 */
 
 #include <cstdio>
-#include <cmath>
 #include <array>
 #include <string_view>
-
+#include <optional>
+#include <string>
 #include "util/errdef.h"
 #include "coordsys/crdsys_prj.h"
-#include "util/pi.h"
 
 int describe_ellipsoid(output_string_def* os, ellipsoid* el) {
     char out[80];

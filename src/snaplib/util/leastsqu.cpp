@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "lsobseq.h"
 /*
 
 These routines handle a least squares problem formulated as
@@ -60,11 +61,10 @@ where
 
 */
 
-#include <cstdlib>
 #include <cstdio>
 #include <cmath>
 #include <string_view>
-
+#include <optional>
 #include "util/errdef.h"
 #include "util/leastsqu.h"
 #include "util/bltmatrx.h"

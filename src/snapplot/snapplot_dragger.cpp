@@ -1,9 +1,10 @@
 #include "snapconfig.h"
 #include "snapplot_dragger.hpp"
-
 //extern "C" {
 #include "plotstns.h"
 #include "plotconn.h"
+#include "wx_includes.hpp"
+#include "wxmapscale.hpp"
 //}
 
 SnapplotMapDragger::SnapplotMapDragger(int pickTolerance) : pickTolerance(pickTolerance) {

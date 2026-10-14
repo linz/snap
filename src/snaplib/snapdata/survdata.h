@@ -9,17 +9,13 @@
 */
 
 #include <cstdint>
+#include <cstddef>
+
+struct DiskField;
+struct datatypedef;
 
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
-#endif
-
-#ifndef _DATATYPE_H
-#include "snapdata/datatype.h"
-#endif
-
-#ifndef _BINFILE_H
-#include "util/binfile.h"
 #endif
 
 /* Data formats used by loaddata routines */
@@ -151,7 +147,7 @@ struct survdata {
 // exists elsewhere," letting bindata.cpp's one real array be linked from
 // here.
 extern const DiskField SURVDATA_DISK_FIELDS[];
-extern const size_t SURVDATA_DISK_FIELD_COUNT;
+extern const std::size_t SURVDATA_DISK_FIELD_COUNT;
 
 /* Flag bits set in the unused flag */
 

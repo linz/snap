@@ -12,7 +12,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
-
+#include <initializer_list>
 #include "util/fieldscanner.hpp"
 #include "util/pi.h"
 

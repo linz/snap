@@ -2,13 +2,10 @@
 #ifndef _LINZ_DELIMITEDTEXTFILE_HPP
 #define _LINZ_DELIMITEDTEXTFILE_HPP
 
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
-#include <stdexcept>
-
 #include "util/recordinputbase.hpp"
 
 namespace LINZ {

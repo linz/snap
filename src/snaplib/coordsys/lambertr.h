@@ -1,6 +1,7 @@
 #ifndef LAMBERTR_H
 #define LAMBERTR_H
 
+struct projection;
 /*
    $Log: lambertr.h,v $
    Revision 1.1  1995/12/22 16:56:33  CHRIS

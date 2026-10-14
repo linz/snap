@@ -1,8 +1,9 @@
 #ifndef SCRIPT_HPP
 #define SCRIPT_HPP
 
-#include "wx_includes.hpp"
 #include <map>
+#include <string>
+#include "wx_includes.hpp"
 
 namespace Scripter {
 

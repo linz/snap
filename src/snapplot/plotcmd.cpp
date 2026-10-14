@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "network/network.h"
+#include "snapdata/obsmod.h"
 /*
    $Log: plotcmd.c,v $
    Revision 1.4  1998/06/15 02:17:21  ccrook
@@ -15,38 +18,29 @@
 
 */
 
-#include <cstdio>
-
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <cstdio>
+#include <cctype>
+#include <optional>
+#include <filesystem>
+#include <fstream>
+#include <limits>
+#include <string>
+#include <string_view>
+#include <vector>
 #include "util/errdef.h"
-
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
 #include "util/readcfg.h"
 #include "snap/cfgprocs.h"
 #include "plotconn.h"
-#include "loadplot.h"
 #include "backgrnd.h"
 #include "plotstns.h"
 #include "plotscal.h"
 #include "plotpens.h"
-#include "plotconn.h"
 #include "plotcmd.h"
 #include "util/fileutil.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
-
-#include <cctype>
-#include <optional>
-#include <cstdio>
-#include <filesystem>
-#include <fstream>
-#include <limits>
-#include <string>
-#include <cstring>
-#include <string_view>
-#include <vector>
 
 #define COMMENT_CHAR '!'
 
@@ -239,7 +233,7 @@ void add_default_configuration_files(void) {
 int process_configuration_file_list(void) {
     int sts = OK;
 
-    for (size_t i = 0; i < cfg_list.size(); i++) {
+    for (std::size_t i = 0; i < cfg_list.size(); i++) {
         // A copy, as reading a file can add to cfg_list and reallocate it
         // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         const std::string fname = cfg_list[i];
@@ -1023,7 +1017,7 @@ int config_menu_item_count() {
 }
 
 static const config_menu_item* get_config_menu(int i) {
-    if (i < 0 || static_cast<size_t>(i) >= config_menu.size()) {
+    if (i < 0 || static_cast<std::size_t>(i) >= config_menu.size()) {
         return nullptr;
     }
     return &config_menu[i];

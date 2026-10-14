@@ -4,8 +4,7 @@
 #include "snapplot_loadlog.hpp"
 #include "snapplot_util.hpp"
 #include "wx/fs_zip.h"
-
-#include <cstdio>
+#include "wx_includes.hpp"
 
 #define GETVERSION_SET_PROGRAM_DATE
 #include "util/getversion.h"

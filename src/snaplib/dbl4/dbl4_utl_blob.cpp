@@ -30,13 +30,9 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
-#include <cstdio>
-#include <cstring>
-
 #include "dbl4_utl_blob.h"
 #include "dbl4_utl_error.h"
+#include "dbl4_utl_trace.h"
 
 /*************************************************************************
 ** Function name: utlCreateBlobHandle

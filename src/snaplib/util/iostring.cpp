@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "fieldscanner.hpp"
 /* Routines used with input_string_def objects */
 
 /* iostring.c:  Code for parsing character strings to extract quoted strings,
@@ -14,12 +15,11 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
 #include <boost/algorithm/string/predicate.hpp>
+#include <cstdio>
+#include <optional>
+#include <vector>
 #include "util/snapctype.h"
-
-#include "util/pi.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
 
@@ -43,7 +43,7 @@ static int read_next_field_status(FieldScanner& scanner, std::string_view& field
     return OK;
 }
 
-int next_string_field(FieldScanner& scanner, std::string& field, const size_t maxlength) {
+int next_string_field(FieldScanner& scanner, std::string& field, const std::size_t maxlength) {
     std::string_view text;
     const int sts = read_next_field_status(scanner, text);
     if (sts == OK) {
@@ -105,10 +105,10 @@ int write_output_string2(output_string_def* os, std::string_view s, int options,
     const bool triml = options & OSW_TRIML;
     const bool trimr = options & OSW_TRIMR;
     const bool skipblank = options & OSW_SKIPBLANK;
-    size_t pos = 0;
+    std::size_t pos = 0;
     while (pos < s.size()) {
-        size_t start = pos;
-        size_t nch = 0;
+        std::size_t start = pos;
+        std::size_t nch = 0;
         if (triml) {
             while (start < s.size() && s[start] != '\n' && ISSPACE(s[start])) {
                 start++;
@@ -120,7 +120,7 @@ int write_output_string2(output_string_def* os, std::string_view s, int options,
         if (s[start] == '\n') {
             pos = start;
         } else {
-            size_t end = start;
+            std::size_t end = start;
             while (end < s.size() && s[end] != '\n') {
                 if (!ISSPACE(s[end])) {
                     nch = end - start + 1;

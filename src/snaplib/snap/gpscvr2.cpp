@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "geodetic.h"
+#include "network/network.h"
 /* Module that links the gps covariance functions with the SNAP data.
    The GPS covariance function require a function to obtain a station
    vertical and a function to obtain the transformation parameters
@@ -11,9 +13,7 @@
 
 */
 
-#include <cstdio>
 #include "snap/gpscvr2.h"
-#include "snapdata/survdata.h"
 #include "snapdata/gpscvr.h"
 #include "snap/stnadj.h"
 #include "snap/rftrans.h"

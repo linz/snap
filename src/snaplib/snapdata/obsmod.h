@@ -1,24 +1,15 @@
 #ifndef _OBSMOD_HPP
 #define _OBSMOD_HPP
 
-#ifndef _READCFG_H
-#include "util/readcfg.h"
-#endif
-
-#ifndef _FILEUTIL_H
-#include "util/fileutil.h"
-#endif
-
-#ifndef _NETWORK_H
-#include "network/network.h"
-#endif
-
-#ifndef _SURVDATA_H
-#include "snapdata/survdata.h"
-#endif
-
 #include <string>
 #include <string_view>
+#include <cstdio>
+#include "util/fileutil.h"
+
+struct classifications;
+struct network;
+struct survdata;
+struct CFG_FILE;
 
 #define OBS_MOD_IGNORE 1
 #define OBS_MOD_REJECT 2

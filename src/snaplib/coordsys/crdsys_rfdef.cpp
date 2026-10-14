@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "iostring.h"
 
 /* crdsysr4.c:  Reference frame function routines
 */
@@ -18,15 +19,14 @@
 
 */
 
-#include <cstdio>
+#include <boost/algorithm/string/predicate.hpp>
+#include <string>
+#include <utility>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_grid.h"
 #include "coordsys/crdsys_rfdef_linzdef.h"
 #include "coordsys/crdsys_rfdef_bw.h"
 #include "util/errdef.h"
-#include "util/fileutil.h"
-#include "util/pi.h"
-#include <boost/algorithm/string/predicate.hpp>
 
 int parse_ref_deformation_def(input_string_def& is, ref_deformation** prdf) {
     std::string type;

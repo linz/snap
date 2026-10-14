@@ -1,5 +1,6 @@
 #include "snapconfig.h"
 #include "wxsplashimage.hpp"
+#include "wx_includes.hpp"
 
 wxSplashImage::wxSplashImage(wxWindow* parent, const wxBitmap& bitmap)
     : wxWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNO_BORDER), m_bitmap(bitmap) {

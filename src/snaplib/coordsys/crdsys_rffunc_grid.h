@@ -1,6 +1,9 @@
 #ifndef _CRDSYSR5_H
 #define _CRDSYSR5_H
 
+#include <string>
+
+struct ref_frame_func;
 /* crdsysr5.c:  Grid reference frame function header
 */
 
@@ -12,10 +15,6 @@
 
 
 */
-
-#ifndef _COORDSYS_H
-#include "coordsys/coordsys.h"
-#endif
 
 ref_frame_func* create_rf_grid_func(const std::string& type, const std::string& filename,
                                     const std::string& description);

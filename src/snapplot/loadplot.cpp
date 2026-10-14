@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "network/network.h"
+#include "snapdata/survdata.h"
 /* Routine to load all data into the plotting program */
 
 /*
@@ -15,14 +17,14 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
 #include <forward_list>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <boost/numeric/conversion/cast.hpp>
+#include <cstdint>
+
 using boost::numeric_cast;
 
 #include "snap/stnadj.h"

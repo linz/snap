@@ -29,7 +29,7 @@ struct obsdef {
 
 static std::vector<obsdef> obsdeflst;
 static std::vector<std::int64_t> sorted_locs;
-static size_t nextobs = 0;
+static std::size_t nextobs = 0;
 
 void save_observation(int from, int to, int type, std::int64_t loc) {
     obsdef& o = obsdeflst.emplace_back();

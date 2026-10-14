@@ -1,11 +1,12 @@
+#include <cstdio>
+#include <string>
 #include "snapconfig.h"
 #include "wxmainprogwindow.hpp"
-
 // extern "C" {
 #include "util/progress.h"
 #include "util/xprintf.h"
 #include "util/errdef.h"
-#include "util/xprintf.h"
+#include "wx_includes.hpp"
 // }
 
 #ifdef __WXGTK__
@@ -166,8 +167,8 @@ int wxMainProgWindow::DoPrintArgs(const char* format, std::va_list args) {
 
     // The first call may truncate, and only measures the length needed
     const int required = std::vsnprintf(buffer.data(), buffer.size(), format, args);
-    if (required >= 0 && buffer.size() < static_cast<size_t>(required) + 1) {
-        buffer.resize(static_cast<size_t>(required) + 1);
+    if (required >= 0 && buffer.size() < static_cast<std::size_t>(required) + 1) {
+        buffer.resize(static_cast<std::size_t>(required) + 1);
     }
 
     const int len = std::vsnprintf(buffer.data(), buffer.size(), format, copy);

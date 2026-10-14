@@ -1,13 +1,17 @@
-#include "snapconfig.h"
-#include "wxsimpledialog.hpp"
 #include <wx/checklst.h>
 #include <boost/numeric/conversion/cast.hpp>
+#include <cstddef>
+#include <string>
+#include <vector>
+#include "snapconfig.h"
+#include "wxsimpledialog.hpp"
 #include "snapplot_help.hpp"
-
 //extern "C"
 //{
 #include "snap/snapglob.h"
 #include "plotconn.h"
+#include "classify.h"
+#include "wx_includes.hpp"
 //}
 
 static const std::vector<ListControlOption> obsListOptions = {{"All observations", SRL_ALL},
@@ -99,7 +103,7 @@ ObsListOptionsDialog::~ObsListOptionsDialog() {
 }
 
 void ObsListOptionsDialog::ReadData() {
-    for (size_t i = 0; i < lbFieldList->GetCount(); i++) {
+    for (std::size_t i = 0; i < lbFieldList->GetCount(); i++) {
         lbFieldList->Check(i, false);
     }
     const int nDisplayed = get_displayed_fields(fieldList, nFieldList);
@@ -119,7 +123,7 @@ void ObsListOptionsDialog::Apply() {
     for (int i = 0; i < nDefaultFields; i++) {
         fieldList[nf++] = defaultFields[i];
     }
-    for (size_t i = 0; i < lbFieldList->GetCount(); i++) {
+    for (std::size_t i = 0; i < lbFieldList->GetCount(); i++) {
         if (lbFieldList->IsChecked(i)) {
             fieldList[nf++] = fieldLookupCode[i];
             if (fieldLookupCode[i] == SRF_FILE) {

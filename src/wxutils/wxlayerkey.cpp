@@ -1,15 +1,18 @@
 #include "snapconfig.h"
+#include "wxsymbology.hpp"
 // wxLayerKey: A wxGrid for displaying a symbology list
 //
 // Requires a Symbology defining the symbologies to display, "tickon" and "tickoff" icons for
 // show/hide display.
 //
 
+#include <wx/renderer.h>
+#include <limits>
+#include <cstddef>
+#include <utility>
 #include "wxlayerkey.hpp"
 #include "wxsimpleevent.hpp"
 #include "wxpalettepopup.hpp"
-#include <wx/renderer.h>
-#include <limits>
 
 DEFINE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED)
 
@@ -271,7 +274,7 @@ void wxLayerKey::RebuildRows() {
 
     AppendRows(static_cast<int>(visibleRows.size()), false);
 
-    for (size_t row = 0; row < visibleRows.size(); row++) {
+    for (std::size_t row = 0; row < visibleRows.size(); row++) {
         const int gridRow = static_cast<int>(row);
         const int layerIndex = visibleRows[row];
 
@@ -335,18 +338,18 @@ bool wxLayerKey::IsSingleChildMasterRow(const int layerIndex) const {
 }
 
 int wxLayerKey::RowToLayerIndex(const int row) const {
-    if (row < 0 || static_cast<size_t>(row) >= visibleRows.size()) {
+    if (row < 0 || static_cast<std::size_t>(row) >= visibleRows.size()) {
         return -1;
     }
     return visibleRows[row];
 }
 
 int wxLayerKey::LayerIndexToRow(const int layerIndex) const {
-    for (size_t row = 0; row < visibleRows.size(); row++) {
+    for (std::size_t row = 0; row < visibleRows.size(); row++) {
         if (visibleRows[row] != layerIndex) {
             continue;
         }
-        if (row > static_cast<size_t>(std::numeric_limits<int>::max())) {
+        if (row > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
             return -1;
         }
         return static_cast<int>(row);
@@ -432,8 +435,9 @@ void wxLayerKey::OnLeftClick(wxGridEvent& event) {
 }
 
 wxLayerKey::MasterLookup wxLayerKey::FindMasterRange(const int layerIndex) const {
-    for (size_t r = 0; r < masterRanges.size(); r++) {
-        const int rangeIndex = r <= static_cast<size_t>(std::numeric_limits<int>::max()) ? static_cast<int>(r) : -1;
+    for (std::size_t r = 0; r < masterRanges.size(); r++) {
+        const int rangeIndex =
+            r <= static_cast<std::size_t>(std::numeric_limits<int>::max()) ? static_cast<int>(r) : -1;
         if (masterRanges[r].master == layerIndex) {
             return MasterLookup{rangeIndex, true};
         }

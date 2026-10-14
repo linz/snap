@@ -7,8 +7,6 @@
 
 #include "wx_includes.hpp"
 
-#include <cstdarg>
-
 void ImplementErrorHandler();
 wxString GetLogMessages();
 

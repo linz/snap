@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "network/network.h"
+#include "snapdata/datatype.h"
 /* Maintain and print a list of the worst residuals */
 /* Actually it maintains a separate list of the n worst residuals for
    each probability distribution.  When they are printed it takes values
@@ -29,22 +31,19 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 #include <algorithm>
 #include <array>
 #include <string>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
-
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "output.h"
 #include "residual.h"
 #include "util/probfunc.h"
-#include "util/binfile.h"
 #include "notedata.h"
 #include "snap/datastat.h"
 
@@ -180,7 +179,7 @@ void save_residual(int from, int to, int id, int type, int file, int line, char 
 
     /* Insert after any residuals at least as large, then drop the smallest if over the limit */
 
-    const size_t limit = boost::numeric_cast<size_t>(maxworst);
+    const std::size_t limit = boost::numeric_cast<std::size_t>(maxworst);
     std::vector<residual>& worst = worstlst[used][rank];
     if (worst.empty()) {
         worst.reserve(limit + 1);
@@ -209,7 +208,7 @@ void save_residual(int from, int to, int id, int type, int file, int line, char 
 
 void print_worst_residuals(std::FILE* out) {
     double prob[2][MAXRANK];
-    size_t index[2][MAXRANK];
+    std::size_t index[2][MAXRANK];
     const residual* ws;
     double maxprob;
     int i;

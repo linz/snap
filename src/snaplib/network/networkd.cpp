@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "classify.h"
+#include "coordsys/coordsys.h"
 /*
    $Log: networkd.c,v $
    Revision 1.2  1998/05/21 04:00:26  ccrook
@@ -11,12 +13,10 @@
 */
 
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
+#include <optional>
+#include <string>
 #include "network/network.h"
 #include "util/dstring.h"
-#include "util/errdef.h"
 
 /*=============================================================*/
 /* Routines to dump and reload a network to a binary data file */

@@ -4,8 +4,9 @@
 #define DFLTSTRCD_EXT ".csv"
 
 #include <string_view>
+#include <string>
 
-#include "snapdata/stnrecode.h"
+struct stn_recode_map;
 
 int read_station_recode_file(stn_recode_map* stt, std::string_view filename, std::string_view basefile);
 

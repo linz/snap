@@ -1,5 +1,6 @@
 #include "snapconfig.h"
 #include "snapplot_event.hpp"
+#include "snapplot/infowin.h"
 
 DEFINE_EVENT_TYPE(wxEVT_SET_DETAILVIEW)
 DEFINE_EVENT_TYPE(wxEVT_SHOW_DETAILVIEW)

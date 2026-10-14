@@ -1,4 +1,10 @@
 #include "snapconfig.h"
+#include "bindata2.h"
+#include "network/network.h"
+#include "snap/filenames.h"
+#include "snapdata/loaddata.h"
+#include "snapdata/obsmod.h"
+#include "snapdata/survdata.h"
 /* control.c - reads a snap command file using the configuration file
    routines in readcfg.
    */
@@ -34,49 +40,40 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
 #include <boost/algorithm/string/predicate.hpp>
+#include <cstdio>
 #include <charconv>
 #include <string_view>
+#include <algorithm>
+#include <vector>
 #include "util/fieldscanner.hpp"
-
 #include "control.h"
 #include "snap/bearing.h"
 #include "snap/cfgprocs.h"
-#include "snap/deform.h"
 #include "snap/genparam.h"
 #include "snap/rftrans.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
-#include "snap/survfile.h"
 #include "snapdata/datatype.h"
 #include "snapdata/gpscvr.h"
 #include "util/bltmatrx.h"
 #include "util/leastsqu.h"
-#include "util/classify.h"
-#include "util/datafile.h"
 #include "util/dateutil.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/filelist.h"
 #include "util/pi.h"
 #include "util/readcfg.h"
 #include "autofix.h"
-#include "coefs.h"
 #include "grddeform.h"
 #include "lnzdeform.h"
 #include "loadsnap.h"
 #include "output.h"
 #include "reorder.h"
 #include "ressumry.h"
-#include "rftrnadj.h"
 #include "sortobs.h"
 #include "stnobseq.h"
 #include "testspec.h"
-#include "vecdata.h"
 
 #define CONFIG_CMD CFG_USERFLAG1
 #define CONSTRAINT_CMD CFG_USERFLAG2

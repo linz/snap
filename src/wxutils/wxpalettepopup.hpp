@@ -36,10 +36,10 @@
 // ShowModal()/EndModal(), exited via OnDismiss().
 //
 
-#include "wx_includes.hpp"
-#include "wxsymbology.hpp"
-
 #include <wx/popupwin.h>
+#include "wx_includes.hpp"
+
+class ColourPalette;
 
 class wxPalettePopup : public wxPopupTransientWindow {
  public:

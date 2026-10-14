@@ -1,4 +1,9 @@
 #include "snapconfig.h"
+#include "datafile.h"
+#include "snap/survfile.h"
+#include "snapdata/datatype.h"
+#include "snapdata/obsmod.h"
+#include "snapdata/stnrecode.h"
 /* Code to manage the list of survey data files */
 
 /*
@@ -18,10 +23,9 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <memory>
 #include <string>
-
+#include <optional>
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "snap/survfilr.h"

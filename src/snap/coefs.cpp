@@ -9,14 +9,9 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
-#include <cstring>
-
 #include "adjparam.h"
 #include "coefs.h"
-#include "snapdata/loaddata.h"
-#include "snap/snapglob.h"
 #include "snap/genparam.h"
 #include "network/network.h"
 #include "util/geodetic.h"

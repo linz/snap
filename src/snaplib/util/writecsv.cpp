@@ -1,3 +1,4 @@
+#include <cstddef>
 #include "snapconfig.h"
 #include "util/dateutil.h"
 #include "util/snapctype.h"

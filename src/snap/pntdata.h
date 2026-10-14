@@ -16,13 +16,10 @@
 #ifndef _PNTDATA_H
 #define _PNTDATA_H
 
-#ifndef _LOADDATA_H
-#include "snapdata/loaddata.h"
-#endif
+#include <cstdio>
 
-#ifndef _BINDATA2_h
-#include "bindata2.h"
-#endif
+struct lsdata;
+struct survdata;
 
 void apply_pntdata_options(survdata* p);
 int pntdata_obseq(survdata* p, void* hA, int nextra);

@@ -1,8 +1,5 @@
-#include "snapconfig.h"
-
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <algorithm>
 #include <initializer_list>
 #include <memory>
@@ -11,23 +8,21 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
+#include "snapconfig.h"
+#include "fieldscanner.hpp"
+#include "iostring.h"
 
 using boost::numeric_cast;
 
 #include "network/network.h"
 #include "network/stnoffset.h"
-#include "util/dstring.h"
 #include "util/datafile.h"
 #include "util/dateutil.h"
-#include "util/fileutil.h"
 #include "util/geodetic.h"
-#include "util/dms.h"
 #include "util/errdef.h"
-#include "util/pi.h"
 
 /* The longest word read from an offset file - longer words are cut short */
-static constexpr size_t WORDLEN = 32;
+static constexpr std::size_t WORDLEN = 32;
 
 void add_stn_offset_comp_to_station(station* st, stn_offset_comp comp, const int isdeformation) {
     if (!st->ts) {
@@ -118,8 +113,8 @@ int read_network_station_offsets(network* nw, std::string_view filename) {
         while (!scanner.atEnd()) {
             stn_tspoint* tsp = &basepoint;
             if (ists >= 0) {
-                if (static_cast<size_t>(ists) >= tsdata.size()) {
-                    tsdata.resize(std::max<size_t>(32, tsdata.size() * 2));
+                if (static_cast<std::size_t>(ists) >= tsdata.size()) {
+                    tsdata.resize(std::max<std::size_t>(32, tsdata.size() * 2));
                 }
                 tsp = &tsdata[ists];
             }
@@ -165,7 +160,7 @@ int read_network_station_offsets(network* nw, std::string_view filename) {
             continue;
         }
         station* stn = station_ptr(nw, stnid);
-        stn_offset_comp component(mode, isxyz, numeric_cast<size_t>(ists));
+        stn_offset_comp component(mode, isxyz, numeric_cast<std::size_t>(ists));
         component.basepoint = basepoint;
         std::copy(tsdata.begin(), tsdata.begin() + ists, component.tspoints.begin());
         add_stn_offset_comp_to_station(stn, std::move(component), isdef);

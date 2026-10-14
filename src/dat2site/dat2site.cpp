@@ -1,4 +1,6 @@
 #include "snapconfig.h"
+#include "errdef.h"
+#include "snapdata/survdata.h"
 /* dat2site.c
 
    Calculates approximate station coordinates from the observational
@@ -29,6 +31,7 @@
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -40,7 +43,9 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
+#include <cstdint>
+#include <memory>
+
 using boost::numeric_cast;
 
 #define MAIN
@@ -48,10 +53,8 @@ using boost::numeric_cast;
 #include "util/datafile.h"
 #include "util/fileutil.h"
 #include "util/geodetic.h"
-#include "util/dstring.h"
 #include "util/fieldscanner.hpp"
 #include "util/readcfg.h"
-#include "util/dms.h"
 #include "util/pi.h"
 #include "util/progress.h"
 #include "coordsys/coordsys.h"
@@ -98,8 +101,6 @@ struct ZD_obs {
 struct LV_obs {
     double hd;
 };
-
-struct stn;
 
 struct conn {
     struct conn* next;

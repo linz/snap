@@ -1,29 +1,23 @@
 
-#include "snapconfig.hpp"
-
-#include <iostream>
-#include <sstream>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <memory>
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
-#include <boost/algorithm/string.hpp>
-
+#include <map>
+#include <string>
+#include "snapconfig.hpp"
 #include "util/snapregex.hpp"
 #include "util/recordinputbase.hpp"
 #include "util/datafileinput.hpp"
 #include "util/optionstring.hpp"
-
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"
-
 #include "util/dateutil.h"
-#include "util/fileutil.h"
-#include "util/datafile.h"
-#include "util/pi.h"
-#include "util/calcdltfile.hpp"
-#include "util/recordstream.hpp"
 #include "util/errdef.h"
+
+class DATAFILE;
 
 namespace LINZ {
 namespace SNAP {

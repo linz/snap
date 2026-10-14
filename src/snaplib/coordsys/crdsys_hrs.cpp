@@ -1,17 +1,16 @@
 #include "snapconfig.h"
 /* crdsyshrs.c:  Routines to manage vertical datums */
 
+#include <boost/algorithm/string/case_conv.hpp>
 #include <cstdio>
-#include <cstring>
-#include <cmath>
 #include <filesystem>
 #include <string>
+#include <optional>
+#include <utility>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
-#include "geoid/griddata.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
-#include <boost/algorithm/string/case_conv.hpp>
 
 vdatum::vdatum(const std::string& code_, const std::string& name_, vdatum* basehrs_, vdatum_func* hrf_,
                std::optional<std::string> source_)
@@ -43,7 +42,7 @@ vdatum::~vdatum() {
 
 vdatum* geoid_vdatum(const std::string& geoidfile, ref_frame* rf) {
     std::string hrs_name = std::filesystem::path(native_path(geoidfile)).filename().string().substr(0, 120);
-    if (const size_t dot = hrs_name.find('.'); dot != std::string::npos) {
+    if (const std::size_t dot = hrs_name.find('.'); dot != std::string::npos) {
         hrs_name.resize(dot);
     }
     hrs_name += " geoid";

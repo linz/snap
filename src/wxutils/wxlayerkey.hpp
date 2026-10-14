@@ -7,11 +7,12 @@
 // show/hide display.
 //
 
+#include <vector>
+#include <map>
 #include "wx_includes.hpp"
 #include "wxsymbology.hpp"
 
-#include <vector>
-#include <map>
+class Symbology;
 
 DECLARE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED, -1)
 

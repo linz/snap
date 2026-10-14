@@ -14,6 +14,8 @@
 #include <string_view>
 #include <variant>
 #include <vector>
+#include <cstdio>
+#include <utility>
 
 // Pinned to int32_t (matching the field's previous plain `int` type)
 // rather than left as the compiler's default choice of underlying type,

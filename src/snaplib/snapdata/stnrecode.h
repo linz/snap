@@ -8,10 +8,6 @@
 
 */
 
-#ifndef _DATAFILE_H
-#include "util/datafile.h"
-#endif
-
 #ifndef _NETWORK_H
 #include "network/network.h"
 #endif
@@ -22,7 +18,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
-
+#include <cstdio>
 #include "snapdata/loaddata.h"
 
 /// A recode target starting with this character marks the station as rejected, e.g. "*ABCD"

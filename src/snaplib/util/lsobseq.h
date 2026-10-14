@@ -10,10 +10,9 @@
 
 #include <optional>
 #include <string_view>
+#include <cstdio>
 
-#ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
-#endif
 
 /*------------------------------------------------------------*/
 /*  Structures used in storing and processing the obs. equns. */

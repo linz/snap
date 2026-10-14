@@ -14,12 +14,8 @@
 *************************************************************************
 */
 
-#include "dbl4_common.h"
-
-#include <cstdio>
-
 #include "dbl4_utl_date.h"
-#include "dbl4_utl_error.h"
+#include "dbl4_types.h"
 
 /*************************************************************************
 ** Function name: utlSetDate

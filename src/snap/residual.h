@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <string_view>
+#include <cstdio>
 
 std::string_view residual_flag(int unused, int rank, double sres);
 void save_residual(int from, int to, int id, int type, int file, int line, char unused, int rank, double sres,

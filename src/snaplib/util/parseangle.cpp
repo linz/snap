@@ -1,9 +1,11 @@
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <algorithm>
+#include <cstdlib>
+#include <map>
 #include "snapconfig.hpp"
-
 #include "util/parseangle.hpp"
 #include "util/snapregex.hpp"
-#include <boost/algorithm/string.hpp>
-#include <exception>
 
 using namespace std;
 using namespace LINZ;

@@ -2,6 +2,10 @@
 #define _PLOTSTNS_H
 
 #include <string>
+#include "binfile.h"
+
+struct map_plotter;
+struct coordsys;
 
 /*
    $Log: plotstns.h,v $
@@ -13,17 +17,7 @@
 
 */
 
-#ifndef COORDSYS_H
-#include "coordsys/coordsys.h"
-#endif
-
-#ifndef INFOWIN_H
 #include "infowin.h"
-#endif
-
-#ifndef _PLOTFUNC_H
-#include "plotfunc.h"
-#endif
 
 /* Useful numbers */
 

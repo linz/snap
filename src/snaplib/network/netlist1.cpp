@@ -9,11 +9,7 @@
 */
 
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
 #include "network/network.h"
-#include "util/errdef.h"
 
 void dump_station_list(station_list* sl, std::FILE* f) {
     station* st;

@@ -15,10 +15,7 @@
 */
 
 #include <cstdio>
-#include <cstring>
-#include <cstdint>
 #include <cstdlib>
-
 #include "util/progress.h"
 
 #define HEADER_STRING "      "
@@ -28,6 +25,7 @@
 
 #if defined(__MSDOS__) || defined(__TSC__) || defined(__WATCOMC__)
 #include <dos.h>
+
 #define USE_TIME
 #define SPACE_CHAR 0xB0
 #define FILL_CHAR 0xDB

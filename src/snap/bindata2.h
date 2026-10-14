@@ -14,18 +14,14 @@
 
 */
 
-#ifndef _SYMMATRX_H
-#include "util/symmatrx.h" /* For definition of ltmat */
-#endif
-
-#ifndef _SURVDATA_H
-#include "snapdata/survdata.h"
-#endif
-
 #include <optional>
 #include <string_view>
+#include <cstdio>
+#include "util/symmatrx.h" /* For definition of ltmat */
 
-#include "util/dms.h"
+class DmsFormat;
+struct survdata;
+struct trgtdata;
 
 enum { HDR_OBSDATA, HDR_VECDATA, HDR_PNTDATA };
 

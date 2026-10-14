@@ -1,7 +1,8 @@
-#include <fstream>
+#include <boost/algorithm/string/trim.hpp>
 #include <sstream>
-#include <boost/algorithm/string.hpp>
+#include <cctype>
 #include "delimitedtextfile.hpp"
+#include "recordinputbase.hpp"
 
 namespace LINZ {
 namespace DelimitedTextFile {

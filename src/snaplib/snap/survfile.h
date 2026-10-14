@@ -11,13 +11,14 @@
 
 */
 
-#include "snapdata/datatype.h"
-#include "snapdata/stnrecode.h"
-#include "util/fileutil.h"
-
 #include <string>
 #include <string_view>
 #include <optional>
+#include "snapdata/datatype.h"
+#include "binfile.h"
+
+struct file_context;
+struct stn_recode_map;
 
 enum { SNAP_FORMAT, GB_FORMAT, CSV_FORMAT, SINEX_FORMAT };
 

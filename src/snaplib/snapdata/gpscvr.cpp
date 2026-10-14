@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snapdata/survdata.h"
 /* gpscvr.c: Code to create and maintain a covariance matrix for GPS data */
 /* External routines required is:
      station_vertical( int stn, double vert[3] );
@@ -12,7 +13,6 @@
 
 */
 
-#include <cstdio>
 #include <cmath>
 #include <cstring>
 
@@ -23,7 +23,6 @@
 #endif
 
 #include <cassert>
-
 #include "snapdata/gpscvr.h"
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"
@@ -83,7 +82,7 @@ static void rmat_from_vertical(double rmat[3][3]) {
 static void midpoint_rmat(int st1, int st2, double rmat[3][3]) {
     double* vecu;
     double tmp[3];
-    assert(vertfunc != NULL);
+    assert(vertfunc != nullptr);
     vecu = rmat[2];
     vecu[0] = vecu[1] = vecu[2] = 0.0;
     if (st1) {
@@ -100,7 +99,7 @@ static void midpoint_rmat(int st1, int st2, double rmat[3][3]) {
 static void set_midpoint_rmat(survdata* sd, double rmat[3][3]) {
     double* vecu;
     double tmp[3];
-    assert(vertfunc != NULL);
+    assert(vertfunc != nullptr);
     vecu = rmat[2];
     vecu[0] = vecu[1] = vecu[2] = 0.0;
     if (sd->from) {
@@ -118,7 +117,7 @@ static void set_midpoint_rmat(survdata* sd, double rmat[3][3]) {
 
 static void set_gps_vertical(void) {
     if (!fixed_rmat_calculated) {
-        assert(vertfunc != NULL);
+        assert(vertfunc != nullptr);
         (*vertfunc)(0, fixed_rmat[2]);
         rmat_from_vertical(fixed_rmat);
     }

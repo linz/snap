@@ -12,18 +12,15 @@
 */
 
 #include <cstdio>
-#include <cstring>
 #include <limits>
 #include <stdexcept>
-#include "util/snapctype.h"
-
 #include "util/dstring.h"
 
 // Throws std::overflow_error if string.size() doesn't fit in the int32_t length
 // prefix, rather than silently truncating it - matching write_raw_long32's
 // precedent (util/binfile.h).
 void dump_string(const std::string& string, std::FILE* b) {
-    if (string.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+    if (string.size() > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
         throw std::overflow_error("string of length " + std::to_string(string.size()) +
                                   " exceeds int32_t range while writing .bin file");
     }

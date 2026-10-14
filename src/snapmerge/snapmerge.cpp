@@ -1,22 +1,19 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /*
    $Log: $
 */
 
 #include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cmath>
-#include "util/errdef.h"
 #include <string>
 #include <vector>
+#include <string_view>
+#include "util/errdef.h"
 #include "network/network.h"
 #include "util/fieldscanner.hpp"
 #include "util/fileutil.h"
 #include "util/dateutil.h"
-#include "util/dstring.h"
 #include "util/getversion.h"
-#include "snap/filenames.h"
 
 std::vector<std::string> codes;
 network* base = nullptr;

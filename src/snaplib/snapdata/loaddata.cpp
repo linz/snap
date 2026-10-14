@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "snapdata/obsmod.h"
 /* loaddata.h: Routines to load observations into the structures defined
    in loaddata.h.
 
@@ -16,8 +17,7 @@
 
 */
 
-#include <cstdio>
-#include <cstdlib>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <cmath>
 #include <algorithm>
@@ -25,7 +25,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <boost/numeric/conversion/cast.hpp>
+
 using boost::numeric_cast;
 
 #include "util/symmatrx.h"
@@ -34,7 +34,6 @@ using boost::numeric_cast;
 #include "snapdata/survdata.h"
 #include "util/errdef.h"
 #include "util/dateutil.h"
-#include "util/dstring.h"
 
 #define INC_SIZE 5 /* Increment for data blocks */
 
@@ -218,7 +217,7 @@ static int save_code(std::string_view code) {
 
     next_saved_id++;
     idoffset = next_saved_id - saved_id_offset;
-    if (numeric_cast<size_t>(idoffset) >= saved_ids.size()) {
+    if (numeric_cast<std::size_t>(idoffset) >= saved_ids.size()) {
         saved_ids.resize(saved_ids.size() + SAVED_IDS_INC);
     }
     newid = &saved_ids[idoffset];
@@ -520,14 +519,14 @@ static void* next_data(int type) {
     }
 
     required = (data.nobs + 1) * data.obssize;
-    if (numeric_cast<size_t>(required) > datablock.size()) {
+    if (numeric_cast<std::size_t>(required) > datablock.size()) {
         // resize zero fills the new bytes. This buffer gets written to a .bin file
         // as one raw fwrite (save_survdata, bindata.cpp), so any garbage here
         // (compiler struct padding in obsdata/vecdata/pntdata, or fields like
         // isyserr/iclass that are only set when an observation actually
         // has classifications/syserrs) would otherwise leak nondeterministic
         // bytes into the file, differing between runs and compilers.
-        datablock.resize(numeric_cast<size_t>(required + INC_SIZE * data.obssize));
+        datablock.resize(numeric_cast<std::size_t>(required + INC_SIZE * data.obssize));
         switch (format) {
             case SD_OBSDATA:
                 data.obs.odata = reinterpret_cast<obsdata*>(datablock.data());
@@ -628,7 +627,7 @@ static ltmat alloc_cvr(void) {
 }
 
 static syserrdata* getsyserrdata(void) {
-    const size_t idx = numeric_cast<size_t>(data.nsyserr);
+    const std::size_t idx = numeric_cast<std::size_t>(data.nsyserr);
     if (idx >= syserrblock.size()) {
         syserrblock.resize(idx + 1 + INC_SIZE);
         data.syserr = syserrblock.data();
@@ -637,7 +636,7 @@ static syserrdata* getsyserrdata(void) {
 }
 
 static classdata* getclassdata(void) {
-    const size_t idx = numeric_cast<size_t>(data.nclass);
+    const std::size_t idx = numeric_cast<std::size_t>(data.nclass);
     if (idx >= classblock.size()) {
         classblock.resize(idx + 1 + INC_SIZE);
         data.clsf = classblock.data();

@@ -15,17 +15,13 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <filesystem>
 #include <optional>
 #include <string>
-
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "geoid/geoid.h"
-#include "util/fileutil.h"
 #include "util/errdef.h"
-#include "snap/filenames.h"
 #include "util/getversion.h"
 
 enum { CALC_NONE = 0, CALC_CRDSYS, CALC_HGTREF, CALC_GEOID, CALC_REMOVE };

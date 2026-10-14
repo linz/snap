@@ -16,21 +16,14 @@
 #include <string>
 #include <string_view>
 
+struct map_plotter;
+struct survdata;
+
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
 #endif
 
-#ifndef _SURVDATA_H
-#include "snapdata/survdata.h"
-#endif
-
-#ifndef INFOWIN_H
 #include "infowin.h"
-#endif
-
-#ifndef _PLOTFUNC_H
-#include "plotfunc.h"
-#endif
 
 void set_binary_data(int status);
 int have_binary_data(void);

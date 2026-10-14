@@ -1,4 +1,6 @@
 #define GETVERSION_SET_PROGRAM_DATE
+#include <cstddef>
+#include <string>
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "wx/fs_zip.h"
@@ -6,6 +8,7 @@
 #include "snapjob.hpp"
 #include "snap_scriptenv.hpp"
 #include "util/getversion.h"
+#include "snapversion.h"
 
 #ifdef __WXGTK__
 #include "resources/snap16_icon.xpm"
@@ -245,7 +248,7 @@ void SnapMgrFrame::OnJobUpdated(wxCommandEvent& event) {
                 wxLogMessage("Job title:    %s", job->Title());
                 wxLogMessage("Coordinate file: %s", job->CoordinateFilename());
             } else {
-                for (size_t i = 0; i < job->Errors().Count(); i++) {
+                for (std::size_t i = 0; i < job->Errors().Count(); i++) {
                     wxLogMessage("%s\n", job->Errors()[i]);
                 }
             }

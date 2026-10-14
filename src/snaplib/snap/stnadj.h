@@ -16,18 +16,11 @@
 
 #include <optional>
 #include <string>
-
-#ifndef _NETWORK_H
+#include <cstdint>
 #include "network/network.h"
-#endif
 
-#ifndef _STNRECODE_H
-#include "snapdata/stnrecode.h"
-#endif
-
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
+struct stn_recode_map;
+struct BINARY_FILE;
 
 /* A geodetic station is defined by a ellipsoidal coordinates,
    gravitational corrections.  It is referenced by an integer number,

@@ -1,4 +1,8 @@
+#include <optional>
+#include <string>
+#include <utility>
 #include "snapconfig.h"
+#include "iostring.h"
 
 /* crdsysr4.c:  Reference frame function routines
 */
@@ -18,12 +22,10 @@
 
 */
 
-#include <cstdio>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rffunc_grid.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
-#include "util/pi.h"
 
 int parse_ref_frame_func_def(input_string_def& is, ref_frame_func** rff) {
     int sts;

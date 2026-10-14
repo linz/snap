@@ -9,6 +9,7 @@
 */
 
 #include <string>
+#include <cstdio>
 
 int define_error_summary(const std::string& definition);
 void print_error_summary(std::FILE* lst);

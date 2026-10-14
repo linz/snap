@@ -8,18 +8,15 @@
 
 */
 
-#include <cstdio>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstring>
 #include <cmath>
 #include <algorithm>
 #include <memory>
 #include <vector>
-
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <utility>
 #include "snap/rftrans.h"
-#include "util/dstring.h"
 #include "util/geodetic.h"
 #include "util/dateutil.h"
 #include "util/fieldscanner.hpp"
@@ -62,7 +59,7 @@ static tmatrix invTopocentreRotation;
 /// Returns the frame's id, which is its position in `rflist` plus one
 /// (ids start at 1, matching rftrans_from_id), or 0 if there is no such frame.
 static int find_rftrans(const std::string_view name) {
-    for (size_t index = 0; index < rflist.size(); index++) {
+    for (std::size_t index = 0; index < rflist.size(); index++) {
         if (compare_ignoring_case(rflist[index]->name, name) == 0) {
             return boost::numeric_cast<int>(index + 1);
         }

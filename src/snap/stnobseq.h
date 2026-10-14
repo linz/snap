@@ -16,14 +16,11 @@
 */
 
 #include <string_view>
+#include <cstdio>
+#include "geodetic.h"
 
-#ifndef _STNADJ_H
-#include "snap/stnadj.h"
-#endif
-
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
+struct station;
+struct BINARY_FILE;
 
 void count_stn_obs(int type, int stn, char unused);
 int init_station_rowno(void);

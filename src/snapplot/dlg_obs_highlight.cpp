@@ -1,8 +1,9 @@
+#include <string>
+#include <vector>
 #include "snapconfig.h"
 #include "wxsimpledialog.hpp"
 #include "dlg_obs_highlight.hpp"
 #include "snapplot_help.hpp"
-
 //extern "C"
 //{
 #include "plotconn.h"

@@ -11,10 +11,10 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cmath>
-#include <boost/algorithm/string.hpp>
+#include <optional>
+#include <string>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
 #include "util/dateutil.h"

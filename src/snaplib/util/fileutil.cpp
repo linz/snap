@@ -11,15 +11,17 @@
 
 */
 
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <utility>
 #ifdef _WIN32
 #include <io.h>
 #include <fcntl.h>
 #include <share.h>
+
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -33,7 +35,6 @@
 #include <forward_list>
 #include <system_error>
 #include <vector>
-
 #include "util/fileutil.h"
 #include "util/dstring.h"
 #include "util/errdef.h"
@@ -101,9 +102,9 @@ static std::string normalize_path(const std::string& path) {
     const bool absolute = !path.empty() && (path.front() == PATH_SEPARATOR || path.front() == PATH_SEPARATOR2);
 
     std::vector<std::string> segments;
-    size_t pos = 0;
+    std::size_t pos = 0;
     while (pos <= path.size()) {
-        size_t next = pos;
+        std::size_t next = pos;
         while (next < path.size() && path[next] != PATH_SEPARATOR && path[next] != PATH_SEPARATOR2) {
             next++;
         }
@@ -125,7 +126,7 @@ static std::string normalize_path(const std::string& path) {
     if (absolute) {
         result += PATH_SEPARATOR;
     }
-    for (size_t i = 0; i < segments.size(); i++) {
+    for (std::size_t i = 0; i < segments.size(); i++) {
         if (i > 0) {
             result += PATH_SEPARATOR;
         }
@@ -208,7 +209,7 @@ std::optional<std::string> user_config_dir() {
 std::optional<std::string> image_path() {
     if (imgpath)
         return imgpath;
-    char* path = NULL;
+    char* path = nullptr;
     _get_pgmptr(&path);
     imgpath = path ? std::string(path) : std::string();
     return imgpath;
@@ -265,7 +266,7 @@ static const std::forward_list<std::string>& config_dirs() {
     if (const char* snapenv = std::getenv(SNAPENV)) {
         std::string_view remaining(snapenv);
         while (!remaining.empty()) {
-            const size_t end = std::min(remaining.find(PATHENV_SEP), remaining.size());
+            const std::size_t end = std::min(remaining.find(PATHENV_SEP), remaining.size());
             const std::string path(remaining.substr(0, end));
             if (!path.empty() && path_exists(path)) {
                 last = config_dir_list->insert_after(last, path);
@@ -388,9 +389,9 @@ file_context* recreate_context(const std::string_view context_def) {
         return context;
     }
     set_file_context(context);
-    size_t start = 0;
+    std::size_t start = 0;
     while (start < context_def.size()) {
-        const size_t end = std::min(context_def.find("//", start), context_def.size());
+        const std::size_t end = std::min(context_def.find("//", start), context_def.size());
         const std::string reldir(context_def.substr(start, end - start));
         const std::string absdir = absolute_filename(reldir, context->dir);
         push_file_context(absdir);
@@ -526,13 +527,13 @@ std::FILE* snaptmpfile() {
     char tmpdir[MAX_PATH];
     char tmpname[MAX_PATH];
     if (!GetTempPathA(MAX_PATH, tmpdir))
-        return NULL;
+        return nullptr;
     if (!GetTempFileNameA(tmpdir, "snp", 0, tmpname))
-        return NULL;
+        return nullptr;
     int fd =
         _sopen(tmpname, _O_RDWR | _O_CREAT | _O_TRUNC | _O_BINARY | _O_TEMPORARY, _SH_DENYRW, _S_IREAD | _S_IWRITE);
     if (fd == -1)
-        return NULL;
+        return nullptr;
     return _fdopen(fd, "w+b");
 }
 #endif

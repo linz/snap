@@ -9,13 +9,12 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
 #include <boost/numeric/conversion/cast.hpp>
+#include <cstdio>
+
 using boost::numeric_cast;
 
 #include "output.h"
-#include "snapdata/survdata.h"
 #include "snap/bindata.h"
 #include "notedata.h"
 

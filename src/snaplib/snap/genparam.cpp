@@ -50,9 +50,8 @@ The procedure requires the following sequence of calls
 
 */
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
-#include <cmath>
-#include <cstring>
 #include <cstddef>
 #include <algorithm>
 #include <array>
@@ -61,9 +60,7 @@ The procedure requires the following sequence of calls
 #include <string>
 #include <string_view>
 #include <vector>
-
-#include <boost/numeric/conversion/cast.hpp>
-
+#include <utility>
 #include "util/dstring.h"
 #include "snap/genparam.h"
 #include "util/binfile.h"
@@ -430,7 +427,7 @@ constexpr DiskField PARAM_DISK_FIELDS[] = {
     {FieldKind::Float64, offsetof(param, covar), 1}, {FieldKind::Int32, offsetof(param, rowno), 1},
     {FieldKind::UInt8, offsetof(param, flags), 1},   {FieldKind::Int32, offsetof(param, identical), 1},
 };
-constexpr size_t PARAM_DISK_FIELD_COUNT = sizeof(PARAM_DISK_FIELDS) / sizeof(PARAM_DISK_FIELDS[0]);
+constexpr std::size_t PARAM_DISK_FIELD_COUNT = sizeof(PARAM_DISK_FIELDS) / sizeof(PARAM_DISK_FIELDS[0]);
 
 // Verifies PARAM_DISK_FIELDS has no gap relative to param's actual memory layout -
 // the same rounded-up-to-next-alignment check as survdata_disk_fields_contiguous()
@@ -438,15 +435,15 @@ constexpr size_t PARAM_DISK_FIELD_COUNT = sizeof(PARAM_DISK_FIELDS) / sizeof(PAR
 // interior exclusion to skip, unlike rftrndmp.cpp's table), and the last tracked
 // field (identical) must, by the same rule, reach exactly the end of the struct.
 static constexpr bool param_disk_fields_contiguous() {
-    for (size_t i = 0; i + 1 < PARAM_DISK_FIELD_COUNT; ++i) {
-        const size_t end = PARAM_DISK_FIELDS[i].offset + field_in_memory_size(PARAM_DISK_FIELDS[i].kind);
-        const size_t expected_next = round_up(end, field_in_memory_alignment(PARAM_DISK_FIELDS[i + 1].kind));
+    for (std::size_t i = 0; i + 1 < PARAM_DISK_FIELD_COUNT; ++i) {
+        const std::size_t end = PARAM_DISK_FIELDS[i].offset + field_in_memory_size(PARAM_DISK_FIELDS[i].kind);
+        const std::size_t expected_next = round_up(end, field_in_memory_alignment(PARAM_DISK_FIELDS[i + 1].kind));
         if (expected_next != PARAM_DISK_FIELDS[i + 1].offset) {
             return false;
         }
     }
     const DiskField& last = PARAM_DISK_FIELDS[PARAM_DISK_FIELD_COUNT - 1];
-    const size_t last_end = last.offset + field_in_memory_size(last.kind);
+    const std::size_t last_end = last.offset + field_in_memory_size(last.kind);
     return round_up(last_end, alignof(param)) == sizeof(param);
 }
 // Runs entirely at compile time, same as survdata_disk_fields_contiguous() in
@@ -521,7 +518,7 @@ int reload_parameters(BINARY_FILE* b) {
 /// upper case coefficient name, truncated to fit COEFLEN.
 static std::string make_prmname(int type, std::string_view name) {
     std::string prmname(coefprefix[type]);
-    const size_t prefixchars = prmname.size();
+    const std::size_t prefixchars = prmname.size();
     prmname.append(name.substr(0, COEFLEN - 1));
     std::transform(prmname.begin() + prefixchars, prmname.end(), prmname.begin() + prefixchars,
                    [](unsigned char ch) { return std::toupper(ch); });
@@ -542,7 +539,7 @@ int get_param(int type, std::string_view name, int create) {
 
 std::string_view param_type_name(int type, int pid) {
     const std::string_view name = param_name(pid);
-    return name.substr(std::min<size_t>(prefixlen[type], name.size()));
+    return name.substr(std::min<std::size_t>(prefixlen[type], name.size()));
 }
 
 void configure_param(int type, std::string_view name, double value, int adjust) {

@@ -2,10 +2,9 @@
 #ifndef _LINZ_RECORDSTREAM_HPP
 #define _LINZ_RECORDSTREAM_HPP
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
-#include <stdexcept>
+#include <string>
 
 namespace LINZ {
 

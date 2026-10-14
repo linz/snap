@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "network/network.h"
 /* Code to form summaries of residuals */
 
 /*
@@ -11,18 +12,18 @@
 
 */
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstdio>
 #include <cstring>
 #include <cmath>
-
 #include <algorithm>
 #include <cassert>
 #include <utility>
 #include <vector>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/numeric/conversion/cast.hpp>
+#include <optional>
+#include <string_view>
 #include "util/fieldscanner.hpp"
-
 #include "ressumry.h"
 
 using boost::numeric_cast;
@@ -49,7 +50,7 @@ struct summary_def {
     std::vector<int> level_count;  ///< The number of values at each level, set by init_summary
 
     /// Creates a summary with room for up to maxlevel levels
-    explicit summary_def(const size_t maxlevel) : level_id(maxlevel), level_count(maxlevel) {}
+    explicit summary_def(const std::size_t maxlevel) : level_id(maxlevel), level_count(maxlevel) {}
 };
 
 #define BY_DATA_TYPE -1
@@ -91,7 +92,7 @@ int define_error_summary(const std::string& definition) {
 
     nlevel = numeric_cast<int>(std::count(definition.begin(), definition.end(), ERROR_SUMMARY_DELIMITER)) + 1;
 
-    summary_def sdf(numeric_cast<size_t>(nlevel));
+    summary_def sdf(numeric_cast<std::size_t>(nlevel));
 
     nlevel = 0;
 

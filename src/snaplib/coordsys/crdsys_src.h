@@ -25,10 +25,12 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include "iostring.h"
 
-#ifndef _COORDSYS_H
-#include "coordsys/coordsys.h"
-#endif
+struct coordsys;
+struct ellipsoid;
+struct ref_frame;
+struct vdatum;
 
 #define CS_ID_UNAVAILABLE -1
 

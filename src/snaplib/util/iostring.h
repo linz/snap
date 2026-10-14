@@ -60,9 +60,9 @@ struct output_string_def {
 /// truncating to maxlength characters without error if it is longer.
 /// \return OK, or NO_MORE_DATA/MISSING_DATA on failure (see errdef.h).
 /// field is only set when OK is returned.
-int next_string_field(FieldScanner& scanner,  ///< the scanner to read from
-                      std::string& field,     ///< set to the field when OK is returned
-                      size_t maxlength);      ///< the most characters to keep
+int next_string_field(FieldScanner& scanner,   ///< the scanner to read from
+                      std::string& field,      ///< set to the field when OK is returned
+                      std::size_t maxlength);  ///< the most characters to keep
 
 /// Reads the next field (quote-transparent) from scanner and, if it
 /// case-insensitively equals test, consumes it. Otherwise leaves scanner

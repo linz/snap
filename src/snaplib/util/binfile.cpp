@@ -63,8 +63,8 @@
 // expand to a string literal at every point of use, so sizeof(...)-1 (the
 // array size minus its own trailing null) is a real constant, not just a
 // cached runtime strlen() result.
-constexpr size_t sig_trailer_length = sizeof(SIG_TRAILER) - 1;
-constexpr size_t end_section_length = sizeof(ENDSECTION) - 1;
+constexpr std::size_t sig_trailer_length = sizeof(SIG_TRAILER) - 1;
+constexpr std::size_t end_section_length = sizeof(ENDSECTION) - 1;
 
 BINARY_FILE* create_binary_file(const std::string& fname, const std::string& signature) {
     std::FILE* f = nullptr;
@@ -223,7 +223,7 @@ int find_section(BINARY_FILE* b, const std::string& section) {
     std::int64_t next;
     int sts;
 
-    const size_t nch = section.size() + 1;
+    const std::size_t nch = section.size() + 1;
     std::string match(nch, '\0');
 
     next = b->start;

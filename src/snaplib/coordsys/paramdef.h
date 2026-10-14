@@ -8,13 +8,12 @@
 
 */
 
-#ifndef IOSTRING_H
-#include "util/iostring.h"
-#endif
-
 #include <string_view>
-
 #include <cstddef>
+
+class FieldScanner;
+struct input_string_def;
+struct output_string_def;
 
 /* Definition of parameters of an object.  Used to create lists of parameters which
    can be used for input or output of a system definition */
@@ -22,7 +21,7 @@
 struct param_def {
     std::string_view name; /* Name of parameter - used for descriptive output */
     std::string_view code; /* Code - not used at present */
-    size_t offset;         /* Offset into the objects data structure */
+    std::size_t offset;    /* Offset into the objects data structure */
 
     /* Read, write, and print functions.  print is a nicely formatted
        version of write.  Read and write are inverse operations.

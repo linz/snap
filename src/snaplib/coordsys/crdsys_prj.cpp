@@ -1,4 +1,5 @@
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
 /* crdsysp0.c:  Projection management for coordinate system routines */
 
 /*
@@ -8,9 +9,7 @@
 
 */
 
-#include <cstdio>
 #include <cstring>
-#include <new>
 #include "coordsys/crdsys_prj.h"
 
 projection::projection(projection_type& projtype) : type(&projtype), data(nullptr) {

@@ -20,13 +20,8 @@
 
 #include <vector>
 
-#ifndef _BINFILE_H
-#include "util/binfile.h"
-#endif
-
-#ifndef TESTSPEC_H
-#include "testspec.h"
-#endif
+struct BINARY_FILE;
+struct SpecDef;
 
 void dump_relative_covariances(BINARY_FILE* b, int dumpall);
 

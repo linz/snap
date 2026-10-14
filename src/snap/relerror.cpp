@@ -1,4 +1,7 @@
 #include "snapconfig.h"
+#include "geodetic.h"
+#include "snap/stnadj.h"
+#include "testspec.h"
 /*
    $Log: relerror.c,v $
    Revision 1.8  2003/10/23 01:29:04  ccrook
@@ -30,7 +33,7 @@
 
 #include <cstdio>
 #include <cmath>
-
+#include <string>
 #include "util/binfile.h"
 #include "util/leastsqu.h"
 #include "util/lsobseq.h"

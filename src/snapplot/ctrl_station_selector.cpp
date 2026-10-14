@@ -1,13 +1,13 @@
+#include <cstdlib>
+#include <string>
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "ctrl_station_selector.hpp"
-
-#include <cstdlib>
-#include <search.h>
-
 //extern "C" {
 #include "plotstns.h"
 #include "snap/stnadj.h"
+#include "network/network.h"
+
 //}
 void wxStationSelectorTable::Setup() {
     id = nullptr;

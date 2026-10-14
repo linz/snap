@@ -1,19 +1,15 @@
-#include "snapconfig.hpp"
-
-#include <algorithm>
-#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 #include <cmath>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <vector>
-
+#include <optional>
+#include "snapconfig.hpp"
 #include "snapdata/snapcsvobs.h"
 #include "snapdata/snapcsvobs.hpp"
-
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"
-
 #include "util/calcdltfile.hpp"
 #include "util/datafile.h"
 #include "util/datafileinput.hpp"
@@ -22,8 +18,10 @@
 #include "util/fileutil.h"
 #include "util/pi.h"
 #include "util/recordstream.hpp"
-
 #include "util/errdef.h"
+#include "parseangle.hpp"
+#include "recordinputbase.hpp"
+#include "symmatrx.h"
 
 using namespace LINZ;
 using namespace DelimitedTextFile;

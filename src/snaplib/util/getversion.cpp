@@ -1,9 +1,8 @@
-#include "snapconfig.h"
-
 #include <algorithm>
 #include <fstream>
 #include <string>
-
+#include <cstddef>
+#include "snapconfig.h"
 #include "util/fileutil.h"
 #include "util/getversion.h"
 

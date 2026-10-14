@@ -20,8 +20,6 @@
 */
 
 #include <cstdio>
-#include <cmath>
-
 #include "snap/deform.h"
 #include "network/network.h"
 #include "util/errdef.h"

@@ -1,4 +1,8 @@
+#include <string>
 #include "snapconfig.h"
+#include "coordsys/coordsys.h"
+#include "coordsys/paramdef.h"
+#include "iostring.h"
 /* Routines to register Lambert Conformal Conic as a projection */
 
 /*
@@ -8,15 +12,10 @@
 
 */
 
-#include <cstdio>
-#include <cstring>
-#include <cstdlib>
-#include <cmath>
 #include "util/errdef.h"
 #include "coordsys/crdsys_prj.h"
 #include "coordsys/lambert.h"
 #include "coordsys/lambertr.h"
-#include "util/pi.h"
 
 static projection_type* LCC_type = nullptr;
 

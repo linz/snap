@@ -8,15 +8,10 @@
 
 */
 
-#ifndef COORDSYS_H
-#include "coordsys/coordsys.h"
-#endif
-
-#ifndef PARAMDEF_H
-#include "coordsys/paramdef.h"
-#endif
-
 #include <string>
+
+struct param_def;
+struct ellipsoid;
 
 /* Definition of a projection.  This is defined in two components.  First is
 	a projection type, such as Transverse Mercator, or NZMG.  This defines a

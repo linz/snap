@@ -1,16 +1,16 @@
-#include "snapconfig.h"
-
+#include <boost/numeric/conversion/cast.hpp>
 #include <algorithm>
 #include <array>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
+#include "snapconfig.h"
+#include "network/network.h"
+#include "snapdata/survdata.h"
 
-#include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 
-#include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "snap/bindata.h"
 #include "snap/obsparam.h"

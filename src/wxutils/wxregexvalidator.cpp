@@ -1,7 +1,6 @@
 #include "wxregexvalidator.hpp"
 #include <wx/tokenzr.h>
-
-#include <cstdarg>
+#include <cstddef>
 
 BEGIN_EVENT_TABLE(wxRegexpStringValidator, wxTextValidator)
 EVT_CHAR(wxRegexpStringValidator::OnChar)
@@ -36,7 +35,7 @@ wxRegexpStringValidator::wxRegexpStringValidator(wxString* value, const wxString
     showMessage = !message.IsSameAs(wxT("silent"));
     if (!validChars.IsEmpty()) {
         wxArrayString includes;
-        for (size_t i = 0; i < validChars.Len(); i++) {
+        for (std::size_t i = 0; i < validChars.Len(); i++) {
             const wxChar ch = validChars.GetChar(i);
             if (ch == '-' && i > 0 && i < validChars.Len() - 1) {
                 wxChar c0 = validChars.GetChar(i - 1);
