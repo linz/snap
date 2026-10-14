@@ -13,8 +13,7 @@ namespace deformation {
 // own root-level modelVersion attribute (absent if the file doesn't carry
 // one - GGRXF's container/root-level attributes are otherwise unparsed, see
 // parseGgrxfFile's own comment).
-struct GgrxfFile
-{
+struct GgrxfFile {
     std::vector<std::unique_ptr<Layer>> layers;
     std::optional<std::string> modelVersion;
 };
@@ -44,6 +43,6 @@ struct GgrxfFile
 // is canonicalized to that order at parse time (throwing if
 // interpolationCrsWkt doesn't clearly declare both axes), so a caller never
 // needs to know or check a particular file's own declared order itself.
-GgrxfFile parseGgrxfFile( const std::string &path );
+GgrxfFile parseGgrxfFile(const std::string& path);
 
-} // namespace deformation
+}  // namespace deformation

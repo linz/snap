@@ -13,9 +13,8 @@ namespace deformation {
 // contribution... summed independently") - the not-yet-built top-level
 // container above this abstraction sums whichever mix of layers a file
 // has, without caring which kind each one is.
-class Layer
-{
-public:
+class Layer {
+ public:
     virtual ~Layer() = default;
 
     // Evaluates this layer's own contribution at (c0, c1, queryDateDays) -
@@ -25,10 +24,10 @@ public:
     // caller summing multiple layers treats a std::nullopt the same as an
     // all-zero contribution.
     virtual std::optional<std::array<double, 3>> evaluate(
-        double c0,            // coordinate on this layer's first axis (same units/order as every root grid's own affineCoeffs c0)
-        double c1,            // coordinate on this layer's second axis
+        double c0,  // coordinate on this layer's first axis (same units/order as every root grid's own affineCoeffs c0)
+        double c1,  // coordinate on this layer's second axis
         double queryDateDays  // query date, as a day count in the same epoch as every TimeFunction::Params field
     ) const = 0;
 };
 
-} // namespace deformation
+}  // namespace deformation

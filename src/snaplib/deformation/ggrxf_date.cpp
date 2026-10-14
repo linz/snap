@@ -6,18 +6,16 @@
 
 namespace deformation {
 
-double ggrxfDateToDayNumber( const std::string &dateString )
-{
-    const double dayNumber = snap_datetime_parse( dateString.c_str(), nullptr );
-    if( dayNumber == 0.0 ) {
-        throw std::invalid_argument( "ggrxfDateToDayNumber: not a valid ISO-8601 date/date-time: " + dateString );
+double ggrxfDateToDayNumber(const std::string& dateString) {
+    const double dayNumber = snap_datetime_parse(dateString.c_str(), nullptr);
+    if (dayNumber == 0.0) {
+        throw std::invalid_argument("ggrxfDateToDayNumber: not a valid ISO-8601 date/date-time: " + dateString);
     }
     return dayNumber;
 }
 
-double ggrxfDaysBetween( const std::string &startDate, const std::string &endDate )
-{
-    return ggrxfDateToDayNumber( endDate ) - ggrxfDateToDayNumber( startDate );
+double ggrxfDaysBetween(const std::string& startDate, const std::string& endDate) {
+    return ggrxfDateToDayNumber(endDate) - ggrxfDateToDayNumber(startDate);
 }
 
-} // namespace deformation
+}  // namespace deformation

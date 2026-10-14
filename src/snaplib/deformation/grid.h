@@ -22,8 +22,7 @@ class GridParent;
 // the cell straight to the grid's own NodeData (ScalarGridData::interpolate(),
 // RaggedGridData::evaluate()) without relocating it.
 template <typename NodeData>
-struct Resolution
-{
+struct Resolution {
     // Non-owning - the resolved grid is (and stays) owned by whichever
     // Layer's rootGrids_/GridParent's children_ it came from; a Resolution
     // never outlives that owner, so this only ever observes it.
@@ -61,30 +60,32 @@ struct Resolution
 // RTTI, whether a given Grid is actually a GridParent carrying children to
 // descend into.
 template <typename NodeData>
-class Grid
-{
+class Grid {
     // The closest C++17 stand-in for a concept constraint (C++20 isn't
     // available - see the class comment above): NodeData must provide
     // `std::size_t axisCount() const`, the only operation Grid itself ever
     // calls on it. Without this, a violation would only surface as a deep,
     // hard-to-read error from the explicit instantiations at the bottom of
     // grid.cpp, rather than this deliberate, readable message.
-    static_assert( std::is_convertible_v<decltype( std::declval<const NodeData &>().axisCount() ), std::size_t>,
-                   "NodeData must provide std::size_t axisCount() const" );
+    static_assert(std::is_convertible_v<decltype(std::declval<const NodeData&>().axisCount()), std::size_t>,
+                  "NodeData must provide std::size_t axisCount() const");
 
-public:
-    Grid( const GridGeometry &geometry, NodeData data );   // this grid's own geometry and node data. geometry is copied (it's a trivial, cheap-to-copy aggregate with no move benefit over a copy); data is a sink parameter (NodeData is move-only, owns a unique_ptr) and is moved from
+ public:
+    Grid(
+        const GridGeometry& geometry,
+        NodeData
+            data);  // this grid's own geometry and node data. geometry is copied (it's a trivial, cheap-to-copy aggregate with no move benefit over a copy); data is a sink parameter (NodeData is move-only, owns a unique_ptr) and is moved from
 
     // Virtual - GridParent (see below) is a real subclass, and a Grid is
     // frequently held/destroyed via std::unique_ptr<Grid<NodeData>> even
     // when it's actually a GridParent underneath.
     virtual ~Grid() = default;
 
-    const GridGeometry &geometry() const;
-    const NodeData &data() const;
+    const GridGeometry& geometry() const;
+    const NodeData& data() const;
 
     // Forwards to geometry().locate() - see GridGeometry.
-    std::optional<Cell> locate( double c0, double c1 ) const;
+    std::optional<Cell> locate(double c0, double c1) const;
 
     // Forwards to data().axisCount() - see ScalarGridData/RaggedGridData. Kept
     // here too since GridParent::addChild()'s own validation needs it, and a
@@ -96,9 +97,11 @@ public:
     // RTTI: returns this grid itself, viewed as a GridParent, if it is one -
     // std::nullptr otherwise (an ordinary leaf Grid). GridParent overrides
     // this to return `this`.
-    virtual const GridParent<NodeData> *asParent() const { return nullptr; }
+    virtual const GridParent<NodeData>* asParent() const {
+        return nullptr;
+    }
 
-private:
+ private:
     GridGeometry geometry_;
     NodeData data_;
 };
@@ -130,10 +133,11 @@ private:
 // as it calls addChild(), the same way it translates a Layer's own root
 // grid order.
 template <typename NodeData>
-class GridParent : public Grid<NodeData>
-{
-public:
-    GridParent( const GridGeometry &geometry, NodeData data );   // same parameters as Grid's own constructor; children are added afterward via addChild()
+class GridParent : public Grid<NodeData> {
+ public:
+    GridParent(
+        const GridGeometry& geometry,
+        NodeData data);  // same parameters as Grid's own constructor; children are added afterward via addChild()
 
     // Adds a child grid, in ascending gridPriority order (see the class
     // comment above) - if this grid has multiple children that could both
@@ -148,11 +152,13 @@ public:
     // A file that violates either is malformed (or this is a parser bug),
     // so this throws rather than silently accepting bad data - same
     // reasoning as TimeFunction's own constructor validation.
-    void addChild( std::unique_ptr<Grid<NodeData>> child );   // the child grid to add; throws std::invalid_argument if child is null, child->axisCount() != this->axisCount(), or child's own extent is not contained within this grid's own
+    void addChild(
+        std::unique_ptr<Grid<NodeData>>
+            child);  // the child grid to add; throws std::invalid_argument if child is null, child->axisCount() != this->axisCount(), or child's own extent is not contained within this grid's own
 
     // This grid's own child grids, in the order they were added (see
     // addChild()). Never contains null entries.
-    const std::vector<std::unique_ptr<Grid<NodeData>>> &children() const;
+    const std::vector<std::unique_ptr<Grid<NodeData>>>& children() const;
 
     // Picks among this grid's own children() at (c0, c1) - a linear scan
     // that returns the *last* covering entry, not the first: children_ is
@@ -160,12 +166,15 @@ public:
     // the highest-priority covering entry is the one that should win.
     // Returns std::nullopt if none of this grid's own children contains the
     // point.
-    std::optional<Resolution<NodeData>> resolveChild( double c0, double c1 ) const;
+    std::optional<Resolution<NodeData>> resolveChild(double c0, double c1) const;
 
-    const GridParent<NodeData> *asParent() const override { return this; }
+    const GridParent<NodeData>* asParent() const override {
+        return this;
+    }
 
-private:
-    std::vector<std::unique_ptr<Grid<NodeData>>> children_;   // this grid's own child grids, in ascending gridPriority order
+ private:
+    std::vector<std::unique_ptr<Grid<NodeData>>>
+        children_;  // this grid's own child grids, in ascending gridPriority order
 };
 
 // Descends from `resolution` into successively finer children, for as long
@@ -177,11 +186,10 @@ private:
 // scan over rootGrids_ for ScalarLayer, a spatial index
 // (RaggedLayer::resolveRootGrid()) for RaggedLayer.
 template <typename NodeData>
-Resolution<NodeData> descendToLeaf( Resolution<NodeData> resolution, double c0, double c1 )
-{
-    while( const GridParent<NodeData> *parent = resolution.grid.get().asParent() ) {
-        auto child = parent->resolveChild( c0, c1 );
-        if( ! child ) {
+Resolution<NodeData> descendToLeaf(Resolution<NodeData> resolution, double c0, double c1) {
+    while (const GridParent<NodeData>* parent = resolution.grid.get().asParent()) {
+        auto child = parent->resolveChild(c0, c1);
+        if (!child) {
             break;
         }
         resolution = *child;
@@ -189,4 +197,4 @@ Resolution<NodeData> descendToLeaf( Resolution<NodeData> resolution, double c0, 
     return resolution;
 }
 
-} // namespace deformation
+}  // namespace deformation

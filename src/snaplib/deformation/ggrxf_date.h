@@ -16,11 +16,11 @@ namespace deformation {
 // rather than throwing, too implicit for this module's own fail-loud
 // convention, and 0.0 (an ancient proleptic Julian day) is never a
 // plausible real GGRXF date, so treating it as a parse failure is safe.
-double ggrxfDateToDayNumber( const std::string &dateString );
+double ggrxfDateToDayNumber(const std::string& dateString);
 
 // The day count from startDate to endDate - ragged_segments' own
 // query-day definition, and the same day-count basis
 // scalar_with_time_function grids use too.
-double ggrxfDaysBetween( const std::string &startDate, const std::string &endDate );
+double ggrxfDaysBetween(const std::string& startDate, const std::string& endDate);
 
-} // namespace deformation
+}  // namespace deformation

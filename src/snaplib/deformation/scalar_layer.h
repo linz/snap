@@ -23,9 +23,8 @@ namespace deformation {
 // A contribution needing different timing needs a different Layer. GGRXF's
 // other grid type, `ragged_segments` (independent per-node time series), is
 // covered by RaggedLayer instead.
-class ScalarLayer : public Layer
-{
-public:
+class ScalarLayer : public Layer {
+ public:
     // Adds a root grid to this layer. Ownership transfers to this Layer.
     // If this layer has multiple root grids that could both cover the
     // same point, add them in the order they should be tried - evaluate()
@@ -34,13 +33,17 @@ public:
     // grid added establishes this layer's own axisCount(); every later
     // one must match it - same reasoning as GridParent::addChild()'s own
     // validation.
-    void addRootGrid( std::unique_ptr<Grid<ScalarGridData>> grid );   // the grid to add; throws std::invalid_argument if grid is null, or if a root grid was added before and grid->axisCount() != axisCount()
+    void addRootGrid(
+        std::unique_ptr<Grid<ScalarGridData>>
+            grid);  // the grid to add; throws std::invalid_argument if grid is null, or if a root grid was added before and grid->axisCount() != axisCount()
 
     // Adds one of this layer's own time functions. Every grid underneath
     // this layer is scaled by the sum of every time function added this
     // way, evaluated at the query date (GGXF's own CompoundTimeFunction
     // summation, adopted here for `scalar_with_time_function`).
-    void addTimeFunction( const TimeFunction &timeFunction );   // copied - see TimeFunction's own constructor for why (no heap-owning members, no move benefit over a copy)
+    void addTimeFunction(
+        const TimeFunction&
+            timeFunction);  // copied - see TimeFunction's own constructor for why (no heap-owning members, no move benefit over a copy)
 
     // The number of displacement axes every grid under this layer shares
     // (GGRXF's own gridParameters is declared once per layer, so every grid
@@ -63,11 +66,12 @@ public:
     // axisCount() entries meaningful), scaled by the summed time functions
     // - or std::nullopt if no root grid (or none of its descendants)
     // contains the point, or the picked grid has missing data there.
-    std::optional<std::array<double, 3>> evaluate( double c0, double c1, double queryDateDays ) const override;
+    std::optional<std::array<double, 3>> evaluate(double c0, double c1, double queryDateDays) const override;
 
-private:
-    std::vector<std::unique_ptr<Grid<ScalarGridData>>> rootGrids_;   // this layer's own root grids, in the order they were added
-    std::vector<TimeFunction> timeFunctions_;        // this layer's own time functions, summed at evaluate() time
+ private:
+    std::vector<std::unique_ptr<Grid<ScalarGridData>>>
+        rootGrids_;                            // this layer's own root grids, in the order they were added
+    std::vector<TimeFunction> timeFunctions_;  // this layer's own time functions, summed at evaluate() time
 };
 
-} // namespace deformation
+}  // namespace deformation

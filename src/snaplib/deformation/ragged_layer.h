@@ -29,10 +29,11 @@ namespace deformation {
 // does for its own, typically small, root list) doesn't scale to that - see
 // resolveRootGrid() below for how this layer resolves its own root grids
 // instead.
-class RaggedLayer : public Layer
-{
-public:
-    explicit RaggedLayer( double referenceDateDays );   // this layer's own reference date, in the same epoch as evaluate()'s own queryDateDays and every TimeFunction::Params field - every RaggedSegment's own startDay (see ragged_grid_data.h) is relative to this, matching the real GGRXF spec's own per-layer reference_date attribute for `ragged_segments` layers
+class RaggedLayer : public Layer {
+ public:
+    explicit RaggedLayer(
+        double
+            referenceDateDays);  // this layer's own reference date, in the same epoch as evaluate()'s own queryDateDays and every TimeFunction::Params field - every RaggedSegment's own startDay (see ragged_grid_data.h) is relative to this, matching the real GGRXF spec's own per-layer reference_date attribute for `ragged_segments` layers
 
     // Adds a root grid to this layer. Ownership transfers to this Layer.
     // Real root grids are a flat, non-overlapping partition, added in any
@@ -45,7 +46,9 @@ public:
     // ragged root grids always are, see GridGeometry) - every later grid's
     // own step must match it, since every root grid under one real
     // RaggedLayer shares one native lattice step.
-    void addRootGrid( std::unique_ptr<Grid<RaggedGridData>> grid );   // the grid to add; throws std::invalid_argument if grid is null, if a root grid was added before and grid->axisCount() != axisCount(), if the grid's own affine transform isn't axis-aligned, or if its own lattice step doesn't match the first root grid's own
+    void addRootGrid(
+        std::unique_ptr<Grid<RaggedGridData>>
+            grid);  // the grid to add; throws std::invalid_argument if grid is null, if a root grid was added before and grid->axisCount() != axisCount(), if the grid's own affine transform isn't axis-aligned, or if its own lattice step doesn't match the first root grid's own
 
     // The number of displacement axes every grid under this layer shares -
     // established by the first root grid added (see addRootGrid()).
@@ -60,33 +63,31 @@ public:
     // per-node timing (see RaggedGridData::evaluate()). Returns
     // std::nullopt if no root grid (or none of its descendants) contains
     // the point.
-    std::optional<std::array<double, 3>> evaluate( double c0, double c1, double queryDateDays ) const override;
+    std::optional<std::array<double, 3>> evaluate(double c0, double c1, double queryDateDays) const override;
 
-private:
+ private:
     // One root grid's own lattice position, relative to this layer's own
     // shared reference established by the first root grid added:
     // sizeSteps is iNodeCount() - 1 (a power-of-two multiple of the
     // smallest sizeSteps present, for a real quadtree-tiled file), and
     // (row0, col0) is this grid's own origin, in units of one native
     // lattice step.
-    struct RootKey
-    {
+    struct RootKey {
         std::int64_t row0;
         std::int64_t col0;
         std::int64_t sizeSteps;
 
-        bool operator==( const RootKey &other ) const;
+        bool operator==(const RootKey& other) const;
     };
 
-    struct RootKeyHash
-    {
-        std::size_t operator()( const RootKey &key ) const;
+    struct RootKeyHash {
+        std::size_t operator()(const RootKey& key) const;
     };
 
     // Registers `grid` into rootIndex_/distinctSizeSteps_ - establishing
     // this layer's own shared lattice reference if this is the first root
     // grid added, or validating against it otherwise (see addRootGrid()).
-    void indexRootGrid( const Grid<RaggedGridData> &grid );
+    void indexRootGrid(const Grid<RaggedGridData>& grid);
 
     // Resolves this layer's own root grids at (c0, c1) - a bucket lookup,
     // not a tree: rootIndex_ is one hash map, but folding sizeSteps into
@@ -123,10 +124,11 @@ private:
     // value at a shared node regardless of which one answers - there is
     // no genuine ambiguity to arbitrate, only a choice between two equally
     // correct answers.
-    std::optional<Resolution<RaggedGridData>> resolveRootGrid( double c0, double c1 ) const;
+    std::optional<Resolution<RaggedGridData>> resolveRootGrid(double c0, double c1) const;
 
     double referenceDateDays_;
-    std::vector<std::unique_ptr<Grid<RaggedGridData>>> rootGrids_;   // this layer's own root grids, in the order they were added; owns them
+    std::vector<std::unique_ptr<Grid<RaggedGridData>>>
+        rootGrids_;  // this layer's own root grids, in the order they were added; owns them
     // Non-owning, read-only lookup alongside rootGrids_ (the real owner) -
     // see resolveRootGrid(). reference_wrapper rather than a raw pointer:
     // every entry is always inserted already pointing at a real grid (see
@@ -136,13 +138,15 @@ private:
     // reference_wrapper makes "never null" a compile-time guarantee here
     // too, the same reasoning as Resolution::grid (see grid.h).
     std::unordered_map<RootKey, std::reference_wrapper<const Grid<RaggedGridData>>, RootKeyHash> rootIndex_;
-    std::vector<std::int64_t> distinctSizeSteps_;   // every distinct sizeSteps value present in rootIndex_, in the order first seen
+    std::vector<std::int64_t>
+        distinctSizeSteps_;  // every distinct sizeSteps value present in rootIndex_, in the order first seen
     bool haveReference_ = false;
     double refC0Origin_ = 0.0;
     double refC0Step_ = 0.0;
     double refC1Origin_ = 0.0;
     double refC1Step_ = 0.0;
-    double cellTolerance_ = 0.0;   // this layer's own shared boundary tolerance, in the same raw lattice-index units as rawRow/rawCol in resolveRootGrid() - established alongside the lattice reference above, from the first root grid added
+    double cellTolerance_ =
+        0.0;  // this layer's own shared boundary tolerance, in the same raw lattice-index units as rawRow/rawCol in resolveRootGrid() - established alongside the lattice reference above, from the first root grid added
 };
 
-} // namespace deformation
+}  // namespace deformation

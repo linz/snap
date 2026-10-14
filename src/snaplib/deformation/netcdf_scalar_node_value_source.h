@@ -13,9 +13,8 @@ namespace deformation {
 // rather than re-reading the file per query - real query volumes make
 // per-query netCDF calls too slow, and a grid's own raw values never change
 // after the file is opened.
-class NetcdfScalarNodeValueSource : public ScalarNodeValueSource
-{
-public:
+class NetcdfScalarNodeValueSource : public ScalarNodeValueSource {
+ public:
     // displacement is this grid's own raw `displacement` array, already
     // read out of the file in full, row-major over (i, j, axis) - node
     // (i, j)'s own raw value for file axis a is displacement[(i *
@@ -41,24 +40,24 @@ public:
     // the file means false) - see ScalarGridData's own has_end_day
     // handling for why a true value here makes ScalarGridData's
     // constructor throw.
-    NetcdfScalarNodeValueSource(
-        std::uint32_t jNodeCount, std::vector<std::size_t> canonicalAxisIndices, std::vector<std::int32_t> displacement,
-        std::optional<std::int32_t> missingValue, bool hasEndDay );
+    NetcdfScalarNodeValueSource(std::uint32_t jNodeCount, std::vector<std::size_t> canonicalAxisIndices,
+                                std::vector<std::int32_t> displacement, std::optional<std::int32_t> missingValue,
+                                bool hasEndDay);
 
     // Always 3 - every canonical component (east/north/up) this source
     // doesn't carry a raw file axis for simply reads as 0.0 (a real,
     // meaningful "this layer contributes nothing on that axis", not
     // "unknown") - see canonicalAxisIndices above.
     std::size_t axisCount() const override;
-    std::optional<std::array<double, 3>> nodeValues( std::uint32_t i, std::uint32_t j ) const override;
+    std::optional<std::array<double, 3>> nodeValues(std::uint32_t i, std::uint32_t j) const override;
     bool hasEndDay() const override;
 
-private:
-    std::uint32_t jNodeCount_;                        // needed to convert (i, j) into displacement_'s own flat offset
-    std::vector<std::size_t> canonicalAxisIndices_;   // raw file axis -> canonical component index (0/1/2)
-    std::vector<std::int32_t> displacement_;          // raw, unscaled - row-major over (i, j, raw file axis)
+ private:
+    std::uint32_t jNodeCount_;                       // needed to convert (i, j) into displacement_'s own flat offset
+    std::vector<std::size_t> canonicalAxisIndices_;  // raw file axis -> canonical component index (0/1/2)
+    std::vector<std::int32_t> displacement_;         // raw, unscaled - row-major over (i, j, raw file axis)
     std::optional<std::int32_t> missingValue_;
     bool hasEndDay_;
 };
 
-} // namespace deformation
+}  // namespace deformation

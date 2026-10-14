@@ -29,9 +29,8 @@ namespace deformation {
 // opening/reading attributes across every root grid, not from anything
 // this class stores), so this alone does not fix a real file's overall
 // peak memory.
-class NetcdfRaggedNodeValueSource : public RaggedNodeValueSource
-{
-public:
+class NetcdfRaggedNodeValueSource : public RaggedNodeValueSource {
+ public:
     // segmentOffsetsByAxis[axis] is this grid's own per-axis CSR offsets
     // (length nodeCount + 1, matching the file's own segment_count_-derived
     // offsets exactly - see parseRaggedGridContent()): node (i, j)'s own
@@ -45,26 +44,26 @@ public:
     // has_end_day flags, flattened the same way (i * jNodeCount + j); an
     // empty vector means the file had no has_end_day variable at all, i.e.
     // every node is false.
-    NetcdfRaggedNodeValueSource(
-        std::uint32_t jNodeCount, std::size_t axisCount, std::vector<bool> hasEndDayPerNode,
-        std::vector<std::vector<std::size_t>> segmentOffsetsByAxis,
-        std::vector<std::vector<RaggedSegment>> segmentsByAxis );
+    NetcdfRaggedNodeValueSource(std::uint32_t jNodeCount, std::size_t axisCount, std::vector<bool> hasEndDayPerNode,
+                                std::vector<std::vector<std::size_t>> segmentOffsetsByAxis,
+                                std::vector<std::vector<RaggedSegment>> segmentsByAxis);
 
     std::size_t axisCount() const override;
-    bool hasEndDay( std::uint32_t i, std::uint32_t j ) const override;
-    RaggedSegmentRange segments( std::uint32_t i, std::uint32_t j, std::size_t axis ) const override;
+    bool hasEndDay(std::uint32_t i, std::uint32_t j) const override;
+    RaggedSegmentRange segments(std::uint32_t i, std::uint32_t j, std::size_t axis) const override;
 
-private:
+ private:
     // Node (i, j)'s own flat offset into hasEndDayPerNode_/each axis's own
     // entry in segmentOffsetsByAxis_ - matching the file's own node_index
     // convention (row-major over (i, j), not stored as a 2D array).
-    std::size_t nodeIndex( std::uint32_t i, std::uint32_t j ) const;
+    std::size_t nodeIndex(std::uint32_t i, std::uint32_t j) const;
 
     std::uint32_t jNodeCount_;
     std::size_t axisCount_;
-    std::vector<bool> hasEndDayPerNode_;   // empty means "no node has an end day"
-    std::vector<std::vector<std::size_t>> segmentOffsetsByAxis_;   // [axis][node], plus [axis][nodeCount] as the end sentinel
-    std::vector<std::vector<RaggedSegment>> segmentsByAxis_;       // [axis] -> every node's own segments, node order, flat
+    std::vector<bool> hasEndDayPerNode_;  // empty means "no node has an end day"
+    std::vector<std::vector<std::size_t>>
+        segmentOffsetsByAxis_;  // [axis][node], plus [axis][nodeCount] as the end sentinel
+    std::vector<std::vector<RaggedSegment>> segmentsByAxis_;  // [axis] -> every node's own segments, node order, flat
 };
 
-} // namespace deformation
+}  // namespace deformation

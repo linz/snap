@@ -20,8 +20,7 @@ namespace deformation {
 // GridGeometry::locate() (and, bundled with the grid it belongs to, by
 // a Layer's own resolution methods) once a query point has been confirmed to
 // fall within a grid's own extent - never constructed by hand.
-struct Cell
-{
+struct Cell {
     std::uint32_t bi;
     std::uint32_t bj;
     double fi;
@@ -35,16 +34,18 @@ struct Cell
 // containment+priority rule, dispatching to grid-type-specific evaluation
 // only afterward; see also LINZDEF's own `calc_grid_linear`, an
 // axis-aligned special case of the same general affine transform).
-class GridGeometry
-{
-public:
+class GridGeometry {
+ public:
     // Throws std::invalid_argument if iNodeCount/jNodeCount is < 2 - same
     // "fail hard on a violated external-boundary invariant" reasoning as
     // TimeFunction's own constructor.
-    GridGeometry( const std::array<double, 6> &affineCoeffs,   // node (i,j) -> (c0,c1): c0 = coeffs[0] + coeffs[1]*i + coeffs[2]*j, c1 = coeffs[3] + coeffs[4]*i + coeffs[5]*j. Which of c0/c1 is longitude/latitude is a caller concern (GGRXF: determined by the file's own interpolationCrsWkt) - GridGeometry itself is agnostic. Taken by const reference and copied, not by value: a plain 6-double aggregate has no move benefit over a copy, so by-value would only cost an extra copy for no gain
-                   std::uint32_t iNodeCount,                    // grid extent along the first axis; must be >= 2
-                   std::uint32_t jNodeCount,                    // grid extent along the second axis; must be >= 2
-                   double cellTolerance );                      // boundary slop for locate(), in grid-index units - 0.0 reproduces LINZDEF's exact hard-edge behaviour; GGRXF's own spec value is 0.00001
+    GridGeometry(
+        const std::array<double, 6>&
+            affineCoeffs,  // node (i,j) -> (c0,c1): c0 = coeffs[0] + coeffs[1]*i + coeffs[2]*j, c1 = coeffs[3] + coeffs[4]*i + coeffs[5]*j. Which of c0/c1 is longitude/latitude is a caller concern (GGRXF: determined by the file's own interpolationCrsWkt) - GridGeometry itself is agnostic. Taken by const reference and copied, not by value: a plain 6-double aggregate has no move benefit over a copy, so by-value would only cost an extra copy for no gain
+        std::uint32_t iNodeCount,  // grid extent along the first axis; must be >= 2
+        std::uint32_t jNodeCount,  // grid extent along the second axis; must be >= 2
+        double
+            cellTolerance);  // boundary slop for locate(), in grid-index units - 0.0 reproduces LINZDEF's exact hard-edge behaviour; GGRXF's own spec value is 0.00001
 
     // Locates (c0, c1) within this grid: inverts affineCoeffs to a
     // fractional node index, and - only if that index falls within
@@ -54,8 +55,8 @@ public:
     // Returns std::nullopt if (c0, c1) is outside this grid's own extent,
     // even with tolerance.
     std::optional<Cell> locate(
-        double c0,   // coordinate on this grid's first axis (same units/order as affineCoeffs' own c0)
-        double c1    // coordinate on this grid's second axis
+        double c0,  // coordinate on this grid's first axis (same units/order as affineCoeffs' own c0)
+        double c1   // coordinate on this grid's second axis
     ) const;
 
     // True if `other`'s own extent - all 4 of its corner nodes, mapped
@@ -66,7 +67,7 @@ public:
     // confirm the whole of `other` is contained, not just its corners.
     // Used by GridParent::addChild() to validate the "a child's extent must be a
     // subset of its parent's" invariant nesting depends on.
-    bool containsExtentOf( const GridGeometry &other ) const;
+    bool containsExtentOf(const GridGeometry& other) const;
 
     // Grid extent along the first/second axis (see the constructor).
     std::uint32_t iNodeCount() const;
@@ -76,14 +77,14 @@ public:
     // constructor) - exposed for a caller that needs to reconstruct this
     // grid's own lattice position directly (e.g. RaggedLayer's own
     // root-grid index), rather than only test containment via locate().
-    const std::array<double, 6> &affineCoeffs() const;
+    const std::array<double, 6>& affineCoeffs() const;
     double cellTolerance() const;
 
-private:
+ private:
     std::array<double, 6> affineCoeffs_;
-    std::uint32_t iNodeCount_;               // grid extent along the first axis
-    std::uint32_t jNodeCount_;               // grid extent along the second axis
-    double cellTolerance_;                   // boundary slop for locate(), in grid-index units
+    std::uint32_t iNodeCount_;  // grid extent along the first axis
+    std::uint32_t jNodeCount_;  // grid extent along the second axis
+    double cellTolerance_;      // boundary slop for locate(), in grid-index units
 };
 
-} // namespace deformation
+}  // namespace deformation

@@ -16,8 +16,7 @@ namespace deformation {
 // any) in the same chain has the next-highest startDay. startDay is already
 // the file's own reference_day + day_delta, combined by whichever front end
 // builds this from the file - the core never needs the two separately.
-struct RaggedSegment
-{
+struct RaggedSegment {
     std::int64_t startDay;
     double startValue;
     double ratePerDay;
@@ -32,24 +31,26 @@ struct RaggedSegment
 // see NetcdfRaggedNodeValueSource's own comment. Would be
 // std::span<const RaggedSegment> on a newer C++ standard than this
 // project's own C++17. begin()/end() are here for range-based for-loop use.
-struct RaggedSegmentRange
-{
-    RaggedSegmentRange( const RaggedSegment *begin, const RaggedSegment *end ) : begin_( begin ), end_( end ) {}
+struct RaggedSegmentRange {
+    RaggedSegmentRange(const RaggedSegment* begin, const RaggedSegment* end) : begin_(begin), end_(end) {}
 
-    const RaggedSegment *begin() const { return begin_; }
-    const RaggedSegment *end() const { return end_; }
+    const RaggedSegment* begin() const {
+        return begin_;
+    }
+    const RaggedSegment* end() const {
+        return end_;
+    }
 
-private:
-    const RaggedSegment *begin_;
-    const RaggedSegment *end_;
+ private:
+    const RaggedSegment* begin_;
+    const RaggedSegment* end_;
 };
 
 // Supplies the raw per-node segment data for one ragged_segments grid's own
 // node storage - the ragged sibling to ScalarNodeValueSource. One instance
 // is bound to a single grid's own node storage.
-class RaggedNodeValueSource
-{
-public:
+class RaggedNodeValueSource {
+ public:
     virtual ~RaggedNodeValueSource() = default;
 
     // The number of displacement axes stored at each node - see
@@ -62,15 +63,14 @@ public:
     // std::runtime_error if this is ever true, matching the real Python
     // reference reader's own NotImplementedError-at-query-time behaviour,
     // rather than silently ignoring it.
-    virtual bool hasEndDay( std::uint32_t i, std::uint32_t j ) const = 0;
+    virtual bool hasEndDay(std::uint32_t i, std::uint32_t j) const = 0;
 
     // Node (i, j)'s own segment chain for displacement axis `axis` (0 <=
     // axis < axisCount()), in chronological startDay order. Empty if this
     // node has no active segment there at all - a genuine gap (e.g. the
     // edge of a quadtree-tiled InSAR patch), not an error; see
     // RaggedGridData::evaluate() for how that resolves.
-    virtual RaggedSegmentRange segments(
-        std::uint32_t i, std::uint32_t j, std::size_t axis ) const = 0;
+    virtual RaggedSegmentRange segments(std::uint32_t i, std::uint32_t j, std::size_t axis) const = 0;
 };
 
 // One ragged_segments grid's own per-node value computation - the sibling
@@ -82,11 +82,10 @@ public:
 // the 4 already-time-evaluated results are bilinearly interpolated, since
 // each node here carries its own independent time series rather than
 // sharing one grid-wide time function.
-class RaggedGridData
-{
-public:
+class RaggedGridData {
+ public:
     // Throws std::invalid_argument if values is null.
-    explicit RaggedGridData( std::unique_ptr<RaggedNodeValueSource> values );
+    explicit RaggedGridData(std::unique_ptr<RaggedNodeValueSource> values);
 
     // 4-corner-independent-time-evaluation then bilinear interpolation over
     // `cell` (from a prior GridGeometry::locate() call), at `queryDayCount`
@@ -96,19 +95,19 @@ public:
     // real 0.0, not a missing value (see RaggedNodeValueSource::segments()).
     // Throws std::runtime_error if any of the 4 corner nodes has a real
     // hasEndDay() - see RaggedNodeValueSource::hasEndDay().
-    std::array<double, 3> evaluate( const Cell &cell, std::int64_t queryDayCount ) const;
+    std::array<double, 3> evaluate(const Cell& cell, std::int64_t queryDayCount) const;
 
     // The number of displacement axes this grid's own RaggedNodeValueSource
     // returns per node (and hence per evaluate() call).
     std::size_t axisCount() const;
 
-private:
+ private:
     // One corner node's own value at queryDayCount, for one axis: the last
     // segment whose own startDay is at or before queryDayCount (0.0 if none
     // is, including an empty segment chain).
-    double evaluateNode( std::uint32_t i, std::uint32_t j, std::size_t axis, std::int64_t queryDayCount ) const;
+    double evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis, std::int64_t queryDayCount) const;
 
     std::unique_ptr<RaggedNodeValueSource> values_;
 };
 
-} // namespace deformation
+}  // namespace deformation
