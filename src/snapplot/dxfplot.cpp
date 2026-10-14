@@ -549,8 +549,8 @@ int close_dxf_file() {
     return OK;
 }
 
-#define NOTE(txt)                           \
-    dxf_text(NULL, xt, yt, size, pen, txt); \
+#define NOTE(txt)                              \
+    dxf_text(nullptr, xt, yt, size, pen, txt); \
     yt += spacing
 
 void write_dxf_title_block(map_plotter*) {

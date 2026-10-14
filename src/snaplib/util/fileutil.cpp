@@ -208,7 +208,7 @@ std::optional<std::string> user_config_dir() {
 std::optional<std::string> image_path() {
     if (imgpath)
         return imgpath;
-    char* path = NULL;
+    char* path = nullptr;
     _get_pgmptr(&path);
     imgpath = path ? std::string(path) : std::string();
     return imgpath;
@@ -526,13 +526,13 @@ std::FILE* snaptmpfile() {
     char tmpdir[MAX_PATH];
     char tmpname[MAX_PATH];
     if (!GetTempPathA(MAX_PATH, tmpdir))
-        return NULL;
+        return nullptr;
     if (!GetTempFileNameA(tmpdir, "snp", 0, tmpname))
-        return NULL;
+        return nullptr;
     int fd =
         _sopen(tmpname, _O_RDWR | _O_CREAT | _O_TRUNC | _O_BINARY | _O_TEMPORARY, _SH_DENYRW, _S_IREAD | _S_IWRITE);
     if (fd == -1)
-        return NULL;
+        return nullptr;
     return _fdopen(fd, "w+b");
 }
 #endif
