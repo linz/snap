@@ -596,7 +596,7 @@ def iwyu_report(jobs: int | None, build_d: Path) -> None:
         print("ABORTED: no sources to analyse, check TIDY_FILE_REGEX against the compile database")
         sys.exit(1)
 
-    # iwyu_tool.py exits non-zero whenever IWYU has suggestions, so its return code says nothing here.
+    # iwyu_tool.py exits 0 whatever IWYU suggests, and non-zero if IWYU failed on a file.
     cmd = [sys.executable, str(iwyu_tool), "-p", str(build_d), "-j", str(jobs or os.cpu_count() or 1)]
     cmd += [*files, "--"]
     for mapping in (boost_mapping, snap_mapping):
@@ -605,7 +605,7 @@ def iwyu_report(jobs: int | None, build_d: Path) -> None:
     print("+", " ".join(cmd[:6]), f"<{len(files)} files> --", " ".join(cmd[-4:]), ">", raw_report)
     env = {**os.environ, "IWYU_BINARY": str(iwyu)}
     with raw_report.open("w") as raw_file:
-        subprocess.run(cmd, cwd=REPO_ROOT, env=env, stdout=raw_file, stderr=subprocess.STDOUT, check=False)
+        result = subprocess.run(cmd, cwd=REPO_ROOT, env=env, stdout=raw_file, stderr=subprocess.STDOUT, check=False)
     output = raw_report.read_text()
 
     # A compile error, or IWYU stopping on its own assertion (a mapping file that it does not accept).
@@ -614,6 +614,9 @@ def iwyu_report(jobs: int | None, build_d: Path) -> None:
         for line in errors[:10]:
             print(line)
         print(f"include-what-you-use failed with {len(errors)} errors; see {raw_report}")
+        sys.exit(1)
+    if result.returncode != 0:
+        print(f"include-what-you-use failed with exit status {result.returncode}; see {raw_report}")
         sys.exit(1)
     suggestions = parse_iwyu_output(output)
     if not suggestions and "has correct #includes/fwd-decls" not in output:
