@@ -1,7 +1,6 @@
 #include "snapconfig.h"
 
 #include <cmath>
-#include <cstdio>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -242,39 +241,32 @@ int rf_ggrxf_calc( ref_frame *rf, double lon, double lat, double epoch, double d
 // GGRXF sibling to rfdef_parse_linzdef. Only records the file path and the
 // optional declared version here; the file itself is opened lazily on
 // first real calc_denu()/describe_func() call (see loadGgrxfModel()).
-int rfdef_parse_ggrxf( ref_deformation *def, input_string_def *is )
+ref_deformation *rfdef_parse_ggrxf( input_string_def &is )
 {
-    char filename[MAX_FILENAME_LEN];
-    int sts = next_string_field( is, filename, MAX_FILENAME_LEN );
+    std::string filename;
+    const int sts = next_string_field( is.scanner, filename, MAX_FILENAME_LEN );
     if( sts != OK ) {
         report_string_error( is, sts, "Missing filename for GGRXF deformation" );
-        return sts;
+        return nullptr;
     }
 
-    const char *ggrxfFile = find_relative_file( is->sourcename, filename, ".nc" );
+    const std::optional<std::string> ggrxfFile = find_relative_file( is.sourcename, filename, ".nc" );
     if( ! ggrxfFile ) {
-        char errmess[80 + MAX_FILENAME_LEN];
-        sts = FILE_OPEN_ERROR;
-        std::snprintf( errmess, sizeof( errmess ), "Cannot open GGRXF deformation file %s", filename );
-        report_string_error( is, sts, errmess );
-        return sts;
+        report_string_error( is, FILE_OPEN_ERROR, "Cannot open GGRXF deformation file " + filename );
+        return nullptr;
     }
 
     // The trailing version token is optional, the same as
     // rfdef_parse_linzdef's own version argument - absence means "don't
     // check the file's own modelVersion" (see loadGgrxfModel()).
-    char version[VERSIONLEN + 1] = "";
-    next_string_field( is, version, sizeof( version ) );
+    std::string version;
+    if( next_string_field( is.scanner, version, VERSIONLEN ) != OK ) {
+        version.clear();
+    }
 
     auto model = std::make_unique<GgrxfModel>();
-    model->path = ggrxfFile;
+    model->path = *ggrxfFile;
     model->version = version;
-    def->data = model.release();
-    def->delete_func = rf_ggrxf_delete;
-    def->copy_func = rf_ggrxf_copy;
-    def->identical = rf_ggrxf_identical;
-    def->describe_func = rf_ggrxf_describe;
-    def->calc_denu = rf_ggrxf_calc;
-    def->apply_llh = 0;
-    return OK;
+    return new ref_deformation( "GGRXF", model.release(), rf_ggrxf_delete, rf_ggrxf_copy, rf_ggrxf_identical,
+                                rf_ggrxf_describe, rf_ggrxf_calc, nullptr );
 }

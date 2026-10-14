@@ -1,9 +1,9 @@
 #ifndef CRDSYS_RFDEF_GGRXF_H
 #define CRDSYS_RFDEF_GGRXF_H
 
-#include "util/iostring.h"
-#include "coordsys/coordsys.h"
+struct input_string_def;
+struct ref_deformation;
 
-int rfdef_parse_ggrxf( ref_deformation *def, input_string_def *is );
+ref_deformation* rfdef_parse_ggrxf(input_string_def& is);
 
 #endif
