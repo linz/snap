@@ -10,6 +10,7 @@
 #if defined(UNIX)
 // unix version of functions
 #include "util/snapctype.h"
+#include <strings.h>
 #include <unistd.h>
 #define _fileno fileno
 #define _unlink unlink
