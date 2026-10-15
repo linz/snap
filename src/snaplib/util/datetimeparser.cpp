@@ -5,9 +5,11 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <array>
 #include <cmath>
+#include <initializer_list>
 #include <string>
 
 #include "util/fieldscanner.hpp"
+#include "util/rangedint.h"
 #include "util/snapctype.h"
 
 namespace datetimeparser {
@@ -135,8 +137,7 @@ std::optional<ParseError> checkRange(const char field,            ///< the field
     if (Ranged::from(value)) {
         return std::nullopt;
     }
-    return ParseError(ParseErrorKind::OutOfRange, field, position, length, value, Ranged::kMinimum,
-                      Ranged::kMaximum);
+    return ParseError(ParseErrorKind::OutOfRange, field, position, length, value, Ranged::kMinimum, Ranged::kMaximum);
 }
 
 /// Checks the number that was read for a field of a format against the limits of that field.
@@ -232,7 +233,7 @@ std::optional<ParseError> readFraction(Cursor& cursor,         ///< the text, wi
 /// Reads a time zone, which is Z, or + or - and the hours of its offset from UTC, and then its minutes if it has them.
 /// \return why it could not be read, or nothing if it was.
 std::optional<ParseError> readZone(Cursor& cursor,  ///< the text, with its next character the Z, + or -
-                                   const bool allowMinutesWithoutColon,        ///< whether +hhmm is allowed as well as +hh:mm
+                                   const bool allowMinutesWithoutColon,  ///< whether +hhmm is allowed as well as +hh:mm
                                    std::optional<UtcOffsetMinutes>& offset) {  ///< set to the offset
     if (cursor.consume('Z')) {
         offset.emplace(0);
@@ -266,8 +267,8 @@ std::optional<ParseError> readZone(Cursor& cursor,  ///< the text, with its next
 
 /// Makes the parts from the numbers that were read, which must all be within their limits and make a real date.
 DateTimeParts makeParts(const std::array<int, kFieldCount>& values,  ///< the numbers, in the order of kFormatLetters
-                        const bool hasDayOfYear,                       ///< whether the day was a day of the year
-                        const double fractionOfSecond,                 ///< the fraction of a second
+                        const bool hasDayOfYear,                     ///< whether the day was a day of the year
+                        const double fractionOfSecond,               ///< the fraction of a second
                         const std::optional<UtcOffsetMinutes>& offset) {  ///< the time zone, if there was one
     const std::variant<MonthAndDay, DayOfYear> day =
         hasDayOfYear ? std::variant<MonthAndDay, DayOfYear>(DayOfYear(values[kDayOfYearIndex]))
@@ -386,8 +387,7 @@ ParseResult<DateTimeParts> tryParse(const std::string_view text, const std::stri
                 continue;
             }
         } else {
-            while (!cursor.atEnd() && !is_digit(cursor.peek()) &&
-                   !(index == kMonthIndex && isLetter(cursor.peek()))) {
+            while (!cursor.atEnd() && !is_digit(cursor.peek()) && (index != kMonthIndex || !isLetter(cursor.peek()))) {
                 cursor.next();
             }
             if (cursor.atEnd()) {
@@ -447,7 +447,8 @@ ParseResult<DateTimeParts> tryParse(const std::string_view text, const std::stri
         cursor.next();
     }
     if (!cursor.atEnd()) {
-        return Result(ParseError(ParseErrorKind::TrailingText, '\0', cursor.position(), text.size() - cursor.position()));
+        return Result(
+            ParseError(ParseErrorKind::TrailingText, '\0', cursor.position(), text.size() - cursor.position()));
     }
     return Result(makeParts(values, hasDayOfYear, fraction, offset));
 }
@@ -510,7 +511,8 @@ ParseResult<DateTimeParts> tryParseIso8601(const std::string_view text) {
     }
 
     if (!cursor.atEnd()) {
-        return Result(ParseError(ParseErrorKind::TrailingText, '\0', cursor.position(), text.size() - cursor.position()));
+        return Result(
+            ParseError(ParseErrorKind::TrailingText, '\0', cursor.position(), text.size() - cursor.position()));
     }
     return Result(makeParts(values, false, fraction, offset));
 }
@@ -534,7 +536,7 @@ ParseResult<double> tryParseDecimalYear(const std::string_view text) {
     if (!year) {
         return Result(ParseError(ParseErrorKind::UnexpectedCharacter, 'Y', start, number.size()));
     }
-    if (!(*year >= Year::kMinimum && *year <= Year::kMaximum)) {
+    if (!std::isfinite(*year) || *year < Year::kMinimum || *year > Year::kMaximum) {
         const int value =
             std::isfinite(*year) && std::fabs(*year) < 1e9 ? boost::numeric_cast<int>(std::lround(*year)) : 0;
         return Result(

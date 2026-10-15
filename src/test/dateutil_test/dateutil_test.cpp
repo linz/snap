@@ -13,7 +13,9 @@
 
 #include <cmath>
 #include <cstdio>
+#include <initializer_list>
 #include <iostream>
+#include <optional>
 #include <string_view>
 
 #include "util/dateutil.h"
