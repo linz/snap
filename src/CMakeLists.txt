@@ -174,6 +174,12 @@ add_executable(stringlimited_test test/stringlimited_test/stringlimited_test.cpp
 target_link_libraries(stringlimited_test PRIVATE snaplib snap_link_deps)
 
 # Test-only tool, not a shipped application - standalone unit test for the
+# RaggedLayer class in snaplib/deformation/ragged_layer.h. Exit code is the
+# pass/fail signal.
+add_executable(ragged_layer_test test/ragged_layer_test/ragged_layer_test.cpp)
+target_link_libraries(ragged_layer_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
 # LineReader class that concord uses to read its input. The class is part of the
 # concord program, not snaplib, so its source is compiled into the test.
 # Exit code is the pass/fail signal.
@@ -201,6 +207,7 @@ add_custom_target(unit_tests DEPENDS
     stationcode_test
     rotmat_test
     station_test
+    ragged_layer_test
     stringlimited_test
     linereader_test)
 

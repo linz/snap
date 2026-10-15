@@ -41,10 +41,14 @@ class RaggedLayer : public Layer {
     // establishes this layer's own axisCount(); every later one must match
     // it - same reasoning as GridParent::addChild()'s own validation. It also
     // establishes this layer's own shared lattice reference (origin/step,
-    // taken from the grid's own affineCoeffs, assumed axis-aligned - real
-    // ragged root grids always are, see GridGeometry) - every later grid's
-    // own step must match it, since every root grid under one real
-    // RaggedLayer shares one native lattice step.
+    // taken from the grid's own affineCoeffs) - every later grid's own step
+    // must match it, since every root grid under one real RaggedLayer shares
+    // one native lattice step. Every root grid must be axis-aligned (real
+    // ragged root grids always are, see GridGeometry): c0 changes along one
+    // of the grid's own node indices and c1 along the other. Either way
+    // round is accepted, because a file with its longitude first has c0
+    // changing along j once its coefficients are in (latitude, longitude)
+    // order.
     void addRootGrid(
         std::unique_ptr<Grid<RaggedGridData>>
             grid);  // the grid to add; throws std::invalid_argument if grid is null, if a root grid was added before and grid->axisCount() != axisCount(), if the grid's own affine transform isn't axis-aligned, or if its own lattice step doesn't match the first root grid's own

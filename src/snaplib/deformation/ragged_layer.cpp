@@ -62,12 +62,19 @@ void RaggedLayer::indexRootGrid(const Grid<RaggedGridData>& grid) {
     const GridGeometry& geometry = grid.geometry();
     const std::array<double, 6>& affineCoeffs = geometry.affineCoeffs();
 
-    if (affineCoeffs[2] != 0.0 || affineCoeffs[4] != 0.0) {
+    // Axis-aligned means that each coordinate changes along one node index only. Usually c0 changes along i and c1
+    // along j, which leaves affineCoeffs[2] and [4] zero. A grid whose node indices run the other way round, with c0
+    // changing along j and c1 along i, leaves affineCoeffs[1] and [5] zero instead. This happens to a grid of a file
+    // that has its longitude first, once its coefficients are put in (latitude, longitude) order.
+    const bool c0AlongI = affineCoeffs[2] == 0.0 && affineCoeffs[4] == 0.0;
+    const bool c0AlongJ = affineCoeffs[1] == 0.0 && affineCoeffs[5] == 0.0;
+    if (!c0AlongI && !c0AlongJ) {
         throw std::invalid_argument(
             "RaggedLayer::addRootGrid: grid's own affine transform is not axis-aligned "
-            "(affineCoeffs[2]=" +
-            std::to_string(affineCoeffs[2]) + ", affineCoeffs[4]=" + std::to_string(affineCoeffs[4]) +
-            ") - the root-grid index requires it");
+            "(affineCoeffs[1]=" +
+            std::to_string(affineCoeffs[1]) + ", affineCoeffs[2]=" + std::to_string(affineCoeffs[2]) +
+            ", affineCoeffs[4]=" + std::to_string(affineCoeffs[4]) +
+            ", affineCoeffs[5]=" + std::to_string(affineCoeffs[5]) + ") - the root-grid index requires it");
     }
     if (geometry.iNodeCount() != geometry.jNodeCount()) {
         throw std::invalid_argument(
@@ -75,8 +82,8 @@ void RaggedLayer::indexRootGrid(const Grid<RaggedGridData>& grid) {
             ", jNodeCount=" + std::to_string(geometry.jNodeCount()) + ") - the root-grid index requires it");
     }
 
-    const double c0Step = affineCoeffs[1];
-    const double c1Step = affineCoeffs[5];
+    const double c0Step = c0AlongI ? affineCoeffs[1] : affineCoeffs[2];
+    const double c1Step = c0AlongI ? affineCoeffs[5] : affineCoeffs[4];
 
     if (!haveReference_) {
         refC0Origin_ = affineCoeffs[0];
