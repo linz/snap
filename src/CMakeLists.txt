@@ -212,6 +212,12 @@ add_executable(linereader_test test/linereader_test/linereader_test.cpp concord/
 target_include_directories(linereader_test PRIVATE concord)
 target_link_libraries(linereader_test PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - standalone unit test for the
+# date and time parsing of snap_datetime_parse in util/dateutil.cpp. Exit code
+# is the pass/fail signal.
+add_executable(dateutil_test test/dateutil_test/dateutil_test.cpp)
+target_link_libraries(dateutil_test PRIVATE snaplib snap_link_deps)
+
 # Every standalone unit test above. build.py's test target builds this, and
 # regression_tests/unittests/run_test.py then runs each *_test executable it
 # finds in the build directory, so a new unit test must be added here.
@@ -238,7 +244,8 @@ add_custom_target(unit_tests DEPENDS
     ragged_grid_data_test
     time_function_test
     stringlimited_test
-    linereader_test)
+    linereader_test
+    dateutil_test)
 
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)
