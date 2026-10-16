@@ -46,6 +46,7 @@ target_link_libraries(snap_link_deps INTERFACE
     Boost::regex
     ${BOOST_SYSTEM_LIB}
     Threads::Threads
+    netCDF::netcdf
     $<$<PLATFORM_ID:Linux>:m>)
 
 # ── snaplib ───────────────────────────────────────────────────────────────────
@@ -173,6 +174,37 @@ add_executable(stringlimited_test test/stringlimited_test/stringlimited_test.cpp
 target_link_libraries(stringlimited_test PRIVATE snaplib snap_link_deps)
 
 # Test-only tool, not a shipped application - standalone unit test for the
+# RaggedLayer class in snaplib/deformation/ragged_layer.h. Exit code is the
+# pass/fail signal.
+add_executable(ragged_layer_test test/ragged_layer_test/ragged_layer_test.cpp)
+target_link_libraries(ragged_layer_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# RectangleIndex class in snaplib/deformation/rectangle_index.h. Exit code is the
+# pass/fail signal.
+add_executable(rectangle_index_test test/rectangle_index_test/rectangle_index_test.cpp)
+target_link_libraries(rectangle_index_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the checked
+# scalar reads of the netCDF wrapper in snaplib/deformation/netcdf_wrapper.h. It
+# writes a small netCDF file, reads it back and deletes it. Exit code is the
+# pass/fail signal.
+add_executable(netcdf_wrapper_test test/netcdf_wrapper_test/netcdf_wrapper_test.cpp)
+target_link_libraries(netcdf_wrapper_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# RaggedGridData class in snaplib/deformation/ragged_grid_data.h. Exit code is
+# the pass/fail signal.
+add_executable(ragged_grid_data_test test/ragged_grid_data_test/ragged_grid_data_test.cpp)
+target_link_libraries(ragged_grid_data_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
+# validation of the TimeFunction class in snaplib/deformation/time_function.h.
+# Exit code is the pass/fail signal.
+add_executable(time_function_test test/time_function_test/time_function_test.cpp)
+target_link_libraries(time_function_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
 # LineReader class that concord uses to read its input. The class is part of the
 # concord program, not snaplib, so its source is compiled into the test.
 # Exit code is the pass/fail signal.
@@ -200,6 +232,11 @@ add_custom_target(unit_tests DEPENDS
     stationcode_test
     rotmat_test
     station_test
+    ragged_layer_test
+    rectangle_index_test
+    netcdf_wrapper_test
+    ragged_grid_data_test
+    time_function_test
     stringlimited_test
     linereader_test)
 

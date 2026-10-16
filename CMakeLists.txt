@@ -106,6 +106,12 @@ find_package(Threads REQUIRED)
 # to generate src/help/help/index.html and js/wordindex.js at build time.
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
+# netCDF-C, for reading GGRXF deformation model files (netCDF-4/HDF5-based).
+# Ubuntu's libnetcdf-dev ships a netCDFConfig.cmake providing the
+# netCDF::netcdf target, so a plain config-mode find_package works here
+# (unlike Boost above).
+find_package(netCDF REQUIRED)
+
 option(SNAP_BUILD_GUI
     "Build wxWidgets GUI targets (snap_manager, snapadjust, snapplot)" ON)
 if(SNAP_BUILD_GUI)

@@ -30,6 +30,16 @@ Only 64-bit builds are supported.
 6. **Python 3** — https://www.python.org/downloads/windows/ (needed to run
    grid.py/trig.py/linzdeformationmodel.py, the tools that convert grid,
    triangulation, and deformation-model definitions to their binary form)
+7. **netCDF-C**, via vcpkg — needed to read GGRXF deformation model files
+   (netCDF-4/HDF5-based):
+   ```
+   git clone https://github.com/microsoft/vcpkg.git
+   .\vcpkg\bootstrap-vcpkg.bat
+   .\vcpkg\vcpkg install netcdf-c:x64-windows
+   ```
+   Set the `VCPKG_ROOT` environment variable to the cloned `vcpkg` directory
+   (e.g. `set VCPKG_ROOT=C:\vcpkg`) — the MSVC presets below pick vcpkg's own
+   toolchain file up from there automatically.
 
 **Building**
 
@@ -129,6 +139,105 @@ MinGW-w64 cross-compiler, without needing Visual Studio at all.
    make -j$(nproc)
    ```
    Set `WX_MINGW_CONFIG` to the generated `wxwidgets/wx-mingw-build/wx-config` script.
+6. **netCDF-C**, cross-built for MinGW — needed to read GGRXF deformation model
+   files (netCDF-4/HDF5-based). MSYS2 publishes a prebuilt `mingw-w64-x86_64-netcdf`
+   package, but it isn't usable as-is: its `netCDFConfig.cmake` hardcodes the
+   original build machine's own absolute path (`D:/M/msys64/mingw64/lib`), and it's
+   a full shared build pulling in `libcurl`/`libxml2`/`libzip`/the AWS C++ SDK as
+   runtime DLL dependencies — none of which GGRXF reading needs, and which would
+   turn this build's existing zero-runtime-DLL property into one needing several
+   bundled DLLs. Build netCDF-C from source instead, statically, with everything
+   not needed for local netCDF-4 classic reads turned off — along with its own
+   dependencies (zlib, HDF5), also built from source and static, all installed to
+   one shared prefix:
+   ```
+   mkdir -p netcdf-mingw
+
+   # zlib - HDF5's own compression dependency. Do NOT reuse the zlib vendored
+   # under wxwidgets/wxWidgets_mingw/src/zlib for this - that's wxWidgets' own
+   # patched fork with every symbol renamed wx_zlib_*, unusable by anything else
+   # linking against it. Use genuine upstream zlib instead.
+   curl -LO https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
+   tar xzf zlib-1.3.1.tar.gz -C netcdf-mingw
+   cmake -S netcdf-mingw/zlib-1.3.1 -B netcdf-mingw/zlib-build \
+     -DCMAKE_TOOLCHAIN_FILE=$(pwd)/cmake/toolchain-mingw-w64.cmake \
+     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/netcdf-mingw/install \
+     -DBUILD_SHARED_LIBS=OFF
+   cmake --build netcdf-mingw/zlib-build -j$(nproc)
+   cmake --install netcdf-mingw/zlib-build
+
+   # HDF5 - netCDF-4's underlying storage format. Static only; no szip/MPI/
+   # Fortran/C++/Java bindings, no tools/tests/examples.
+   curl -LO https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.5/hdf5-1.14.5.tar.gz
+   tar xzf hdf5-1.14.5.tar.gz -C netcdf-mingw
+   cmake -S netcdf-mingw/hdf5-1.14.5 -B netcdf-mingw/hdf5-build \
+     -DCMAKE_TOOLCHAIN_FILE=$(pwd)/cmake/toolchain-mingw-w64.cmake \
+     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/netcdf-mingw/install \
+     -DCMAKE_PREFIX_PATH=$(pwd)/netcdf-mingw/install \
+     -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON \
+     -DHDF5_BUILD_EXAMPLES=OFF -DHDF5_BUILD_TOOLS=OFF -DHDF5_BUILD_TESTS=OFF \
+     -DBUILD_TESTING=OFF -DHDF5_BUILD_UTILS=OFF -DHDF5_ENABLE_SZIP_SUPPORT=OFF \
+     -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DHDF5_ENABLE_PARALLEL=OFF \
+     -DHDF5_BUILD_FORTRAN=OFF -DHDF5_BUILD_CPP_LIB=OFF -DHDF5_BUILD_JAVA=OFF \
+     -DHDF5_BUILD_HL_LIB=ON \
+     -DZLIB_LIBRARY=$(pwd)/netcdf-mingw/install/lib/libzlibstatic.a \
+     -DZLIB_INCLUDE_DIR=$(pwd)/netcdf-mingw/install/include
+   cmake --build netcdf-mingw/hdf5-build -j$(nproc)
+   cmake --install netcdf-mingw/hdf5-build
+
+   # netCDF-C itself. DAP/S3/NCZarr/parallel/filter-plugin support all off, since
+   # GGRXF only ever does local netCDF-4 classic reads.
+   curl -L -o netcdf-c-4.9.3.tar.gz https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.9.3.tar.gz
+   tar xzf netcdf-c-4.9.3.tar.gz -C netcdf-mingw
+   cmake -S netcdf-mingw/netcdf-c-4.9.3 -B netcdf-mingw/netcdf-c-build \
+     -DCMAKE_TOOLCHAIN_FILE=$(pwd)/cmake/toolchain-mingw-w64.cmake \
+     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/netcdf-mingw/install \
+     -DCMAKE_PREFIX_PATH=$(pwd)/netcdf-mingw/install \
+     -DBUILD_SHARED_LIBS=OFF -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF \
+     -DENABLE_UTILITIES=OFF -DBUILD_UTILITIES=OFF \
+     -DENABLE_DAP=OFF -DENABLE_DAP2=OFF -DENABLE_DAP4=OFF -DENABLE_BYTERANGE=OFF \
+     -DENABLE_NCZARR=OFF -DENABLE_NCZARR_ZIP=OFF -DENABLE_HDF4=OFF \
+     -DENABLE_PNETCDF=OFF -DENABLE_PARALLEL4=OFF -DENABLE_PLUGINS=OFF \
+     -DENABLE_FILTER_SZIP=OFF -DENABLE_FILTER_ZSTD=OFF -DENABLE_FILTER_BZ2=OFF \
+     -DENABLE_FILTER_BLOSC=OFF -DENABLE_QUANTIZE=OFF -DNETCDF_ENABLE_LIBXML2=OFF \
+     -DHDF5_ROOT=$(pwd)/netcdf-mingw/install \
+     -DZLIB_LIBRARY=$(pwd)/netcdf-mingw/install/lib/libzlibstatic.a \
+     -DZLIB_INCLUDE_DIR=$(pwd)/netcdf-mingw/install/include
+   cmake --build netcdf-mingw/netcdf-c-build -j$(nproc)
+   cmake --install netcdf-mingw/netcdf-c-build
+   ```
+   `-DNETCDF_ENABLE_LIBXML2=OFF` matters even with DAP disabled — left on, it's
+   used for NcML metadata parsing regardless of the DAP settings, and auto-detects
+   and links the *host's own native Linux* `libxml2.a` into the cross-compiled
+   static library. Off, netCDF falls back to its own bundled tinyxml2 and needs
+   nothing external for XML.
+
+   netCDF-C's own CMake export has a separate real gap: `netCDFTargets.cmake`
+   references `HDF5::HDF5`/`hdf5::hdf5_hl`/`ZLIB::ZLIB` by name, but
+   `netCDFConfig.cmake` never arranges for a consumer to have those targets
+   defined — they only ever exist as a side effect inside netCDF's own build, via
+   CMake's module-mode `FindHDF5`/`FindZLIB`. Patch that into the installed config
+   once, right after the builds above:
+   ```
+   python3 - <<'EOF'
+   import pathlib
+   p = pathlib.Path("netcdf-mingw/install/lib/cmake/netCDF/netCDFConfig.cmake")
+   text = p.read_text()
+   marker = 'include("${CMAKE_CURRENT_LIST_DIR}/netCDFTargets.cmake")'
+   patch = '''add_library(ZLIB::ZLIB STATIC IMPORTED)
+   set_target_properties(ZLIB::ZLIB PROPERTIES
+     IMPORTED_LOCATION "${netCDF_LIB_DIR}/libzlibstatic.a"
+     INTERFACE_INCLUDE_DIRECTORIES "${netCDF_INCLUDE_DIR}")
+   include("${netCDF_INSTALL_PREFIX}/cmake/hdf5-config.cmake")
+   add_library(HDF5::HDF5 ALIAS hdf5-static)
+   add_library(hdf5::hdf5_hl ALIAS hdf5_hl-static)
+   '''
+   p.write_text(text.replace(marker, patch + marker))
+   EOF
+   ```
+
+   Set `NETCDF_MINGW_ROOT` to the combined install prefix used above (e.g.
+   `export NETCDF_MINGW_ROOT=$(pwd)/netcdf-mingw/install`).
 
 **Building**
 
@@ -187,6 +296,7 @@ apt-get install -y \
     cmake \
     g++ \
     libboost-all-dev \
+    libnetcdf-dev \
     libwxgtk3.2-dev \
     perl \
     python3 \

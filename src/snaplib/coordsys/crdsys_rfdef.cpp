@@ -23,6 +23,7 @@
 #include <string>
 #include <utility>
 #include "coordsys/coordsys.h"
+#include "coordsys/crdsys_rfdef_ggrxf.h"
 #include "coordsys/crdsys_rfdef_grid.h"
 #include "coordsys/crdsys_rfdef_linzdef.h"
 #include "coordsys/crdsys_rfdef_bw.h"
@@ -43,6 +44,8 @@ int parse_ref_deformation_def(input_string_def& is, ref_deformation** prdf) {
 
         if (boost::algorithm::iequals(type, "LINZDEF")) {
             *prdf = rfdef_parse_linzdef(is);
+        } else if (boost::algorithm::iequals(type, "GGRXF")) {
+            *prdf = rfdef_parse_ggrxf(is);
         } else if (boost::algorithm::iequals(type, "VELGRID")) {
             *prdf = rfdef_parse_griddef(is);
         } else if (boost::algorithm::iequals(type, "BW14")) {

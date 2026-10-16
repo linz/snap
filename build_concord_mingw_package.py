@@ -15,7 +15,8 @@ never the caller's own working tree. Fails loudly (via git's own error) if
 either tag doesn't exist.
 
 Requires BOOST_ROOT set to a MinGW-built Boost tree (see BUILD.md) - concord
-links snaplib, which links Boost unconditionally.
+links snaplib, which links Boost unconditionally. Also requires NETCDF_MINGW_ROOT
+set to a MinGW-built netCDF tree (see BUILD.md) - snaplib links netCDF unconditionally.
 """
 
 from __future__ import annotations
@@ -83,6 +84,7 @@ def main() -> None:
     args = parser.parse_args()
 
     require_env("BOOST_ROOT")
+    require_env("NETCDF_MINGW_ROOT")
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)

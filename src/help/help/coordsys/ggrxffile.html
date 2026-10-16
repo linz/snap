@@ -1,0 +1,2893 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name="keywords" content="SNAP, deformation model, GGRXF, GGXF, NZGD2000">
+<link rel="stylesheet" type="text/css" href="../css/snaphelp.css">
+<title>GGRXF deformation file format</title>
+</head>
+
+<body>
+
+<h1
+id="ggrxf-gridded-geodetic-ragged-data-exchange-format-for-deformation-models">GGRXF
+(GRIDDED GEODETIC RAGGED DATA EXCHANGE FORMAT) FOR DEFORMATION
+MODELS</h1>
+<p>This describes GGRXF, a new deformation-model file format that
+extends <a href="#ggxf">GGXF</a> (Gridded Geodetic data eXchange Format)
+- the community standard this format targets - to let a single grid
+carry an independent time-series per node. Everywhere that new
+capability doesn't force a departure, this format adopts GGXF's own
+schema and conventions directly, to keep the gap between the two as
+narrow as possible. See "Why GGXF was investigated" and "Where this
+format departs from GGXF, and why" below. This document also includes a
+byte-level specification precise enough to implement an independent
+reader or writer from scratch. (Terminology requiring additional
+documentation is explained in more detail at the end of this
+document.)</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#requirements">Requirements</a>
+<ul>
+<li><a href="#how-each-requirement-is-addressed">How each requirement is
+addressed</a></li>
+<li><a href="#why-ggxf-was-investigated">Why GGXF was
+investigated</a></li>
+<li><a href="#what-this-format-adopts-from-ggxf">What this format adopts
+from GGXF</a></li>
+<li><a href="#where-this-format-departs-from-ggxf-and-why">Where this
+format departs from GGXF, and why</a></li>
+</ul></li>
+<li><a href="#format-specification">Format specification</a>
+<ul>
+<li><a href="#container">Container</a>
+<ul>
+<li><a href="#parameters">Parameters</a></li>
+</ul></li>
+<li><a href="#layers-and-grids">Layers and grids</a>
+<ul>
+<li><a href="#layer-attributes">Layer attributes</a>
+<ul>
+<li><a href="#time-functions">Time functions</a></li>
+</ul></li>
+<li><a href="#grid-spatial-indexing-attributes">Grid spatial indexing
+attributes</a>
+<ul>
+<li><a
+href="#consolidated-storage-for-ragged_segments-grids">Consolidated
+storage for ragged_segments grids</a></li>
+</ul></li>
+<li><a href="#grid-resolution-within-a-layer">Grid resolution within a
+layer</a></li>
+<li><a href="#grid-type">Grid type</a>
+<ul>
+<li><a href="#ggxf-time-function-shapes">GGXF time function
+shapes</a></li>
+<li><a href="#per-grid-time-function-storage">Per-grid time function
+storage</a></li>
+<li><a href="#segment-record">Segment record</a></li>
+<li><a href="#per-node-ragged-segment-storage">Per-node ragged segment
+storage</a></li>
+<li><a
+href="#terminal-node-evaluation-what-happens-after-a-nodes-own-last-segment">Terminal-node
+evaluation</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#query-evaluation-end-to-end">Query evaluation, end to
+end</a></li>
+<li><a
+href="#numeric-ranges-why-these-specific-types-and-scales">Numeric
+ranges</a></li>
+</ul></li>
+<li><a href="#terminology">Terminology</a></li>
+<li><a
+href="#tooling-nice-to-haves-in-addition-to-obvious-readerswriters-not-yet-built">Tooling
+nice-to-haves</a></li>
+</ul>
+<h1 id="requirements">Requirements</h1>
+<p>What this format has to actually support, independent of how any
+given requirement ends up being met: everything the existing <a
+href="https://www.linz.govt.nz/guidance/geodetic-system/coordinate-systems-used-new-zealand/geodetic-datums/new-zealand-geodetic-datum-2000-nzgd2000/new-zealand-geodetic-datum-2000-deformation-model">New
+Zealand Geodetic Datum 2000 deformation model</a> can represent,
+functionally, must remain representable -- not necessarily via the same
+attributes or schema -- while maintaining and/or adding:</p>
+<ol type="1">
+<li><strong>Per-node independent <em>timing</em></strong>, not just
+per-node magnitude -- an existing region-wide
+spatial-function-times-time-function model can already give each node
+its own magnitude and direction of response (scaled from a shared time
+function by that node's own spatial coefficient), but every node is
+still forced onto the exact same segment schedule -- the same dates at
+which the rate of change shifts. Each grid node needs its own
+independently timed segments, not just its own independently scaled
+response to one shared schedule.</li>
+<li><strong>Efficient query evaluation</strong> -- O(1)-ish lookup at
+any (longitude, latitude, date); no walking or summing a node's full
+history per query.</li>
+<li><strong>Compact per-record storage</strong> -- each segment record
+itself stays lean, with no redundant fields, independent of how many
+nodes or segments the file as a whole holds.</li>
+<li><strong>Sufficient range and precision together</strong> -- large
+one-time jumps (coseismic steps, many metres) and small compounding
+rates (mm/year over decades) both need to be representable without the
+accumulated error, or the storage ceiling, blowing out.</li>
+<li><strong>Genuinely perpetual/secular motion</strong> -- a layer whose
+contribution extrapolates forever (matching what the existing model
+calls a <code>velocity</code> component's behaviour), optionally bounded
+only at the start.</li>
+<li><strong>Deliberate, non-default early termination</strong> -- a
+segment can be authored to expect its motion to subside by a specific
+date, without that being the default assumption.</li>
+<li><strong>Temporal supersession</strong> -- one layer replacing
+another over a specific footprint from a specific date (e.g. survey data
+superseding InSAR where InSAR itself has no valid measurement).</li>
+<li><strong>Cross-layer summation</strong> -- independent physical
+contributions (the secular model, each distinct earthquake event, each
+InSAR patch) summed together.</li>
+<li><strong>Spatially variable resolution</strong> -- both avoiding one
+wasteful nationwide bounding rectangle over sparse/irregular coverage,
+<em>and</em> representing the same event/time-window at multiple
+resolutions in one sub-region (a real example: the existing Secretary
+Island earthquake patch has three nested resolution tiers). The old
+format already solved this (nested containment + priority).</li>
+<li><strong>Self-describing container with existing tooling</strong>,
+rather than hand-rolling cross-platform struct portability, compression,
+and inspection tools from scratch.</li>
+<li><strong>Append-only extensibility</strong> -- new layers/patches
+addable over time without rewriting or republishing already-existing
+ones.</li>
+</ol>
+<h2 id="how-each-requirement-is-addressed">How each requirement is
+addressed</h2>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>#</td>
+<td>Requirement</td>
+<td>Status</td>
+<td>Where</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Per-node independent timing</td>
+<td><strong>This format's own solution</strong></td>
+<td>"Per-node ragged segment storage"</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Efficient query evaluation</td>
+<td><strong>This format's own solution</strong> (running-sum-cached
+fields)</td>
+<td>"Per-node ragged segment storage", "Query evaluation, end to
+end"</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Compact per-record storage</td>
+<td><strong>This format's own solution</strong> (8-byte record)</td>
+<td>"Per-node ragged segment storage"</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Sufficient range and precision together</td>
+<td><strong>This format's own solution</strong> (field widths/scales
+derived from real accuracy and compounding-error analysis)</td>
+<td>"Numeric ranges"</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Genuinely perpetual/secular motion</td>
+<td><strong>Adopted from GGXF</strong>: a <code>linear</code> time
+function (GGXF's own named type) with no bound set extrapolates in both
+directions forever, reproducing the existing model's
+<code>velocity</code> behaviour exactly</td>
+<td>"GGXF time function shapes", "Per-grid time function storage"</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Deliberate, non-default early termination</td>
+<td><strong>Extension to GGXF for
+<code>scalar_with_time_function</code></strong>
+(<code>own_end_date</code> generalises GGXF's own native per-entry
+<code>endDate</code> clamp to a whole grid -- identical in effect for 8
+of the 9 shapes, needed only because of <code>ramp</code>; no equivalent
+at all for <code>ragged_segments</code>, or in the LINZDEF
+model)</td>
+<td>"Terminal-node evaluation"</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Temporal supersession</td>
+<td><strong>Extension to GGXF for
+<code>scalar_with_time_function</code>, no equivalent for
+<code>ragged_segments</code></strong> (reuses the same
+<code>has_end_day</code>/<code>own_end_date</code> (scalar) or
+<code>own_end_day</code> (ragged) fields as requirement 6, set by the
+superseding layer's own creation, which also records itself via a
+<code>supersedes</code> provenance attribute)</td>
+<td>"Terminal-node evaluation", "Layers and grids"</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Cross-layer summation</td>
+<td><strong>Adopted from GGXF</strong> (the LINZDEF model
+already does this)</td>
+<td>"What this format adopts from GGXF"</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Spatially variable resolution</td>
+<td><strong>Adopted from GGXF</strong>
+(<code>childGrids</code>/<code>gridPriority</code>)</td>
+<td>"What this format adopts from GGXF", "Layers and grids", "Grid
+resolution within a layer"</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Self-describing container with existing tooling</td>
+<td><strong>Adopted</strong> (netCDF-4/HDF5 as the container; CF's
+ragged array representation for per-node storage specifically)</td>
+<td>"What this format adopts from GGXF", "Container"</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Append-only extensibility</td>
+<td><strong>This format's own solution</strong> (ordinary layers are
+pure appends; only a superseding layer's own creation mutates the
+specific layer it supersedes, and only its
+<code>has_end_day</code>/<code>own_end_date</code> (scalar) or
+<code>own_end_day</code> (ragged) field(s) -- per-node, or grid-wide,
+depending on the superseded layer's own grid type)</td>
+<td>"Terminal-node evaluation"</td>
+</tr>
+</tbody>
+</table>
+<h2 id="why-ggxf-was-investigated">Why GGXF was investigated</h2>
+<p>The core problem this format exists to solve: every existing
+deformation-model format checked -- the LINZDEF binary format SNAP
+currently uses internally, <a href="https://proj.org">PROJ</a> (a widely
+used open-source coordinate-transformation software library)'s
+<code>defmodel</code> operation, and <a href="#ggxf">GGXF</a>'s own
+current specification -- decomposes deformation as a spatial grid of
+values multiplied by <em>one time function shared across the entire
+grid</em>. That forces any node-by-node variation in <em>when</em>
+something happened (not just <em>how much</em>) to be represented by
+resampling every node onto a synchronised, region-wide set of time
+slices, which can make the stored model many times larger than the
+original data.
+GGXF (descended from a 2018 LINZ proposal, <code>OSGeo/PROJ#1001</code>)
+is the most complete, currently-active standardisation effort in this
+space, so it was the natural place to check whether this problem was
+already solved.</p>
+<p>It wasn't. In the GGXF specification text, and in the GGXF
+specification's own example encoding of LINZ's published NZGD2000
+deformation model data (not a LINZ-produced or LINZ-maintained file --
+compiled by GGXF's own project tooling from LINZ's underlying published
+dataset), every GGXF group's time function applies to every node in that
+group's grid uniformly, not per node. Real per-node
+time-varying data, such as that derived from InSAR analysis, has no
+representation in GGXF's current specification.</p>
+<h2 id="what-this-format-adopts-from-ggxf">What this format adopts from
+GGXF</h2>
+<ul>
+<li><strong><a href="#netcdf4">netCDF-4</a> (network Common Data Form,
+version 4) as the container.</strong> GGXF's own files use
+netCDF-4 group nesting (an <a
+href="#hdf5">HDF5</a> (Hierarchical Data Format, version 5) "enhanced
+data model" feature unavailable in older, "classic" netCDF). That same
+underlying technology natively supports <a
+href="#compound-type">compound types</a> and <a href="#cf">CF</a>
+(Climate and Forecast) <a href="#ragged-array">ragged array
+representation</a>, both of which this format's own per-node segment
+storage needs, independent of anything else GGXF does. netCDF-4 also
+offers a native <a href="#vlen">VLEN</a> (variable-length) type as an
+alternative way to store this same kind of ragged data, considered and
+rejected: VLEN elements are stored as separately heap-allocated blobs
+rather than one contiguous array, which generally compresses and chunks
+worse than CF's ragged array representation, and the offset/count
+bookkeeping CF's approach requires is something this format's own
+per-node CSR storage (below) needed to implement either way.</li>
+<li><strong>Cross-component summation.</strong> The GGXF specification's
+own example encoding of LINZ's NZGD2000 dataset (its
+<code>ggxfGroups</code> -- one for the secular/plate-motion model, one
+per historical earthquake patch) sums independent components at query
+time. The same architectural pattern is independently corroborated by
+PROJ's own <code>defmodel</code> operation, evaluated against a
+<code>defmodel</code>/<a href="#gtg">GTG</a> (Geodetic TIFF Grids)
+rendition of the same underlying dataset published on PROJ's own grid
+distribution server -- neither of these two files is LINZ's own
+authoritative model data (that is the CSV dataset LINZ publishes
+directly, <a
+href="https://github.com/linz/nzgd2000-deformation-model"><code>nzgd2000-deformation-model</code></a>
+on GitHub, also distributed as the
+<code>nzgd2000_deformation_20180701_full.zip</code> download -- the
+LINZDEF <code>.bin</code> format itself is a further compilation of that
+same CSV data for SNAP's own internal use, not the authoritative source,
+and is the artifact this new format is designed to replace); both are
+separately-produced implementations of that same published CSV dataset,
+converted into GGXF's and PROJ's own respective formats (PROJ does not
+consume GGXF itself; see "Where this format departs from GGXF" below).
+This format keeps that same summation architecture unchanged:
+independent <em>layers</em> -- distinct physical contributions, such as
+the secular model and each separate earthquake patch -- are always
+summed. This does <strong>not</strong> apply within a single layer where
+multiple grids describe the <em>same</em> time window at different
+resolutions (the next bullet below) -- there, exactly one grid is used,
+never summed with the others.</li>
+<li><strong>Containment + priority precedence</strong> (GGXF's
+<code>childGrids</code>/<code>gridPriority</code> mechanism: a more
+deeply nested grid always takes priority over its parent; descendant
+siblings that spatially overlap require an explicit, unique priority
+value -- root siblings are a departure from GGXF here, see "Where this
+format departs from GGXF, and why" below) is adopted directly as the
+solution to multiple grids describing the <em>same</em> time window at
+different spatial resolutions (a real example already exists in the
+current production model: the Secretary Island earthquake patch has
+three nested resolution tiers). See "Layers and grids" and "Grid
+resolution within a layer" below.</li>
+<li><strong>Affine-grid spatial indexing</strong>: coordinates computed
+from a linear transform plus integer row/ column indices (GGXF's
+<code>affineCoeffs</code>/<code>iNodeCount</code>/<code>jNodeCount</code>),
+rather than storing every node's own latitude/longitude explicitly. Used
+for both this format's ordinary scalar grids and its new per-node ragged
+grids. This also carries over GGXF's support for non-axis-aligned
+(rotated/sheared) grids, even though no grid produced so far needs
+it.</li>
+<li><strong>Named time function shapes and their composition
+semantics</strong> (GGXF's own <code>functionType</code> vocabulary --
+<code>linear</code>/<code>step</code>/<code>ramp</code>/<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>quadratic</code>/<code>cyclic</code>/
+<code>hyperbolicTangent</code>, as implemented in GGXF's reference
+implementation, see "GGXF time function shapes" below).
+"Scalar with time function" grids adopt GGXF's own
+<code>timeFunctions</code> mechanism -- a summed list of these named
+shapes (each evaluated as its own <code>refFunc(Δ)</code> formula,
+unchanged from GGXF's own) scaling one shared per-grid spatial value,
+exactly as GGXF's own files do (its published NZGD2000 example sums two
+<code>ramp</code> entries for the real Dusky Sound earthquake patch) --
+with one exception: what unit <code>Δ</code> itself is measured in
+departs from GGXF's own convention, for both grid types, see "Where this
+format departs from GGXF, and why" below. "Ragged segments" adopts the
+same composition semantics, not just the vocabulary: each segment's own
+<code>segment_start_value</code> is exactly the sum of every earlier
+segment's own now-frozen contribution (GGXF's
+<code>endEpoch</code>-clamp behaviour), cached once when the record is
+written rather than summed live at every query (see "Per-node ragged
+segment storage" below) -- what this format departs from GGXF on here is
+the storage mechanism this caching enables, not the underlying
+composition rule, see "Where this format departs from GGXF, and why"
+below.</li>
+</ul>
+<h2 id="where-this-format-departs-from-ggxf-and-why">Where this format
+departs from GGXF, and why</h2>
+<ul>
+<li><strong>Per-node time series needs a different storage mechanism
+from GGXF's own, though the underlying composition rule is the
+same.</strong> GGXF's own <code>timeFunctions</code> record schema is
+adopted even for "ragged segments" (see "GGXF time function shapes"
+below) -- each segment declares its own named shape, exactly as GGXF's
+own function types do -- and the values produced are mathematically
+equivalent to GGXF's own summation (see "What this format adopts from
+GGXF" above): each earlier segment's own contribution, frozen after its
+own end exactly as GGXF's <code>endEpoch</code> clamp already behaves,
+sums to the constant <code>segment_start_value</code> carries. What
+GGXF's own mechanism cannot do is what makes a separate storage
+mechanism necessary here: <code>CompoundTimeFunction</code> sums every
+listed function on every query (as in GGXF's reference
+implementation) from an explicit list that must retain every historical
+contribution to keep producing the right sum -- correct where the
+physical contributions are genuinely few and permanent (secular +
+coseismic + postseismic), but as a node accumulates real breakpoints (up
+to 252 in the worst case, see "Numeric ranges"), that list would grow
+without bound, violating both requirement 2 (summing a growing list per
+query) and requirement 3 (an ever-growing per-node record). "Ragged
+segments" (below) avoids both by caching the sum of every completed
+contribution as <code>segment_start_value</code> and discarding the
+explicit list, storing and evaluating only the currently active segment
+-- while still using GGXF's own named-shape vocabulary for what that
+segment itself is.</li>
+<li><strong>Grid priority is not compared among a layer's own root grids
+-- real GGXF requires exactly that.</strong> Real GGXF's own spec is
+unambiguous: "all intersecting root grids must be given a unique
+gridPriority value... gridPriority values must be unique amongst
+intersecting sibling grids within one family," with no root/non-root
+distinction in that requirement. This format instead resolves a layer's
+own root grids by plain first-match in file order, reserving
+<code>gridPriority</code> entirely for grids nested under a <strong>nest
+root</strong> (see "Layers and grids" and "Grid resolution within a
+layer" above) -- a deliberate narrowing, not an oversight. The
+motivation is downstream: a reader with stricter performance/complexity
+constraints needs to reproduce this format's own resolution behaviour
+exactly, and requiring real numeric priority comparison at the root
+level would force such a reader to do genuine tie-breaking work at that
+level. Any set of genuinely overlapping root-tier grids can instead be
+written as one nest root plus flattened children (see "Layers and grids"
+above), so nothing this format needs to express is lost by this
+narrowing.</li>
+<li><strong>This format does not target compliance with GGXF's own
+specification, and that was a deliberate choice, not an
+oversight.</strong> Early in this design process there was a pull toward
+favouring whatever the existing PROJ/GGXF tooling ecosystem could already
+read. This was reconsidered: an authoritative format's correctness
+doesn't depend on what any particular downstream tool currently
+implements. LINZ already runs exactly this pattern for the
+<em>existing</em> deformation model: the authoritative source is the CSV
+dataset LINZ publishes directly (<code>nzgd2000-deformation-model</code>
+on GitHub, also distributed as the
+<code>nzgd2000_deformation_20180701_full.zip</code> download); LINZ
+itself compiles that CSV data into the LINZDEF <code>.bin</code> format
+for the SNAP software to read directly -- the very artifact this new
+format is designed to replace; separate JSON+GeoTIFF files published to
+PROJ's own grid server are yet another distinct export, for a different
+consumer, and PROJ does not read LINZDEF either. The same pattern
+applies here: if GGXF or PROJ compatibility is ever wanted for this new
+format, that is a separate export/ conversion step, not a constraint on
+this format's own design.</li>
+<li><strong>PROJ itself does not read GGXF files today, so targeting
+GGXF compliance would not even buy real interoperability with PROJ
+specifically.</strong> From the public GitHub
+discussion that led to GGXF's creation (<code>OSGeo/PROJ#1001</code>, 38
+comments, 2018-2020): PROJ's own maintainers deliberately decided to
+keep a heavy, HDF5-based format <em>out</em> of PROJ's own codebase
+rather than build it in -- one maintainer (Even Rouault) wrote "we don't
+want proj to depend on libtiff and libgeotiff"; the original proposer
+(Chris Crook, from LINZ) wrote "Like HDF5 a complete implementation
+would be heavy lifting for proj"; another maintainer (Kristian Evers)
+wrote "PROJ will only be a consumer of the files" -- meaning GGXF was
+intentionally built as an independent standard specifically so PROJ
+wouldn't have to absorb its implementation cost. More than four
+years after that discussion, PROJ's actual dependency
+list is still just SQLite3 (required) and two optional libraries
+(libtiff, libcurl) -- no netCDF, no HDF5. PROJ's own, currently-deployed
+New Zealand deformation model (distributed from PROJ's own grid
+distribution server) is plain JSON plus <a href="#gtg">GTG</a> grid
+files, not GGXF.</li>
+<li><strong>GeoTIFF (the format PROJ actually uses in practice) cannot
+represent this format's core need regardless of any of the
+above.</strong> A GeoTIFF image requires every pixel to have the same
+fixed-size data layout; there is no way to store a different number of
+records per pixel within one image. Representing this format's
+variable-length-per-node segment lists in GeoTIFF would require padding
+every node to a fixed maximum size (wasteful for the many nodes with far
+fewer segments than the maximum) or hiding an unstructured blob inside a
+private, non-standard image tag, which is not meaningful format
+support.</li>
+<li><strong>This format's "terminal node" mechanism assumes a final
+segment continues indefinitely by default, unless it has an explicit end
+date or is superseded by another layer (see "Terminal-node evaluation"
+below).</strong> For <code>scalar_with_time_function</code>,
+<code>own_end_date</code> is an extension of GGXF's own native per-entry
+<code>endDate</code> clamp (see "GGXF time function shapes" above),
+generalised from one <code>timeFunctions</code> entry to a whole grid:
+clamping the query date at the grid level, before summing, is
+mathematically identical to setting that same <code>endDate</code> on
+every entry, for 8 of the 9 shapes -- only <code>ramp</code>, whose own
+<code>endDate</code> is load-bearing to its own shape rather than a pure
+external clamp, cannot be represented that way, which is why the
+grid-level form is needed rather than relying on native per-entry
+<code>endDate</code> directly. For <code>ragged_segments</code>,
+<code>own_end_day</code> has no GGXF equivalent at all -- that grid type
+has no <code>timeFunctions</code> to extend from. Temporal supersession
+(requirement 7) is the temporal analogue of the containment + priority
+mechanism this format already adopts from GGXF for spatial resolution
+(<code>gridPriority</code>, see "Grid resolution within a layer" above).
+That mechanism is spatial-only and time-blind (see above); temporal
+supersession applies the same kind of override along the time axis
+instead, evaluated per query against
+<code>has_end_day</code>/<code>own_end_date</code>/
+<code>own_end_day</code> -- not a reuse of GGXF's own priority
+resolution.</li>
+<li><strong><code>Δ</code> (the input to every <code>refFunc</code>
+shape) is measured in days, not GGXF's own years.</strong> GGXF's own
+convention (<code>DateToEpoch</code>) expresses every epoch as a
+calendar-exact decimal year; this format instead uses the real day-count
+difference between the two dates involved directly, with no year-length
+conversion anywhere in a reader's own evaluation path, for either grid
+type. Two reasons together: it gives this format exactly one
+<code>Δ</code>-evaluation rule, not two -- <code>ragged_segments</code>
+already needed compact day counts for its own storage (see the first
+bullet above), so extending that to
+<code>scalar_with_time_function</code> as well removes the only place a
+second, different rule would otherwise be needed; and a real day count
+needs no year-length convention chosen at all, whereas any
+years-denominated <code>Δ</code> does, and different reasonable choices
+of "what is a year" genuinely disagree with each other. For example: a
+<code>Δ</code> spanning exactly one calendar year that happens to be a
+leap year (366 real days) is <code>1.0</code> under GGXF's own
+year-anchored convention (a whole calendar year always contributes
+exactly <code>1.0</code> to the epoch, by construction) but
+<code>366/365.2425 ≈ 1.0021</code> under a real day count divided by a
+fixed year length such as <code>365.2425</code> -- both are internally
+consistent and well-defined, neither is wrong, they simply disagree, and
+days sidesteps needing to pick one of them inside the format's own
+reader at all. This only actually changes <code>linear</code>'s own
+<code>scaleFactor</code> unit (days-denominated here, not
+years-denominated as in GGXF's own convention) -- every other shape's
+<code>refFunc(Δ)</code> is a ratio or bounded value, not <code>Δ</code>
+directly, so its own <code>scaleFactor</code> stays a dimensionless
+amplitude regardless of what unit <code>Δ</code> itself is measured
+in.</li>
+</ul>
+<h1 id="format-specification">Format specification</h1>
+<p>Data type names used throughout this specification
+(<code>int32</code>, <code>uint16</code>, <code>float64</code>, ...)
+always specify an exact, fixed byte width -- <code>int32</code> is a
+4-byte signed integer, <code>uint16</code> a 2-byte unsigned integer,
+and so on, matching the C99 <code>stdint.h</code>/IEEE-754 naming
+convention.</p>
+<p>Byte order (endianness) needs no decision anywhere in this
+specification. Every value stored in an HDF5 file carries its own
+byte-order tag as part of the file's own type metadata, set by whichever
+library wrote it; any compliant netCDF-4/HDF5 library reads that tag and
+converts to the host's own native order automatically on read. A
+from-scratch reader only needs to correctly implement (or link against)
+real HDF5 type-descriptor handling.</p>
+<p>A displacement component suffix,
+<code>_e</code>/<code>_n</code>[/<code>_u</code>] (East/North[/Up]),
+appears on several field names below where a grid stores 2 or 3
+independent components rather than one. Written as <code>_{enu}</code>
+wherever a statement applies independently and identically to each of
+<code>_e</code>/<code>_n</code>/<code>_u</code> (braces, not brackets,
+so as not to be confused with actual array indexing).</p>
+<p>Every attribute and variable in the schema, at a glance, with a link
+to its own detailed breakdown table:</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Group level</td>
+<td>Holds</td>
+<td>Detailed table</td>
+</tr>
+<tr>
+<td>File root</td>
+<td><code>Conventions</code>, <code>content</code>,
+<code>parameters</code>, <code>sourceCrsWkt</code>,
+<code>targetCrsWkt</code>, <code>interpolationCrsWkt</code>,
+<code>operationAccuracy</code>, <code>modelVersion</code></td>
+<td><a href="#container">Container</a><br><a
+href="#parameters">Parameters</a></td>
+</tr>
+<tr>
+<td>Layer group</td>
+<td><code>grid_type</code>, <code>description</code>,
+<code>supersedes</code>, <code>reference_date</code>,
+<code>timeFunctions</code>, <code>gridParameters</code>,
+<code>interpolationMethod</code></td>
+<td><a href="#layer-attributes">Layer attributes</a><br><a
+href="#grid-type">Grid type</a><br><a href="#time-functions">Time
+functions</a></td>
+</tr>
+<tr>
+<td>Grid-level fields, both types (per-grid subgroup attributes for
+<code>scalar_with_time_function</code>; layer-wide arrays indexed by
+<code>grid</code> for <code>ragged_segments</code>)</td>
+<td><code>affineCoeffs</code>/<code>iNodeCount</code>/<code>jNodeCount</code>/<code>gridPriority</code></td>
+<td><a href="#grid-spatial-indexing-attributes">Grid spatial indexing
+attributes</a><br><a
+href="#consolidated-storage-for-ragged_segments-grids">Consolidated
+storage for ragged_segments grids</a></td>
+</tr>
+<tr>
+<td>Grid group, <code>grid_type = "scalar_with_time_function"</code>
+(per-grid subgroup)</td>
+<td>per-grid: <code>scale_factor</code>, <code>missing_value</code>,
+<code>has_end_day</code>/<code>own_end_date</code><br>per-node:
+<code>displacement</code></td>
+<td><a href="#per-grid-time-function-storage">Per-grid time function
+storage</a></td>
+</tr>
+<tr>
+<td><code>grid_type = "ragged_segments"</code> (layer-wide arrays, no
+per-grid subgroup)</td>
+<td>per-grid: <code>parent_grid_index</code><br>per-node (layer-wide),
+shared across components:
+<code>reference_day</code>/<code>has_end_day</code>/<code>own_end_day</code><br>per-node
+(layer-wide), per component:
+<code>segment_count_{enu}</code><br>layer-wide, per component:
+<code>segments_{enu}</code>/<code>function_type_{enu}</code>/<code>segment_ramp_end_delta_{enu}</code>/<code>segment_time_param_{enu}</code></td>
+<td><a
+href="#consolidated-storage-for-ragged_segments-grids">Consolidated
+storage for ragged_segments grids</a><br><a
+href="#per-node-ragged-segment-storage">Per-node ragged segment
+storage</a></td>
+</tr>
+</tbody>
+</table>
+<p>The two grid types each use their own record type.
+<code>scalar_with_time_function</code> grids adopt GGXF's own
+<code>timeFunctions</code> mechanism directly (see "GGXF time function
+shapes" and "Per-grid time function storage" below);
+<code>ragged_segments</code> grids keep this format's own compound
+<code>segments_{enu}</code> record
+(<code>segment_start_value</code>/<code>day_delta</code>/<code>segment_scale_factor</code>,
+see <a href="#segment-record">Segment record</a> below), now paired with
+a separate <code>function_type_{enu}</code> array declaring each
+segment's own named shape.</p>
+<p>The attribute/variable tables throughout this specification are the
+complete, authoritative list of everything actually stored in a file.
+Formulas elsewhere also use derived quantities -- lowercase symbols such
+as <code>i</code>, <code>j</code>, <code>node_index</code>,
+<code>offset</code>, <code>det</code>, <code>query_day</code>, and
+<code>t_eval</code> -- computed at read time from those stored fields;
+none of them are themselves written to disk.</p>
+<h2 id="container">Container</h2>
+<p>One <a href="#netcdf4">netCDF-4</a> file (HDF5-based; write and read
+via a real netCDF-4 library, e.g. Python's <code>netCDF4</code> package,
+not a raw HDF5 library directly -- this avoids having to separately
+re-implement netCDF-4's own internal HDF5 conventions).</p>
+<p>Global attributes on the file's own root group:</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>Conventions</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required</td>
+<td>identifies this file format's own name/version</td>
+</tr>
+<tr>
+<td><code>content</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required</td>
+<td>GGXF's own predefined content-type keyword for this file's data</td>
+</tr>
+<tr>
+<td><code>parameters</code></td>
+<td>attribute (array of records, see "Parameters" below)</td>
+<td>--</td>
+<td>length <code>count</code>, see "Parameters" below</td>
+<td>required</td>
+<td>this file's own declared parameters</td>
+</tr>
+<tr>
+<td><code>sourceCrsWkt</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>optional</td>
+<td>real OGC WKT text for this operation's own source CRS</td>
+</tr>
+<tr>
+<td><code>targetCrsWkt</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>optional</td>
+<td>real OGC WKT text for this operation's own target CRS</td>
+</tr>
+<tr>
+<td><code>interpolationCrsWkt</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required</td>
+<td>real OGC WKT text for the CRS <code>affineCoeffs</code> coordinates
+are expressed in</td>
+</tr>
+<tr>
+<td><code>operationAccuracy</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>scalar</td>
+<td>optional</td>
+<td>this file's own representative accuracy, in metres</td>
+</tr>
+<tr>
+<td><code>modelVersion</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>optional</td>
+<td>producer-defined string identifying the source model version/release
+this file reproduces, with no format-mandated structure</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>Conventions</code></strong> is netCDF's own standard
+root attribute identifying which conventions a file follows. This
+format's own value is <code>"GGRXF-1.0"</code>, not
+<code>"GGXF-1.0"</code>: <code>ragged_segments</code> groups (see
+"Per-node ragged segment storage" below) don't validate against GGXF's
+own group-attribute requirements, and a GGXF-compliant reader treats
+that as a whole-file load failure, not a per-group skip -- claiming
+<code>Conventions="GGXF-1.0"</code> would therefore misrepresent any
+file that uses <code>ragged_segments</code> at all.
+<code>"GGRXF-1.0"</code> names this format's own relationship to GGXF
+directly (GGXF plus the <code>ragged_segments</code> extension) while
+staying honestly distinct from it, and is structured so it can become a
+real <code>GGXF-x.y</code> value later if every grid type this format
+defines is ever brought to full conformance.</p>
+<p><strong><code>content</code></strong> is
+<code>"deformationModel"</code>, GGXF's own predefined content-type
+keyword (<code>GGXF_CONTENT_DEFORMATION_MODEL</code> in GGXF's own
+reference implementation), matching this file's actual content exactly
+-- no departure from GGXF here. GGXF ties two further requirements to
+this specific content type: which parameter names a
+<code>ggxfGroup</code> may declare (see "Parameters" below), and that
+<code>timeFunctions</code> is a per-layer, not per-grid, attribute (see
+"Layer attributes" below) -- already reflected in this format's own
+schema.</p>
+<p><strong><code>parameters</code></strong> is documented in full in
+"Parameters" below.</p>
+<h3 id="parameters">Parameters</h3>
+<p>netCDF/HDF5 attributes can't hold nested structures directly, so
+<code>parameters</code> (a real array of records, same mechanism as
+<code>timeFunctions</code> -- see "Time functions" above) is stored the
+same way: every element, and every field of every element, is its own
+separate, flat, dot-named attribute. All names below are written
+relative to <code>parameters</code> itself -- e.g. <code>count</code> is
+really the attribute <code>parameters.count</code> on disk,
+<code>&lt;n&gt;.parameterName</code> is really
+<code>parameters.&lt;n&gt;.parameterName</code>, and so on:</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td>attribute</td>
+<td>uint8</td>
+<td>scalar</td>
+<td>required</td>
+<td>number of parameters, <code>n</code> in <code>0..count-1</code>
+below</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.parameterName</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required, one per parameter</td>
+<td>one of GGXF's own conventional keyword names for the
+<code>content</code> type (Table B.4)</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.parameterSet</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>optional, one per parameter; defaults to that parameter's own
+<code>parameterName</code> if absent</td>
+<td>parameters sharing one <code>parameterSet</code> value combine into
+a single netCDF vector variable (GGXF §6.3.5.1)</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.unitName</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required, one per parameter</td>
+<td>the real-valued unit this parameter's own values are expressed
+in</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.unitSiRatio</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>scalar</td>
+<td>optional, one per parameter; defaults to <code>1.0</code> (SI) if
+absent</td>
+<td>multiplier converting <code>unitName</code> to the SI unit</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.noDataFlag</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>scalar</td>
+<td>optional, one per parameter</td>
+<td>the value, in this parameter's own units, that signifies no
+data</td>
+</tr>
+</tbody>
+</table>
+<p><code>noDataFlag</code> is GGXF's own per-parameter no-data
+declaration, but in real units, for non-netCDF encodings (YAML/CSV) that
+have no separate attribute mechanism of their own for this -- it is never
+read anywhere in GGXF's own reference netCDF reader/writer. This format
+still declares it, real GGXF field and all,
+but has nothing meaningful in real (millimetre) units to put there, so
+it reuses <code>2147483647</code> (<code>int32</code>'s own maximum
+value) rather than inventing a separate, dimensionally meaningless
+"real" number for a field nothing in this format's own netCDF path
+actually reads.</p>
+<p>Three names here are easy to conflate, but they answer only two
+distinct questions, not three:</p>
+<ol type="1">
+<li>"Does this layer carry this parameter at all?" --
+<code>gridParameters</code> (see "Layer attributes" below) alone: an
+omitted parameter has no storage anywhere in that layer, so it
+contributes zero uniformly, not as a per-node decision.</li>
+<li>"Does this specific node's own value, within a parameter the layer
+does carry, mean no data?" -- <code>noDataFlag</code> and
+<code>missing_value</code> (see "Per-grid time function storage" below)
+both answer this same, narrower, per-<em>node</em> question -- two
+different <em>encodings</em> of the same sentinel for two different
+serialisations, not two different questions: <code>noDataFlag</code>, in
+a parameter's own units, for YAML/CSV (unused by this format's own
+netCDF path); <code>missing_value</code>, as the packed raw integer, for
+netCDF/CF (what a reader of this format actually checks).</li>
+</ol>
+<p>The three parameters of a deformation model
+(<code>content = "deformationModel"</code>, see "Container" above):
+<code>displacementEast</code>/<code>displacementNorth</code>/<code>displacementUp</code>
+(GGXF's own conventional keyword names), all sharing
+<code>parameterSet = "displacement"</code> so they combine into one
+netCDF vector variable, <code>unitName = "millimetre"</code> and
+<code>unitSiRatio = 0.001</code> for all three (this format's own
+existing millimetre-scale storage, see "Numeric ranges" below), and
+<code>noDataFlag = 2147483647</code> for all three, per the previous
+paragraph.</p>
+<p><strong><code>sourceCrsWkt</code></strong>/<strong><code>targetCrsWkt</code></strong>/<strong><code>interpolationCrsWkt</code></strong>
+are GGXF's own root attributes
+(<code>GGXF_ATTR_SOURCE_CRS_WKT</code>/<code>GGXF_ATTR_TARGET_CRS_WKT</code>/<code>GGXF_ATTR_INTERPOLATION_CRS_WKT</code>
+in the reference implementation) -- real OGC WKT text, not an EPSG-code
+shorthand, e.g. for NZGD2000 (EPSG:4167, as returned by
+<code>pyproj.CRS.from_epsg(4167).to_wkt()</code>):
+<code>GEOGCRS["NZGD2000",DATUM["New Zealand Geodetic Datum 2000",...],...,AXIS["geodetic latitude (Lat)",north,ORDER[1]],AXIS["geodetic longitude (Lon)",east,ORDER[2]],...]</code>
+(see "Grid spatial indexing attributes" below for what that axis order
+means for <code>affineCoeffs</code>).</p>
+<p>Only <code>interpolationCrsWkt</code> is mandatory in GGXF's own
+schema; <code>sourceCrsWkt</code>/<code>targetCrsWkt</code> are
+optional. <code>interpolationCrsWkt</code> is real GGXF intent, read at
+query time in the reference implementation's own CSV/YAML tooling
+(<code>GGXF.nodeCoordinateParametersFromCrsWkt</code>), but is not
+actually parsed by the netCDF <code>Grid</code> class for
+<code>affineCoeffs</code> itself. <code>sourceCrsWkt</code>/
+<code>targetCrsWkt</code> are consulted by nothing at all in the
+reference implementation -- neither appears anywhere
+in <code>GGXF.py</code>/<code>NetCDF.py</code> (in the
+<code>scripts/GGXF/</code> directory of the
+<code>opengeospatial/CRS-Gridded-Geodetic-data-eXchange-Format</code>
+repository) beyond generic string-type validation.</p>
+<p><strong><code>operationAccuracy</code></strong> is GGXF's own
+optional root attribute (Recommendation 14,
+<code>GGXF_ATTR_OPERATION_ACCURACY</code> in the reference
+implementation, a plain <code>float</code> with no further structure) --
+like <code>sourceCrsWkt</code>/<code>targetCrsWkt</code>, consulted by
+nothing in query evaluation, documentation only. The accuracy this
+format is designed for is stated elsewhere in this document (see
+"Numeric ranges" below, about 10mm/0.01m); a writer targeting that would
+set <code>operationAccuracy = 0.01</code>.</p>
+<p><strong><code>modelVersion</code></strong> is this format's own
+addition, not part of GGXF's own root-attribute schema -- distinct from
+<code>Conventions</code>, which identifies this <em>format's</em> own
+version (<code>"GGRXF-1.0"</code>), not the <em>source model's</em>. A
+producer-defined string with no format-mandated structure --
+deliberately not constrained to a date, unlike the currently-published
+LINZDEF model's own <code>version</code> (always a <code>YYYYMMDD</code>
+release-date string, baked directly into its compiled binary's own
+header) -- so a GGRXF file built from a source with its own existing
+versioning scheme (a semantic-version string such as
+<code>1.15.10</code>, for instance) can use it as-is, without this
+format imposing a different one.</p>
+<h2 id="layers-and-grids">Layers and grids</h2>
+<p>Each independent physical contribution (the secular/plate-motion
+model, each distinct historical earthquake patch, each InSAR-fit region)
+is one netCDF-4 group, a <strong>layer</strong>. A layer group is a pure
+container: it carries no data of its own. A
+<code>scalar_with_time_function</code> layer's own grids are netCDF-4
+<strong>grid</strong> subgroups nested directly inside it -- uniformly,
+even where a layer needs only a single grid, so there is exactly one
+on-disk shape to reason about for that grid type, not a flat single-grid
+case and a separate nested-grid case. A <code>ragged_segments</code>
+layer's own grids are stored differently -- as layer-wide arrays indexed
+by a <code>grid</code> dimension, not subgroups at all -- see
+"Consolidated storage for ragged_segments grids" below.
+<code>grid_type</code> (below) determines which of the two shapes a
+given layer uses; every grid within one layer shares it (see "Grid type"
+below).</p>
+<h3 id="layer-attributes">Layer attributes</h3>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>grid_type</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required</td>
+<td><code>"scalar_with_time_function"</code> or
+<code>"ragged_segments"</code> -- every grid in this layer's own
+<code>grids</code>, at every nesting depth, shares this one value; see
+"Grid type" below</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required, non-empty, unique among all layers</td>
+<td>human-readable identification of a layer's own actual content</td>
+</tr>
+<tr>
+<td><code>supersedes</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>optional</td>
+<td>id (netCDF-4 group name) of the layer this one replaces</td>
+</tr>
+<tr>
+<td><code>reference_date</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required iff <code>grid_type = "ragged_segments"</code>; otherwise
+absent</td>
+<td>ISO-8601 date; day-count zero point for that grid's own
+<code>reference_day</code>/<code>day_delta</code>/<code>own_end_day</code></td>
+</tr>
+<tr>
+<td><code>timeFunctions</code></td>
+<td>attribute (array of records, see "Time functions" below)</td>
+<td>--</td>
+<td>length <code>count</code>, see "Time functions" below</td>
+<td>required iff <code>grid_type = "scalar_with_time_function"</code>;
+otherwise absent entirely</td>
+<td>this layer's own summed time-function definitions</td>
+</tr>
+<tr>
+<td><code>gridParameters</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>list</td>
+<td>optional, one per parameter this layer's grids carry, iff
+<code>grid_type = "scalar_with_time_function"</code>; otherwise
+absent</td>
+<td>which of the file-root <code>parameters</code> (see "Parameters"
+above) this layer's grids carry, in this layer's own order</td>
+</tr>
+<tr>
+<td><code>interpolationMethod</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required</td>
+<td><code>"bilinear"</code>, <code>"bicubic"</code>, or
+<code>"biquadratic"</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>grid_type</code></strong>: a per-<em>layer</em>
+attribute, not a per-grid one -- every grid in one layer's own
+<code>grids</code> tree, at every nesting depth, is required to share
+this one value (enforced at write time), so a layer can never mix
+<code>scalar_with_time_function</code> and <code>ragged_segments</code>
+grids. The two grid types answer genuinely different questions with
+different sibling attributes/variables
+(<code>scalar_with_time_function</code>'s
+<code>timeFunctions</code>/<code>gridParameters</code> above vs.
+<code>ragged_segments</code>' own <code>reference_date</code> above and
+per-node segment storage below), so nothing meaningful is lost by
+requiring one layer to pick exactly one; a producer needing both keeps
+them as two separate layers, exactly as every real producer already
+does. Documented in full in "Grid type" below.</p>
+<p><strong><code>description</code></strong>: a layer's netCDF-4 group
+name is already guaranteed unique by HDF5 itself (see "Container"
+above), but that name is not required to be human-meaningful;
+<code>description</code> is what lets a human identify a layer's own
+actual content (e.g. via the layer-listing tool in "Tooling
+nice-to-haves in addition to obvious readers/writers" below) without
+opening and inspecting every candidate layer's own grids by hand.
+Modelled directly on the LINZDEF format's own
+<code>description</code> column (for example
+<code>"Christchurch June earthquake"</code> for submodel
+<code>patch_c3_20110613</code> in the published NZGD2000 deformation
+model).</p>
+<p><strong><code>supersedes</code></strong>: set by a layer created
+specifically to supersede part or all of one existing layer (see
+"Terminal-node evaluation" below) -- discovered via the layer-listing
+tool in "Tooling nice-to-haves in addition to obvious readers/writers"
+below, which prints each existing layer's own id alongside its
+<code>description</code> precisely so a human doesn't have to remember
+an id to find it. This is written once, at that layer's own creation,
+purely for provenance -- it is never consulted during query evaluation
+(which relies entirely on the superseded layer's own
+<code>has_end_day</code> and its own
+<code>own_end_date</code>/<code>own_end_day</code>), and exists so a
+later reader or tool can reconstruct <em>why</em> a given layer stops
+where it does, and <em>what</em> replaced it, rather than seeing only
+the bare end date with no record of its cause. A new layer supersedes at
+most one existing layer -- nothing in this format's own requirements
+needs one layer replacing several at once.</p>
+<p>This id-lookup step assumes the superseded layer is already published
+in a file being opened, mutated, and written back to -- the ordinary
+append-only case (requirement 11) of adding a superseding layer to an
+existing file over time. Constructing an entire file in one go, where
+both an original layer and a layer meant to supersede it are already
+known before any file exists at all, does not need
+<code>supersedes</code> in the first place: author the original layer's
+own <code>has_end_day</code> and its own
+<code>own_end_date</code>/<code>own_end_day</code> directly at creation
+instead of superseding it after the fact. If the <code>supersedes</code>
+provenance attribute is still wanted even then, build the file in two
+separate steps -- publish the original layer first, run the
+layer-listing tool to discover its own id, then add the superseding
+layer afterwards referencing that id -- rather than inventing an id for
+a layer that doesn't exist on disk yet.</p>
+<p><strong><code>reference_date</code></strong>:
+<code>ragged_segments</code>' own
+<code>reference_day</code>/<code>day_delta</code>/<code>own_end_day</code>
+(see "Per-node ragged segment storage" below) are all, directly or
+indirectly, counts of days measured from it, and every query evaluation
+of this layer's own ragged grids reads it to convert the query's own
+calendar date into that same unit (see "Query evaluation, end to end"
+below). Scoped per layer, not per file, so different layers -- including
+ones appended later, covering entirely different time windows -- can
+each choose whichever reference date suits their own data, independent
+of every other layer already in the file (matching requirement 11,
+append-only extensibility). <code>scalar_with_time_function</code> grids
+have no use for it at all: <code>own_end_date</code> and a layer's own
+<code>timeFunctions</code> (see "Time functions" below) are
+self-contained ISO-8601 dates, compared directly against the query's own
+date, with no day-count conversion anywhere in that path -- a layer
+containing only such grids simply omits <code>reference_date</code>.
+<code>reference_date</code> has no relationship to
+<code>interpolationCrsWkt</code> -- it is an arbitrary, per-layer
+storage detail chosen purely to keep
+<code>reference_day</code>/<code>day_delta</code>/<code>own_end_day</code>
+small, not a geodetic reference epoch, and it is never required to
+match, or even be near, the CRS's own datum reference epoch.</p>
+<p><strong><code>timeFunctions</code></strong>: documented in full in
+"Time functions" below.</p>
+<h4 id="time-functions">Time functions</h4>
+<p>matches real GGXF exactly -- <code>timeFunctions</code> is a
+per-<code>ggxfGroup</code> (layer) attribute in GGXF's own schema for
+<code>content = "deformationModel"</code>, not a per-grid one (see the
+<code>ContentTypes</code> table in GGXF's reference implementation,
+<code>GGXF_Types.py</code>), so every
+<code>scalar_with_time_function</code> grid nested in one layer (e.g.
+<code>childGrids</code> for spatial resolution, see "Grid resolution
+within a layer" below) shares this one summed definition -- the physical
+phenomenon one layer represents has a single time-behaviour regardless
+of which resolution grid a query point resolves to; only the spatial
+values (<code>displacement</code>) differ by grid. A layer containing
+only <code>ragged_segments</code> grid(s) omits
+<code>timeFunctions</code> entirely -- that grid type has its own,
+unrelated per-segment <code>function_type_{enu}</code> mechanism (see
+"Per-node ragged segment storage" below) and never reads a layer's
+<code>timeFunctions</code>.</p>
+<p>netCDF/HDF5 attributes can't hold nested structures directly, so
+<code>timeFunctions</code> (a real array of records) is stored the same
+way GGXF's own files store any array-valued attribute: every element,
+and every field of every element, is its own separate, flat, dot-named
+attribute -- matching GGXF's own reference reader exactly (any
+<code>X.count</code>-suffixed key marks <code>X</code> as an array; this
+isn't specific to <code>timeFunctions</code>). Each of the
+<code>count</code> entries is independently a full record -- different
+entries can be different shapes (the real Dusky Sound example is two
+summed <code>ramp</code> entries, but nothing requires entries to share
+a shape). All names below are written relative to
+<code>timeFunctions</code> itself -- e.g. <code>count</code> is really
+the attribute <code>timeFunctions.count</code> on disk,
+<code>&lt;n&gt;.functionType</code> is really
+<code>timeFunctions.&lt;n&gt;.functionType</code>, and so on:</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td>attribute</td>
+<td>uint8</td>
+<td>scalar</td>
+<td>required</td>
+<td>number of entries, <code>n</code> in <code>0..count-1</code>
+below</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.functionType</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required, one per entry</td>
+<td>one of the nine values in "GGXF time function shapes" above</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.startDate</code>/<code>.endDate</code>/<code>.eventDate</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required, one per entry, per that entry's own
+<code>functionType</code> (see the <code>Requires</code> column, "GGXF
+time function shapes" above) -- except <code>linear</code>, which
+requires none of these but may optionally carry <code>startDate</code>
+alone, equal to that entry's own <code>functionReferenceDate</code> (see
+"GGXF time function shapes" above)</td>
+<td>ISO-8601 date-time -- GGXF's own encoding for this parameter</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.functionReferenceDate</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>one per entry; required for
+<code>linear</code>/<code>quadratic</code>/<code>cyclic</code> (see
+"GGXF time function shapes" above), optional for every other shape --
+composes alongside that shape's own required
+<code>eventDate</code>/<code>startDate</code>+<code>endDate</code>
+rather than replacing it</td>
+<td>ISO-8601 date-time; where present, activates GGXF's own zeroing
+subtraction (see "GGXF time function shapes" above)</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.scaleFactor</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>scalar</td>
+<td>required, one per entry</td>
+<td>this entry's own weight, applied against the same
+<code>displacement</code> as every other entry</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.timeConstant</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>scalar</td>
+<td>one per entry; required for
+<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>hyperbolicTangent</code></td>
+<td>this entry's own decay/growth time constant (GGXF's own parameter
+name and units)</td>
+</tr>
+<tr>
+<td><code>&lt;n&gt;.frequency</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>scalar</td>
+<td>one per entry; required for <code>cyclic</code></td>
+<td>this entry's own oscillation frequency (GGXF's own parameter name
+and units)</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>gridParameters</code></strong> is GGXF's own per-layer
+attribute (<code>GROUP_ATTR_GRID_PARAMETERS</code>), stored as a plain
+multi-valued netCDF string attribute (an array of strings) -- unlike
+<code>parameters</code>/ <code>timeFunctions</code> above, it is not
+spread across separate flat, dot-named attributes. GGXF's own
+<code>NetCDF.py</code> also documents a reader gotcha this format
+inherits: a netCDF4 library reads a length-1
+string array attribute back as a bare string, not a 1-element list, so a
+reader must wrap a bare-string result in a single-element list before
+use. Scoped to <code>scalar_with_time_function</code> grids --
+<code>ragged_segments</code> grids don't carry file-root
+<code>parameters</code> at all (they use
+<code>segments_{enu}</code>/<code>function_type_{enu}</code> instead, an
+unrelated mechanism, see "Per-node ragged segment storage" below), so
+there is nothing for <code>gridParameters</code> to declare on a layer
+that contains only <code>ragged_segments</code> grids. Where present, it
+names which of the file-root <code>parameters</code> (see "Parameters"
+above) this layer's grids actually carry, in this layer's own order --
+omitted names are simply not carried by this layer at all, contributing
+nothing wherever this layer's own value is combined with other layers'.
+Genuinely optional: omitting it means this layer carries every file-root
+parameter, in the file-root's own declared order. See "Parameters" above
+for how this differs from
+<code>noDataFlag</code>/<code>missing_value</code>, which answer a
+different, per-node question.</p>
+<p><strong><code>interpolationMethod</code></strong> is GGXF's own
+per-layer attribute (<code>GROUP_ATTR_INTERPOLATION_METHOD</code>),
+required on every layer regardless of grid type. GGXF's own three real
+valid values are
+<code>"bilinear"</code>/<code>"bicubic"</code>/<code>"biquadratic"</code>
+(<code>INTERPOLATION_METHOD_BILINEAR</code>/<code>_BICUBIC</code>/
+<code>_BIQUADRATIC</code>), stored on disk exactly as one of those three
+literal strings, per real GGXF and per the cardinality reasoning above
+(one value per layer, not per-segment, so the compact-code argument used
+for <code>function_type_{enu}</code> doesn't apply here). "Query
+evaluation, end to end" below spells out the 4-corner procedure only for
+<code>"bilinear"</code>; <a href="#bicubic">bicubic</a> and <a
+href="#biquadratic">biquadratic</a> are legal, GGXF-defined alternatives
+a layer may declare instead, described here only at the same conceptual
+level as the glossary entries linked above, not byte-for-byte specified
+-- a reader or writer supporting either should follow GGXF's own
+reference implementation directly, including for the wider node
+neighbourhood each one needs (see "Grid spatial indexing attributes"
+below for where this format's own corner-selection procedure stops short
+of that).</p>
+<h3 id="grid-spatial-indexing-attributes">Grid spatial indexing
+attributes</h3>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>affineCoeffs</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>length 6</td>
+<td>required</td>
+<td>linear transform, node index <code>(i, j)</code> -&gt; the axis
+order <code>interpolationCrsWkt</code> declares for this file (for the
+NZGD2000 CRS, <code>(latitude, longitude)</code>), and its
+inverse</td>
+</tr>
+<tr>
+<td><code>iNodeCount</code></td>
+<td>attribute</td>
+<td>uint32</td>
+<td>scalar</td>
+<td>required</td>
+<td>grid extent along <code>i</code></td>
+</tr>
+<tr>
+<td><code>jNodeCount</code></td>
+<td>attribute</td>
+<td>uint32</td>
+<td>scalar</td>
+<td>required</td>
+<td>grid extent along <code>j</code></td>
+</tr>
+<tr>
+<td><code>gridPriority</code></td>
+<td>attribute</td>
+<td>uint8</td>
+<td>scalar</td>
+<td>forbidden on a childless root grid; required (<code>0</code>) on a
+root grid with <code>child_grids</code>; required on every descendant of
+such a root, forming the flattened set <code>1..n-1</code> -- see "Grid
+resolution within a layer"</td>
+<td>precedence among overlapping descendant grids</td>
+</tr>
+</tbody>
+</table>
+<p>The table above describes a <code>scalar_with_time_function</code>
+grid, which stores these fields exactly as shown -- attributes on that
+grid's own netCDF-4 subgroup. A <code>ragged_segments</code> grid stores
+the same fields, with the same meanings, differently -- see
+"Consolidated storage for ragged_segments grids" below. Every formula in
+the rest of this section applies identically to both; only where the
+fields are addressed from differs.</p>
+<p>Together, <code>iNodeCount</code> and <code>jNodeCount</code> give
+one grid's own total node count,
+<code>N = iNodeCount * jNodeCount</code> -- used throughout the rest of
+this section (both grid types) for the containment/ corner-weight
+formulas below, and for a <code>scalar_with_time_function</code> grid's
+own per-node <code>displacement</code> array ("Per-grid time function
+storage" below). A <code>ragged_segments</code> grid's own per-node
+arrays use a separately-scoped, layer-wide <code>N</code> instead -- see
+"Per-node ragged segment storage" below, which redefines <code>N</code>
+for that grid type specifically before using it.</p>
+<p>Both grid types use the same affine-grid spatial indexing: each grid
+has its own <code>affineCoeffs</code>, <code>iNodeCount</code>, and
+<code>jNodeCount</code>. GGXF's own reference implementation types
+<code>iNodeCount</code>/ <code>jNodeCount</code> (and
+<code>gridPriority</code>) as plain Python <code>int</code> with no
+declared width, so there's no fixed-width precedent to borrow from GGXF;
+<code>uint32</code>'s maximum of 4,294,967,295 nodes per dimension is
+this format's own choice, well beyond any real or plausible future grid.
+No separate per-node coordinate storage -- node <code>(i, j)</code>'s
+coordinates are computed as</p>
+<pre><code>c0 = affineCoeffs[0] + affineCoeffs[1]*i + affineCoeffs[2]*j
+c1 = affineCoeffs[3] + affineCoeffs[4]*i + affineCoeffs[5]*j</code></pre>
+<p><code>c0</code>/<code>c1</code> are generic here deliberately: GGXF's
+own schema only says "6 floats" -- it does not say which is longitude
+and which is latitude, since that identity is a per-file fact read from
+that file's own <code>interpolationCrsWkt</code> (see "Container"
+above), specifically its own <code>AXIS[...]</code> clauses in the order
+they appear -- this is real GGXF intent
+(<code>GGXF.nodeCoordinateParametersFromCrsWkt</code>), adopted here
+throughout: a reader determines <code>c0</code>'s and <code>c1</code>'s
+own identity from <code>interpolationCrsWkt</code>, not from a fixed
+rule in this schema. The <code>interpolationCrsWkt</code> used for
+NZGD2000 (EPSG:4167) declares
+<code>AXIS["geodetic latitude (Lat)",north,ORDER[1]]</code> before
+<code>AXIS["geodetic longitude (Lon)",east,ORDER[2]]</code>, so in files
+that use it, <code>c0</code> is latitude and <code>c1</code> is
+longitude -- a consequence of reading that CRS, not a separate rule this
+format states independently of it. (The netCDF <code>Grid</code> class
+in GGXF's own reference implementation never actually performs this read
+for <code>affineCoeffs</code> itself -- only its separate CSV/YAML
+grid-import tooling calls
+<code>nodeCoordinateParametersFromCrsWkt</code> -- but the
+<em>intent</em>, that column identity follows the CRS, is what this
+format adopts; this document's own separate convention for writing a
+query point in prose, <code>(longitude, latitude, date)</code>, is
+unrelated and unchanged by any of this.) This matches GGXF's own
+reference implementation (<code>GGXF.py</code> in the
+<code>opengeospatial/CRS-Gridded-Geodetic-data-eXchange-Format</code>
+repository: <code>affineCoeffs</code> reshaped to a 2x3 array,
+<code>xy = xy0 + tfm.dot([i, j])</code>).</p>
+<p>The inverse -- <code>(c0, c1)</code> to fractional node index
+<code>(i, j)</code>, needed by "Grid resolution within a layer" below
+(the containment check) and "Query evaluation, end to end" below
+(finding the 4 corner nodes and their bilinear weights) -- inverts the
+2x2 linear part of the same transform:</p>
+<pre><code>det = affineCoeffs[1]*affineCoeffs[5] - affineCoeffs[2]*affineCoeffs[4]
+i = (affineCoeffs[5]*(c0 - affineCoeffs[0]) - affineCoeffs[2]*(c1 - affineCoeffs[3])) / det
+j = (affineCoeffs[1]*(c1 - affineCoeffs[3]) - affineCoeffs[4]*(c0 - affineCoeffs[0])) / det</code></pre>
+<p><code>GGXF.py</code>'s own reference implementation computes the
+same inverse: <code>ij = inv(tfm).dot(xy - xy0)</code>.</p>
+<p>The containment check itself, given the fractional
+<code>(i, j)</code> above, is</p>
+<pre><code>TOLERANCE_RATIO = 0.00001  # same value as GGXF&#39;s own TOLERANCE_RATIO (GGXF.py)
+contained = (-TOLERANCE_RATIO &lt;= i &lt;= iNodeCount - 1 + TOLERANCE_RATIO) and (-TOLERANCE_RATIO &lt;= j &lt;= jNodeCount - 1 + TOLERANCE_RATIO)</code></pre>
+<p>-- <code>iNodeCount - 1</code>/<code>jNodeCount - 1</code>, not
+<code>iNodeCount</code>/<code>jNodeCount</code>, since those attributes
+are node <em>counts</em> and valid indices run <code>0</code> to
+<code>count - 1</code>. The <code>TOLERANCE_RATIO</code> term is
+required, not cosmetic: two independently-computed affine-inverse
+results for the same real-world point on a shared grid boundary aren't
+guaranteed to land on exactly <code>0</code> or
+<code>iNodeCount - 1</code> in floating point, so a strict equality
+check can wrongly exclude a point that genuinely lies on the boundary.
+GGXF's own reference implementation guards against exactly this with a
+per-grid tolerance derived from one grid step's own real-world length
+(<code>self._tolerance = norm(calcxy([0,1]) - calcxy([1,0])) * TOLERANCE_RATIO</code>
+in <code>GGXF.py</code>); this format applies the
+same <code>TOLERANCE_RATIO</code> value directly in index units instead
+of converting through <code>interpolationCrsWkt</code>-space and back,
+since one grid-index unit is already exactly one grid cell.</p>
+<p>The base corner used by both the containment check and <a
+href="#bilinear">bilinear interpolation</a> is
+<code>(bi, bj) = (min(iNodeCount - 2, floor(i)), min(jNodeCount - 2, floor(j)))</code>,
+not <code>(floor(i), floor(j))</code> directly -- a query point exactly
+on the grid's own last row/column of nodes (a valid, contained boundary
+point, per the closed containment check above) would otherwise put the
+opposite corner one node past the last valid index. This requires
+<code>iNodeCount</code>/<code>jNodeCount &gt;= 2</code>, the same
+minimum GGXF's own reference implementation already enforces. The 4
+corners are then <code>(bi, bj)</code>, <code>(bi+1, bj)</code>,
+<code>(bi, bj+1)</code>, and <code>(bi+1, bj+1)</code>, with bilinear
+weights taken from the fractional parts <code>(i - bi, j - bj)</code> --
+at the clamped boundary these correctly evaluate to <code>1.0</code> on
+the last node and <code>0.0</code> on the other, not an out-of-bounds
+read. GGXF's own <code>Grid.cellij()</code> (<code>GGXF.py</code>)
+applies the same clamp:
+<code>cellmax = [iNodeCount - 2, jNodeCount - 2]</code>,
+<code>cij = max([0, 0], min(cellmax, floor(rij)))</code>.</p>
+<p>This 4-corner procedure is specific to
+<code>interpolationMethod = "bilinear"</code>. A layer declaring <a
+href="#bicubic">bicubic</a> or <a href="#biquadratic">biquadratic</a>
+instead needs a wider surrounding node neighbourhood than these same 4
+corners reweighted -- this document doesn't specify that
+neighbourhood-selection procedure; see GGXF's own reference
+implementation (<code>GGXF.py</code>) directly.</p>
+<p>For a "ragged segments" grid, node <code>(i, j)</code> maps to a
+single integer <code>node_index = i * jNodeCount + j</code>, used to
+index into the per-node arrays below.</p>
+<p>A grid may itself have further grids nested inside it --
+<strong>child grids</strong>, describing the same physical contribution
+at finer spatial resolution over some or all of the parent's own
+footprint (the real Secretary Island earthquake patch is exactly this:
+three tiers, each about 4x finer than the last, all sharing one
+<code>step</code> contribution at one event date). How a child grid is
+attached to its own parent differs by <code>grid_type</code> (see "Grid
+type" above): a <code>scalar_with_time_function</code> grid nests its
+own child grids as further netCDF-4 subgroups (<code>child_grids</code>
+below refers to this subgroup nesting); a <code>ragged_segments</code>
+grid instead points each child at its own parent via
+<code>parent_grid_index</code> -- see "Consolidated storage for
+ragged_segments grids" below. Both express the identical concept and
+resolve identically (see "Grid resolution within a layer" below); only
+the on-disk mechanism differs.</p>
+<p>A layer's own root grids -- for a
+<code>scalar_with_time_function</code> grid, the grid subgroups directly
+inside the layer group; for a <code>ragged_segments</code> grid, every
+grid whose own <code>parent_grid_index</code> is the root sentinel (see
+"Consolidated storage for ragged_segments grids" below) -- are resolved
+by plain first-match in file order. "File order" is a concrete, on-disk
+fact, not whatever order a given HDF5/netCDF-4 library's own
+group-iteration API happens to return (which is not guaranteed to
+reflect write order): for a <code>scalar_with_time_function</code> grid,
+each root grid's own netCDF-4 group is named
+<code>grid_&lt;N&gt;</code>, and file order is ascending numeric order
+by <code>N</code> -- recoverable directly from each group's own name by
+any reader, independent of HDF5 iteration order, library, or version.
+For a <code>ragged_segments</code> grid, file order is simply ascending
+order along the <code>grid</code> dimension's own index -- a plain array
+position assigned at write time, with no group-iteration-order ambiguity
+to guard against in the first place. Either way, how a reader actually
+uses that order to resolve a query point -- an early-exit linear scan, a
+precomputed sort, a spatial index, or anything else -- is an
+implementation detail this format doesn't constrain.
+<code>gridPriority</code> is never read or compared among root siblings,
+full stop, even where two root grids' extents genuinely overlap (see
+"Grid resolution within a layer" below). Each root grid is either a
+plain grid with no child grids -- which must carry no
+<code>gridPriority</code> at all -- or a <strong>nest root</strong>: a
+grid with one or more child grids, which must carry
+<code>gridPriority</code> exactly <code>0</code>.</p>
+<p>A nest root's entire descendant subtree -- however many levels deep a
+producer actually nests it -- must, flattened across every depth, carry
+<code>gridPriority</code> values forming exactly the consecutive set
+<code>{1, ..., n-1}</code> for <code>n-1</code> total descendants: no
+gaps, no duplicates, and every descendant requires a real, distinct
+value, including same-resolution siblings that merely touch along a
+shared edge or corner (adjacent same-resolution tiles of one
+adaptively-tiled region are required to carry identical node values
+along a shared edge, so any of them gives the identical
+bilinear-interpolation answer there regardless of which one a query
+resolves to -- but the value is still required, purely to keep the
+flattened set gapless and unambiguous). How many levels deep a producer
+chooses to nest that subtree is a writer-side implementation detail:
+from a reader's perspective, one nest root plus its flat,
+priority-ordered descendant list is the whole shape, and nothing needs
+to preserve deeper nesting once flattened. <code>uint8</code> is ample:
+<code>gridPriority</code>'s flattened set only ever spans one nest
+root's own descendant subtree, never a global ordering across the whole
+file, and getting anywhere near 255 descendants under one nest root
+would call for restructuring into a separate layer, not a wider
+field.</p>
+<p>See "Grid resolution within a layer" below for how a query point
+resolves through this structure.</p>
+<h4 id="consolidated-storage-for-ragged_segments-grids">Consolidated
+storage for ragged_segments grids</h4>
+<p>A <code>ragged_segments</code> grid's own
+<code>affineCoeffs</code>/<code>iNodeCount</code>/<code>jNodeCount</code>/<code>gridPriority</code>
+-- and the new <code>parent_grid_index</code> field that expresses
+child-grid nesting for this grid type (see above) -- are stored as
+layer-wide variables indexed by a <code>grid</code> dimension (length =
+the total grid count in this layer, at every nesting depth: there is no
+separate storage concept for nesting depth, only a derived relationship
+via <code>parent_grid_index</code>), rather than as attributes of one
+grid's own netCDF-4 subgroup the way a
+<code>scalar_with_time_function</code> grid stores them:</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>affineCoeffs</code></td>
+<td>variable</td>
+<td>float64</td>
+<td><code>(grid, 6)</code></td>
+<td>required</td>
+<td>as the table above, one row per grid</td>
+</tr>
+<tr>
+<td><code>iNodeCount</code></td>
+<td>variable</td>
+<td>uint32</td>
+<td><code>(grid,)</code></td>
+<td>required</td>
+<td>as the table above, one entry per grid</td>
+</tr>
+<tr>
+<td><code>jNodeCount</code></td>
+<td>variable</td>
+<td>uint32</td>
+<td><code>(grid,)</code></td>
+<td>required</td>
+<td>as the table above, one entry per grid</td>
+</tr>
+<tr>
+<td><code>gridPriority</code></td>
+<td>variable</td>
+<td>uint8</td>
+<td><code>(grid,)</code></td>
+<td>same requirement as the table above (forbidden on a childless root,
+required exactly <code>0</code> on a nest root, required forming the
+flattened <code>1..n-1</code> set on a nest root's own descendants) --
+meaningless and unread for a root grid, stored anyway rather than making
+this a sparse/optional array</td>
+<td>as the table above, one entry per grid</td>
+</tr>
+<tr>
+<td><code>parent_grid_index</code></td>
+<td>variable</td>
+<td>uint32</td>
+<td><code>(grid,)</code></td>
+<td>required</td>
+<td>the index, along <code>grid</code>, of this grid's own parent, or
+<code>4294967295</code> (<code>uint32</code>'s own max value) for a root
+grid</td>
+</tr>
+</tbody>
+</table>
+<p><code>0</code> doesn't work as <code>parent_grid_index</code>'s own
+root sentinel: grid index <code>0</code> is an ordinary, valid array
+position like any other, and if it happens to be a nest root, its own
+children need to store <code>parent_grid_index = 0</code> to point at it
+-- reusing <code>0</code> to also mean "no parent" would make a
+childless root at index <code>0</code> indistinguishable from a nest
+root's own child, silently misresolving. A sentinel must be a value no
+real grid index can ever take; <code>uint32</code>'s own max value does
+that while keeping this field unsigned like
+<code>iNodeCount</code>/<code>jNodeCount</code> above -- the same idiom
+this format already uses for "none" elsewhere
+(<code>missing_value</code>/<code>noDataFlag</code> =
+<code>2147483647</code>, <code>int32</code>'s own max, see "Parameters"
+above) -- rather than introducing this format's first signed index
+field.</p>
+<p>A reader builds one small in-memory index at file-open time -- parent
+grid index to the list of that parent's own child grid indices,
+<code>O(grid count)</code>, built once -- instead of relying on netCDF
+group nesting to express parent/child relationships; see "Grid
+resolution within a layer" below for how resolution walks this
+index.</p>
+<p><code>node_index</code> (<code>i * jNodeCount + j</code>, above) is
+local to one grid's own node range; see <code>grid_node_offset</code> in
+"Per-node ragged segment storage" below for how a
+<code>ragged_segments</code> grid's own slice of the layer-wide
+<code>node</code> dimension is found.</p>
+<h3 id="grid-resolution-within-a-layer">Grid resolution within a
+layer</h3>
+<p>A layer with more than one grid resolves to exactly one grid at any
+given query point: at the root level by plain first-match (see "Layers
+and grids" above), then recursively preferring the most deeply nested
+grid that still covers the query point via containment + priority
+(adapted from GGXF's own
+<code>childGrids</code>/<code>gridPriority</code> mechanism, see "What
+this format adopts from GGXF" above), so every point ends up using the
+highest-resolution grid available there, never a coarser one where a
+finer one exists.</p>
+<ol type="1">
+<li>Among the current set of sibling grids (a layer's own root grids, to
+start): <strong>at the root level</strong>, take the first one (in file
+order) whose extent -- computed from its own
+<code>affineCoeffs</code>/<code>iNodeCount</code>/<code>jNodeCount</code>,
+a pure containment check, no data read or interpolated yet -- contains
+the query point, without reading or comparing <code>gridPriority</code>
+at all, even where more than one root grid's extent contains the point.
+<strong>At every other level</strong> (resolving a nest root's own child
+grids, or a deeper descendant's own child grids --
+<code>child_grids</code> subgroups for a
+<code>scalar_with_time_function</code> grid,
+<code>parent_grid_index</code> lookups for a
+<code>ragged_segments</code> grid, see "Grid spatial indexing
+attributes" above), find every sibling whose extent contains the query
+point; if more than one does, take the one with the highest
+<code>gridPriority</code> (every genuine descendant carries a distinct
+value, guaranteed by construction -- see "Layers and grids" above).</li>
+<li>If none do, this layer contributes exactly 0 at this point. This
+covers both a point outside every root grid's own extent, and a point
+falling in a genuine coverage gap between siblings -- a quadrant
+discarded as empty at build time is simply never written to the file, so
+a gap needs no explicit masking of its own.</li>
+<li>Take that grid's own child grids as the new "current set of sibling
+grids" and repeat from step
+<ol type="1">
+<li>Recursion stops -- using whichever grid was selected the last time
+step 1 found a match -- once no child grid covers the point, including
+immediately for a grid with no children at all.</li>
+</ol></li>
+</ol>
+<p>The grid found this way is then evaluated exactly as described in
+"Query evaluation, end to end" below, according to its own
+<code>grid_type</code>. This resolution never depends on the query date
+-- which grid a point resolves to is fixed by location alone;
+terminal-node supersession (see "Terminal-node evaluation" below) is a
+separate, date-conditional check applied afterward, once a grid is
+already selected.</p>
+<h3 id="grid-type">Grid type</h3>
+<p><code>grid_type</code> (see "Layer attributes" above for its table
+entry) is <code>"scalar_with_time_function"</code> or
+<code>"ragged_segments"</code> -- unlike
+<code>function_type_{enu}</code> below (one value per segment, where a
+compact integer code is chosen instead, since there are many of them),
+there is no storage argument against a plain string here: one value per
+<em>layer</em>, not per grid or per segment.</p>
+<p>It is a per-layer attribute specifically, not a per-grid one, and
+every grid in that layer's own <code>grids</code>, at every nesting
+depth, is required to match it -- a layer cannot mix the two grid types.
+The two types already need incompatible layer attributes
+(<code>timeFunctions</code>/<code>gridParameters</code>, required only
+for <code>scalar_with_time_function</code>, vs.
+<code>reference_date</code>, required only for
+<code>ragged_segments</code> -- see "Layer attributes" above), so a
+mixed layer could never satisfy both grid types' own requirements at
+once regardless; this format makes that structural rather than leaving
+it to an unenforced convention. A string rather than a boolean, still,
+leaving room for a future third grid type without changing the field's
+own type.</p>
+<p>"ragged segments" is technically a strict superset of "scalar with
+time function" (nothing stops every node sharing one time series from
+instead holding its own duplicated, pre-scaled copy of it), but that
+would needlessly pay the storage cost of per-node independent timing
+(requirement 1) everywhere, including the many grids that never need
+it.</p>
+<p>"scalar with time function" adopts GGXF's own
+<code>timeFunctions</code>/<code>gridParameters</code> mechanism
+directly (see "Per-grid time function storage" below), since every node
+in such a grid genuinely shares one time function -- exactly the case
+GGXF, the LINZDEF format, and PROJ's <code>defmodel</code> all
+already handle. "ragged segments" keeps this format's own storage
+mechanism instead -- not because its underlying composition semantics
+differ from GGXF's own summation (they don't, see "What this format
+adopts from GGXF" and "Where this format departs from GGXF, and why"
+above), but because GGXF's own mechanism would need to retain every
+historical contribution explicitly to keep summing them, growing without
+bound as a node accumulates real breakpoints; this format instead caches
+their combined effect once, per segment (see "Per-node ragged segment
+storage" below).</p>
+<h4 id="ggxf-time-function-shapes">GGXF time function shapes</h4>
+<p>The nine <code>functionType</code> shapes below are GGXF's own named
+time functions, transcribed here (from GGXF's public reference
+implementation, <a
+href="https://github.com/opengeospatial/CRS-Gridded-Geodetic-data-eXchange-Format"><code>opengeospatial/CRS-Gridded-Geodetic-data-eXchange-Format</code></a>)
+for a byte-level reader's convenience. GGXF's own specification and
+reference implementation are the authoritative source for these formulas
+-- any divergence between this table's own <code>refFunc(Δ)</code>
+formulas and <code>Requires</code> columns and GGXF's own behaviour is
+an error in this document, not a deliberate departure, and should be
+corrected to match GGXF exactly, not the other way round. This authority
+applies to the <em>shapes themselves</em> only -- what unit
+<code>Δ</code> itself is measured in is a separate matter, and this
+format <em>does</em> deliberately depart from GGXF there, uniformly
+across every shape and both grid types (see "Where this format departs
+from GGXF, and why" above).</p>
+<p>Every shape below is evaluated relative to its own required date
+parameter -- see the <code>Requires</code> column -- scaled by its own
+<code>scaleFactor</code>; written <code>Δ</code> below, meaning "the
+real day-count difference between the query date and that parameter's
+own date." <code>Δ</code> is always in <strong>days</strong> here -- not
+GGXF's own years, see "Where this format departs from GGXF, and why"
+above for why -- and this applies uniformly to all nine shapes below,
+not just <code>linear</code>. <code>timeConstant</code>
+(<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>hyperbolicTangent</code>)
+and <code>frequency</code> (<code>cyclic</code>) are only ever combined
+with <code>Δ</code> by division or multiplication, so they are
+days-denominated here for the same reason, keeping every ratio
+unitless.</p>
+<p><code>eventDate</code> names the moment
+<code>step</code>/<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>hyperbolicTangent</code>
+are each centred on -- their own required <code>Δ = 0</code> point (a
+discrete jump for <code>step</code>, a decay/transition's own start for
+the other four).</p>
+<p><code>functionReferenceDate</code> is a separate, independently
+optional parameter on every shape, not only the three that require it
+below -- independent of whatever <code>Requires</code> lists (including
+<code>eventDate</code> where a shape has one), supplying it activates
+GGXF's own zeroing subtraction
+(<code>refFunc(Δ) − refFunc(Δ_ref)</code>, where <code>Δ_ref</code> is
+<code>Δ</code> evaluated at <code>functionReferenceDate</code> itself,
+in place of <code>refFunc(Δ)</code> alone) -- it only ever affects where
+the output is pinned to zero, never where a shape's own transition
+happens, which stays fixed at its <code>Requires</code> date(s)
+regardless.</p>
+<p><code>startDate</code> is additionally optional on
+<code>linear</code> alone (see "Time functions" above), and must equal
+<code>functionReferenceDate</code> when present -- since <code>Δ</code>
+is already <code>(query date) − functionReferenceDate</code>, this makes
+<code>(query date) &lt; startDate</code> and <code>Δ &lt; 0</code> the
+same condition, so <code>linear</code>'s own row below states the
+delayed-onset case directly in terms of <code>Δ</code>, with no separate
+mechanism to define. Omitting <code>startDate</code> entirely keeps
+<code>linear</code> unbounded in both directions, reproducing the
+existing model's own <code>velocity</code> behaviour exactly (see
+"Per-grid time function storage" below).</p>
+<p>A layer's own <code>timeFunctions.&lt;n&gt;</code>'s own
+reference/event dates (shared by every
+<code>scalar_with_time_function</code> grid nested within it) are stored
+as ISO-8601 date-time strings, the same real encoding GGXF itself uses
+(see "Layer attributes" above) -- but a reader computes <code>Δ</code>
+from them as the real day-count difference between the two dates
+involved (see "Query evaluation, end to end" below), not via GGXF's own
+<code>DateToEpoch</code> algorithm, per "Where this format departs from
+GGXF, and why" above.</p>
+<p><code>ragged_segments</code> is this format's own departure from GGXF
+in a second, independent respect (see "Segment record" and "Per-node
+ragged segment storage" below for why this storage mechanism exists at
+all): its own <code>reference_day</code>/<code>day_delta</code> are
+already stored as day counts, so computing <code>Δ</code> for a ragged
+segment needs no conversion at all here -- it <em>is</em> that stored
+day-count difference directly, with <code>segment_scale_factor</code>
+itself days-denominated for the same reason as <code>linear</code> above
+(see "Numeric ranges" below for its own scale).</p>
+<p>The <code>Code</code> column is this format's own compact
+<code>uint8</code> encoding, used only by
+<code>function_type_{enu}</code> ("Per-node ragged segment storage"
+below), where per-segment cardinality makes a string wasteful; a layer's
+own <code>timeFunctions.&lt;n&gt;.functionType</code> declares GGXF's
+own literal string value directly (see "Layer attributes" above), since
+that is a per-layer, not per-segment, attribute, and the cardinality
+argument for a compact code doesn't apply there.</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Code</td>
+<td><code>functionType</code></td>
+<td>Requires</td>
+<td><code>refFunc(Δ)</code></td>
+<td>Shape</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>linear</code></td>
+<td><code>functionReferenceDate</code></td>
+<td><code>0</code> if <code>startDate</code> is present and
+<code>Δ &lt; 0</code>; <code>Δ</code> otherwise</td>
+<td>unbounded rate through zero, or delayed onset if
+<code>startDate</code> is present</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>step</code></td>
+<td><code>eventDate</code></td>
+<td><code>1</code> if <code>Δ ≥ 0</code> else <code>0</code></td>
+<td>instantaneous jump</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>ramp</code></td>
+<td><code>startDate</code>, <code>endDate</code></td>
+<td><code>0</code> if <code>Δ &lt; 0</code>; <code>Δ/Δ_end</code> if
+<code>0 ≤ Δ &lt; Δ_end</code>; <code>1</code> if <code>Δ ≥ Δ_end</code>
+(<code>Δ</code> from <code>startDate</code>, <code>Δ_end</code> =
+<code>endDate − startDate</code>, both in days)</td>
+<td>bounded transition</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td><code>quadratic</code></td>
+<td><code>functionReferenceDate</code></td>
+<td><code>Δ²</code></td>
+<td>unbounded, accelerating</td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td><code>exponential</code></td>
+<td><code>eventDate</code>, <code>timeConstant</code></td>
+<td><code>0</code> if <code>Δ &lt; 0</code>;
+<code>1 − exp(−Δ/timeConstant)</code> otherwise</td>
+<td>asymptotic rise to <code>1</code></td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td><code>logBaseE</code></td>
+<td><code>eventDate</code>, <code>timeConstant</code></td>
+<td><code>0</code> if <code>Δ &lt; 0</code>;
+<code>ln(1 + Δ/timeConstant)</code> otherwise</td>
+<td>unbounded, decelerating growth</td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td><code>logBase10</code></td>
+<td><code>eventDate</code>, <code>timeConstant</code></td>
+<td>same, base-10 log</td>
+<td>unbounded, decelerating growth</td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td><code>cyclic</code></td>
+<td><code>functionReferenceDate</code>, <code>frequency</code></td>
+<td><code>sin(frequency · Δ · 2π)</code></td>
+<td>periodic oscillation</td>
+</tr>
+<tr>
+<td><code>8</code></td>
+<td><code>hyperbolicTangent</code></td>
+<td><code>eventDate</code>, <code>timeConstant</code></td>
+<td><code>(1 + tanh(Δ/timeConstant)) / 2</code></td>
+<td>S-curve, <code>0</code> to <code>1</code></td>
+</tr>
+</tbody>
+</table>
+<p>All nine shapes are available to both
+<code>function_type_{enu}</code> (<code>ragged_segments</code>, see
+"Per-node ragged segment storage" below) and a layer's own
+<code>timeFunctions.&lt;n&gt;.functionType</code>
+(<code>scalar_with_time_function</code>, see "Layer attributes"
+above).</p>
+<h4 id="per-grid-time-function-storage">Per-grid time function
+storage</h4>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>displacement</code></td>
+<td>variable</td>
+<td>int32</td>
+<td><code>(iNodeCount, jNodeCount, displacementCount)</code></td>
+<td>required</td>
+<td>raw per-node, per-parameter magnitude/direction coefficient</td>
+</tr>
+<tr>
+<td><code>scale_factor</code></td>
+<td>attribute</td>
+<td>float64</td>
+<td>scalar</td>
+<td>required</td>
+<td>real-valued unit one raw <code>displacement</code> count represents
+for this grid</td>
+</tr>
+<tr>
+<td><code>missing_value</code></td>
+<td>attribute</td>
+<td>int32</td>
+<td>scalar</td>
+<td>optional</td>
+<td>the raw stored value, if any, that marks an individual node's own
+value for one parameter as no data -- standard netCDF/CF convention, see
+"Parameters" above for how this differs from
+<code>gridParameters</code></td>
+</tr>
+<tr>
+<td><code>has_end_day</code></td>
+<td>variable</td>
+<td>uint8 (0 = false, 1 = true)</td>
+<td>length 1</td>
+<td>optional</td>
+<td>whether this grid's contribution has an explicit end (see
+"Terminal-node evaluation" below)</td>
+</tr>
+<tr>
+<td><code>own_end_date</code></td>
+<td>attribute</td>
+<td>string</td>
+<td>scalar</td>
+<td>required iff <code>has_end_day</code> is true</td>
+<td>ISO-8601 date-time at which the grid's contribution ends -- GGXF's
+own date-string encoding (see "GGXF time function shapes" above), not a
+day count</td>
+</tr>
+</tbody>
+</table>
+<p>An ordinary grid of scalar values (one per parameter this layer's own
+<code>gridParameters</code> declares -- see "Layer attributes" above),
+scaled by the <em>sum</em> of its own layer's <code>timeFunctions</code>
+entries evaluated at the query time (<code>timeFunctions</code> is
+declared once per layer, not per grid) -- adopting GGXF's own
+<code>timeFunctions</code>/<code>CompoundTimeFunction</code> mechanism
+directly (see "What this format adopts from GGXF" above). Covers every
+component that does not need per-node time variation (the
+secular/plate-motion grid, and any simple historical patch whose
+behaviour is uniform across its own footprint).</p>
+<p>Every node's own magnitude/direction coefficients, across every
+parameter this layer's grids carry, are packed into one
+<strong><code>displacement</code></strong> vector variable -- GGXF's own
+convention (§6.3.5.1) for parameters sharing one
+<code>parameterSet</code> (see "Parameters" above:
+<code>displacementEast</code>, <code>displacementNorth</code> and
+<code>displacementUp</code> all share
+<code>parameterSet = "displacement"</code>, hence the variable's own
+name). <code>displacementCount</code> (2 or 3,
+per this layer's own <code>gridParameters</code>) is GGXF's own
+dimension naming convention, <code>f"{parameterSet}Count"</code>.
+Indexed the same way as every other per-node array for its own
+<code>(i, j)</code> dimensions (see "Grid spatial indexing attributes"
+below for the shared <code>(i, j)</code> -&gt; <code>node_index</code>
+mapping); its own third dimension is which parameter, in this layer's
+own <code>gridParameters</code> order.</p>
+<p>Each grid also carries its own
+<strong><code>scale_factor</code></strong> attribute -- GGXF's own
+standard netCDF packing convention (§6.3.5.4, as implemented by
+GGXF's reference writer, the <code>Writer</code> class in
+<code>NetCDF.py</code>, in its own <code>variableAttributes</code>
+method): the
+real-valued unit one raw <code>displacement</code> count represents for
+that specific grid, chosen at generation time to suit that grid's own
+value range and required precision; no <code>add_offset</code> is needed
+alongside it, since this format's own values are symmetric around zero.
+GGXF itself leaves packing optional, a per-file writer's choice: its own
+test data includes both a packed example (<code>def_packed.cdl</code>,
+<code>int16</code> + <code>scale_factor</code>) and an unpacked one
+(<code>deformation.cdl</code>, plain <code>float32</code>, no
+<code>scale_factor</code>), produced by the same reference tool. This
+format makes packing mandatory instead -- <code>displacement</code> is
+always <code>int32</code> with a <code>scale_factor</code>, never plain
+float -- rather than leaving that choice open the way GGXF itself does.
+Nothing in this format's own schema needs to know whether a given grid's
+own <code>displacement</code> values represent a literal rate or a
+dimensionless multiplier on its layer's own summed time functions --
+that choice belongs entirely to whatever tool generates the grid, and is
+never read or interpreted at query time beyond "raw stored integer times
+this attribute."</p>
+<p>This layer's own time-varying behaviour, shared by every
+<code>scalar_with_time_function</code> grid nested within it, is
+<code>timeFunctions</code> (see "Time functions" above), adopting GGXF's
+own named-shape mechanism directly (see "GGXF time function shapes"
+above). The existing model's own three real component shapes map onto it
+exactly: <code>velocity</code> -&gt; a single <code>linear</code> entry
+with no bound, extrapolating in both directions forever;
+<code>step</code> -&gt; a single <code>step</code> entry;
+<code>ramp</code> -&gt; a single <code>ramp</code> entry. A
+<code>linear</code> entry whose own <code>startDate</code> equals its
+own <code>functionReferenceDate</code> instead contributes exactly zero
+before that date (see "GGXF time function shapes" above), reproducing a
+delayed-onset velocity -- not needed by any real existing component, but
+representable directly. A real patch needing more than one physical
+contribution summed maps onto more than one entry -- the Dusky Sound
+earthquake (coseismic step plus postseismic decay) is exactly this,
+matching GGXF's own published encoding of that same event:
+<code>timeFunctions.count = 2</code>, two summed <code>ramp</code>
+entries, one zero-width (degenerating to a step). No component of the
+existing NZGD2000 deformation model data needs a shape outside
+<code>velocity</code>/<code>step</code>/<code>ramp</code> -- the other
+six shapes in "GGXF time function shapes" above are declarable but
+currently unused.</p>
+<p><code>has_end_day</code>/<code>own_end_date</code> (see
+"Terminal-node evaluation" below) exist here too, but as a single
+<strong>grid-wide</strong> pair, not per-node -- there is only one
+shared time series to end. Setting them therefore ends the grid's
+contribution everywhere at once; there is no way to end it over only
+part of the grid's own footprint. This matches how the LINZDEF
+format already works: its only revocation mechanism retires
+an entire named component as of a version, never a footprint within one
+-- so this is not a reduction in capability relative to what exists
+today, only a name for behaviour that format already has. A footprint
+narrower than a grid's own full extent that genuinely needs its own
+independent end date has to be its own separate, smaller grid (via "Grid
+resolution within a layer" above) or a "ragged segments" grid, either of
+which supports it directly.</p>
+<p><code>has_end_day</code> is stored as a length-1 dataset (variable),
+not a netCDF attribute -- for consistency: the identically-named field
+is already a per-node <em>dataset</em> on "ragged segments" (see
+"Per-node ragged segment storage" below), so storing it as an attribute
+here would force a reader to have two different read mechanisms for the
+same field name depending on a grid's own <code>grid_type</code>.
+<code>own_end_date</code>, by contrast, is deliberately a
+<em>different</em> field from "ragged segments"' own
+<code>own_end_day</code> -- not just a different value, a different name
+and a different representation (an ISO-8601 date-time attribute here,
+versus a per-node day-count array there) -- because the two have
+genuinely different cardinality: one value per grid here, one value per
+node there. A reader already has to know a grid's own
+<code>grid_type</code> before it knows <em>which field name</em> to look
+for at all, so there is no "two mechanisms, one name" ambiguity to avoid
+here the way there is for <code>has_end_day</code>.</p>
+<h4 id="segment-record">Segment record</h4>
+<p>Applies only to <code>ragged_segments</code> grids --
+<code>scalar_with_time_function</code> grids do not use this record type
+at all, see "Per-grid time function storage" above.</p>
+<p>One segment record (compound type, 8 bytes, no padding):</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Field</td>
+<td>Type</td>
+<td>Byte offset</td>
+<td>Scale</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>segment_start_value</code></td>
+<td><code>int32</code></td>
+<td>0</td>
+<td>0.01 mm/unit</td>
+<td>The node's total accumulated displacement, exactly at this segment's
+own start date.</td>
+</tr>
+<tr>
+<td><code>day_delta</code></td>
+<td><code>uint16</code></td>
+<td>4</td>
+<td>1 day/unit</td>
+<td>Days after this node's own <code>reference_day</code>.</td>
+</tr>
+<tr>
+<td><code>segment_scale_factor</code></td>
+<td><code>int16</code></td>
+<td>6</td>
+<td>depends on <code>function_type_{enu}</code> (see below)</td>
+<td>This segment's own named shape's <code>scaleFactor</code> (see "GGXF
+time function shapes" above, and this segment's own entry in
+<code>function_type_{enu}</code>, "Per-node ragged segment storage"
+below) -- for <code>linear</code>, this is exactly the rate of
+displacement change starting at this segment's own start date,
+continuing until the next segment (or indefinitely, for the last
+one).</td>
+</tr>
+</tbody>
+</table>
+<p><code>segment_scale_factor</code>'s own scale varies by that record's
+own paired <code>function_type_{enu}</code> entry, mirroring how
+<code>displacement</code>/<code>scale_factor</code> (see "Per-grid time
+function storage" above) lets each grid state its own real-valued unit
+rather than fixing one universally: <code>refFunc(Δ)</code> itself is
+dimensionless or bounded for seven of the nine shapes
+(<code>step</code>/<code>ramp</code>/<code>exponential</code>/
+<code>logBaseE</code>/<code>logBase10</code>/<code>cyclic</code>/<code>hyperbolicTangent</code>,
+see "GGXF time function shapes" above), so
+<code>segment_scale_factor</code> there is a plain amplitude,
+<code>0.01 mm/unit</code> -- the same scale
+<code>segment_start_value</code> already uses. <code>linear</code>'s own
+<code>refFunc(Δ) = Δ</code> is a rate, and <code>Δ</code> here is a day
+count (see "GGXF time function shapes" above), so its
+<code>segment_scale_factor</code> is
+<code>0.01/365.2425 mm/day/unit</code> (see "Numeric ranges" below for
+why this specific granularity). <code>quadratic</code>'s own
+<code>refFunc(Δ) = Δ²</code> needs <code>segment_scale_factor</code> in
+<code>(0.01/365.2425) mm/day²/unit</code> to keep the product
+dimensionally a displacement. This is a metadata-free convention, not a
+stored attribute -- exactly as <code>scaleFactor</code>'s own units
+already vary silently by <code>functionType</code> on the GGXF/scalar
+side too (see "Per-grid time function storage" above), a reader is
+expected to already know a segment's own
+<code>function_type_{enu}</code> before reading
+<code>segment_scale_factor</code>, so no separate unit field is needed
+here either.</p>
+<p>(Field order matters for byte alignment: the 4-byte field is placed
+first so it lands on an offset that is a multiple of 4 in every record,
+and since the whole record is 8 bytes -- itself a multiple of 4 -- this
+alignment holds consistently across the entire flat array.)</p>
+<p><strong>Each segment is equivalent to GGXF's own value =
+spatial-value × time-function model, shrunk to one point</strong>:
+<code>segment_start_value</code> plays the role of a trivial (one-node)
+spatial value, and this segment's own <code>function_type_{enu}</code>
+entry together with <code>segment_scale_factor</code> play the role of
+one named GGXF time function scaling it -- except
+<code>segment_start_value</code> is added plainly, after that time
+function evaluates, rather than forced through it. A single named
+function alone cannot carry an arbitrary nonzero starting value, only a
+shape relative to its own zero point -- and GGXF's own zeroing
+subtraction (<code>refFunc(Δ) - refFunc(functionReferenceEpoch)</code>)
+only fires when a <code>functionReferenceEpoch</code> is actually
+supplied; left absent, <code>step</code>'s value at <code>Δ = 0</code>
+is <code>1</code>, not <code>0</code>, and
+<code>hyperbolicTangent</code>'s is <code>0.5</code> (see "GGXF time
+function shapes" above). Every ragged segment supplies one implicitly:
+its own start day, always. So each segment's own evaluation is
+<code>segment_start_value + segment_scale_factor * (refFunc(Δ) - refFunc(0))</code>
+(see "Query evaluation, end to end" below), guaranteeing
+<code>segment_start_value</code> is exactly the value at this segment's
+own start day for every shape uniformly, not by relying on that being
+naturally true for seven of the nine and false for the other two.
+Composition <em>across</em> segments (finding the one currently-active
+segment for a node's own query time) stays this format's own selection
+mechanism, unrelated to this per-segment equivalence -- see the design
+note in "Per-node ragged segment storage" below for why GGXF's own
+summation-based composition does not transfer to that part.</p>
+<p>Two fields that might seem obviously necessary are deliberately
+<em>not</em> included: an instantaneous "jump" size, and a raw "change
+in slope" delta at each segment. Both were considered and dropped: the
+evaluation procedure below never needs either one (only
+<code>segment_start_value</code>, <code>day_delta</code>, and
+<code>segment_scale_factor</code> are read), and both are exactly,
+losslessly recoverable by subtracting two adjacent records' own
+<code>segment_start_value</code>/<code>segment_scale_factor</code> if
+any future tool genuinely needs them.</p>
+<h4 id="per-node-ragged-segment-storage">Per-node ragged segment
+storage</h4>
+<p>"ragged segments", by contrast, is a grid whose "value" at each node
+is not a single number but a reference into a shared, layer-wide flat
+array of per-node time-series records. Has no grid-wide time function at
+all -- each node's own timing is fully described by its own records.</p>
+<p>A node's own East/North[/Up] components share the same data span (the
+same underlying acquisitions feed all of them) and the same termination,
+if any (a location either continues to be modelled here or a newer
+source takes over there -- not an axis-specific fact). What genuinely
+differs per component is the fitted piecewise curve itself: East's own
+breakpoints, their count, and their values are generally different from
+North's or Up's, even within that same shared span. So
+<code>reference_day</code>/<code>has_end_day</code>/<code>own_end_day</code>
+below are each one shared array per node, while
+<code>segment_count_{enu}</code>/<code>segments_{enu}</code> are each
+one independent array <em>per component</em> (see "Format specification"
+above for the <code>_{enu}</code> notation).</p>
+<p>Every field below is a <em>layer-wide</em> array: <code>N</code> here
+is the total node count across every grid in this layer, at every
+nesting depth (<code>sum(iNodeCount * jNodeCount)</code> over all of
+them -- see "Consolidated storage for ragged_segments grids" above), not
+one grid's own node count alone. <code>grid_node_offset</code> -- grid
+<code>g</code>'s own slice into this shared <code>N</code>-length space,
+<code>[grid_node_offset[g] : grid_node_offset[g+1]]</code> -- is
+<strong>not</strong> a stored field: unlike
+<code>segment_count_{enu}</code> below (which has no other source, so it
+must be stored for its own offsets to be reconstructed from), a grid's
+own node count is already fully determined by that grid's own
+<code>iNodeCount * jNodeCount</code> ("Consolidated storage for
+ragged_segments grids" above), so storing a second, derived array on top
+would only duplicate it. A reader instead reconstructs
+<code>grid_node_offset</code> the same way it already reconstructs
+<code>segment_count_{enu}</code>'s own offsets below -- a one-time
+cumulative sum over <code>grid</code>, <code>O(grid count)</code>, when
+the file is opened -- except summing
+<code>iNodeCount * jNodeCount</code> instead of a stored count:</p>
+<pre><code>grid_node_offset[0] = 0
+grid_node_offset[g] = sum(iNodeCount[0..g-1] * jNodeCount[0..g-1])   for g &gt; 0</code></pre>
+<p><code>grid_node_offset[grid count]</code> (the array's own final
+entry) equals <code>N</code> exactly -- the same total, computed by the
+same sum. A grid's own local <code>node_index</code>
+(<code>i * jNodeCount + j</code>, "Grid spatial indexing attributes"
+above) becomes <code>grid_node_offset[g] + node_index</code> -- its own
+absolute position within <code>N</code> -- when used to index into any
+field below; every field otherwise keeps exactly the shape and meaning
+described here.</p>
+<table class="NormalTable">
+<tbody>
+<tr class="TableHeader">
+<td>Name</td>
+<td>Kind</td>
+<td>dtype</td>
+<td>Shape</td>
+<td>Required</td>
+<td>Meaning</td>
+</tr>
+<tr>
+<td><code>segment_count_e</code>/<code>segment_count_n</code>[/<code>segment_count_u</code>]</td>
+<td>variable</td>
+<td>uint16</td>
+<td>length <code>N</code></td>
+<td>required, one per component</td>
+<td>for each node: the number of segment records belonging to it, for
+this component</td>
+</tr>
+<tr>
+<td><code>reference_day</code></td>
+<td>variable</td>
+<td>uint32</td>
+<td>length <code>N</code></td>
+<td>required</td>
+<td>for each node: day count from that layer's own
+<code>reference_date</code> to its own first segment's start date --
+shared across every component</td>
+</tr>
+<tr>
+<td><code>has_end_day</code></td>
+<td>variable</td>
+<td>uint8 (0 = false, 1 = true)</td>
+<td>length <code>N</code></td>
+<td>optional</td>
+<td>for each node: whether its own final segment has an explicit end
+date -- shared across every component (see "Terminal-node evaluation"
+below)</td>
+</tr>
+<tr>
+<td><code>own_end_day</code></td>
+<td>variable</td>
+<td>uint16</td>
+<td>length <code>N</code></td>
+<td>required iff <code>has_end_day</code> is true</td>
+<td>for each node: day count after <code>reference_day</code> at which
+its motion is expected to have subsided -- shared across every
+component</td>
+</tr>
+<tr>
+<td><code>segments_e</code>/<code>segments_n</code>[/<code>segments_u</code>]</td>
+<td>variable, <a href="#compound-type">compound-type</a> flat array</td>
+<td>compound (see "Segment record" above)</td>
+<td>length <code>sum(segment_count_{enu})</code></td>
+<td>required, one per component</td>
+<td>every node's own segment records for this component, concatenated in
+the same order as reconstructed by <code>node_index</code></td>
+</tr>
+<tr>
+<td><code>function_type_e</code>/<code>function_type_n</code>[/<code>function_type_u</code>]</td>
+<td>variable</td>
+<td>uint8</td>
+<td>length <code>sum(segment_count_{enu})</code></td>
+<td>required, one per component</td>
+<td>each segment's own named shape (see "GGXF time function shapes"
+above), one entry per record in <code>segments_{enu}</code>, same
+order</td>
+</tr>
+<tr>
+<td><code>segment_ramp_end_delta_e</code>/<code>segment_ramp_end_delta_n</code>[/<code>segment_ramp_end_delta_u</code>]</td>
+<td>variable</td>
+<td>uint16</td>
+<td>length = count of <code>ramp</code>-coded entries in that
+component's own <code>function_type_{enu}</code></td>
+<td>required, one per <code>ramp</code>-typed segment, absent
+otherwise</td>
+<td>for each <code>ramp</code>-typed segment, in the same relative order
+it appears in
+<code>segments_{enu}</code>/<code>function_type_{enu}</code>: day count
+after that segment's own <code>day_delta</code> at which its own rise to
+<code>1</code> completes</td>
+</tr>
+<tr>
+<td><code>segment_time_param_e</code>/<code>segment_time_param_n</code>[/<code>segment_time_param_u</code>]</td>
+<td>variable</td>
+<td>float64</td>
+<td>length = count of
+<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>cyclic</code>/<code>hyperbolicTangent</code>-coded
+entries in that component's own <code>function_type_{enu}</code></td>
+<td>required, one per such segment, absent otherwise</td>
+<td>for each such segment, in the same relative order it appears in
+<code>segments_{enu}</code>/<code>function_type_{enu}</code>: that
+segment's own <code>timeConstant</code> (four shapes) or
+<code>frequency</code> (<code>cyclic</code>), whichever its own
+<code>function_type_{enu}</code> requires (see "GGXF time function
+shapes" above)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p><code>segment_count_{enu}</code>: a node could in principle need
+up to 253 segments (one baseline segment, plus up to 252 break events
+assuming one slope-change and one step per year) across this format's
+design lifetime -- currently set as 2000-2026 plus another 100 years --
+see "Numeric ranges" below -- and <code>uint8</code>'s maximum of 255
+would leave too little headroom, hence <code>uint16</code>.</p></li>
+<li><p>A node with <code>segment_count_{enu} = 0</code> for every
+component has no real data at all -- e.g. a lattice position that falls
+inside a grid's own rectangular extent without a real underlying fit. It
+contributes exactly 0 at every query date for every component (see
+"Query evaluation, end to end" below); <code>reference_day</code> still
+has to hold some stored value regardless (it's a per-node array with no
+way to omit one node), but since nothing ever reads it when every one of
+that node's own <code>segment_count_{enu}</code> is 0, its value is
+unconstrained -- a writer may store 0.</p></li>
+<li><p><code>reference_day</code>: every date within this node's own
+segment records, for any component, is expressed relative to this one
+shared value, not directly to that layer's own
+<code>reference_date</code> (see "Layer attributes" above).
+<code>reference_date</code> being a per-layer, not a per-node, value
+does not make <code>reference_day</code> redundant:
+<code>reference_date</code> is one value shared by an entire layer,
+however far in the past a writer picks it, while
+<code>reference_day</code> is a further per-<em>node</em> zero-point
+that keeps <code>day_delta</code>/<code>own_end_day</code> (both
+<code>uint16</code>, see "Numeric ranges" below) cheap regardless of how
+distant that layer's own <code>reference_date</code> is -- exactly the
+same reasoning "Numeric ranges" below already gives for widening
+<code>reference_day</code> itself to <code>uint32</code> while leaving
+<code>day_delta</code>/<code>own_end_day</code> at <code>uint16</code>.
+Dropping <code>reference_day</code> and measuring
+<code>day_delta</code>/<code>own_end_day</code> straight from
+<code>reference_date</code> would force those two fields wider too, to
+cover the same distant-<code>reference_date</code> case -- so
+<code>reference_day</code> earns its keep independent of where
+<code>reference_date</code> itself lives.</p></li>
+<li><p><code>has_end_day</code>: absent by default.</p></li>
+<li><p><code>own_end_day</code>: ignored where <code>has_end_day</code>
+is false.</p></li>
+<li><p><code>segments_{enu}</code>: each node's own records for this
+component sorted by date ascending. Node <code>node_index</code>'s own
+slice is
+<code>segments_{enu}[offset : offset + segment_count_{enu}[node_index]]</code>,
+where <code>offset</code> is the sum of <code>segment_count_{enu}</code>
+for every node before it (the standard <a href="#csr">CSR</a>
+(Compressed Sparse Row)/ragged-array offset reconstruction -- not stored
+directly, computed once per component from its own
+<code>segment_count_{enu}</code>, when the file is opened).</p>
+<p><code>segment_count_{enu}</code> stores counts rather than offsets
+deliberately, matching <a href="#cf">CF</a>'s own documented ragged
+array representation. Each component's own <code>offset</code> is
+reconstructed from its own <code>segment_count_{enu}</code> as</p>
+<pre><code>offset[0] = 0
+offset[n] = sum(segment_count[0..n-1])   for n &gt; 0</code></pre>
+<p>i.e. each node's own starting position is the running total of every
+earlier node's own count, not including its own -- a plain (unshifted)
+cumulative sum would instead give each node's own <em>ending</em>
+position, one past the end of its own slice. This reconstruction is a
+one-time O(<code>N</code>) pass per component when the file is opened,
+not a per-query cost.</p></li>
+<li><p><code>function_type_{enu}</code>: walks in lockstep with
+<code>segments_{enu}</code> -- same length, same per-node slice via the
+same <code>segment_count_{enu}</code>-derived offsets above, no separate
+indexing of its own. <code>function_type_{enu}[offset + i]</code> is the
+named shape for <code>segments_{enu}[offset + i]</code>.</p></li>
+<li><p><code>segment_ramp_end_delta_{enu}</code>/<code>segment_time_param_{enu}</code>:
+sparse, and discriminated by <code>function_type_{enu}</code> rather
+than by node -- the same CSR-style trick
+<code>segment_count_{enu}</code> above already uses to avoid storing
+offsets directly, just keyed by a segment's own type instead of by which
+node it belongs to.
+<code>linear</code>/<code>step</code>/<code>quadratic</code> need
+neither array at all: <code>refFunc(Δ)</code> for all three is fully
+determined by <code>Δ</code> and <code>segment_scale_factor</code> alone
+(see "GGXF time function shapes" above), so those segments never consume
+an entry from either one, and a file with no other shape declares both
+arrays at length 0. A reader reconstructs each segment's own direct
+offset into whichever sparse array applies (or "none") once per
+component, when the file is opened, by walking
+<code>function_type_{enu}</code> in its existing order and consuming the
+next unused entry of <code>segment_ramp_end_delta_{enu}</code> on every
+<code>ramp</code> code, or of <code>segment_time_param_{enu}</code> on
+every
+<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>cyclic</code>/<code>hyperbolicTangent</code>
+code -- an O(<code>sum(segment_count_{enu})</code>) pass per component,
+the same cost class as the existing <code>segment_count_{enu}</code>
+offset reconstruction above, not a per-query cost. This mirrors how a
+base class's common fields relate to a derived class's own extra field
+stored out-of-line: every segment always carries
+<code>segment_start_value</code>/<code>day_delta</code>/<code>segment_scale_factor</code>/
+<code>function_type_{enu}</code> (its "base" fields, see "Segment
+record" above), and only a segment whose own type genuinely needs more
+pays for the extra value, discriminated by that same type tag it already
+carries.</p></li>
+</ul>
+<p>See "Segment record" above for the compound type each record in
+<code>segments_{enu}</code> holds
+(<code>segment_start_value</code>/<code>day_delta</code>/<code>segment_scale_factor</code>),
+"GGXF time function shapes" above for what each record's own paired
+<code>function_type_{enu}</code> entry means, and
+<code>segment_ramp_end_delta_{enu}</code>/<code>segment_time_param_{enu}</code>
+above for the one extra parameter six of those nine shapes need beyond
+what "Segment record" above stores.</p>
+<p>At query time, exactly one segment is found (via the count/offset
+lookup above) and evaluated -- no other segment is touched. This is
+mathematically equivalent to GGXF's own
+<code>CompoundTimeFunction</code>, not a different rule: each earlier
+segment can be thought of as its own term that contributes its own local
+growth while active, then freezes at its own completed value forever
+after -- exactly GGXF's <code>endEpoch</code>-clamp behaviour, which
+matches this format's own
+<code>has_end_day</code>/<code>own_end_day</code> semantics. Summing
+every such frozen earlier term at any later time gives a constant, and
+that constant is exactly <code>segment_start_value</code>, computed once
+when the record is written rather than summed live at every query. Only
+the <em>currently active</em> segment's own term is still genuinely
+time-varying, so only it needs evaluating live; every earlier one has
+already collapsed into the single cached number
+<code>segment_start_value</code> carries. Doing this live -- walking and
+summing a growing list of terms as a node accumulates real breakpoints,
+up to 252 in the worst case (above) -- would violate requirement 2;
+caching the sum in advance is what keeps this an O(1) lookup, not a
+different composition rule.</p>
+<h4
+id="terminal-node-evaluation-what-happens-after-a-nodes-own-last-segment">Terminal-node
+evaluation (what happens after a node's own last segment)</h4>
+<p>A node's final segment -- its own last (most recent) one, for "ragged
+segments", or the sum of its own layer's <code>timeFunctions</code>, for
+"scalar with time function" -- continues to apply indefinitely into the
+future <strong>by default</strong>, there is no implicit assumption that
+motion stops or slows down. It stops being extrapolated only where
+<code>has_end_day</code> is true and the query point in time is past
+that grid's own end point -- for "scalar with time function" grids,
+<code>own_end_date</code>, an ISO-8601 date compared directly against
+the query's own date (see "Per-grid time function storage" above); for
+"ragged segments" grids, <code>reference_day + own_end_day</code>, a day
+count compared against <code>query_day</code> in that layer's own
+<code>reference_date</code>-relative unit (see "Per-node ragged segment
+storage" above and "Query evaluation, end to end" below) -- at which
+point the value is held fixed at whatever it had reached -- it does not
+reset to zero, and does not keep changing.</p>
+<p>This single pair of fields -- <code>has_end_day</code> plus
+<code>own_end_date</code> (scalar) or <code>own_end_day</code> (ragged)
+-- does double duty as the mechanism for both requirement 6 (deliberate,
+non-default early termination) and requirement 7 (temporal supersession)
+-- the two differ only in <em>who</em> sets them, and <em>when</em>, not
+in how a reader evaluates them:</p>
+<ul>
+<li>For requirement 6, the grid's own layer sets them itself, at
+generation time, wherever there is a specific physical reason (e.g. an
+expected post-seismic decay) to expect that grid's own motion to subside
+by a known date.</li>
+<li>For requirement 7 (temporal supersession -- one layer replacing
+another over a specific footprint from a specific date, e.g. a ground
+survey taking over from InSAR where InSAR has no valid measurement at
+all), the <strong>superseding layer's own creation</strong> is what sets
+<code>has_end_day</code> and its own end-point field on the layer it
+replaces -- for "scalar with time function" grids,
+<code>own_end_date</code> set directly to the superseding layer's own
+start date (both are already plain ISO-8601 dates, so no conversion is
+needed); for "ragged segments" grids, <code>own_end_day</code> computed
+as the number of days between that node's own <code>reference_day</code>
+and the superseding layer's own start date. This is a narrow, deliberate
+mutation of an already-published layer's file, performed only when a new
+layer is specifically created to supersede part or all of an existing
+one -- an ordinary new layer with no such relationship to any existing
+layer never touches another layer's file at all (see requirement 11,
+"Append-only extensibility", above). The footprint itself is exactly the
+superseding layer's own grid extent -- the same containment test used in
+"Grid resolution within a layer" above, applied to the superseded
+layer's own nodes -- not a separately authored shape. What exactly gets
+touched depends on the superseded layer's own grid type: for "ragged
+segments", only the <code>node_index</code> values the superseding
+layer's own grid extent covers (the fields are per-node, so this is
+genuinely partial); for "scalar with time function", the single
+grid-wide pair, meaning the <em>entire</em> grid ends at once -- a
+superseding layer can only fully replace a whole scalar grid, never
+carve out part of one (see "Per-grid time function storage" above). The
+superseding layer's own creation also records itself as the reason, via
+its own <code>supersedes</code> attribute naming the layer it replaced
+(see "Layers and grids" above) -- write-once, purely for provenance, and
+not itself consulted by query evaluation.</li>
+</ul>
+<p>No separate cross-layer declaration or lookup is needed at query
+time: by the time a reader evaluates the superseded layer,
+<code>has_end_day</code> and its own
+<code>own_end_date</code>/<code>own_end_day</code> already fully
+describe where it stops, exactly as they would for an ordinary,
+self-authored early termination -- <code>supersedes</code> exists so a
+later reader can additionally answer <em>why</em> and <em>by what</em>,
+not to drive evaluation itself.</p>
+<p>This mechanism only ever touches the superseded layer's own discrete
+nodes (via containment, see above) -- it says nothing about query points
+that fall between a touched and an untouched node. This only affects
+"ragged segments" grids, since that is the only grid type where
+<code>has_end_day</code>/<code>own_end_day</code> is per-node rather
+than grid-wide. Where the superseding layer's own grid resolution or
+extent doesn't align with the superseded grid's own node spacing, a
+superseded-layer grid cell can end up with some corners touched
+(<code>has_end_day</code> set) and others not. A query point in that
+cell but outside the superseding layer's own extent is evaluated
+entirely within the superseded layer -- bilinearly interpolating a mix
+of corners frozen at their pre-supersession values and corners still
+evaluating normally at the true <code>query_day</code> -- rather than
+continuing unaffected, even though the point itself is outside the
+superseding layer's coverage.</p>
+<p>This is a limitation of the format's own design, not something query
+evaluation is required to resolve. The two options below are optional
+implementation-side workarounds, not part of the specification itself --
+a compliant reader is not required to implement either.</p>
+<ol type="1">
+<li>When creating a superseding layer, re-sample its own grid to align
+with the superseded layer's own existing node lattice, so the
+superseding layer's own extent boundary always falls exactly on one of
+the superseded layer's own node positions, rather than choosing the
+superseding grid's own resolution and extent independently. Done this
+way, no superseded-layer grid cell ever ends up with a mix of touched
+and untouched corners.</li>
+<li>For a layer that already has nested child grids each with
+potentially different spacing/alignment: when a corner's own value is
+frozen (past its own <code>own_end_day</code>), before accepting that
+frozen value, check whether that corner's own real-world position also
+satisfies the containment check from "Grid spatial indexing attributes"
+above against a more deeply nested grid within the same layer -- a
+child, or a descendant further down the same nesting chain -- that can
+supply a live, non-frozen value there via its own bilinear
+interpolation. Use that live value instead if one is found, recursing
+into further nestings as needed; only fall back to the frozen cap value
+if no nested grid anywhere below can supply a live replacement. This
+means the 4 corners bilinearly interpolated for one query point can end
+up sourced from different grids within the same layer, not necessarily
+all 4 from the grid the query point itself resolved to.</li>
+</ol>
+<p>"Scalar with time function" grids don't have this failure mode:
+<code>has_end_day</code>/<code>own_end_date</code> is grid-wide there,
+so every corner of one bilinear interpolation always shares the same
+frozen-or-not state -- there is no mixed cell to blend across. That grid
+type has a different limitation instead, already noted in "Per-grid time
+function storage" above: a superseding layer can only end a whole scalar
+grid at once, never carve out part of one.</p>
+<h2 id="query-evaluation-end-to-end">Query evaluation, end to end</h2>
+<p>To evaluate one layer's own contribution at an arbitrary
+<code>(longitude, latitude, date)</code>, both grid types compute
+<code>Δ</code> the same way: a real day-count difference, with no
+year-length conversion anywhere (see "GGXF time function shapes" above
+and "Where this format departs from GGXF, and why" above for why) --
+they differ only in <em>where that day count comes from</em>, each
+following directly from how each type stores its own dates (see "Time
+functions", "Per-grid time function storage", and "Per-node ragged
+segment storage" above):</p>
+<ul>
+<li>"scalar with time function" grids compare <code>date</code> directly
+against the ISO-8601 date-time fields already stored on the grid itself
+(<code>own_end_date</code>) or its own layer (each
+<code>timeFunctions.&lt;n&gt;</code>'s own date attributes), taking the
+real day-count difference between the two strings involved at query time
+-- no single shared <code>reference_date</code> is needed, since each
+<code>timeFunctions.&lt;n&gt;</code> entry already carries whichever
+date field its own shape requires.</li>
+<li>"ragged segments" grids first convert <code>date</code> into
+<code>query_day</code>: the number of days from that <em>layer's</em>
+own <code>reference_date</code> attribute (see "Layer attributes" above)
+to <code>date</code> -- the same
+day-count-since-<code>reference_date</code> unit as
+<code>reference_day</code>, <code>day_delta</code>, and
+<code>own_end_day</code> below. Every ragged step below works only in
+that unit; <code>reference_date</code> itself is not touched again after
+this one conversion. Its own
+<code>reference_day</code>/<code>day_delta</code> are already stored as
+this exact day count, so no further date-string parsing happens at query
+time at all.</li>
+</ul>
+<p><code>segment_scale_factor</code> and
+<code>timeFunctions.&lt;n&gt;.scaleFactor</code> (for
+<code>linear</code> specifically -- every other shape's
+<code>scaleFactor</code> is a dimensionless amplitude, see "GGXF time
+function shapes" above) are both declared per <em>day</em> (see "Segment
+record" and "Numeric ranges" below), matching <code>Δ</code> directly --
+no conversion is needed at multiplication time either, for either grid
+type.</p>
+<p>The steps below cover the ordinary case of a single grid's own 4
+corners evaluated independently and bilinearly interpolated -- i.e.
+<code>interpolationMethod = "bilinear"</code> (see "Time functions"
+above); <code>"bicubic"</code>/<code>"biquadratic"</code> use a
+different, wider node neighbourhood entirely and aren't specified here
+(see "Grid spatial indexing attributes" above). They also do not cover
+the more complicated case of a query point falling between a superseding
+grid's own boundary and one of the superseded grid's own node positions
+-- see "Terminal-node evaluation" above for that edge case.</p>
+<ol start="0" type="1">
+<li>Resolve the layer to a single grid at this point via "Grid
+resolution within a layer" above (trivial -- there is exactly one
+candidate -- for the common single-grid layer). If no grid covers the
+point, the layer's contribution is 0 and the steps below are skipped
+entirely.</li>
+</ol>
+<p>For that resolved grid, if it's "scalar with time function":</p>
+<ol type="1">
+<li>For each parameter this layer's own <code>gridParameters</code>
+declares independently: find the 4 corner nodes' own
+<code>displacement</code> values for that parameter (each raw stored
+integer multiplied by that grid's own <code>scale_factor</code>
+attribute to recover its real value) and bilinearly interpolate
+them.</li>
+<li>Compute
+<code>t_eval = min(date, own_end_date if has_end_day else +infinity)</code>,
+comparing ISO-8601 date-times directly -- see "Terminal-node evaluation"
+above for how <code>has_end_day</code>/<code>own_end_date</code> come to
+be set, including by a superseding layer's own creation. Then evaluate
+each of this grid's own layer's <code>timeFunctions.&lt;n&gt;</code>
+entries at <code>t_eval</code>, computing each entry's own
+<code>Δ</code> as the real day-count difference between
+<code>t_eval</code> and whichever date field that entry's own shape
+requires (per "GGXF time function shapes" above), and sum them per the
+formulas there.</li>
+<li>Multiply each parameter's own interpolated <code>displacement</code>
+value from step 1 by the same summed value from step 2 (shared across
+every parameter this layer declares) to get the grid's (and hence the
+layer's) contribution to that parameter.</li>
+</ol>
+<p>For that resolved grid, if it's "ragged segments" instead:</p>
+<ol type="1">
+<li><p>Use the grid's own
+<code>affineCoeffs</code>/<code>iNodeCount</code>/<code>jNodeCount</code>
+to find the 4 grid nodes (corners) surrounding the query point, and the
+<a href="#bilinear">bilinear interpolation</a> weights for each, exactly
+as for an ordinary scalar grid. Also convert <code>date</code> into
+<code>query_day</code> (above) -- once per query, using this layer's own
+<code>reference_date</code>, not once per corner.</p></li>
+<li><p>For each of the 4 corner nodes independently:</p>
+<ol type="1">
+<li>Compute
+<code>t_eval = min(query_day, reference_day + own_end_day if has_end_day else +infinity)</code>,
+using that node's own
+<code>reference_day</code>/<code>has_end_day</code>/<code>own_end_day</code>
+-- these are shared across every component (see "Per-node ragged segment
+storage" above), so this is computed once per node, not once per
+component.</li>
+<li>For each component (<code>_{enu}</code>) independently, using that
+same <code>t_eval</code>: within that node's own segment records for
+this component (<code>segment_count_{enu}[node_index]</code> records,
+starting at its own computed offset into that component's own
+<code>segments_{enu}</code> array), find the last record whose own
+absolute day (<code>reference_day + day_delta</code>) is at or before
+<code>t_eval</code>. If no such record exists -- either because
+<code>segment_count_{enu}[node_index]</code> is 0 (this node has no real
+data for this component at all, see "Per-node ragged segment storage"
+above), or because <code>t_eval</code> is before
+<code>reference_day</code> (i.e. before the node's own first segment,
+which always starts exactly at <code>reference_day</code>,
+<code>day_delta = 0</code>) -- this node's value for that component is
+0.</li>
+<li>Otherwise, that node's value for this component is
+<code>segment_start_value + segment_scale_factor * (refFunc(Δ) - refFunc(0))</code>,
+where <code>Δ = t_eval - that_record's_own_absolute_day</code> and
+<code>refFunc</code> is whichever shape that record's own paired
+<code>function_type_{enu}</code> entry declares (see "GGXF time function
+shapes" above) -- e.g. for <code>linear</code>,
+<code>refFunc(Δ) - refFunc(0) = Δ - 0 = Δ</code>, giving
+<code>segment_start_value + segment_scale_factor * Δ</code> directly,
+unchanged from a naive <code>refFunc(Δ)</code> reading since
+<code>linear</code>'s own <code>refFunc(0) = 0</code> already. Every
+shape's own <code>Δ = 0</code> exactly at that record's own start
+(<code>day_delta</code> measures days <em>after</em>
+<code>reference_day</code>, and <code>t_eval</code> at a segment's own
+start day gives <code>Δ = 0</code> by construction), so
+<code>refFunc(Δ) - refFunc(0)</code> is exactly <code>0</code> there
+regardless of shape, matching "Segment record" above's own zero-at-start
+argument for every shape uniformly, not just <code>linear</code>.</li>
+</ol>
+<p><code>ramp</code>/<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>cyclic</code>/<code>hyperbolicTangent</code>
+each need their own extra parameter beyond
+<code>segment_scale_factor</code> -- <code>ramp</code> its own end
+offset,
+<code>exponential</code>/<code>logBaseE</code>/<code>logBase10</code>/<code>hyperbolicTangent</code>
+their own <code>timeConstant</code>, <code>cyclic</code> its own
+<code>frequency</code> (see "GGXF time function shapes" above) -- which
+live in the sparse
+<code>segment_ramp_end_delta_{enu}</code>/<code>segment_time_param_{enu}</code>
+arrays (see "Per-node ragged segment storage" above), not in the base
+"Segment record" above. A reader looks that record's own extra value up,
+if its own <code>function_type_{enu}</code> needs one, via the direct
+offset already reconstructed once per component when the file was opened
+(see "Per-node ragged segment storage" above) -- an O(1) lookup at query
+time, same as every other step here. For <code>ramp</code> specifically,
+its own end offset is a day count after that record's own
+<code>day_delta</code>, so
+<code>Δ_end = segment_ramp_end_delta_{enu}[...]</code> directly, already
+in the same day-count unit as <code>Δ</code> itself, and
+<code>refFunc(Δ) = 0</code> if <code>Δ &lt; 0</code>;
+<code>Δ / Δ_end</code> if <code>0 ≤ Δ &lt; Δ_end</code>; <code>1</code>
+if <code>Δ ≥ Δ_end</code> -- generalising "GGXF time function shapes"
+above's own single-<code>Δ</code> <code>ramp</code> formula to ragged's
+own two-epoch (start, end) storage. For the other five,
+<code>refFunc(Δ)</code> reads directly off
+<code>segment_time_param_{enu}[...]</code> as that record's own
+<code>timeConstant</code> or <code>frequency</code>, per the formulas in
+"GGXF time function shapes" above, with no further conversion
+needed.</p></li>
+<li><p>For each component independently, bilinearly interpolate the 4
+corner nodes' own computed values for that component, using the weights
+from step 1.</p></li>
+</ol>
+<p>The total deformation at <code>(longitude, latitude, date)</code> is
+the sum of every <em>layer's</em> own independently computed
+contribution (cross-layer summation, unchanged from the LINZDEF
+model's own architecture) -- each layer contributing the single
+value its own grid-resolution step above selected, never a sum of that
+layer's own internal candidate grids.</p>
+<h2 id="numeric-ranges-why-these-specific-types-and-scales">Numeric
+ranges (why these specific types and scales)</h2>
+<ul>
+<li><code>day_delta</code> and "ragged segments"' own
+<code>own_end_day</code> as <code>uint16</code>, 1 day/unit: maximum
+representable span is about 179 years, comfortably covering this
+format's stated 126-year design requirement (the year 2000 through 2126)
+with headroom. This reasoning holds regardless of how far in the past
+<code>reference_date</code> itself is chosen, since both fields are
+relative to a node's own <code>reference_day</code> (below), not to
+<code>reference_date</code> directly.</li>
+<li>"ragged segments"' own <code>reference_day</code> as
+<code>uint32</code>, not <code>uint16</code>: unlike
+<code>day_delta</code>/ <code>own_end_day</code> above,
+<code>reference_day</code> <em>is</em> directly relative to
+<code>reference_date</code>, so a distant <code>reference_date</code>
+(e.g. <code>"1970-01-01"</code>, this document's own illustrative
+example in "Container" above) genuinely narrows its headroom -- 1970 to
+2126 is already within about 8,500 days of <code>uint16</code>'s own
+maximum. <code>uint32</code>'s own range (millions of years) makes the
+choice of <code>reference_date</code> irrelevant to this field's own
+headroom, at the cost of 2 extra bytes -- cheap, since
+<code>reference_day</code> is a standalone per-node variable, not a
+compound-record field, so widening it has no knock-on effect on any
+other field's own byte layout.</li>
+<li><code>segment_count_{enu}</code> as <code>uint16</code>: this format
+must support at least one discontinuous jump and one gradual rate change
+per year (two independent break events), across the full 126-year window
+-- up to 252 break events, plus the one baseline segment every node
+starts with regardless of how many (if any) break events it ever has --
+253 segments for a single node in the worst case. <code>uint8</code>
+(maximum 255) was considered and rejected: it would leave only 2 values
+of headroom against that real requirement.</li>
+<li><code>segment_start_value</code> as <code>int32</code>, 0.01mm/unit:
+an <code>int16</code> field at that same 0.01mm/unit scale maxes out at
+only about 0.33 metres (<code>32767 * 0.01mm</code>), nowhere near wide
+enough -- a typical secular rate of tens of mm/year accumulated over 126
+years alone can exceed 3 metres of total displacement, without even
+counting large earthquake jumps.</li>
+<li><code>displacement</code> as <code>int32</code>, same reasoning and
+scale as <code>segment_start_value</code> above (<code>int16</code>
+would be too narrow for the same reason). Real <code>int32</code>-packed
+displacement data uses only a small fraction of the type's own range:
+~300,000 raw units for 3 metres at 0.01mm/unit, against
+<code>int32</code>'s own ~2.1 billion -- several thousand-fold headroom,
+comfortably safe against both this format's own displacement magnitudes
+and the reserved <code>missing_value</code>/<code>noDataFlag</code>
+sentinel (<code>2147483647</code>, <code>int32</code>'s own maximum
+value, see "Parameters" above) never colliding with a real packed
+value.</li>
+<li><code>segment_scale_factor</code> as <code>int16</code>, raw value
+<code>r</code> (range <code>-32768..32767</code>) recovered as
+<code>r × 0.01/365.2425</code> mm/day for <code>linear</code> (mm/day²
+for <code>quadratic</code>, plain mm for the other seven
+bounded/dimensionless shapes -- see "Segment record" above for why the
+unit itself varies by <code>function_type_{enu}</code>;
+<code>365.2425</code> here is purely how this specific granularity is
+stated in familiar terms, not a year-length convention used anywhere in
+evaluation, see "Where this format departs from GGXF, and why" above):
+this specific granularity, <code>0.01/365.2425 ≈ 0.0000274</code> mm/day
+per raw unit (not the ten-times-coarser
+<code>0.1/365.2425 ≈ 0.000274</code> that might seem adequate at first),
+is reasoned here for <code>linear</code> specifically, since only its
+own uncompounded rate gets multiplied by however many raw days have
+elapsed since the segment's own start (<code>Δ</code>, itself a raw day
+count, can be up to <code>126 × 365.2425 ≈ 46020</code> at this format's
+own 126-year design horizon), so a rounding error of up to half a raw
+unit in the <em>stored rate</em> compounds with elapsed time rather than
+staying fixed. At the chosen granularity, that worst case is
+<code>0.5 × 0.0000274 × 46020 ≈ 0.63mm</code> -- well under the
+deformation model's own accuracy target (about 10mm). At the
+ten-times-coarser granularity, the same calculation gives
+<code>≈ 6.3mm</code> -- a large fraction of that target -- which is why
+the finer granularity is chosen instead. Range check, independent of the
+granularity choice above: the maximum representable rate,
+<code>32767 × 0.0000274 ≈ 0.897</code> mm/day
+(<code>≈ 327.67 mm at this granularity's own 365.2425-day reference span), comfortably covers this format's own real target magnitudes -- typical secular rates of tens of mm/year, and postseismic rates of a similar order. The other two scale variants keep the same granularity for one consistent </code>int16<code>field across every shape, not because either has its own compounding argument --</code>quadratic<code>'s own </code>Δ²<code>and the seven bounded shapes' own bounded</code>refFunc`
+don't accumulate rounding error against elapsed time the way an
+uncompounded rate does.</li>
+<li><code>function_type_{enu}</code> as <code>uint8</code>: nine real
+values (see "GGXF time function shapes" above), nowhere near needing
+more than one byte.</li>
+<li><code>segment_ramp_end_delta_{enu}</code> as <code>uint16</code>, 1
+day/unit: the same headroom reasoning as
+<code>day_delta</code>/<code>own_end_day</code> above -- it too is a day
+count relative to a segment's own start, not to a distant
+<code>reference_date</code> directly (see "Per-node ragged segment
+storage" above).</li>
+<li><code>segment_time_param_{enu}</code> as <code>float64</code>, not a
+scaled integer: the same reasoning as
+<code>timeFunctions.&lt;n&gt;.scaleFactor</code>/<code>.timeConstant</code>/<code>.frequency</code>
+above -- sparse, one value per segment that actually needs it (currently
+none, see "Per-node ragged segment storage" above), not one per segment
+unconditionally, so the compounding-precision argument that justifies
+<code>segment_scale_factor</code>'s own scaled-integer encoding above
+does not carry over; GGXF's own shipped files store
+<code>timeConstant</code>/<code>frequency</code> as plain floats
+too.</li>
+<li><code>own_end_date</code> (per-grid) and
+<code>timeFunctions.&lt;n&gt;.functionReferenceDate</code>/<code>.startDate</code>/<code>.endDate</code>/<code>.eventDate</code>
+(per-layer) as ISO-8601 date-time strings, not scaled integers: the same
+reasoning as
+<code>timeFunctions.&lt;n&gt;.scaleFactor</code>/<code>.timeConstant</code>/<code>.frequency</code>
+above -- these are rare attributes (one value per grid for
+<code>own_end_date</code>, a handful per layer for
+<code>timeFunctions.&lt;n&gt;.*</code>), not one per node or segment, so
+the compactness argument that justifies
+<code>day_delta</code>/<code>own_end_day</code>'s own scaled-integer
+encoding above does not apply. <code>Δ</code> is computed from these
+strings the same day-count-based way as for <code>ragged_segments</code>
+(see "Query evaluation, end to end" above), so unlike
+<code>reference_day</code>/<code>day_delta</code>, there is no separate
+storage-format distinction here to motivate a different (scaled-integer)
+type.</li>
+<li><code>timeFunctions.count</code> as <code>uint8</code>: no real
+layer needs more than a handful of summed entries (the Dusky Sound
+earthquake, the most complex real case, needs 2) -- GGXF's own reference
+implementation uses an unwidthed list with no declared maximum, so there
+is no GGXF convention to match here; <code>uint8</code> is this format's
+own choice, the same "no wider than necessary" reasoning already applied
+to
+<code>gridPriority</code>/<code>iNodeCount</code>/<code>jNodeCount</code>
+elsewhere in this document.</li>
+<li><code>timeFunctions.&lt;n&gt;.scaleFactor</code>/<code>.timeConstant</code>/<code>.frequency</code>
+as <code>float64</code>, not scaled integers: unlike
+<code>segment_scale_factor</code> (a per-segment array, where
+compactness matters at scale), these are rare per-grid attributes -- a
+handful of values per file, not one per node or segment -- so the
+compounding-precision argument that justifies scaled integers elsewhere
+does not apply, and GGXF's own shipped files store these as plain floats
+too.</li>
+</ul>
+<p><code>displacement</code> is deliberately not derived the same way:
+its own range depends on how a given grid's author defines its shared
+segment sequence's own magnitude (see "Layers and grids" above), which
+this specification does not fix -- so instead of one universal scale,
+each grid states its own via the <code>scale_factor</code> attribute,
+exactly as today's writer already assigns one <code>resolution</code>
+value per grid rather than deriving a single constant that would have to
+fit every grid this format will ever hold.</p>
+<p><code>segment_start_value</code>/<code>day_delta</code>/<code>segment_scale_factor</code>
+(0.01mm, 1 day,
+<code>0.01/365.2425 mm/day</code>|<code>mm/day²</code>|<code>mm</code>
+depending on <code>function_type_{enu}</code>, see "Segment record"
+above) -- "ragged segments"' own compound-type record -- are stored as
+pre-scaled integers with the scale documented here, <strong>not</strong>
+via netCDF-4's own <code>scale_factor</code>/<code>add_offset</code>
+attribute convention. For
+<em>compound-type</em> variables, while the <code>netCDF4</code> Python
+library accepts <code>scale_factor</code>/<code>add_offset</code>
+attributes without error, it silently fails to apply them on readback --
+values come back as the raw stored integers, not unscaled floats. Using
+the convention here would therefore not just be unsupported but actively
+misleading (a reader could see the attributes present and wrongly assume
+unscaling had already happened). It would also be structurally the wrong
+shape for this record regardless: one
+<code>scale_factor</code>/<code>add_offset</code> pair covers a whole
+variable, but the three fields each need their own independent
+scale.</p>
+<p>This does not apply to <code>displacement</code>,
+<code>own_end_day</code>, or <code>function_type_{enu}</code> -- each a
+plain (non-compound) variable, where the convention works correctly.
+<code>displacement</code> does use it (<code>scale_factor</code>, see
+"Per-grid time function storage" above) -- GGXF's own standard netCDF
+packing convention, as used by GGXF's reference writer, not
+something this format invented (see "Per-grid time function storage"
+above for GGXF's own shipped files packing optionally rather than
+always, and this format making it mandatory instead).</p>
+<h1 id="terminology">Terminology</h1>
+<h4 id="hdf5"><a id="hdf5"></a>HDF5</h4>
+<p>Hierarchical Data Format, version 5: a general-purpose binary
+container format for large, structured scientific data -- groups (like
+folders), datasets (typed n-dimensional arrays), and attributes (small
+metadata key/value pairs) attached to either.</p>
+<h4 id="netcdf-4"><a id="netcdf4"></a>netCDF-4</h4>
+<p>A higher-level data model and file format built on top of <a
+href="#hdf5">HDF5</a>, widely used in earth-science data exchange. A
+netCDF-4 file <em>is</em> an HDF5 file, following additional internal
+conventions that make it readable by generic netCDF tooling, not just
+raw HDF5 tools. ("netCDF" itself stands for "network Common Data
+Form".)</p>
+<h4 id="cf"><a id="cf"></a>CF</h4>
+<p>Climate and Forecast conventions: a community metadata standard
+(<code>cfconventions.org</code>) for netCDF files. Despite the name (it
+originated in climate/weather modelling), this format only uses its
+general-purpose <a href="#ragged-array">ragged array
+representation</a>.</p>
+<h4 id="ragged-array-representation"><a id="ragged-array"></a>Ragged
+array representation</h4>
+<p>A CF convention for storing a collection of "features" (here: nodes),
+each with a different number of associated records (here: segments),
+using only ordinary fixed-size arrays: one flat array holding every
+feature's records concatenated together, plus a small per-feature
+"count" array giving how many records belong to each one. The same
+underlying idea as <a href="#csr">CSR</a>.</p>
+<h4 id="csr"><a id="csr"></a>CSR</h4>
+<p>Compressed Sparse Row: a standard sparse-matrix/ragged-data storage
+layout (the name is from sparse linear algebra, unrelated to earth
+science): a flat array of all real values back-to-back, plus an
+"offsets" array where <code>offsets[i+1] - offsets[i]</code> gives
+element <code>i</code>'s own count, and
+<code>data[offsets[i]:offsets[i+1]]</code> is its own slice of the flat
+array. This document uses "CSR" for the storage layout and "the
+count/offset arrays" for the concrete fields.</p>
+<h4 id="vlen"><a id="vlen"></a>VLEN</h4>
+<p>Variable-length type: a netCDF-4/HDF5 data type where each array
+element is itself a variable-length list. Considered and rejected for
+this format's ragged storage in favour of the <a
+href="#ragged-array">ragged array representation</a> -- VLEN data is
+stored as separately heap-allocated blobs rather than one contiguous
+array, which generally compresses and chunks worse.</p>
+<h4 id="compound-type"><a id="compound-type"></a>Compound type</h4>
+<p>A netCDF-4/HDF5 data type combining several fields into one
+fixed-size record, analogous to a C <code>struct</code> or a database
+row.</p>
+<h4 id="ggxf"><a id="ggxf"></a>GGXF</h4>
+<p>Gridded Geodetic data eXchange Format: a standard (specification
+<code>OGC-22-051r7</code>) published by the OGC (Open Geospatial
+Consortium) for exchanging gridded geodetic data, including deformation
+models, built on <a href="#netcdf4">netCDF-4</a>.</p>
+<h4 id="gtg"><a id="gtg"></a>GTG</h4>
+<p>Geodetic TIFF Grids: a PROJ/OSGeo specification for storing geodetic
+grids inside ordinary GeoTIFF image files -- a different format from
+GGXF, and the one PROJ actually uses in its own, currently-deployed
+deformation model.</p>
+<h4 id="bilinear-interpolation"><a id="bilinear"></a>Bilinear
+interpolation</h4>
+<p>The standard method for estimating a value at an arbitrary point
+inside a rectangular grid cell from the 4 known values at that cell's
+own corners, weighted by how close the point is to each corner.</p>
+<h4 id="bicubic-interpolation"><a id="bicubic"></a>Bicubic
+interpolation</h4>
+<p>A higher-order method for estimating a value at an arbitrary point
+from a wider neighbourhood of surrounding nodes than <a
+href="#bilinear">bilinear interpolation</a> uses, fitting a smoother
+surface through them.</p>
+<h4 id="biquadratic-interpolation"><a id="biquadratic"></a>Biquadratic
+interpolation</h4>
+<p>Similar to <a href="#bicubic">bicubic interpolation</a>, but fitting
+a lower-order surface through a smaller surrounding neighbourhood of
+nodes.</p>
+<h1
+id="tooling-nice-to-haves-in-addition-to-obvious-readerswriters-not-yet-built">Tooling
+nice-to-haves in addition to obvious readers/writers (not yet
+built)</h1>
+<p>Separate from the format specification itself:</p>
+<ol type="1">
+<li>List a file's layers together with each layer's own human-readable
+description.</li>
+<li>Sub-sample an existing file down to a provided bounding box and/or
+time window.</li>
+<li>Map layer relationships (e.g. supersession), similar to
+<code>git log --graph --pretty=format:"%h"</code>.</li>
+</ol>
+
+<script src="../js/helppage.js"></script>
+</body>
+</html>
