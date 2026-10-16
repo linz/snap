@@ -48,10 +48,11 @@ namespace {
 /// It sorts the numbers and does not move the rectangles, so that it works for rectangles that cannot be assigned to.
 /// \return the numbers 0 to count - 1, in the order that the rectangles were sorted into.
 template <typename Centre0, typename Centre1>
-std::vector<std::size_t> packedOrder(const std::size_t count,   ///< how many rectangles there are
-                                     const std::size_t fanout,  ///< how many rectangles each tile holds (see the comment above)
-                                     Centre0 centre0,           ///< centre0(index): that rectangle's centre on the first coordinate
-                                     Centre1 centre1) {         ///< centre1(index): that rectangle's centre on the second
+std::vector<std::size_t> packedOrder(
+    const std::size_t count,   ///< how many rectangles there are
+    const std::size_t fanout,  ///< how many rectangles each tile holds (see the comment above)
+    Centre0 centre0,           ///< centre0(index): that rectangle's centre on the first coordinate
+    Centre1 centre1) {         ///< centre1(index): that rectangle's centre on the second
     std::vector<std::size_t> order(count);
     std::iota(order.begin(), order.end(), std::size_t{0});
 
@@ -64,11 +65,10 @@ std::vector<std::size_t> packedOrder(const std::size_t count,   ///< how many re
     });
     for (std::size_t start = 0; start < count; start += stripSize) {
         const std::size_t end = std::min(start + stripSize, count);
-        std::sort(order.begin() + boost::numeric_cast<std::ptrdiff_t>(start),
-                  order.begin() + boost::numeric_cast<std::ptrdiff_t>(end),
-                  [&centre1](const std::size_t first, const std::size_t second) {
-                      return centre1(first) < centre1(second);
-                  });
+        std::sort(
+            order.begin() + boost::numeric_cast<std::ptrdiff_t>(start),
+            order.begin() + boost::numeric_cast<std::ptrdiff_t>(end),
+            [&centre1](const std::size_t first, const std::size_t second) { return centre1(first) < centre1(second); });
     }
     return order;
 }
@@ -96,10 +96,10 @@ RectangleIndex::RectangleIndex(std::vector<IndexedRectangle> rectangles) {
     }
 
     // The items are copies of the rectangles, in the order that packedOrder() gives.
-    const std::vector<std::size_t> itemOrder =
-        packedOrder(rectangles.size(), kFanout,
-                    [&rectangles](const std::size_t i) { return 0.5 * (rectangles[i].min0 + rectangles[i].max0); },
-                    [&rectangles](const std::size_t i) { return 0.5 * (rectangles[i].min1 + rectangles[i].max1); });
+    const std::vector<std::size_t> itemOrder = packedOrder(
+        rectangles.size(), kFanout,
+        [&rectangles](const std::size_t i) { return 0.5 * (rectangles[i].min0 + rectangles[i].max0); },
+        [&rectangles](const std::size_t i) { return 0.5 * (rectangles[i].min1 + rectangles[i].max1); });
     _items.reserve(rectangles.size());
     for (const std::size_t index : itemOrder) {
         _items.push_back(rectangles[index]);
@@ -137,10 +137,9 @@ RectangleIndex::RectangleIndex(std::vector<IndexedRectangle> rectangles) {
     // the node does not change what it has as children.
     std::vector<Node> level = makeLevelOver(_items);
     while (level.size() > 1) {
-        const std::vector<std::size_t> nodeOrder =
-            packedOrder(level.size(), kFanout,
-                        [&level](const std::size_t i) { return 0.5 * (level[i].min0 + level[i].max0); },
-                        [&level](const std::size_t i) { return 0.5 * (level[i].min1 + level[i].max1); });
+        const std::vector<std::size_t> nodeOrder = packedOrder(
+            level.size(), kFanout, [&level](const std::size_t i) { return 0.5 * (level[i].min0 + level[i].max0); },
+            [&level](const std::size_t i) { return 0.5 * (level[i].min1 + level[i].max1); });
         std::vector<Node> sorted;
         sorted.reserve(level.size());
         for (const std::size_t index : nodeOrder) {

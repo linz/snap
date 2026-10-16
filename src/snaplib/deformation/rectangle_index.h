@@ -16,13 +16,14 @@ namespace deformation {
 /// tolerance that it was made with, so that a point within the tolerance of an edge counts as inside.
 struct IndexedRectangle {
     /// \throws std::invalid_argument if min0 > max0 or min1 > max1, if a tolerance is negative, or if any number is NaN.
-    IndexedRectangle(double min0,               ///< the lowest c0 that the rectangle has
-                     double max0,               ///< the highest c0 that the rectangle has
-                     double min1,               ///< the lowest c1 that the rectangle has
-                     double max1,               ///< the highest c1 that the rectangle has
-                     std::size_t id,            ///< where the rectangle comes in the order, with the lowest first
-                     double tolerance0 = 0.0,   ///< how far beyond the c0 edges a point may be and still count as inside
-                     double tolerance1 = 0.0);  ///< how far beyond the c1 edges a point may be and still count as inside
+    IndexedRectangle(
+        double min0,               ///< the lowest c0 that the rectangle has
+        double max0,               ///< the highest c0 that the rectangle has
+        double min1,               ///< the lowest c1 that the rectangle has
+        double max1,               ///< the highest c1 that the rectangle has
+        std::size_t id,            ///< where the rectangle comes in the order, with the lowest first
+        double tolerance0 = 0.0,   ///< how far beyond the c0 edges a point may be and still count as inside
+        double tolerance1 = 0.0);  ///< how far beyond the c1 edges a point may be and still count as inside
 
     const double min0;  ///< the lowest c0 that counts as inside: the c0 edge less its tolerance
     const double max0;  ///< the highest c0 that counts as inside: the c0 edge plus its tolerance
@@ -125,12 +126,13 @@ class RectangleIndex {
     /// children. Its id is the lowest id of any item below it. (An item is an entry of _items: one of the rectangles
     /// that the index was given.)
     struct Node : IndexedRectangle {
-        Node(double min0,        ///< the lowest c0 of anything below the node
-             double max0,        ///< the highest c0 of anything below the node
-             double min1,        ///< the lowest c1 of anything below the node
-             double max1,        ///< the highest c1 of anything below the node
-             std::size_t id,     ///< the lowest id of any item below the node
-             std::size_t first,  ///< the position of the first child: in _items for a node on level 0, else in the level below
+        Node(double min0,     ///< the lowest c0 of anything below the node
+             double max0,     ///< the highest c0 of anything below the node
+             double min1,     ///< the lowest c1 of anything below the node
+             double max1,     ///< the highest c1 of anything below the node
+             std::size_t id,  ///< the lowest id of any item below the node
+             std::size_t
+                 first,  ///< the position of the first child: in _items for a node on level 0, else in the level below
              std::size_t count)  ///< how many children
             // The rectangle is exactly the one that holds the children, so there is no tolerance to add, whatever the
             // defaults of IndexedRectangle are.

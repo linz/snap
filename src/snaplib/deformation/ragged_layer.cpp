@@ -28,18 +28,18 @@ namespace {
 /// grid fills only part of it.
 /// \return the rectangle, with the id given.
 IndexedRectangle boundingRectangleOf(const GridGeometry& geometry,  ///< the grid's geometry
-                                     const std::size_t id) {         ///< the id for the rectangle
+                                     const std::size_t id) {        ///< the id for the rectangle
     const std::array<double, 6>& affineCoeffs = geometry.affineCoeffs();
     const double lastI = static_cast<double>(geometry.iNodeCount() - 1);
     const double lastJ = static_cast<double>(geometry.jNodeCount() - 1);
 
     // c0 and c1 of the corner nodes (0, 0), (lastI, 0), (0, lastJ) and (lastI, lastJ).
-    const std::array<double, 4> corners0 = {
-        affineCoeffs[0], affineCoeffs[0] + affineCoeffs[1] * lastI, affineCoeffs[0] + affineCoeffs[2] * lastJ,
-        affineCoeffs[0] + affineCoeffs[1] * lastI + affineCoeffs[2] * lastJ};
-    const std::array<double, 4> corners1 = {
-        affineCoeffs[3], affineCoeffs[3] + affineCoeffs[4] * lastI, affineCoeffs[3] + affineCoeffs[5] * lastJ,
-        affineCoeffs[3] + affineCoeffs[4] * lastI + affineCoeffs[5] * lastJ};
+    const std::array<double, 4> corners0 = {affineCoeffs[0], affineCoeffs[0] + affineCoeffs[1] * lastI,
+                                            affineCoeffs[0] + affineCoeffs[2] * lastJ,
+                                            affineCoeffs[0] + affineCoeffs[1] * lastI + affineCoeffs[2] * lastJ};
+    const std::array<double, 4> corners1 = {affineCoeffs[3], affineCoeffs[3] + affineCoeffs[4] * lastI,
+                                            affineCoeffs[3] + affineCoeffs[5] * lastJ,
+                                            affineCoeffs[3] + affineCoeffs[4] * lastI + affineCoeffs[5] * lastJ};
     const auto [lowest0, highest0] = std::minmax_element(corners0.begin(), corners0.end());
     const auto [lowest1, highest1] = std::minmax_element(corners1.begin(), corners1.end());
 

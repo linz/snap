@@ -175,8 +175,7 @@ void check_grid_across_coordinates() {
 void check_layer_with_both_orientations() {
     // c0 from 2 to 4 and c1 from 0 to 2, next to the first grid, with c0 along j.
     const std::array<double, 6> acrossFromTwo = {2, 0, 1, 0, 1, 0};
-    const RaggedLayer layer =
-        makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates), makeSmallGrid(acrossFromTwo)));
+    const RaggedLayer layer = makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates), makeSmallGrid(acrossFromTwo)));
 
     checkValue(layer, 0.5, 1.5, 6.5, "both orientations: a point in the grid with c0 along i");
     checkValue(layer, 2.5, 1.5, 15.5, "both orientations: a point in the grid with c0 along j");
@@ -220,9 +219,9 @@ void check_shared_edge_resolves_by_file_order() {
 void check_mixed_sizes_resolve_by_file_order() {
     // Three grids in file order: a large one, a small one and another large one. The small grid lies inside the second
     // large one, from 10 to 11 where that one covers 10 to 12, and the first large one covers 0 to 2.
-    const RaggedLayer layer = makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates, 100.0),
-                                                    makeGrid({10, 1, 0, 0, 0, 1}, 2, 2, 200.0),
-                                                    makeSmallGrid({10, 1, 0, 0, 0, 1}, 300.0)));
+    const RaggedLayer layer =
+        makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates, 100.0), makeGrid({10, 1, 0, 0, 0, 1}, 2, 2, 200.0),
+                              makeSmallGrid({10, 1, 0, 0, 0, 1}, 300.0)));
     checkValue(layer, 10.5, 0.5, 205.5, "mixed sizes: a point in the small grid and the second large grid");
     checkValue(layer, 11.5, 1.5, 316.5, "mixed sizes: a point in the second large grid only");
     checkValue(layer, 0.5, 1.5, 106.5, "mixed sizes: a point in the first large grid");
@@ -268,8 +267,8 @@ void check_slanted_grid() {
 // Root grids need not share a step.
 void check_grids_with_different_steps() {
     // c0 and c1 from 0 to 2 with a step of 1, and from 10 to 11 with a step of 0.5.
-    const RaggedLayer layer = makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates, 100.0),
-                                                    makeSmallGrid({10, 0.5, 0, 10, 0, 0.5}, 200.0)));
+    const RaggedLayer layer =
+        makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates, 100.0), makeSmallGrid({10, 0.5, 0, 10, 0, 0.5}, 200.0)));
     checkValue(layer, 0.5, 1.5, 106.5, "different steps: a point in the grid with a step of 1");
     checkValue(layer, 10.25, 10.75, 206.5, "different steps: a point in the grid with a step of 0.5");
 }
@@ -278,9 +277,9 @@ void check_grids_with_different_steps() {
 void check_grids_not_on_a_common_lattice() {
     // The same size and step, so the second starts at 3, which is 1.5 times its size from the first, and the third at
     // 7.3, which is not a whole number of steps.
-    const RaggedLayer layer = makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates, 100.0),
-                                                    makeSmallGrid({3, 1, 0, 0, 0, 1}, 200.0),
-                                                    makeSmallGrid({7.3, 1, 0, 0, 0, 1}, 300.0)));
+    const RaggedLayer layer =
+        makeLayer(inFileOrder(makeSmallGrid(kAlongCoordinates, 100.0), makeSmallGrid({3, 1, 0, 0, 0, 1}, 200.0),
+                              makeSmallGrid({7.3, 1, 0, 0, 0, 1}, 300.0)));
     checkValue(layer, 0.5, 1.5, 106.5, "no common lattice: a point in the first grid");
     checkValue(layer, 4.5, 1.5, 216.5, "no common lattice: a point in the grid 1.5 sizes along");
     checkValue(layer, 8.0, 1.0, 308.0, "no common lattice: a point in the grid at 7.3");
@@ -297,8 +296,7 @@ void check_grids_with_the_same_edges_resolve_by_file_order() {
 void check_rejected_grids() {
     {
         RaggedLayer layer(0.0);
-        check(addThrows<std::invalid_argument>(layer,
-                                               inFileOrder(makeSmallGrid(kAlongCoordinates), GridPointer())),
+        check(addThrows<std::invalid_argument>(layer, inFileOrder(makeSmallGrid(kAlongCoordinates), GridPointer())),
               "a null grid is rejected");
         check(!layer.axisCount().has_value(), "a layer whose grids are rejected is left empty");
     }

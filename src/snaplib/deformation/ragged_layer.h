@@ -62,7 +62,8 @@ class RaggedLayer : public Layer {
     // per-node timing (see RaggedGridData::evaluate()). Returns
     // std::nullopt if no root grid (or none of its descendants) contains
     // the point.
-    [[nodiscard]] std::optional<std::array<double, 3>> evaluate(double c0, double c1, double queryDateDays) const override;
+    [[nodiscard]] std::optional<std::array<double, 3>> evaluate(double c0, double c1,
+                                                                double queryDateDays) const override;
 
  private:
     // Finds the root grid that (c0, c1) is in: the first one in file order

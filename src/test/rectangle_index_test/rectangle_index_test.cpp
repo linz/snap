@@ -43,7 +43,7 @@ std::string describe(const std::optional<std::size_t>& id) {
 /// Checks the id that the index gives for a point.
 void checkId(const std::optional<std::size_t>& actual,    ///< what the index gave
              const std::optional<std::size_t>& expected,  ///< what it must give
-             const std::string& description) {           ///< what the check is of
+             const std::string& description) {            ///< what the check is of
     check(actual == expected, description + ": expected " + describe(expected) + ", got " + describe(actual));
 }
 
@@ -132,9 +132,11 @@ void check_accept() {
     const RectangleIndex index(std::move(list));
 
     checkId(index.firstContaining(0.5, 0.5, AcceptEveryRectangle()), 1, "AcceptEveryRectangle given explicitly");
-    checkId(index.firstContaining(0.5, 0.5, [](std::size_t) { return true; }), 1, "a lambda that takes every rectangle");
+    checkId(index.firstContaining(0.5, 0.5, [](std::size_t) { return true; }), 1,
+            "a lambda that takes every rectangle");
     checkId(index.firstContaining(0.5, 0.5, [](std::size_t id) { return id != 1; }), 2, "the lowest id is passed over");
-    checkId(index.firstContaining(0.5, 0.5, [](std::size_t id) { return id == 3; }), 3, "only the highest id is accepted");
+    checkId(index.firstContaining(0.5, 0.5, [](std::size_t id) { return id == 3; }), 3,
+            "only the highest id is accepted");
     checkId(index.firstContaining(0.5, 0.5, [](std::size_t) { return false; }), std::nullopt,
             "every rectangle that contains the point is passed over");
 
@@ -185,8 +187,8 @@ void check_against_a_plain_scan() {
         for (std::size_t id = 0; id < count; ++id) {
             const double min0 = position(random);
             const double min1 = position(random);
-            specs.push_back({min0, min0 + extent(random), min1, min1 + extent(random), id, tolerance(random),
-                             tolerance(random)});
+            specs.push_back(
+                {min0, min0 + extent(random), min1, min1 + extent(random), id, tolerance(random), tolerance(random)});
         }
         const std::vector<IndexedRectangle> reference = makeRectangles(specs);  // in id order, for the plain scan
         std::vector<Spec> shuffled = specs;
@@ -239,9 +241,9 @@ void check_against_a_plain_scan() {
         }
         check(wrongAnswers == 0, "the index agrees with a plain scan for " + std::to_string(count) + " rectangles (" +
                                      std::to_string(wrongAnswers) + " of 40000 answers differ)");
-        check(acceptCalledOutOfTurn == 0,
-              "accept is only asked about ids below the lowest it has taken, for " + std::to_string(count) +
-                  " rectangles (" + std::to_string(acceptCalledOutOfTurn) + " calls out of turn)");
+        check(acceptCalledOutOfTurn == 0, "accept is only asked about ids below the lowest it has taken, for " +
+                                              std::to_string(count) + " rectangles (" +
+                                              std::to_string(acceptCalledOutOfTurn) + " calls out of turn)");
     }
 }
 
