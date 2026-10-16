@@ -483,6 +483,7 @@ def format_fix() -> None:
     pass would change nothing."""
     check_committed()
     _format(True)
+    print("Running clang-format again as a dry run, to confirm that another pass would change nothing:")
     _format(False)
 
 
