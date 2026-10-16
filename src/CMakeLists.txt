@@ -180,6 +180,12 @@ add_executable(ragged_layer_test test/ragged_layer_test/ragged_layer_test.cpp)
 target_link_libraries(ragged_layer_test PRIVATE snaplib snap_link_deps)
 
 # Test-only tool, not a shipped application - standalone unit test for the
+# RectangleIndex class in snaplib/deformation/rectangle_index.h. Exit code is the
+# pass/fail signal.
+add_executable(rectangle_index_test test/rectangle_index_test/rectangle_index_test.cpp)
+target_link_libraries(rectangle_index_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
 # LineReader class that concord uses to read its input. The class is part of the
 # concord program, not snaplib, so its source is compiled into the test.
 # Exit code is the pass/fail signal.
@@ -208,6 +214,7 @@ add_custom_target(unit_tests DEPENDS
     rotmat_test
     station_test
     ragged_layer_test
+    rectangle_index_test
     stringlimited_test
     linereader_test)
 
