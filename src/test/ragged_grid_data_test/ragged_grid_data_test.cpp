@@ -69,8 +69,8 @@ std::array<double, 3> valuesAt(const std::vector<std::vector<RaggedSegment>>& se
 void checkValue(const std::vector<std::vector<RaggedSegment>>& segmentsOfAxis, const double queryDay,
                 const std::size_t axis, const double expected, const std::string& description) {
     const double actual = valuesAt(segmentsOfAxis, queryDay)[axis];
-    check(actual == expected, description + ": expected " + std::to_string(expected) + ", got " +
-                                  std::to_string(actual));
+    check(actual == expected,
+          description + ": expected " + std::to_string(expected) + ", got " + std::to_string(actual));
 }
 
 void check_values_at_given_days() {
@@ -128,7 +128,8 @@ void check_against_walking_from_the_first_segment() {
             day += gap(random);
             segments.push_back(RaggedSegment{day, value(random), rate(random)});
         }
-        const RaggedGridData data(std::make_unique<SameSegmentsAtEveryNode>(std::vector<std::vector<RaggedSegment>>{segments}));
+        const RaggedGridData data(
+            std::make_unique<SameSegmentsAtEveryNode>(std::vector<std::vector<RaggedSegment>>{segments}));
 
         std::vector<double> days = {-10.0, 0.0, day, day + 100.0};
         for (const RaggedSegment& segment : segments) {  // every start day exactly, and either side of it

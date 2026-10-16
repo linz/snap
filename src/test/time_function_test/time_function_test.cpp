@@ -47,7 +47,8 @@ void check_linear_without_a_start_date() {
     params.functionReferenceDateDays = 100.0;
     const TimeFunction function(params);
     check(function.evaluate(110.0) == 20.0, "a linear function after its reference date");
-    check(function.evaluate(90.0) == -20.0, "a linear function with no start date is unbounded before its reference date");
+    check(function.evaluate(90.0) == -20.0,
+          "a linear function with no start date is unbounded before its reference date");
 }
 
 void check_linear_with_a_start_date_equal_to_the_reference_date() {
