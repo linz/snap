@@ -49,7 +49,7 @@ class TimeFunction {
             1.0;  // multiplies refFunc(Δ); days-denominated for Linear (a rate per day), a dimensionless amplitude for every other shape
 
         std::optional<double>
-            startDateDays;  // required by Ramp (the transition's own start); optionally marks Linear's own delayed onset
+            startDateDays;  // required by Ramp (the transition's own start); optionally marks Linear's own delayed onset, in which case it must equal functionReferenceDateDays
         std::optional<double> endDateDays;  // required by Ramp (the transition's own end)
         std::optional<double>
             eventDateDays;  // required by Step (its own instantaneous jump point), and by the not-yet-implemented Exponential/LogBaseE/LogBase10/HyperbolicTangent shapes
@@ -73,7 +73,7 @@ class TimeFunction {
     // that happens to reach it.
     explicit TimeFunction(
         const Params&
-            params);  // copied - no heap-owning members, no move benefit over a copy. Throws std::invalid_argument if params.shape is not Linear/Step/Ramp, or if params is missing a date/parameter its own shape requires
+            params);  // copied - no heap-owning members, no move benefit over a copy. Throws std::invalid_argument if params.shape is not Linear/Step/Ramp, if params is missing a date/parameter its own shape requires, or if a Linear function has a startDateDays that is not equal to its functionReferenceDateDays
 
     // Evaluates this shape's own reference function at queryDateDays: Δ is
     // computed relative to this shape's own required date parameter (see

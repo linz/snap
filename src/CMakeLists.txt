@@ -199,6 +199,12 @@ add_executable(ragged_grid_data_test test/ragged_grid_data_test/ragged_grid_data
 target_link_libraries(ragged_grid_data_test PRIVATE snaplib snap_link_deps)
 
 # Test-only tool, not a shipped application - standalone unit test for the
+# validation of the TimeFunction class in snaplib/deformation/time_function.h.
+# Exit code is the pass/fail signal.
+add_executable(time_function_test test/time_function_test/time_function_test.cpp)
+target_link_libraries(time_function_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
 # LineReader class that concord uses to read its input. The class is part of the
 # concord program, not snaplib, so its source is compiled into the test.
 # Exit code is the pass/fail signal.
@@ -230,6 +236,7 @@ add_custom_target(unit_tests DEPENDS
     rectangle_index_test
     netcdf_wrapper_test
     ragged_grid_data_test
+    time_function_test
     stringlimited_test
     linereader_test)
 

@@ -42,6 +42,16 @@ TimeFunction::TimeFunction(const Params& params) : params_(params) {
             if (!params_.functionReferenceDateDays) {
                 throw std::invalid_argument("TimeFunction: Linear requires functionReferenceDateDays");
             }
+            // The format requires a Linear function's startDate, when it has one, to be its functionReferenceDate:
+            // Δ is already (query date) - functionReferenceDate, so (query date) < startDate and Δ < 0 are then the
+            // same condition. A different startDate would leave the two disagreeing, with a nonzero value before the
+            // function starts.
+            if (params_.startDateDays && *params_.startDateDays != *params_.functionReferenceDateDays) {
+                throw std::invalid_argument("TimeFunction: Linear's startDateDays (" +
+                                            std::to_string(*params_.startDateDays) +
+                                            ") must equal its functionReferenceDateDays (" +
+                                            std::to_string(*params_.functionReferenceDateDays) + ")");
+            }
             break;
         case TimeFunctionShape::Step:
             if (!params_.eventDateDays) {
