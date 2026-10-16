@@ -193,6 +193,12 @@ add_executable(netcdf_wrapper_test test/netcdf_wrapper_test/netcdf_wrapper_test.
 target_link_libraries(netcdf_wrapper_test PRIVATE snaplib snap_link_deps)
 
 # Test-only tool, not a shipped application - standalone unit test for the
+# RaggedGridData class in snaplib/deformation/ragged_grid_data.h. Exit code is
+# the pass/fail signal.
+add_executable(ragged_grid_data_test test/ragged_grid_data_test/ragged_grid_data_test.cpp)
+target_link_libraries(ragged_grid_data_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for the
 # LineReader class that concord uses to read its input. The class is part of the
 # concord program, not snaplib, so its source is compiled into the test.
 # Exit code is the pass/fail signal.
@@ -223,6 +229,7 @@ add_custom_target(unit_tests DEPENDS
     ragged_layer_test
     rectangle_index_test
     netcdf_wrapper_test
+    ragged_grid_data_test
     stringlimited_test
     linereader_test)
 

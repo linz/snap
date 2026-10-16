@@ -1,4 +1,5 @@
 #include "deformation/ragged_grid_data.h"
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -32,14 +33,19 @@ std::size_t RaggedGridData::axisCount() const {
 }
 
 double RaggedGridData::evaluateNode(std::uint32_t i, std::uint32_t j, std::size_t axis, double queryDay) const {
-    double value = 0.0;
-    for (const auto& segment : values_->segments(i, j, axis)) {
-        if (segment.startDay > queryDay) {
-            break;
-        }
-        value = segment.startValue + segment.ratePerDay * (queryDay - segment.startDay);
+    // Only the last segment that starts on or before queryDay gives the value, since each segment's own startValue
+    // already holds the sum of every segment before it (the format's segment_start_value). The segments are in
+    // chronological order (see RaggedNodeValueSource::segments()), so a binary search finds it without walking the
+    // node's whole history.
+    const RaggedSegmentRange segments = values_->segments(i, j, axis);
+    const RaggedSegment* const firstAfter =
+        std::upper_bound(segments.begin(), segments.end(), queryDay,
+                         [](const double day, const RaggedSegment& segment) { return day < segment.startDay; });
+    if (firstAfter == segments.begin()) {
+        return 0.0;  // no segment, or the query is before the first one
     }
-    return value;
+    const RaggedSegment& segment = *(firstAfter - 1);
+    return segment.startValue + segment.ratePerDay * (queryDay - segment.startDay);
 }
 
 std::array<double, 3> RaggedGridData::evaluate(const Cell& cell, double queryDay) const {
