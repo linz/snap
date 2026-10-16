@@ -723,8 +723,8 @@ void collectRaggedDescendants(std::size_t gridIndex, const RaggedLayerArrays& ar
 // via collectRaggedDescendants()/validateAndAddDescendants(), exactly as
 // parseScalarRootGrid() does for a scalar_with_time_function grid's own
 // subgroup nesting. Root grids are collected in ascending grid-index (file)
-// order, then re-sorted descending by size (iNodeCount) before being added
-// to the layer - see the comment on that sort below for why.
+// order and added to the layer in that order, which decides which of them
+// answers where they overlap (see RaggedLayer::addRootGrids()).
 std::unique_ptr<Layer> parseRaggedLayer(const netcdf::NetcdfGroup& layerGroup, bool latitudeFirst) {
     const double referenceDateDays = ggrxfDateToDayNumber(layerGroup.readTextAttribute("reference_date"));
     auto layer = std::make_unique<RaggedLayer>(referenceDateDays);
@@ -777,46 +777,8 @@ std::unique_ptr<Layer> parseRaggedLayer(const netcdf::NetcdfGroup& layerGroup, b
                                  " grids that are neither a root grid nor nested under one");
     }
 
-    // RaggedLayer looks up a root grid of size S at coordinate c via:
-    //   rawRow = (c - refC0Origin_) / refC0Step_
-    //   primaryRow0 = floor(rawRow / S) * S
-    // then looks for a grid stored under (primaryRow0, S) - see
-    // RaggedLayer::resolveRootGrid(). floor(x / S) * S only ever produces an
-    // exact multiple of S, so a grid is only ever found if its own row0
-    // (computed the same way, at index time - see RaggedLayer::indexRootGrid())
-    // is itself an exact multiple of its own size S. refC0Origin_ is fixed,
-    // once, to whichever root grid happens to be added to the layer first -
-    // so which grid gets picked as that reference changes whether every OTHER
-    // grid's own row0 comes out as a multiple of its own size.
-    //
-    // Concrete example: two real, non-overlapping root grids on the same axis
-    // - grid A, corner at 44.0 (in c0's own units), size 4 steps (covers
-    // 44.0-48.0); grid B, corner at 128.0, size 128 steps (covers
-    // 128.0-256.0).
-    //
-    // If A is added first (reference = 44.0): A's own row0 = (44.0-44.0)/step
-    // = 0, a multiple of 4 - fine. B's own row0 = (128.0-44.0)/step = 84, not
-    // a multiple of 128 - so no query anywhere inside B can ever compute a
-    // primaryRow0 equal to 84 (only 0, 128, 256, ... are ever produced for
-    // size 128) - B is never found, for any query point inside it.
-    //
-    // If B is added first instead (reference = 128.0): B's own row0 =
-    // (128.0-128.0)/step = 0, a multiple of 128 - fine. A's own row0 =
-    // (44.0-128.0)/step = -84, a multiple of 4 - fine too. A query at 150.0
-    // (inside B) computes primaryRow0 = floor((150.0-128.0)/128)*128 = 0,
-    // matching B's own stored (0, 128) - found. A query at 45.0 (inside A)
-    // computes, for size 128, primaryRow0 = floor((45.0-128.0)/128)*128 =
-    // -128 - nothing stored there, so size 4 is tried next: primaryRow0 =
-    // floor((45.0-128.0)/4)*4 = -84, matching A's own stored (-84, 4) - found.
-    //
-    // So B (the larger grid) works as the reference for both grids; A (the
-    // smaller one) does not. Sorting root grids descending by size before
-    // adding them makes the largest one always the reference.
-    std::sort(rootGrids.begin(), rootGrids.end(),
-              [](const auto& a, const auto& b) { return a->geometry().iNodeCount() > b->geometry().iNodeCount(); });
-    for (auto& rootGrid : rootGrids) {
-        layer->addRootGrid(std::move(rootGrid));
-    }
+    // rootGrids is in file order, which RaggedLayer uses to decide which grid answers where root grids overlap.
+    layer->addRootGrids(std::move(rootGrids));
     return layer;
 }
 

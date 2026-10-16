@@ -6,14 +6,15 @@
 // each with its own tolerances, and for counts of rectangles either side of the points where the tree gains a level.
 
 #include <algorithm>
-#include <cmath>
 #include <cstddef>
+#include <initializer_list>
 #include <iostream>
 #include <limits>
 #include <optional>
 #include <random>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "deformation/rectangle_index.h"
