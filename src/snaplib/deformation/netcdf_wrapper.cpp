@@ -156,6 +156,19 @@ std::vector<T> readNumericAttributeImpl(int ncid, int varid, const std::string& 
     return result;
 }
 
+// Reads a numeric attribute that must hold exactly one value (see
+// NetcdfVariable::readNumericScalarAttribute()), and returns that value.
+template <typename T>
+T readNumericScalarAttributeImpl(int ncid, int varid, const std::string& containerName,
+                                 const std::string& attributeName) {
+    const std::vector<T> values = readNumericAttributeImpl<T>(ncid, varid, containerName, attributeName);
+    if (values.size() != 1) {
+        throw std::runtime_error("netcdf: attribute '" + attributeName + "' of '" + containerName + "' has " +
+                                 std::to_string(values.size()) + " values, expected exactly 1");
+    }
+    return values.front();
+}
+
 // --- shared compound-field helpers (variable data and, in principle,
 // attributes - only the variable path is wired up below, since no real
 // GGRXF file uses a compound-typed attribute; see readCompoundField's own
@@ -306,8 +319,23 @@ bool NetcdfVariable::hasAttribute(const std::string& attributeName) const {
 }
 
 template <typename T>
+T NetcdfVariable::readScalarValue() const {
+    const std::vector<T> values = readValues<T>();
+    if (values.size() != 1) {
+        throw std::runtime_error("netcdf: variable '" + name_ + "' has " + std::to_string(values.size()) +
+                                 " values, expected exactly 1");
+    }
+    return values.front();
+}
+
+template <typename T>
 std::vector<T> NetcdfVariable::readNumericAttribute(const std::string& attributeName) const {
     return detail::readNumericAttributeImpl<T>(ncid_, varid_, name_, attributeName);
+}
+
+template <typename T>
+T NetcdfVariable::readNumericScalarAttribute(const std::string& attributeName) const {
+    return detail::readNumericScalarAttributeImpl<T>(ncid_, varid_, name_, attributeName);
 }
 
 // --- NetcdfGroup -------------------------------------------------------
@@ -359,6 +387,11 @@ std::vector<std::string> NetcdfGroup::readStringListAttribute(const std::string&
 template <typename T>
 std::vector<T> NetcdfGroup::readNumericAttribute(const std::string& attributeName) const {
     return detail::readNumericAttributeImpl<T>(ncid_, NC_GLOBAL, name_, attributeName);
+}
+
+template <typename T>
+T NetcdfGroup::readNumericScalarAttribute(const std::string& attributeName) const {
+    return detail::readNumericScalarAttributeImpl<T>(ncid_, NC_GLOBAL, name_, attributeName);
 }
 
 bool NetcdfGroup::hasVariable(const std::string& variableName) const {
@@ -443,6 +476,7 @@ template std::vector<std::uint32_t> NetcdfVariable::readValues<std::uint32_t>() 
 template std::vector<std::uint16_t> NetcdfVariable::readValues<std::uint16_t>() const;
 template std::vector<std::uint8_t> NetcdfVariable::readValues<std::uint8_t>() const;
 template std::vector<double> NetcdfVariable::readValues<double>() const;
+template std::uint8_t NetcdfVariable::readScalarValue<std::uint8_t>() const;
 
 template std::vector<std::int16_t> NetcdfVariable::readCompoundField<std::int16_t>(const std::string&) const;
 template std::vector<std::uint16_t> NetcdfVariable::readCompoundField<std::uint16_t>(const std::string&) const;
@@ -450,9 +484,14 @@ template std::vector<std::int32_t> NetcdfVariable::readCompoundField<std::int32_
 
 template std::vector<std::int32_t> NetcdfVariable::readNumericAttribute<std::int32_t>(const std::string&) const;
 template std::vector<double> NetcdfVariable::readNumericAttribute<double>(const std::string&) const;
+template std::int32_t NetcdfVariable::readNumericScalarAttribute<std::int32_t>(const std::string&) const;
+template double NetcdfVariable::readNumericScalarAttribute<double>(const std::string&) const;
 
 template std::vector<std::uint8_t> NetcdfGroup::readNumericAttribute<std::uint8_t>(const std::string&) const;
 template std::vector<std::uint32_t> NetcdfGroup::readNumericAttribute<std::uint32_t>(const std::string&) const;
 template std::vector<double> NetcdfGroup::readNumericAttribute<double>(const std::string&) const;
+template std::uint8_t NetcdfGroup::readNumericScalarAttribute<std::uint8_t>(const std::string&) const;
+template std::uint32_t NetcdfGroup::readNumericScalarAttribute<std::uint32_t>(const std::string&) const;
+template double NetcdfGroup::readNumericScalarAttribute<double>(const std::string&) const;
 
 }  // namespace netcdf

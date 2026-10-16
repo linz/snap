@@ -225,7 +225,7 @@ std::uint8_t readRequiredGridPriority(const netcdf::NetcdfGroup& gridGroup) {
         throw std::runtime_error("ggrxf_reader: '" + gridGroup.name() +
                                  "' has no gridPriority - required for every descendant of a nested grid");
     }
-    return gridGroup.readNumericAttribute<std::uint8_t>("gridPriority")[0];
+    return gridGroup.readNumericScalarAttribute<std::uint8_t>("gridPriority");
 }
 
 // Validates `descendants`' own gridPriority values are exactly the
@@ -283,8 +283,8 @@ struct ScalarGridContent {
 ScalarGridContent parseScalarGridContent(const netcdf::NetcdfGroup& gridGroup,
                                          const std::vector<std::size_t>& canonicalAxisIndices, bool latitudeFirst) {
     const auto affineCoeffs = readAffineCoeffs(gridGroup, latitudeFirst);
-    const std::uint32_t iNodeCount = gridGroup.readNumericAttribute<std::uint32_t>("iNodeCount")[0];
-    const std::uint32_t jNodeCount = gridGroup.readNumericAttribute<std::uint32_t>("jNodeCount")[0];
+    const std::uint32_t iNodeCount = gridGroup.readNumericScalarAttribute<std::uint32_t>("iNodeCount");
+    const std::uint32_t jNodeCount = gridGroup.readNumericScalarAttribute<std::uint32_t>("jNodeCount");
     GridGeometry geometry(affineCoeffs, iNodeCount, jNodeCount, kCellTolerance);
 
     auto displacementVar = gridGroup.variable("displacement");
@@ -312,13 +312,13 @@ ScalarGridContent parseScalarGridContent(const netcdf::NetcdfGroup& gridGroup,
                                  std::to_string(canonicalAxisIndices.size()));
     }
 
-    const double scaleFactor = displacementVar.readNumericAttribute<double>("scale_factor")[0];
+    const double scaleFactor = displacementVar.readNumericScalarAttribute<double>("scale_factor");
     const std::optional<std::int32_t> missingValue =
         displacementVar.hasAttribute("missing_value")
-            ? std::optional<std::int32_t>(displacementVar.readNumericAttribute<std::int32_t>("missing_value")[0])
+            ? std::optional<std::int32_t>(displacementVar.readNumericScalarAttribute<std::int32_t>("missing_value"))
             : std::nullopt;
     const bool hasEndDay =
-        gridGroup.hasVariable("has_end_day") && gridGroup.variable("has_end_day").readValues<std::uint8_t>()[0] != 0;
+        gridGroup.hasVariable("has_end_day") && gridGroup.variable("has_end_day").readScalarValue<std::uint8_t>() != 0;
 
     auto valueSource = std::make_unique<NetcdfScalarNodeValueSource>(
         jNodeCount, canonicalAxisIndices, displacementVar.readValues<std::int32_t>(), missingValue, hasEndDay);
@@ -379,7 +379,7 @@ std::unique_ptr<Grid<ScalarGridData>> parseScalarRootGrid(const netcdf::NetcdfGr
         throw std::runtime_error("ggrxf_reader: '" + gridGroup.name() +
                                  "' has child grids but no gridPriority (expected 0)");
     }
-    const std::uint8_t rootPriority = gridGroup.readNumericAttribute<std::uint8_t>("gridPriority")[0];
+    const std::uint8_t rootPriority = gridGroup.readNumericScalarAttribute<std::uint8_t>("gridPriority");
     if (rootPriority != 0) {
         throw std::runtime_error("ggrxf_reader: '" + gridGroup.name() + "' is a nest root with gridPriority " +
                                  std::to_string(rootPriority) + ", expected 0");
@@ -400,7 +400,7 @@ std::unique_ptr<Grid<ScalarGridData>> parseScalarRootGrid(const netcdf::NetcdfGr
 // TimeFunction per entry. Throws if any entry's own functionType isn't
 // linear/step/ramp - the only shapes TimeFunction itself implements.
 void parseTimeFunctions(const netcdf::NetcdfGroup& layerGroup, ScalarLayer& layer) {
-    const std::uint8_t count = layerGroup.readNumericAttribute<std::uint8_t>("timeFunctions.count")[0];
+    const std::uint8_t count = layerGroup.readNumericScalarAttribute<std::uint8_t>("timeFunctions.count");
     for (std::uint8_t index = 0; index < count; ++index) {
         const std::string prefix = "timeFunctions." + std::to_string(index) + ".";
         const std::string functionType = layerGroup.readTextAttribute(prefix + "functionType");
@@ -417,7 +417,7 @@ void parseTimeFunctions(const netcdf::NetcdfGroup& layerGroup, ScalarLayer& laye
                                      "' is not implemented (only linear/"
                                      "step/ramp are)");
         }
-        params.scaleFactor = layerGroup.readNumericAttribute<double>(prefix + "scaleFactor")[0];
+        params.scaleFactor = layerGroup.readNumericScalarAttribute<double>(prefix + "scaleFactor");
         // Every date field below is independently optional in the file
         // (which ones a given entry actually needs depends on its own
         // functionType) - TimeFunction's own constructor validates that

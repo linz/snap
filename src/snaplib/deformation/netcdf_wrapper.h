@@ -40,6 +40,16 @@ class NetcdfVariable {
     template <typename T>
     [[nodiscard]] std::vector<T> readValues() const;
 
+    // Reads this variable's own contents when it must hold exactly one
+    // value, which it returns. Use this instead of readValues()[0] for a
+    // variable that stands for a single value, since a variable with no
+    // value, or several, would otherwise read out of bounds or have all but
+    // its first value ignored. Same T constraint and exact-type-match
+    // behaviour as readValues(). Throws std::runtime_error, naming this
+    // variable, if it does not hold exactly one value.
+    template <typename T>
+    [[nodiscard]] T readScalarValue() const;
+
     // Reads one named field out of every record of this compound-typed
     // variable's own flat array. T's own stored netCDF type must exactly
     // match the field's own (same supported-T set as readValues() above,
@@ -59,6 +69,17 @@ class NetcdfVariable {
     // NetcdfGroup::readNumericAttribute() below.
     template <typename T>
     [[nodiscard]] std::vector<T> readNumericAttribute(const std::string& attributeName) const;
+
+    // Reads a numeric attribute attached to this variable itself that must
+    // hold exactly one value, which it returns. Use this instead of
+    // readNumericAttribute()[0] for a scalar attribute, since an attribute
+    // with no value, or several, would otherwise read out of bounds or have
+    // all but its first value ignored. Same T constraint and exact-type-match
+    // behaviour as readNumericAttribute(). Throws std::runtime_error, naming
+    // this variable and the attribute, if the attribute does not have
+    // exactly one value.
+    template <typename T>
+    [[nodiscard]] T readNumericScalarAttribute(const std::string& attributeName) const;
 
  private:
     int ncid_;
@@ -101,6 +122,15 @@ class NetcdfGroup {
     // std::uint8_t, double).
     template <typename T>
     [[nodiscard]] std::vector<T> readNumericAttribute(const std::string& attributeName) const;
+
+    // Reads a numeric attribute of this group that must hold exactly one
+    // value, which it returns - see NetcdfVariable::readNumericScalarAttribute()
+    // for why this is used instead of readNumericAttribute()[0]. Same T
+    // constraint and exact-type-match behaviour as readNumericAttribute().
+    // Throws std::runtime_error, naming this group and the attribute, if the
+    // attribute does not have exactly one value.
+    template <typename T>
+    [[nodiscard]] T readNumericScalarAttribute(const std::string& attributeName) const;
 
     [[nodiscard]] bool hasVariable(const std::string& variableName) const;
 
