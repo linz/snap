@@ -362,6 +362,12 @@ std::vector<ErrorCase> formatErrorCases() {
         {"2024-01-01 12:34Z", "YMDhm", ParseError(Kind::TrailingText, '\0', 16, 1), {"\"Z\""}},
         {"2024-01-01 12:34:56.5", "YMDhm", ParseError(Kind::TrailingText, '\0', 16, 5), {"\":56.5\""}},
 
+        // Punctuation after the date, or after a part of the time, with no number after it, is text left over.
+        {"2024-01-01!!!", "YMDhms", ParseError(Kind::TrailingText, '\0', 10, 3), {"\"!!!\"", "character 10"}},
+        {"2024-01-01,", "YMDhms", ParseError(Kind::TrailingText, '\0', 10, 1), {"\",\""}},
+        {"2024-01-01 12:", "YMDhms", ParseError(Kind::TrailingText, '\0', 13, 1), {"\":\"", "character 13"}},
+        {"2024-01-01T12:34:", "YMDhms", ParseError(Kind::TrailingText, '\0', 16, 1), {"\":\"", "character 16"}},
+
         // A fraction of a second or a time zone that is not complete.
         {"2024-01-01 12:00:00.", "YMDhms", ParseError(Kind::EndOfText, 'f', 20, 0), {"fraction of a second"}},
         {"2024-01-01 12:00:00.x",
@@ -381,6 +387,12 @@ std::vector<ErrorCase> formatErrorCases() {
          "YMDhms",
          ParseError(Kind::OutOfRange, 'z', 23, 2, 60, 0, 59),
          {"time zone 60", "0 to 59", "character 23"}},
+
+        // Without a colon, the minutes of a time zone start straight after the hours.
+        {"2024-01-01T12:00:00+0560",
+         "YMDhms",
+         ParseError(Kind::OutOfRange, 'z', 22, 2, 60, 0, 59),
+         {"time zone 60", "0 to 59", "character 22"}},
 
         // A format that can not be used.
         {"2024-01-01", "YMDx", ParseError(Kind::InvalidFormat, 'x', 3, 1), {"character x", "number 3"}},

@@ -249,7 +249,7 @@ std::optional<ParseError> readZone(Cursor& cursor,  ///< the text, with its next
         return error;
     }
     int minutes = 0;
-    const std::size_t minutesPosition = cursor.position() + 1;
+    const std::size_t minutesPosition = cursor.position() + (cursor.peek() == ':' ? 1 : 0);
     if (cursor.consume(':') || (allowMinutesWithoutColon && is_digit(cursor.peek()))) {
         if (const auto error = readExactDigits(cursor, 2, 'z', minutes)) {
             return error;
@@ -370,22 +370,25 @@ ParseResult<DateTimeParts> tryParse(const std::string_view text, const std::stri
         const bool isTimeField = index >= kHourIndex && index <= kSecondIndex;
 
         if (isTimeField) {
-            // The time may be missing, which leaves the hour, minute and second 0. But if what follows the date is not
-            // a number, such as "junk", stop here without reading it, so that the check at the end reports it as
-            // trailing text.
+            // The time may be missing, which leaves the hour, minute and second 0. Look ahead for the next field
+            // without moving the cursor. If what follows is not a number, such as "junk" or punctuation with nothing
+            // after it, stop here without passing it, so that the check at the end reports it as trailing text.
             if (timeEnded) {
                 continue;
             }
-            while (!cursor.atEnd() && !ISALNUM(cursor.peek())) {
-                cursor.next();
+            Cursor nextField = cursor;
+            while (!nextField.atEnd() && !ISALNUM(nextField.peek())) {
+                nextField.next();
             }
-            if (index == kHourIndex && (cursor.peek() == 'T' || cursor.peek() == 't') && is_digit(cursor.peek(1))) {
-                cursor.next();
+            if (index == kHourIndex && (nextField.peek() == 'T' || nextField.peek() == 't') &&
+                is_digit(nextField.peek(1))) {
+                nextField.next();
             }
-            if (!is_digit(cursor.peek())) {
+            if (!is_digit(nextField.peek())) {
                 timeEnded = true;
                 continue;
             }
+            cursor = nextField;
         } else {
             while (!cursor.atEnd() && !is_digit(cursor.peek()) && (index != kMonthIndex || !isLetter(cursor.peek()))) {
                 cursor.next();

@@ -466,6 +466,11 @@ const ParseCase kCases[] = {
     {"2024-01-01 junk", nullptr, kInvalid},
     {"2024-01-01T00:00:00 extra", nullptr, kInvalid},
     {"2024-01-01Z", nullptr, kInvalid},
+    {"2024-01-01!!!", nullptr, kInvalid},
+    {"2024-01-01,", nullptr, kInvalid},
+    {"2024-01-01.", nullptr, kInvalid},
+    {"2024-01-01 12:", nullptr, kInvalid},
+    {"2024-01-01T12:34:", nullptr, kInvalid},
 
     // A time zone offset or a fraction of a second is accepted, and is ignored: the time is the one written, as
     // snap_datetime_parse has always taken it.
