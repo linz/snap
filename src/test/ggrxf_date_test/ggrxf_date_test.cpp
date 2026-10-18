@@ -139,9 +139,9 @@ void check_invalid_argument() {
 
 void check_days_between(const std::string& start, const std::string& end, const double expected) {
     const double actual = ggrxfDaysBetween(start, end);
-    check(std::fabs(actual - expected) <= kToleranceDays,
-          "ggrxfDaysBetween(\"" + start + "\", \"" + end + "\"): expected " + std::to_string(expected) + " got " +
-              std::to_string(actual));
+    check(std::fabs(actual - expected) <= kToleranceDays, "ggrxfDaysBetween(\"" + start + "\", \"" + end +
+                                                              "\"): expected " + std::to_string(expected) + " got " +
+                                                              std::to_string(actual));
 }
 
 }  // namespace
