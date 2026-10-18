@@ -205,7 +205,7 @@ ParseResult<DateTimeParts> tryParseIso8601(std::string_view text);  ///< the tex
 ParseResult<double> tryParseDecimalYear(std::string_view text);  ///< the text to read
 
 /// The error that parse(), parseIso8601() and parseDecimalYear() throw. Its message says what was wrong with the text,
-/// and quotes it.
+/// and quotes it, except when the fault is in the format.
 class DateTimeParseError : public std::invalid_argument {
  public:
     DateTimeParseError(const ParseError& error,  ///< why the text could not be read
@@ -242,8 +242,8 @@ DateTimeParts parseIso8601(std::string_view text);  ///< the text to read
 /// \throws DateTimeParseError if the text is not a year with a fraction.
 double parseDecimalYear(std::string_view text);  ///< the text to read
 
-/// Says in words what was wrong with the text, and quotes it. For example: the day 31 is more than the 30 days of its
-/// month at character 8 of "2024-04-31".
+/// Says in words what was wrong with the text, and quotes it, except when the fault is in the format. For example: the
+/// day 31 is more than the 30 days of its month at character 8 of "2024-04-31".
 /// \return the message.
 std::string describe(const ParseError& error,  ///< what was wrong
                      std::string_view text);   ///< the text that it was wrong with

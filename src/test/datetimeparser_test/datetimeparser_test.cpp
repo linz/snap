@@ -475,6 +475,12 @@ void checkDecimalYears() {
         {"2024-01-01", "", ParseError(Kind::UnexpectedCharacter, 'Y', 0, 10), {}},
         {"999", "", ParseError(Kind::OutOfRange, 'Y', 0, 3, 999, 1000, 4000), {"year 999", "1000 to 4000"}},
         {"4001", "", ParseError(Kind::OutOfRange, 'Y', 0, 4, 4001, 1000, 4000), {"year 4001"}},
+
+        // A year that is not a whole number is reported rounded away from the allowed years, so that the number that
+        // is reported is outside them.
+        {"999.5", "", ParseError(Kind::OutOfRange, 'Y', 0, 5, 999, 1000, 4000), {"year 999 "}},
+        {"999.9", "", ParseError(Kind::OutOfRange, 'Y', 0, 5, 999, 1000, 4000), {"year 999 "}},
+        {"4000.5", "", ParseError(Kind::OutOfRange, 'Y', 0, 6, 4001, 1000, 4000), {"year 4001 "}},
         {"20201015", "", ParseError(Kind::OutOfRange, 'Y', 0, 8, 20201015, 1000, 4000), {"year 20201015"}},
     };
     for (const ErrorCase& errorCase : errorCases) {

@@ -537,8 +537,10 @@ ParseResult<double> tryParseDecimalYear(const std::string_view text) {
         return Result(ParseError(ParseErrorKind::UnexpectedCharacter, 'Y', start, number.size()));
     }
     if (!std::isfinite(*year) || *year < Year::kMinimum || *year > Year::kMaximum) {
-        const int value =
-            std::isfinite(*year) && std::fabs(*year) < 1e9 ? boost::numeric_cast<int>(std::lround(*year)) : 0;
+        // The year is reported as a whole number, rounded away from the years that are allowed, so that the number
+        // reported is always outside them: 999.5 is reported as 999, and not as 1000, which is allowed.
+        const double outside = *year < Year::kMinimum ? std::floor(*year) : std::ceil(*year);
+        const int value = std::isfinite(*year) && std::fabs(*year) < 1e9 ? boost::numeric_cast<int>(outside) : 0;
         return Result(
             ParseError(ParseErrorKind::OutOfRange, 'Y', start, number.size(), value, Year::kMinimum, Year::kMaximum));
     }
