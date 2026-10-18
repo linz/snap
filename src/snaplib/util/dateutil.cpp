@@ -27,6 +27,7 @@
 #include <variant>
 #include "util/dateutil.h"
 #include "util/datetimeparser.h"
+#include "util/rangedint.h"
 
 #define SAME_DATE_TOLERANCE 1.0e-7
 
@@ -116,12 +117,12 @@ double snap_datetime_parse(std::string_view definition, std::optional<std::strin
     }
 
     if (!format) {
-        double result = snap_datetime_parse(definition, "YMDhms");
+        double result = snap_datetime_parse(definition, "Y");
         if (!result) {
-            result = snap_datetime_parse(definition, "DMYhms");
+            result = snap_datetime_parse(definition, "YMDhms");
         }
         if (!result) {
-            result = snap_datetime_parse(definition, "Y");
+            result = snap_datetime_parse(definition, "DMYhms");
         }
         return result;
     }

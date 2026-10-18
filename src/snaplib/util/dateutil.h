@@ -44,10 +44,12 @@ double snap_datetime_now();
 /// A time zone offset (such as +12:00) and a fraction of a second after the seconds are accepted but ignored: the time is
 /// taken as it is written, and is not converted to UTC.
 ///
-/// If no format is given, the formats YMDhms, DMYhms and Y are tried in turn, and the first that reads the text is used.
+/// If no format is given, the formats Y, YMDhms and DMYhms are tried in turn, and the first that reads the text is
+/// used. So text that is a number from 1000 to 4000, such as 2020.1015, is a decimal year, and is not read as the
+/// calendar date that its digits could also be (2020-10-15).
 ///
 /// \return the date as a SNAP day number, or UNDEFINED_DATE if the text is not valid.
-double snap_datetime_parse(std::string_view definition,                            ///< the text to read
+double snap_datetime_parse(std::string_view definition,                             ///< the text to read
                            std::optional<std::string_view> format = std::nullopt);  ///< the order of its fields
 int same_date(double date0, double date1);
 
