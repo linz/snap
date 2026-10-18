@@ -29,9 +29,28 @@ double snap_date(int year, int month, int day);
 double snap_datetime(int year, int month, int day, int hour, int min, int sec);
 double snap_yds(int year, int dayno, int secs);
 double snap_datetime_now();
-/// Parses a date or date time, returning UNDEFINED_DATE if it is not valid.
-/// If no format is given the default formats are tried in turn.
-double snap_datetime_parse(std::string_view definition, std::optional<std::string_view> format = std::nullopt);
+/// Reads a date or a date and time from text. The text is read by datetimeparser::tryParse() (or by
+/// datetimeparser::tryParseDecimalYear() for the format Y), which describes the formats. In short, the format is a
+/// string of letters that gives the order of the fields in the text: Y the year, M the month, D the day of the month,
+/// h the hour, m the minute and s the second, as in YMDhms or DMYhms. The letter N, the day of the year (1 January is
+/// 1), stands for the month and day together, so it takes the place of M and D, as in YNhm. The fields may be
+/// separated by any characters or by none. The format Y alone is a decimal year, such as 2005.2. A month may be a
+/// number or a case-insensitive name, such as JAN, Jan or January. Leading and trailing spaces are accepted. The text
+/// "now", which is also case-insensitive, is the current local date and time.
+///
+/// A date that does not exist is not valid, such as 30 February or 29 February in a year that is not a leap year, nor
+/// is an hour of 24, a second of 60, or any text left after the date and time.
+///
+/// A time zone offset (such as +12:00) and a fraction of a second after the seconds are accepted but ignored: the time is
+/// taken as it is written, and is not converted to UTC.
+///
+/// If no format is given, the formats Y, YMDhms and DMYhms are tried in turn, and the first that reads the text is
+/// used. So text that is a number from 1000 to 4000, such as 2020.1015, is a decimal year, and is not read as the
+/// calendar date that its digits could also be (2020-10-15).
+///
+/// \return the date as a SNAP day number, or UNDEFINED_DATE if the text is not valid.
+double snap_datetime_parse(std::string_view definition,                             ///< the text to read
+                           std::optional<std::string_view> format = std::nullopt);  ///< the order of its fields
 int same_date(double date0, double date1);
 
 /* Conversion to other date formats */

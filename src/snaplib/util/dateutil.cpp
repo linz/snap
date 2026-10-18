@@ -18,17 +18,16 @@
 */
 
 #include <boost/algorithm/string/predicate.hpp>
-#include <cstdio>
 #include <cmath>
 #include <ctime>
-#include <charconv>
 #include <iomanip>
 #include <sstream>
 #include <string>
 #include <string_view>
-#include "util/snapctype.h"
+#include <variant>
 #include "util/dateutil.h"
-#include "util/fieldscanner.hpp"
+#include "util/datetimeparser.h"
+#include "util/rangedint.h"
 
 #define SAME_DATE_TOLERANCE 1.0e-7
 
@@ -99,112 +98,42 @@ double snap_datetime_now() {
                          ltime->tm_sec);
 }
 
-double snap_datetime_parse(std::string_view definition, std::optional<std::string_view> format) {
-    int ymdhmse[7] = {0, 0, 0, 0, 0, 0, 0};
-    const int minval[7] = {1000, 1, 1, 0, 0, 0, 1};
-    const int maxval[7] = {4000, 12, 31, 24, 59, 59, 366};
-    const std::size_t maxchars[7] = {4, 2, 2, 2, 2, 2, 3};
-    const std::string_view months = " JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC";
-    const std::string_view formatchars = "YMDhmsN";
+static double parts_as_snapdate(const datetimeparser::DateTimeParts& parts) {
+    const int year = parts.year.value;
+    const int hour = parts.hour.value;
+    const int minute = parts.minute.value;
+    const int second = parts.second.value;
+    // check variant for return type
+    if (const auto* monthAndDay = std::get_if<datetimeparser::MonthAndDay>(&parts.day)) {
+        return snap_datetime(year, monthAndDay->month.value, monthAndDay->day.value, hour, minute, second);
+    }
+    const int dayOfYear = std::get<datetimeparser::DayOfYear>(parts.day).value;
+    return snap_datetime(year, 1, 1, hour, minute, second) + (dayOfYear - 1);
+}
 
+double snap_datetime_parse(std::string_view definition, std::optional<std::string_view> format) {
     if (boost::algorithm::iequals(definition, "now")) {
         return snap_datetime_now();
     }
 
     if (!format) {
-        double result = snap_datetime_parse(definition, "YMDhms");
+        double result = snap_datetime_parse(definition, "Y");
         if (!result) {
-            result = snap_datetime_parse(definition, "DMYhms");
+            result = snap_datetime_parse(definition, "YMDhms");
         }
         if (!result) {
-            result = snap_datetime_parse(definition, "Y");
+            result = snap_datetime_parse(definition, "DMYhms");
         }
         return result;
     }
 
     if (*format == "Y") {
-        char extra[2] = {0};
-        double years;
-        double result = 0.0;
-        const std::string definitionText(definition);
-        if (std::sscanf(definitionText.c_str(), "%lf%1s", &years, extra) > 0 && extra[0] == 0 && years > 1000.0 &&
-            years < 4000.0) {
-            result = year_as_snapdate(years);
-        }
-        return result;
+        const auto years = datetimeparser::tryParseDecimalYear(definition);
+        return years.succeeded() ? year_as_snapdate(years.value()) : UNDEFINED_DATE;
     }
 
-    std::string_view remaining = definition;
-
-    /* For each field in the format */
-    for (const char formatchar : *format) {
-        if (ISSPACE(formatchar)) {
-            continue;
-        }
-        const std::size_t idx = formatchars.find(formatchar);
-        if (idx == std::string_view::npos) {
-            return 0.0;
-        }
-
-        /* Find the beginning of the field */
-
-        while (!remaining.empty()) {
-            if (is_digit(remaining.front())) {
-                break;
-            }
-            if (idx == 1 && ISALNUM(remaining.front())) {
-                break;
-            }
-            remaining.remove_prefix(1);
-        }
-        std::string buffer;
-
-        std::size_t nbuf = maxchars[idx];
-        bool isname = false;
-        if (!remaining.empty() && !is_digit(remaining.front())) {
-            buffer = ' ';
-            nbuf = 10;
-            isname = true;
-        }
-
-        while (!remaining.empty() && ISALNUM(remaining.front()) && buffer.size() < nbuf) {
-            if (!is_digit(remaining.front()) && !isname) {
-                break;
-            }
-            if (is_digit(remaining.front()) && isname) {
-                break;
-            }
-            buffer.push_back(remaining.front());
-            remaining.remove_prefix(1);
-        }
-        if (buffer.empty()) {
-            ymdhmse[idx] = 0;
-        } else if (isname) {
-            if (buffer.size() < 4) {
-                return 0.0;
-            }
-            const std::size_t monthpos = months.find(buffer.substr(0, 4));
-            if (monthpos == std::string_view::npos) {
-                return 0.0;
-            }
-            ymdhmse[idx] = static_cast<int>(monthpos / 4 + 1);
-        } else {
-            std::from_chars(buffer.data(), buffer.data() + buffer.size(), ymdhmse[idx]);
-        }
-    }
-    if (ymdhmse[6] > 0) {
-        if (ymdhmse[6] > 366) {
-            return 0.0;
-        }
-        ymdhmse[1] = ymdhmse[2] = 1;
-        ymdhmse[6] -= 1;
-    }
-    for (int i = 0; i < 5; i++) {
-        if (ymdhmse[i] < minval[i] || ymdhmse[i] > maxval[i]) {
-            return 0.0;
-        }
-    }
-    return snap_datetime(ymdhmse[0], ymdhmse[1], ymdhmse[2], ymdhmse[3], ymdhmse[4], ymdhmse[5]) + ymdhmse[6];
+    const auto parts = datetimeparser::tryParse(definition, *format);
+    return parts.succeeded() ? parts_as_snapdate(parts.value()) : UNDEFINED_DATE;
 }
 
 std::string date_as_string(const double snapdate, const DateStringFormat format) {
