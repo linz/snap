@@ -38,10 +38,11 @@ jobs:
           poetry run mypy --strict --ignore-missing-imports $(git ls-files '*.py')
           poetry run pytest -v
           poetry run pip-audit
-      - name: Lint and type-check the repo's own build and test scripts
+      - name: Lint and type-check the Python files outside src/python
         working-directory: src/python
         run: |
-          poetry run ruff check ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py
-          poetry run ruff format --check ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py
-          poetry run pylint ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py
-          poetry run mypy --strict --ignore-missing-imports ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py
+          files=$(git -C ../.. ls-files '*.py' ':!src/python' | sed 's#^#../../#')
+          poetry run ruff check $files
+          poetry run ruff format --check $files
+          poetry run pylint $files
+          poetry run mypy --strict --ignore-missing-imports $files
