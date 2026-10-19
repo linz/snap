@@ -133,25 +133,19 @@ def render(size: int) -> Image.Image:
     """
     im = render_master().resize((size, size), Image.Resampling.LANCZOS)
     border_px = max(1, round(BORDER_W / 32 * size))
-    ImageDraw.Draw(im).rectangle(
-        [0, 0, size - 1, size - 1], outline=BLACK, width=border_px
-    )
+    ImageDraw.Draw(im).rectangle([0, 0, size - 1, size - 1], outline=BLACK, width=border_px)
     return im
 
 
 def write_svg(path: str) -> None:
     """Writes a vector copy of the design, for viewing/editing outside of this script."""
-    lines = [
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="256" height="256">'
-    ]
+    lines = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="256" height="256">']
     lines.append('  <rect x="0" y="0" width="32" height="32" fill="white"/>')
     lines.append(
         f'  <ellipse cx="{CX}" cy="{CY}" rx="{ELLIPSE_A}" ry="{ELLIPSE_B}" '
         f'fill="none" stroke="#1e825f" stroke-width="{ELLIPSE_W}"/>'
     )
-    lines.append(
-        f'  <g stroke="#0000dc" stroke-width="{BLUE_W}" stroke-linecap="round">'
-    )
+    lines.append(f'  <g stroke="#0000dc" stroke-width="{BLUE_W}" stroke-linecap="round">')
     for theta in BLUE_ANGLES_DEG:
         ex, ey = edge_point(theta)
         lines.append(f'    <line x1="{CX}" y1="{CY}" x2="{ex:.3f}" y2="{ey:.3f}"/>')
@@ -163,8 +157,7 @@ def write_svg(path: str) -> None:
         f'stroke="#e61414" stroke-width="{RED_W}" stroke-linecap="round"/>'
     )
     lines.append(
-        f'  <rect x="0.4" y="0.4" width="31.2" height="31.2" '
-        f'fill="none" stroke="black" stroke-width="{BORDER_W}"/>'
+        f'  <rect x="0.4" y="0.4" width="31.2" height="31.2" fill="none" stroke="black" stroke-width="{BORDER_W}"/>'
     )
     lines.append("</svg>")
     with open(path, "w", encoding="utf-8") as f:
@@ -192,11 +185,7 @@ def _build_palette(pixels: list[list[Color]]) -> tuple[dict[Color, str], int]:
         for rgb in row:
             colors.setdefault(rgb, "")
     chars_per_pixel = 1 if len(colors) <= len(_SYMBOLS) else 2
-    symbols = (
-        _SYMBOLS
-        if chars_per_pixel == 1
-        else [a + b for a in _SYMBOLS for b in _SYMBOLS]
-    )
+    symbols = _SYMBOLS if chars_per_pixel == 1 else [a + b for a in _SYMBOLS for b in _SYMBOLS]
     for i, rgb in enumerate(colors):
         colors[rgb] = symbols[i]
     return colors, chars_per_pixel
@@ -214,19 +203,14 @@ def _xpm_color_table(palette: dict[Color, str], chars_per_pixel: int) -> list[st
 def _xpm_pixel_rows(pixels: list[list[Color]], palette: dict[Color, str]) -> list[str]:
     """One quoted, comma-terminated string per pixel row, in the XPM pixel format."""
     row_strings = ["".join(palette[rgb] for rgb in row) for row in pixels]
-    return [
-        f'"{pixel_str}"{"," if i < len(row_strings) - 1 else ""}'
-        for i, pixel_str in enumerate(row_strings)
-    ]
+    return [f'"{pixel_str}"{"," if i < len(row_strings) - 1 else ""}' for i, pixel_str in enumerate(row_strings)]
 
 
 def write_xpm(path: str, size: int, var_name: str) -> None:
     """Writes an XPM copy of the icon: wxWidgets' wxICON() macro loads .ico resources on
     Windows but expects a compiled-in XPM array (matched by var_name) on other platforms."""
     im = render(size).convert("RGB")
-    pixels: list[list[Color]] = [
-        [cast(Color, im.getpixel((x, y))) for x in range(size)] for y in range(size)
-    ]
+    pixels: list[list[Color]] = [[cast(Color, im.getpixel((x, y))) for x in range(size)] for y in range(size)]
     palette, chars_per_pixel = _build_palette(pixels)
 
     lines = [
