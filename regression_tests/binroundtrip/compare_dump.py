@@ -8,25 +8,27 @@ OBSERVATIONS), or a "=== section[i] ===" marker. There's no single place
 to consult a field's real type, so every line is split on " = " first
 (markers and bare values have no " = ", so this is a no-op for them): the
 label part, if any, must match exactly; the value part is compared with
-checktests.pl's own numeric tolerance (its reltol/abstol defaults - not
-its extra text-precision heuristics, which exist for lower-precision
-formatted list-file output, not this dump's full-precision doubles) if it
-parses as a float on both sides, otherwise it also needs an exact match.
+the numeric tolerance of the other regression tests (the default absolute
+and relative tolerances of compare_output.py - not its extra rules for
+lower-precision formatted list-file output, which this dump's
+full-precision doubles do not need) if it parses as a float on both
+sides, otherwise it also needs an exact match.
 """
 
 from typing import NamedTuple
 
-# checktests.pl:256-257 - the same defaults every other regression test
-# tolerates floating-point noise with, kept in sync deliberately rather
-# than duplicated by coincidence.
+# The same defaults as compare_output.py's DEFAULT_ABSOLUTE_TOLERANCE and
+# DEFAULT_RELATIVE_TOLERANCE, which every other regression test tolerates
+# floating-point noise with, kept in sync deliberately rather than
+# duplicated by coincidence.
 ABSTOL = 1.0e-8
 RELTOL = 1.0e-10
 
-# Per-label absolute-tolerance overrides, the same idea as checktests.pl's
-# own match_line_absolute_tolerance/match_line_relative_tolerance for known-
-# sensitive lines (checktests.pl:135-137) - the default tolerance above is
-# for ordinary last-bit rounding noise, not for a field whose calculation
-# can itself amplify that noise.
+# Per-label absolute-tolerance overrides, the same idea as the
+# match_line_absolute_tolerance and match_line_relative_tolerance settings
+# of the other regression tests for known-sensitive lines - the default
+# tolerance above is for ordinary last-bit rounding noise, not for a field
+# whose calculation can itself amplify that noise.
 #
 # vsres (vecdata's vector standardised residual, binroundtrip.cpp's
 # dump_vecdata_text): divides a residual by a Cholesky-decomposed
@@ -62,7 +64,7 @@ def _try_float(text: str) -> float | None:
 
 
 def _values_close(expected: float, actual: float, abstol: float) -> bool:
-    """True if actual is within tolerance of expected (checktests.pl's formula)."""
+    """True if actual is within tolerance of expected (the formula of compare_output.py)."""
     diff = abs(actual - expected)
     return diff <= abstol or diff <= abs(expected) * RELTOL
 
