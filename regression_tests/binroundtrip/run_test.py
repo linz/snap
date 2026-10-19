@@ -190,11 +190,13 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--build-dir",
+        type=os.path.abspath,
         default=DEFAULT_BUILD_DIR,
         help="Directory with the built snap and binroundtrip programs.",
     )
     parser.add_argument(
         "--output-dir",
+        type=os.path.abspath,
         default=DEFAULT_OUTPUT_DIR,
         help="Where the work directory is left if the test fails, or --keep is given, "
         "under the path of this directory from the repository root.",
