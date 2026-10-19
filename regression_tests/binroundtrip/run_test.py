@@ -21,32 +21,32 @@ timestamp field to mask.
 """
 
 import argparse
-import contextlib
 import filecmp
 import os
 import shutil
 import subprocess
 import sys
-import tempfile
-from collections.abc import Iterator
 
 import compare_dump
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.join(HERE, "..", "..")
 IN_DIR = os.path.join(HERE, "in")
 GOLDEN = os.path.join(IN_DIR, "binroundtrip.bin")
 COORDSYSDEF = os.path.join(HERE, "..", "test_coordsys", "coordsys.def")
 
 # Default build output directory, per BUILD.md: Linux's build.py places a
 # release build in build-release/; the Windows CMake preset places one in
-# build/windows-release/ instead. Override with SNAP_BUILD_DIR if needed.
+# build/windows-release/ instead. Use --build-dir for any other.
 if sys.platform == "win32":
-    _DEFAULT_BUILD_DIR = os.path.join(HERE, "..", "..", "build", "windows-release", "src")
+    DEFAULT_BUILD_DIR = os.path.join(HERE, "..", "..", "build", "windows-release", "src")
     EXE_SUFFIX = ".exe"
 else:
-    _DEFAULT_BUILD_DIR = os.path.join(HERE, "..", "..", "build-release", "src")
+    DEFAULT_BUILD_DIR = os.path.join(HERE, "..", "..", "build-release", "src")
     EXE_SUFFIX = ""
-BUILD_DIR = os.environ.get("SNAP_BUILD_DIR", _DEFAULT_BUILD_DIR)
+
+# Where the work directory of a test that fails is left, under the path of this directory from the repository root
+DEFAULT_OUTPUT_DIR = os.path.normpath(os.path.join(DEFAULT_BUILD_DIR, "..", "test_output"))
 
 
 def run_env() -> dict[str, str]:
@@ -57,15 +57,20 @@ def run_env() -> dict[str, str]:
     return env
 
 
-def run(args: list[str], cwd: str, env: dict[str, str]) -> subprocess.CompletedProcess:
+def run(args: list[str], cwd: str, env: dict[str, str]) -> subprocess.CompletedProcess[str]:
     """Runs a command, capturing combined stdout/stderr as text."""
     return subprocess.run(
-        args, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        text=True, check=False,
+        args,
+        cwd=cwd,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
     )
 
 
-def fail(message: str, result: subprocess.CompletedProcess | None = None) -> int:
+def fail(message: str, result: subprocess.CompletedProcess[str] | None = None) -> int:
     """Prints a failure message (and captured command output, if any) and returns 1."""
     print(f"FAIL: {message}", file=sys.stderr)
     if result is not None:
@@ -73,9 +78,7 @@ def fail(message: str, result: subprocess.CompletedProcess | None = None) -> int
     return 1
 
 
-def _check_fresh_snap_output(
-    snap: str, binroundtrip: str, work: str, env: dict[str, str]
-) -> bool:
+def _check_fresh_snap_output(snap: str, binroundtrip: str, work: str, env: dict[str, str]) -> bool:
     """Comparison 1: runs snap fresh, dumps it and the golden .bin, and
     compares them with tolerance. Returns whether they match beyond
     floating-point noise; prints a failure message first if not.
@@ -110,8 +113,7 @@ def _check_fresh_snap_output(
     message = (
         "fresh snap output differs from the golden .bin beyond "
         "floating-point noise - snap is behaving differently on "
-        "this platform/build, or a real regression was introduced:\n"
-        + "\n".join(comparison.mismatches)
+        "this platform/build, or a real regression was introduced:\n" + "\n".join(comparison.mismatches)
     )
     if comparison.suppressed:
         message += f"\n... {comparison.suppressed} further difference(s) suppressed"
@@ -133,55 +135,44 @@ def _check_round_trip(binroundtrip: str, work: str, env: dict[str, str]) -> bool
     if filecmp.cmp(roundtrip_out, GOLDEN, shallow=False):
         return True
 
-    fail(
-        "round-tripped .bin differs from the golden copy - the read "
-        "and write paths disagree with each other"
-    )
+    fail("round-tripped .bin differs from the golden copy - the read and write paths disagree with each other")
     return False
 
 
-@contextlib.contextmanager
-def _work_dir(specified: str | None) -> Iterator[str]:
-    """Yields the directory to run both checks in.
-
-    With a caller-specified path, that directory is created if needed and
-    left in place afterward - its contents (the freshly built .bin, both
-    dumps, the round-tripped .bin) are exactly what a --work-dir call is
-    for inspecting, so nothing here should delete them. Without one, an
-    ephemeral temporary directory is used and cleaned up automatically, as
-    before.
-    """
-    if specified:
-        os.makedirs(specified, exist_ok=True)
-        yield specified
-    else:
-        with tempfile.TemporaryDirectory() as tmp:
-            yield tmp
-
-
-def main(work_dir: str | None = None) -> int:
+def main(build_dir: str, output_dir: str, keep: bool) -> int:
     """Runs both comparisons against the golden .bin, returning a process exit code.
 
     Both checks always run, even if the first fails - otherwise a fresh-
     output mismatch would hide whether the round trip itself, the actual
     goal of this test, still passes.
+
+    They run in a work directory under output_dir, at the path of this
+    directory from the repository root, which has the freshly built .bin,
+    both dumps and the round-tripped .bin in it. It is emptied first, and
+    removed afterward if both checks pass, unless keep is set.
     """
     if not os.path.isfile(GOLDEN):
         return fail(f"missing golden fixture: {GOLDEN}")
 
     env = run_env()
-    snap = os.path.join(BUILD_DIR, "snap" + EXE_SUFFIX)
-    binroundtrip = os.path.join(BUILD_DIR, "binroundtrip" + EXE_SUFFIX)
+    snap = os.path.join(build_dir, "snap" + EXE_SUFFIX)
+    binroundtrip = os.path.join(build_dir, "binroundtrip" + EXE_SUFFIX)
 
-    with _work_dir(work_dir) as work:
-        for name in ("binroundtrip.snp", "binroundtrip.crd", "binroundtrip.dat"):
-            shutil.copy(os.path.join(IN_DIR, name), work)
+    work = os.path.join(output_dir, os.path.relpath(HERE, REPO_ROOT), "output")
+    shutil.rmtree(work, ignore_errors=True)
+    os.makedirs(work)
+    for name in ("binroundtrip.snp", "binroundtrip.crd", "binroundtrip.dat"):
+        shutil.copy(os.path.join(IN_DIR, name), work)
 
-        fresh_output_ok = _check_fresh_snap_output(snap, binroundtrip, work, env)
-        round_trip_ok = _check_round_trip(binroundtrip, work, env)
+    fresh_output_ok = _check_fresh_snap_output(snap, binroundtrip, work, env)
+    round_trip_ok = _check_round_trip(binroundtrip, work, env)
 
     if fresh_output_ok and round_trip_ok:
-        print("binroundtrip: PASS")
+        if keep:
+            print(f"binroundtrip: PASS (output kept in {work})")
+        else:
+            shutil.rmtree(work)
+            print("binroundtrip: PASS")
         return 0
 
     failed = []
@@ -189,23 +180,31 @@ def main(work_dir: str | None = None) -> int:
         failed.append("fresh snap output vs golden")
     if not round_trip_ok:
         failed.append("round trip vs golden")
-    return fail("binroundtrip: FAIL (" + ", ".join(failed) + ")")
+    return fail("binroundtrip: FAIL (" + ", ".join(failed) + f"), output kept in {work}")
 
 
 def _parse_args() -> argparse.Namespace:
-    """Parses command-line arguments. testall.pl invokes this script with
-    none, so --work-dir only matters when running it directly by hand.
+    """Parses command-line arguments. Run with none, it tests the build in
+    the default build directory.
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--work-dir",
-        help="Directory to run both checks in and leave the results in "
-        "(created if needed) - the freshly built .bin, both dumps, and "
-        "the round-tripped .bin. Without this, an ephemeral temporary "
-        "directory is used and deleted afterward.",
+        "--build-dir",
+        type=os.path.abspath,
+        default=DEFAULT_BUILD_DIR,
+        help="Directory with the built snap and binroundtrip programs.",
     )
+    parser.add_argument(
+        "--output-dir",
+        type=os.path.abspath,
+        default=DEFAULT_OUTPUT_DIR,
+        help="Where the work directory is left if the test fails, or --keep is given, "
+        "under the path of this directory from the repository root.",
+    )
+    parser.add_argument("--keep", action="store_true", help="Keep the work directory even if the test passes.")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    sys.exit(main(_parse_args().work_dir))
+    arguments = _parse_args()
+    sys.exit(main(arguments.build_dir, arguments.output_dir, arguments.keep))

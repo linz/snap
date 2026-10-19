@@ -320,6 +320,42 @@ is placed in `build-release/`. The GUI targets (snap_manager, snapadjust,
 snapplot) are built by default; pass `--no-gui` to skip them. See
 `python3 build.py --help` for all options.
 
+**Running the tests**
+
+`python3 build.py release test` builds the programs and the unit tests, then runs the
+tests with `testall.pl` and again with `ctest`, which runs them in parallel. To run
+them again without building, run `ctest` in the build directory:
+
+```
+cd build-release
+ctest --parallel
+ctest -L unit          # only the unit tests, or -L regression for the others
+ctest -R concord       # only the tests with concord in their name
+```
+
+`ctest` can also be run from any directory, with `--test-dir build-release` to say which
+build directory to use.
+
+Each unit test, each regression test and each case of the concord input test is a
+test of its own, so a failure names it. The files that a regression test that fails
+leaves behind are in `build-release/test_output/`, at the path the test has in the
+repository, for example `regression_tests/snap/test1/output`. Running any test of a suite
+empties the suite's directory first, so it only has what the latest run left. Beside `output` there is a
+`test` directory with links to the test's definition and to its check data. To keep the
+files of a test that passes, run it by hand with `--keep`, for example:
+
+```
+python3 regression_tests/run_regression_test.py --config regression_tests/snap/test.config --test test1 --keep
+```
+
+The temporary files of a unit test go in `build-release/test_output/src/test/<name>/output`,
+by way of `TMPDIR` (`TMP` and `TEMP` on Windows). The tests called `.../clear-output` and
+`unit-tests/create-output` that ctest shows are what empty and make those directories.
+
+The CMake cache variables `SNAP_UNIT_TEST_TIMEOUT` and `SNAP_REGRESSION_TEST_TIMEOUT` are
+the number of seconds a test may run before ctest stops it, and `SNAP_TEST_OUTPUT_DIR`
+is where `test_output` is.
+
 **Coordinate system data**
 
 SNAP needs `coordsys.def` (and related deformation/geoid files) from the

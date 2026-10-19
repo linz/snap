@@ -36,3 +36,4 @@ src/VERSIONID
 /linux/profile/
 /regression_tests/snapspec_k/
 /wxtest
+/build*/

@@ -41,7 +41,7 @@ jobs:
       - name: Lint and type-check the repo's own build and test scripts
         working-directory: src/python
         run: |
-          poetry run ruff check ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py
-          poetry run ruff format --check ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py
-          poetry run pylint ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py
-          poetry run mypy --strict --ignore-missing-imports ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py
+          poetry run ruff check ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py
+          poetry run ruff format --check ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py
+          poetry run pylint ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py
+          poetry run mypy --strict --ignore-missing-imports ../../build.py ../../build_concord_mingw_package.py ../../regression_tests/concord/run_test.py ../../regression_tests/run_regression_test.py ../../regression_tests/compare_output.py ../../regression_tests/suite_config.py

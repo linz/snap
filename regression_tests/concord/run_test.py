@@ -25,6 +25,7 @@ import argparse
 import difflib
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -34,18 +35,17 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 COORDSYSDEF = HERE / "cstest" / "coordsys.def"
 GOLDENS = HERE / "stream_goldens"
-TIMEOUT_SECONDS = 10
 
-# Default build output directory, per BUILD.md: Linux's build.py places a
-# release build in build-release/; the Windows CMake preset places one in
-# build/windows-release/ instead. Override with SNAP_BUILD_DIR if needed.
+# Default concord, per BUILD.md: Linux's build.py places a release build in
+# build-release/; the Windows CMake preset places one in build/windows-release/
+# instead. Use --new for any other.
 if sys.platform == "win32":
-    _DEFAULT_BUILD_DIR = HERE.parent.parent / "build" / "windows-release" / "src"
-    EXE_SUFFIX = ".exe"
+    DEFAULT_CONCORD = HERE.parent.parent / "build" / "windows-release" / "src" / "concord.exe"
 else:
-    _DEFAULT_BUILD_DIR = HERE.parent.parent / "build-release" / "src"
-    EXE_SUFFIX = ""
-BUILD_DIR = Path(os.environ.get("SNAP_BUILD_DIR", str(_DEFAULT_BUILD_DIR)))
+    DEFAULT_CONCORD = HERE.parent.parent / "build-release" / "src" / "concord"
+
+# Where what a case that fails leaves is put, under the path of this directory from the repository root
+DEFAULT_OUTPUT_DIR = DEFAULT_CONCORD.parent.parent / "test_output"
 
 
 @dataclass
@@ -64,7 +64,7 @@ class Case:
 class Result:
     """What one run of concord wrote."""
 
-    returncode: int | str
+    returncode: int
     stdout: bytes
     stderr: bytes
     out_file: bytes | None  # the contents of out.txt, if concord wrote it
@@ -364,35 +364,17 @@ def run(binary: Path, case: Case) -> Result:
             (Path(work) / name).write_bytes(data)
         env = dict(os.environ, COORDSYSDEF=str(COORDSYSDEF), EF_DISABLE_BANNER="1", LC_ALL="C")
         command = [str(binary)] + case.args + case.tail
-        returncode: int | str
-        try:
-            if case.stdin_from_file:
-                with open(Path(work) / case.stdin_from_file, "rb") as redirected:
-                    done = subprocess.run(
-                        command,
-                        cwd=work,
-                        env=env,
-                        stdin=redirected,
-                        capture_output=True,
-                        timeout=TIMEOUT_SECONDS,
-                        check=False,
-                    )
-            else:
-                done = subprocess.run(
-                    command,
-                    cwd=work,
-                    env=env,
-                    input=case.stdin,
-                    capture_output=True,
-                    timeout=TIMEOUT_SECONDS,
-                    check=False,
-                )
-            returncode, stdout, stderr = done.returncode, done.stdout, done.stderr
-        except subprocess.TimeoutExpired as exc:
-            returncode, stdout, stderr = "timeout", exc.stdout or b"", exc.stderr or b""
+        if case.stdin_from_file:
+            with open(Path(work) / case.stdin_from_file, "rb") as redirected:
+                done = subprocess.run(command, cwd=work, env=env, stdin=redirected, capture_output=True, check=False)
+        else:
+            done = subprocess.run(command, cwd=work, env=env, input=case.stdin, capture_output=True, check=False)
         out = Path(work) / "out.txt"
         return Result(
-            returncode, normalise(stdout), normalise(stderr), normalise(out.read_bytes()) if out.exists() else None
+            done.returncode,
+            normalise(done.stdout),
+            normalise(done.stderr),
+            normalise(out.read_bytes()) if out.exists() else None,
         )
 
 
@@ -408,10 +390,9 @@ def save_result(folder: Path, result: Result) -> None:
 
 def load_result(folder: Path) -> Result:
     """Reads a result written by save_result."""
-    code = (folder / "returncode").read_text()
     out = folder / "out.txt"
     return Result(
-        code if code == "timeout" else int(code),
+        int((folder / "returncode").read_text()),
         (folder / "stdout").read_bytes(),
         (folder / "stderr").read_bytes(),
         out.read_bytes() if out.exists() else None,
@@ -454,38 +435,59 @@ def absolute_path(value: str) -> Path:
 def parse_arguments() -> argparse.Namespace:
     """Reads the command line."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument(
-        "--new", type=absolute_path, default=BUILD_DIR / ("concord" + EXE_SUFFIX), help="concord to test"
-    )
+    parser.add_argument("--new", type=absolute_path, default=DEFAULT_CONCORD, help="concord to test")
     parser.add_argument(
         "--ref", type=absolute_path, help="reference concord, to compare with instead of the recorded results"
     )
     parser.add_argument("--goldens", type=absolute_path, default=GOLDENS, help="where the recorded results are")
+    parser.add_argument(
+        "--output-dir",
+        type=absolute_path,
+        default=DEFAULT_OUTPUT_DIR,
+        help="where the result of a case that fails is left, under the path of this directory from the repository",
+    )
     parser.add_argument("--record", action="store_true", help="record the results of --ref as the expected results")
-    parser.add_argument("--only", help="run only cases whose name contains this text")
+    parser.add_argument("--case", help="run only the case with this name")
     parser.add_argument("--list", action="store_true", help="list the cases and stop")
+    parser.add_argument(
+        "--check-unused", action="store_true", help="check that every recorded result belongs to a case, and stop"
+    )
     parser.add_argument("-v", "--verbose", action="store_true", help="show every case, and the differences")
     return parser.parse_args()
 
 
-def main() -> int:
-    """Runs the cases, returning a process exit code."""
-    options = parse_arguments()
-    cases = [case for case in build_cases() if not options.only or options.only in case.name]
-    if options.list:
-        print("\n".join(case.name for case in cases))
-        return 0
-    if options.record:
-        if not options.ref:
-            print("--record needs --ref", file=sys.stderr)
-            return 2
-        for case in cases:
-            save_result(options.goldens / case.name, run(options.ref, case))
-        print(f"recorded {len(cases)} cases in {options.goldens}")
-        return 0
+def check_unused(goldens: Path, cases: list[Case]) -> int:
+    """Reports the recorded results that are not of a case. Returns 1 if there are any."""
+    names = {case.name for case in cases}
+    unused = sorted(path.name for path in goldens.iterdir() if path.is_dir() and path.name not in names)
+    for name in unused:
+        print(f"recorded result of a case that does not exist: {goldens / name}")
+    return 1 if unused else 0
 
+
+def record(options: argparse.Namespace, cases: list[Case]) -> int:
+    """Records the results of the reference concord as the expected results."""
+    if not options.ref:
+        print("--record needs --ref", file=sys.stderr)
+        return 2
+    for case in cases:
+        save_result(options.goldens / case.name, run(options.ref, case))
+    print(f"recorded {len(cases)} cases in {options.goldens}")
+    return 0
+
+
+def compare(options: argparse.Namespace, cases: list[Case]) -> int:
+    """Runs the cases and compares each result with the expected one, returning a process exit code.
+
+    Each case starts by removing the directory that an earlier run of it left, so a case that passes leaves
+    nothing. A case that fails leaves its actual result, and the expected one if that was not recorded, in
+    that directory. The differences of a case are shown when it is the only one run, as ctest runs them, or
+    when verbose is set.
+    """
     failures = 0
     for case in cases:
+        output = options.output_dir / HERE.relative_to(HERE.parent.parent) / "input" / case.name
+        shutil.rmtree(output, ignore_errors=True)
         expected = run(options.ref, case) if options.ref else load_result(options.goldens / case.name)
         actual = run(options.new, case)
         if expected == actual:
@@ -493,14 +495,36 @@ def main() -> int:
                 print(f"PASS {case.name}")
             continue
         failures += 1
-        print(f"FAIL {case.name}")
-        if options.verbose:
+        save_result(output / "actual", actual)
+        expected_dir = options.goldens / case.name
+        if options.ref:
+            expected_dir = output / "expected"
+            save_result(expected_dir, expected)
+        print(f"FAIL {case.name}: actual result in {output / 'actual'}, expected result in {expected_dir}")
+        if options.verbose or options.case:
             print(describe_difference(expected, actual))
     if failures:
         print(f"concord input: FAIL ({failures} of {len(cases)} cases differ)", file=sys.stderr)
         return 1
     print("concord input: PASS")
     return 0
+
+
+def main() -> int:
+    """Runs the cases, returning a process exit code."""
+    options = parse_arguments()
+    cases = [case for case in build_cases() if not options.case or options.case == case.name]
+    if options.case and not cases:
+        print(f"{options.case} is not a case", file=sys.stderr)
+        return 2
+    if options.list:
+        print("\n".join(case.name for case in cases))
+        return 0
+    if options.check_unused:
+        return check_unused(options.goldens, cases)
+    if options.record:
+        return record(options, cases)
+    return compare(options, cases)
 
 
 if __name__ == "__main__":
