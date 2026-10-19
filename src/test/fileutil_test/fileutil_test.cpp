@@ -6,6 +6,7 @@
 // failures are reported to stdout and the process exit code is the pass/fail
 // signal (0 = all passed), matching fieldscanner_test.
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
@@ -27,20 +28,27 @@ void check(bool condition, const std::string& description) {
     std::cout << "FAIL: " << description << "\n";
 }
 
+/// Functions under test form paths using / as the initial separator. This helper function replaces / with
+/// PATH_SEPARATOR (OS-dependent) so test paths work natively under Linux, macOS and Windows.
+std::string native(std::string path) {
+    std::replace(path.begin(), path.end(), '/', PATH_SEPARATOR);
+    return path;
+}
+
 void check_build_filespec_basic() {
-    check(build_filespec("/a/b", "name", ".ext") == "/a/b/name.ext", "build_filespec: basic dir+name+ext");
+    check(build_filespec("/a/b", "name", ".ext") == native("/a/b/name.ext"), "build_filespec: basic dir+name+ext");
     check(build_filespec("", "name", ".ext") == "name.ext", "build_filespec: empty dir omits prefix");
-    check(build_filespec("/a/b", "name", "") == "/a/b/name", "build_filespec: empty ext omits suffix");
-    check(build_filespec("/a/b/", "name", ".ext") == "/a/b/name.ext",
+    check(build_filespec("/a/b", "name", "") == native("/a/b/name"), "build_filespec: empty ext omits suffix");
+    check(build_filespec("/a/b/", "name", ".ext") == native("/a/b/name.ext"),
           "build_filespec: trailing separator on dir not doubled");
 }
 
 void check_build_config_filespec_basic() {
-    check(build_config_filespec("/a/b", false, "config", "name", ".ext") == "/a/b/config/name.ext",
+    check(build_config_filespec("/a/b", false, "config", "name", ".ext") == native("/a/b/config/name.ext"),
           "build_config_filespec: dir+config+name+ext");
-    check(build_config_filespec("/a/b", false, "", "name", ".ext") == "/a/b/name.ext",
+    check(build_config_filespec("/a/b", false, "", "name", ".ext") == native("/a/b/name.ext"),
           "build_config_filespec: empty config omits subdirectory");
-    check(build_config_filespec("/a/b/c.cfg", true, "", "name", ".ext") == "/a/b/name.ext",
+    check(build_config_filespec("/a/b/c.cfg", true, "", "name", ".ext") == native("/a/b/name.ext"),
           "build_config_filespec: pathonly extracts directory from a filename");
 }
 
@@ -48,20 +56,21 @@ void check_build_config_filespec_basic() {
 // left-to-right pass over path components, not a crude character scan that
 // stops after one level), and collapses plain doubled separators.
 void check_normalization() {
-    check(build_config_filespec("/a/b/../c", false, "", "name", ".ext") == "/a/c/name.ext",
+    check(build_config_filespec("/a/b/../c", false, "", "name", ".ext") == native("/a/c/name.ext"),
           "normalize: single ../ collapses against the preceding segment");
-    check(build_config_filespec("/a/./b", false, "", "name", ".ext") == "/a/b/name.ext",
+    check(build_config_filespec("/a/./b", false, "", "name", ".ext") == native("/a/b/name.ext"),
           "normalize: ./ segment dropped");
-    check(build_config_filespec("./a/b", false, "", "name", ".ext") == "a/b/name.ext", "normalize: leading ./ dropped");
-    check(build_config_filespec("/a/b/../../c", false, "", "name", ".ext") == "/c/name.ext",
+    check(build_config_filespec("./a/b", false, "", "name", ".ext") == native("a/b/name.ext"),
+          "normalize: leading ./ dropped");
+    check(build_config_filespec("/a/b/../../c", false, "", "name", ".ext") == native("/c/name.ext"),
           "normalize: chained ../../ fully resolved");
-    check(build_config_filespec("/a/./../b", false, "", "name", ".ext") == "/b/name.ext",
+    check(build_config_filespec("/a/./../b", false, "", "name", ".ext") == native("/b/name.ext"),
           "normalize: ./ immediately followed by ../ fully resolved");
-    check(build_config_filespec("/a//b", false, "", "name", ".ext") == "/a/b/name.ext",
+    check(build_config_filespec("/a//b", false, "", "name", ".ext") == native("/a/b/name.ext"),
           "normalize: plain doubled separator collapsed");
-    check(build_config_filespec("/../x", false, "", "name", ".ext") == "/../x/name.ext",
+    check(build_config_filespec("/../x", false, "", "name", ".ext") == native("/../x/name.ext"),
           "normalize: leading .. with nothing to cancel against is kept literally");
-    check(build_config_filespec("/.hidden/../x", false, "", "name", ".ext") == "/.hidden/../x/name.ext",
+    check(build_config_filespec("/.hidden/../x", false, "", "name", ".ext") == native("/.hidden/../x/name.ext"),
           "normalize: ../ not collapsed against a dot-led preceding segment");
 }
 
@@ -191,9 +200,9 @@ void check_build_config_filespec_pathonly() {
           "pathonly: filename with no directory gives no directory prefix");
     check(build_config_filespec("/c.cfg", true, "", "name", ".ext") == "name.ext",
           "pathonly: filename in the root directory gives no directory prefix");
-    check(build_config_filespec("/a/b/", true, "", "name", ".ext") == "/a/b/name.ext",
+    check(build_config_filespec("/a/b/", true, "", "name", ".ext") == native("/a/b/name.ext"),
           "pathonly: trailing separator is the end of the directory");
-    check(build_config_filespec("/a.b/c", true, "", "name", ".ext") == "/a.b/name.ext",
+    check(build_config_filespec("/a.b/c", true, "", "name", ".ext") == native("/a.b/name.ext"),
           "pathonly: a dot in the directory is not an extension");
 #ifdef UNIX
     check(build_config_filespec("\\a\\b\\c.cfg", true, "", "name", ".ext") == "/a/b/name.ext",
