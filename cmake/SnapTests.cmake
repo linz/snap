@@ -16,6 +16,21 @@ set(SNAP_REGRESSION_TEST_TIMEOUT 60 CACHE STRING
 set(SNAP_TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/test_output" CACHE PATH
     "Where the files that the tests leave behind are put")
 
+# Installs the test programs (binroundtrip and the unit tests) with the programs, so that they are in the
+# package, for running the tests on a machine that did not build them. Only for the packages that are made
+# to be tested, as they are not part of the software.
+option(SNAP_PACKAGE_TEST_PROGRAMS "Install the test programs, so that they are in the package" OFF)
+
+# The directory of the programs that the tests run, which include the test programs. A project that only runs
+# the tests sets it to where the programs are, and does not build them. The project that builds the programs
+# does not set it, and it is where the build puts them.
+if(SNAP_PROGRAMS_DIR)
+    set(SNAP_BUILD_TEST_PROGRAMS FALSE)
+else()
+    set(SNAP_BUILD_TEST_PROGRAMS TRUE)
+    set(SNAP_PROGRAMS_DIR "$<TARGET_FILE_DIR:snap>")
+endif()
+
 # EXPERIMENTAL, AND NOT WORKING YET: a cross compiled program can only be tested if the machine that builds
 # it can run it, as WSL2 can run a program built for Windows. At the time of writing, a MinGW build tested from
 # WSL2 fails 284 of 318 regression tests, because the path of the coordinate system file that WSL2 gives a
@@ -43,7 +58,7 @@ if(CMAKE_CROSSCOMPILING)
     set(SNAP_TEST_ENVIRONMENT "WSLENV=${_wslenv}")
 endif()
 
-set(SNAP_REGRESSION_TESTS_DIR "${CMAKE_SOURCE_DIR}/regression_tests")
+get_filename_component(SNAP_REGRESSION_TESTS_DIR "${CMAKE_CURRENT_LIST_DIR}/../regression_tests" ABSOLUTE)
 
 # Registers the setup test of a fixture, which empties a directory before the tests that require the fixture
 # run, and then makes the directories that the tests need to exist before they start, if there are any.
@@ -65,20 +80,46 @@ function(snap_add_output_setup name directory)
         TIMEOUT ${SNAP_REGRESSION_TEST_TIMEOUT})
 endfunction()
 
+# Builds a program that the tests use, which is not a unit test. A project that only runs the tests
+# (SNAP_BUILD_TEST_PROGRAMS is FALSE) does not build it.
+#
+#   snap_add_test_program(<name> SOURCES <source>...)
+function(snap_add_test_program name)
+    cmake_parse_arguments(PARSE_ARGV 1 PROGRAM "" "" "SOURCES")
+    if(SNAP_BUILD_TEST_PROGRAMS)
+        add_executable(${name} ${PROGRAM_SOURCES})
+        target_link_libraries(${name} PRIVATE snaplib snap_link_deps)
+        if(SNAP_PACKAGE_TEST_PROGRAMS)
+            install(TARGETS ${name} RUNTIME DESTINATION ${SNAP_INSTALL_ROOT})
+        endif()
+    endif()
+endfunction()
+
 # Builds a standalone unit test, and registers it with ctest. The test passes if the executable's exit
 # code is 0. The test executable is also added to the unit_tests target, which builds all of them.
 # The test's temporary files go in its own directory under SNAP_TEST_OUTPUT_DIR, by way of the environment.
 # snap_add_unit_test_setup must be called once all the unit tests have been added.
 #
+# A project that only runs the tests (SNAP_BUILD_TEST_PROGRAMS is FALSE) does not build the test, and
+# registers the executable that is in SNAP_PROGRAMS_DIR.
+#
 #   snap_add_unit_test(<name> SOURCES <source>... [INCLUDE_DIRECTORIES <dir>...] [TIMEOUT <seconds>])
 function(snap_add_unit_test name)
     cmake_parse_arguments(PARSE_ARGV 1 TEST "" "TIMEOUT" "SOURCES;INCLUDE_DIRECTORIES")
-    add_executable(${name} ${TEST_SOURCES})
-    target_link_libraries(${name} PRIVATE snaplib snap_link_deps)
-    if(TEST_INCLUDE_DIRECTORIES)
-        target_include_directories(${name} PRIVATE ${TEST_INCLUDE_DIRECTORIES})
+    set(command ${name})
+    if(SNAP_BUILD_TEST_PROGRAMS)
+        add_executable(${name} ${TEST_SOURCES})
+        target_link_libraries(${name} PRIVATE snaplib snap_link_deps)
+        if(TEST_INCLUDE_DIRECTORIES)
+            target_include_directories(${name} PRIVATE ${TEST_INCLUDE_DIRECTORIES})
+        endif()
+        set_property(GLOBAL APPEND PROPERTY SNAP_UNIT_TESTS ${name})
+        if(SNAP_PACKAGE_TEST_PROGRAMS)
+            install(TARGETS ${name} RUNTIME DESTINATION ${SNAP_INSTALL_ROOT})
+        endif()
+    else()
+        set(command "${SNAP_PROGRAMS_DIR}/${name}${CMAKE_EXECUTABLE_SUFFIX}")
     endif()
-    set_property(GLOBAL APPEND PROPERTY SNAP_UNIT_TESTS ${name})
 
     if(SNAP_TESTS_CAN_RUN)
         if(NOT TEST_TIMEOUT)
@@ -86,7 +127,7 @@ function(snap_add_unit_test name)
         endif()
         set(output "${SNAP_TEST_OUTPUT_DIR}/src/test/${name}/output")
         set_property(GLOBAL APPEND PROPERTY SNAP_UNIT_TEST_OUTPUT_DIRS "${output}")
-        add_test(NAME ${name} COMMAND ${name})
+        add_test(NAME ${name} COMMAND ${command})
         set_tests_properties(${name} PROPERTIES
             TIMEOUT ${TEST_TIMEOUT}
             LABELS unit
@@ -97,8 +138,13 @@ endfunction()
 
 # Registers the setup test of the unit tests, which empties their directory under SNAP_TEST_OUTPUT_DIR and
 # makes the directory of each test, as std::filesystem::temp_directory_path fails if the directory it is
-# told to use does not exist.
+# told to use does not exist. It also adds the unit_tests target that builds every unit test, so that they
+# are built before ctest runs them, if they are built here.
 function(snap_add_unit_test_setup)
+    if(SNAP_BUILD_TEST_PROGRAMS)
+        get_property(unit_tests GLOBAL PROPERTY SNAP_UNIT_TESTS)
+        add_custom_target(unit_tests DEPENDS ${unit_tests})
+    endif()
     if(SNAP_TESTS_CAN_RUN)
         get_property(output_dirs GLOBAL PROPERTY SNAP_UNIT_TEST_OUTPUT_DIRS)
         snap_add_output_setup(unit-tests "${SNAP_TEST_OUTPUT_DIR}/src/test" CREATE ${output_dirs})
@@ -160,7 +206,7 @@ function(snap_add_regression_suite suite)
     foreach(test IN LISTS names)
         snap_add_regression_command("${name}/${test}" FIXTURE ${name} COMMAND
             Python3::Interpreter "${runner}" --config "${config}" --test "${test}"
-            --build-dir "$<TARGET_FILE_DIR:snap>" --output-dir "${SNAP_TEST_OUTPUT_DIR}" ${extra_arguments})
+            --build-dir "${SNAP_PROGRAMS_DIR}" --output-dir "${SNAP_TEST_OUTPUT_DIR}" ${extra_arguments})
     endforeach()
     if(NOT SUITE_NAME)
         snap_add_regression_command("${suite}/unused-check-data" COMMAND

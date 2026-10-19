@@ -20,7 +20,8 @@ execute_process(
 string(REPLACE "\n" ";" _concord_cases "${_concord_cases}")
 foreach(case IN LISTS _concord_cases)
     snap_add_regression_command("concord/input/${case}" FIXTURE concord COMMAND
-        Python3::Interpreter "${_concord_script}" --new "$<TARGET_FILE:concord>" --case "${case}"
+        Python3::Interpreter "${_concord_script}" --new "${SNAP_PROGRAMS_DIR}/concord${CMAKE_EXECUTABLE_SUFFIX}"
+        --case "${case}"
         --output-dir "${SNAP_TEST_OUTPUT_DIR}")
 endforeach()
 snap_add_regression_command("concord/input/unused-results" COMMAND
@@ -31,4 +32,4 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_concord_scrip
 snap_add_output_setup(binroundtrip "${SNAP_TEST_OUTPUT_DIR}/regression_tests/binroundtrip")
 snap_add_regression_command(binroundtrip FIXTURE binroundtrip COMMAND
     Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/binroundtrip/run_binroundtrip_test.py"
-    --build-dir "$<TARGET_FILE_DIR:snap>" --output-dir "${SNAP_TEST_OUTPUT_DIR}")
+    --build-dir "${SNAP_PROGRAMS_DIR}" --output-dir "${SNAP_TEST_OUTPUT_DIR}")
