@@ -12,19 +12,9 @@ Only 64-bit builds are supported.
 1. **CMake** 3.20 or later — https://cmake.org/download/
 2. **Ninja** — `winget install Ninja-build.Ninja` or download from https://ninja-build.org
 3. **Visual Studio 2022 or later** with the *Desktop development with C++* workload
-4. **Boost** — download source from https://www.boost.org/users/download/ and build the
-   required components from the Boost root directory:
-   ```
-   ./b2 toolset=msvc-14.3 --with-regex --with-system
-   ```
-   Replace the toolset version to match your Visual Studio installation:
-   | Visual Studio | Toolset   |
-   |---------------|-----------|
-   | 2022          | msvc-14.3 |
-   | 2026          | msvc-14.5 |
-
-   Then set the `BOOST_ROOT` environment variable to the Boost root directory
-   (e.g. `set BOOST_ROOT=C:\boost_1_78_0`).
+4. **Boost** — download the source from https://www.boost.org/users/download/ and unpack it.
+   The Windows builds use only the Boost headers, so nothing is built. Set the `BOOST_ROOT`
+   environment variable to the Boost root directory (e.g. `set BOOST_ROOT=C:\boost_1_78_0`).
 5. **Python 3** — https://www.python.org/downloads/windows/ (needed to run
    grid.py/trig.py/linzdeformationmodel.py, the tools that convert grid,
    triangulation, and deformation-model definitions to their binary form, and to
@@ -122,24 +112,10 @@ MinGW-w64 cross-compiler, without needing Visual Studio at all.
 2. **7zip** — `sudo apt-get install 7zip` (to extract the vendored wxWidgets archive;
    only needed for the GUI targets)
 3. **NSIS** — `sudo apt-get install nsis` (only needed for packaging)
-4. **Boost**, cross-built for MinGW. Reuse an existing Boost source tree if you have
-   one already (no need to re-download), or fetch a fresh one from
-   https://www.boost.org/users/download/, then from the Boost source root:
-   ```
-   cat > user-config.jam <<'EOF'
-   using gcc : 13 : x86_64-w64-mingw32-g++ ;
-   EOF
-   ./bootstrap.sh
-   ./b2 --user-config=$(pwd)/user-config.jam toolset=gcc-13 target-os=windows \
-     address-model=64 architecture=x86 link=static runtime-link=static \
-     threading=multi variant=release \
-     --with-regex --with-system --stagedir=stage-mingw -j$(nproc)
-   ```
-   Replace `13` with the major GCC version of your installed
-   `g++-mingw-w64-x86-64` (check with `x86_64-w64-mingw32-g++ --version`) - the
-   toolset name field must be a numeric-parseable tag, not an arbitrary word.
-
-   Set `BOOST_ROOT` to this Boost source root.
+4. **Boost** headers. Reuse an existing Boost source tree if you have one already (no need
+   to re-download), or fetch a fresh one from https://www.boost.org/users/download/ and
+   unpack it. The Windows builds use only the Boost headers, so nothing is built. Set
+   `BOOST_ROOT` to the Boost source root.
 5. **wxWidgets**, cross-built for MinGW (only needed for the GUI targets). wx's own
    Windows makefile (`wxwidgets\build\msw\makefile.gcc`) is `cmd.exe`-only and does
    not work for cross-compiling from Linux - use wx's autotools `configure` build

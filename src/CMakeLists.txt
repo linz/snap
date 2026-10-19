@@ -43,7 +43,7 @@ include_directories(
 add_library(snap_link_deps INTERFACE)
 target_include_directories(snap_link_deps INTERFACE ${Boost_INCLUDE_DIRS})
 target_link_libraries(snap_link_deps INTERFACE
-    Boost::regex
+    ${BOOST_REGEX_LIB}
     ${BOOST_SYSTEM_LIB}
     Threads::Threads
     netCDF::netcdf

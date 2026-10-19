@@ -82,16 +82,15 @@ endif()
 if(POLICY CMP0144)
     cmake_policy(SET CMP0144 OLD)
 endif()
-# Match the static CRT build of Boost on Windows (/MT) so FindBoost selects
-# the 'mt-s' variants rather than the default 'mt' (/MD) variants.
-if(MSVC)
-    set(Boost_USE_STATIC_RUNTIME ON)
-elseif(WIN32)
-    # MinGW: only a static (runtime-link=static), untagged build is staged,
-    # so there's no 'mt'/'mt-s' variant choice to make - just select static.
-    set(Boost_USE_STATIC_LIBS ON)
+# Boost.Regex is used where snapconfig.h defines REGEX_BOOST, which is every build except Windows (the same
+# condition that defines UNIX above). The Windows builds use std::regex, so they need only the Boost headers.
+if(WIN32)
+    find_package(Boost REQUIRED)
+    set(BOOST_REGEX_LIB "")
+else()
+    find_package(Boost REQUIRED COMPONENTS regex)
+    set(BOOST_REGEX_LIB Boost::regex)
 endif()
-find_package(Boost REQUIRED COMPONENTS regex)
 # boost::system is header-only since Boost 1.69; newer distros ship no .so for it.
 # FindBoost creates Boost::system as a side-effect of regex on older Boost — link
 # it explicitly only if that target exists, so we don't fail on Ubuntu 24.04+.
