@@ -225,7 +225,17 @@ def run_tests(build_type: str, build_d: Path, jobs: int | None) -> None:
 
     shutil.rmtree(build_d / "test_output", ignore_errors=True)
     print(f"The output of any regression test that fails is left in {build_d / 'test_output'}")
-    run(["ctest", "--test-dir", build_d, "--parallel", str(jobs or os.cpu_count() or 1), "--output-on-failure"])
+    run(
+        [
+            "ctest",
+            "--test-dir",
+            build_d,
+            "--parallel",
+            str(jobs or os.cpu_count() or 1),
+            "--output-on-failure",
+            "--no-tests=error",
+        ]
+    )
 
 
 def mingw_build(args: argparse.Namespace) -> None:
