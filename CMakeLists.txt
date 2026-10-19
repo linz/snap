@@ -142,7 +142,17 @@ if(SNAP_BUILD_LAPG OR SNAP_BUILD_GUI)
     add_subdirectory(tools/lapg)
 endif()
 
+# ── Tests ─────────────────────────────────────────────────────────────────────
+# Run them with ctest. The unit tests are registered where they are built (src/test), and the
+# regression tests, which run the built programs, are registered by regression_tests.
+enable_testing()
+include(cmake/SnapTests.cmake)
+
 add_subdirectory(src)
+
+if(SNAP_TESTS_CAN_RUN)
+    add_subdirectory(regression_tests)
+endif()
 
 # ── Packaging (CPack) ─────────────────────────────────────────────────────────
 if(WIN32)
