@@ -75,7 +75,10 @@ void check_normalization() {
 }
 
 // The number of leading separators is kept (two mark a Windows UNC path), and
-// each is written as the native separator, whichever separator was given.
+// each is written as the native separator, whichever separator was given. A ..
+// segment collapses against the segments that follow the leading separators.
+// What a .. does to the server or share name of a UNC path is not specified, so
+// no case here relies on it.
 void check_normalization_leading_separators() {
     const std::string s(1, PATH_SEPARATOR);
     const std::string unc = s + s + "server" + s + "share" + s + "x" + s + "name.ext";
@@ -87,8 +90,8 @@ void check_normalization_leading_separators() {
           "normalize: two leading separators of different kinds are kept");
     check(build_config_filespec("///a/b", false, "", "name", ".ext") == s + s + s + "a" + s + "b" + s + "name.ext",
           "normalize: three leading separators are kept");
-    check(build_config_filespec("//server/share/../other", false, "", "name", ".ext") ==
-              s + s + "server" + s + "other" + s + "name.ext",
+    check(build_config_filespec("//server/share/x/../other", false, "", "name", ".ext") ==
+              s + s + "server" + s + "share" + s + "other" + s + "name.ext",
           "normalize: ../ collapses after the leading separators");
 }
 
