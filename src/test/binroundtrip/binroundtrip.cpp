@@ -150,7 +150,7 @@ static void dump_relative_covariances_raw(BINARY_FILE* b, const RelativeCovarian
 //
 // Prints one value per line, as "label = value", so two dumps (e.g. one
 // per platform) can be diffed with a tolerance-aware line comparison
-// instead of a raw byte cmp - see run_test.py. Reuses the same reload_*
+// instead of a raw byte cmp - see run_binroundtrip_test.py. Reuses the same reload_*
 // calls and structs as the round-trip mode; this only adds printing.
 
 // Same formatting dump_value below uses for the value+newline part, once

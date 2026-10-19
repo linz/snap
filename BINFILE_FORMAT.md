@@ -119,7 +119,7 @@ per line (`--dump` mode) - the latter for a tolerance-aware comparison that can 
 regression apart from ordinary floating-point differences between compilers, which a raw byte
 comparison can't.
 
-`regression_tests/binroundtrip/run_test.py` runs two comparisons against a committed golden
+`regression_tests/binroundtrip/run_binroundtrip_test.py` runs two comparisons against a committed golden
 `.bin` fixture: a fresh `snap` run's output vs. golden (via `--dump` and `compare_dump.py`,
 tolerant of floating-point noise - including a per-field tolerance override for `vecdata.vsres`,
 a standardised residual that can amplify ordinary rounding noise through a near-singular

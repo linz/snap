@@ -106,9 +106,7 @@ def compare_dumps(expected_lines: list[str], actual_lines: list[str]) -> Compari
     """
     mismatches = []
     if len(expected_lines) != len(actual_lines):
-        mismatches.append(
-            f"line count differs: expected {len(expected_lines)} lines, got {len(actual_lines)}"
-        )
+        mismatches.append(f"line count differs: expected {len(expected_lines)} lines, got {len(actual_lines)}")
 
     suppressed = 0
     for i, (expected, actual) in enumerate(zip(expected_lines, actual_lines), start=1):
