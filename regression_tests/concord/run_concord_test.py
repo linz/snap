@@ -14,9 +14,9 @@ with the ones recorded in stream_goldens/, which were recorded from the program
 before its input code was changed to read a line at a time.
 
 Usage:
-    run_test.py                       compare the built concord with the recorded results
-    run_test.py --ref OLD --new NEW   compare two programs with each other
-    run_test.py --ref OLD --record    record the results of OLD as the new expected results
+    run_concord_test.py                       compare the built concord with the recorded results
+    run_concord_test.py --ref OLD --new NEW   compare two programs with each other
+    run_concord_test.py --ref OLD --record    record the results of OLD as the new expected results
 """
 
 from __future__ import annotations

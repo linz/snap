@@ -11,7 +11,7 @@ snap_add_regression_suite(snapspec NAME snapspec_k PARAMETERS -k)
 
 # How concord reads its input, with a test for each case of the script that runs them. They leave their
 # output in the directory of the concord suite, which is emptied by the suite's setup test.
-set(_concord_script "${CMAKE_CURRENT_SOURCE_DIR}/concord/run_test.py")
+set(_concord_script "${CMAKE_CURRENT_SOURCE_DIR}/concord/run_concord_test.py")
 execute_process(
     COMMAND "${Python3_EXECUTABLE}" "${_concord_script}" --list
     OUTPUT_VARIABLE _concord_cases
@@ -30,5 +30,5 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_concord_scrip
 # The .bin format round trips byte for byte
 snap_add_output_setup(binroundtrip "${SNAP_TEST_OUTPUT_DIR}/regression_tests/binroundtrip")
 snap_add_regression_command(binroundtrip FIXTURE binroundtrip COMMAND
-    Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/binroundtrip/run_test.py"
+    Python3::Interpreter "${CMAKE_CURRENT_SOURCE_DIR}/binroundtrip/run_binroundtrip_test.py"
     --build-dir "$<TARGET_FILE_DIR:snap>" --output-dir "${SNAP_TEST_OUTPUT_DIR}")
