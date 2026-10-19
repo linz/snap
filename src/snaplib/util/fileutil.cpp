@@ -93,16 +93,19 @@ int file_size(const std::string& path) {
 /* Lexically collapses "." and ".." segments in path, treating either
    PATH_SEPARATOR or PATH_SEPARATOR2 as a segment boundary. Never touches
    the filesystem - doesn't resolve symlinks or check that a collapsed
-   ".." segment's target actually exists. Preserves a leading separator
-   (an absolute path stays absolute). A ".." with no preceding real
+   ".." segment's target actually exists. Every separator in the result is
+   PATH_SEPARATOR, and the number of leading separators is kept (an absolute
+   path stays absolute, and the two leading separators of a Windows UNC path
+   are kept). A ".." with no preceding real
    segment to cancel (either because there isn't one, or because the
    preceding segment is itself "." or ".." or otherwise dot-led) is kept
    literally, since there's nothing lexically valid to collapse it against. */
 static std::string normalize_path(const std::string& path) {
-    const bool absolute = !path.empty() && (path.front() == PATH_SEPARATOR || path.front() == PATH_SEPARATOR2);
+    const std::string separators{PATH_SEPARATOR, PATH_SEPARATOR2};
+    const std::size_t leading = std::min(path.find_first_not_of(separators), path.size());
 
     std::vector<std::string> segments;
-    std::size_t pos = 0;
+    std::size_t pos = leading;
     while (pos <= path.size()) {
         std::size_t next = pos;
         while (next < path.size() && path[next] != PATH_SEPARATOR && path[next] != PATH_SEPARATOR2) {
@@ -122,10 +125,7 @@ static std::string normalize_path(const std::string& path) {
         pos = next + 1;
     }
 
-    std::string result;
-    if (absolute) {
-        result += PATH_SEPARATOR;
-    }
+    std::string result(leading, PATH_SEPARATOR);
     for (std::size_t i = 0; i < segments.size(); i++) {
         if (i > 0) {
             result += PATH_SEPARATOR;

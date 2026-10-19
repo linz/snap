@@ -65,6 +65,24 @@ void check_normalization() {
           "normalize: ../ not collapsed against a dot-led preceding segment");
 }
 
+// The number of leading separators is kept (two mark a Windows UNC path), and
+// each is written as the native separator, whichever separator was given.
+void check_normalization_leading_separators() {
+    const std::string s(1, PATH_SEPARATOR);
+    const std::string unc = s + s + "server" + s + "share" + s + "x" + s + "name.ext";
+    check(build_config_filespec("//server/share/x", false, "", "name", ".ext") == unc,
+          "normalize: two leading / are kept");
+    check(build_config_filespec("\\\\server\\share\\x", false, "", "name", ".ext") == unc,
+          "normalize: two leading backslashes are kept");
+    check(build_config_filespec("/\\server/share/x", false, "", "name", ".ext") == unc,
+          "normalize: two leading separators of different kinds are kept");
+    check(build_config_filespec("///a/b", false, "", "name", ".ext") == s + s + s + "a" + s + "b" + s + "name.ext",
+          "normalize: three leading separators are kept");
+    check(build_config_filespec("//server/share/../other", false, "", "name", ".ext") ==
+              s + s + "server" + s + "other" + s + "name.ext",
+          "normalize: ../ collapses after the leading separators");
+}
+
 void check_find_relative_file() {
     const std::filesystem::path tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_relative";
     std::filesystem::remove_all(tmp);
@@ -217,6 +235,7 @@ int main() {
     check_build_filespec_basic();
     check_build_config_filespec_basic();
     check_normalization();
+    check_normalization_leading_separators();
     check_native_path();
     check_build_config_filespec_pathonly();
     check_context_round_trip();
