@@ -139,94 +139,16 @@ MinGW-w64 cross-compiler, without needing Visual Studio at all.
    bundled DLLs. Build netCDF-C from source instead, statically, with everything
    not needed for local netCDF-4 classic reads turned off — along with its own
    dependencies (zlib, HDF5), also built from source and static, all installed to
-   one shared prefix:
+   one shared prefix. `build_mingw_netcdf_stack.py` does all of it:
    ```
-   mkdir -p netcdf-mingw
-
-   # zlib - HDF5's own compression dependency. Do NOT reuse the zlib vendored
-   # under wxwidgets/wxWidgets_mingw/src/zlib for this - that's wxWidgets' own
-   # patched fork with every symbol renamed wx_zlib_*, unusable by anything else
-   # linking against it. Use genuine upstream zlib instead.
-   curl -LO https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz
-   tar xzf zlib-1.3.1.tar.gz -C netcdf-mingw
-   cmake -S netcdf-mingw/zlib-1.3.1 -B netcdf-mingw/zlib-build \
-     -DCMAKE_TOOLCHAIN_FILE=$(pwd)/cmake/toolchain-mingw-w64.cmake \
-     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/netcdf-mingw/install \
-     -DBUILD_SHARED_LIBS=OFF
-   cmake --build netcdf-mingw/zlib-build -j$(nproc)
-   cmake --install netcdf-mingw/zlib-build
-
-   # HDF5 - netCDF-4's underlying storage format. Static only; no szip/MPI/
-   # Fortran/C++/Java bindings, no tools/tests/examples.
-   curl -LO https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.5/hdf5-1.14.5.tar.gz
-   tar xzf hdf5-1.14.5.tar.gz -C netcdf-mingw
-   cmake -S netcdf-mingw/hdf5-1.14.5 -B netcdf-mingw/hdf5-build \
-     -DCMAKE_TOOLCHAIN_FILE=$(pwd)/cmake/toolchain-mingw-w64.cmake \
-     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/netcdf-mingw/install \
-     -DCMAKE_PREFIX_PATH=$(pwd)/netcdf-mingw/install \
-     -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON \
-     -DHDF5_BUILD_EXAMPLES=OFF -DHDF5_BUILD_TOOLS=OFF -DHDF5_BUILD_TESTS=OFF \
-     -DBUILD_TESTING=OFF -DHDF5_BUILD_UTILS=OFF -DHDF5_ENABLE_SZIP_SUPPORT=OFF \
-     -DHDF5_ENABLE_Z_LIB_SUPPORT=ON -DHDF5_ENABLE_PARALLEL=OFF \
-     -DHDF5_BUILD_FORTRAN=OFF -DHDF5_BUILD_CPP_LIB=OFF -DHDF5_BUILD_JAVA=OFF \
-     -DHDF5_BUILD_HL_LIB=ON \
-     -DZLIB_LIBRARY=$(pwd)/netcdf-mingw/install/lib/libzlibstatic.a \
-     -DZLIB_INCLUDE_DIR=$(pwd)/netcdf-mingw/install/include
-   cmake --build netcdf-mingw/hdf5-build -j$(nproc)
-   cmake --install netcdf-mingw/hdf5-build
-
-   # netCDF-C itself. DAP/S3/NCZarr/parallel/filter-plugin support all off, since
-   # GGRXF only ever does local netCDF-4 classic reads.
-   curl -L -o netcdf-c-4.9.3.tar.gz https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.9.3.tar.gz
-   tar xzf netcdf-c-4.9.3.tar.gz -C netcdf-mingw
-   cmake -S netcdf-mingw/netcdf-c-4.9.3 -B netcdf-mingw/netcdf-c-build \
-     -DCMAKE_TOOLCHAIN_FILE=$(pwd)/cmake/toolchain-mingw-w64.cmake \
-     -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/netcdf-mingw/install \
-     -DCMAKE_PREFIX_PATH=$(pwd)/netcdf-mingw/install \
-     -DBUILD_SHARED_LIBS=OFF -DENABLE_TESTS=OFF -DENABLE_EXAMPLES=OFF \
-     -DENABLE_UTILITIES=OFF -DBUILD_UTILITIES=OFF \
-     -DENABLE_DAP=OFF -DENABLE_DAP2=OFF -DENABLE_DAP4=OFF -DENABLE_BYTERANGE=OFF \
-     -DENABLE_NCZARR=OFF -DENABLE_NCZARR_ZIP=OFF -DENABLE_HDF4=OFF \
-     -DENABLE_PNETCDF=OFF -DENABLE_PARALLEL4=OFF -DENABLE_PLUGINS=OFF \
-     -DENABLE_FILTER_SZIP=OFF -DENABLE_FILTER_ZSTD=OFF -DENABLE_FILTER_BZ2=OFF \
-     -DENABLE_FILTER_BLOSC=OFF -DENABLE_QUANTIZE=OFF -DNETCDF_ENABLE_LIBXML2=OFF \
-     -DHDF5_ROOT=$(pwd)/netcdf-mingw/install \
-     -DZLIB_LIBRARY=$(pwd)/netcdf-mingw/install/lib/libzlibstatic.a \
-     -DZLIB_INCLUDE_DIR=$(pwd)/netcdf-mingw/install/include
-   cmake --build netcdf-mingw/netcdf-c-build -j$(nproc)
-   cmake --install netcdf-mingw/netcdf-c-build
+   ./build_mingw_netcdf_stack.py
    ```
-   `-DNETCDF_ENABLE_LIBXML2=OFF` matters even with DAP disabled — left on, it's
-   used for NcML metadata parsing regardless of the DAP settings, and auto-detects
-   and links the *host's own native Linux* `libxml2.a` into the cross-compiled
-   static library. Off, netCDF falls back to its own bundled tinyxml2 and needs
-   nothing external for XML.
+   It downloads and builds zlib, HDF5 and netCDF-C into `netcdf-mingw/` in the repository,
+   with the options that are described in the script, and prints how long each step took. It
+   stops if `netcdf-mingw/` already exists, so a run is always a complete build. `--work-dir`
+   puts it somewhere else, and `--jobs` sets how many parallel jobs the builds use.
 
-   netCDF-C's own CMake export has a separate real gap: `netCDFTargets.cmake`
-   references `HDF5::HDF5`/`hdf5::hdf5_hl`/`ZLIB::ZLIB` by name, but
-   `netCDFConfig.cmake` never arranges for a consumer to have those targets
-   defined — they only ever exist as a side effect inside netCDF's own build, via
-   CMake's module-mode `FindHDF5`/`FindZLIB`. Patch that into the installed config
-   once, right after the builds above:
-   ```
-   python3 - <<'EOF'
-   import pathlib
-   p = pathlib.Path("netcdf-mingw/install/lib/cmake/netCDF/netCDFConfig.cmake")
-   text = p.read_text()
-   marker = 'include("${CMAKE_CURRENT_LIST_DIR}/netCDFTargets.cmake")'
-   patch = '''add_library(ZLIB::ZLIB STATIC IMPORTED)
-   set_target_properties(ZLIB::ZLIB PROPERTIES
-     IMPORTED_LOCATION "${netCDF_LIB_DIR}/libzlibstatic.a"
-     INTERFACE_INCLUDE_DIRECTORIES "${netCDF_INCLUDE_DIR}")
-   include("${netCDF_INSTALL_PREFIX}/cmake/hdf5-config.cmake")
-   add_library(HDF5::HDF5 ALIAS hdf5-static)
-   add_library(hdf5::hdf5_hl ALIAS hdf5_hl-static)
-   '''
-   p.write_text(text.replace(marker, patch + marker))
-   EOF
-   ```
-
-   Set `NETCDF_MINGW_ROOT` to the combined install prefix used above (e.g.
+   Set `NETCDF_MINGW_ROOT` to the `install` directory that it prints at the end (e.g.
    `export NETCDF_MINGW_ROOT=$(pwd)/netcdf-mingw/install`).
 
 **Building**
@@ -349,6 +271,24 @@ by way of `TMPDIR` (`TMP` and `TEMP` on Windows). The tests called `.../clear-ou
 The CMake cache variables `SNAP_UNIT_TEST_TIMEOUT` and `SNAP_REGRESSION_TEST_TIMEOUT` are
 the number of seconds a test may run before ctest stops it, and `SNAP_TEST_OUTPUT_DIR`
 is where `test_output` is.
+
+**Running the tests on programs that were built elsewhere**
+
+`tests_only/` is a CMake project that registers the same tests, and runs them against programs
+that are already built. It needs no compiler and none of the libraries that the programs use. It
+takes the test definitions and data from the repository that it is in, so that has to be the same
+version as the programs:
+
+```
+cmake -S tests_only -B build-tests -DSNAP_PROGRAMS_DIR=<absolute path of the programs>
+ctest --test-dir build-tests --parallel
+```
+
+The directory has to have the programs, `binroundtrip` and the unit test programs. A build has all of
+them in `build-release/src`. Configuring a build with `-DSNAP_PACKAGE_TEST_PROGRAMS=ON` also installs
+`binroundtrip` and the unit tests with the programs, so that they are in the package. The ZIP that the
+`mingw-zip` job of `test.yml` makes is configured that way. It is not for release, as the test programs
+are not part of the software.
 
 **Coordinate system data**
 

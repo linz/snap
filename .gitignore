@@ -36,3 +36,4 @@ src/VERSIONID
 /linux/profile/
 /wxtest
 /build*/
+/netcdf-mingw/
