@@ -49,7 +49,7 @@ Options:
                      sets SNAP_BUILD_DIR passed to debuild/debian/rules
     --no-efence      Do not link efence (debug builds link efence by default)
     --mingw          Cross-compile for Windows using MinGW-w64 (from Linux only;
-                     release only). Requires BOOST_ROOT set to a MinGW-built Boost
+                     release only). Requires BOOST_ROOT set to a Boost source
                      tree, and (unless --no-gui) WX_MINGW_CONFIG set to a MinGW-built
                      wxWidgets wx-config script - see BUILD.md. Uses the
                      windows-mingw-release[-gui] CMake presets rather than the plain
@@ -260,7 +260,7 @@ def mingw_build(args: argparse.Namespace) -> None:
         return
 
     if not os.environ.get("BOOST_ROOT"):
-        print("ABORTED: BOOST_ROOT must be set to a MinGW-built Boost tree - see BUILD.md")
+        print("ABORTED: BOOST_ROOT must be set to a Boost source tree - see BUILD.md")
         sys.exit(1)
     if not args.no_gui and not os.environ.get("WX_MINGW_CONFIG"):
         print(
