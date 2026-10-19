@@ -13,9 +13,9 @@ TYPE (default: release):
 TARGET (default: all):
     all        Build all targets
     snap_cmd   Build command-line tools only
-    test       Build snap_cmd and the unit tests, and run the regression and unit tests, with
-               testall.pl and then with ctest (in parallel; the output of a regression test that
-               fails is left in BUILD_DIR/test_output)
+    test       Build snap_cmd and the unit tests, and run the regression and unit tests with
+               ctest (in parallel; the output of a regression test that fails is left in
+               BUILD_DIR/test_output)
     install    Build all and install to system (release only, requires a
                clean git tree, so VERSIONID reflects what was actually built)
     package    Build a Debian package (Linux, release only; --build-dir sets SNAP_BUILD_DIR),
@@ -212,17 +212,11 @@ def cmake_build(build_d: Path, targets: list[str] | None = None, jobs: int | Non
     run(cmd)
 
 
-def run_tests(build_type: str, build_d: Path, jobs: int | None) -> None:
-    """Runs testall.pl, and then ctest, against the already-built targets.
+def run_tests(build_d: Path, jobs: int | None) -> None:
+    """Runs ctest against the already-built targets.
 
     The output of the regression tests that fail is left in build_d/test_output, which is emptied first.
     """
-    testall = REPO_ROOT / "regression_tests" / "testall.pl"
-    cmd: list[str | Path] = ["perl", testall, "-e"]
-    if build_type == "release":
-        cmd.append("-r")
-    run(cmd)
-
     shutil.rmtree(build_d / "test_output", ignore_errors=True)
     print(f"The output of any regression test that fails is left in {build_d / 'test_output'}")
     run(
@@ -801,7 +795,7 @@ def main() -> None:  # pylint: disable=too-many-branches
     elif args.target == "test":
         cmake_build(build_d, targets=SNAP_CMD_TARGETS + ["binroundtrip", "unit_tests"], jobs=args.jobs)
         copy_config_files(build_d, args.type)
-        run_tests(args.type, build_d, args.jobs)
+        run_tests(build_d, args.jobs)
     elif args.target == "install":
         cmake_build(build_d, jobs=args.jobs)
         run(["cmake", "--install", build_d])

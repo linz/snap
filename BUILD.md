@@ -25,12 +25,11 @@ Only 64-bit builds are supported.
 
    Then set the `BOOST_ROOT` environment variable to the Boost root directory
    (e.g. `set BOOST_ROOT=C:\boost_1_78_0`).
-5. **Perl** — ActiveState (https://www.activestate.com/products/perl/) or
-   Strawberry Perl (https://strawberryperl.com/)
-6. **Python 3** — https://www.python.org/downloads/windows/ (needed to run
+5. **Python 3** — https://www.python.org/downloads/windows/ (needed to run
    grid.py/trig.py/linzdeformationmodel.py, the tools that convert grid,
-   triangulation, and deformation-model definitions to their binary form)
-7. **netCDF-C**, via vcpkg — needed to read GGRXF deformation model files
+   triangulation, and deformation-model definitions to their binary form, and to
+   run the tests)
+6. **netCDF-C**, via vcpkg — needed to read GGRXF deformation model files
    (netCDF-4/HDF5-based):
    ```
    git clone https://github.com/microsoft/vcpkg.git
@@ -40,6 +39,11 @@ Only 64-bit builds are supported.
    Set the `VCPKG_ROOT` environment variable to the cloned `vcpkg` directory
    (e.g. `set VCPKG_ROOT=C:\vcpkg`) — the MSVC presets below pick vcpkg's own
    toolchain file up from there automatically.
+
+Perl is not needed to build SNAP. It is needed to run SNAP: the scripts in `src/perl` use
+it, and so does the function of SNAP Manager that retrieves coordinates from the geodetic
+database. Install Strawberry Perl (https://strawberryperl.com/) or ActiveState Perl
+(https://www.activestate.com/products/perl/) on a computer that is to use those.
 
 **Building**
 
@@ -53,6 +57,16 @@ cmake --build --preset windows-msvc-release
 
 Binaries are placed in `build\windows-release\`. For a debug build use the
 `windows-msvc-debug` preset, which places output in `build\windows-debug\`.
+
+**Running the tests**
+
+```
+ctest --test-dir build\windows-release --parallel
+```
+
+For the debug build use `build\windows-debug`. The files that a test that fails leaves behind
+are in `test_output` in the build directory. They are described under *Running the tests* in
+the Linux instructions below, which also say how to run one test.
 
 **Coordinate system data**
 
@@ -298,7 +312,6 @@ apt-get install -y \
     libboost-all-dev \
     libnetcdf-dev \
     libwxgtk3.2-dev \
-    perl \
     python3 \
     debhelper \
     dpkg-dev \
@@ -307,6 +320,11 @@ apt-get install -y \
 
 On Jammy (22.04), the wxWidgets package is `libwxgtk3.0-gtk3-dev` — the `3.2`
 package above is Noble-only.
+
+Perl is not needed to build SNAP. It is needed to run SNAP: the scripts in `src/perl` use
+it, and so does the function of SNAP Manager that retrieves coordinates from the geodetic
+database. The debian package depends on `perl` for that, and a build that is run straight
+out of `build-release/` needs it installed on the computer that uses those.
 
 The snap software is built using `build.py` in the root of the repository:
 
@@ -323,8 +341,8 @@ snapplot) are built by default; pass `--no-gui` to skip them. See
 **Running the tests**
 
 `python3 build.py release test` builds the programs and the unit tests, then runs the
-tests with `testall.pl` and again with `ctest`, which runs them in parallel. To run
-them again without building, run `ctest` in the build directory:
+tests with `ctest`, which runs them in parallel. To run them again without building,
+run `ctest` in the build directory:
 
 ```
 cd build-release

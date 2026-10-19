@@ -8,7 +8,7 @@ the last one wins, or they are all used.
 
 These are the settings, and the match_ ones, which say how to compare output, are read by compare_output.py:
 
-    test_dir, check_dir, out_dir     the directories of the test definitions and check data
+    test_dir, check_dir              the directories of the test definitions and check data
     testre, configre                 patterns for the names of the tests, and for settings in a test definition
     filere, ignorere                 patterns for the files that a test definition names, and that it ignores
     program, command, discard        what to run, and the files to discard from the output
@@ -36,7 +36,6 @@ SETTING_ITEMS = frozenset(
     {
         "test_dir",
         "check_dir",
-        "out_dir",
         "testre",
         "configre",
         "filere",
