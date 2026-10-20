@@ -48,7 +48,7 @@ void gnomic_geod(GnomicProjection* gp, double ce, double cn, double* lon, double
         return;
     }
 
-    csth = _hypot(cn, ce);
+    csth = std::hypot(cn, ce);
     snth = cn / csth;
     csth = ce / csth;
 

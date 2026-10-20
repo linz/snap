@@ -247,7 +247,7 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
                 if (!apriori) {
                     emax *= seu;
                 }
-                htol = _hypot(spec->htolabs, (spec->htolppm) * veclen * 1.0e-6);
+                htol = std::hypot(spec->htolabs, (spec->htolppm) * veclen * 1.0e-6);
                 if (htol > 0.0) {
                     hratio = emax / htol;
                     if (hratio > 1.0) {
@@ -268,7 +268,7 @@ void test_relative_accuracy_specs(SpecDef* spec, int apriori, const std::vector<
                 if (!apriori) {
                     verr *= seu;
                 }
-                vtol = _hypot(spec->vtolabs, (spec->vtolppm) * veclen * 1.0e-6);
+                vtol = std::hypot(spec->vtolabs, (spec->vtolppm) * veclen * 1.0e-6);
                 if (vtol > 0.0) {
                     vratio = verr / vtol;
                     if (vratio > 1.0) {

@@ -43,7 +43,7 @@ static void calc_topocentre(network* nw) {
 
         /* Calculate the corresponding latitude and longitude */
 
-        r = _hypot(vecu[0], vecu[1]);
+        r = std::hypot(vecu[0], vecu[1]);
         topolat = std::atan2(vecu[2], r);
         if (r) {
             topolon = std::atan2(vecu[1], vecu[0]);

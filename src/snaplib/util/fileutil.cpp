@@ -207,11 +207,25 @@ std::optional<std::string> user_config_dir() {
 #else
 
 std::optional<std::string> image_path() {
-    if (imgpath)
+    if (imgpath) {
         return imgpath;
-    char* path = nullptr;
-    _get_pgmptr(&path);
-    imgpath = path ? std::string(path) : std::string();
+    }
+    // A path that does not fit in the buffer is cut short, and the length that is returned is then the size of
+    // the buffer, so the buffer is doubled until the path leaves room in it.
+    std::string path(MAX_PATH, '\0');
+    while (true) {
+        const DWORD length = GetModuleFileNameA(nullptr, path.data(), static_cast<DWORD>(path.size()));
+        if (length == 0) {
+            path.clear();
+            break;
+        }
+        if (length < path.size()) {
+            path.resize(length);
+            break;
+        }
+        path.resize(path.size() * 2);
+    }
+    imgpath = path;
     return imgpath;
 }
 

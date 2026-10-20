@@ -788,7 +788,7 @@ static void load_default_error(snapfile_def* sd, snap_data_type* obstype, double
 
     switch (errtype) {
         case DS_ERR:
-            error = _hypot(sd->dserr, value * sd->dsppmerr);
+            error = std::hypot(sd->dserr, value * sd->dsppmerr);
             ldt_error(&error);
             break;
 

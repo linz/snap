@@ -1667,7 +1667,7 @@ static void setup_plane_projection(const double xyz[3]) {
     for (i = 0; i < 3; i++) {
         vxyz[i] /= v;
     }
-    v = _hypot(vxyz[0], vxyz[1]);
+    v = std::hypot(vxyz[0], vxyz[1]);
     exyz[0] = -vxyz[1] / v;
     exyz[1] = vxyz[0] / v;
     exyz[2] = 0;
@@ -1778,7 +1778,7 @@ static int fix_with_azds(stn* st, double* lt, double* ln, double* hgt) {
 }
 
 static double distance(double xy1[2], double xy2[2]) {
-    return _hypot(xy2[0] - xy1[0], xy2[1] - xy1[1]);
+    return std::hypot(xy2[0] - xy1[0], xy2[1] - xy1[1]);
 }
 
 static double bearing(double xy1[2], double xy2[2]) {

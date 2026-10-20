@@ -18,7 +18,6 @@
 #define _stricmp strcasecmp
 #define _strnicmp strncasecmp
 #define _isatty isatty
-#define _hypot std::hypot
 #define _tempnam tempnam
 #define _strupr(x)                       \
     {                                    \

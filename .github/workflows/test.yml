@@ -46,3 +46,42 @@ jobs:
           poetry run ruff format --check $files
           poetry run pylint $files
           poetry run mypy --strict --ignore-missing-imports $files
+
+  mingw-zip:
+    runs-on: ubuntu-24.04
+    env:
+      NETCDF_MINGW_ROOT: ${{ github.workspace }}/netcdf-mingw/install
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7.0.1
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install cmake g++-mingw-w64-x86-64 libboost-dev python3
+      # BOOST_ROOT cannot be /usr, because the Boost headers would then be found through -I/usr/include, which
+      # puts the Linux system headers ahead of MinGW's. A folder that holds only boost avoids that.
+      - name: Make a folder that holds only the Boost headers
+        run: |
+          mkdir "$RUNNER_TEMP/boost_root"
+          ln -s /usr/include/boost "$RUNNER_TEMP/boost_root/boost"
+          echo "BOOST_ROOT=$RUNNER_TEMP/boost_root" >> "$GITHUB_ENV"
+      - name: Build the static netCDF stack for MinGW
+        run: ./build_mingw_netcdf_stack.py
+      # The test programs go in the ZIP too, so that the Windows job that runs the tests has all the programs
+      # from one unzip. This ZIP is only for that job; the ZIP that is released is built without them.
+      - name: Build the Windows command line utilities
+        run: |
+          cmake --preset windows-mingw-release -DSNAP_PACKAGE_TEST_PROGRAMS=ON
+          cmake --build --preset windows-mingw-release --parallel
+      - name: Package the Windows ZIP
+        working-directory: build/windows-mingw-release
+        run: cpack -G ZIP
+      # Jobs run on separate machines, so an artifact is the only way to hand the ZIP to another job. The Windows
+      # job that tests it will download it from this run. It is kept for one day because nothing else uses it.
+      - name: Upload the Windows ZIP
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: snap-windows-mingw-zip
+          path: build/windows-mingw-release/*.zip
+          if-no-files-found: error
+          retention-days: 1

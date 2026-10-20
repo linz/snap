@@ -6,8 +6,7 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/..")
 
 # Verifies the .bin format round-trips byte-for-byte. See BINFILE_FORMAT.md.
-add_executable(binroundtrip binroundtrip/binroundtrip.cpp)
-target_link_libraries(binroundtrip PRIVATE snaplib snap_link_deps)
+snap_add_test_program(binroundtrip SOURCES binroundtrip/binroundtrip.cpp)
 
 # Unit test for util/fieldscanner.hpp.
 snap_add_unit_test(fieldscanner_test SOURCES fieldscanner_test/fieldscanner_test.cpp)
@@ -95,9 +94,6 @@ snap_add_unit_test(datetimeparser_test SOURCES datetimeparser_test/datetimeparse
 # Unit test for RangedInt in util/rangedint.h.
 snap_add_unit_test(rangedint_test SOURCES rangedint_test/rangedint_test.cpp)
 
-# The setup test that gives each unit test the directory its temporary files go in
+# The setup test that gives each unit test the directory its temporary files go in, and the unit_tests target
+# that builds them all
 snap_add_unit_test_setup()
-
-# Every unit test above, so that building this target builds them all before ctest runs them.
-get_property(snap_unit_tests GLOBAL PROPERTY SNAP_UNIT_TESTS)
-add_custom_target(unit_tests DEPENDS ${snap_unit_tests})
