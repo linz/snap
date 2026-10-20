@@ -23,6 +23,7 @@
 #include "snapdata/survdata.h"
 #include "util/classify.h"
 #include "util/errdef.h"
+#include "util/fileutil.h"
 
 struct file_context;
 
@@ -130,7 +131,7 @@ std::string describe_results() {
     }
 
     // The summary of the modifications
-    std::FILE* summary = std::tmpfile();
+    std::FILE* summary = snaptmpfile();
     summarize_obs_modifications(obsmod, summary, "> ");
     std::rewind(summary);
     char line[512];
