@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <array>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -1971,6 +1972,8 @@ static void report_conv_error(const int sts) {
 static void process_coordinates(void) {
     int sts;
     const std::string sep(1, separator ? separator : ' ');
+    const bool input_is_file =
+        crdin == &keyboard ? keyboard_is_file : crdin_fname && std::filesystem::is_regular_file(*crdin_fname);
     while (true) {
         std::string_view prtsep = sep;
         if (!find_next_data_line()) {
@@ -2003,10 +2006,10 @@ static void process_coordinates(void) {
             ncrdcnv++;
             write_results();
         } else {
-            /* When the input is a file, including a file redirected into standard input with <, a record is copied
-               to the output from its start. When it is a pipe or a terminal only the rest of the line is copied,
-               from where reading stopped. */
-            if ((crdin != &keyboard || keyboard_is_file) && !ask_coords) {
+            /* When the input is a regular file, including a file redirected into standard input with <, a record is
+               copied to the output from its start. When it is a pipe, a terminal or another kind of file, only the
+               rest of the line is copied, from where reading stopped. */
+            if (input_is_file && !ask_coords) {
                 crdin->rewindToRecord();
             }
             if (skip_errors) {
