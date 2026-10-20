@@ -18,9 +18,10 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
     COMMAND_ERROR_IS_FATAL ANY)
 string(REPLACE "\n" ";" _concord_cases "${_concord_cases}")
+snap_program_path(_concord_program concord)
 foreach(case IN LISTS _concord_cases)
     snap_add_regression_command("concord/input/${case}" FIXTURE concord COMMAND
-        Python3::Interpreter "${_concord_script}" --new "${SNAP_PROGRAMS_DIR}/concord${CMAKE_EXECUTABLE_SUFFIX}"
+        Python3::Interpreter "${_concord_script}" --new "${_concord_program}"
         --case "${case}"
         --output-dir "${SNAP_TEST_OUTPUT_DIR}")
 endforeach()
