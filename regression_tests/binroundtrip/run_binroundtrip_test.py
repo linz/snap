@@ -40,10 +40,11 @@ COORDSYSDEF = os.path.join(HERE, "..", "test_coordsys", "coordsys.def")
 # build/windows-release/ instead. Use --build-dir for any other.
 if sys.platform == "win32":
     DEFAULT_BUILD_DIR = os.path.join(HERE, "..", "..", "build", "windows-release", "src")
-    EXE_SUFFIX = ".exe"
 else:
     DEFAULT_BUILD_DIR = os.path.join(HERE, "..", "..", "build-release", "src")
-    EXE_SUFFIX = ""
+
+# What a program's file name can end with. A program built for Windows ends with .exe, wherever it is run from.
+EXE_SUFFIXES = ("", ".exe")
 
 # Where the work directory of a test that fails is left, under the path of this directory from the repository root
 DEFAULT_OUTPUT_DIR = os.path.normpath(os.path.join(DEFAULT_BUILD_DIR, "..", "test_output"))
@@ -139,6 +140,15 @@ def _check_round_trip(binroundtrip: str, work: str, env: dict[str, str]) -> bool
     return False
 
 
+def find_program(build_dir: str, program: str) -> str | None:
+    """Returns the path of a built program, which is in the build directory with or without the suffix of Windows."""
+    for suffix in EXE_SUFFIXES:
+        path = os.path.join(build_dir, program + suffix)
+        if os.path.isfile(path):
+            return path
+    return None
+
+
 def main(build_dir: str, output_dir: str, keep: bool) -> int:
     """Runs both comparisons against the golden .bin, returning a process exit code.
 
@@ -155,8 +165,10 @@ def main(build_dir: str, output_dir: str, keep: bool) -> int:
         return fail(f"missing golden fixture: {GOLDEN}")
 
     env = run_env()
-    snap = os.path.join(build_dir, "snap" + EXE_SUFFIX)
-    binroundtrip = os.path.join(build_dir, "binroundtrip" + EXE_SUFFIX)
+    snap = find_program(build_dir, "snap")
+    binroundtrip = find_program(build_dir, "binroundtrip")
+    if snap is None or binroundtrip is None:
+        return fail(f"snap or binroundtrip is not in the build directory: {build_dir}")
 
     work = os.path.join(output_dir, os.path.relpath(HERE, REPO_ROOT), "output")
     shutil.rmtree(work, ignore_errors=True)
