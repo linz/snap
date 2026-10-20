@@ -501,6 +501,7 @@ static int compile_station_list_file_criteria(station_criteria* sc, network* nw,
         }
         sts = compile_station_criteria1(sc, nw, b, file, stacklevel, source, missing_error);
     }
+    std::fclose(list_file);
     return sts;
 }
 
