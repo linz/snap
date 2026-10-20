@@ -319,7 +319,8 @@ def _redirect_cases() -> list[Case]:
 
 
 def _character_cases() -> list[Case]:
-    """Characters that are not blanks to concord, a carriage return in the middle of a line, and angle forms."""
+    """Characters that are not blanks to concord, a carriage return in the middle of a line, a line of only a carriage
+    return, and angle forms."""
     return [
         file_case("vertical_tab", DEC + ["-n6"], ["A1\v-45.25 168.75", "B2 -41\f 174.75", "C3 -40.5 175.5"]),
         file_case("cr_mid_line", DEC + ["-n6"], ["A1 -45.25\r 168.75", "B2\r -41 174.75", "C3 -40.5 175.5"]),

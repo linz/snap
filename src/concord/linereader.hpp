@@ -68,6 +68,13 @@ class LineReader {
         return _rest;
     }
 
+    /// Whether only spaces, tabs and carriage returns are left in the
+    /// current line, which is also true once readToken() has reported the end of
+    /// the line, or if the input has ended. Unlike remainder().empty() it is
+    /// true for the "\r" that a line typed at a Windows console ends with. Nothing
+    /// is skipped and no line is loaded.
+    [[nodiscard]] bool empty() const;
+
     /// Whether the current line ended with a newline, rather than at the end
     /// of the input. False if the input has ended. An empty remainder() is the
     /// end of a line if this is true, and the end of the input if it is false.

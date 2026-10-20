@@ -1660,13 +1660,12 @@ static bool find_next_data_line(void) {
             std::printf("\n%s", coord_prompt);
         }
         crdin->skipBlanks();
-        const std::string_view line = crdin->remainder();
-        if (line.empty()) {
+        if (crdin->empty()) {
             /* A blank line, or a blank last line with no newline, which is the end of the input */
             if (!crdin->endsWithNewline() || ask_coords) {
                 return false;
             }
-        } else if (line.front() != '!') {
+        } else if (crdin->remainder().front() != '!') {
             return true;
         }
         copy_rest_of_line(*crdin, crdcom, std::string_view());

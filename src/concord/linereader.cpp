@@ -21,6 +21,10 @@ bool LineReader::endsWithNewline() const {
     return !_inputEnded && !_input.eof();
 }
 
+bool LineReader::empty() const {
+    return std::all_of(_rest.begin(), _rest.end(), [](const char c) { return is_blank(c) || c == '\r'; });
+}
+
 void LineReader::_loadLine() {
     if (!_lineDone || _inputEnded) {
         return;

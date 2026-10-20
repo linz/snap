@@ -5,4 +5,4 @@ B2,1746623.188,5432013.325
 **** Error reading data for point D4 **** ,D4,-40
 E5,1859800.192,5678940.884,extra,more
 F6,1951258.915,5786629.265
-**** Error reading data for point  **** 
+
