@@ -25,8 +25,6 @@
 #include "util/errdef.h"
 #include "util/fileutil.h"
 
-struct file_context;
-
 namespace {
 
 /// The data files known to the test, by name.
