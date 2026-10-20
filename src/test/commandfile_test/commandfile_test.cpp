@@ -35,9 +35,14 @@ std::string test_dir_with_separator() {
     return (test_dir / "").string();
 }
 
+/// A path inside the scratch directory, with the separators of the platform
+std::filesystem::path path_in_test_dir(const std::string& name) {
+    return test_dir / std::filesystem::path(name).make_preferred();
+}
+
 /// Creates an empty file in the scratch directory and returns its full name
 std::string make_file(const std::string& name) {
-    const std::filesystem::path file = test_dir / name;
+    const std::filesystem::path file = path_in_test_dir(name);
     std::filesystem::create_directories(file.parent_path());
     std::ofstream(file).put('\n');
     return file.string();
@@ -45,7 +50,7 @@ std::string make_file(const std::string& name) {
 
 /// The full name of a file in the scratch directory, which is not created
 std::string file_name(const std::string& name) {
-    return (test_dir / name).string();
+    return path_in_test_dir(name).string();
 }
 
 void check_command_file(const CommandFile& command, const std::string& path, const std::string& dir,
