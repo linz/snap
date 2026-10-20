@@ -48,7 +48,7 @@ void psp_geod(PSProjection* psp, double ce, double cn, double* slam, double* sph
         dnorth = -dnorth;
     }
     dlam = std::atan2(deast, dnorth);
-    r = _hypot(deast, dnorth);
+    r = std::hypot(deast, dnorth);
     q = std::log(psp->k / r);
 
     *sphi = geodetic_from_isometric(q, psp->e);

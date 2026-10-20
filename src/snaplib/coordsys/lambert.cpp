@@ -124,7 +124,7 @@ void convertLCCToGeog(LCCProjection* lp, double ce, double cn, double* ln, doubl
     ce -= lp->e0;
     cn = lp->r0 - (lp->rev) * (cn - lp->n0);
 
-    r = _hypot(ce, cn);
+    r = std::hypot(ce, cn);
     if (lp->n < 0) {
         r = -r;
     }

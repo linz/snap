@@ -935,7 +935,7 @@ static void plot_connection(map_plotter* plotter, int from, int to, int pen, uns
         double dh;
         dx = x2 - x1;
         dy = y2 - y1;
-        dh = _hypot(dx, dy);
+        dh = std::hypot(dx, dy);
         if (dh <= 0 || dh < offset_along * 2.0) {
             return;
         }
@@ -2543,7 +2543,7 @@ static void list_line_statistics(void* dest, PutTextFunc f, int from, int to) {
         get_projection_coordinates(from, &x1, &y1);
         get_projection_coordinates(to, &x2, &y2);
         if (x1 != x2 && y1 != y2) {
-            dist = _hypot(x2 - x1, y2 - y1);
+            dist = std::hypot(x2 - x1, y2 - y1);
             az = std::atan2(x2 - x1, y2 - y1) * RTOD;
             while (az > 360.0) {
                 az -= 360.0;

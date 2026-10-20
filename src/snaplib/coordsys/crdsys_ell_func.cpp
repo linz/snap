@@ -34,7 +34,7 @@ double* llh_to_xyz(ellipsoid* el, double llh[3], double xyz[3], double* dEdLn, d
     cln = std::cos(llh[CRD_LON]);
     sln = std::sin(llh[CRD_LON]);
     hgt = llh[CRD_HGT];
-    bsac = _hypot(el->b * slt, el->a * clt);
+    bsac = std::hypot(el->b * slt, el->a * clt);
     p = el->a2 * clt / bsac + hgt * clt;
     xyz[0] = p * cln;
     xyz[1] = p * sln;
@@ -61,14 +61,14 @@ double* xyz_to_llh(ellipsoid* el, double xyz[3], double llh[3]) {
     double hgt;
     int it;
     ln = std::atan2(xyz[1], xyz[0]);
-    p = _hypot(xyz[0], xyz[1]);
+    p = std::hypot(xyz[0], xyz[1]);
     lt = std::atan2(el->a2 * xyz[2], el->b2 * p);
     it = 0;
     do {
         lt0 = lt;
         slt = std::sin(lt);
         clt = std::cos(lt);
-        bsac = _hypot(el->b * slt, el->a * clt);
+        bsac = std::hypot(el->b * slt, el->a * clt);
         lt = std::atan2(xyz[2] + slt * el->a2b2 / bsac, p);
         if (std::fabs(lt - lt0) < 1.0e-10) {
             break;

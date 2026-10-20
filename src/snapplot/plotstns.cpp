@@ -544,7 +544,7 @@ std::string station_list_item(const int istnsrt) {
                     get_station_adjustment(istn, dxyz);
                     gotadj = 1;
                 }
-                row += format_fixed(_hypot(dxyz[0], dxyz[1]), coord_precision) + " ";
+                row += format_fixed(std::hypot(dxyz[0], dxyz[1]), coord_precision) + " ";
                 break;
             case STNF_VERR:
                 get_height_error(istn, &hgterr);
@@ -830,7 +830,7 @@ void init_plotstns(int adjusted) {
             convert_coords(&cnv, xyz, nullptr, xyz, nullptr);
             stns[istn].dn = n - xyz[CRD_NORTH];
             stns[istn].de = e - xyz[CRD_EAST];
-            ds = _hypot(stns[istn].de, stns[istn].dn);
+            ds = std::hypot(stns[istn].de, stns[istn].dn);
             if (ds > adjmaxh) {
                 adjmaxh = ds;
             }

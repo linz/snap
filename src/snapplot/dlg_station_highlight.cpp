@@ -366,7 +366,7 @@ void StationHighlightDialog::SelectStations(bool select) {
 
                 case scHorAdj:
                     get_station_adjustment(istn, dxyz);
-                    testValue = _hypot(dxyz[0], dxyz[1]);
+                    testValue = std::hypot(dxyz[0], dxyz[1]);
                     break;
 
                 case scVrtErr:
