@@ -111,4 +111,4 @@ jobs:
         run: |
           programs=$(cygpath -m "$RUNNER_TEMP"/programs/snap-*)
           cmake -S tests_only -B build-tests -DSNAP_PROGRAMS_DIR="$programs"
-          ctest --test-dir build-tests --parallel --output-on-failure
+          ctest --test-dir build-tests -C Release --parallel --output-on-failure
