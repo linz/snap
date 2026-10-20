@@ -36,9 +36,10 @@ void check(bool condition, const std::string& description) {
 }
 
 /// Installs a WGS84 coordinate system, which a network needs before it will
-/// hold stations, from a minimal definition file written for the purpose.
-void install_test_coordsys() {
-    const std::filesystem::path file = std::filesystem::temp_directory_path() / "snap_criteria_test_coordsys.def";
+/// hold stations, from a minimal definition file written for the purpose. The
+/// installed coordinate systems keep the file open, so it cannot be removed
+/// until they are uninstalled.
+void install_test_coordsys(const std::filesystem::path& file) {
     std::ofstream(file) << "[ellipsoids]\n"
                         << "WGS84 \"WGS84 ellipsoid\" 6378137 298.257223563\n"
                         << "[reference_frames]\n"
@@ -47,7 +48,6 @@ void install_test_coordsys() {
                         << "WGS84 \"WGS84\" REF_FRAME WGS84 GEODETIC\n";
     install_default_projections();
     check(install_crdsys_file(file.generic_string()) == OK, "install the test coordinate system");
-    std::filesystem::remove(file);
 }
 
 /// A small network: stations AAA, AB1, AB2, AB10, BBB and ZZ1, with a
@@ -295,7 +295,9 @@ void check_empty_station_list_file() {
 
 int main() {
     init_snap_globals();
-    install_test_coordsys();
+    const std::filesystem::path coordsys_file =
+        std::filesystem::temp_directory_path() / "snap_criteria_test_coordsys.def";
+    install_test_coordsys(coordsys_file);
 
     check_no_criteria_matches_nothing();
     check_basic_criteria();
@@ -307,6 +309,9 @@ int main() {
     check_missing_option_does_not_leak_out_of_nested_files();
     check_criteria_errors();
     check_empty_station_list_file();
+
+    uninstall_crdsys_lists();
+    std::filesystem::remove(coordsys_file);
 
     if (failures == 0) {
         std::cout << "All criteria tests passed\n";
