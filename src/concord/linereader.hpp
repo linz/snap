@@ -31,12 +31,6 @@ class LineReader {
     LineReader(const LineReader&) = delete;
     LineReader& operator=(const LineReader&) = delete;
 
-    /// Whether the input is a file, so that a record can be read again from
-    /// its start with rewindToRecord(), as opposed to a pipe or the keyboard.
-    [[nodiscard]] bool seekable() const {
-        return _seekable;
-    }
-
     /// Reads the next field of the current line. Spaces and tabs before the
     /// field are skipped, and those after it are removed. The field ends at the
     /// separator, at a carriage return, at the end of the line, and at a space
@@ -93,7 +87,6 @@ class LineReader {
     void _skipBlanks();
 
     std::istream& _input;          ///< where the lines come from
-    const bool _seekable;          ///< whether the input is a file
     bool _lineDone = true;         ///< whether the current line is finished, so the next read loads another
     bool _inputEnded = false;      ///< whether there are no more lines
     std::string _line;             ///< the current line, without its newline

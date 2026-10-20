@@ -588,6 +588,13 @@ int skip_utf8_bom(std::FILE* f) {
 }
 
 int skip_utf8_bom(std::istream& f) {
+    // A first character that cannot start a byte order mark is left unread, so the stream is not read and
+    // rewound. Rewinding does nothing for some streams, such as standard input in a MinGW program.
+    const int first = f.peek();
+    f.clear();
+    if (first != 0xEF && first != 0xFE && first != 0xFF) {
+        return 1;
+    }
     if (f.tellg() != std::streampos(0)) {
         return 1;
     }
@@ -603,4 +610,12 @@ int skip_utf8_bom(std::istream& f) {
         f.seekg(0);
     }
     return 1;
+}
+
+StdinType stdin_type() {
+    struct stat info;
+    if (fstat(0, &info) != 0) {
+        return StdinType::Unknown;
+    }
+    return (info.st_mode & S_IFMT) == S_IFREG ? StdinType::File : StdinType::NotFile;
 }

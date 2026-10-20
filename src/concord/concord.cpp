@@ -24,6 +24,7 @@
 
 #if defined(_WIN32)
 #include <conio.h>
+#include <fcntl.h>
 #include <io.h>
 #else
 #include <unistd.h>
@@ -48,6 +49,11 @@ using boost::numeric_cast;
    unless an input file is opened.  The prompts always read the keyboard. */
 
 static LineReader keyboard(std::cin);
+
+/* Whether the keyboard reader is reading a file redirected into standard input with <. This assumes that
+   std::cin reads standard input, which is descriptor 0. */
+
+static const bool keyboard_is_file = stdin_type() == StdinType::File;
 static std::optional<std::ifstream> crdin_file;
 static std::optional<LineReader> crdin_file_reader;
 static LineReader* crdin = &keyboard;
@@ -262,6 +268,11 @@ static void copy_rest_of_line(LineReader& input, std::FILE* output, const std::s
 /*-------------------------------------------------------------------*/
 
 static void concord_init(void) {
+#if defined(_WIN32)
+    /* Standard input is read as it is written, as it is on Linux and as input files are, and not with each
+       carriage return and line feed changed to a line feed. */
+    _setmode(_fileno(stdin), _O_BINARY);
+#endif
     crdin = &keyboard;
     crdout = stdout;
     crdin_fname = std::nullopt;
@@ -1993,7 +2004,10 @@ static void process_coordinates(void) {
             ncrdcnv++;
             write_results();
         } else {
-            if (crdin->seekable() && !ask_coords) {
+            /* When the input is a file, including a file redirected into standard input with <, a record is copied
+               to the output from its start. When it is a pipe or a terminal only the rest of the line is copied,
+               from where reading stopped. */
+            if ((crdin != &keyboard || keyboard_is_file) && !ask_coords) {
                 crdin->rewindToRecord();
             }
             if (skip_errors) {

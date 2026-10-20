@@ -15,10 +15,7 @@ bool is_blank(const char c) {
 }
 }  // namespace
 
-LineReader::LineReader(std::istream& input)
-    : _input(input),
-      _seekable(input.rdbuf() && input.rdbuf()->pubseekoff(0, std::ios_base::cur, std::ios_base::in) !=
-                                     std::streampos(std::streamoff(-1))) {}
+LineReader::LineReader(std::istream& input) : _input(input) {}
 
 bool LineReader::endsWithNewline() const {
     return !_inputEnded && !_input.eof();

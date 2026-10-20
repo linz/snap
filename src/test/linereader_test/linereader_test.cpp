@@ -219,18 +219,13 @@ void check_record_start() {
           "record: a finished line can be read again");
 }
 
-void check_seekable() {
-    std::istringstream file("a\n");
-    const LineReader fileReader(file);
-    check(fileReader.seekable(), "seekable: a stream that can seek");
-
+void check_stream_that_cannot_seek() {
     PipeBuffer pipeBuffer("a\n");
     std::istream pipe(&pipeBuffer);
     LineReader pipeReader(pipe);
-    check(!pipeReader.seekable(), "seekable: a stream that cannot seek is not");
     std::string token;
     check(read(pipeReader, token) == TokenResult::Found && token == "a",
-          "seekable: the reader still reads a stream that cannot seek");
+          "pipe: the reader reads a stream that cannot seek");
 }
 
 }  // namespace
@@ -248,7 +243,7 @@ int main() {
     check_skip_remaining();
     check_remainder_and_skip_blanks();
     check_record_start();
-    check_seekable();
+    check_stream_that_cannot_seek();
 
     if (failures == 0) {
         std::cout << "All LineReader tests passed\n";
