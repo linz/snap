@@ -18,7 +18,7 @@ pip-audit = "^2.10.0"
 pylint = "^4.0.5"
 pytest = "^9.0.3"
 ruff = "^0.15.12"
-pillow = "^12"
+pillow = { version = "^13", python = ">=3.11" }
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
