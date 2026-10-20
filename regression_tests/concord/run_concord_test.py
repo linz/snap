@@ -352,8 +352,10 @@ def build_cases() -> list[Case]:
     )
 
 
-def normalise(data: bytes) -> bytes:
-    """Hides the build date in the program banner, the only expected difference."""
+def normalise(data: bytes, windows_program: bool = False) -> bytes:
+    """Hides the build date in the program banner and, for a Windows program, writes its line ends as LF."""
+    if windows_program:
+        data = data.replace(b"\r\n", b"\n")
     return re.sub(rb"version [^ ]+ dated [^)]*\)", b"version X dated X)", data)
 
 
@@ -370,11 +372,12 @@ def run(binary: Path, case: Case) -> Result:
         else:
             done = subprocess.run(command, cwd=work, env=env, input=case.stdin, capture_output=True, check=False)
         out = Path(work) / "out.txt"
+        windows_program = binary.suffix == ".exe"
         return Result(
             done.returncode,
-            normalise(done.stdout),
-            normalise(done.stderr),
-            normalise(out.read_bytes()) if out.exists() else None,
+            normalise(done.stdout, windows_program),
+            normalise(done.stderr, windows_program),
+            normalise(out.read_bytes(), windows_program) if out.exists() else None,
         )
 
 
