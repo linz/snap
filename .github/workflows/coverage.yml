@@ -87,3 +87,10 @@ jobs:
             coverage-report.txt
             lcov.info
           if-no-files-found: error
+      - name: Upload the coverage to Codacy
+        # TEMPORARY: keeps the runs on other branches from uploading while the job runs on every push. Remove this
+        # condition together with that trigger.
+        if: github.ref == 'refs/heads/master'
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r lcov.info
