@@ -1,13 +1,10 @@
 name: Coverage
 on:
-  # TEMPORARY: runs on every push, to test the job. Remove this trigger before the branch is merged.
+  # "**" matches every branch, including the ones whose names contain a slash. Each push uploads its coverage, so
+  # that every commit on master has its own.
   push:
     branches:
       - "**"
-  schedule:
-    # Every day at 13:23 UTC, which is the middle of the night in New Zealand. The minute is not 0 because
-    # GitHub can delay, or drop, the scheduled runs that start on the hour, when many workflows start together.
-    - cron: "23 13 * * *"
   workflow_dispatch:
 
 jobs:
@@ -88,9 +85,7 @@ jobs:
             lcov.info
           if-no-files-found: error
       - name: Upload the coverage to Codacy
-        # TEMPORARY: keeps the runs on other branches from uploading while the job runs on every push. Remove this
-        # condition together with that trigger.
-        if: github.ref == 'refs/heads/master'
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r lcov.info
+        uses: codacy/codacy-coverage-reporter-action@v1.3.0
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: lcov.info
