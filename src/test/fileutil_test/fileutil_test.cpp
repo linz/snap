@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include <iterator>
+#include <sstream>
 #include <string>
 #include <filesystem>
 #include <fstream>
@@ -241,6 +243,54 @@ void check_context_round_trip() {
     pop_file_context();
 }
 
+/// What skip_utf8_bom returned for a stream, and the text it left unread.
+struct SkipResult {
+    int returned;
+    std::string unread;
+};
+
+SkipResult skip_bom_of(const std::string& text) {
+    std::istringstream input(text);
+    const int returned = skip_utf8_bom(input);
+    return {returned, std::string(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>())};
+}
+
+// A UTF-8 byte order mark is consumed, a UTF-16 mark is reported by returning 0, and anything that is not a
+// complete mark, including a prefix of one at the end of the stream, is left unread.
+void check_skip_utf8_bom() {
+    const std::string utf8("\xEF\xBB\xBF");
+    const SkipResult withUtf8 = skip_bom_of(utf8 + "abc");
+    check(withUtf8.returned == 1 && withUtf8.unread == "abc", "skip_utf8_bom: a UTF-8 mark is consumed");
+
+    const SkipResult onlyUtf8 = skip_bom_of(utf8);
+    check(onlyUtf8.returned == 1 && onlyUtf8.unread.empty(), "skip_utf8_bom: a UTF-8 mark on its own is consumed");
+
+    check(skip_bom_of(std::string("\xFE\xFF") + "ab").returned == 0, "skip_utf8_bom: a big endian UTF-16 mark gives 0");
+    check(skip_bom_of(std::string("\xFF\xFE") + "ab").returned == 0,
+          "skip_utf8_bom: a little endian UTF-16 mark gives 0");
+
+    const SkipResult plain = skip_bom_of("abc");
+    check(plain.returned == 1 && plain.unread == "abc", "skip_utf8_bom: text with no mark is left unread");
+
+    const SkipResult empty = skip_bom_of("");
+    check(empty.returned == 1 && empty.unread.empty(), "skip_utf8_bom: an empty stream is left as it is");
+
+    const std::string oneByte("\xEF");
+    const SkipResult truncatedOne = skip_bom_of(oneByte);
+    check(truncatedOne.returned == 1 && truncatedOne.unread == oneByte,
+          "skip_utf8_bom: a UTF-8 mark cut after one byte is left unread");
+
+    const std::string twoBytes("\xEF\xBB");
+    const SkipResult truncatedTwo = skip_bom_of(twoBytes);
+    check(truncatedTwo.returned == 1 && truncatedTwo.unread == twoBytes,
+          "skip_utf8_bom: a UTF-8 mark cut after two bytes is left unread");
+
+    const std::string notMark = std::string("\xEF\xBB") + "A";
+    const SkipResult lookalike = skip_bom_of(notMark);
+    check(lookalike.returned == 1 && lookalike.unread == notMark,
+          "skip_utf8_bom: bytes that start like a UTF-8 mark but are not one are left unread");
+}
+
 }  // namespace
 
 int main() {
@@ -254,6 +304,7 @@ int main() {
     check_find_relative_file();
     check_find_file_tryopt_bitmask();
     check_find_config_file_via_snapenv();
+    check_skip_utf8_bom();
 
     if (failures == 0) {
         std::cout << "All fileutil tests passed\n";

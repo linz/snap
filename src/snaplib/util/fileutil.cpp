@@ -552,17 +552,36 @@ std::FILE* snaptmpfile() {
 }
 #endif
 
+/// What the first bytes of a file are, as found by find_byte_order_mark().
+enum class ByteOrderMark {
+    None,   ///< not a byte order mark
+    Utf8,   ///< a complete UTF-8 mark
+    Utf16,  ///< a UTF-16 mark, big or little endian
+};
+
+/// Finds whether bytes start with a byte order mark. A prefix of a UTF-8 mark that the file ends in, with fewer than
+/// three bytes, is not a mark.
+static ByteOrderMark find_byte_order_mark(const unsigned char (&bytes)[3], const std::size_t count) {
+    if (count >= 2 && ((bytes[0] == 0xFE && bytes[1] == 0xFF) || (bytes[0] == 0xFF && bytes[1] == 0xFE))) {
+        return ByteOrderMark::Utf16;
+    }
+    if (count == 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF) {
+        return ByteOrderMark::Utf8;
+    }
+    return ByteOrderMark::None;
+}
+
 int skip_utf8_bom(std::FILE* f) {
-    unsigned char bom[3];
-    int nchar;
     if (ftell64(f) != 0) {
         return 1;
     }
-    nchar = std::fread(bom, 1, 3, f);
-    if (nchar >= 2 && ((bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE'))) {
+    unsigned char bytes[3] = {0, 0, 0};
+    const std::size_t count = std::fread(bytes, 1, 3, f);
+    const ByteOrderMark mark = find_byte_order_mark(bytes, count);
+    if (mark == ByteOrderMark::Utf16) {
         return 0;
     }
-    if (nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF') {
+    if (mark != ByteOrderMark::Utf8) {
         std::fseek(f, 0L, SEEK_SET);
     }
     return 1;
@@ -572,14 +591,15 @@ int skip_utf8_bom(std::istream& f) {
     if (f.tellg() != std::streampos(0)) {
         return 1;
     }
-    unsigned char bom[3] = {0, 0, 0};
-    f.read(reinterpret_cast<char*>(bom), 3);
-    const std::streamsize nchar = f.gcount();
+    unsigned char bytes[3] = {0, 0, 0};
+    f.read(reinterpret_cast<char*>(bytes), 3);
+    const auto count = static_cast<std::size_t>(f.gcount());
     f.clear();
-    if (nchar >= 2 && ((bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE'))) {
+    const ByteOrderMark mark = find_byte_order_mark(bytes, count);
+    if (mark == ByteOrderMark::Utf16) {
         return 0;
     }
-    if (nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF') {
+    if (mark != ByteOrderMark::Utf8) {
         f.seekg(0);
     }
     return 1;
