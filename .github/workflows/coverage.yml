@@ -3,7 +3,7 @@ on:
   # TEMPORARY: runs on every push, to test the job. Remove this trigger before the branch is merged.
   push:
     branches:
-      - "*"
+      - "**"
   schedule:
     # Every day at 13:23 UTC, which is the middle of the night in New Zealand. The minute is not 0 because
     # GitHub can delay, or drop, the scheduled runs that start on the hour, when many workflows start together.
