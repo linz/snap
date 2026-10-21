@@ -1,0 +1,89 @@
+name: Coverage
+on:
+  # TEMPORARY: runs on every push, to test the job. Remove this trigger before the branch is merged.
+  push:
+    branches:
+      - "*"
+  schedule:
+    # Every day at 13:23 UTC, which is the middle of the night in New Zealand. The minute is not 0 because
+    # GitHub can delay, or drop, the scheduled runs that start on the hour, when many workflows start together.
+    - cron: "23 13 * * *"
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7.0.1
+      - name: Install dependencies
+        uses: ./.github/actions/install-build-deps
+      - name: Install clang 21 and the LLVM coverage tools
+        # libclang-rt-21-dev holds the runtime library that writes the profile data.
+        uses: ./.github/actions/install-llvm
+        with:
+          packages: clang-21 llvm-21 libclang-rt-21-dev
+      # No GUI: no test uses it, so its files would only add lines that are never run. The test programs are
+      # installed with the others, so that the tests can run against the installed programs, as they do on Windows.
+      - name: Build with coverage instrumentation
+        run: |
+          flags="-fprofile-instr-generate -fcoverage-mapping"
+          cmake -S . -B build-coverage -DCMAKE_BUILD_TYPE=Debug -DSNAP_BUILD_GUI=OFF -DSNAP_EFENCE=OFF \
+            -DSNAP_PACKAGE_TEST_PROGRAMS=ON -DCMAKE_C_COMPILER=clang-21 -DCMAKE_CXX_COMPILER=clang++-21 \
+            -DCMAKE_C_FLAGS="$flags" -DCMAKE_CXX_FLAGS="$flags" -DCMAKE_EXE_LINKER_FLAGS="$flags"
+          cmake --build build-coverage --parallel
+      # Not stripped, because the programs must keep the data that maps their code to the profile data.
+      - name: Install the programs
+        run: cmake --install build-coverage --prefix "$PWD/install"
+      # Each process writes its own profile file (%p is its process id), so that tests that run at the same
+      # time do not overwrite each other's data.
+      - name: Run the tests against the installed programs
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/profraw/%p.profraw
+        run: |
+          cmake -S tests_only -B build-coverage-tests -DSNAP_PROGRAMS_DIR="$PWD/install/share/linz/snap"
+          ctest --test-dir build-coverage-tests --parallel "$(nproc)" --output-on-failure --no-tests=error
+      - name: Merge the profile data
+        run: llvm-profdata-21 merge -sparse profraw/*.profraw -o coverage.profdata
+      - name: Write the coverage report and the lcov file
+        run: |
+          # Every program that was installed. Each program holds its own table that maps its machine code to lines
+          # of source, so llvm-cov needs all of them to report on all of the code that the tests ran.
+          mapfile -t programs < <(find "$PWD/install/share/linz/snap" -maxdepth 1 -type f -executable | sort)
+
+          # llvm-cov wants the first program on its own, and every other program after the word -object:
+          #   llvm-cov-21 report first_program -object second_program -object third_program
+          other_programs=()
+          for program in "${programs[@]:1}"; do
+            other_programs+=(-object "$program")
+          done
+
+          # Files whose coverage is not wanted: the system headers under /usr (Boost, the standard library,
+          # netCDF), the vendored code in src/third_party, and the file that lapg generates.
+          ignore='(/usr/|/third_party/|scriptimp_parse\.cpp)'
+
+          # A table with one row of counts for each source file, and a total row at the end
+          llvm-cov-21 report "${programs[0]}" "${other_programs[@]}" -instr-profile=coverage.profdata \
+            -ignore-filename-regex="$ignore" > coverage-report.txt
+
+          # The same counts in lcov format, which Codacy reads. llvm-cov writes the full path of each file, such
+          # as /home/runner/work/snap/snap/src/concord/concord.cpp, and sed removes the checkout's path from the
+          # start of it, so that the path is src/concord/concord.cpp.
+          llvm-cov-21 export -format=lcov "${programs[0]}" "${other_programs[@]}" -instr-profile=coverage.profdata \
+            -ignore-filename-regex="$ignore" | sed "s#^SF:$PWD/#SF:#" > lcov.info
+
+          # The column headings and the total row, shown on the page of this run
+          {
+            echo '```'
+            head -n 1 coverage-report.txt
+            tail -n 1 coverage-report.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload the coverage report and the lcov file
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: coverage
+          path: |
+            coverage-report.txt
+            lcov.info
+          if-no-files-found: error
