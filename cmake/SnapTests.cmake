@@ -127,6 +127,8 @@ function(snap_add_unit_test name)
     if(SNAP_BUILD_TEST_PROGRAMS)
         add_executable(${name} ${TEST_SOURCES})
         target_link_libraries(${name} PRIVATE snaplib snap_link_deps)
+        # test_support.h, which the unit tests share
+        target_include_directories(${name} PRIVATE "${CMAKE_SOURCE_DIR}/src/test")
         if(TEST_INCLUDE_DIRECTORIES)
             target_include_directories(${name} PRIVATE ${TEST_INCLUDE_DIRECTORIES})
         endif()

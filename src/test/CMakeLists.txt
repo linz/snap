@@ -75,6 +75,12 @@ snap_add_unit_test(ragged_grid_data_test SOURCES ragged_grid_data_test/ragged_gr
 # Unit test for the validation of the TimeFunction class in snaplib/deformation/time_function.h.
 snap_add_unit_test(time_function_test SOURCES time_function_test/time_function_test.cpp)
 
+# Unit test for the GridGeometry class in snaplib/deformation/grid_geometry.h.
+snap_add_unit_test(grid_geometry_test SOURCES grid_geometry_test/grid_geometry_test.cpp)
+
+# Unit test for the Grid and GridParent classes and descendToLeaf in snaplib/deformation/grid.h.
+snap_add_unit_test(grid_test SOURCES grid_test/grid_test.cpp)
+
 # Unit test for the LineReader class that concord uses to read its input. The class is part of the concord
 # program, not snaplib, so its source is compiled into the test.
 snap_add_unit_test(linereader_test
