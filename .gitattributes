@@ -1,0 +1,2 @@
+# The concord tests compare program output with these files byte for byte, so checkouts must not change their line endings
+regression_tests/concord/stream_goldens/** -text

@@ -226,4 +226,19 @@ int skip_utf8_bom(std::FILE* f);
    just read via stream operations instead of stdio. */
 int skip_utf8_bom(std::istream& f);
 
+/// What standard input is, as found by stdin_type().
+enum class StdinType {
+    File,     ///< a regular file, such as one redirected into the program with <
+    NotFile,  ///< a pipe, a terminal or another device
+    Unknown   ///< the operating system could not give its type
+};
+
+/// Finds what standard input is, which is descriptor 0, the one that C stdin reads. A regular file, such as
+/// input redirected into the program with <, can be read again from an earlier position, but a pipe, a terminal
+/// or another device cannot. The operating system is asked, as the C++ streams of some platforms report that
+/// they can seek when they are reading a pipe (e.g. std::cin in a MinGW program).
+/// \return File if it is a regular file, NotFile if it is a pipe, a terminal or another device, and Unknown
+/// if the operating system could not give its type
+StdinType stdin_type();
+
 #endif

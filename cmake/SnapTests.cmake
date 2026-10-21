@@ -95,6 +95,23 @@ function(snap_add_test_program name)
     endif()
 endfunction()
 
+# Sets <variable> to the path of a program in SNAP_PROGRAMS_DIR. A project that builds the programs knows
+# the suffix of their file names. One that only runs them uses the .exe name if that file is there, since
+# the programs may have been built for Windows and be run from another platform, as when the MinGW
+# programs are run from WSL2, where CMAKE_EXECUTABLE_SUFFIX is empty.
+#
+#   snap_program_path(<variable> <name>)
+function(snap_program_path variable name)
+    if(SNAP_BUILD_TEST_PROGRAMS)
+        set(path "${SNAP_PROGRAMS_DIR}/${name}${CMAKE_EXECUTABLE_SUFFIX}")
+    elseif(EXISTS "${SNAP_PROGRAMS_DIR}/${name}.exe")
+        set(path "${SNAP_PROGRAMS_DIR}/${name}.exe")
+    else()
+        set(path "${SNAP_PROGRAMS_DIR}/${name}")
+    endif()
+    set(${variable} "${path}" PARENT_SCOPE)
+endfunction()
+
 # Builds a standalone unit test, and registers it with ctest. The test passes if the executable's exit
 # code is 0. The test executable is also added to the unit_tests target, which builds all of them.
 # The test's temporary files go in its own directory under SNAP_TEST_OUTPUT_DIR, by way of the environment.
@@ -118,7 +135,7 @@ function(snap_add_unit_test name)
             install(TARGETS ${name} RUNTIME DESTINATION ${SNAP_INSTALL_ROOT})
         endif()
     else()
-        set(command "${SNAP_PROGRAMS_DIR}/${name}${CMAKE_EXECUTABLE_SUFFIX}")
+        snap_program_path(command ${name})
     endif()
 
     if(SNAP_TESTS_CAN_RUN)
