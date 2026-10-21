@@ -1,0 +1,11 @@
+name: Install the build dependencies
+description: Installs the packages that the C++ build needs on Ubuntu, including the GUI libraries
+
+runs:
+  using: composite
+  steps:
+    - name: Install the build dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        DEBIAN_FRONTEND=noninteractive sudo apt-get install -y cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libnetcdf-dev libwxgtk3.2-dev perl python3

@@ -1,0 +1,21 @@
+name: Install LLVM tools
+description: Installs packages from the apt.llvm.org repository for LLVM 21 on Ubuntu 24.04 (noble)
+
+inputs:
+  packages:
+    description: The apt packages to install, separated by spaces
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install ${{ inputs.packages }}
+      # REQUIRED_CLANG_VERSION in build.py must name the same version as the repository below.
+      shell: bash
+      env:
+        PACKAGES: ${{ inputs.packages }}
+      run: |
+        wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc > /dev/null
+        echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" | sudo tee /etc/apt/sources.list.d/llvm.list
+        sudo apt-get update
+        sudo apt-get install -y $PACKAGES

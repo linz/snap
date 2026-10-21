@@ -13,16 +13,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libnetcdf-dev libwxgtk3.2-dev perl python3
+        uses: ./.github/actions/install-build-deps
       - name: Install clang-tidy 21
-        # REQUIRED_CLANG_VERSION in build.py must name the same version.
-        run: |
-          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc > /dev/null
-          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-          sudo apt-get update
-          sudo apt-get install -y clang-tidy-21
+        uses: ./.github/actions/install-llvm
+        with:
+          packages: clang-tidy-21
       - name: Run clang-tidy
         run: python3 build.py debug tidy
 
@@ -32,12 +27,9 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v7.0.1
       - name: Install clang-format 21
-        # REQUIRED_CLANG_VERSION in build.py must name the same version.
-        run: |
-          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc > /dev/null
-          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-          sudo apt-get update
-          sudo apt-get install -y clang-format-21
+        uses: ./.github/actions/install-llvm
+        with:
+          packages: clang-format-21
       - name: Check the formatting
         run: python3 build.py debug format
 
@@ -50,18 +42,13 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v7.0.1
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libnetcdf-dev libwxgtk3.2-dev perl python3
+        uses: ./.github/actions/install-build-deps
       - name: Install clang 21 and its development libraries
-        # REQUIRED_CLANG_VERSION in build.py must name the same version. clang-21 provides the
-        # ClangConfig.cmake that building include-what-you-use needs; without it cmake uses the
-        # clang 18 that the runner image has.
-        run: |
-          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc > /dev/null
-          echo "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main" | sudo tee /etc/apt/sources.list.d/llvm.list
-          sudo apt-get update
-          sudo apt-get install -y clang-21 libclang-21-dev llvm-21-dev
+        # clang-21 provides the ClangConfig.cmake that building include-what-you-use needs; without it
+        # cmake uses the clang 18 that the runner image has.
+        uses: ./.github/actions/install-llvm
+        with:
+          packages: clang-21 libclang-21-dev llvm-21-dev
       - name: Cache the include-what-you-use build
         # Both directories: cmake --install copies iwyu_tool.py and the mapping files from the source
         # directory, and a fresh checkout would be newer than the cached objects and be rebuilt.
