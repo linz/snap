@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libnetcdf-dev python3
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libnetcdf-dev python3 python3-netcdf4
       - name: Build snap command line utilities and run regression tests
         run: python3 build.py release test --no-gui
       - name: Install Poetry
@@ -101,6 +101,10 @@ jobs:
       - name: Unzip the programs
         shell: pwsh
         run: Expand-Archive -Path "$env:RUNNER_TEMP/zip/*.zip" -DestinationPath "$env:RUNNER_TEMP/programs"
+      # The GGRXF test files are written at test time by a Python script that uses the netCDF4 module
+      - name: Install the netCDF4 Python module
+        shell: bash
+        run: python -m pip install netCDF4
       # The ZIP holds the programs, the unit tests and binroundtrip, so the tests run without a build
       - name: Run the tests against the programs
         shell: bash
