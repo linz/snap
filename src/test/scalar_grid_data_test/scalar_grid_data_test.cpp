@@ -4,9 +4,14 @@
 //
 // The nodes are those of IndexedScalarValues (indexed_scalar_values.h): node (i, j) has the value 100 * a + 10 * i + j
 // on axis a, so that the value at a cell shows which nodes were read, and the nodes have values for the axes that the
-// grid does not have, which interpolate() must not read.
+// grid does not have, which interpolate() must not read. The values of those nodes are all in one plane: they rise by
+// the same amount from one node to the next along i, and by the same amount along j. A weighting that ignores the
+// fourth node of a cell, and extends the plane through the other three, gives the same values for them as a bilinear
+// one, so NonPlanarScalarValues has four nodes that are not in one plane.
 
+#include <array>
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 #include <memory>
 #include <optional>
@@ -39,6 +44,38 @@ ScalarGridData makeData(const double scaleFactor, const std::size_t axisCount,
     return ScalarGridData(scaleFactor, std::make_unique<IndexedScalarValues>(axisCount, 0.0, false, nodesWithNoValue));
 }
 
+/// A grid of one axis whose node values are not all in one plane: the four nodes of its one cell have the values that
+/// are given, in the order (0, 0), (1, 0), (0, 1), (1, 1), so the value at a point of the cell depends on all four of
+/// them. Four values that are in one plane are rejected.
+class NonPlanarScalarValues : public deformation::ScalarNodeValueSource {
+ public:
+    explicit NonPlanarScalarValues(const std::array<double, 4>& corners)  ///< the values of the four nodes of the cell
+        : _corners(corners) {
+        if (corners[0] + corners[3] == corners[1] + corners[2]) {
+            throw std::invalid_argument("NonPlanarScalarValues: the four values are in one plane");
+        }
+    }
+
+    [[nodiscard]] std::size_t axisCount() const override {
+        return 1;
+    }
+
+    [[nodiscard]] std::optional<std::array<double, 3>> nodeValues(const std::uint32_t i,
+                                                                  const std::uint32_t j) const override {
+        if (i > 1 || j > 1) {
+            return std::nullopt;
+        }
+        return std::array<double, 3>{_corners[i + 2 * j], 0.0, 0.0};
+    }
+
+    [[nodiscard]] bool hasEndDay() const override {
+        return false;
+    }
+
+ private:
+    std::array<double, 4> _corners;
+};
+
 void check_source_is_validated() {
     checkThrows<std::invalid_argument>([] { ScalarGridData(1.0, nullptr); }, "must not be null",
                                        "a null source of node values");
@@ -61,6 +98,23 @@ void check_interpolation_of_a_cell() {
     checkValues(data.interpolate(Cell{1, 1, 0.5, 0.5}), {16.5, 116.5, 216.5}, "at the centre of a cell");
     checkValues(data.interpolate(Cell{0, 2, 0.25, 0.75}), {5.25, 105.25, 205.25}, "at a point that is not central");
     checkValues(data.interpolate(Cell{2, 0, 1.0, 1.0}), {31.0, 131.0, 231.0}, "on the far corner of a cell");
+}
+
+void check_all_four_nodes_of_a_cell_are_weighted() {
+    const auto dataOf = [](const std::array<double, 4>& corners) {
+        return ScalarGridData(1.0, std::make_unique<NonPlanarScalarValues>(corners));
+    };
+    // Only the fourth node has a value, so the value is its weight 0.25 * 0.75 = 0.1875 times 16. A weighting that
+    // ignores the fourth node, and extends a plane through the other three, gives 0.
+    checkValues(dataOf({0.0, 0.0, 0.0, 16.0}).interpolate(Cell{0, 0, 0.25, 0.75}), {3.0, 0.0, 0.0},
+                "a cell that only the fourth node has a value in");
+    // The weights of (0, 0), (1, 0), (0, 1) and (1, 1) are 0.32, 0.08, 0.48 and 0.12, which are all different, so a
+    // weight that is given to the wrong node changes the value. A plane through the first three nodes gives 3.
+    checkValues(dataOf({1.0, 2.0, 4.0, 8.0}).interpolate(Cell{0, 0, 0.2, 0.6}), {3.36, 0.0, 0.0},
+                "a cell whose four nodes have different values and weights");
+    // The values of the nodes of IndexedScalarValues, which are all in one plane, are not accepted as non-planar ones.
+    checkThrows<std::invalid_argument>([] { const NonPlanarScalarValues values({0.0, 10.0, 1.0, 11.0}); },
+                                       "in one plane", "four values that are in one plane");
 }
 
 void check_scale_factor_is_applied_once_after_the_weighted_sum() {
@@ -106,6 +160,7 @@ int main() {
     check_source_is_validated();
     check_axis_count();
     check_interpolation_of_a_cell();
+    check_all_four_nodes_of_a_cell_are_weighted();
     check_scale_factor_is_applied_once_after_the_weighted_sum();
     check_values_beyond_the_axis_count_are_not_read();
     check_fractions_outside_a_cell_extrapolate();
