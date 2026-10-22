@@ -385,9 +385,9 @@ def write_file_cases(directory: Path) -> None:
 def write_time_function_cases(directory: Path) -> None:
     """A layer with each of the time functions, and a layer with one that is not implemented."""
     three = [
-        TimeFunctionEntry("linear", 0.01, function_reference_date="2000-01-01"),
+        TimeFunctionEntry("linear", 0.25, function_reference_date="2000-01-01"),
         TimeFunctionEntry("step", 2.0, event_date="2001-01-01"),
-        TimeFunctionEntry("ramp", 3.0, start_date="2002-01-01", end_date="2003-01-01"),
+        TimeFunctionEntry("ramp", 3.0, start_date="2002-01-01", end_date="2002-01-05"),
     ]
     write_ggrxf_file(directory / "scalar_time_functions.nc", [scalar_layer(scalar_grid(), time_functions=three)])
     quadratic = [TimeFunctionEntry("quadratic", 1.0, function_reference_date="2000-01-01")]
@@ -417,8 +417,9 @@ def write_grid_parameter_cases(directory: Path) -> None:
 
 def write_scalar_grid_cases(directory: Path) -> None:
     """Grids that have a missing value, or an end day, or a shape that is wrong."""
+    # The node (2, 2) is a corner of the grid, so it is in one of the four cells, and the others have all their values.
     missing = scalar_grid(missing_value=-999)
-    missing.displacement[1, 1, 0] = -999
+    missing.displacement[2, 2, 0] = -999
     write_ggrxf_file(directory / "scalar_missing_value.nc", [scalar_layer(missing)])
     write_ggrxf_file(directory / "scalar_end_day.nc", [scalar_layer(scalar_grid(has_end_day=True))])
     write_ggrxf_file(
