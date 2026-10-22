@@ -81,6 +81,12 @@ snap_add_unit_test(grid_geometry_test SOURCES grid_geometry_test/grid_geometry_t
 # Unit test for the Grid and GridParent classes and descendToLeaf in snaplib/deformation/grid.h.
 snap_add_unit_test(grid_test SOURCES grid_test/grid_test.cpp)
 
+# Unit test for the ScalarGridData class in snaplib/deformation/scalar_grid_data.h.
+snap_add_unit_test(scalar_grid_data_test SOURCES scalar_grid_data_test/scalar_grid_data_test.cpp)
+
+# Unit test for the ScalarLayer class in snaplib/deformation/scalar_layer.h.
+snap_add_unit_test(scalar_layer_test SOURCES scalar_layer_test/scalar_layer_test.cpp)
+
 # Unit test for the LineReader class that concord uses to read its input. The class is part of the concord
 # program, not snaplib, so its source is compiled into the test.
 snap_add_unit_test(linereader_test
