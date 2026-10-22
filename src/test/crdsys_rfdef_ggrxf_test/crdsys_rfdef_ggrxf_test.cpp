@@ -104,9 +104,10 @@ struct Calculation {
     std::array<double, 3> denu = {-999.0, -999.0, -999.0};
 };
 
-/// \return the epoch, as a decimal year, of the start of the day of the ISO 8601 date.
-double epochOf(const std::string& date) {
-    return date_as_year(deformation::ggrxfDateToDayNumber(date));
+/// \return the epoch, as a decimal year, of the start of the day of the ISO 8601 date, or of a time that is later than
+/// that by a number of days, which can be part of a day.
+double epochOf(const std::string& date, const double daysAfterStartOfDay = 0.0) {
+    return date_as_year(deformation::ggrxfDateToDayNumber(date) + daysAfterStartOfDay);
 }
 
 /// Calculates the offsets of the model of the frame, at a point given in degrees.
@@ -210,11 +211,22 @@ void check_longitudes_are_taken_modulo_360() {
 
 void check_layers_are_summed() {
     // The scalar layer and the ragged layer of the file both cover the point. On 2000-02-20, 50 days after 2000-01-01,
-    // the east values are 83 and 10 + 50 * the rate, the north are 83.5 and 20, and the up are 84 and 0, in millimetres.
+    // the east values are 83 and 10 + 50 * the rate, the north are 83.5 and 20, and the up are 84 and 0, in
+    // millimetres.
     const std::unique_ptr<ref_frame> frame = frameOfModel("mixed_layers");
     checkOffsets(calculate(*frame, 10.5, 20.5, epochOf("2000-02-20")),
                  {(83.0 + 10.0 + kEastRatePerDay * 50.0) * 0.001, (83.5 + 20.0) * 0.001, 84.0 * 0.001},
                  "a point that two layers cover");
+}
+
+void check_a_query_part_way_through_a_day() {
+    // Noon on 2000-02-20 is 50.5 days after 2000-01-01. The east value of the ragged layer rises by the rate each day,
+    // so a query that was cut to the start of its day would give 50 days of it, which is 5 micrometres less. The
+    // other values do not change in the day.
+    const std::unique_ptr<ref_frame> frame = frameOfModel("mixed_layers");
+    checkOffsets(calculate(*frame, 10.5, 20.5, epochOf("2000-02-20", 0.5)),
+                 {(83.0 + 10.0 + kEastRatePerDay * 50.5) * 0.001, (83.5 + 20.0) * 0.001, 84.0 * 0.001},
+                 "a point that two layers cover, at noon");
 }
 
 void check_a_file_with_no_layer_covers_no_point() {
@@ -315,6 +327,7 @@ int main(int argc, char* argv[]) {
         check_a_point_outside_every_layer();
         check_longitudes_are_taken_modulo_360();
         check_layers_are_summed();
+        check_a_query_part_way_through_a_day();
         check_a_file_with_no_layer_covers_no_point();
         check_the_version_is_checked();
         check_a_file_that_cannot_be_read();
