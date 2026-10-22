@@ -188,8 +188,7 @@ void check_missing_parameters_are_rejected() {
     checkThrows<std::invalid_argument>([&ramp] { construct(ramp); }, "startDateDays",
                                        "a ramp function with no start date and no end date");
     ramp.startDateDays = 10.0;
-    checkThrows<std::invalid_argument>([&ramp] { construct(ramp); }, "endDateDays",
-                                       "a ramp function with no end date");
+    checkThrows<std::invalid_argument>([&ramp] { construct(ramp); }, "endDateDays", "a ramp function with no end date");
     ramp.startDateDays = std::nullopt;
     ramp.endDateDays = 20.0;
     checkThrows<std::invalid_argument>([&ramp] { construct(ramp); }, "startDateDays",

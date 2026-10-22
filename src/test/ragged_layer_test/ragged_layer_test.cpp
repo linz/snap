@@ -310,8 +310,8 @@ void check_rejected_grids() {
         RaggedLayer layer(0.0);
         checkThrows<std::invalid_argument>(
             [&layer] {
-                layer.addRootGrids(inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 1),
-                                               makeGrid(kAlongCoordinates, 3, 3, 0.0, 2)));
+                layer.addRootGrids(
+                    inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 1), makeGrid(kAlongCoordinates, 3, 3, 0.0, 2)));
             },
             "axisCount (2) does not match the first grid's own (1)", "grids with different axis counts");
         check(!layer.axisCount().has_value(), "a layer whose grids have different axis counts is left empty");
@@ -319,7 +319,7 @@ void check_rejected_grids() {
 }
 
 void check_axis_count_and_layers_with_no_grid() {
-    RaggedLayer neverGiven(0.0);
+    const RaggedLayer neverGiven(0.0);
     check(!neverGiven.axisCount().has_value(), "a layer that was given no grids has no axis count");
     checkNoValue(neverGiven, 0.5, 0.5, "a layer that was given no grids");
 
@@ -330,8 +330,8 @@ void check_axis_count_and_layers_with_no_grid() {
 
     const RaggedLayer oneAxis = makeLayer(inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 1)));
     check(oneAxis.axisCount() == 1, "the axis count of a layer of grids of one axis");
-    const RaggedLayer twoAxes = makeLayer(inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 2),
-                                                      makeGrid(kAcrossCoordinates, 3, 3, 0.0, 2)));
+    const RaggedLayer twoAxes =
+        makeLayer(inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 2), makeGrid(kAcrossCoordinates, 3, 3, 0.0, 2)));
     check(twoAxes.axisCount() == 2, "the axis count of a layer of grids of two axes");
 }
 

@@ -46,8 +46,7 @@ inline void check(const bool condition,
 /// Counts a failure, and prints the message with both values, if the values are not equal. The values can be of any
 /// types that can be compared with == and written to a stream.
 template <typename Actual, typename Expected>
-void checkEqual(const Actual& actual,
-                const Expected& expected,
+void checkEqual(const Actual& actual, const Expected& expected,
                 const std::string& messageOnError) {  ///< printed with the values if the check fails
     if (actual == expected) {
         return;
@@ -58,8 +57,7 @@ void checkEqual(const Actual& actual,
 }
 
 /// Counts a failure, and prints the message with both values, if the values differ by more than the tolerance.
-inline void checkEqual(const double actual,
-                       const double expected,
+inline void checkEqual(const double actual, const double expected,
                        const double tolerance,               ///< the most that the values may differ by
                        const std::string& messageOnError) {  ///< printed with the values if the check fails
     if (std::fabs(actual - expected) <= tolerance) {

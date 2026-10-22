@@ -7,10 +7,13 @@
 // (indexed_scalar_values.h): node (i, j) of a grid has the value offset + 100 * a + 10 * i + j on axis a, so that the
 // value that a layer gives shows which grid and which nodes answered. The expected values are worked out by hand.
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -51,21 +54,15 @@ GridGeometry makeGeometry(const double x0, const double y0, const std::uint32_t 
 }
 
 /// \return a grid with no children.
-std::unique_ptr<ScalarGrid> makeGrid(const double x0,
-                                     const double y0,
-                                     const std::uint32_t count,
-                                     const std::size_t axisCount = 3,
-                                     const double offset = 0.0,
+std::unique_ptr<ScalarGrid> makeGrid(const double x0, const double y0, const std::uint32_t count,
+                                     const std::size_t axisCount = 3, const double offset = 0.0,
                                      const std::vector<Node>& nodesWithNoValue = {}) {
     return std::make_unique<ScalarGrid>(makeGeometry(x0, y0, count), makeData(axisCount, offset, nodesWithNoValue));
 }
 
 /// \return a grid that can have children, which has none yet.
-std::unique_ptr<ScalarParent> makeParent(const double x0,
-                                         const double y0,
-                                         const std::uint32_t count,
-                                         const std::size_t axisCount = 3,
-                                         const double offset = 0.0) {
+std::unique_ptr<ScalarParent> makeParent(const double x0, const double y0, const std::uint32_t count,
+                                         const std::size_t axisCount = 3, const double offset = 0.0) {
     return std::make_unique<ScalarParent>(makeGeometry(x0, y0, count), makeData(axisCount, offset, {}));
 }
 

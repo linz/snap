@@ -5,6 +5,7 @@
 // process exit code is the pass/fail signal (0 = all passed), as for the other
 // test-only tools in src/test/.
 
+#include <cstddef>
 #include <sstream>
 #include <string>
 #include <string_view>

@@ -7,9 +7,12 @@
 // grid does not have, which interpolate() must not read.
 
 #include <cstddef>
+#include <initializer_list>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "deformation/grid_geometry.h"
@@ -31,8 +34,7 @@ using snap_test::checkValues;
 using Node = IndexedScalarValues::Node;
 
 /// \return a grid's data of IndexedScalarValues.
-ScalarGridData makeData(const double scaleFactor,
-                        const std::size_t axisCount,
+ScalarGridData makeData(const double scaleFactor, const std::size_t axisCount,
                         const std::vector<Node>& nodesWithNoValue = {}) {
     return ScalarGridData(scaleFactor, std::make_unique<IndexedScalarValues>(axisCount, 0.0, false, nodesWithNoValue));
 }

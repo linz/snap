@@ -20,12 +20,8 @@ using deformation::GridGeometry;
 using snap_test::check;
 
 /// Checks that locate() gave a cell with exactly the base corner and the fractional position.
-void checkCell(const std::optional<Cell>& cell,
-               const std::uint32_t bi,
-               const std::uint32_t bj,
-               const double fi,
-               const double fj,
-               const std::string& messageOnError) {
+void checkCell(const std::optional<Cell>& cell, const std::uint32_t bi, const std::uint32_t bj, const double fi,
+               const double fj, const std::string& messageOnError) {
     if (!cell) {
         check(false, messageOnError + ": the point was not located");
         return;

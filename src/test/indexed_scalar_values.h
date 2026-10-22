@@ -30,8 +30,7 @@ inline constexpr double kValueTolerance = 1e-12;
 
 /// Checks that the values that a grid's interpolate() or a layer's evaluate() gave are the three expected. The values
 /// for the axes that the grid does not have are 0.
-inline void checkValues(const std::optional<std::array<double, 3>>& actual,
-                        const std::array<double, 3>& expected,
+inline void checkValues(const std::optional<std::array<double, 3>>& actual, const std::array<double, 3>& expected,
                         const std::string& messageOnError) {
     if (!actual) {
         check(false, messageOnError + ": there were no values");
@@ -47,9 +46,9 @@ class IndexedScalarValues : public deformation::ScalarNodeValueSource {
     /// The (i, j) of a node.
     using Node = std::pair<std::uint32_t, std::uint32_t>;
 
-    explicit IndexedScalarValues(const std::size_t axisCount,                      ///< how many axes the grid has
-                                 const double offset = 0.0,                        ///< added to every value
-                                 const bool hasEndDay = false,                     ///< what hasEndDay() gives
+    explicit IndexedScalarValues(const std::size_t axisCount,                     ///< how many axes the grid has
+                                 const double offset = 0.0,                       ///< added to every value
+                                 const bool hasEndDay = false,                    ///< what hasEndDay() gives
                                  const std::vector<Node>& nodesWithNoValue = {})  ///< the nodes that have no value
         : _axisCount(axisCount), _offset(offset), _hasEndDay(hasEndDay), _nodesWithNoValue(nodesWithNoValue) {}
 

@@ -92,11 +92,10 @@ void test_second_message() {
 void test_location() {
     set_error_location("in file x line 3");
     checkEqual(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "[in file x line 3]",
-                "location replaces an absent second message");
-    checkEqual(second_text(report(INVALID_DATA, "m", "detail")), "[detail]",
-                "given second message beats the location");
+               "location replaces an absent second message");
+    checkEqual(second_text(report(INVALID_DATA, "m", "detail")), "[detail]", "given second message beats the location");
     checkEqual(second_text(report(INVALID_DATA, "m", std::string_view())), "[]",
-                "empty second message beats the location");
+               "empty second message beats the location");
 
     set_error_location(NO_MESSAGE);
     checkEqual(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "absent", "location cleared");

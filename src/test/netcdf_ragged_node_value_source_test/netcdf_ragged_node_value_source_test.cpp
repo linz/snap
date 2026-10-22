@@ -37,8 +37,7 @@ RaggedSegment makeSegment(const std::uint32_t axis, const std::uint32_t node, co
 
 /// Adds the segments of one axis, given how many segments each node has, in flat order, to the CSR offsets and the flat
 /// array of segments that the file stores them in.
-void addAxis(const std::uint32_t axis,
-             const std::vector<std::uint32_t>& countOfEachNode,
+void addAxis(const std::uint32_t axis, const std::vector<std::uint32_t>& countOfEachNode,
              std::vector<std::vector<std::size_t>>& offsetsByAxis,
              std::vector<std::vector<RaggedSegment>>& segmentsByAxis) {
     std::vector<std::size_t> offsets = {0};
@@ -82,12 +81,8 @@ std::string nameOf(const std::uint32_t i, const std::uint32_t j, const std::uint
 
 /// Checks that the node has the expected number of segments, and that they are the ones that makeSegment() gives for
 /// the flat index of the node.
-void checkSegmentsOfNode(const NetcdfRaggedNodeValueSource& source,
-                         const std::uint32_t i,
-                         const std::uint32_t j,
-                         const std::uint32_t axis,
-                         const std::uint32_t flatIndex,
-                         const std::size_t expectedCount) {
+void checkSegmentsOfNode(const NetcdfRaggedNodeValueSource& source, const std::uint32_t i, const std::uint32_t j,
+                         const std::uint32_t axis, const std::uint32_t flatIndex, const std::size_t expectedCount) {
     const RaggedSegmentRange range = source.segments(i, j, axis);
     checkEqual(countOf(range), expectedCount, "the number of segments of " + nameOf(i, j, axis));
     std::size_t k = 0;

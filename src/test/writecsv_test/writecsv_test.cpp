@@ -62,170 +62,169 @@ void check_open() {
         csv.endRecord();
     });
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeString("b");
-                    csv.endRecord();
-                }),
-                "\"b\"\n", "open: an existing file is replaced");
+                   csv.writeString("b");
+                   csv.endRecord();
+               }),
+               "\"b\"\n", "open: an existing file is replaced");
 }
 
 void check_csv_strings() {
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeString("abc");
-                    csv.writeString("say \"hi\"");
-                    csv.writeString("a,b");
-                    csv.writeString("x\ny");
-                    csv.writeString("");
-                    csv.endRecord();
-                }),
-                "\"abc\",\"say \"\"hi\"\"\",\"a,b\",\"x\ny\",\"\"\n",
-                "csv: text is quoted, quotes doubled, comma and line feed kept, empty string is a quoted field");
+                   csv.writeString("abc");
+                   csv.writeString("say \"hi\"");
+                   csv.writeString("a,b");
+                   csv.writeString("x\ny");
+                   csv.writeString("");
+                   csv.endRecord();
+               }),
+               "\"abc\",\"say \"\"hi\"\"\",\"a,b\",\"x\ny\",\"\"\n",
+               "csv: text is quoted, quotes doubled, comma and line feed kept, empty string is a quoted field");
 }
 
 void check_csv_null_fields() {
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeNullField();
-                    csv.writeString("a");
-                    csv.writeNullFields(2);
-                    csv.writeString("b");
-                    csv.endRecord();
-                }),
-                ",\"a\",,,\"b\"\n", "csv: null fields are empty and unquoted");
+                   csv.writeNullField();
+                   csv.writeString("a");
+                   csv.writeNullFields(2);
+                   csv.writeString("b");
+                   csv.endRecord();
+               }),
+               ",\"a\",,,\"b\"\n", "csv: null fields are empty and unquoted");
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeString("a");
-                    csv.writeNullFields(0);
-                    csv.writeString("b");
-                    csv.endRecord();
-                }),
-                "\"a\",\"b\"\n", "csv: no null fields writes nothing, not even a delimiter");
+                   csv.writeString("a");
+                   csv.writeNullFields(0);
+                   csv.writeString("b");
+                   csv.endRecord();
+               }),
+               "\"a\",\"b\"\n", "csv: no null fields writes nothing, not even a delimiter");
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeNullField();
-                    csv.writeNullField();
-                    csv.endRecord();
-                }),
-                ",\n", "csv: two null fields give one delimiter");
+                   csv.writeNullField();
+                   csv.writeNullField();
+                   csv.endRecord();
+               }),
+               ",\n", "csv: two null fields give one delimiter");
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeNullField();
-                    csv.endRecord();
-                }),
-                "\n", "csv: one null field gives an empty row");
+                   csv.writeNullField();
+                   csv.endRecord();
+               }),
+               "\n", "csv: one null field gives an empty row");
 }
 
 void check_records() {
-    checkEqual(write_csv([](output_csv& csv) { csv.endRecord(); }), "\n",
-                "records: an empty record is a bare newline");
+    checkEqual(write_csv([](output_csv& csv) { csv.endRecord(); }), "\n", "records: an empty record is a bare newline");
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeInt(1);
-                    csv.writeInt(2);
-                    csv.endRecord();
-                    csv.writeInt(3);
-                    csv.endRecord();
-                }),
-                "1,2\n3\n", "records: a new row starts without a delimiter");
+                   csv.writeInt(1);
+                   csv.writeInt(2);
+                   csv.endRecord();
+                   csv.writeInt(3);
+                   csv.endRecord();
+               }),
+               "1,2\n3\n", "records: a new row starts without a delimiter");
     checkEqual(write_csv([](output_csv& csv) { csv.writeInt(1); }), "1",
-                "records: no newline is written until endRecord");
+               "records: no newline is written until endRecord");
 }
 
 void check_numbers() {
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeInt(0);
-                    csv.writeInt(-5);
-                    csv.writeInt(2147483647);
-                    csv.writeInt(-2147483647);
-                    csv.endRecord();
-                }),
-                "0,-5,2147483647,-2147483647\n", "numbers: integers");
+                   csv.writeInt(0);
+                   csv.writeInt(-5);
+                   csv.writeInt(2147483647);
+                   csv.writeInt(-2147483647);
+                   csv.endRecord();
+               }),
+               "0,-5,2147483647,-2147483647\n", "numbers: integers");
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeDouble(3.14159, 3);
-                    csv.writeDouble(2.6, 0);
-                    csv.writeDouble(-1.5, 2);
-                    csv.writeDouble(1234.5678, 1);
-                    csv.writeDouble(1.0, -1);
-                    csv.writeDouble(1.0 / 3.0, -1);
-                    csv.writeDouble(0.0, 4);
-                    csv.endRecord();
-                }),
-                "3.142,3,-1.50,1234.6,1.000000,0.333333,0.0000\n",
-                "numbers: doubles with decimal places, rounding, and six places for a negative count");
+                   csv.writeDouble(3.14159, 3);
+                   csv.writeDouble(2.6, 0);
+                   csv.writeDouble(-1.5, 2);
+                   csv.writeDouble(1234.5678, 1);
+                   csv.writeDouble(1.0, -1);
+                   csv.writeDouble(1.0 / 3.0, -1);
+                   csv.writeDouble(0.0, 4);
+                   csv.endRecord();
+               }),
+               "3.142,3,-1.50,1234.6,1.000000,0.333333,0.0000\n",
+               "numbers: doubles with decimal places, rounding, and six places for a negative count");
 }
 
 void check_headers() {
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeHeader("obsid");
-                    csv.writeHeader("obs id");
-                    csv.writeHeader("a.b-c");
-                    csv.endRecord();
-                }),
-                "\"obsid\",\"obs_id\",\"a_b_c\"\n",
-                "headers: characters other than letters and digits become underscores");
+                   csv.writeHeader("obsid");
+                   csv.writeHeader("obs id");
+                   csv.writeHeader("a.b-c");
+                   csv.endRecord();
+               }),
+               "\"obsid\",\"obs_id\",\"a_b_c\"\n",
+               "headers: characters other than letters and digits become underscores");
 
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeHeader(std::string(31, 'a'));
-                    csv.writeHeader(std::string(32, 'b'));
-                    csv.writeHeader(std::string(33, 'c'));
-                    csv.writeHeader(std::string(40, 'd'));
-                    csv.endRecord();
-                }),
-                "\"" + std::string(31, 'a') + "\",\"" + std::string(32, 'b') + "\",\"" + std::string(32, 'c') +
-                    "\",\"" + std::string(32, 'd') + "\"\n",
-                "headers: names are cut to 32 characters");
+                   csv.writeHeader(std::string(31, 'a'));
+                   csv.writeHeader(std::string(32, 'b'));
+                   csv.writeHeader(std::string(33, 'c'));
+                   csv.writeHeader(std::string(40, 'd'));
+                   csv.endRecord();
+               }),
+               "\"" + std::string(31, 'a') + "\",\"" + std::string(32, 'b') + "\",\"" + std::string(32, 'c') + "\",\"" +
+                   std::string(32, 'd') + "\"\n",
+               "headers: names are cut to 32 characters");
     checkEqual(write_tab([](output_csv& csv) {
-                    csv.writeHeader("obs id");
-                    csv.writeHeader("x");
-                    csv.endRecord();
-                }),
-                "obs_id\tx\n", "headers: not quoted in tab mode");
+                   csv.writeHeader("obs id");
+                   csv.writeHeader("x");
+                   csv.endRecord();
+               }),
+               "obs_id\tx\n", "headers: not quoted in tab mode");
 }
 
 void check_dates() {
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeString("a");
-                    csv.writeDate(UNDEFINED_DATE);
-                    csv.writeString("b");
-                    csv.endRecord();
-                }),
-                "\"a\",,\"b\"\n", "dates: an undefined date is a null field");
+                   csv.writeString("a");
+                   csv.writeDate(UNDEFINED_DATE);
+                   csv.writeString("b");
+                   csv.endRecord();
+               }),
+               "\"a\",,\"b\"\n", "dates: an undefined date is a null field");
     checkEqual(write_csv([](output_csv& csv) {
-                    csv.writeDate(snap_datetime(2020, 3, 15, 13, 5, 9));
-                    csv.writeDate(snap_date(2020, 3, 15));
-                    csv.endRecord();
-                }),
-                "\"2020-03-15 13:05:09\",\"2020-03-15 00:00:00\"\n",
-                "dates: quoted yyyy-mm-dd hh:mm:ss, with the time shown at midnight");
+                   csv.writeDate(snap_datetime(2020, 3, 15, 13, 5, 9));
+                   csv.writeDate(snap_date(2020, 3, 15));
+                   csv.endRecord();
+               }),
+               "\"2020-03-15 13:05:09\",\"2020-03-15 00:00:00\"\n",
+               "dates: quoted yyyy-mm-dd hh:mm:ss, with the time shown at midnight");
     checkEqual(write_tab([](output_csv& csv) {
-                    csv.writeDate(snap_datetime(2020, 3, 15, 13, 5, 9));
-                    csv.writeDate(UNDEFINED_DATE);
-                    csv.writeInt(4);
-                    csv.endRecord();
-                }),
-                "2020-03-15 13:05:09\t\t4\n", "dates: tab mode is unquoted, undefined is empty");
+                   csv.writeDate(snap_datetime(2020, 3, 15, 13, 5, 9));
+                   csv.writeDate(UNDEFINED_DATE);
+                   csv.writeInt(4);
+                   csv.endRecord();
+               }),
+               "2020-03-15 13:05:09\t\t4\n", "dates: tab mode is unquoted, undefined is empty");
 }
 
 void check_tab_delimited() {
     checkEqual(write_tab([](output_csv& csv) {
-                    csv.writeString("a\tb");
-                    csv.writeString("c\nd");
-                    csv.writeString("e,f");
-                    csv.writeString("say \"hi\"");
-                    csv.writeInt(7);
-                    csv.writeDouble(2.5, 1);
-                    csv.endRecord();
-                }),
-                "a b\tc d\te,f\tsay \"hi\"\t7\t2.5\n",
-                "tab: no quoting, tab and line feed in text become spaces, comma and quote kept");
+                   csv.writeString("a\tb");
+                   csv.writeString("c\nd");
+                   csv.writeString("e,f");
+                   csv.writeString("say \"hi\"");
+                   csv.writeInt(7);
+                   csv.writeDouble(2.5, 1);
+                   csv.endRecord();
+               }),
+               "a b\tc d\te,f\tsay \"hi\"\t7\t2.5\n",
+               "tab: no quoting, tab and line feed in text become spaces, comma and quote kept");
     checkEqual(write_tab([](output_csv& csv) {
-                    csv.writeNullField();
-                    csv.writeString("a");
-                    csv.writeNullFields(2);
-                    csv.writeString("b");
-                    csv.endRecord();
-                }),
-                "\ta\t\t\tb\n", "tab: null fields are empty between tabs");
+                   csv.writeNullField();
+                   csv.writeString("a");
+                   csv.writeNullFields(2);
+                   csv.writeString("b");
+                   csv.endRecord();
+               }),
+               "\ta\t\t\tb\n", "tab: null fields are empty between tabs");
     checkEqual(write_tab([](output_csv& csv) {
-                    csv.writeString("");
-                    csv.writeString("x");
-                    csv.endRecord();
-                }),
-                "\tx\n", "tab: an empty string is an empty field");
+                   csv.writeString("");
+                   csv.writeString("x");
+                   csv.endRecord();
+               }),
+               "\tx\n", "tab: an empty string is an empty field");
 }
 
 }  // namespace

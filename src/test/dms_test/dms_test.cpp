@@ -26,39 +26,39 @@ void check_degrees_minutes_seconds() {
     checkEqual(write(DmsFormat(3, 0, DMSF_FMT_DMS), 45.5125), " 45 30 45", "dms: no decimal places");
     checkEqual(write(DmsFormat(3, 1, DMSF_FMT_DMS, "d", "'", "\""), 45.5125), " 45d30'45.0\"", "dms: separators");
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS, "\xC2\xB0", "'", "\""), 45.5125),
-                " 45\xC2\xB0"
-                "30'45.00\"",
-                "dms: multi-byte degree separator, as in snaplist's config");
+               " 45\xC2\xB0"
+               "30'45.00\"",
+               "dms: multi-byte degree separator, as in snaplist's config");
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS, "\xC2\xB0", "'", ""), 45.5125),
-                " 45\xC2\xB0"
-                "30'45.00",
-                "dms: empty text after the seconds, as when snaplist's config omits it");
+               " 45\xC2\xB0"
+               "30'45.00",
+               "dms: empty text after the seconds, as when snaplist's config omits it");
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS), 0.0), "  0 00 00.00", "dms: zero");
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS), 45.99999999), " 46 00 00.00",
-                "dms: rounds up through the minutes and seconds");
+               "dms: rounds up through the minutes and seconds");
     checkEqual(write(DmsFormat(7, 2, DMSF_FMT_DMS), 45.5125), "  45 30 45.00", "dms: degree digits above 4 become 4");
     checkEqual(write(DmsFormat(0, 2, DMSF_FMT_DMS), 45.5125), "45 30 45.00", "dms: no degree digits is no padding");
     checkEqual(write(DmsFormat(3, -2, DMSF_FMT_DMS), 45.5125), " 45 30 45", "dms: negative decimal places become 0");
     checkEqual(write(DmsFormat(3, 20, DMSF_FMT_DMS), 45.5125), " 45 30 45.000000",
-                "dms: decimal places above 6 become 6");
+               "dms: decimal places above 6 become 6");
 }
 
 void check_default_and_empty_text() {
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS, "", std::nullopt), 45.5125), " 4530 45.00",
-                "dms: empty text after degrees replaces the default blank");
+               "dms: empty text after degrees replaces the default blank");
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS, std::nullopt, ""), 45.5125), " 45 3045.00",
-                "dms: empty text after minutes replaces the default blank");
+               "dms: empty text after minutes replaces the default blank");
     checkEqual(write(DmsFormat(3, 3, DMSF_FMT_DM), 45.5125), " 45 30.750",
-                "dm: the default text after the minutes is empty");
+               "dm: the default text after the minutes is empty");
     checkEqual(write(DmsFormat(3, 3, DMSF_FMT_DM, std::nullopt, "'"), 45.5125), " 45 30.750'",
-                "dm: text after the minutes");
+               "dm: text after the minutes");
     checkEqual(write(DmsFormat(3, 3, DMSF_FMT_DM, "d"), 45.5125), " 45d30.750", "dm: text after the degrees");
 }
 
 void check_degrees_only() {
     checkEqual(write(DmsFormat(3, 4, DMSF_FMT_DEG), 45.5125), "45.5125", "deg: plain");
     checkEqual(write(DmsFormat(3, 20, DMSF_FMT_DEG), 45.5125), "45.5125000000",
-                "deg: decimal places above 10 become 10");
+               "deg: decimal places above 10 become 10");
     checkEqual(write(DmsFormat(3, -2, DMSF_FMT_DEG), 45.5125), "46", "deg: negative decimal places become 0");
     const DmsFormat hemisphere(0, 4, DMSF_FMT_DEG, std::nullopt, std::nullopt, std::nullopt, "N", "S");
     checkEqual(write(hemisphere, 45.5125), "45.5125N", "deg: positive hemisphere follows");
@@ -74,7 +74,7 @@ void check_degrees_only() {
 
 void check_signs() {
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS), -45.5125), " 45 30 45.00",
-                "sign: negative angle with no sign text loses its sign");
+               "sign: negative angle with no sign text loses its sign");
     const DmsFormat hemisphere(3, 2, DMSF_FMT_DMS, std::nullopt, std::nullopt, std::nullopt, "N", "S");
     checkEqual(write(hemisphere, 45.5125), " 45 30 45.00N", "sign: positive hemisphere follows");
     checkEqual(write(hemisphere, -45.5125), " 45 30 45.00S", "sign: negative hemisphere follows");
@@ -96,7 +96,7 @@ void check_signs() {
     const DmsFormat wideLeadingMinus(4, 2, DMSF_FMT_DMS | DMSF_FMT_PREFIX_HEM, std::nullopt, std::nullopt, std::nullopt,
                                      std::nullopt, "-");
     checkEqual(write(wideLeadingMinus, -45.5125), " -45 30 45.00",
-                "sign: leading minus counts towards the degree width");
+               "sign: leading minus counts towards the degree width");
     const DmsFormat prefixedMinutes(3, 3, DMSF_FMT_DM | DMSF_FMT_PREFIX_HEM, std::nullopt, std::nullopt, std::nullopt,
                                     "N", "S");
     checkEqual(write(prefixedMinutes, -45.5125), "S 45 30.750", "sign: dm hemisphere prefixes");
@@ -104,7 +104,7 @@ void check_signs() {
 
 void check_radians() {
     checkEqual(write(DmsFormat(3, 2, DMSF_FMT_DMS | DMSF_FMT_INPUT_RADIANS), std::acos(-1.0) / 4.0), " 45 00 00.00",
-                "radians: pi/4");
+               "radians: pi/4");
 }
 
 void check_format_reuse() {

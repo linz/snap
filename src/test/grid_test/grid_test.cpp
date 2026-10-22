@@ -15,9 +15,13 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <stdexcept>
+#include <string>
 #include <utility>
+#include <vector>
 
 #include "deformation/grid.h"
 #include "deformation/grid_geometry.h"

@@ -11,6 +11,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <random>
 #include <stdexcept>
@@ -154,7 +155,7 @@ void check_against_walking_from_the_first_segment() {
 }
 
 void check_a_null_source_is_rejected() {
-    checkThrows<std::invalid_argument>([] { RaggedGridData data(nullptr); }, "must not be null",
+    checkThrows<std::invalid_argument>([] { const RaggedGridData data(nullptr); }, "must not be null",
                                        "a null source of node segments");
 }
 

@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <string>
 #include <vector>
 
 #include "deformation/netcdf_scalar_node_value_source.h"

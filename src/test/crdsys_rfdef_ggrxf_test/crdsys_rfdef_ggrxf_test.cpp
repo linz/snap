@@ -13,8 +13,10 @@
 // after 2000-01-01, 10 + 365 * 0.01 / 365.2425 * days millimetres east, 20 north before day 100, and 0 up.
 
 #include <array>
+#include <cstddef>
 #include <exception>
 #include <filesystem>
+#include <initializer_list>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -110,13 +112,13 @@ double epochOf(const std::string& date) {
 /// Calculates the offsets of the model of the frame, at a point given in degrees.
 Calculation calculate(ref_frame& frame, const double latitude, const double longitude, const double epoch) {
     Calculation calculation;
-    calculation.status = frame.def->calc_denu(&frame, longitude * DTOR, latitude * DTOR, epoch, calculation.denu.data());
+    calculation.status =
+        frame.def->calc_denu(&frame, longitude * DTOR, latitude * DTOR, epoch, calculation.denu.data());
     return calculation;
 }
 
 /// Checks that the calculation succeeded and gave the expected offsets, which are in metres.
-void checkOffsets(const Calculation& calculation,
-                  const std::array<double, 3>& expected,
+void checkOffsets(const Calculation& calculation, const std::array<double, 3>& expected,
                   const std::string& messageOnError) {
     checkEqual(calculation.status, OK, messageOnError + ": status");
     for (std::size_t axis = 0; axis < expected.size(); ++axis) {
@@ -241,7 +243,8 @@ void check_the_version_is_checked() {
 
     const std::unique_ptr<ref_frame> noModelVersion = frameOfModel("scalar_no_model_version 1.2.3");
     checkEqual(calculate(*noModelVersion, 10.5, 20.5, epoch).status, INVALID_DATA, "a file with no model version");
-    check(contains(describe(*noModelVersion), "modelVersion (none)"), "the description for a file with no model version");
+    check(contains(describe(*noModelVersion), "modelVersion (none)"),
+          "the description for a file with no model version");
 
     const std::unique_ptr<ref_frame> noVersionEither = frameOfModel("scalar_no_model_version");
     checkOffsets(calculate(*noVersionEither, 10.5, 20.5, epoch), {0.083, 0.0835, 0.084},

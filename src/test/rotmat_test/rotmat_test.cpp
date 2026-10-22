@@ -123,7 +123,7 @@ void test_gravimetric_vertical_is_deflected() {
     const double cz = topoVertical[0] * gravVertical[1] - topoVertical[1] * gravVertical[0];
     const double separation = std::sqrt(cx * cx + cy * cy + cz * cz);
     checkEqual(separation, std::sqrt(xi * xi + eta * eta), 1.0e-7,
-                "arc between the topocentric and gravimetric verticals");
+               "arc between the topocentric and gravimetric verticals");
 }
 
 }  // namespace

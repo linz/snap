@@ -14,8 +14,10 @@
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 #include "deformation/ggrxf_date.h"
 #include "deformation/ggrxf_reader.h"
@@ -53,21 +55,14 @@ void checkRejected(const std::string& name, const std::string& text, const std::
 }
 
 /// Checks the values that the first layer of the file gives at a point on a day.
-void checkValuesOf(const std::string& name,
-                   const double latitude,
-                   const double longitude,
-                   const double day,
-                   const std::array<double, 3>& expected,
-                   const std::string& messageOnError) {
+void checkValuesOf(const std::string& name, const double latitude, const double longitude, const double day,
+                   const std::array<double, 3>& expected, const std::string& messageOnError) {
     const GgrxfFile file = parseGgrxfFile(pathOf(name));
     checkValues(file.layers.at(0)->evaluate(latitude, longitude, day), expected, messageOnError);
 }
 
 /// Checks that the first layer of the file gives no values at a point on a day.
-void checkNoValuesOf(const std::string& name,
-                     const double latitude,
-                     const double longitude,
-                     const double day,
+void checkNoValuesOf(const std::string& name, const double latitude, const double longitude, const double day,
                      const std::string& messageOnError) {
     const GgrxfFile file = parseGgrxfFile(pathOf(name));
     check(!file.layers.at(0)->evaluate(latitude, longitude, day).has_value(), messageOnError);
