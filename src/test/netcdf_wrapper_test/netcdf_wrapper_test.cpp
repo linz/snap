@@ -117,14 +117,9 @@ struct SegmentRecord {
     std::int16_t factor;
 };
 
-/// Writes the file that the structure checks read. On its root group it has a text attribute, a string list, a
-/// single-text attribute and numeric attributes; the subgroups first (which has a subgroup, inner) and
-/// second; and variables of each type, of 0 to 3 dimensions, one with no values, one that is compound, and attributes
-/// of a variable.
-void writeStructureFile(const std::string& path) {
-    int ncid = 0;
-    require(nc_create(path.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid), "nc_create");
-
+/// Writes the attributes of the root group of the structure file: a text attribute, a string list, a single-text
+/// attribute and numeric attributes.
+void writeRootAttributes(const int ncid) {
     require(nc_put_att_text(ncid, NC_GLOBAL, "title", 5, "hello"), "nc_put_att_text title");
     require(nc_put_att_text(ncid, NC_GLOBAL, "single", 4, "only"), "nc_put_att_text single");
     const char* names[] = {"a", "bc", "def"};
@@ -137,14 +132,35 @@ void writeStructureFile(const std::string& path) {
     require(nc_put_att_uint(ncid, NC_GLOBAL, "u32", NC_UINT, 1, u32), "nc_put_att_uint");
     require(nc_put_att_uchar(ncid, NC_GLOBAL, "u8", NC_UBYTE, 1, u8), "nc_put_att_uchar");
     require(nc_put_att_double(ncid, NC_GLOBAL, "f64", NC_DOUBLE, 2, f64), "nc_put_att_double");
+}
 
+/// Defines the subgroups of the structure file: first, which has a subgroup, inner, and second.
+void defineGroups(const int ncid) {
     int first = 0;
     int inner = 0;
     int second = 0;
     require(nc_def_grp(ncid, "first", &first), "nc_def_grp first");
     require(nc_def_grp(first, "inner", &inner), "nc_def_grp inner");
     require(nc_def_grp(ncid, "second", &second), "nc_def_grp second");
+}
 
+/// The ids of the variables of the structure file that have values written to them.
+struct StructureVariables {
+    int i32Variable = 0;
+    int u32Variable = 0;
+    int u16Variable = 0;
+    int u8Variable = 0;
+    int f64Variable = 0;
+    int matrix = 0;
+    int cube = 0;
+    int scalar = 0;
+    int segments = 0;
+};
+
+/// Defines the dimensions, variables, attributes of a variable and compound type of the structure file: variables of
+/// each type, of 0 to 3 dimensions, one with no values, and one that is compound.
+/// \return the ids of the variables that have values written to them.
+StructureVariables defineVariables(const int ncid) {
     int rows = 0;
     int cols = 0;
     int axes = 0;
@@ -191,8 +207,11 @@ void writeStructureFile(const std::string& path) {
     int segmentGrid = 0;
     require(nc_def_var(ncid, "segs", segmentType, 1, &cols, &segments), "nc_def_var segs");
     require(nc_def_var(ncid, "segGrid", segmentType, 2, matrixDimensions, &segmentGrid), "nc_def_var segGrid");
-    require(nc_enddef(ncid), "nc_enddef");
+    return {i32Variable, u32Variable, u16Variable, u8Variable, f64Variable, matrix, cube, scalar, segments};
+}
 
+/// Writes the values of the variables of the structure file, which is no longer in define mode.
+void writeValues(const int ncid, const StructureVariables& variables) {
     const std::int32_t i32Values[2] = {10, -20};
     const std::uint32_t u32Values[3] = {1, 2, 3};
     const std::uint16_t u16Values[3] = {7, 8, 9};
@@ -202,15 +221,29 @@ void writeStructureFile(const std::string& path) {
     const std::int32_t cubeValues[12] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     const std::int32_t scalarValue = 42;
     const SegmentRecord segmentValues[3] = {{100, 7, -3}, {200, 8, -4}, {300, 9, -5}};
-    require(nc_put_var_int(ncid, i32Variable, i32Values), "nc_put_var_int i32v");
-    require(nc_put_var_uint(ncid, u32Variable, u32Values), "nc_put_var_uint u32v");
-    require(nc_put_var_ushort(ncid, u16Variable, u16Values), "nc_put_var_ushort u16v");
-    require(nc_put_var_uchar(ncid, u8Variable, u8Values), "nc_put_var_uchar u8v");
-    require(nc_put_var_double(ncid, f64Variable, f64Values), "nc_put_var_double f64v");
-    require(nc_put_var_int(ncid, matrix, matrixValues), "nc_put_var_int matrix");
-    require(nc_put_var_int(ncid, cube, cubeValues), "nc_put_var_int cube");
-    require(nc_put_var_int(ncid, scalar, &scalarValue), "nc_put_var_int scalarVar");
-    require(nc_put_var(ncid, segments, segmentValues), "nc_put_var segs");
+    require(nc_put_var_int(ncid, variables.i32Variable, i32Values), "nc_put_var_int i32v");
+    require(nc_put_var_uint(ncid, variables.u32Variable, u32Values), "nc_put_var_uint u32v");
+    require(nc_put_var_ushort(ncid, variables.u16Variable, u16Values), "nc_put_var_ushort u16v");
+    require(nc_put_var_uchar(ncid, variables.u8Variable, u8Values), "nc_put_var_uchar u8v");
+    require(nc_put_var_double(ncid, variables.f64Variable, f64Values), "nc_put_var_double f64v");
+    require(nc_put_var_int(ncid, variables.matrix, matrixValues), "nc_put_var_int matrix");
+    require(nc_put_var_int(ncid, variables.cube, cubeValues), "nc_put_var_int cube");
+    require(nc_put_var_int(ncid, variables.scalar, &scalarValue), "nc_put_var_int scalarVar");
+    require(nc_put_var(ncid, variables.segments, segmentValues), "nc_put_var segs");
+}
+
+/// Writes the file that the structure checks read. On its root group it has a text attribute, a string list, a
+/// single-text attribute and numeric attributes; the subgroups first (which has a subgroup, inner) and
+/// second; and variables of each type, of 0 to 3 dimensions, one with no values, one that is compound, and attributes
+/// of a variable.
+void writeStructureFile(const std::string& path) {
+    int ncid = 0;
+    require(nc_create(path.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid), "nc_create");
+    writeRootAttributes(ncid);
+    defineGroups(ncid);
+    const StructureVariables variables = defineVariables(ncid);
+    require(nc_enddef(ncid), "nc_enddef");
+    writeValues(ncid, variables);
     require(nc_close(ncid), "nc_close");
 }
 
