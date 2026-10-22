@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distro: [ "ubuntu-22.04", "ubuntu-24.04" ]
+        distro: [ "ubuntu-24.04", "ubuntu-26.04" ]
     steps:
       - name: Checkout source
         uses: actions/checkout@v7.0.1
@@ -40,8 +40,6 @@ jobs:
         working-directory: src/python
         run: |
           files=$(git -C ../.. ls-files '*.py' ':!src/python' | sed 's#^#../../#')
-          # make_icon.py imports pillow, which is only installed for Python 3.11 and later, so Python 3.10 skips it
-          if [ "${{ matrix.distro }}" = "ubuntu-22.04" ]; then files=$(echo "$files" | grep -v make_icon.py); fi
           poetry run ruff check $files
           poetry run ruff format --check $files
           poetry run pylint $files

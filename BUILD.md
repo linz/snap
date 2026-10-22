@@ -198,7 +198,7 @@ GUI dependency.
 Build instructions for Linux
 ============================
 
-Tested against Ubuntu 22.04 (Jammy) and 24.04 (Noble) amd64.
+Tested against Ubuntu 24.04 (Noble) and 26.04 (Resolute) amd64.
 
 Install prerequisites (the last three are required to build a debian package
 for installation):
@@ -215,9 +215,6 @@ apt-get install -y \
     dpkg-dev \
     devscripts
 ```
-
-On Jammy (22.04), the wxWidgets package is `libwxgtk3.0-gtk3-dev` — the `3.2`
-package above is Noble-only.
 
 Perl is not needed to build SNAP. It is needed to run SNAP: the scripts in `src/perl` use
 it, and so does the function of SNAP Manager that retrieves coordinates from the geodetic
@@ -343,9 +340,6 @@ Requirements, on Ubuntu 24.04 (Noble):
   GUI sources, because the GUI build compiles the most source files, so `--no-gui` is rejected.
   Only files that the build compiles are analysed. `src/wxtest` has no build target, so it is
   not.
-
-Ubuntu 22.04 (Jammy) can build and test SNAP but cannot run the analysis: its Boost 1.74
-headers produce compile errors under clang-tidy 21, and its wxWidgets 3.0 cannot build the GUI.
 
 ```
 python3 build.py debug tidy       # reports findings and changes nothing; exits 1 if there are any
