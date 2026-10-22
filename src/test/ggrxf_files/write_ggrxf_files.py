@@ -480,7 +480,8 @@ def write_scalar_nesting_cases(directory: Path) -> None:
 
 
 def write_ragged_cases(directory: Path) -> None:
-    """Ragged layers of two axes, nests of grids, a function type that is not implemented, and an end day."""
+    """Ragged layers of two axes, nests of grids, a function type that is not implemented, an end day, and nodes that
+    have different reference days."""
     two_axes = ragged_segments()
     del two_axes["u"]
     write_ggrxf_file(directory / "ragged_two_axes.nc", [ragged_layer(ragged_grid(segments=two_axes))])
@@ -502,6 +503,19 @@ def write_ragged_cases(directory: Path) -> None:
     write_ggrxf_file(
         directory / "ragged_end_day_none.nc",
         [ragged_layer(ragged_grid(), has_end_day=[0] * 9)],
+    )
+
+    # Node (i, j) of this grid is node 3 * i + j. Every node has one constant segment on the east axis, of the raw start
+    # value 1000 and the day delta 100, and the four nodes of the first cell have the reference days 0, 10, 20 and 30,
+    # so that the segments of the nodes start on the days 100, 110, 120 and 130.
+    reference_days = np.zeros(9, dtype=np.uint32)
+    reference_days[[0, 1, 3, 4]] = [0, 10, 20, 30]
+    reference_day_segments = ragged_segments()
+    reference_day_segments["e"] = [[RaggedSegment(1000, 100, 0)] for _ in range(9)]
+    reference_day_segments["n"] = [[] for _ in range(9)]
+    write_ggrxf_file(
+        directory / "ragged_node_reference_days.nc",
+        [ragged_layer(ragged_grid(reference_day=reference_days, segments=reference_day_segments))],
     )
 
 

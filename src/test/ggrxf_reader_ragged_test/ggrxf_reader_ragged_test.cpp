@@ -109,10 +109,24 @@ void check_a_layer_of_two_axes() {
 }
 
 void check_the_reference_day_and_the_day_delta_add() {
-    // The reference day of every node is 0 in the generated files, so the day that a segment starts on is its day
-    // delta only. The layer evaluates relative to its own reference date, so the date of the query is what moves.
+    // The reference day of every node is 0 in ragged_basic.nc, so the day that a segment starts on is its day delta
+    // only. The layer evaluates relative to its own reference date, so the date of the query is what moves.
     checkValuesOf("ragged_basic.nc", 10.5, 20.5, ggrxfDateToDayNumber("2000-04-10"), valuesOnDay(100.0),
                   "2000-04-10, which is 100 days (31 + 29 + 31 + 9) after 2000-01-01");
+}
+
+void check_the_start_of_a_segment_is_the_node_reference_day_plus_the_day_delta() {
+    // The east axis of every node of ragged_node_reference_days.nc has one constant segment of the value 10, with the
+    // day delta 100. The reference days of the four nodes of the first cell are 0 for node (0, 0), 10 for (0, 1), 20
+    // for (1, 0) and 30 for (1, 1), so their segments start on the days 100, 110, 120 and 130. At (10.2, 20.4) the
+    // weights of those nodes are 0.48, 0.32, 0.12 and 0.08, which are all different, so the value on a day is 10 times
+    // the weights of the nodes that have started, and shows which of them have.
+    const std::string name = "ragged_node_reference_days.nc";
+    checkValuesOf(name, 10.2, 20.4, dayNumber(99.0), {0.0, 0.0, 0.0}, "the day before any segment starts");
+    checkValuesOf(name, 10.2, 20.4, dayNumber(100.0), {4.8, 0.0, 0.0}, "the day the segment of node (0, 0) starts");
+    checkValuesOf(name, 10.2, 20.4, dayNumber(110.0), {8.0, 0.0, 0.0}, "the day the segment of node (0, 1) starts");
+    checkValuesOf(name, 10.2, 20.4, dayNumber(120.0), {9.2, 0.0, 0.0}, "the day the segment of node (1, 0) starts");
+    checkValuesOf(name, 10.2, 20.4, dayNumber(130.0), {10.0, 0.0, 0.0}, "the day the segment of node (1, 1) starts");
 }
 
 void check_coefficients_in_the_order_of_longitude_first() {
@@ -216,6 +230,7 @@ int main(int argc, char* argv[]) {
     try {
         check_a_file_with_a_ragged_layer();
         check_the_segment_that_applies_on_a_day();
+        check_the_start_of_a_segment_is_the_node_reference_day_plus_the_day_delta();
         check_a_layer_of_two_axes();
         check_the_reference_day_and_the_day_delta_add();
         check_coefficients_in_the_order_of_longitude_first();
