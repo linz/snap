@@ -5,6 +5,9 @@
 // The grids are built in code. Node (i, j) of a grid has the value offset + 10 * i + j on its one axis, at every day,
 // where offset is different for each grid. Bilinear interpolation of that is exact, so the value at a point shows
 // which grid answered, and which node indices the point was found by, and so which way round the grid's own axes run.
+//
+// The grids that a layer is given are also checked: none, a null grid, grids of different axis counts, and a second
+// set of grids.
 
 #include <array>
 #include <cmath>
@@ -43,15 +46,17 @@ constexpr double kCellTolerance = 0.00001;
 constexpr double kValueTolerance = 1e-9;
 
 using snap_test::check;
+using snap_test::checkThrows;
 
-/// The values of a grid: node (i, j) has the value offset + 10 * i + j on its one axis, from day 0 on, and does not
+/// The values of a grid: node (i, j) has the value offset + 10 * i + j on each of its axes, from day 0 on, and does not
 /// change.
 class NodeIndexValues : public RaggedNodeValueSource {
  public:
     NodeIndexValues(const std::uint32_t iNodeCount,  ///< how many nodes the grid has along i
                     const std::uint32_t jNodeCount,  ///< how many nodes the grid has along j
-                    const double offset)             ///< added to the value of every node, to tell grids apart
-        : _jNodeCount(jNodeCount) {
+                    const double offset,             ///< added to the value of every node, to tell grids apart
+                    const std::size_t axisCount)     ///< how many axes the grid has, which all have the same values
+        : _jNodeCount(jNodeCount), _axisCount(axisCount) {
         for (std::uint32_t i = 0; i < iNodeCount; ++i) {
             for (std::uint32_t j = 0; j < jNodeCount; ++j) {
                 _segments.push_back(RaggedSegment{0.0, offset + 10.0 * i + j, 0.0});
@@ -60,7 +65,7 @@ class NodeIndexValues : public RaggedNodeValueSource {
     }
 
     [[nodiscard]] std::size_t axisCount() const override {
-        return 1;
+        return _axisCount;
     }
 
     [[nodiscard]] bool hasEndDay(const std::uint32_t, const std::uint32_t) const override {
@@ -75,6 +80,7 @@ class NodeIndexValues : public RaggedNodeValueSource {
 
  private:
     std::uint32_t _jNodeCount;
+    std::size_t _axisCount;
     std::vector<RaggedSegment> _segments;
 };
 
@@ -82,10 +88,11 @@ class NodeIndexValues : public RaggedNodeValueSource {
 GridPointer makeGrid(const std::array<double, 6>& affineCoeffs,  ///< the grid's node (i, j) to (c0, c1) transform
                      const std::uint32_t iNodeCount,             ///< how many nodes the grid has along i
                      const std::uint32_t jNodeCount,             ///< how many nodes the grid has along j
-                     const double offset = 0.0) {                ///< added to the value of every node
+                     const double offset = 0.0,                  ///< added to the value of every node
+                     const std::size_t axisCount = 1) {          ///< how many axes the grid has
     const GridGeometry geometry(affineCoeffs, iNodeCount, jNodeCount, kCellTolerance);
     return std::make_unique<Grid<RaggedGridData>>(
-        geometry, RaggedGridData(std::make_unique<NodeIndexValues>(iNodeCount, jNodeCount, offset)));
+        geometry, RaggedGridData(std::make_unique<NodeIndexValues>(iNodeCount, jNodeCount, offset, axisCount)));
 }
 
 /// \return a square grid of three nodes along each side, with those coefficients.
@@ -298,6 +305,34 @@ void check_rejected_grids() {
         check(addThrows<std::logic_error>(layer, inFileOrder(makeSmallGrid(kAlongCoordinates))),
               "grids can be given to a layer once only");
     }
+    {
+        // The grids of a layer all have the same axis count.
+        RaggedLayer layer(0.0);
+        checkThrows<std::invalid_argument>(
+            [&layer] {
+                layer.addRootGrids(inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 1),
+                                               makeGrid(kAlongCoordinates, 3, 3, 0.0, 2)));
+            },
+            "axisCount (2) does not match the first grid's own (1)", "grids with different axis counts");
+        check(!layer.axisCount().has_value(), "a layer whose grids have different axis counts is left empty");
+    }
+}
+
+void check_axis_count_and_layers_with_no_grid() {
+    RaggedLayer neverGiven(0.0);
+    check(!neverGiven.axisCount().has_value(), "a layer that was given no grids has no axis count");
+    checkNoValue(neverGiven, 0.5, 0.5, "a layer that was given no grids");
+
+    RaggedLayer emptyList(0.0);
+    emptyList.addRootGrids(std::vector<GridPointer>());
+    check(!emptyList.axisCount().has_value(), "a layer that was given an empty list of grids has no axis count");
+    checkNoValue(emptyList, 0.5, 0.5, "a layer that was given an empty list of grids");
+
+    const RaggedLayer oneAxis = makeLayer(inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 1)));
+    check(oneAxis.axisCount() == 1, "the axis count of a layer of grids of one axis");
+    const RaggedLayer twoAxes = makeLayer(inFileOrder(makeGrid(kAlongCoordinates, 3, 3, 0.0, 2),
+                                                      makeGrid(kAcrossCoordinates, 3, 3, 0.0, 2)));
+    check(twoAxes.axisCount() == 2, "the axis count of a layer of grids of two axes");
 }
 
 }  // namespace
@@ -316,6 +351,7 @@ int main() {
     check_grids_not_on_a_common_lattice();
     check_grids_with_the_same_edges_resolve_by_file_order();
     check_rejected_grids();
+    check_axis_count_and_layers_with_no_grid();
 
     return snap_test::finish("ragged_layer_test");
 }

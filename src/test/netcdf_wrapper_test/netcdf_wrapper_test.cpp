@@ -3,10 +3,10 @@
 // and readScalarValue() of a variable, which must give the value when there is exactly one, and throw when there are
 // none or several, instead of reading out of bounds or ignoring all but the first), and the rest of what the reader
 // uses: opening a file, groups, text, string list and numeric attributes, variables of each type and their dimensions,
-// and the fields of a compound variable. Only the types that the format has are used, as the wrapper only has those.
-// The test writes small netCDF files with the netCDF-C library, reads them back through the wrapper and deletes them.
-// Failures are reported to stdout and the process exit code is the pass/fail signal (0 = all passed), as for the other
-// test-only tools in src/test/.
+// and the fields of a compound variable, and the error that a group or a variable gives once its file has been closed.
+// Only the types that the format has are used, as the wrapper only has those. The test writes small netCDF files with
+// the netCDF-C library, reads them back through the wrapper and deletes them. Failures are reported to stdout and the
+// process exit code is the pass/fail signal (0 = all passed), as for the other test-only tools in src/test/.
 
 #include <netcdf.h>
 
@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <exception>
 #include <filesystem>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -335,6 +336,44 @@ void check_attributes_of_a_variable(const netcdf::NetcdfGroup& group) {
                                     "an int32 attribute of a variable read as a double");
 }
 
+void check_handles_that_outlive_their_file(const std::string& path) {
+    auto file = std::make_unique<netcdf::NetcdfFile>(path);
+    const netcdf::NetcdfGroup group = file->rootGroup();
+    const netcdf::NetcdfVariable variable = group.variable("i32v");
+    const netcdf::NetcdfVariable compound = group.variable("segs");
+    file.reset();  // closes the file, while the handles still hold its identifiers
+
+    // A group or a variable does not own its file: it holds only the identifiers of it. Once the file is closed, each
+    // call that uses them fails in netCDF-C, and the wrapper reports that as a NetcdfError that says which call failed
+    // and on what, instead of crashing.
+    using netcdf::NetcdfError;
+    checkThrows<NetcdfError>([&group] { return group.hasAttribute("title"); }, "title",
+                             "whether a group of a closed file has an attribute");
+    checkThrows<NetcdfError>([&group] { return group.readTextAttribute("title"); }, "title",
+                             "a text attribute of a group of a closed file");
+    checkThrows<NetcdfError>([&group] { return group.readStringListAttribute("names"); }, "names",
+                             "a string list attribute of a group of a closed file");
+    checkThrows<NetcdfError>([&group] { return group.readNumericAttribute<double>("f64"); }, "f64",
+                             "a numeric attribute of a group of a closed file");
+    checkThrows<NetcdfError>([&group] { return group.hasVariable("matrix"); }, "matrix",
+                             "whether a group of a closed file has a variable");
+    checkThrows<NetcdfError>([&group] { return group.variable("matrix"); }, "matrix",
+                             "a variable of a group of a closed file");
+    checkThrows<NetcdfError>([&group] { return group.subgroups(); }, "nc_inq_grps",
+                             "the subgroups of a group of a closed file");
+
+    checkThrows<NetcdfError>([&variable] { return variable.hasAttribute("scale"); }, "scale",
+                             "whether a variable of a closed file has an attribute");
+    checkThrows<NetcdfError>([&variable] { return variable.readNumericAttribute<double>("scale"); }, "scale",
+                             "an attribute of a variable of a closed file");
+    checkThrows<NetcdfError>([&variable] { return variable.dimensionLengths(); }, "i32v",
+                             "the dimensions of a variable of a closed file");
+    checkThrows<NetcdfError>([&variable] { return variable.readValues<std::int32_t>(); }, "i32v",
+                             "the values of a variable of a closed file");
+    checkThrows<NetcdfError>([&compound] { return compound.readCompoundField<std::int32_t>("start"); }, "segs",
+                             "a field of a compound variable of a closed file");
+}
+
 }  // namespace
 
 int main() {
@@ -366,6 +405,7 @@ int main() {
             check_compound_fields(group);
             check_attributes_of_a_variable(group);
         }
+        check_handles_that_outlive_their_file(structurePath);
     } catch (const std::exception& error) {
         check(false, std::string("unexpected exception: ") + error.what());
     }
