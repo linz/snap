@@ -87,6 +87,14 @@ snap_add_unit_test(scalar_grid_data_test SOURCES scalar_grid_data_test/scalar_gr
 # Unit test for the ScalarLayer class in snaplib/deformation/scalar_layer.h.
 snap_add_unit_test(scalar_layer_test SOURCES scalar_layer_test/scalar_layer_test.cpp)
 
+# Unit test for the NetcdfScalarNodeValueSource class in snaplib/deformation/netcdf_scalar_node_value_source.h.
+snap_add_unit_test(netcdf_scalar_node_value_source_test
+    SOURCES netcdf_scalar_node_value_source_test/netcdf_scalar_node_value_source_test.cpp)
+
+# Unit test for the NetcdfRaggedNodeValueSource class in snaplib/deformation/netcdf_ragged_node_value_source.h.
+snap_add_unit_test(netcdf_ragged_node_value_source_test
+    SOURCES netcdf_ragged_node_value_source_test/netcdf_ragged_node_value_source_test.cpp)
+
 # Unit test for the LineReader class that concord uses to read its input. The class is part of the concord
 # program, not snaplib, so its source is compiled into the test.
 snap_add_unit_test(linereader_test
