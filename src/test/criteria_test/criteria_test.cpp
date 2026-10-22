@@ -6,10 +6,8 @@
 // src/test/.
 
 #include <cstdio>
-#include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <vector>
 #include <initializer_list>
@@ -21,19 +19,12 @@
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "snap/snapglob.h"
+#include "test_support.h"
 #include "util/errdef.h"
 
 namespace {
 
-int failures = 0;
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << std::endl;
-}
+using snap_test::check;
 
 /// Installs a WGS84 coordinate system, which a network needs before it will
 /// hold stations, from a minimal definition file written for the purpose. The
@@ -313,10 +304,5 @@ int main() {
     uninstall_crdsys_lists();
     std::filesystem::remove(coordsys_file);
 
-    if (failures == 0) {
-        std::cout << "All criteria tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " criteria test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("criteria_test");
 }

@@ -2,33 +2,23 @@
 
 // Standalone unit test for util/fileutil.cpp's path-building and file-search
 // functions (build_filespec/build_config_filespec/find_config_file/
-// find_relative_file/find_file). Awaiting migration to CTest - until then,
-// failures are reported to stdout and the process exit code is the pass/fail
-// signal (0 = all passed), matching fieldscanner_test.
+// find_relative_file/find_file).
 
 #include <algorithm>
 #include <cstdlib>
 #include <cstdio>
-#include <iostream>
 #include <iterator>
 #include <sstream>
 #include <string>
 #include <filesystem>
 #include <fstream>
 #include <optional>
+#include "test_support.h"
 #include "util/fileutil.h"
 
 namespace {
 
-int failures = 0;
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// Functions under test form paths using / as the initial separator. This helper function replaces / with
 /// PATH_SEPARATOR (OS-dependent) so test paths work natively under Linux, macOS and Windows.
@@ -306,10 +296,5 @@ int main() {
     check_find_config_file_via_snapenv();
     check_skip_utf8_bom();
 
-    if (failures == 0) {
-        std::cout << "All fileutil tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " fileutil test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("fileutil_test");
 }

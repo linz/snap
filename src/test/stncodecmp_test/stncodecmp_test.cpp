@@ -1,27 +1,15 @@
 #include "snapconfig.hpp"
 
-// Standalone unit test for stncodecmp in network/netlist.cpp. Awaiting
-// migration to CTest - until then, failures are reported to stdout and the
-// process exit code is the pass/fail signal (0 = all passed), matching how
-// other test-only tools in src/test/ are checked.
+// Standalone unit test for stncodecmp in network/netlist.cpp.
 
-#include <cstdlib>
-#include <iostream>
 #include <string>
 
 #include "network/network.h"
+#include "test_support.h"
 
 namespace {
 
-int failures = 0;
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// Checks that first sorts before second, and that the reverse comparison
 /// is the mirror image.
@@ -109,10 +97,5 @@ int main() {
     check_digit_runs_too_long_for_a_long();
     check_leading_zeros_in_long_digit_runs();
 
-    if (failures == 0) {
-        std::cout << "All stncodecmp tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " stncodecmp test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("stncodecmp_test");
 }

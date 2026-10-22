@@ -5,23 +5,14 @@
 // stdout and the process exit code is the pass/fail signal (0 = all passed),
 // matching how other test-only tools in src/test/ are checked.
 
-#include <cstdlib>
-#include <iostream>
 #include <string>
 
+#include "test_support.h"
 #include "util/wildcard.h"
 
 namespace {
 
-int failures = 0;
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// Checks that pattern matches text with wildcard_match.
 void check_matches(const std::string& pattern, const std::string& text) {
@@ -148,10 +139,5 @@ int main() {
     check_filename_matches_any_path_component();
     check_filename_wildcards_stop_at_separators();
 
-    if (failures == 0) {
-        std::cout << "All wildcard tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " wildcard test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("wildcard_test");
 }

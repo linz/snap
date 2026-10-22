@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <initializer_list>
-#include <iostream>
 #include <limits>
 #include <optional>
 #include <random>
@@ -18,22 +17,14 @@
 #include <vector>
 
 #include "deformation/rectangle_index.h"
+#include "test_support.h"
 
 namespace {
 
 using deformation::AcceptEveryRectangle;
 using deformation::IndexedRectangle;
 using deformation::RectangleIndex;
-
-int failures = 0;
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// \return a description of an id that may be missing, for a failure message.
 std::string describe(const std::optional<std::size_t>& id) {
@@ -257,10 +248,5 @@ int main() {
     check_accept();
     check_against_a_plain_scan();
 
-    if (failures > 0) {
-        std::cout << failures << " rectangle_index_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "rectangle_index_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("rectangle_index_test");
 }

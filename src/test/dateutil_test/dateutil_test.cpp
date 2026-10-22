@@ -1,6 +1,4 @@
-// Standalone unit test for the date and time parsing of snap_datetime_parse (util/dateutil.h). Awaiting migration to
-// CTest - until then, failures are reported to stdout and the process exit code is the pass/fail signal (0 = all
-// passed), matching how other test-only tools in src/test/ are checked.
+// Standalone unit test for the date and time parsing of snap_datetime_parse (util/dateutil.h).
 //
 // Each row gives a string, the format passed with it (nullptr for none) and the date that it must give, written as
 // that date. A result must be within kToleranceDays of the date, and a string that is not a date must give exactly 0.
@@ -11,13 +9,12 @@
 // not in its month, a second of 60, an hour of 24 and text after a complete date or time are not accepted. A month
 // name is accepted in any case. A time zone offset and a fraction of a second are accepted and ignored.
 
-#include <cmath>
-#include <cstdio>
 #include <initializer_list>
-#include <iostream>
 #include <optional>
+#include <string>
 #include <string_view>
 
+#include "test_support.h"
 #include "util/dateutil.h"
 
 namespace {
@@ -482,30 +479,21 @@ const ParseCase kCases[] = {
     {"2024-01-01T00:30:00+12:00", nullptr, date_time(2024, 1, 1, 0, 30, 0)},
 };
 
-int failures = 0;
-
 void check_parse(const ParseCase& parseCase) {
     const double actual = parseCase.format
                               ? snap_datetime_parse(parseCase.definition, std::string_view(parseCase.format))
                               : snap_datetime_parse(parseCase.definition);
-    const bool matches =
-        parseCase.expected == kInvalid ? actual == kInvalid : std::fabs(actual - parseCase.expected) <= kToleranceDays;
-    if (matches) {
-        return;
-    }
-    ++failures;
-    std::printf("FAIL: snap_datetime_parse(\"%s\", %s%s%s): expected %.9f got %.9f\n", parseCase.definition,
-                parseCase.format ? "\"" : "", parseCase.format ? parseCase.format : "none",
-                parseCase.format ? "\"" : "", parseCase.expected, actual);
+    const std::string format = parseCase.format ? "\"" + std::string(parseCase.format) + "\"" : "none";
+    // A string that is not a date must give exactly kInvalid, and any other must be within kToleranceDays.
+    snap_test::checkEqual(actual, parseCase.expected, parseCase.expected == kInvalid ? 0.0 : kToleranceDays,
+                          "snap_datetime_parse(\"" + std::string(parseCase.definition) + "\", " + format + ")");
 }
 
 // "now" gives the time that it is called, so it can only be checked for being a recent date.
 void check_now() {
     for (const char* definition : {"now", "NOW", "Now"}) {
-        if (snap_datetime_parse(definition) < date(2024, 1, 1)) {
-            ++failures;
-            std::printf("FAIL: snap_datetime_parse(\"%s\") is not the current date\n", definition);
-        }
+        snap_test::check(snap_datetime_parse(definition) >= date(2024, 1, 1),
+                         "snap_datetime_parse(\"" + std::string(definition) + "\") is not the current date");
     }
 }
 
@@ -517,10 +505,5 @@ int main() {
     }
     check_now();
 
-    if (failures > 0) {
-        std::cout << failures << " dateutil_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "dateutil_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("dateutil_test");
 }

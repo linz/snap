@@ -1,7 +1,4 @@
-// Standalone unit test for util/writecsv.h (output_csv). Awaiting migration to
-// CTest - until then, failures are reported to stdout and the process exit code
-// is the pass/fail signal (0 = all passed), matching how other test-only tools
-// in src/test/ are checked.
+// Standalone unit test for util/writecsv.h (output_csv).
 //
 // Each case writes a file, reads it back and compares the whole text. The
 // expected text is written out by hand from the documented behaviour of the
@@ -10,33 +7,18 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 
+#include "test_support.h"
 #include "util/dateutil.h"
 #include "util/writecsv.h"
 
 namespace {
 
-int failures = 0;
-
-void check_equal(const std::string& actual, const std::string& expected, const std::string& description) {
-    if (actual == expected) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
-}
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
+using snap_test::checkEqual;
 
 const std::filesystem::path test_dir = std::filesystem::temp_directory_path() / "snap_writecsv_test";
 
@@ -47,8 +29,7 @@ std::string write_file(const bool tab_delimited, const std::function<void(output
     {
         const std::unique_ptr<output_csv> csv = output_csv::open(filename, tab_delimited);
         if (!csv) {
-            ++failures;
-            std::cout << "FAIL: could not open " << filename << "\n";
+            check(false, "could not open " + filename);
             return "";
         }
         writer(*csv);
@@ -80,7 +61,7 @@ void check_open() {
         csv.writeString("a much longer first version");
         csv.endRecord();
     });
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeString("b");
                     csv.endRecord();
                 }),
@@ -88,7 +69,7 @@ void check_open() {
 }
 
 void check_csv_strings() {
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeString("abc");
                     csv.writeString("say \"hi\"");
                     csv.writeString("a,b");
@@ -101,7 +82,7 @@ void check_csv_strings() {
 }
 
 void check_csv_null_fields() {
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeNullField();
                     csv.writeString("a");
                     csv.writeNullFields(2);
@@ -109,20 +90,20 @@ void check_csv_null_fields() {
                     csv.endRecord();
                 }),
                 ",\"a\",,,\"b\"\n", "csv: null fields are empty and unquoted");
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeString("a");
                     csv.writeNullFields(0);
                     csv.writeString("b");
                     csv.endRecord();
                 }),
                 "\"a\",\"b\"\n", "csv: no null fields writes nothing, not even a delimiter");
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeNullField();
                     csv.writeNullField();
                     csv.endRecord();
                 }),
                 ",\n", "csv: two null fields give one delimiter");
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeNullField();
                     csv.endRecord();
                 }),
@@ -130,9 +111,9 @@ void check_csv_null_fields() {
 }
 
 void check_records() {
-    check_equal(write_csv([](output_csv& csv) { csv.endRecord(); }), "\n",
+    checkEqual(write_csv([](output_csv& csv) { csv.endRecord(); }), "\n",
                 "records: an empty record is a bare newline");
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeInt(1);
                     csv.writeInt(2);
                     csv.endRecord();
@@ -140,12 +121,12 @@ void check_records() {
                     csv.endRecord();
                 }),
                 "1,2\n3\n", "records: a new row starts without a delimiter");
-    check_equal(write_csv([](output_csv& csv) { csv.writeInt(1); }), "1",
+    checkEqual(write_csv([](output_csv& csv) { csv.writeInt(1); }), "1",
                 "records: no newline is written until endRecord");
 }
 
 void check_numbers() {
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeInt(0);
                     csv.writeInt(-5);
                     csv.writeInt(2147483647);
@@ -153,7 +134,7 @@ void check_numbers() {
                     csv.endRecord();
                 }),
                 "0,-5,2147483647,-2147483647\n", "numbers: integers");
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeDouble(3.14159, 3);
                     csv.writeDouble(2.6, 0);
                     csv.writeDouble(-1.5, 2);
@@ -168,7 +149,7 @@ void check_numbers() {
 }
 
 void check_headers() {
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeHeader("obsid");
                     csv.writeHeader("obs id");
                     csv.writeHeader("a.b-c");
@@ -177,7 +158,7 @@ void check_headers() {
                 "\"obsid\",\"obs_id\",\"a_b_c\"\n",
                 "headers: characters other than letters and digits become underscores");
 
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeHeader(std::string(31, 'a'));
                     csv.writeHeader(std::string(32, 'b'));
                     csv.writeHeader(std::string(33, 'c'));
@@ -187,7 +168,7 @@ void check_headers() {
                 "\"" + std::string(31, 'a') + "\",\"" + std::string(32, 'b') + "\",\"" + std::string(32, 'c') +
                     "\",\"" + std::string(32, 'd') + "\"\n",
                 "headers: names are cut to 32 characters");
-    check_equal(write_tab([](output_csv& csv) {
+    checkEqual(write_tab([](output_csv& csv) {
                     csv.writeHeader("obs id");
                     csv.writeHeader("x");
                     csv.endRecord();
@@ -196,21 +177,21 @@ void check_headers() {
 }
 
 void check_dates() {
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeString("a");
                     csv.writeDate(UNDEFINED_DATE);
                     csv.writeString("b");
                     csv.endRecord();
                 }),
                 "\"a\",,\"b\"\n", "dates: an undefined date is a null field");
-    check_equal(write_csv([](output_csv& csv) {
+    checkEqual(write_csv([](output_csv& csv) {
                     csv.writeDate(snap_datetime(2020, 3, 15, 13, 5, 9));
                     csv.writeDate(snap_date(2020, 3, 15));
                     csv.endRecord();
                 }),
                 "\"2020-03-15 13:05:09\",\"2020-03-15 00:00:00\"\n",
                 "dates: quoted yyyy-mm-dd hh:mm:ss, with the time shown at midnight");
-    check_equal(write_tab([](output_csv& csv) {
+    checkEqual(write_tab([](output_csv& csv) {
                     csv.writeDate(snap_datetime(2020, 3, 15, 13, 5, 9));
                     csv.writeDate(UNDEFINED_DATE);
                     csv.writeInt(4);
@@ -220,7 +201,7 @@ void check_dates() {
 }
 
 void check_tab_delimited() {
-    check_equal(write_tab([](output_csv& csv) {
+    checkEqual(write_tab([](output_csv& csv) {
                     csv.writeString("a\tb");
                     csv.writeString("c\nd");
                     csv.writeString("e,f");
@@ -231,7 +212,7 @@ void check_tab_delimited() {
                 }),
                 "a b\tc d\te,f\tsay \"hi\"\t7\t2.5\n",
                 "tab: no quoting, tab and line feed in text become spaces, comma and quote kept");
-    check_equal(write_tab([](output_csv& csv) {
+    checkEqual(write_tab([](output_csv& csv) {
                     csv.writeNullField();
                     csv.writeString("a");
                     csv.writeNullFields(2);
@@ -239,7 +220,7 @@ void check_tab_delimited() {
                     csv.endRecord();
                 }),
                 "\ta\t\t\tb\n", "tab: null fields are empty between tabs");
-    check_equal(write_tab([](output_csv& csv) {
+    checkEqual(write_tab([](output_csv& csv) {
                     csv.writeString("");
                     csv.writeString("x");
                     csv.endRecord();
@@ -264,10 +245,5 @@ int main() {
 
     std::filesystem::remove_all(test_dir);
 
-    if (failures) {
-        std::cout << failures << " writecsv_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "writecsv_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("writecsv_test");
 }

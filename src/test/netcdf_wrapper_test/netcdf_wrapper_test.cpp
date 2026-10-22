@@ -10,24 +10,17 @@
 #include <cstdint>
 #include <exception>
 #include <filesystem>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "deformation/netcdf_wrapper.h"
+#include "test_support.h"
 
 namespace {
 
-int failures = 0;
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
+using snap_test::checkThrows;
 
 /// Stops the test if a netCDF-C call that writes the test file failed, since nothing after it would mean anything.
 void require(const int status, const std::string& call) {
@@ -77,30 +70,15 @@ void writeTestFile(const std::string& path) {
     require(nc_close(ncid), "nc_close");
 }
 
-/// Checks that calling the function throws a std::runtime_error whose message contains the text.
-template <typename Function>
-void checkThrows(Function function,                 ///< what to call
-                 const std::string& messageText,    ///< text that the message must contain
-                 const std::string& description) {  ///< what the check is of
-    try {
-        function();
-    } catch (const std::runtime_error& error) {
-        check(std::string(error.what()).find(messageText) != std::string::npos,
-              description + ": the message '" + error.what() + "' does not contain '" + messageText + "'");
-        return;
-    }
-    check(false, description + ": expected an exception, but there was none");
-}
-
 void check_scalar_attribute_of_a_group(const netcdf::NetcdfGroup& group) {
     check(group.readNumericScalarAttribute<double>("oneValue") == 2.5, "a group attribute of one value gives it");
     check(group.readNumericScalarAttribute<std::uint8_t>("flag") == 7, "a uint8 group attribute of one value gives it");
-    checkThrows([&group] { return group.readNumericScalarAttribute<double>("noValues"); }, "has 0 values",
-                "a group attribute of no values");
-    checkThrows([&group] { return group.readNumericScalarAttribute<double>("twoValues"); }, "has 2 values",
-                "a group attribute of two values");
-    checkThrows([&group] { return group.readNumericScalarAttribute<std::uint32_t>("oneValue"); }, "type id",
-                "a group attribute read as the wrong type");
+    checkThrows<std::runtime_error>([&group] { return group.readNumericScalarAttribute<double>("noValues"); },
+                                    "has 0 values", "a group attribute of no values");
+    checkThrows<std::runtime_error>([&group] { return group.readNumericScalarAttribute<double>("twoValues"); },
+                                    "has 2 values", "a group attribute of two values");
+    checkThrows<std::runtime_error>([&group] { return group.readNumericScalarAttribute<std::uint32_t>("oneValue"); },
+                                    "type id", "a group attribute read as the wrong type");
     check(group.readNumericAttribute<double>("twoValues").size() == 2,
           "readNumericAttribute still gives every value of an array attribute");
     check(group.readNumericAttribute<double>("noValues").empty(),
@@ -109,10 +87,10 @@ void check_scalar_attribute_of_a_group(const netcdf::NetcdfGroup& group) {
 
 void check_scalar_value_of_a_variable(const netcdf::NetcdfGroup& group) {
     check(group.variable("oneFlag").readScalarValue<std::uint8_t>() == 1, "a variable of one value gives it");
-    checkThrows([&group] { return group.variable("noFlags").readScalarValue<std::uint8_t>(); }, "has 0 values",
-                "a variable of no values");
-    checkThrows([&group] { return group.variable("twoFlags").readScalarValue<std::uint8_t>(); }, "has 2 values",
-                "a variable of two values");
+    checkThrows<std::runtime_error>([&group] { return group.variable("noFlags").readScalarValue<std::uint8_t>(); },
+                                    "has 0 values", "a variable of no values");
+    checkThrows<std::runtime_error>([&group] { return group.variable("twoFlags").readScalarValue<std::uint8_t>(); },
+                                    "has 2 values", "a variable of two values");
     check(group.variable("twoFlags").readValues<std::uint8_t>().size() == 2,
           "readValues still gives every value of a variable");
 }
@@ -121,8 +99,9 @@ void check_scalar_attribute_of_a_variable(const netcdf::NetcdfGroup& group) {
     const netcdf::NetcdfVariable variable = group.variable("oneFlag");
     check(variable.readNumericScalarAttribute<std::int32_t>("scale") == -9,
           "a variable attribute of one value gives it");
-    checkThrows([&variable] { return variable.readNumericScalarAttribute<std::int32_t>("emptyScale"); }, "has 0 values",
-                "a variable attribute of no values");
+    checkThrows<std::runtime_error>(
+        [&variable] { return variable.readNumericScalarAttribute<std::int32_t>("emptyScale"); }, "has 0 values",
+        "a variable attribute of no values");
 }
 
 }  // namespace
@@ -139,15 +118,9 @@ int main() {
             check_scalar_attribute_of_a_variable(group);
         }
     } catch (const std::exception& error) {
-        ++failures;
-        std::cout << "FAIL: unexpected exception: " << error.what() << "\n";
+        check(false, std::string("unexpected exception: ") + error.what());
     }
     std::filesystem::remove(path);
 
-    if (failures > 0) {
-        std::cout << failures << " netcdf_wrapper_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "netcdf_wrapper_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("netcdf_wrapper_test");
 }

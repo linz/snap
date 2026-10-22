@@ -5,24 +5,15 @@
 // process exit code is the pass/fail signal (0 = all passed), as for the other
 // test-only tools in src/test/.
 
-#include <cstdlib>
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <string_view>
 #include "linereader.hpp"
+#include "test_support.h"
 
 namespace {
 
-int failures = 0;
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// A stream buffer that serves a string but cannot seek, like a pipe.
 class PipeBuffer : public std::streambuf {
@@ -269,10 +260,5 @@ int main() {
     check_record_start();
     check_stream_that_cannot_seek();
 
-    if (failures == 0) {
-        std::cout << "All LineReader tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " LineReader test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("linereader_test");
 }

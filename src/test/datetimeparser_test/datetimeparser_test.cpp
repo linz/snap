@@ -9,13 +9,13 @@
 #include <cstddef>
 #include <exception>
 #include <initializer_list>
-#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <variant>
 #include <vector>
 
+#include "test_support.h"
 #include "util/datetimeparser.h"
 #include "util/rangedint.h"
 
@@ -39,15 +39,7 @@ using datetimeparser::Year;
 /// How close a fraction of a second or a decimal year must be to what is expected.
 constexpr double kTolerance = 1.0e-12;
 
-int failures = 0;
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 void checkNumber(const std::string& label, const std::string& what, const long long actual, const long long expected) {
     check(actual == expected,
@@ -620,10 +612,5 @@ int main() {
     checkThrowingFunctions();
     checkParseResult();
 
-    if (failures > 0) {
-        std::cout << failures << " datetimeparser_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "datetimeparser_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("datetimeparser_test");
 }

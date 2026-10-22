@@ -8,7 +8,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <memory>
 #include <random>
 #include <string>
@@ -17,6 +16,7 @@
 
 #include "deformation/grid_geometry.h"
 #include "deformation/ragged_grid_data.h"
+#include "test_support.h"
 
 namespace {
 
@@ -25,16 +25,7 @@ using deformation::RaggedGridData;
 using deformation::RaggedNodeValueSource;
 using deformation::RaggedSegment;
 using deformation::RaggedSegmentRange;
-
-int failures = 0;
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// The segments of a grid in which every node has the same segments on each axis.
 class SameSegmentsAtEveryNode : public RaggedNodeValueSource {
@@ -157,10 +148,5 @@ int main() {
     check_axes_are_independent();
     check_against_walking_from_the_first_segment();
 
-    if (failures > 0) {
-        std::cout << failures << " ragged_grid_data_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "ragged_grid_data_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("ragged_grid_data_test");
 }

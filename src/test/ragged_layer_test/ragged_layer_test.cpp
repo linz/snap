@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
-#include <iostream>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -23,6 +22,7 @@
 #include "deformation/grid_geometry.h"
 #include "deformation/ragged_grid_data.h"
 #include "deformation/ragged_layer.h"
+#include "test_support.h"
 
 namespace {
 
@@ -42,15 +42,7 @@ constexpr double kCellTolerance = 0.00001;
 /// How far a value may be from the one expected.
 constexpr double kValueTolerance = 1e-9;
 
-int failures = 0;
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// The values of a grid: node (i, j) has the value offset + 10 * i + j on its one axis, from day 0 on, and does not
 /// change.
@@ -325,10 +317,5 @@ int main() {
     check_grids_with_the_same_edges_resolve_by_file_order();
     check_rejected_grids();
 
-    if (failures > 0) {
-        std::cout << failures << " ragged_layer_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "ragged_layer_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("ragged_layer_test");
 }
