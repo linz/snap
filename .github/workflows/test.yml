@@ -13,8 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         distro: [ "ubuntu-22.04", "ubuntu-24.04" ]
-    env:
-      PACKAGECLOUD_REPOSITORY: test
     steps:
       - name: Checkout source
         uses: actions/checkout@v7.0.1
