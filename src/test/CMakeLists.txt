@@ -108,6 +108,12 @@ snap_add_unit_test(ggrxf_reader_ragged_test
     ARGS "${SNAP_GGRXF_FILES_DIR}"
     FIXTURES ggrxf-files)
 
+# Unit test for the GGRXF deformation model of a reference frame, in snaplib/coordsys/crdsys_rfdef_ggrxf.cpp.
+snap_add_unit_test(crdsys_rfdef_ggrxf_test
+    SOURCES crdsys_rfdef_ggrxf_test/crdsys_rfdef_ggrxf_test.cpp
+    ARGS "${SNAP_GGRXF_FILES_DIR}"
+    FIXTURES ggrxf-files)
+
 # Unit test for the NetcdfRaggedNodeValueSource class in snaplib/deformation/netcdf_ragged_node_value_source.h.
 snap_add_unit_test(netcdf_ragged_node_value_source_test
     SOURCES netcdf_ragged_node_value_source_test/netcdf_ragged_node_value_source_test.cpp)
