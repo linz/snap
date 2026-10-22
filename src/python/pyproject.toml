@@ -19,6 +19,8 @@ pylint = "^4.0.5"
 pytest = "^9.0.3"
 ruff = "^0.15.12"
 pillow = "^13"
+netcdf4 = "^1.7.4"
+numpy = "^2.2.6"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
@@ -30,6 +32,9 @@ target-version = "py312"
 
 [tool.pylint.main]
 source-roots = ["."]
+# netCDF4's real members (Dataset, Group, CompoundType, ...) come from a compiled `_netCDF4` extension via a wildcard
+# import, which pylint's static analysis can't see through unimported.
+extension-pkg-allow-list = ["netCDF4"]
 
 [tool.pylint.basic]
 module-rgx = "[a-zA-Z_][a-zA-Z0-9_]*"

@@ -91,6 +91,16 @@ snap_add_unit_test(scalar_layer_test SOURCES scalar_layer_test/scalar_layer_test
 snap_add_unit_test(netcdf_scalar_node_value_source_test
     SOURCES netcdf_scalar_node_value_source_test/netcdf_scalar_node_value_source_test.cpp)
 
+# The GGRXF files that the tests of the reading of GGRXF files read, which a setup test writes with a Python script.
+snap_add_ggrxf_files_setup()
+
+# Unit test for the reading of the scalar layers of a GGRXF file, by parseGgrxfFile in
+# snaplib/deformation/ggrxf_reader.h.
+snap_add_unit_test(ggrxf_reader_scalar_test
+    SOURCES ggrxf_reader_scalar_test/ggrxf_reader_scalar_test.cpp
+    ARGS "${SNAP_GGRXF_FILES_DIR}"
+    FIXTURES ggrxf-files)
+
 # Unit test for the NetcdfRaggedNodeValueSource class in snaplib/deformation/netcdf_ragged_node_value_source.h.
 snap_add_unit_test(netcdf_ragged_node_value_source_test
     SOURCES netcdf_ragged_node_value_source_test/netcdf_ragged_node_value_source_test.cpp)
