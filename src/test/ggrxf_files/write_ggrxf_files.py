@@ -17,7 +17,7 @@ two.
 """
 
 import argparse
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
@@ -146,8 +146,8 @@ def write_parameters(root: netCDF4.Dataset) -> None:
         root.setncattr(prefix + "noDataFlag", np.float64(2147483647))
 
 
-def write_layer(group: netCDF4.Group, layer: Layer, segment_type: netCDF4.CompoundType) -> None:
-    """Writes the attributes of a layer, and then its grids."""
+def write_layer_attributes(group: netCDF4.Group, layer: Layer) -> None:
+    """Writes the attributes of a layer that do not depend on its grids."""
     group.setncattr("description", layer.description)
     group.setncattr("interpolationMethod", layer.interpolation_method)
     if layer.reference_date is not None:
@@ -156,6 +156,11 @@ def write_layer(group: netCDF4.Group, layer: Layer, segment_type: netCDF4.Compou
         write_time_functions(group, layer.time_functions)
     if layer.grid_parameters is not None:
         group.setncattr("gridParameters", list(layer.grid_parameters))
+
+
+def write_layer(group: netCDF4.Group, layer: Layer, segment_type: netCDF4.CompoundType) -> None:
+    """Writes the attributes of a layer, and then its grids."""
+    write_layer_attributes(group, layer)
     ragged = [grid for grid in layer.grids if isinstance(grid, RaggedGrid)]
     scalar = [grid for grid in layer.grids if isinstance(grid, ScalarGrid)]
     default_type = "ragged_segments" if ragged else "scalar_with_time_function"
@@ -247,15 +252,9 @@ def write_ragged_variable(  # pylint: disable=too-many-arguments,too-many-positi
     variable[...] = array
 
 
-def write_ragged_layer(
-    group: netCDF4.Group, layer: Layer, root_grids: Sequence[RaggedGrid], segment_type: netCDF4.CompoundType
-) -> None:
-    """Writes the grids of a ragged layer as arrays that have a value for each grid, or for each node of all of them."""
-    flat = flatten_ragged_grids(root_grids)
-
-    def put(name: str, nc_type: Any, array: NDArray[Any], *dimension_names: str) -> None:
-        write_ragged_variable(group, layer, name, nc_type, array, dimension_names)
-
+def write_ragged_grid_arrays(put: Callable[..., None], flat: Sequence[tuple[RaggedGrid, int]], layer: Layer) -> None:
+    """Writes the arrays of a ragged layer that have a value for each grid, or for each node of all of them, other than
+    the segments."""
     put("affineCoeffs", "f8", np.array([grid.affine_coeffs for grid, _ in flat], dtype=np.float64), "grid", "six")
     put("iNodeCount", "u4", np.array([grid.i_node_count for grid, _ in flat], dtype=np.uint32), "grid")
     put("jNodeCount", "u4", np.array([grid.j_node_count for grid, _ in flat], dtype=np.uint32), "grid")
@@ -267,17 +266,37 @@ def write_ragged_layer(
     if layer.has_end_day is not None:
         put("has_end_day", "u1", np.array(layer.has_end_day, dtype=np.uint8), "node")
 
+
+def ragged_segment_arrays(
+    flat: Sequence[tuple[RaggedGrid, int]], component: str
+) -> tuple[NDArray[np.uint16], NDArray[Any], NDArray[np.uint8]]:
+    """The arrays of the segments on one axis of all the grids: the number of segments of each node, the records of all
+    the segments, and the function type of each of them."""
+    node_segments = [segments for grid, _ in flat for segments in grid.segments[component]]
+    counts = np.array([len(segments) for segments in node_segments], dtype=np.uint16)
+    records = np.zeros(int(counts.sum()), dtype=SEGMENT_DTYPE)
+    function_types = np.zeros(len(records), dtype=np.uint8)
+    position = 0
+    for segments in node_segments:
+        for segment in segments:
+            records[position] = (segment.segment_start_value, segment.day_delta, segment.segment_scale_factor)
+            function_types[position] = segment.function_type
+            position += 1
+    return counts, records, function_types
+
+
+def write_ragged_layer(
+    group: netCDF4.Group, layer: Layer, root_grids: Sequence[RaggedGrid], segment_type: netCDF4.CompoundType
+) -> None:
+    """Writes the grids of a ragged layer as arrays that have a value for each grid, or for each node of all of them."""
+    flat = flatten_ragged_grids(root_grids)
+
+    def put(name: str, nc_type: Any, array: NDArray[Any], *dimension_names: str) -> None:
+        write_ragged_variable(group, layer, name, nc_type, array, dimension_names)
+
+    write_ragged_grid_arrays(put, flat, layer)
     for component in flat[0][0].segments:
-        node_segments = [segments for grid, _ in flat for segments in grid.segments[component]]
-        counts = np.array([len(segments) for segments in node_segments], dtype=np.uint16)
-        records = np.zeros(int(counts.sum()), dtype=SEGMENT_DTYPE)
-        function_types = np.zeros(len(records), dtype=np.uint8)
-        position = 0
-        for segments in node_segments:
-            for segment in segments:
-                records[position] = (segment.segment_start_value, segment.day_delta, segment.segment_scale_factor)
-                function_types[position] = segment.function_type
-                position += 1
+        counts, records, function_types = ragged_segment_arrays(flat, component)
         records_dimension = f"segment_records_{component}"
         put(f"segment_count_{component}", "u2", counts, "node")
         put(f"segments_{component}", segment_type, records, records_dimension)
