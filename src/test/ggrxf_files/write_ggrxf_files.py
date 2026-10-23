@@ -473,10 +473,11 @@ def write_scalar_order_cases(directory: Path) -> None:
 def scalar_nest(**root_fields: Any) -> ScalarGrid:
     """A root grid that covers [10, 14] by [20, 24], with two grids of higher resolution inside it: a (priority 1) that
     covers [11, 13] by [21, 23], and b (priority 2) that covers [12, 14] by [22, 24], so a and b overlap on [12, 13]
-    by [22, 23]. Each has a different offset in its values."""
+    by [22, 23]. Each has a different offset in its values. b is stored before a, so that the order of the priorities is
+    not the order of the grids in the file, and the value at the overlap shows whether the priorities were used."""
     inner_a = scalar_grid(3, (11.0, 21.0), offset=1000, grid_priority=1)
     inner_b = scalar_grid(3, (12.0, 22.0), offset=2000, grid_priority=2)
-    return scalar_grid(5, grid_priority=0, child_grids=[inner_a, inner_b], **root_fields)
+    return scalar_grid(5, grid_priority=0, child_grids=[inner_b, inner_a], **root_fields)
 
 
 def write_scalar_nesting_cases(directory: Path) -> None:
@@ -541,14 +542,14 @@ def write_ragged_cases(directory: Path) -> None:
 def ragged_nest(**root_fields: Any) -> RaggedGrid:
     """The grids of scalar_nest(), as ragged grids, with the segments of ragged_segments() in every one of them, but a
     different start value for the first segment on the first axis of each, so that a value shows which grid it is
-    from."""
+    from. The grid of the priority 2 is stored before the grid of the priority 1, as in scalar_nest()."""
 
     def inner(origin: tuple[float, float], start_value: int, priority: int) -> RaggedGrid:
         segments = ragged_segments()
         segments["e"] = [[RaggedSegment(start_value, 0, 0)] for _ in range(9)]
         return ragged_grid(origin, segments=segments, grid_priority=priority)
 
-    children = [inner((11.0, 21.0), 11000, 1), inner((12.0, 22.0), 22000, 2)]
+    children = [inner((12.0, 22.0), 22000, 2), inner((11.0, 21.0), 11000, 1)]
     nodes = 25
     segments: dict[str, list[list[RaggedSegment]]] = {axis: [[] for _ in range(nodes)] for axis in ENU_COMPONENTS}
     segments["e"] = [[RaggedSegment(100, 0, 0)] for _ in range(nodes)]
@@ -573,7 +574,8 @@ def write_ragged_nesting_cases(directory: Path) -> None:
         write_ggrxf_file(directory / f"ragged_nest_{name}.nc", [ragged_layer(root, **layer_fields)])
 
     wrong("root_priority_1", replace(ragged_nest(), grid_priority=1))
-    first, second = ragged_nest().child_grids
+    # first has the priority 1 and second the priority 2, and ragged_nest() stores them in the order second, first.
+    second, first = ragged_nest().child_grids
     wrong("child_priority_0", replace(ragged_nest(), child_grids=[replace(first, grid_priority=0), second]))
     wrong("child_priority_range", replace(ragged_nest(), child_grids=[first, replace(second, grid_priority=3)]))
     wrong("child_priority_twice", replace(ragged_nest(), child_grids=[first, replace(second, grid_priority=1)]))

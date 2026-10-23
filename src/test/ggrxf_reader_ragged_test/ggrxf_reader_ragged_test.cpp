@@ -173,8 +173,10 @@ void check_nested_grids() {
     // The grid of 5 by 5 nodes covers latitude 10 to 14 and longitude 20 to 24. It has the raw start value 100 on the
     // east axis, which is 1, and nothing on the others. Inside it, a (priority 1) covers 11 to 13 by 21 to 23 and b
     // (priority 2) covers 12 to 14 by 22 to 24. They have the start values 11000 and 22000, which are 110 and 220 on
-    // the east axis, and the north segments of ragged_basic.nc, which are 20 before day 100. A separate root grid has
-    // the segments of ragged_basic.nc, from (30, 40).
+    // the east axis, and the north segments of ragged_basic.nc, which are 20 before day 100. The file has b before a,
+    // so the order of the grids in the file is not the order of their priorities, and the value where they overlap is
+    // b's only if the reader orders them by priority. A separate root grid has the segments of ragged_basic.nc, from
+    // (30, 40).
     const std::string name = "ragged_nested.nc";
     const double day = dayNumber(50.0);
     checkValuesOf(name, 10.5, 20.5, day, {1.0, 0.0, 0.0}, "a point in the grid only");

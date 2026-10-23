@@ -164,7 +164,9 @@ void check_root_grids_are_in_the_order_of_the_numbers_in_their_names() {
 
 void check_nested_grids() {
     // The grid of 5 by 5 nodes covers latitude 10 to 14 and longitude 20 to 24. Inside it, a (priority 1, values 1000
-    // more) covers 11 to 13 by 21 to 23, and b (priority 2, values 2000 more) covers 12 to 14 by 22 to 24.
+    // more) covers 11 to 13 by 21 to 23, and b (priority 2, values 2000 more) covers 12 to 14 by 22 to 24. The file has
+    // b before a, so the order of the grids in the file is not the order of their priorities, and the value where they
+    // overlap is b's only if the reader orders them by priority.
     const std::string name = "scalar_nested.nc";
     checkValuesOf(name, 10.5, 20.5, kAfterStep, kValuesAtTheFirstCell, "a point in the grid only");
     checkValuesOf(name, 11.5, 21.5, kAfterStep, {583.0, 583.5, 584.0}, "a point in a as well");
