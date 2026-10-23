@@ -58,6 +58,10 @@ if(CMAKE_CROSSCOMPILING)
     set(SNAP_TEST_ENVIRONMENT "WSLENV=${_wslenv}")
 endif()
 
+# The directory of the repository. It is not CMAKE_SOURCE_DIR, which is tests_only in the project that only runs the
+# tests.
+get_filename_component(SNAP_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+
 get_filename_component(SNAP_REGRESSION_TESTS_DIR "${CMAKE_CURRENT_LIST_DIR}/../regression_tests" ABSOLUTE)
 
 # Registers the setup test of a fixture, which empties a directory before the tests that require the fixture
@@ -76,6 +80,29 @@ function(snap_add_output_setup name directory)
     endif()
     set_tests_properties(${setup_tests} PROPERTIES
         FIXTURES_SETUP "${name}-output"
+        LABELS setup
+        TIMEOUT ${SNAP_REGRESSION_TEST_TIMEOUT})
+endfunction()
+
+# Where the GGRXF files that the GGRXF tests read are written.
+set(SNAP_GGRXF_FILES_DIR "${SNAP_TEST_OUTPUT_DIR}/src/test/ggrxf_files")
+
+# Registers the setup test of the GGRXF files, which writes them into SNAP_GGRXF_FILES_DIR with a Python script, which
+# needs the Python module netCDF4. That directory is in the one that the setup of the unit tests empties, so this test
+# needs the fixture of that setup, to run after it. A test needs the files if it is given FIXTURES ggrxf-files, and is
+# told where they are with ARGS "${SNAP_GGRXF_FILES_DIR}". See snap_add_unit_test.
+#
+#   snap_add_ggrxf_files_setup()
+function(snap_add_ggrxf_files_setup)
+    if(NOT SNAP_TESTS_CAN_RUN)
+        return()
+    endif()
+    add_test(NAME ggrxf-files/write
+        COMMAND Python3::Interpreter "${SNAP_SOURCE_DIR}/src/test/ggrxf_files/write_ggrxf_files.py"
+                "${SNAP_GGRXF_FILES_DIR}")
+    set_tests_properties(ggrxf-files/write PROPERTIES
+        FIXTURES_REQUIRED unit-tests-output
+        FIXTURES_SETUP ggrxf-files
         LABELS setup
         TIMEOUT ${SNAP_REGRESSION_TEST_TIMEOUT})
 endfunction()
@@ -120,13 +147,19 @@ endfunction()
 # A project that only runs the tests (SNAP_BUILD_TEST_PROGRAMS is FALSE) does not build the test, and
 # registers the executable that is in SNAP_PROGRAMS_DIR.
 #
-#   snap_add_unit_test(<name> SOURCES <source>... [INCLUDE_DIRECTORIES <dir>...] [TIMEOUT <seconds>])
+#   snap_add_unit_test(<name> SOURCES <source>... [INCLUDE_DIRECTORIES <dir>...] [TIMEOUT <seconds>]
+#                      [ARGS <argument>...] [FIXTURES <fixture>...])
+#
+# ARGS are the arguments that the test is run with. FIXTURES are the fixtures that the test needs, as well as the
+# one that gives it its directory, for example the files that a setup test writes for it to read.
 function(snap_add_unit_test name)
-    cmake_parse_arguments(PARSE_ARGV 1 TEST "" "TIMEOUT" "SOURCES;INCLUDE_DIRECTORIES")
+    cmake_parse_arguments(PARSE_ARGV 1 TEST "" "TIMEOUT" "SOURCES;INCLUDE_DIRECTORIES;ARGS;FIXTURES")
     set(command ${name})
     if(SNAP_BUILD_TEST_PROGRAMS)
         add_executable(${name} ${TEST_SOURCES})
         target_link_libraries(${name} PRIVATE snaplib snap_link_deps)
+        # test_support.h, which the unit tests share
+        target_include_directories(${name} PRIVATE "${CMAKE_SOURCE_DIR}/src/test")
         if(TEST_INCLUDE_DIRECTORIES)
             target_include_directories(${name} PRIVATE ${TEST_INCLUDE_DIRECTORIES})
         endif()
@@ -144,11 +177,12 @@ function(snap_add_unit_test name)
         endif()
         set(output "${SNAP_TEST_OUTPUT_DIR}/src/test/${name}/output")
         set_property(GLOBAL APPEND PROPERTY SNAP_UNIT_TEST_OUTPUT_DIRS "${output}")
-        add_test(NAME ${name} COMMAND ${command})
+        add_test(NAME ${name} COMMAND ${command} ${TEST_ARGS})
+        set(fixtures unit-tests-output ${TEST_FIXTURES})
         set_tests_properties(${name} PROPERTIES
             TIMEOUT ${TEST_TIMEOUT}
             LABELS unit
-            FIXTURES_REQUIRED unit-tests-output
+            FIXTURES_REQUIRED "${fixtures}"
             ENVIRONMENT "TMPDIR=${output};TMP=${output};TEMP=${output}")
     endif()
 endfunction()

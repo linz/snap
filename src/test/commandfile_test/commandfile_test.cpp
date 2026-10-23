@@ -1,7 +1,4 @@
-// Standalone unit test for CommandFile in snap/snapglob.h. Awaiting migration
-// to CTest - until then, failures are reported to stdout and the process exit
-// code is the pass/fail signal (0 = all passed), matching how other test-only
-// tools in src/test/ are checked.
+// Standalone unit test for CommandFile in snap/snapglob.h.
 //
 // Each case creates the files it needs in a scratch directory, builds a
 // CommandFile and compares path(), dir() and root() with values written out by
@@ -11,22 +8,14 @@
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <string>
 
 #include "snap/snapglob.h"
+#include "test_support.h"
 
 namespace {
 
-int failures = 0;
-
-void check_equal(const std::string& actual, const std::string& expected, const std::string& description) {
-    if (actual == expected) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
-}
+using snap_test::checkEqual;
 
 const std::filesystem::path test_dir = std::filesystem::temp_directory_path() / "snap_commandfile_test";
 
@@ -55,9 +44,9 @@ std::string file_name(const std::string& name) {
 
 void check_command_file(const CommandFile& command, const std::string& path, const std::string& dir,
                         const std::string& root, const std::string& description) {
-    check_equal(command.path, path, description + " path");
-    check_equal(command.dir, dir, description + " dir");
-    check_equal(command.root, root, description + " root");
+    checkEqual(command.path, path, description + " path");
+    checkEqual(command.dir, dir, description + " dir");
+    checkEqual(command.root, root, description + " root");
 }
 
 void test_name_as_given_exists() {
@@ -89,11 +78,11 @@ void test_extension_order() {
     const std::string first = make_file("order_a.cmd");
     make_file("order_a.snp");
     make_file("order_a.snap");
-    check_equal(CommandFile(file_name("order_a")).path, first, ".cmd before .snp and .snap");
+    checkEqual(CommandFile(file_name("order_a")).path, first, ".cmd before .snp and .snap");
 
     const std::string second = make_file("order_b.snp");
     make_file("order_b.snap");
-    check_equal(CommandFile(file_name("order_b")).path, second, ".snp before .snap");
+    checkEqual(CommandFile(file_name("order_b")).path, second, ".snp before .snap");
 }
 
 void test_not_found() {
@@ -132,10 +121,5 @@ int main() {
 
     std::filesystem::remove_all(test_dir);
 
-    if (failures) {
-        std::cout << failures << " failure(s)\n";
-        return 1;
-    }
-    std::cout << "commandfile_test: all passed\n";
-    return 0;
+    return snap_test::finish("commandfile_test");
 }

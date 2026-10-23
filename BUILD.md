@@ -18,7 +18,8 @@ Only 64-bit builds are supported.
 5. **Python 3** — https://www.python.org/downloads/windows/ (needed to run
    grid.py/trig.py/linzdeformationmodel.py, the tools that convert grid,
    triangulation, and deformation-model definitions to their binary form, and to
-   run the tests)
+   run the tests). The tests write GGRXF deformation model files with the Python
+   module netCDF4, so install it with `python -m pip install netCDF4`
 6. **netCDF-C**, via vcpkg — needed to read GGRXF deformation model files
    (netCDF-4/HDF5-based):
    ```
@@ -211,10 +212,14 @@ apt-get install -y \
     libnetcdf-dev \
     libwxgtk3.2-dev \
     python3 \
+    python3-netcdf4 \
     debhelper \
     dpkg-dev \
     devscripts
 ```
+
+`python3-netcdf4` is needed only to run the tests, which write GGRXF deformation model
+files with it.
 
 Perl is not needed to build SNAP. It is needed to run SNAP: the scripts in `src/perl` use
 it, and so does the function of SNAP Manager that retrieves coordinates from the geodetic

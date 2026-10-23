@@ -3,13 +3,12 @@
 // Failures are reported to stdout and the process exit code is the pass/fail signal (0 = all passed), as for the other
 // test-only tools in src/test/.
 
-#include <cmath>
 #include <exception>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 
 #include "deformation/ggrxf_date.h"
+#include "test_support.h"
 #include "util/datetimeparser.h"
 #include "util/dateutil.h"
 
@@ -17,6 +16,9 @@ namespace {
 
 using deformation::ggrxfDateToDayNumber;
 using deformation::ggrxfDaysBetween;
+using snap_test::check;
+using snap_test::checkEqual;
+using snap_test::checkThrows;
 
 struct DateCase {
     const char* text;
@@ -86,27 +88,12 @@ const char* const kInvalidTexts[] = {
     "1 JAN 2020",
 };
 
-int failures = 0;
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
-
 void check_date(const DateCase& dateCase) {
+    const std::string call = std::string("ggrxfDateToDayNumber(\"") + dateCase.text + "\")";
     try {
-        const double actual = ggrxfDateToDayNumber(dateCase.text);
-        if (std::fabs(actual - dateCase.expected) > kToleranceDays) {
-            ++failures;
-            std::cout << "FAIL: ggrxfDateToDayNumber(\"" << dateCase.text << "\"): expected " << dateCase.expected
-                      << " got " << actual << "\n";
-        }
+        checkEqual(ggrxfDateToDayNumber(dateCase.text), dateCase.expected, kToleranceDays, call);
     } catch (const std::exception& error) {
-        ++failures;
-        std::cout << "FAIL: ggrxfDateToDayNumber(\"" << dateCase.text << "\") threw: " << error.what() << "\n";
+        check(false, call + " threw: " + error.what());
     }
 }
 
@@ -114,34 +101,25 @@ void check_date(const DateCase& dateCase) {
 void check_invalid(const std::string& text) {
     try {
         const double dayNumber = ggrxfDateToDayNumber(text);
-        ++failures;
-        std::cout << "FAIL: ggrxfDateToDayNumber(\"" << text << "\") did not throw, and gave " << dayNumber << "\n";
+        check(false, "ggrxfDateToDayNumber(\"" + text + "\") did not throw, and gave " + std::to_string(dayNumber));
     } catch (const datetimeparser::DateTimeParseError& error) {
         check(error.text() == text, "the error contains \"" + error.text() + "\" instead of \"" + text + "\"");
         check(std::string(error.what()).find(text) != std::string::npos,
               "the error message does not contain \"" + text + "\": " + error.what());
     } catch (const std::exception& error) {
-        ++failures;
-        std::cout << "FAIL: ggrxfDateToDayNumber(\"" << text << "\") threw something else: " << error.what() << "\n";
+        check(false, "ggrxfDateToDayNumber(\"" + text + "\") threw something else: " + error.what());
     }
 }
 
 /// That an invalid date is thrown as an std::invalid_argument, which is what the loading of a GGRXF model catches.
 void check_invalid_argument() {
-    try {
-        ggrxfDateToDayNumber("not a date");
-        ++failures;
-        std::cout << "FAIL: ggrxfDateToDayNumber(\"not a date\") did not throw\n";
-    } catch (const std::invalid_argument&) {
-        // As it should be.
-    }
+    checkThrows<std::invalid_argument>([] { ggrxfDateToDayNumber("not a date"); }, "not a date",
+                                       "ggrxfDateToDayNumber(\"not a date\")");
 }
 
 void check_days_between(const std::string& start, const std::string& end, const double expected) {
-    const double actual = ggrxfDaysBetween(start, end);
-    check(std::fabs(actual - expected) <= kToleranceDays, "ggrxfDaysBetween(\"" + start + "\", \"" + end +
-                                                              "\"): expected " + std::to_string(expected) + " got " +
-                                                              std::to_string(actual));
+    checkEqual(ggrxfDaysBetween(start, end), expected, kToleranceDays,
+               "ggrxfDaysBetween(\"" + start + "\", \"" + end + "\")");
 }
 
 }  // namespace
@@ -163,10 +141,5 @@ int main() {
     check_days_between("2020-02-28", "2020-03-01", 2.0);
     check_days_between("2019-02-28", "2019-03-01", 1.0);
 
-    if (failures > 0) {
-        std::cout << failures << " ggrxf_date_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "ggrxf_date_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("ggrxf_date_test");
 }

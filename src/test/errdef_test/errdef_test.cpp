@@ -1,7 +1,4 @@
-// Standalone unit test for handle_error in util/errdef.h. Awaiting migration
-// to CTest - until then, failures are reported to stdout and the process exit
-// code is the pass/fail signal (0 = all passed), matching how other test-only
-// tools in src/test/ are checked.
+// Standalone unit test for handle_error in util/errdef.h.
 //
 // A recording handler is installed with set_error_handler, so each case checks
 // exactly what handle_error passes on: the status, the message (a default text
@@ -9,32 +6,17 @@
 // location when none is given). Expected texts are written out by hand from the
 // documented behaviour. Fatal errors are not tested because they exit.
 
-#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
 
+#include "test_support.h"
 #include "util/errdef.h"
 
 namespace {
 
-int failures = 0;
-
-void check_equal(const std::string& actual, const std::string& expected, const std::string& description) {
-    if (actual == expected) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
-}
-
-void check_true(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
+using snap_test::checkEqual;
 
 /// What the recording handler was last called with
 struct Recorded {
@@ -87,66 +69,65 @@ void test_default_messages() {
     };
     for (const Case& testCase : cases) {
         const Recorded result = report(testCase.status, NO_MESSAGE, NO_MESSAGE);
-        check_equal(result.first, testCase.text, "default message for status " + std::to_string(testCase.status));
-        check_true(result.status == testCase.status, "status passed on for " + std::to_string(testCase.status));
+        checkEqual(result.first, testCase.text, "default message for status " + std::to_string(testCase.status));
+        check(result.status == testCase.status, "status passed on for " + std::to_string(testCase.status));
     }
 }
 
 void test_given_message_is_kept() {
-    check_equal(report(INVALID_DATA, "my message", NO_MESSAGE).first, "my message", "given message");
+    checkEqual(report(INVALID_DATA, "my message", NO_MESSAGE).first, "my message", "given message");
 
     // An empty message is a message, not an absent one, so no default is used
     const Recorded empty = report(INVALID_DATA, std::string_view(), NO_MESSAGE);
-    check_equal(empty.first, "", "empty message is kept");
+    checkEqual(empty.first, "", "empty message is kept");
 }
 
 void test_second_message() {
     set_error_location(NO_MESSAGE);
-    check_equal(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "absent", "no second message, no location");
-    check_equal(second_text(report(INVALID_DATA, "m", "detail")), "[detail]", "given second message");
-    check_equal(second_text(report(INVALID_DATA, "m", std::string_view())), "[]", "empty second message, no location");
+    checkEqual(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "absent", "no second message, no location");
+    checkEqual(second_text(report(INVALID_DATA, "m", "detail")), "[detail]", "given second message");
+    checkEqual(second_text(report(INVALID_DATA, "m", std::string_view())), "[]", "empty second message, no location");
 }
 
 void test_location() {
     set_error_location("in file x line 3");
-    check_equal(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "[in file x line 3]",
-                "location replaces an absent second message");
-    check_equal(second_text(report(INVALID_DATA, "m", "detail")), "[detail]",
-                "given second message beats the location");
-    check_equal(second_text(report(INVALID_DATA, "m", std::string_view())), "[]",
-                "empty second message beats the location");
+    checkEqual(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "[in file x line 3]",
+               "location replaces an absent second message");
+    checkEqual(second_text(report(INVALID_DATA, "m", "detail")), "[detail]", "given second message beats the location");
+    checkEqual(second_text(report(INVALID_DATA, "m", std::string_view())), "[]",
+               "empty second message beats the location");
 
     set_error_location(NO_MESSAGE);
-    check_equal(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "absent", "location cleared");
+    checkEqual(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "absent", "location cleared");
 
     // An empty location is the same as none
     set_error_location(std::string_view());
-    check_equal(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "absent", "empty location");
+    checkEqual(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "absent", "empty location");
 
     // Longer than the 255 characters that an earlier version truncated to
     const std::string longLocation(300, 'x');
     set_error_location(longLocation);
-    check_equal(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "[" + longLocation + "]", "long location");
+    checkEqual(second_text(report(INVALID_DATA, "m", NO_MESSAGE)), "[" + longLocation + "]", "long location");
     set_error_location(NO_MESSAGE);
 }
 
 void test_reporting_conditions() {
-    check_true(report(OK, "m", NO_MESSAGE).calls == 0, "OK is not reported");
-    check_true(report(NO_MORE_DATA, "m", NO_MESSAGE).calls == 0, "NO_MORE_DATA is not reported");
-    check_true(report(INVALID_DATA, "m", NO_MESSAGE).calls == 1, "a warning is reported");
+    check(report(OK, "m", NO_MESSAGE).calls == 0, "OK is not reported");
+    check(report(NO_MORE_DATA, "m", NO_MESSAGE).calls == 0, "NO_MORE_DATA is not reported");
+    check(report(INVALID_DATA, "m", NO_MESSAGE).calls == 1, "a warning is reported");
 
     const int oldLevel = set_error_level(WARNING_ERROR);
-    check_true(report(INFO_ERROR, "m", NO_MESSAGE).calls == 0, "info is below the reporting level");
-    check_true(report(INVALID_DATA, "m", NO_MESSAGE).calls == 1, "a warning meets the reporting level");
+    check(report(INFO_ERROR, "m", NO_MESSAGE).calls == 0, "info is below the reporting level");
+    check(report(INVALID_DATA, "m", NO_MESSAGE).calls == 1, "a warning meets the reporting level");
     set_error_level(oldLevel);
 }
 
 void test_error_count() {
     const int before = get_error_count();
     report(INFO_ERROR, "m", NO_MESSAGE);
-    check_true(get_error_count() == before, "info is not counted");
+    check(get_error_count() == before, "info is not counted");
     report(INVALID_DATA, "m", NO_MESSAGE);
-    check_true(get_error_count() == before + 1, "a warning is counted");
+    check(get_error_count() == before + 1, "a warning is counted");
 }
 
 }  // namespace
@@ -164,10 +145,5 @@ int main() {
 
     set_error_handler(DEFAULT_ERROR_HANDLER);
 
-    if (failures) {
-        std::cout << failures << " failure(s)\n";
-        return 1;
-    }
-    std::cout << "errdef_test: all passed\n";
-    return 0;
+    return snap_test::finish("errdef_test");
 }

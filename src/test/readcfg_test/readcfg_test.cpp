@@ -2,28 +2,17 @@
 
 // Standalone unit test for util/readcfg_internal.h's filter_line()/cap_line() -
 // the pure comment/whitespace-filtering and capacity/overrun logic behind
-// CFG_FILE::get_config_line(). Awaiting migration to CTest - until then,
-// failures are reported to stdout and the process exit code is the pass/fail
-// signal (0 = all passed), matching fieldscanner_test/fileutil_test.
+// CFG_FILE::get_config_line().
 
-#include <cstdlib>
-#include <iostream>
 #include <optional>
 #include <string>
 
+#include "test_support.h"
 #include "util/readcfg_internal.h"
 
 namespace {
 
-int failures = 0;
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 void check_filter_plain_line() {
     std::string line = "option = value";
@@ -141,10 +130,5 @@ int main() {
     check_cap_line_whitespace_then_real_content();
     check_late_comment_cancels_would_be_overrun();
 
-    if (failures == 0) {
-        std::cout << "All readcfg filter/cap tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " readcfg filter/cap test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("readcfg_test");
 }

@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <iterator>
 #include <limits>
 #include <optional>
 #include <stdexcept>
@@ -140,10 +141,22 @@ std::uint64_t gridGroupOrderIndex(const netcdf::NetcdfGroup& gridGroup) {
 // which is re-sorted by gridPriority afterward regardless of the order it's
 // collected in.
 std::vector<netcdf::NetcdfGroup> rootGridGroupsInFileOrder(const netcdf::NetcdfGroup& layerGroup) {
-    auto groups = layerGroup.subgroups();
-    std::sort(groups.begin(), groups.end(), [](const netcdf::NetcdfGroup& a, const netcdf::NetcdfGroup& b) {
-        return gridGroupOrderIndex(a) < gridGroupOrderIndex(b);
-    });
+    // The order number of every group is read here, before sorting, and not in
+    // the sort's comparison. Reading it is what checks the group's name, as
+    // gridGroupOrderIndex() throws if the name isn't grid_<N>, and std::sort
+    // never compares a lone group, so a lone root grid with another name would
+    // otherwise be accepted.
+    std::vector<std::pair<std::uint64_t, netcdf::NetcdfGroup>> numbered;
+    for (const auto& group : layerGroup.subgroups()) {
+        numbered.emplace_back(gridGroupOrderIndex(group), group);
+    }
+    std::sort(numbered.begin(), numbered.end(), [](const auto& a, const auto& b) { return a.first < b.first; });
+
+    std::vector<netcdf::NetcdfGroup> groups;
+    groups.reserve(numbered.size());
+    for (const auto& entry : numbered) {
+        groups.push_back(entry.second);
+    }
     return groups;
 }
 

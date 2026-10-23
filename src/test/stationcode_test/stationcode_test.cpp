@@ -1,37 +1,29 @@
 #include "snapconfig.hpp"
 
-// Standalone unit test for the StationCode class in network/network.h. Awaiting
-// migration to CTest - until then, failures are reported to stdout and the
-// process exit code is the pass/fail signal (0 = all passed), matching how
-// other test-only tools in src/test/ are checked.
+// Standalone unit test for the StationCode class in network/network.h.
+//
+// StationCode holds the code in a fixed array of STNCODELEN + 1 characters, and has its own c_str(), which returns that
+// array for the printf family and other C interfaces. A C reader stops at the first NUL, so as well as the string_view
+// that a StationCode converts to (which finds the first NUL itself), the cases check that the text c_str() gives, up to
+// its first NUL, is exactly the expected code: that the array is terminated where it should be, and that nothing of an
+// earlier, longer code is left behind.
 
 #include <cstddef>
-#include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <string>
 #include <string_view>
 
 #include "network/network.h"
+#include "test_support.h"
 
 namespace {
 
-int failures = 0;
+using snap_test::check;
 
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
-
-void check_equal(const std::string_view actual, const std::string_view expected, const std::string& description) {
-    if (actual == expected) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << ": expected [" << expected << "] got [" << actual << "]\n";
+/// Compares as string views, so that a type that converts to one can be passed as it is, and so that a const char* is
+/// compared by its text up to the first NUL, as a C reader reads it, not by its address.
+void check_equal(const std::string_view actual, const std::string_view expected, const std::string& messageOnError) {
+    snap_test::checkEqual(actual, expected, messageOnError);
 }
 
 void test_default_is_empty() {
@@ -115,10 +107,5 @@ int main() {
     test_embedded_nul_ends_the_code();
     test_layout();
 
-    if (failures == 0) {
-        std::cout << "All StationCode tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " StationCode test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("stationcode_test");
 }

@@ -1,35 +1,23 @@
 #include "snapconfig.hpp"
 
-// Standalone unit test for util/fieldscanner.hpp. Awaiting migration to
-// CTest - until then, failures are reported to stdout and the process exit
-// code is the pass/fail signal (0 = all passed), matching how other
-// test-only tools in src/test/ are checked.
+// Standalone unit test for util/fieldscanner.hpp.
 
 #include <cmath>
-#include <cstdlib>
-#include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <initializer_list>
+#include "test_support.h"
 #include "util/fieldscanner.hpp"
 #include "util/pi.h"
 
 namespace {
 
-int failures = 0;
+using snap_test::check;
 
 const std::optional<std::vector<QuoteFollowOption>> whitespaceOrEnd{
     std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace, QuoteFollowOption::End}};
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
 
 void check_next_basic() {
     FieldScanner scanner("  abc  def\tghi ");
@@ -557,10 +545,5 @@ int main() {
     check_read_whole_number_fields();
     check_read_angle_fields();
 
-    if (failures == 0) {
-        std::cout << "All FieldScanner tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " FieldScanner test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("fieldscanner_test");
 }

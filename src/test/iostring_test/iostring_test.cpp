@@ -2,28 +2,17 @@
 #include "fieldscanner.hpp"
 
 // Standalone unit test for util/iostring.cpp's input_string_def-based
-// functions. Awaiting migration to CTest - until then, failures are
-// reported to stdout and the process exit code is the pass/fail signal
-// (0 = all passed), matching fieldscanner_test's own convention.
+// functions.
 
-#include <cstdlib>
-#include <iostream>
 #include <string>
 #include <string_view>
+#include "test_support.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
 
 namespace {
 
-int failures = 0;
-
-void check(bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 void check_next_string_field() {
     static const std::string text = "abc \"quoted value\" toolongfield";
@@ -111,10 +100,5 @@ int main() {
     check_unread_string();
     check_report_string_error();
 
-    if (failures == 0) {
-        std::cout << "All iostring tests passed\n";
-        return EXIT_SUCCESS;
-    }
-    std::cout << failures << " iostring test(s) failed\n";
-    return EXIT_FAILURE;
+    return snap_test::finish("iostring_test");
 }

@@ -75,6 +75,49 @@ snap_add_unit_test(ragged_grid_data_test SOURCES ragged_grid_data_test/ragged_gr
 # Unit test for the validation of the TimeFunction class in snaplib/deformation/time_function.h.
 snap_add_unit_test(time_function_test SOURCES time_function_test/time_function_test.cpp)
 
+# Unit test for the GridGeometry class in snaplib/deformation/grid_geometry.h.
+snap_add_unit_test(grid_geometry_test SOURCES grid_geometry_test/grid_geometry_test.cpp)
+
+# Unit test for the Grid and GridParent classes and descendToLeaf in snaplib/deformation/grid.h.
+snap_add_unit_test(grid_test SOURCES grid_test/grid_test.cpp)
+
+# Unit test for the ScalarGridData class in snaplib/deformation/scalar_grid_data.h.
+snap_add_unit_test(scalar_grid_data_test SOURCES scalar_grid_data_test/scalar_grid_data_test.cpp)
+
+# Unit test for the ScalarLayer class in snaplib/deformation/scalar_layer.h.
+snap_add_unit_test(scalar_layer_test SOURCES scalar_layer_test/scalar_layer_test.cpp)
+
+# Unit test for the NetcdfScalarNodeValueSource class in snaplib/deformation/netcdf_scalar_node_value_source.h.
+snap_add_unit_test(netcdf_scalar_node_value_source_test
+    SOURCES netcdf_scalar_node_value_source_test/netcdf_scalar_node_value_source_test.cpp)
+
+# The GGRXF files that the tests of the reading of GGRXF files read, which a setup test writes with a Python script.
+snap_add_ggrxf_files_setup()
+
+# Unit test for the reading of the scalar layers of a GGRXF file, by parseGgrxfFile in
+# snaplib/deformation/ggrxf_reader.h.
+snap_add_unit_test(ggrxf_reader_scalar_test
+    SOURCES ggrxf_reader_scalar_test/ggrxf_reader_scalar_test.cpp
+    ARGS "${SNAP_GGRXF_FILES_DIR}"
+    FIXTURES ggrxf-files)
+
+# Unit test for the reading of the ragged layers of a GGRXF file, by parseGgrxfFile in
+# snaplib/deformation/ggrxf_reader.h.
+snap_add_unit_test(ggrxf_reader_ragged_test
+    SOURCES ggrxf_reader_ragged_test/ggrxf_reader_ragged_test.cpp
+    ARGS "${SNAP_GGRXF_FILES_DIR}"
+    FIXTURES ggrxf-files)
+
+# Unit test for the GGRXF deformation model of a reference frame, in snaplib/coordsys/crdsys_rfdef_ggrxf.cpp.
+snap_add_unit_test(crdsys_rfdef_ggrxf_test
+    SOURCES crdsys_rfdef_ggrxf_test/crdsys_rfdef_ggrxf_test.cpp
+    ARGS "${SNAP_GGRXF_FILES_DIR}"
+    FIXTURES ggrxf-files)
+
+# Unit test for the NetcdfRaggedNodeValueSource class in snaplib/deformation/netcdf_ragged_node_value_source.h.
+snap_add_unit_test(netcdf_ragged_node_value_source_test
+    SOURCES netcdf_ragged_node_value_source_test/netcdf_ragged_node_value_source_test.cpp)
+
 # Unit test for the LineReader class that concord uses to read its input. The class is part of the concord
 # program, not snaplib, so its source is compiled into the test.
 snap_add_unit_test(linereader_test

@@ -5,13 +5,13 @@
 
 #include <cstdint>
 #include <initializer_list>
-#include <iostream>
 #include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
 
+#include "test_support.h"
 #include "util/rangedint.h"
 
 namespace {
@@ -36,15 +36,7 @@ static_assert(!std::is_copy_assignable_v<Month>, "a RangedInt can not be assigne
 static_assert(!std::is_convertible_v<int, Month>, "a number must be made into a RangedInt explicitly");
 static_assert(!std::is_same_v<Month, RangedInt<std::uint8_t, 0, 59>>, "RangedInts with different limits differ");
 
-int failures = 0;
-
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
+using snap_test::check;
 
 /// \return whether making a Ranged from the number throws an std::out_of_range.
 template <typename Ranged>
@@ -160,10 +152,5 @@ int main() {
     checkMessage();
     checkCopy();
 
-    if (failures > 0) {
-        std::cout << failures << " rangedint_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "rangedint_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("rangedint_test");
 }

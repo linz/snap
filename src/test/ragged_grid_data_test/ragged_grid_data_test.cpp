@@ -1,22 +1,27 @@
-// Standalone unit test for RaggedGridData (deformation/ragged_grid_data.h): the value of a node at a query day, which is
-// given by the last of the node's segments that starts on or before the day. Failures are reported to stdout and the
-// process exit code is the pass/fail signal (0 = all passed), as for the other test-only tools in src/test/.
+// Standalone unit test for RaggedGridData (deformation/ragged_grid_data.h): the value of a node at a query day, which
+// is given by the last of the node's segments that starts on or before the day. Failures are reported to stdout and
+// the process exit code is the pass/fail signal (0 = all passed), as for the other test-only tools in src/test/.
 //
 // The values are read at the base node (0, 0) of a cell with fractions of 0, which has all of the weight, so the
 // result of evaluate() is that node's value on each axis.
+//
+// A source that is null, and a node that has an end day (which RaggedGridData does not implement), are rejected.
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <iterator>
 #include <memory>
 #include <random>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "deformation/grid_geometry.h"
 #include "deformation/ragged_grid_data.h"
+#include "test_support.h"
 
 namespace {
 
@@ -25,29 +30,27 @@ using deformation::RaggedGridData;
 using deformation::RaggedNodeValueSource;
 using deformation::RaggedSegment;
 using deformation::RaggedSegmentRange;
+using snap_test::check;
+using snap_test::checkEqual;
+using snap_test::checkThrows;
 
-int failures = 0;
+/// The (i, j) of a node.
+using Node = std::pair<std::uint32_t, std::uint32_t>;
 
-void check(const bool condition, const std::string& description) {
-    if (condition) {
-        return;
-    }
-    ++failures;
-    std::cout << "FAIL: " << description << "\n";
-}
-
-/// The segments of a grid in which every node has the same segments on each axis.
+/// The segments of a grid in which every node has the same segments on each axis, and in which some nodes have an end
+/// day.
 class SameSegmentsAtEveryNode : public RaggedNodeValueSource {
  public:
-    explicit SameSegmentsAtEveryNode(std::vector<std::vector<RaggedSegment>> segmentsOfAxis)  ///< each axis's segments
-        : _segmentsOfAxis(std::move(segmentsOfAxis)) {}
+    explicit SameSegmentsAtEveryNode(std::vector<std::vector<RaggedSegment>> segmentsOfAxis,  ///< each axis's segments
+                                     std::vector<Node> nodesWithEndDay = {})  ///< the nodes that have an end day
+        : _segmentsOfAxis(std::move(segmentsOfAxis)), _nodesWithEndDay(std::move(nodesWithEndDay)) {}
 
     [[nodiscard]] std::size_t axisCount() const override {
         return _segmentsOfAxis.size();
     }
 
-    [[nodiscard]] bool hasEndDay(const std::uint32_t, const std::uint32_t) const override {
-        return false;
+    [[nodiscard]] bool hasEndDay(const std::uint32_t i, const std::uint32_t j) const override {
+        return std::find(_nodesWithEndDay.begin(), _nodesWithEndDay.end(), Node(i, j)) != _nodesWithEndDay.end();
     }
 
     [[nodiscard]] RaggedSegmentRange segments(const std::uint32_t, const std::uint32_t,
@@ -58,6 +61,7 @@ class SameSegmentsAtEveryNode : public RaggedNodeValueSource {
 
  private:
     std::vector<std::vector<RaggedSegment>> _segmentsOfAxis;
+    std::vector<Node> _nodesWithEndDay;
 };
 
 /// \return the value that evaluate() gives for the segments of every axis, on every axis, at a query day.
@@ -150,17 +154,36 @@ void check_against_walking_from_the_first_segment() {
                                 std::to_string(differences) + " differences)");
 }
 
+void check_a_null_source_is_rejected() {
+    checkThrows<std::invalid_argument>([] { const RaggedGridData data(nullptr); }, "must not be null",
+                                       "a null source of node segments");
+}
+
+void check_a_node_with_an_end_day_is_rejected() {
+    const std::vector<std::vector<RaggedSegment>> oneSegment = {{RaggedSegment{0.0, 5.0, 0.0}}};
+
+    // evaluate() reads the four nodes at the corners of the cell, and none of them may have an end day.
+    const Cell cell{2, 3, 0.5, 0.5};
+    for (const Node& corner : std::vector<Node>{{2, 3}, {3, 3}, {2, 4}, {3, 4}}) {
+        const std::string name = "node (" + std::to_string(corner.first) + ", " + std::to_string(corner.second) + ")";
+        const RaggedGridData data(std::make_unique<SameSegmentsAtEveryNode>(oneSegment, std::vector<Node>{corner}));
+        checkThrows<std::runtime_error>([&data, &cell] { return data.evaluate(cell, 0.0); }, name,
+                                        "an end day at the corner " + name + " of the cell");
+    }
+
+    // A node that is not at a corner of the cell is not read.
+    const RaggedGridData elsewhere(std::make_unique<SameSegmentsAtEveryNode>(oneSegment, std::vector<Node>{{0, 0}}));
+    checkEqual(elsewhere.evaluate(cell, 0.0)[0], 5.0, 0.0, "an end day at a node that is not a corner of the cell");
+}
+
 }  // namespace
 
 int main() {
     check_values_at_given_days();
     check_axes_are_independent();
     check_against_walking_from_the_first_segment();
+    check_a_null_source_is_rejected();
+    check_a_node_with_an_end_day_is_rejected();
 
-    if (failures > 0) {
-        std::cout << failures << " ragged_grid_data_test check(s) failed\n";
-        return 1;
-    }
-    std::cout << "ragged_grid_data_test: all checks passed\n";
-    return 0;
+    return snap_test::finish("ragged_grid_data_test");
 }
