@@ -37,7 +37,6 @@
 #include "geoid/geoid.h"
 #include "util/fileutil.h"
 #include "util/dstring.h"
-#include "util/license.h"
 #include "util/errdef.h"
 #include "util/fieldscanner.hpp"
 #include "util/pi.h"
@@ -639,7 +638,6 @@ static void list_program_details_and_exit(void) {
     std::printf("Copyright: Land Information New Zealand\n");
     std::printf("Author: Chris Crook\n");
     std::printf("Coordsys file: %s\n", coordsys_file.value_or("").c_str());
-    /* printf("Licensed to: %s\n",decrypted_license()); */
     std::exit(1);
 }
 
