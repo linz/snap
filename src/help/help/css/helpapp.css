@@ -69,8 +69,7 @@ body.resizing
     height: 100%;
     width: 100%;
     padding: 0 5px;
-    overflow-y: scroll;
-    overflow-x: hidden;
+    overflow: hidden scroll;
 }
 
 #page-content
@@ -173,7 +172,7 @@ div.contents-item
 {
     display: flex;
     gap: 4px;
-    padding: 8px 8px 0 8px;
+    padding: 8px 8px 0;
     background-color: #f6f8fa;
     border-bottom: 1px solid #d8dee4;
 }
@@ -195,8 +194,8 @@ div.contents-item
 
 .menu-button.selected
 {
-    background-color: #ffffff;
-    border-color: #d8dee4 #d8dee4 #ffffff #d8dee4;
+    background-color: #fff;
+    border-color: #d8dee4 #d8dee4 #fff;
     color: #1f2328;
     font-weight: 600;
 }

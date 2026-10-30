@@ -216,7 +216,7 @@ function installContents()
 function moveContentsSelector( offset )
 {
     let items=$('.contents-item').filter(function(nitem,item){
-        return $(item).closest('.contents-level').parents('.contents-level.closed').length == 0}
+        return $(item).closest('.contents-level').parents('.contents-level.closed').length === 0}
         );
     let selected = items.filter('.selected').first();
     if( selected.length > 0 )
@@ -331,7 +331,7 @@ function searchPages(searchtext)
     {
         result.status="The following words are not in the index: "+missing.join(", ");
     }
-    else if ( pageids === undefined || pageids.size == 0 )
+    else if ( pageids === undefined || pageids.size === 0 )
     {
         result.status="No pages matched the search";
     }
