@@ -235,10 +235,13 @@ function moveContentsSelector( offset )
     }
 }
 
+// Older browsers report the arrow keys as Left, Right, Up and Down
+const legacyKeyNames=new Map([["Left","ArrowLeft"],["Right","ArrowRight"],["Up","ArrowUp"],["Down","ArrowDown"]]);
+
 function contextKeyEvent( event )
 {
     let selected=$('.contents-item.selected').first();
-    switch( event.key )
+    switch( legacyKeyNames.get(event.key) || event.key )
     {
         case "Enter": 
             let link = selected.find('a').first();
@@ -247,7 +250,6 @@ function contextKeyEvent( event )
                 setPage(link.attr('href'),link);
             }
             break;
-        case "Left":
         case "ArrowLeft":
             {
                 let level=selected.closest(".contents-level").parent();
@@ -259,7 +261,6 @@ function contextKeyEvent( event )
                 }
             }
             break
-        case "Right":
         case "ArrowRight":
             {
                 let level=selected.closest(".contents-level");
@@ -272,11 +273,9 @@ function contextKeyEvent( event )
                 }
             }
             break;
-        case "Up":
         case "ArrowUp":
             moveContentsSelector(-1);
             break;
-        case "Down":
         case "ArrowDown":
             moveContentsSelector(1);
             break;
