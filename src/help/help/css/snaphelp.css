@@ -11,7 +11,7 @@ h1 {
 	font-weight: 600;
 	border-width: 0;
 	border-bottom: 1px solid #d8dee4;
-	padding: 0 0 8px 0;
+	padding: 0 0 8px;
 }
 
 h2 {
@@ -133,6 +133,7 @@ table.Commanddescription_compact
 {
 	margin-left: 5em;
 }
+
 /*
 table.Commanddescription_compact tr td
 {
