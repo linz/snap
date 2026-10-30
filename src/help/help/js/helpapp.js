@@ -285,7 +285,6 @@ function contextKeyEvent( event )
     }
     event.preventDefault();
     event.stopPropagation();
-    return false;
 }
 
 function searchText()
@@ -471,7 +470,6 @@ function installSearch()
         }
         e.preventDefault();
         e.stopPropagation();
-        return false
     });
     searchtext.on("keyup", function(e){
         switch(e.key)
